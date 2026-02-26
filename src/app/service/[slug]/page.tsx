@@ -13,12 +13,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!service) {
     return {
-      title: "Dịch vụ không tồn tại | Tâm Huỳnh Solar",
+      title: "Dịch vụ không tồn tại | Trọng Tín Solar",
     };
   }
 
   return {
-    title: `${service.title} | Tâm Huỳnh Solar`,
+    title: `${service.title} | Trọng Tín Solar`,
     description: service.description,
     keywords: `${service.title}, ${
       service.category

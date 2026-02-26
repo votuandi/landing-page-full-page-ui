@@ -1,7 +1,7 @@
 // Constants for the solar website
 
 export const SITE_CONFIG = {
-  name: "Tâm Huỳnh Solar",
+  name: "Trọng Tín Solar",
   description: "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao",
   url: "https://phanphoisolar.com",
   ogImage: "/og-image.jpg",

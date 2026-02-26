@@ -92,7 +92,7 @@ export default function CompanyStorySection() {
                 Hành trình 10 năm phát triển
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Tâm Huỳnh Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
+                Trọng Tín Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
                 lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ
                 một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không
                 ngừng học hỏi, cải tiến và phát triển.
@@ -116,7 +116,7 @@ export default function CompanyStorySection() {
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
                 <img
                   src="/images/solar-installation-hero.jpg"
-                  alt="Tâm Huỳnh Solar - Lắp đặt hệ thống năng lượng mặt trời"
+                  alt="Trọng Tín Solar - Lắp đặt hệ thống năng lượng mặt trời"
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">

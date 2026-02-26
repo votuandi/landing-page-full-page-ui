@@ -20,7 +20,7 @@ export default function ServicePage() {
                 Dịch Vụ Năng Lượng Mặt Trời
               </h1>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Tâm Huỳnh Solar cung cấp đầy đủ các dịch vụ từ tư vấn, thiết kế,
+                Trọng Tín Solar cung cấp đầy đủ các dịch vụ từ tư vấn, thiết kế,
                 lắp đặt đến bảo trì hệ thống năng lượng mặt trời. Chúng tôi cam
                 kết mang đến giải pháp tối ưu và dịch vụ chất lượng cao nhất.
               </p>

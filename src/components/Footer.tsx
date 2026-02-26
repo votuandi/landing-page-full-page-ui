@@ -33,7 +33,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">PS</span>
               </div>
-              <span className="font-bold text-xl">Tâm Huỳnh Solar</span>
+              <span className="font-bold text-xl">Trọng Tín Solar</span>
             </div>
 
             <p className="text-gray-300 mb-6 leading-relaxed">
@@ -234,7 +234,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Tâm Huỳnh Solar. Tất cả quyền được bảo lưu.
+              © 2024 Trọng Tín Solar. Tất cả quyền được bảo lưu.
             </p>
 
             <div className="flex space-x-6">

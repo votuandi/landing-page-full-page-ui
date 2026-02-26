@@ -1,4 +1,4 @@
-# Tâm Huỳnh Solar - Landing Page
+# Trọng Tín Solar - Landing Page
 
 A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.
 
@@ -158,7 +158,7 @@ This project is ready for deployment on:
 
 ## License
 
-This project is proprietary software for Tâm Huỳnh Solar.
+This project is proprietary software for Trọng Tín Solar.
 
 ## Support
 

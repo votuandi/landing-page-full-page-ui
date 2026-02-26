@@ -249,7 +249,7 @@ export default function ContactUsContent() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Vị trí Tâm Huỳnh Solar"
+                title="Vị trí Trọng Tín Solar"
               ></iframe>
             </div>
           </div>

@@ -178,12 +178,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: "Sản phẩm không tồn tại | Tâm Huỳnh Solar",
+      title: "Sản phẩm không tồn tại | Trọng Tín Solar",
     };
   }
 
   return {
-    title: `${product.name} | Tâm Huỳnh Solar`,
+    title: `${product.name} | Trọng Tín Solar`,
     description:
       product.description ||
       `${product.name} - ${product.specs.join(", ")} - Giá ${product.price}`,

@@ -251,12 +251,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!article) {
     return {
-      title: "Tin tức không tồn tại | Tâm Huỳnh Solar",
+      title: "Tin tức không tồn tại | Trọng Tín Solar",
     };
   }
 
   return {
-    title: `${article.title} | Tâm Huỳnh Solar`,
+    title: `${article.title} | Trọng Tín Solar`,
     description: article.excerpt,
     keywords: article.tags?.join(", "),
     openGraph: {
