@@ -16,56 +16,70 @@ interface Slide {
 
 export default function SliderBanner() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  const slides: Slide[] = [
-    {
-      id: 1,
-      title: "GIẢM GIÁ ĐẶC BIỆT",
-      subtitle: "Tấm pin năng lượng mặt trời",
-      description:
-        "Giảm ngay 20% cho đơn hàng đầu tiên. Chất lượng cao, hiệu suất vượt trội, bảo hành 25 năm.",
-      buttonText: "Xem ngay",
-      buttonLink: "/solar-panels",
-      backgroundImage: "url('/images/solar-panels-hero.jpg')",
-      backgroundColor: "bg-gradient-to-r from-blue-600 to-purple-600",
-    },
-    {
-      id: 2,
-      title: "CÔNG NGHỆ TIÊN TIẾN",
-      subtitle: "Biến tần Inverter thông minh",
-      description:
-        "Hiệu suất chuyển đổi 97%, giám sát từ xa, tương thích với mọi hệ thống solar.",
-      buttonText: "Tìm hiểu thêm",
-      buttonLink: "/inverter",
-      backgroundImage: "url('/images/solar-inverter-hero.jpg')",
-      backgroundColor: "bg-gradient-to-r from-pink-500 to-red-500",
-    },
-    {
-      id: 3,
-      title: "GIẢI PHÁP HOÀN CHỈNH",
-      subtitle: "Hệ thống năng lượng mặt trời",
-      description:
-        "Tư vấn miễn phí, lắp đặt chuyên nghiệp, bảo hành toàn diện. Tiết kiệm 70% hóa đơn điện.",
-      buttonText: "Liên hệ ngay",
-      buttonLink: "/contact",
-      backgroundImage: "url('/images/solar-installation-hero.jpg')",
-      backgroundColor: "bg-gradient-to-r from-teal-400 to-pink-300",
-    },
-    {
-      id: 4,
-      title: "ƯU ĐÃI HẤP DẪN",
-      subtitle: "Pin lưu trữ năng lượng",
-      description:
-        "Mua ngay hôm nay - Nhận ưu đãi lên đến 15%. Dung lượng lớn, sạc nhanh, an toàn tuyệt đối.",
-      buttonText: "Khám phá",
-      buttonLink: "/batteries",
-      backgroundImage: "url('/images/solar-battery-hero.jpg')",
-      backgroundColor: "bg-gradient-to-r from-yellow-400 to-orange-500",
-    },
-  ];
+  // Ensure component is mounted before rendering client-specific content
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Fetch banners from API
+  useEffect(() => {
+    if (!mounted) return;
+
+    const fetchBanners = async () => {
+      try {
+        const response = await fetch("/api/banners?isActive=true&orderBy=order");
+        if (!response.ok) {
+          // Try to get error details from response
+          let errorMessage = "Failed to fetch banners";
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+            console.error("API Error:", errorData);
+          } catch (e) {
+            console.error("Response status:", response.status, response.statusText);
+          }
+          throw new Error(errorMessage);
+        }
+        const data = await response.json();
+        // Map API response to Slide format
+        const mappedSlides: Slide[] = data.map((banner: any) => ({
+          id: banner.id,
+          title: banner.title,
+          subtitle: banner.subtitle || "",
+          description: banner.description || "",
+          buttonText: banner.buttonText || "",
+          buttonLink: banner.buttonLink || "",
+          backgroundImage: banner.backgroundImage
+            ? `url('${banner.backgroundImage}')`
+            : "",
+          backgroundColor: banner.backgroundColor || "bg-gradient-to-r from-blue-600 to-purple-600",
+        }));
+        setSlides(mappedSlides);
+      } catch (err) {
+        console.error("Error fetching banners:", err);
+        // Log more details about the error
+        if (err instanceof Error) {
+          console.error("Error message:", err.message);
+          console.error("Error stack:", err.stack);
+        }
+        // Fallback to empty array if API fails
+        setSlides([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, [mounted]);
 
   // Auto slide functionality
   useEffect(() => {
+    if (slides.length === 0) return;
+
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000); // Change slide every 5 seconds
@@ -84,6 +98,23 @@ export default function SliderBanner() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
+
+  // Don't render if not mounted or loading or no slides
+  if (!mounted || loading) {
+    return (
+      <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-gray-100">
+        <div className="text-gray-500">Đang tải...</div>
+      </section>
+    );
+  }
+
+  if (slides.length === 0) {
+    return (
+      <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-gray-100">
+        <div className="text-gray-500">Chưa có banner nào</div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative w-full h-screen overflow-hidden">

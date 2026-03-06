@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import ConditionalLayout from "@/components/ConditionalLayout";
+import StoreProvider from "@/lib/StoreProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -94,10 +94,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#0ea5e9" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className={`${inter.className} antialiased`}>
-        <Header />
-        {children}
-        <Footer />
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
+        <StoreProvider>
+          <ConditionalLayout>{children}</ConditionalLayout>
+        </StoreProvider>
       </body>
     </html>
   );

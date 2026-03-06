@@ -8,17 +8,27 @@ import NewsCard from "./NewsCard";
 export default function NewsSection() {
   const [isMobile, setIsMobile] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component is mounted before accessing window
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Check if we're on mobile
   useEffect(() => {
+    if (!mounted) return;
+
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth < 768); // md breakpoint
+      }
     };
 
     checkIsMobile();
     window.addEventListener("resize", checkIsMobile);
     return () => window.removeEventListener("resize", checkIsMobile);
-  }, []);
+  }, [mounted]);
 
   const newsArticles = [
     {
