@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { safeDeleteImage } from '@/lib/imageUtils'
 
 // GET /api/banners/[id] - Get a single banner by ID
 export async function GET(
@@ -79,6 +80,9 @@ export async function PUT(
       )
     }
 
+    // Store old background image if it's being replaced
+    const oldBackgroundImage = existingBanner.backgroundImage;
+
     // Update banner
     const banner = await prisma.banner.update({
       where: { id },
@@ -94,6 +98,11 @@ export async function PUT(
         ...(order !== undefined && { order }),
       },
     })
+
+    // Delete old background image if it was replaced and is different
+    if (backgroundImage !== undefined && oldBackgroundImage && oldBackgroundImage !== backgroundImage) {
+      await safeDeleteImage(oldBackgroundImage);
+    }
 
     return NextResponse.json(banner, { status: 200 })
   } catch (error) {
@@ -133,10 +142,15 @@ export async function DELETE(
       )
     }
 
-    // Delete banner
+    // Delete banner from database
     await prisma.banner.delete({
       where: { id },
     })
+
+    // Delete the background image file if it exists
+    if (existingBanner.backgroundImage) {
+      await safeDeleteImage(existingBanner.backgroundImage);
+    }
 
     return NextResponse.json(
       { message: 'Banner deleted successfully' },

@@ -2,42 +2,35 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-
-const partners = [
-  {
-    name: "An Khang Pharmacy",
-    logo: "/images/partners/Logo-Nha-Thuoc-An-Khang-.webp",
-  },
-  {
-    name: "The Gioi Di Dong",
-    logo: "/images/partners/logo-the-gioi-di-dong-2.jpg",
-  },
-  {
-    name: "Bach Hoa Xanh",
-    logo: "/images/partners/logo-bach-hoa-xanh-compressed.jpg",
-  },
-  { name: "Partner 1", logo: "/images/partners/1-4748-hinh.png" },
-  { name: "Partner 2", logo: "/images/partners/3-1114-hinh.jpg" },
-  { name: "Partner 3", logo: "/images/partners/4-7734-hinh.png" },
-  { name: "Partner 4", logo: "/images/partners/images.jpg" },
-];
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchPartners } from "@/lib/features/partners/partnersSlice";
 
 export default function OurPartners() {
+  const dispatch = useAppDispatch();
+  const { partners, loading } = useAppSelector((state) => state.partners);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+  // Fetch partners from database
+  useEffect(() => {
+    dispatch(fetchPartners());
+  }, [dispatch]);
+
+  // Filter only active partners
+  const activePartners = partners.filter((p) => p.isActive);
+
   // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || activePartners.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) =>
-        prevIndex === partners.length - 1 ? 0 : prevIndex + 1
+        prevIndex === activePartners.length - 1 ? 0 : prevIndex + 1
       );
     }, 3000); // Change slide every 3 seconds
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, activePartners.length]);
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
@@ -48,7 +41,7 @@ export default function OurPartners() {
 
   const goToPrevious = () => {
     setCurrentIndex(
-      currentIndex === 0 ? partners.length - 1 : currentIndex - 1
+      currentIndex === 0 ? activePartners.length - 1 : currentIndex - 1
     );
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 5000);
@@ -56,11 +49,47 @@ export default function OurPartners() {
 
   const goToNext = () => {
     setCurrentIndex(
-      currentIndex === partners.length - 1 ? 0 : currentIndex + 1
+      currentIndex === activePartners.length - 1 ? 0 : currentIndex + 1
     );
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 5000);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Đang tải đối tác...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show empty state if no active partners
+  if (activePartners.length === 0) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Đối Tác Của Chúng Tôi
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Chúng tôi tự hào hợp tác với những thương hiệu hàng đầu trong ngành
+              năng lượng mặt trời
+            </p>
+          </div>
+          <div className="text-center py-8 text-gray-500">
+            Chưa có đối tác nào được hiển thị.
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-gray-50">
@@ -84,20 +113,20 @@ export default function OurPartners() {
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              {partners.map((partner, index) => (
-                <div key={index} className="w-full flex-shrink-0">
+              {activePartners.map((partner, index) => (
+                <div key={partner.id} className="w-full flex-shrink-0">
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center py-8">
                     {/* Show 6 partners per slide, cycling through the array */}
                     {Array.from({ length: 6 }).map((_, i) => {
-                      const partnerIndex = (index * 6 + i) % partners.length;
-                      const currentPartner = partners[partnerIndex];
+                      const partnerIndex = (index * 6 + i) % activePartners.length;
+                      const currentPartner = activePartners[partnerIndex];
                       return (
                         <div
-                          key={`${index}-${i}`}
+                          key={`${partner.id}-${i}`}
                           className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
                         >
                           <Image
-                            src={currentPartner.logo}
+                            src={currentPartner.image}
                             alt={currentPartner.name}
                             width={120}
                             height={60}
@@ -155,9 +184,9 @@ export default function OurPartners() {
 
           {/* Dots Indicator */}
           <div className="flex justify-center mt-8 space-x-2">
-            {partners.map((_, index) => (
+            {activePartners.map((partner, index) => (
               <button
-                key={index}
+                key={partner.id}
                 onClick={() => goToSlide(index)}
                 className={`w-3 h-3 rounded-full transition-colors duration-300 ${
                   currentIndex === index

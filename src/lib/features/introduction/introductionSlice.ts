@@ -1,53 +1,98 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Achievement {
-  icon: string;
-  title: string;
-  description: string;
-}
-
-export interface QuickIntroduction {
+export interface HeroContent {
+  id?: number;
   title: string;
   description: string;
   videoUrl: string;
-  achievements: Achievement[];
+  stat1Value: string;
+  stat1Label: string;
+  stat2Value: string;
+  stat2Label: string;
+  stat3Value: string;
+  stat3Label: string;
+  feature1Title: string;
+  feature1Description: string;
+  feature2Title: string;
+  feature2Description: string;
 }
 
 interface IntroductionState {
-  data: QuickIntroduction;
+  data: HeroContent;
   isEditing: boolean;
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: IntroductionState = {
   data: {
-    title: 'Khám phá Trọng Tín Solar',
-    description: 'Xem video giới thiệu để hiểu rõ hơn về công ty, đội ngũ và quy trình làm việc chuyên nghiệp của chúng tôi.',
+    title: 'Giải pháp Năng lượng Mặt trời hàng đầu',
+    description: 'Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin solar, biến tần inverter, pin lưu trữ và giải pháp năng lượng tái tạo toàn diện.',
     videoUrl: '/videos/hero_video.mp4',
-    achievements: [
-      {
-        icon: '🏆',
-        title: 'Chứng nhận ISO 9001:2015',
-        description: 'Hệ thống quản lý chất lượng quốc tế',
-      },
-      {
-        icon: '⭐',
-        title: 'Top 10 nhà phân phối',
-        description: 'Năng lượng mặt trời uy tín năm 2023',
-      },
-      {
-        icon: '🤝',
-        title: 'Đối tác chính thức',
-        description: 'Các thương hiệu hàng đầu thế giới',
-      },
-      {
-        icon: '🔧',
-        title: 'Đội ngũ kỹ thuật',
-        description: 'Hơn 50 chuyên gia giàu kinh nghiệm',
-      },
-    ],
+    stat1Value: '10+',
+    stat1Label: 'Năm kinh nghiệm',
+    stat2Value: '1000+',
+    stat2Label: 'Dự án hoàn thành',
+    stat3Value: '24/7',
+    stat3Label: 'Hỗ trợ kỹ thuật',
+    feature1Title: 'Thân thiện',
+    feature1Description: 'Thân thiện môi trường',
+    feature2Title: 'Tiết kiệm điện',
+    feature2Description: 'Lên đến 90%',
   },
   isEditing: false,
+  loading: false,
+  error: null,
 };
+
+// Async thunks
+export const fetchHeroContent = createAsyncThunk(
+  'introduction/fetchHeroContent',
+  async () => {
+    const response = await fetch('/api/hero');
+    if (!response.ok) {
+      throw new Error('Failed to fetch hero content');
+    }
+    return await response.json();
+  }
+);
+
+export const uploadHeroVideo = createAsyncThunk(
+  'introduction/uploadHeroVideo',
+  async (videoFile: File) => {
+    const formData = new FormData();
+    formData.append('video', videoFile);
+
+    const response = await fetch('/api/hero/upload-video', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || errorData.error || 'Failed to upload video');
+    }
+
+    return await response.json();
+  }
+);
+
+export const saveHeroContent = createAsyncThunk(
+  'introduction/saveHeroContent',
+  async (heroContent: HeroContent) => {
+    const response = await fetch('/api/hero', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(heroContent),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to save hero content');
+    }
+    return await response.json();
+  }
+);
 
 const introductionSlice = createSlice({
   name: 'introduction',
@@ -56,8 +101,9 @@ const introductionSlice = createSlice({
     setEditing: (state, action: PayloadAction<boolean>) => {
       state.isEditing = action.payload;
     },
-    updateIntroduction: (state, action: PayloadAction<QuickIntroduction>) => {
-      state.data = action.payload;
+    updateField: (state, action: PayloadAction<{ field: keyof HeroContent; value: string }>) => {
+      const { field, value } = action.payload;
+      (state.data as any)[field] = value;
     },
     updateTitle: (state, action: PayloadAction<string>) => {
       state.data.title = action.payload;
@@ -68,34 +114,58 @@ const introductionSlice = createSlice({
     updateVideoUrl: (state, action: PayloadAction<string>) => {
       state.data.videoUrl = action.payload;
     },
-    updateAchievement: (state, action: PayloadAction<{ index: number; achievement: Achievement }>) => {
-      const { index, achievement } = action.payload;
-      if (index >= 0 && index < state.data.achievements.length) {
-        state.data.achievements[index] = achievement;
-      }
-    },
-    updateAchievementField: (state, action: PayloadAction<{ index: number; field: keyof Achievement; value: string }>) => {
-      const { index, field, value } = action.payload;
-      if (index >= 0 && index < state.data.achievements.length) {
-        state.data.achievements[index][field] = value;
-      }
-    },
-    saveIntroduction: (state) => {
-      // TODO: Add API call to save introduction
-      state.isEditing = false;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch hero content
+      .addCase(fetchHeroContent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchHeroContent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchHeroContent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch hero content';
+      })
+      // Save hero content
+      .addCase(saveHeroContent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveHeroContent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+        state.isEditing = false;
+      })
+      .addCase(saveHeroContent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to save hero content';
+      })
+      // Upload hero video
+      .addCase(uploadHeroVideo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadHeroVideo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data.videoUrl = action.payload.videoUrl;
+      })
+      .addCase(uploadHeroVideo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to upload video';
+      });
   },
 });
 
 export const {
   setEditing,
-  updateIntroduction,
+  updateField,
   updateTitle,
   updateDescription,
   updateVideoUrl,
-  updateAchievement,
-  updateAchievementField,
-  saveIntroduction,
 } = introductionSlice.actions;
 
 export default introductionSlice.reducer;

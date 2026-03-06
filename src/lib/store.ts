@@ -1,14 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
 import bannersReducer from './features/banners/bannersSlice';
-import introductionReducer from './features/introduction/introductionSlice';
 import databaseReducer from './features/database/databaseSlice';
+import introductionReducer from './features/introduction/introductionSlice';
+import partnersReducer from './features/partners/partnersSlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       banners: bannersReducer,
-      introduction: introductionReducer,
       database: databaseReducer,
+      introduction: introductionReducer,
+      partners: partnersReducer,
     },
   });
 };

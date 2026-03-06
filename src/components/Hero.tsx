@@ -1,8 +1,32 @@
+"use client";
+
+import { useEffect } from "react";
 import Image from "next/image";
 import ScrollAnimationWrapper from "./ScrollAnimationWrapper";
 import StaggeredScrollAnimation from "./StaggeredScrollAnimation";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchHeroContent } from "@/lib/features/introduction/introductionSlice";
 
 export default function Hero() {
+  const dispatch = useAppDispatch();
+  const { data: heroContent, loading } = useAppSelector((state) => state.introduction);
+
+  useEffect(() => {
+    dispatch(fetchHeroContent());
+  }, [dispatch]);
+
+  if (loading) {
+    return (
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 py-16 md:py-24">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-solar-blue mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 py-16 md:py-24">
       {/* Background Pattern */}
@@ -18,11 +42,26 @@ export default function Hero() {
               duration={800}
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Giải pháp{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600 animate-gradient-x">
-                  Năng lượng Mặt trời
-                </span>{" "}
-                hàng đầu
+                {heroContent.title.split(' ').map((word, index) => {
+                  // Check if this word or phrase should be highlighted
+                  const highlightWords = ['Năng lượng Mặt trời', 'Mặt trời'];
+                  const isHighlight = highlightWords.some(hw => heroContent.title.includes(hw) && word.includes('Mặt'));
+                  
+                  if (isHighlight) {
+                    const phrase = heroContent.title.match(/Năng lượng Mặt trời/)?.[0] || 'Năng lượng Mặt trời';
+                    const parts = heroContent.title.split(phrase);
+                    return (
+                      <span key={index}>
+                        {parts[0]}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600 animate-gradient-x">
+                          {phrase}
+                        </span>
+                        {parts[1]}
+                      </span>
+                    );
+                  }
+                  return null;
+                }).filter(Boolean)[0] || heroContent.title}
               </h1>
             </ScrollAnimationWrapper>
 
@@ -32,9 +71,7 @@ export default function Hero() {
               duration={800}
             >
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao.
-                Tấm pin solar, biến tần inverter, pin lưu trữ và giải pháp năng
-                lượng tái tạo toàn diện.
+                {heroContent.description}
               </p>
             </ScrollAnimationWrapper>
 
@@ -63,21 +100,21 @@ export default function Hero() {
             >
               <div className="text-center hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-solar-blue mb-2">
-                  10+
+                  {heroContent.stat1Value}
                 </div>
-                <div className="text-gray-600">Năm kinh nghiệm</div>
+                <div className="text-gray-600">{heroContent.stat1Label}</div>
               </div>
               <div className="text-center hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-solar-blue mb-2">
-                  1000+
+                  {heroContent.stat2Value}
                 </div>
-                <div className="text-gray-600">Dự án hoàn thành</div>
+                <div className="text-gray-600">{heroContent.stat2Label}</div>
               </div>
               <div className="text-center hover:scale-110 transition-transform duration-300">
                 <div className="text-3xl font-bold text-solar-blue mb-2">
-                  24/7
+                  {heroContent.stat3Value}
                 </div>
-                <div className="text-gray-600">Hỗ trợ kỹ thuật</div>
+                <div className="text-gray-600">{heroContent.stat3Label}</div>
               </div>
             </StaggeredScrollAnimation>
           </div>
@@ -100,7 +137,7 @@ export default function Hero() {
                       loop
                       playsInline
                     >
-                      <source src="/videos/hero_video.mp4" type="video/mp4" />
+                      <source src={heroContent.videoUrl} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
 
@@ -158,9 +195,9 @@ export default function Hero() {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-gray-900 group-hover:text-solar-green transition-colors duration-300">
-                      Tiết kiệm điện
+                      {heroContent.feature2Title}
                     </div>
-                    <div className="text-sm text-gray-600">Lên đến 90%</div>
+                    <div className="text-sm text-gray-600">{heroContent.feature2Description}</div>
                   </div>
                 </div>
               </div>
@@ -190,10 +227,10 @@ export default function Hero() {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-gray-900 group-hover:text-primary-500 transition-colors duration-300">
-                      Thân thiện
+                      {heroContent.feature1Title}
                     </div>
                     <div className="text-sm text-gray-600">
-                      Thân thiện môi trường
+                      {heroContent.feature1Description}
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon, PhotoIcon } from "@heroicons/react/24/outline";
+import { useState, useRef } from "react";
 
 interface BannerSlide {
   id: number;
@@ -27,11 +28,75 @@ export default function BannerForm({
   onSave,
   onCancel,
 }: BannerFormProps) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleFieldChange = (field: keyof BannerSlide, value: string | boolean) => {
     onChange({
       ...banner,
       [field]: value,
     });
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      setUploadError('Chỉ chấp nhận file ảnh (JPEG, PNG, WebP, GIF)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Kích thước file không được vượt quá 10MB');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to server
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Upload failed');
+      }
+
+      // Update the banner with the new image URL
+      handleFieldChange('backgroundImage', data.imageUrl);
+      setUploadError(null);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setUploadError(error instanceof Error ? error.message : 'Lỗi khi tải ảnh lên');
+      setPreviewUrl(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleChooseImage = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -97,12 +162,57 @@ export default function BannerForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           URL hình ảnh
         </label>
+        
+        {/* Hidden file input */}
         <input
-          type="text"
-          value={banner.backgroundImage}
-          onChange={(e) => handleFieldChange("backgroundImage", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+          onChange={handleImageSelect}
+          className="hidden"
         />
+        
+        {/* Image preview */}
+        {(previewUrl || banner.backgroundImage) && (
+          <div className="mb-2 relative w-full h-32 rounded-lg overflow-hidden border border-gray-300">
+            <img
+              src={previewUrl || banner.backgroundImage}
+              alt="Preview"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        
+        {/* Upload button and URL input */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleChooseImage}
+            disabled={uploading}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            <PhotoIcon className="w-5 h-5" />
+            <span>{uploading ? 'Đang tải...' : 'Chọn ảnh'}</span>
+          </button>
+          
+          <input
+            type="text"
+            value={banner.backgroundImage}
+            onChange={(e) => handleFieldChange("backgroundImage", e.target.value)}
+            placeholder="hoặc nhập URL trực tiếp"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
+        
+        {/* Error message */}
+        {uploadError && (
+          <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+        )}
+        
+        {/* Help text */}
+        <p className="mt-1 text-xs text-gray-500">
+          Chọn ảnh từ thiết bị (tự động chuyển sang WebP) hoặc nhập URL trực tiếp
+        </p>
       </div>
       <div className="flex items-center space-x-4">
         <label className="flex items-center space-x-2">

@@ -6,15 +6,27 @@ datasource db {
   provider = "postgresql"
 }
 
+model ProductCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   description String?
-  category    String
-  isActive    Boolean  @default(true)
+  categoryId  Int
+  category    ProductCategory @relation(fields: [categoryId], references: [id])
+  price       Float?
+  isActive    Boolean         @default(true)
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  order       Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 model News {
@@ -32,10 +44,39 @@ model Banner {
   description     String?
   buttonText      String?
   buttonLink      String?
-  backgroundImage String
-  backgroundColor String?
+  backgroundImage String?
+  backgroundColor String   @default("bg-gradient-to-r from-blue-600 to-purple-600")
   isActive        Boolean  @default(true)
   order           Int      @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model Partner {
+  id        Int      @id @default(autoincrement())
+  name      String
+  image     String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HeroContent {
+  id                   Int      @id @default(autoincrement())
+  title                String
+  description          String
+  videoUrl             String
+  stat1Value           String
+  stat1Label           String
+  stat2Value           String
+  stat2Label           String
+  stat3Value           String
+  stat3Label           String
+  feature1Title        String
+  feature1Description  String
+  feature2Title        String
+  feature2Description  String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
