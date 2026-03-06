@@ -6,7 +6,8 @@ export interface Product {
   description: string;
   image: string;
   features: string[];
-  price: string;
+  price: string; // Giá sau khuyến mãi
+  original_price?: string; // Giá gốc
   href: string;
   category?: string;
   specifications?: Record<string, string>;

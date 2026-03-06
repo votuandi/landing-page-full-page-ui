@@ -3,6 +3,8 @@ import bannersReducer from './features/banners/bannersSlice';
 import databaseReducer from './features/database/databaseSlice';
 import introductionReducer from './features/introduction/introductionSlice';
 import partnersReducer from './features/partners/partnersSlice';
+import productCategoriesReducer from './features/productCategories/productCategoriesSlice';
+import productsReducer from './features/products/productsSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -11,6 +13,8 @@ export const makeStore = () => {
       database: databaseReducer,
       introduction: introductionReducer,
       partners: partnersReducer,
+      productCategories: productCategoriesReducer,
+      products: productsReducer,
     },
   });
 };

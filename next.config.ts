@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["phanphoisolar.com"],
   },
-  output: "standalone",
 };
 
 export default nextConfig;

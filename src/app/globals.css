@@ -608,3 +608,335 @@ body {
     transition: none !important;
   }
 }
+
+/* Tiptap Editor Styles */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.75em 0;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 0.83em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror li {
+  margin: 0.25em 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  min-width: 50px;
+}
+
+.ProseMirror table th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em 0;
+}
+
+.ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.ProseMirror mark {
+  background-color: #fef08a;
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+}
+
+/* =========================================
+   DIVT TEXT EDITOR STYLES
+   ========================================= */
+
+/* Basic styling for the editor container */
+.divt-editor-container {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+.divt-editor-toolbar {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.divt-editor-toolbar button {
+  padding: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  color: #374151;
+  transition: all 0.2s;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divt-editor-toolbar button:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.divt-editor-toolbar button.is-active {
+  background: #d1d5db;
+  border-color: #9ca3af;
+  color: #2563eb;
+}
+
+/* Styling the editable area */
+.divt-editor-content .ProseMirror {
+  padding: 16px;
+  min-height: 200px;
+  outline: none;
+}
+
+.divt-editor-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.divt-editor-content iframe {
+  max-width: 100%;
+}
+
+/* TIPTAP TABLE STYLES */
+.divt-editor-content .ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.divt-editor-content .ProseMirror table td,
+.divt-editor-content .ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid #ced4da;
+  padding: 8px 12px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.divt-editor-content .ProseMirror table th {
+  font-weight: bold;
+  text-align: left;
+  background-color: #f8f9fa;
+}
+
+.divt-editor-content .ProseMirror table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+.divt-editor-content .ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: #adf;
+  pointer-events: none;
+}
+
+.divt-editor-content .ProseMirror.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+/* CUSTOM COLOR PICKER STYLES */
+.custom-color-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-color-picker:hover {
+  background: #e5e7eb;
+}
+
+.color-picker-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  border: none;
+  padding: 0;
+}
+
+/* LINK STYLES */
+.divt-editor-content a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.divt-editor-content a:hover {
+  color: #1d4ed8;
+}
+
+/* EDITOR DIALOG STYLES */
+.divt-dialog-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 8px;
+}
+
+.divt-dialog-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: dialogFadeIn 0.2s ease-out;
+}
+
+@keyframes dialogFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.divt-dialog-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.divt-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.divt-dialog-body label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  gap: 4px;
+}
+
+.divt-dialog-body input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.divt-dialog-body input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.divt-dialog-row {
+  display: flex;
+  gap: 12px;
+}
+
+.divt-dialog-row label {
+  flex: 1;
+}
+
+.divt-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.divt-dialog-footer button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-submit {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-submit:hover {
+  background-color: #1d4ed8;
+}
