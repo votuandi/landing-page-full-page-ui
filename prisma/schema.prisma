@@ -19,12 +19,17 @@ model ProductCategory {
 model Product {
   id             Int             @id @default(autoincrement())
   title          String
-  description    String?
+  introduction   String?         // Giới thiệu
+  description    String?         // Mô tả
+  specifications String?         // Thông số kỹ thuật
+  guarantee      String?         // Bảo hành
   categoryId     Int
   category       ProductCategory @relation(fields: [categoryId], references: [id])
   price          String?         // Giá sau khuyến mãi
   original_price String?         // Giá gốc
   isActive       Boolean         @default(true)
+  isBestSeller   Boolean         @default(false) // Sản phẩm bán chạy
+  showInHomePage Boolean         @default(false) // Hiển thị trên trang chủ
   imageUrl       String?
   order          Int             @default(0)
   createdAt      DateTime        @default(now())

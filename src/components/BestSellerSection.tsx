@@ -7,92 +7,20 @@ import { StarIcon } from "@heroicons/react/24/solid";
 
 interface BestSellerProduct {
   id: number;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  image: string;
-  specs: string[];
-  discount?: number;
-  rating: number;
-  salesCount: number;
-  category: string;
+  title: string;
+  price: string | null;
+  original_price?: string | null;
+  imageUrl: string | null;
+  category: {
+    id: number;
+    name: string;
+  };
+  isBestSeller: boolean;
 }
 
-// Best seller products (top rated and most sold items)
-const bestSellerProducts: BestSellerProduct[] = [
-  {
-    id: 1,
-    name: "Biến Tần Growatt MIN 3000TL-XE",
-    price: "8,500,000đ",
-    originalPrice: "9,200,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["3kW", "MPPT Dual", "WiFi Monitor", "IP65"],
-    discount: 8,
-    rating: 4.8,
-    salesCount: 450,
-    category: "Biến Tần Inverter",
-  },
-  {
-    id: 17,
-    name: "Tấm Pin Canadian Solar BiHiKu7 CS7L-MS 580W",
-    price: "3,200,000đ",
-    originalPrice: "3,500,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["580W", "Mono PERC", "21.4% Efficiency", "25 Year Warranty"],
-    discount: 9,
-    rating: 4.9,
-    salesCount: 680,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-  },
-  {
-    id: 9,
-    name: "Pin Lithium Pylontech US3000C",
-    price: "18,500,000đ",
-    originalPrice: "20,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["3.55kWh", "LiFePO4", "6000 Cycles", "Modular Design"],
-    discount: 8,
-    rating: 4.7,
-    salesCount: 320,
-    category: "Pin Lưu Trữ Lithium",
-  },
-  {
-    id: 25,
-    name: "Luxpower SNA 5000 Hybrid Inverter",
-    price: "15,800,000đ",
-    originalPrice: "17,200,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["5kW", "Hybrid MPPT", "Battery Ready", "Grid-Tie"],
-    discount: 8,
-    rating: 4.6,
-    salesCount: 280,
-    category: "Inverter Luxpower",
-  },
-  {
-    id: 18,
-    name: "Tấm Pin JinkoSolar Tiger Neo N-type 575W",
-    price: "3,450,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["575W", "N-Type TOPCon", "22.3% Efficiency", "Low Degradation"],
-    rating: 4.8,
-    salesCount: 520,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-  },
-  {
-    id: 2,
-    name: "Biến Tần Huawei SUN2000-5KTL-L1",
-    price: "12,800,000đ",
-    originalPrice: "14,000,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["5kW", "Smart String", "AI Monitoring", "IP65"],
-    discount: 9,
-    rating: 4.7,
-    salesCount: 380,
-    category: "Biến Tần Inverter",
-  },
-];
-
 export default function BestSellerSection() {
+  const [bestSellerProducts, setBestSellerProducts] = useState<BestSellerProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
@@ -100,6 +28,28 @@ export default function BestSellerSection() {
 
   const productsPerView = 4; // Desktop: 4 products per view
   const mobileProductsPerView = 2; // Mobile: 2 products per view
+
+  // Fetch best seller products from database
+  useEffect(() => {
+    const fetchBestSellers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products?isBestSeller=true&isActive=true&limit=12');
+        if (!response.ok) {
+          throw new Error('Failed to fetch best sellers');
+        }
+        const data = await response.json();
+        setBestSellerProducts(data.data || []);
+      } catch (error) {
+        console.error('Error fetching best sellers:', error);
+        setBestSellerProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBestSellers();
+  }, []);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -169,6 +119,33 @@ export default function BestSellerSection() {
     }
   };
 
+  // Calculate discount percentage
+  const calculateDiscount = (original: string | null, current: string | null) => {
+    if (!original || !current) return undefined;
+    const origNum = parseFloat(original.replace(/[^0-9]/g, ''));
+    const currNum = parseFloat(current.replace(/[^0-9]/g, ''));
+    if (origNum && currNum && origNum > currNum) {
+      return Math.round(((origNum - currNum) / origNum) * 100);
+    }
+    return undefined;
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="text-gray-500">Đang tải sản phẩm bán chạy...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (bestSellerProducts.length === 0) {
+    return null; // Don't show section if no best sellers
+  }
+
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -212,110 +189,95 @@ export default function BestSellerSection() {
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
           >
-            {visibleProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="block"
-              >
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 group relative cursor-pointer">
-                  {/* Best Seller Badge */}
-                  <div className="absolute top-2 left-2 z-20">
-                    <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center">
-                      <StarIcon className="w-3 h-3 mr-1" />
-                      BEST
-                    </div>
-                  </div>
-
-                  {/* Discount Badge */}
-                  {product.discount && (
-                    <div className="absolute top-2 right-2 z-20">
-                      <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
-                        -{product.discount}%
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Product Image */}
-                  <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.src = "/images/placeholder-product.svg";
-                      }}
-                    />
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    {/* Category */}
-                    <div className="text-xs text-blue-600 font-medium mb-2">
-                      {product.category}
+            {visibleProducts.map((product) => {
+              const discount = calculateDiscount(product.original_price, product.price);
+              return (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="block"
+                >
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 group relative cursor-pointer">
+                    {/* Best Seller Badge */}
+                    <div className="absolute top-2 left-2 z-20">
+                      <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center">
+                        <StarIcon className="w-3 h-3 mr-1" />
+                        BEST
+                      </div>
                     </div>
 
-                    {/* Product Name */}
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
-                      {product.name}
-                    </h3>
+                    {/* Discount Badge */}
+                    {discount && (
+                      <div className="absolute top-2 right-2 z-20">
+                        <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+                          -{discount}%
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Rating and Sales */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center">
+                    {/* Product Image */}
+                    <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                      <img
+                        src={product.imageUrl || "/images/placeholder-product.svg"}
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = "/images/placeholder-product.svg";
+                        }}
+                      />
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="p-4">
+                      {/* Category */}
+                      <div className="text-xs text-blue-600 font-medium mb-2">
+                        {product.category.name}
+                      </div>
+
+                      {/* Product Name */}
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                        {product.title}
+                      </h3>
+
+                      {/* Rating and Sales - Placeholder for now */}
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <StarIcon
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < Math.floor(product.rating)
-                                  ? "text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < 4 ? "text-yellow-400" : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-gray-600 ml-1">
+                            (4.8)
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-600 ml-1">
-                          ({product.rating})
-                        </span>
+                        <span className="text-xs text-gray-500">Bán chạy</span>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        Đã bán {product.salesCount}
-                      </span>
-                    </div>
 
-                    {/* Specifications */}
-                    <div className="mb-3">
-                      <div className="flex flex-wrap gap-1">
-                        {product.specs.slice(0, 2).map((spec, index) => (
-                          <span
-                            key={index}
-                            className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded"
-                          >
-                            {spec}
+                      {/* Price */}
+                      <div className="mb-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg font-bold text-green-600">
+                            {product.price || "Liên hệ"}
                           </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mb-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-green-600">
-                          {product.price}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">
-                            {product.originalPrice}
-                          </span>
-                        )}
+                          {product.original_price && (
+                            <span className="text-sm text-gray-500 line-through">
+                              {product.original_price}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

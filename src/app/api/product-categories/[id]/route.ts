@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 // PUT /api/product-categories/[id] - Update a product category
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await params
+    const id = parseInt(idString)
     
     if (isNaN(id)) {
       return NextResponse.json(
@@ -72,10 +73,11 @@ export async function PUT(
 // DELETE /api/product-categories/[id] - Delete a product category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await params
+    const id = parseInt(idString)
     
     if (isNaN(id)) {
       return NextResponse.json(

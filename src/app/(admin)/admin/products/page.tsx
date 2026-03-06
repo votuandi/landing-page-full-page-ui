@@ -339,11 +339,16 @@ export default function ProductsPage() {
         await dispatch(
           createProduct({
             title: product.title,
+            introduction: product.introduction,
             description: product.description,
+            specifications: product.specifications,
+            guarantee: product.guarantee,
             categoryId: product.categoryId,
             price: product.price,
             original_price: product.original_price,
             isActive: product.isActive,
+            isBestSeller: product.isBestSeller,
+            showInHomePage: product.showInHomePage,
             imageUrl: imageUrl,
             order: product.order,
           })
@@ -354,11 +359,16 @@ export default function ProductsPage() {
             id,
             product: {
               title: product.title,
+              introduction: product.introduction,
               description: product.description,
+              specifications: product.specifications,
+              guarantee: product.guarantee,
               categoryId: product.categoryId,
               price: product.price,
               original_price: product.original_price,
               isActive: product.isActive,
+              isBestSeller: product.isBestSeller,
+              showInHomePage: product.showInHomePage,
               imageUrl: imageUrl,
               order: product.order,
             },
@@ -908,6 +918,25 @@ export default function ProductsPage() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Giới thiệu
+                            </label>
+                            <textarea
+                              value={product.introduction || ''}
+                              onChange={(e) =>
+                                dispatch(
+                                  updateLocalProduct({
+                                    ...product,
+                                    introduction: e.target.value,
+                                  })
+                                )
+                              }
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              placeholder="Giới thiệu ngắn gọn về sản phẩm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
                               Mô tả
                             </label>
                             <RichTextEditor
@@ -920,7 +949,41 @@ export default function ProductsPage() {
                                   })
                                 )
                               }
-                              placeholder="Mô tả sản phẩm"
+                              placeholder="Mô tả chi tiết sản phẩm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Thông số kỹ thuật
+                            </label>
+                            <RichTextEditor
+                              value={product.specifications || ''}
+                              onChange={(value) =>
+                                dispatch(
+                                  updateLocalProduct({
+                                    ...product,
+                                    specifications: value,
+                                  })
+                                )
+                              }
+                              placeholder="Thông số kỹ thuật của sản phẩm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Bảo hành
+                            </label>
+                            <RichTextEditor
+                              value={product.guarantee || ''}
+                              onChange={(value) =>
+                                dispatch(
+                                  updateLocalProduct({
+                                    ...product,
+                                    guarantee: value,
+                                  })
+                                )
+                              }
+                              placeholder="Thông tin bảo hành sản phẩm"
                             />
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1002,27 +1065,73 @@ export default function ProductsPage() {
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={`active-${product.id}`}
-                              checked={product.isActive}
-                              onChange={(e) =>
-                                dispatch(
-                                  updateLocalProduct({
-                                    ...product,
-                                    isActive: e.target.checked,
-                                  })
-                                )
-                              }
-                              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor={`active-${product.id}`}
-                              className="ml-2 text-sm text-gray-700"
-                            >
-                              Hiển thị sản phẩm
-                            </label>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`active-${product.id}`}
+                                checked={product.isActive}
+                                onChange={(e) =>
+                                  dispatch(
+                                    updateLocalProduct({
+                                      ...product,
+                                      isActive: e.target.checked,
+                                    })
+                                  )
+                                }
+                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                              />
+                              <label
+                                htmlFor={`active-${product.id}`}
+                                className="ml-2 text-sm text-gray-700"
+                              >
+                                Hiển thị sản phẩm
+                              </label>
+                            </div>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`bestseller-${product.id}`}
+                                checked={product.isBestSeller}
+                                onChange={(e) =>
+                                  dispatch(
+                                    updateLocalProduct({
+                                      ...product,
+                                      isBestSeller: e.target.checked,
+                                    })
+                                  )
+                                }
+                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                              />
+                              <label
+                                htmlFor={`bestseller-${product.id}`}
+                                className="ml-2 text-sm text-gray-700"
+                              >
+                                Sản phẩm bán chạy
+                              </label>
+                            </div>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`homepage-${product.id}`}
+                                checked={product.showInHomePage}
+                                onChange={(e) =>
+                                  dispatch(
+                                    updateLocalProduct({
+                                      ...product,
+                                      showInHomePage: e.target.checked,
+                                    })
+                                  )
+                                }
+                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                              />
+                              <label
+                                htmlFor={`homepage-${product.id}`}
+                                className="ml-2 text-sm text-gray-700"
+                              >
+                                Hiển thị trên trang chủ
+                              </label>
+                            </div>
                           </div>
                           <div className="flex space-x-2 pt-2">
                             <button
@@ -1076,11 +1185,37 @@ export default function ProductsPage() {
                                   {product.category.name}
                                 </p>
                               )}
+                              {product.introduction && (
+                                <p className="text-sm text-gray-600 mt-2">
+                                  <strong>Giới thiệu:</strong> {product.introduction}
+                                </p>
+                              )}
                               {product.description && (
-                                <div 
-                                  className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
-                                  dangerouslySetInnerHTML={{ __html: product.description }}
-                                />
+                                <div className="mt-2">
+                                  <strong className="text-sm text-gray-700">Mô tả:</strong>
+                                  <div 
+                                    className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
+                                    dangerouslySetInnerHTML={{ __html: product.description }}
+                                  />
+                                </div>
+                              )}
+                              {product.specifications && (
+                                <div className="mt-2">
+                                  <strong className="text-sm text-gray-700">Thông số kỹ thuật:</strong>
+                                  <div 
+                                    className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
+                                    dangerouslySetInnerHTML={{ __html: product.specifications }}
+                                  />
+                                </div>
+                              )}
+                              {product.guarantee && (
+                                <div className="mt-2">
+                                  <strong className="text-sm text-gray-700">Bảo hành:</strong>
+                                  <div 
+                                    className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
+                                    dangerouslySetInnerHTML={{ __html: product.guarantee }}
+                                  />
+                                </div>
                               )}
                               <div className="mt-2 flex items-center space-x-4 text-sm">
                                 {product.original_price && (
@@ -1093,6 +1228,8 @@ export default function ProductsPage() {
                                     {product.price} VNĐ
                                   </span>
                                 )}
+                              </div>
+                              <div className="mt-2 flex items-center flex-wrap gap-2">
                                 <span
                                   className={`px-2 py-1 rounded text-xs ${
                                     product.isActive
@@ -1102,6 +1239,16 @@ export default function ProductsPage() {
                                 >
                                   {product.isActive ? "Hiển thị" : "Ẩn"}
                                 </span>
+                                {product.isBestSeller && (
+                                  <span className="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800">
+                                    Bán chạy
+                                  </span>
+                                )}
+                                {product.showInHomePage && (
+                                  <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                                    Trang chủ
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <div className="flex space-x-2">

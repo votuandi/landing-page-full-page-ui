@@ -3,7 +3,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 export interface Product {
   id: number;
   title: string;
-  description: string | null;
+  introduction: string | null; // Giới thiệu
+  description: string | null; // Mô tả
+  specifications: string | null; // Thông số kỹ thuật
+  guarantee: string | null; // Bảo hành
   categoryId: number;
   category?: {
     id: number;
@@ -12,6 +15,8 @@ export interface Product {
   price: string | null; // Giá sau khuyến mãi
   original_price: string | null; // Giá gốc
   isActive: boolean;
+  isBestSeller: boolean; // Sản phẩm bán chạy
+  showInHomePage: boolean; // Hiển thị trên trang chủ
   imageUrl: string | null;
   order: number;
   createdAt: string;
@@ -64,11 +69,16 @@ export const createProduct = createAsyncThunk(
   'products/createProduct',
   async (product: {
     title: string;
+    introduction?: string | null;
     description?: string | null;
+    specifications?: string | null;
+    guarantee?: string | null;
     categoryId: number;
     price?: string | null;
     original_price?: string | null;
     isActive?: boolean;
+    isBestSeller?: boolean;
+    showInHomePage?: boolean;
     imageUrl?: string | null;
     order?: number;
   }) => {
@@ -130,11 +140,16 @@ const productsSlice = createSlice({
       const newProduct: Product = {
         id: 0, // Temporary ID for new product
         title: '',
+        introduction: null,
         description: null,
+        specifications: null,
+        guarantee: null,
         categoryId: 0,
         price: null,
         original_price: null,
         isActive: true,
+        isBestSeller: false,
+        showInHomePage: false,
         imageUrl: null,
         order: 0,
         createdAt: new Date().toISOString(),

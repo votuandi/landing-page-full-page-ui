@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ProductData {
   id: number;
@@ -14,10 +14,11 @@ interface ProductData {
   discount?: number;
   category: string;
   priceNumber: number;
-  description?: string;
+  description?: string | React.ReactNode;
   features?: string[];
-  warranty?: string;
-  technicalSpecs?: Record<string, string>;
+  warranty?: string | React.ReactNode;
+  technicalSpecs?: Record<string, string | React.ReactNode>;
+  introduction?: string;
 }
 
 interface ProductDetailContentProps {
@@ -39,6 +40,10 @@ export default function ProductDetailContent({
       setQuantity(newQuantity);
     }
   };
+
+  useEffect(() => {
+    console.log('🚀 product', product);
+  }, [product]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -170,8 +175,8 @@ export default function ProductDetailContent({
 
           {/* Description */}
           {product.description && (
-            <p className="text-gray-600 leading-relaxed">
-              {product.description}
+            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap line-clamp-3">
+              {product.introduction}
             </p>
           )}
 
@@ -200,12 +205,14 @@ export default function ProductDetailContent({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <button className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              {/* <button className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                 Thêm vào giỏ hàng
-              </button>
+              </button> */}
+              <a href={'/contact-us'}>
               <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                 Mua ngay
               </button>
+              </a>
             </div>
           </div>
 
@@ -281,18 +288,17 @@ export default function ProductDetailContent({
         <div className="p-6">
           {activeTab === "description" && (
             <div className="space-y-6">
-              {product.description && (
+              {product.description ? (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Giới thiệu sản phẩm
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
                     {product.description}
                   </p>
                 </div>
+              ) : (
+                <p className="text-gray-500 italic">Chưa có mô tả sản phẩm</p>
               )}
 
-              {product.features && (
+              {product.features && product.features.length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">
                     Tính năng nổi bật
@@ -327,21 +333,21 @@ export default function ProductDetailContent({
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Thông số kỹ thuật chi tiết
               </h3>
-              {product.technicalSpecs ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {product.technicalSpecs && Object.keys(product.technicalSpecs).length > 0 ? (
+                <div className="space-y-4">
                   {Object.entries(product.technicalSpecs).map(
                     ([key, value]) => (
                       <div
                         key={key}
-                        className="border border-gray-200 rounded p-3"
+                        className="border border-gray-200 rounded p-4"
                       >
-                        <div className="font-medium text-gray-900">{key}</div>
-                        <div className="text-gray-600">{value}</div>
+                        <div className="font-medium text-gray-900 mb-2">{key}</div>
+                        <div className="text-gray-600 whitespace-pre-wrap">{value}</div>
                       </div>
                     )
                   )}
                 </div>
-              ) : (
+              ) : product.specs && product.specs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {product.specs.map((spec, index) => (
                     <div
@@ -352,6 +358,8 @@ export default function ProductDetailContent({
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-gray-500 italic">Chưa có thông số kỹ thuật</p>
               )}
             </div>
           )}
@@ -362,7 +370,7 @@ export default function ProductDetailContent({
                 Chính sách bảo hành
               </h3>
               <div className="space-y-4">
-                {product.warranty && (
+                {product.warranty && product.warranty !== "Bảo hành theo chính sách nhà sản xuất" ? (
                   <div className="bg-green-50 border border-green-200 rounded p-4">
                     <div className="flex items-center space-x-2 mb-2">
                       <svg
@@ -379,33 +387,16 @@ export default function ProductDetailContent({
                         />
                       </svg>
                       <span className="font-medium text-green-800">
-                        Thời gian bảo hành
+                        Thông tin bảo hành
                       </span>
                     </div>
-                    <p className="text-green-700">{product.warranty}</p>
+                    <div className="text-green-700 whitespace-pre-wrap">{product.warranty}</div>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 border border-blue-200 rounded p-4">
+                    <p className="text-blue-700">Bảo hành theo chính sách nhà sản xuất</p>
                   </div>
                 )}
-
-                <div className="prose prose-sm max-w-none">
-                  <h4>Điều kện bảo hành:</h4>
-                  <ul>
-                    <li>Sản phẩm còn trong thời hạn bảo hành</li>
-                    <li>
-                      Sản phẩm được lắp đặt bởi kỹ thuật viên được ủy quyền
-                    </li>
-                    <li>Không có dấu hiệu tác động vật lý từ bên ngoài</li>
-                    <li>Còn tem bảo hành và hóa đơn mua hàng</li>
-                  </ul>
-
-                  <h4>Quy trình bảo hành:</h4>
-                  <ol>
-                    <li>Liên hệ hotline: 0909019234</li>
-                    <li>Cung cấp thông tin sản phẩm và mô tả lỗi</li>
-                    <li>Kỹ thuật viên đến kiểm tra và báo giá (nếu có)</li>
-                    <li>Thực hiện sửa chữa hoặc thay thế</li>
-                    <li>Bàn giao và ký nhận</li>
-                  </ol>
-                </div>
               </div>
             </div>
           )}

@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const categoryId = searchParams.get('categoryId')
     const isActive = searchParams.get('isActive')
+    const isBestSeller = searchParams.get('isBestSeller')
+    const showInHomePage = searchParams.get('showInHomePage')
     const orderBy = searchParams.get('orderBy') || 'createdAt'
     const order = searchParams.get('order') || 'desc'
     const search = searchParams.get('search')
@@ -35,6 +37,12 @@ export async function GET(request: NextRequest) {
     }
     if (isActive !== null && isActive !== undefined) {
       where.isActive = isActive === 'true'
+    }
+    if (isBestSeller !== null && isBestSeller !== undefined) {
+      where.isBestSeller = isBestSeller === 'true'
+    }
+    if (showInHomePage !== null && showInHomePage !== undefined) {
+      where.showInHomePage = showInHomePage === 'true'
     }
     if (search) {
       where.title = {
@@ -95,7 +103,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, description, categoryId, price, original_price, isActive, imageUrl, order } = body
+    const { title, introduction, description, specifications, guarantee, categoryId, price, original_price, isActive, isBestSeller, showInHomePage, imageUrl, order } = body
 
     // Validate required fields
     if (!title || !categoryId) {
@@ -120,11 +128,16 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         title,
+        introduction: introduction || null,
         description: description || null,
+        specifications: specifications || null,
+        guarantee: guarantee || null,
         categoryId,
         price: price || null,
         original_price: original_price || null,
         isActive: isActive !== undefined ? isActive : true,
+        isBestSeller: isBestSeller !== undefined ? isBestSeller : false,
+        showInHomePage: showInHomePage !== undefined ? showInHomePage : false,
         imageUrl: imageUrl || null,
         order: order !== undefined ? order : 0,
       },

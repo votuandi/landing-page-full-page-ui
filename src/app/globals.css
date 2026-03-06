@@ -940,3 +940,7 @@ body {
 .btn-submit:hover {
   background-color: #1d4ed8;
 }
+
+.search-filters {
+  align-items: flex-end !important;
+}

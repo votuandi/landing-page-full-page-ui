@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 // PUT /api/products/[id] - Update a product
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await params
+    const id = parseInt(idString)
     
     if (isNaN(id)) {
       return NextResponse.json(
@@ -17,7 +18,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { title, description, categoryId, price, original_price, isActive, imageUrl, order } = body
+    const { title, introduction, description, specifications, guarantee, categoryId, price, original_price, isActive, isBestSeller, showInHomePage, imageUrl, order } = body
 
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
@@ -49,11 +50,16 @@ export async function PUT(
       where: { id },
       data: {
         ...(title && { title }),
+        ...(introduction !== undefined && { introduction }),
         ...(description !== undefined && { description }),
+        ...(specifications !== undefined && { specifications }),
+        ...(guarantee !== undefined && { guarantee }),
         ...(categoryId && { categoryId }),
         ...(price !== undefined && { price }),
         ...(original_price !== undefined && { original_price }),
         ...(isActive !== undefined && { isActive }),
+        ...(isBestSeller !== undefined && { isBestSeller }),
+        ...(showInHomePage !== undefined && { showInHomePage }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(order !== undefined && { order }),
       },
@@ -80,10 +86,11 @@ export async function PUT(
 // DELETE /api/products/[id] - Delete a product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idString } = await params
+    const id = parseInt(idString)
     
     if (isNaN(id)) {
       return NextResponse.json(
