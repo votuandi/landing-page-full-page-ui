@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchOffices } from "@/lib/features/offices/officesSlice";
+import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 export default function Footer() {
   const dispatch = useAppDispatch();
   const { offices } = useAppSelector((state) => state.offices);
+  const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
 
-  // Fetch offices on component mount
+  // Fetch offices and company info on component mount
   useEffect(() => {
     dispatch(fetchOffices({ limit: 100 }));
+    dispatch(fetchCompanyInfo());
   }, [dispatch]);
 
   // Get main office or first office
@@ -49,13 +52,11 @@ export default function Footer() {
               <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">PS</span>
               </div>
-              <span className="font-bold text-xl">Trọng Tín Solar</span>
+              <span className="font-bold text-xl">{companyInfo?.companyName || "Tên Công ty"}</span>
             </div>
 
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Cam
-              kết mang đến giải pháp năng lượng tối ưu cho mọi gia đình và doanh
-              nghiệp.
+              {companyInfo?.slogan || "Slogan của công ty"}
             </p>
 
             {/* Social Links */}
@@ -246,7 +247,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Trọng Tín Solar. Tất cả quyền được bảo lưu.
+              © 2024 {companyInfo?.companyName || "Tên Công ty"}. Tất cả quyền được bảo lưu.
             </p>
 
             <div className="flex space-x-6">

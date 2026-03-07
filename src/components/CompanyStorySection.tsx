@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   CheckIcon,
   LightBulbIcon,
@@ -8,8 +8,18 @@ import {
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 export default function CompanyStorySection() {
+  const dispatch = useAppDispatch();
+  const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
+
+  // Fetch company info on component mount
+  useEffect(() => {
+    dispatch(fetchCompanyInfo());
+  }, [dispatch]);
+
   const milestones = [
     {
       year: "2014",
@@ -92,7 +102,7 @@ export default function CompanyStorySection() {
                 Hành trình 10 năm phát triển
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Trọng Tín Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
+                {companyInfo?.companyName || "Tên Công ty"} được thành lập vào năm 2014 với sứ mệnh đưa năng
                 lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ
                 một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không
                 ngừng học hỏi, cải tiến và phát triển.
@@ -116,7 +126,7 @@ export default function CompanyStorySection() {
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
                 <img
                   src="/images/solar-installation-hero.jpg"
-                  alt="Trọng Tín Solar - Lắp đặt hệ thống năng lượng mặt trời"
+                  alt={`${companyInfo?.companyName || "Tên Công ty"} - Lắp đặt hệ thống năng lượng mặt trời`}
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">
@@ -216,11 +226,7 @@ export default function CompanyStorySection() {
           <div className="mt-20 text-center bg-gradient-to-r from-solar-blue to-primary-600 rounded-3xl p-12 text-white">
             <h2 className="text-3xl font-bold mb-6">Sứ mệnh của chúng tôi</h2>
             <p className="text-xl leading-relaxed max-w-4xl mx-auto">
-              &quot;Đưa năng lượng mặt trời đến mọi mái nhà Việt Nam, góp phần xây
-              dựng một tương lai xanh và bền vững cho thế hệ mai sau. Chúng tôi
-              cam kết mang đến những giải pháp năng lượng chất lượng cao với giá
-              thành hợp lý, giúp khách hàng tiết kiệm chi phí và bảo vệ môi
-              trường.&quot;
+              &quot;{companyInfo?.mission || ""}&quot;
             </p>
           </div>
         </ScrollAnimationWrapper>

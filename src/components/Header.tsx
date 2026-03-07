@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
+
+  // Fetch company info on component mount
+  useEffect(() => {
+    dispatch(fetchCompanyInfo());
+  }, [dispatch]);
 
   const menuItems = [
     { name: "Trang chủ", href: "/" },
@@ -23,7 +32,7 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-2 md:mb-0">
-              <h1 className="text-lg md:text-xl font-bold">Trọng Tín Solar</h1>
+              <h1 className="text-lg md:text-xl font-bold">{companyInfo?.companyName || "Tên Công ty"}</h1>
               <p className="text-sm opacity-90">
                 Hệ thống năng lượng mặt trời chất lượng cao
               </p>
@@ -57,7 +66,7 @@ export default function Header() {
                 <span className="text-white font-bold text-xl">PS</span>
               </div>
               <span className="font-bold text-xl text-gray-800">
-                Trọng Tín Solar
+                {companyInfo?.companyName || "Tên Công ty"}
               </span>
             </Link>
 

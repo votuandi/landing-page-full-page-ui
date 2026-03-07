@@ -89,6 +89,7 @@ export interface Service {
   order?: number;
   createdAt?: string;
   updatedAt?: string;
+  
 }
 
 export interface WarrantyRegistration {

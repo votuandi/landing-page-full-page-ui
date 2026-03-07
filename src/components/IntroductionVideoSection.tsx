@@ -1,11 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PlayIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 export default function IntroductionVideoSection() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
+
+  // Fetch company info on component mount
+  useEffect(() => {
+    dispatch(fetchCompanyInfo());
+  }, [dispatch]);
 
   const achievements = [
     {
@@ -62,7 +71,7 @@ export default function IntroductionVideoSection() {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
               Khám phá{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600">
-                Trọng Tín Solar
+                {companyInfo?.companyName || "Tên Công ty"}
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -80,7 +89,7 @@ export default function IntroductionVideoSection() {
               <div className="relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer">
                 <img
                   src="/images/solar-panels-hero.jpg"
-                  alt="Video giới thiệu Trọng Tín Solar"
+                  alt={`Video giới thiệu ${companyInfo?.companyName || "Tên Công ty"}`}
                   className="w-full h-[400px] md:h-[500px] object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
@@ -97,11 +106,11 @@ export default function IntroductionVideoSection() {
                 {/* Video Info Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/80 to-transparent text-white">
                   <h3 className="text-xl md:text-2xl font-bold mb-2">
-                    Trọng Tín Solar - Hành trình 10 năm phát triển
+                    {companyInfo?.companyName || "Tên Công ty"} - Hành trình 10 năm phát triển
                   </h3>
                   <p className="text-sm md:text-base opacity-90">
                     Khám phá câu chuyện thành công và những giá trị cốt lõi đã
-                    tạo nên thương hiệu Trọng Tín Solar
+                    tạo nên thương hiệu {companyInfo?.companyName || "Tên Công ty"}
                   </p>
                   <div className="flex items-center mt-3 space-x-4 text-sm">
                     <span>⏱ 5:30 phút</span>
@@ -164,7 +173,7 @@ export default function IntroductionVideoSection() {
         <ScrollAnimationWrapper>
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-lg">
             <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
-              Tại sao chọn Trọng Tín Solar?
+              Tại sao chọn {companyInfo?.companyName || "Tên Công ty"}?
             </h3>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
