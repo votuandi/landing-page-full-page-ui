@@ -10,54 +10,62 @@ model ProductCategory {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   description String?
-  imageUrl    String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  imageUrl    String?
   products    Product[]
 }
 
 model Product {
   id             Int             @id @default(autoincrement())
   title          String
-  introduction   String?         // Giới thiệu
-  description    String?         // Mô tả
-  specifications String?         // Thông số kỹ thuật
-  guarantee      String?         // Bảo hành
-  categoryId     Int
-  category       ProductCategory @relation(fields: [categoryId], references: [id])
-  price          String?         // Giá sau khuyến mãi
-  original_price String?         // Giá gốc
+  description    String?
   isActive       Boolean         @default(true)
-  isBestSeller   Boolean         @default(false) // Sản phẩm bán chạy
-  showInHomePage Boolean         @default(false) // Hiển thị trên trang chủ
   imageUrl       String?
-  order          Int             @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  storageMedias  StorageMedia[]  // Relation to storage medias
+  categoryId     Int
+  order          Int             @default(0)
+  price          String?
+  original_price String?
+  isBestSeller   Boolean         @default(false)
+  showInHomePage Boolean         @default(false)
+  guarantee      String?
+  introduction   String?
+  specifications String?
+  category       ProductCategory @relation(fields: [categoryId], references: [id])
 }
 
 model News {
   id          Int      @id @default(autoincrement())
   title       String
-  content     String
+  excerpt     String   @default("") // Short description
+  content     String   // Full HTML content
+  author      String   @default("Administrator")
+  category    String   @default("Tin tức")
+  readTime    String   @default("5 phút đọc")
   imageUrl    String?
+  tags        String[] @default([]) // Array of tags
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
   publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Banner {
   id              Int      @id @default(autoincrement())
   title           String
-  subtitle        String?
   description     String?
-  buttonText      String?
-  buttonLink      String?
-  backgroundImage String?
-  backgroundColor String   @default("bg-gradient-to-r from-blue-600 to-purple-600")
   isActive        Boolean  @default(true)
   order           Int      @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  backgroundColor String   @default("bg-gradient-to-r from-blue-600 to-purple-600")
+  backgroundImage String?
+  buttonLink      String?
+  buttonText      String?
+  subtitle        String?
 }
 
 model Partner {
@@ -71,36 +79,33 @@ model Partner {
 }
 
 model HeroContent {
-  id                   Int      @id @default(autoincrement())
-  title                String
-  description          String
-  videoUrl             String
-  stat1Value           String
-  stat1Label           String
-  stat2Value           String
-  stat2Label           String
-  stat3Value           String
-  stat3Label           String
-  feature1Title        String
-  feature1Description  String
-  feature2Title        String
-  feature2Description  String
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  title               String
+  description         String
+  videoUrl            String
+  stat1Value          String
+  stat1Label          String
+  stat2Value          String
+  stat2Label          String
+  stat3Value          String
+  stat3Label          String
+  feature1Title       String
+  feature1Description String
+  feature2Title       String
+  feature2Description String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model StorageMedia {
-  id          Int      @id @default(autoincrement())
-  parentId    Int?     // Link to the product/news/etc. containing it
-  type        String   // "image" or "video"
-  parentType  String   // "product", "news", "text-editor", etc.
-  path        String   // File path
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  product     Product? @relation(fields: [parentId], references: [id], map: "product_storage_media")
-  
+  id         Int      @id @default(autoincrement())
+  parentId   Int?
+  type       String
+  parentType String
+  path       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@index([parentId, parentType])
   @@index([parentType])
 }

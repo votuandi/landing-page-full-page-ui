@@ -10,6 +10,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   productId?: number;
+  newsId?: number;
 }
 
 export default function RichTextEditor({
@@ -18,9 +19,18 @@ export default function RichTextEditor({
   placeholder = "Nhập nội dung...",
   className = "",
   productId,
+  newsId,
 }: RichTextEditorProps) {
-  // Create upload endpoint with productId if provided
-  const uploadEndpoint = productId ? `/api/upload?productId=${productId}` : '/api/upload';
+  // Create upload endpoint based on context
+  let uploadEndpoint = '/api/upload';
+  
+  if (newsId !== undefined) {
+    // For news editor - use news-specific upload endpoint
+    uploadEndpoint = `/api/news/upload-editor?newsId=${newsId}`;
+  } else if (productId !== undefined) {
+    // For product editor - use product upload endpoint
+    uploadEndpoint = `/api/upload?productId=${productId}`;
+  }
   
   return (
     <div className={className}>

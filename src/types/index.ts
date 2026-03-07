@@ -18,12 +18,18 @@ export interface NewsArticle {
   title: string;
   excerpt: string;
   author: string;
-  date: string;
-  image: string;
+  date?: string; // For backward compatibility
+  publishedAt?: string; // From database
+  image?: string; // For backward compatibility
+  imageUrl?: string; // From database
   category: string;
   readTime: string;
   content?: string;
   tags?: string[];
+  isActive?: boolean;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ContactInfo {

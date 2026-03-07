@@ -3,9 +3,34 @@ import { notFound } from "next/navigation";
 import NewsDetailContent from "@/components/NewsDetailContent";
 import { NewsArticle } from "@/types";
 
-// This would typically come from a database or CMS
-// For now, using the same data as in NewsPageContent
-const allNewsArticles: NewsArticle[] = [
+// Fetch news article from API
+async function getNewsArticle(id: string): Promise<NewsArticle | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/news/${id}`, {
+      cache: 'no-store', // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    const news = await response.json();
+    
+    // Transform data to match component expectations
+    return {
+      ...news,
+      date: news.publishedAt ? new Date(news.publishedAt).toISOString().split('T')[0] : '',
+      image: news.imageUrl || '/images/news-placeholder.jpg',
+    };
+  } catch (error) {
+    console.error('Error fetching news article:', error);
+    return null;
+  }
+}
+
+// Fallback news data for development/error cases
+const fallbackNewsArticles: NewsArticle[] = [
   {
     id: 1,
     title: "Điện mặt trời được bán tối đa 20% công suất",
@@ -247,9 +272,24 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = allNewsArticles.find((a) => a.id.toString() === slug);
+  const article = await getNewsArticle(slug);
 
   if (!article) {
+    // Try fallback data
+    const fallbackArticle = fallbackNewsArticles.find((a) => a.id.toString() === slug);
+    if (fallbackArticle) {
+      return {
+        title: `${fallbackArticle.title} | Trọng Tín Solar`,
+        description: fallbackArticle.excerpt,
+        keywords: fallbackArticle.tags?.join(", "),
+        openGraph: {
+          title: fallbackArticle.title,
+          description: fallbackArticle.excerpt,
+          images: [fallbackArticle.image || ''],
+        },
+      };
+    }
+    
     return {
       title: "Tin tức không tồn tại | Trọng Tín Solar",
     };
@@ -262,14 +302,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: article.title,
       description: article.excerpt,
-      images: [article.image],
+      images: [article.image || ''],
     },
   };
 }
 
 export default async function NewsDetailPage({ params }: Props) {
   const { slug } = await params;
-  const article = allNewsArticles.find((a) => a.id.toString() === slug);
+  let article = await getNewsArticle(slug);
+
+  // If API fails, try fallback data
+  if (!article) {
+    article = fallbackNewsArticles.find((a) => a.id.toString() === slug) || null;
+  }
 
   if (!article) {
     notFound();

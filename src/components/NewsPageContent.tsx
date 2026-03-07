@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { NewsArticle } from "@/types";
 
-// Extended news data with more articles and content for detail pages
-const allNewsArticles: NewsArticle[] = [
+// Fallback news data (will be replaced by API data)
+const fallbackNewsArticles: NewsArticle[] = [
   {
     id: 1,
     title: "Điện mặt trời được bán tối đa 20% công suất",
@@ -295,18 +295,55 @@ const allNewsArticles: NewsArticle[] = [
   },
 ];
 
-// Categories for filtering
-const categories = [
-  "Tất cả",
-  ...Array.from(new Set(allNewsArticles.map((article) => article.category))),
-];
-
 export default function NewsPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [searchQuery, setSearchQuery] = useState("");
+  const [allNewsArticles, setAllNewsArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>(["Tất cả"]);
 
   const articlesPerPage = 6;
+
+  // Fetch news data from API
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/news?limit=100&isActive=true&orderBy=publishedAt&order=desc');
+        if (response.ok) {
+          const result = await response.json();
+          // Transform data to match component expectations
+          const transformedNews = result.data.map((news: any) => ({
+            ...news,
+            date: news.publishedAt ? new Date(news.publishedAt).toISOString().split('T')[0] : '',
+            image: news.imageUrl || '/images/news-placeholder.jpg',
+          }));
+          setAllNewsArticles(transformedNews);
+
+          // Extract unique categories
+          const uniqueCategories = Array.from(new Set(transformedNews.map((article: NewsArticle) => article.category))) as string[];
+          setCategories(["Tất cả", ...uniqueCategories]);
+        } else {
+          console.error('Failed to fetch news');
+          // Use fallback data if API fails
+          setAllNewsArticles(fallbackNewsArticles);
+          const uniqueCategories = Array.from(new Set(fallbackNewsArticles.map((article) => article.category)));
+          setCategories(["Tất cả", ...uniqueCategories]);
+        }
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        // Use fallback data if API fails
+        setAllNewsArticles(fallbackNewsArticles);
+        const uniqueCategories = Array.from(new Set(fallbackNewsArticles.map((article) => article.category)));
+        setCategories(["Tất cả", ...uniqueCategories]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
 
   // Filter articles based on category and search
   const filteredArticles = useMemo(() => {
@@ -330,7 +367,7 @@ export default function NewsPageContent() {
     }
 
     return filtered;
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, allNewsArticles]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
@@ -350,6 +387,29 @@ export default function NewsPageContent() {
     setSearchQuery(query);
     setCurrentPage(1);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            Tin tức{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600">
+              Năng lượng
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Cập nhật những tin tức mới nhất về ngành năng lượng mặt trời, chính
+            sách, công nghệ và xu hướng phát triển
+          </p>
+        </div>
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-solar-blue"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -402,11 +462,10 @@ export default function NewsPageContent() {
               <button
                 key={category}
                 onClick={() => handleCategoryChange(category)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${
-                  selectedCategory === category
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${selectedCategory === category
                     ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white ring-2 ring-primary-300 shadow-lg"
                     : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-primary-50 hover:to-primary-100 hover:text-primary-700 border border-gray-200 hover:border-primary-200"
-                }`}
+                  }`}
               >
                 {category}
               </button>
@@ -430,7 +489,7 @@ export default function NewsPageContent() {
                 {/* Image */}
                 <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                   <Image
-                    src={article.image}
+                    src={article.image || article.imageUrl || '/images/news-placeholder.jpg'}
                     alt={article.title}
                     fill
                     className="object-cover"
@@ -569,11 +628,10 @@ export default function NewsPageContent() {
                 <button
                   key={pageNumber}
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`px-3 py-2 rounded-lg ${
-                    currentPage === pageNumber
+                  className={`px-3 py-2 rounded-lg ${currentPage === pageNumber
                       ? "bg-solar-blue text-white"
                       : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {pageNumber}
                 </button>

@@ -5,6 +5,7 @@ import introductionReducer from './features/introduction/introductionSlice';
 import partnersReducer from './features/partners/partnersSlice';
 import productCategoriesReducer from './features/productCategories/productCategoriesSlice';
 import productsReducer from './features/products/productsSlice';
+import newsReducer from './features/news/newsSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -15,6 +16,7 @@ export const makeStore = () => {
       partners: partnersReducer,
       productCategories: productCategoriesReducer,
       products: productsReducer,
+      news: newsReducer,
     },
   });
 };

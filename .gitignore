@@ -41,3 +41,5 @@ next-env.d.ts
 # assets
 /public/images/
 /public/videos/
+/public/news/
+/public/products/

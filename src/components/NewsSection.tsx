@@ -4,15 +4,47 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import NewsCard from "./NewsCard";
+import { NewsArticle } from "@/types";
 
 export default function NewsSection() {
   const [isMobile, setIsMobile] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [featuredImageError, setFeaturedImageError] = useState(false);
 
   // Ensure component is mounted before accessing window
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Fetch news data from API
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/news?limit=6&isActive=true&orderBy=publishedAt&order=desc');
+        if (response.ok) {
+          const result = await response.json();
+          // Transform data to match component expectations
+          const transformedNews = result.data.map((news: any) => ({
+            ...news,
+            date: news.publishedAt ? new Date(news.publishedAt).toISOString().split('T')[0] : '',
+            image: news.imageUrl || '/images/news-placeholder.jpg',
+          }));
+          setNewsArticles(transformedNews);
+        } else {
+          console.error('Failed to fetch news');
+        }
+      } catch (error) {
+        console.error('Error fetching news:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
   }, []);
 
   // Check if we're on mobile
@@ -29,77 +61,6 @@ export default function NewsSection() {
     window.addEventListener("resize", checkIsMobile);
     return () => window.removeEventListener("resize", checkIsMobile);
   }, [mounted]);
-
-  const newsArticles = [
-    {
-      id: 1,
-      title: "Điện mặt trời được bán tối đa 20% công suất",
-      excerpt:
-        "Quy định mới về việc bán điện mặt trời áp mái cho lưới điện quốc gia với tỷ lệ tối đa 20% công suất lắp đặt.",
-      author: "Administrator",
-      date: "2024-01-15",
-      image: "/images/news-1.jpg",
-      category: "Chính sách",
-      readTime: "5 phút đọc",
-    },
-    {
-      id: 2,
-      title: "Giá điện sinh hoạt tăng thêm 4,8% từ ngày hôm nay",
-      excerpt:
-        "EVN thông báo điều chỉnh tăng giá điện sinh hoạt bậc 3 trở lên nhằm khuyến khích tiết kiệm điện.",
-      author: "Administrator",
-      date: "2024-01-10",
-      image: "/images/news-2.jpg",
-      category: "Tin tức",
-      readTime: "3 phút đọc",
-    },
-    {
-      id: 3,
-      title: "Điện mặt trời thừa có thể bù trừ cho EVN",
-      excerpt:
-        "Cơ chế bù trừ điện năng mới cho phép hộ gia đình có thể bán điện thизлишкиếm từ hệ thống solar về lưới.",
-      author: "Administrator",
-      date: "2024-01-08",
-      image: "/images/news-3.jpg",
-      category: "Công nghệ",
-      readTime: "7 phút đọc",
-    },
-    {
-      id: 4,
-      title: 'Năng lượng mặt trời - Giải pháp "chống sốc" cho điện lưới',
-      excerpt:
-        "Hệ thống năng lượng mặt trời giúp giảm tải cho lưới điện quốc gia trong những giờ cao điểm.",
-      author: "Administrator",
-      date: "2024-01-05",
-      image: "/images/news-4.jpg",
-      category: "Phân tích",
-      readTime: "6 phút đọc",
-    },
-    {
-      id: 5,
-      title: "Nhà máy điện mặt trời lớn nhất thế giới",
-      excerpt:
-        "Cập nhật về dự án nhà máy điện mặt trời có công suất lớn nhất thế giới và tác động đến ngành năng lượng.",
-      author: "Administrator",
-      date: "2024-01-03",
-      image: "/images/news-5.jpg",
-      category: "Quốc tế",
-      readTime: "8 phút đọc",
-    },
-    {
-      id: 6,
-      title: "Top 10 thương hiệu năng lượng mặt trời hàng đầu thế giới",
-      excerpt:
-        "Danh sách các thương hiệu dẫn đầu về công nghệ và chất lượng trong ngành năng lượng mặt trời.",
-      author: "Web Số",
-      date: "2024-01-01",
-      image: "/images/news-6.jpg",
-      category: "Tổng hợp",
-      readTime: "10 phút đọc",
-    },
-  ];
-
-  const [featuredImageError, setFeaturedImageError] = useState(false);
 
   const mobileNewsInitial = 4; // Show 2x2 news initially on mobile (excluding featured)
 
@@ -118,6 +79,56 @@ export default function NewsSection() {
     isMobile &&
     !showAllMobile &&
     newsArticles.slice(1).length > mobileNewsInitial;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Tin tức{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600">
+                Năng lượng
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Cập nhật những tin tức mới nhất về ngành năng lượng mặt trời, chính
+              sách, công nghệ và xu hướng phát triển
+            </p>
+          </div>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-solar-blue"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show empty state
+  if (newsArticles.length === 0) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Tin tức{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600">
+                Năng lượng
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Cập nhật những tin tức mới nhất về ngành năng lượng mặt trời, chính
+              sách, công nghệ và xu hướng phát triển
+            </p>
+          </div>
+          <div className="text-center py-20">
+            <p className="text-gray-500">Chưa có tin tức nào</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-white">
