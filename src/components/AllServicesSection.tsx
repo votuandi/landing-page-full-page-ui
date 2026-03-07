@@ -10,17 +10,27 @@ interface ServiceCategory {
   count: number;
 }
 
-export default function AllServicesSection() {
+interface AllServicesSectionProps {
+  services?: Service[];
+}
+
+export default function AllServicesSection({ services: servicesProp }: AllServicesSectionProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>(servicesProp || []);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!servicesProp);
   const [error, setError] = useState<string | null>(null);
   const servicesPerPage = 6;
 
-  // Fetch services from API
+  // Fetch services from API if not provided as prop
   useEffect(() => {
+    if (servicesProp) {
+      setServices(servicesProp);
+      setLoading(false);
+      return;
+    }
+
     const fetchServices = async () => {
       try {
         setLoading(true);
@@ -33,23 +43,6 @@ export default function AllServicesSection() {
 
         const data = await response.json();
         setServices(data.services || []);
-
-        // Calculate categories based on fetched services
-        const allServices = data.services || [];
-        const categoryCounts = allServices.reduce((acc: Record<string, number>, service: Service) => {
-          acc[service.category] = (acc[service.category] || 0) + 1;
-          return acc;
-        }, {});
-
-        const categoryList: ServiceCategory[] = [
-          { id: "all", name: "Tất cả dịch vụ", count: allServices.length },
-          { id: "household", name: "Hộ gia đình", count: categoryCounts["household"] || 0 },
-          { id: "business", name: "Doanh nghiệp", count: categoryCounts["business"] || 0 },
-          { id: "maintenance", name: "Bảo trì", count: categoryCounts["maintenance"] || 0 },
-          { id: "consultation", name: "Tư vấn", count: categoryCounts["consultation"] || 0 },
-        ];
-
-        setCategories(categoryList);
       } catch (err) {
         console.error("Error fetching services:", err);
         setError("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
@@ -59,7 +52,25 @@ export default function AllServicesSection() {
     };
 
     fetchServices();
-  }, []);
+  }, [servicesProp]);
+
+  // Calculate categories based on services
+  useEffect(() => {
+    const categoryCounts = services.reduce((acc: Record<string, number>, service: Service) => {
+      acc[service.category] = (acc[service.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    const categoryList: ServiceCategory[] = [
+      { id: "all", name: "Tất cả dịch vụ", count: services.length },
+      { id: "household", name: "Hộ gia đình", count: categoryCounts["household"] || 0 },
+      { id: "business", name: "Doanh nghiệp", count: categoryCounts["business"] || 0 },
+      { id: "maintenance", name: "Bảo trì", count: categoryCounts["maintenance"] || 0 },
+      { id: "consultation", name: "Tư vấn", count: categoryCounts["consultation"] || 0 },
+    ];
+
+    setCategories(categoryList);
+  }, [services]);
 
   // Filter services based on selected category
   const filteredServices =

@@ -5,22 +5,7 @@ import AllServicesSection from "@/components/AllServicesSection";
 import WarrantySection from "@/components/WarrantySection";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
-
-interface Service {
-    id: number;
-    title: string;
-    description: string | null;
-    image: string | null;
-    features: string[];
-    price: string | null;
-    category: string;
-    duration: string | null;
-    warranty: string | null;
-    isActive: boolean;
-    order: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
+import { Service } from "@/types";
 
 interface ServicePageClientProps {
     services: Service[];
