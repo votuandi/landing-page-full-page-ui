@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     if (isImage) {
       // Process images - convert to WebP
       filename = `news_${timestamp}.webp`;
-      uploadDir = path.join(process.cwd(), 'public', 'news');
+      uploadDir = path.join(process.cwd(), 'public', 'images', 'news');
       
       // Create directory if it doesn't exist
       if (!existsSync(uploadDir)) {
@@ -90,13 +90,13 @@ export async function POST(request: NextRequest) {
         .webp({ quality: 85 })
         .toFile(filepath);
 
-      fileUrl = `/news/${filename}`;
-      filePath = `public/news/${filename}`;
+      fileUrl = `/images/news/${filename}`;
+      filePath = `public/images/news/${filename}`;
     } else {
       // Process videos - save as-is
       const extension = file.name.split('.').pop() || 'mp4';
       filename = `news_${timestamp}.${extension}`;
-      uploadDir = path.join(process.cwd(), 'public', 'news');
+      uploadDir = path.join(process.cwd(), 'public', 'videos', 'news');
       
       // Create directory if it doesn't exist
       if (!existsSync(uploadDir)) {
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
       const filepath = path.join(uploadDir, filename);
       await writeFile(filepath, buffer);
 
-      fileUrl = `/news/${filename}`;
-      filePath = `public/news/${filename}`;
+      fileUrl = `/videos/news/${filename}`;
+      filePath = `public/videos/news/${filename}`;
     }
 
     // Save to storage_medias table with parent_type = "news-text-editor"

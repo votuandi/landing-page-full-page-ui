@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { deleteImageFile } from '@/lib/imageUtils'
 
 // GET /api/news/[id] - Get a single news article
 export async function GET(
@@ -179,9 +180,43 @@ export async function DELETE(
       )
     }
 
+    // Get all StorageMedia records associated with this news article
+    const storageMediaRecords = await prisma.storageMedia.findMany({
+      where: {
+        parentType: 'news-text-editor',
+        parentId: id
+      }
+    })
+
+    // Delete the news article from database
     await prisma.news.delete({
       where: { id }
     })
+
+    // Delete the main news image file if it exists
+    if (existingNews.imageUrl) {
+      await deleteImageFile(existingNews.imageUrl)
+    }
+
+    // Delete all StorageMedia records associated with this news
+    if (storageMediaRecords.length > 0) {
+      await prisma.storageMedia.deleteMany({
+        where: {
+          parentType: 'news-text-editor',
+          parentId: id
+        }
+      })
+
+      // Delete the actual files from storage
+      for (const record of storageMediaRecords) {
+        if (record.path) {
+          // Convert storage path to public URL format
+          // path is stored as "public/news/..." so we need to extract "/news/..."
+          const publicUrl = record.path.replace(/^public/, '')
+          await deleteImageFile(publicUrl)
+        }
+      }
+    }
 
     return NextResponse.json(
       { message: 'News deleted successfully' },

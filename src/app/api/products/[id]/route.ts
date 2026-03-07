@@ -72,14 +72,56 @@ export async function PUT(
             id: true,
             name: true
           }
-        },
-        storageMedias: {
-          where: {
-            parentType: 'product'
-          }
         }
       }
     })
+
+    // Associate orphaned media files if content fields were updated
+    if (description !== undefined || specifications !== undefined || guarantee !== undefined) {
+      try {
+        const mediaUrls: string[] = []
+        const contentFields = [description, specifications, guarantee].filter(Boolean)
+        
+        for (const content of contentFields) {
+          // Extract image URLs from <img> tags
+          const imgRegex = /<img[^>]+src=["']([^"']+)["']/g
+          let match
+          while ((match = imgRegex.exec(content)) !== null) {
+            mediaUrls.push(match[1])
+          }
+          
+          // Extract video URLs from <video> and <source> tags
+          const videoRegex = /<(?:video[^>]+src=["']([^"']+)["']|source[^>]+src=["']([^"']+)["'])/g
+          while ((match = videoRegex.exec(content)) !== null) {
+            const url = match[1] || match[2]
+            if (url) mediaUrls.push(url)
+          }
+        }
+
+        // Convert URLs to storage paths and update orphaned media records
+        if (mediaUrls.length > 0) {
+          const storagePaths = mediaUrls
+            .filter(url => url.startsWith('/images/products/') || url.startsWith('/videos/products/'))
+            .map(url => `public${url}`)
+
+          if (storagePaths.length > 0) {
+            await prisma.storageMedia.updateMany({
+              where: {
+                path: { in: storagePaths },
+                parentId: null,
+                parentType: 'product-text-editor'
+              },
+              data: {
+                parentId: id
+              }
+            })
+          }
+        }
+      } catch (mediaError) {
+        console.error('Error associating media files:', mediaError)
+        // Don't fail the product update if media association fails
+      }
+    }
 
     return NextResponse.json(product, { status: 200 })
   } catch (error) {
@@ -107,19 +149,9 @@ export async function DELETE(
       )
     }
 
-    // Check if product exists and get all related data
+    // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id },
-      include: {
-        storageMedias: {
-          where: {
-            OR: [
-              { parentType: 'product' },
-              { parentType: 'product-text-editor' }
-            ]
-          }
-        }
-      }
+      where: { id }
     })
 
     if (!existingProduct) {
@@ -128,6 +160,17 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    // Get all related storage media
+    const storageMedias = await prisma.storageMedia.findMany({
+      where: {
+        parentId: id,
+        OR: [
+          { parentType: 'product' },
+          { parentType: 'product-text-editor' }
+        ]
+      }
+    })
 
     // Collect all file paths to delete
     const filesToDelete: string[] = []
@@ -140,7 +183,7 @@ export async function DELETE(
     }
 
     // Add all storage media files
-    existingProduct.storageMedias.forEach(media => {
+    storageMedias.forEach(media => {
       const mediaPath = path.join(process.cwd(), media.path)
       filesToDelete.push(mediaPath)
     })

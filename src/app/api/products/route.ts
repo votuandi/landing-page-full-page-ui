@@ -74,11 +74,6 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true
           }
-        },
-        storageMedias: {
-          where: {
-            parentType: 'product'
-          }
         }
       }
     })
@@ -152,14 +147,55 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true
           }
-        },
-        storageMedias: {
-          where: {
-            parentType: 'product'
-          }
         }
       }
     })
+
+    // Associate orphaned media files with the newly created product
+    // Extract media URLs from description, specifications, and guarantee fields
+    try {
+      const mediaUrls: string[] = []
+      const contentFields = [description, specifications, guarantee].filter(Boolean)
+      
+      for (const content of contentFields) {
+        // Extract image URLs from <img> tags
+        const imgRegex = /<img[^>]+src=["']([^"']+)["']/g
+        let match
+        while ((match = imgRegex.exec(content)) !== null) {
+          mediaUrls.push(match[1])
+        }
+        
+        // Extract video URLs from <video> and <source> tags
+        const videoRegex = /<(?:video[^>]+src=["']([^"']+)["']|source[^>]+src=["']([^"']+)["'])/g
+        while ((match = videoRegex.exec(content)) !== null) {
+          const url = match[1] || match[2]
+          if (url) mediaUrls.push(url)
+        }
+      }
+
+      // Convert URLs to storage paths and update orphaned media records
+      if (mediaUrls.length > 0) {
+        const storagePaths = mediaUrls
+          .filter(url => url.startsWith('/images/products/') || url.startsWith('/videos/products/'))
+          .map(url => `public${url}`)
+
+        if (storagePaths.length > 0) {
+          await prisma.storageMedia.updateMany({
+            where: {
+              path: { in: storagePaths },
+              parentId: null,
+              parentType: 'product-text-editor'
+            },
+            data: {
+              parentId: product.id
+            }
+          })
+        }
+      }
+    } catch (mediaError) {
+      console.error('Error associating media files:', mediaError)
+      // Don't fail the product creation if media association fails
+    }
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {

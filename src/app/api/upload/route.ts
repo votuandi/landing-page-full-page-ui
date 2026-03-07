@@ -110,16 +110,23 @@ export async function POST(request: NextRequest) {
       filePath = `public/videos/products/${filename}`;
     }
 
-    // Save to storage_medias table with parent_type = "text-editor"
-    if (productId && productId !== '0') {
+    // Save to storage_medias table with parent_type = "product-text-editor"
+    // For new products (productId = 0), save with parentId = null
+    // The parent will be updated after the product is created
+    try {
+      const parentIdValue = productId && productId !== '0' ? parseInt(productId) : null;
+      
       await prisma.storageMedia.create({
         data: {
-          parentId: parseInt(productId),
+          parentId: parentIdValue,
           type: isImage ? 'image' : 'video',
           parentType: 'product-text-editor',
           path: filePath,
         },
       });
+    } catch (dbError) {
+      console.error('Error saving to StorageMedia:', dbError);
+      // Continue even if DB save fails - the file is already uploaded
     }
 
     // Return in the format expected by divt-text-editor
