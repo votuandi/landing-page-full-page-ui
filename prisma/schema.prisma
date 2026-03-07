@@ -97,6 +97,24 @@ model HeroContent {
   updatedAt           DateTime @updatedAt
 }
 
+model Project {
+  id             Int      @id @default(autoincrement())
+  title          String
+  location       String?
+  capacity       String?
+  completedDate  String?
+  imageUrl       String?
+  description    String?
+  detail         String?  // Rich text content edited by divt-text-editor
+  category       String   @default("Công nghiệp")
+  client         String?
+  isDisplay      Boolean  @default(true)
+  showInHomepage Boolean  @default(false)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 model StorageMedia {
   id         Int      @id @default(autoincrement())
   parentId   Int?

@@ -463,8 +463,8 @@ export default function NewsPageContent() {
                 key={category}
                 onClick={() => handleCategoryChange(category)}
                 className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${selectedCategory === category
-                    ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white ring-2 ring-primary-300 shadow-lg"
-                    : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-primary-50 hover:to-primary-100 hover:text-primary-700 border border-gray-200 hover:border-primary-200"
+                  ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white ring-2 ring-primary-300 shadow-lg"
+                  : "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-primary-50 hover:to-primary-100 hover:text-primary-700 border border-gray-200 hover:border-primary-200"
                   }`}
               >
                 {category}
@@ -629,8 +629,8 @@ export default function NewsPageContent() {
                   key={pageNumber}
                   onClick={() => setCurrentPage(pageNumber)}
                   className={`px-3 py-2 rounded-lg ${currentPage === pageNumber
-                      ? "bg-solar-blue text-white"
-                      : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    ? "bg-solar-blue text-white"
+                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                 >
                   {pageNumber}

@@ -11,6 +11,7 @@ interface RichTextEditorProps {
   className?: string;
   productId?: number;
   newsId?: number;
+  projectId?: number;
 }
 
 export default function RichTextEditor({
@@ -20,6 +21,7 @@ export default function RichTextEditor({
   className = "",
   productId,
   newsId,
+  projectId,
 }: RichTextEditorProps) {
   // Create upload endpoint based on context
   let uploadEndpoint = '/api/upload';
@@ -27,6 +29,9 @@ export default function RichTextEditor({
   if (newsId !== undefined) {
     // For news editor - use news-specific upload endpoint
     uploadEndpoint = `/api/news/upload-editor?newsId=${newsId}`;
+  } else if (projectId !== undefined) {
+    // For project editor - use project-specific upload endpoint
+    uploadEndpoint = `/api/projects/upload-editor?projectId=${projectId}`;
   } else if (productId !== undefined) {
     // For product editor - use product upload endpoint
     uploadEndpoint = `/api/upload?productId=${productId}`;

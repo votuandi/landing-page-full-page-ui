@@ -8,12 +8,14 @@ import {
   NewspaperIcon, 
   ShoppingBagIcon,
   Cog6ToothIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  BriefcaseIcon
 } from "@heroicons/react/24/outline";
 
 const navigation = [
   { name: "Bảng điều khiển", href: "/admin", icon: HomeIcon },
   { name: "Sản phẩm", href: "/admin/products", icon: ShoppingBagIcon },
+  { name: "Dự án", href: "/admin/projects", icon: BriefcaseIcon },
   { name: "Tin tức", href: "/admin/news", icon: NewspaperIcon },
   { name: "Khách hàng tiềm năng", href: "/admin/leads", icon: UserGroupIcon },
   { name: "Cài đặt", href: "/admin/settings", icon: Cog6ToothIcon },

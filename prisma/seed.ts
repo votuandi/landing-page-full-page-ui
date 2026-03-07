@@ -19,9 +19,245 @@ const prisma = new PrismaClient({
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Clear existing news data
+  // Clear existing data
   await prisma.news.deleteMany({});
   console.log('✅ Cleared existing news data');
+
+  await prisma.project.deleteMany({});
+  console.log('✅ Cleared existing project data');
+
+  // Seed projects based on ProjectsSection.tsx
+  const projects = [
+    {
+      title: 'Hệ thống điện mặt trời nhà máy ABC',
+      location: 'Bình Dương',
+      capacity: '500kW',
+      completedDate: 'Tháng 12, 2023',
+      imageUrl: '/images/news-1.jpg',
+      description: 'Hệ thống điện mặt trời quy mô lớn cho nhà máy sản xuất, giúp tiết kiệm 70% chi phí điện năng hàng năm.',
+      detail: `
+<h2>Tổng quan dự án</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời áp mái cho nhà máy sản xuất ABC tại Bình Dương là một trong những dự án tiêu biểu của chúng tôi trong lĩnh vực công nghiệp.</p>
+
+<h3>Thông số kỹ thuật</h3>
+<ul>
+<li>Tổng công suất: 500kWp</li>
+<li>Số lượng tấm pin: 1,250 tấm (400W/tấm)</li>
+<li>Loại tấm pin: Mono PERC hiệu suất cao</li>
+<li>Inverter: 3 x 150kW + 1 x 50kW</li>
+<li>Diện tích lắp đặt: 3,500m²</li>
+</ul>
+
+<h3>Hiệu quả kinh tế</h3>
+<p>Hệ thống giúp nhà máy tiết kiệm 70% chi phí điện năng hàng năm, tương đương khoảng 1.2 tỷ đồng. Thời gian hoàn vốn dự kiến: 5-6 năm.</p>
+
+<h3>Lợi ích môi trường</h3>
+<p>Giảm phát thải CO2: 450 tấn/năm, tương đương việc trồng 20,000 cây xanh.</p>
+      `,
+      category: 'Công nghiệp',
+      client: 'Công ty ABC Manufacturing',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 1,
+    },
+    {
+      title: 'Điện mặt trời áp mái biệt thự',
+      location: 'TP. Hồ Chí Minh',
+      capacity: '15kW',
+      completedDate: 'Tháng 11, 2023',
+      imageUrl: '/images/news-2.jpg',
+      description: 'Hệ thống điện mặt trời áp mái cho biệt thự, tích hợp pin lưu trữ và hệ thống smart home.',
+      detail: `
+<h2>Giải pháp năng lượng thông minh cho gia đình</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời kết hợp pin lưu trữ và smart home cho biệt thự tại Quận 7, TP.HCM.</p>
+
+<h3>Cấu hình hệ thống</h3>
+<ul>
+<li>Công suất tấm pin: 15kWp</li>
+<li>Pin lưu trữ: 20kWh LiFePO4</li>
+<li>Inverter hybrid: 15kW</li>
+<li>Hệ thống giám sát: App di động + Web</li>
+<li>Tích hợp smart home: Điều khiển tự động theo sản lượng điện</li>
+</ul>
+
+<h3>Đặc điểm nổi bật</h3>
+<p>Hệ thống hoạt động hoàn toàn độc lập trong ban ngày, pin lưu trữ cung cấp điện vào ban đêm. Chủ nhà có thể giám sát và điều khiển mọi lúc mọi nơi qua smartphone.</p>
+
+<h3>Hiệu quả</h3>
+<p>Tiết kiệm 95% hóa đơn tiền điện, tự cung tự cấp năng lượng sạch cho gia đình.</p>
+      `,
+      category: 'Dân dụng',
+      client: 'Gia đình Nguyễn Văn A',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 2,
+    },
+    {
+      title: 'Trung tâm thương mại Solar Plaza',
+      location: 'Đồng Nai',
+      capacity: '300kW',
+      completedDate: 'Tháng 10, 2023',
+      imageUrl: '/images/news-3.jpg',
+      description: 'Dự án điện mặt trời cho trung tâm thương mại, cung cấp năng lượng sạch cho toàn bộ hệ thống.',
+      detail: `
+<h2>Năng lượng xanh cho trung tâm thương mại</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời quy mô lớn cho trung tâm thương mại Solar Plaza tại Đồng Nai.</p>
+
+<h3>Quy mô dự án</h3>
+<ul>
+<li>Tổng công suất: 300kWp</li>
+<li>Số lượng tấm pin: 750 tấm</li>
+<li>Diện tích mái: 2,100m²</li>
+<li>Inverter: 6 x 50kW</li>
+<li>Hệ thống giám sát trung tâm</li>
+</ul>
+
+<h3>Giải pháp kỹ thuật</h3>
+<p>Hệ thống được thiết kế tối ưu để cung cấp điện cho hệ thống điều hòa, chiếu sáng và các thiết bị điện trong giờ hoạt động của trung tâm thương mại.</p>
+
+<h3>Lợi ích</h3>
+<ul>
+<li>Giảm 60% chi phí điện năng</li>
+<li>Nâng cao hình ảnh thương hiệu xanh</li>
+<li>Thu hút khách hàng quan tâm đến môi trường</li>
+<li>Tiết kiệm 850 triệu đồng/năm</li>
+</ul>
+      `,
+      category: 'Thương mại',
+      client: 'Solar Plaza JSC',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 3,
+    },
+    {
+      title: 'Khu công nghiệp Việt Phú',
+      location: 'Bình Phước',
+      capacity: '1.2MW',
+      completedDate: 'Tháng 9, 2023',
+      imageUrl: '/images/news-4.jpg',
+      description: 'Hệ thống điện mặt trời lớn nhất khu vực với công nghệ tiên tiến, giảm 80% phát thải carbon.',
+      detail: `
+<h2>Dự án điện mặt trời quy mô lớn</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời công suất 1.2MWp cho Khu công nghiệp Việt Phú, Bình Phước - dự án lớn nhất của chúng tôi trong năm 2023.</p>
+
+<h3>Thông số kỹ thuật</h3>
+<ul>
+<li>Tổng công suất: 1,200kWp (1.2MW)</li>
+<li>Số lượng tấm pin: 3,000 tấm (400W/tấm)</li>
+<li>Công nghệ: Tấm pin Bifacial Mono PERC</li>
+<li>Inverter: 12 x 100kW</li>
+<li>Diện tích: 8,500m²</li>
+<li>Hệ thống giám sát AI</li>
+</ul>
+
+<h3>Công nghệ tiên tiến</h3>
+<p>Sử dụng tấm pin 2 mặt (Bifacial) tăng hiệu suất 10-15%, kết hợp hệ thống giám sát AI dự đoán sản lượng và phát hiện sự cố tự động.</p>
+
+<h3>Hiệu quả vượt trội</h3>
+<ul>
+<li>Sản lượng điện: 1,800,000 kWh/năm</li>
+<li>Tiết kiệm: 3.2 tỷ đồng/năm</li>
+<li>Giảm phát thải CO2: 1,350 tấn/năm</li>
+<li>Thời gian hoàn vốn: 4.5 năm</li>
+</ul>
+      `,
+      category: 'Công nghiệp',
+      client: 'Khu công nghiệp Việt Phú',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 4,
+    },
+    {
+      title: 'Trường học xanh Nguyễn Du',
+      location: 'Long An',
+      capacity: '50kW',
+      completedDate: 'Tháng 8, 2023',
+      imageUrl: '/images/news-5.jpg',
+      description: 'Dự án điện mặt trời cho trường học, góp phần giáo dục ý thức bảo vệ môi trường cho học sinh.',
+      detail: `
+<h2>Năng lượng xanh cho giáo dục</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời cho Trường THPT Nguyễn Du, Long An - mô hình trường học xanh tiên phong.</p>
+
+<h3>Cấu hình hệ thống</h3>
+<ul>
+<li>Công suất: 50kWp</li>
+<li>Số lượng tấm pin: 125 tấm</li>
+<li>Inverter: 1 x 50kW</li>
+<li>Màn hình giám sát công khai</li>
+<li>Hệ thống giáo dục tương tác</li>
+</ul>
+
+<h3>Giá trị giáo dục</h3>
+<p>Ngoài việc tiết kiệm điện năng, hệ thống còn được tích hợp màn hình hiển thị công khai tại sảnh trường, giúp học sinh theo dõi sản lượng điện thực tế và hiểu về năng lượng tái tạo.</p>
+
+<h3>Kết quả đạt được</h3>
+<ul>
+<li>Tiết kiệm 40% chi phí điện của trường</li>
+<li>Giảm 37.5 tấn CO2/năm</li>
+<li>Nâng cao ý thức môi trường cho 1,200 học sinh</li>
+<li>Tạo nguồn học liệu thực tế cho môn Khoa học</li>
+</ul>
+      `,
+      category: 'Giáo dục',
+      client: 'Trường THPT Nguyễn Du',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 5,
+    },
+    {
+      title: 'Resort biển Mũi Né',
+      location: 'Phan Thiết',
+      capacity: '100kW',
+      completedDate: 'Tháng 7, 2023',
+      imageUrl: '/images/news-6.jpg',
+      description: 'Hệ thống điện mặt trời cho resort, kết hợp với hệ thống làm nóng nước năng lượng mặt trời.',
+      detail: `
+<h2>Giải pháp năng lượng toàn diện cho resort</h2>
+<p>Dự án lắp đặt hệ thống điện mặt trời và nước nóng năng lượng mặt trời cho Mũi Né Beach Resort, Phan Thiết.</p>
+
+<h3>Hệ thống điện mặt trời</h3>
+<ul>
+<li>Công suất: 100kWp</li>
+<li>Số lượng tấm pin: 250 tấm</li>
+<li>Inverter: 2 x 50kW</li>
+<li>Pin lưu trữ: 50kWh</li>
+</ul>
+
+<h3>Hệ thống nước nóng mặt trời</h3>
+<ul>
+<li>30 bộ máy nước nóng năng lượng mặt trời</li>
+<li>Tổng dung tích: 6,000 lít</li>
+<li>Phục vụ 50 phòng nghỉ</li>
+</ul>
+
+<h3>Lợi ích cho resort</h3>
+<ul>
+<li>Tiết kiệm 65% chi phí điện và nước nóng</li>
+<li>Nâng cao hình ảnh resort xanh, thân thiện môi trường</li>
+<li>Thu hút khách du lịch có ý thức môi trường</li>
+<li>Giảm 75 tấn CO2/năm</li>
+<li>Tiết kiệm 280 triệu đồng/năm</li>
+</ul>
+
+<h3>Đánh giá của khách hàng</h3>
+<p>"Hệ thống hoạt động rất ổn định, đặc biệt phù hợp với điều kiện nắng tốt tại Mũi Né. Khách hàng rất hài lòng với cam kết xanh của resort." - Giám đốc Resort</p>
+      `,
+      category: 'Du lịch',
+      client: 'Mũi Né Beach Resort',
+      isDisplay: true,
+      showInHomepage: true,
+      order: 6,
+    },
+  ];
+
+  // Create projects
+  for (const project of projects) {
+    await prisma.project.create({
+      data: project,
+    });
+  }
+
+  console.log(`✅ Created ${projects.length} projects`);
 
   // Seed news articles based on allNewsArticles from NewsPageContent.tsx
   const newsArticles = [

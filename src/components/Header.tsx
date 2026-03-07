@@ -10,6 +10,7 @@ export default function Header() {
     { name: "Trang chủ", href: "/" },
     { name: "Sản phẩm", href: "/product" },
     { name: "Dịch vụ", href: "/service" },
+    { name: "Dự án", href: "/projects" },
     { name: "Tin Tức", href: "/news" },
     { name: "Về Chúng tôi", href: "/about-us" },
     { name: "Liên hệ", href: "/contact-us" },

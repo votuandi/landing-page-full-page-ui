@@ -1,24 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface Project {
   id: number;
   title: string;
-  location: string;
-  capacity: string;
-  completedDate: string;
-  image: string;
-  description: string;
+  location: string | null;
+  capacity: string | null;
+  completedDate: string | null;
+  imageUrl: string | null;
+  description: string | null;
   category: string;
-  client: string;
+  client: string | null;
 }
 
 export default function ProjectsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -31,80 +36,31 @@ export default function ProjectsSection() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: "Hệ thống điện mặt trời nhà máy ABC",
-      location: "Bình Dương",
-      capacity: "500kW",
-      completedDate: "Tháng 12, 2023",
-      image: "/images/news-1.jpg",
-      description:
-        "Hệ thống điện mặt trời quy mô lớn cho nhà máy sản xuất, giúp tiết kiệm 70% chi phí điện năng hàng năm.",
-      category: "Công nghiệp",
-      client: "Công ty ABC Manufacturing",
-    },
-    {
-      id: 2,
-      title: "Điện mặt trời áp mái biệt thự",
-      location: "TP. Hồ Chí Minh",
-      capacity: "15kW",
-      completedDate: "Tháng 11, 2023",
-      image: "/images/news-2.jpg",
-      description:
-        "Hệ thống điện mặt trời áp mái cho biệt thự, tích hợp pin lưu trữ và hệ thống smart home.",
-      category: "Dân dụng",
-      client: "Gia đình Nguyễn Văn A",
-    },
-    {
-      id: 3,
-      title: "Trung tâm thương mại Solar Plaza",
-      location: "Đồng Nai",
-      capacity: "300kW",
-      completedDate: "Tháng 10, 2023",
-      image: "/images/news-3.jpg",
-      description:
-        "Dự án điện mặt trời cho trung tâm thương mại, cung cấp năng lượng sạch cho toàn bộ hệ thống.",
-      category: "Thương mại",
-      client: "Solar Plaza JSC",
-    },
-    {
-      id: 4,
-      title: "Khu công nghiệp Việt Phú",
-      location: "Bình Phước",
-      capacity: "1.2MW",
-      completedDate: "Tháng 9, 2023",
-      image: "/images/news-4.jpg",
-      description:
-        "Hệ thống điện mặt trời lớn nhất khu vực với công nghệ tiên tiến, giảm 80% phát thải carbon.",
-      category: "Công nghiệp",
-      client: "Khu công nghiệp Việt Phú",
-    },
-    {
-      id: 5,
-      title: "Trường học xanh Nguyễn Du",
-      location: "Long An",
-      capacity: "50kW",
-      completedDate: "Tháng 8, 2023",
-      image: "/images/news-5.jpg",
-      description:
-        "Dự án điện mặt trời cho trường học, góp phần giáo dục ý thức bảo vệ môi trường cho học sinh.",
-      category: "Giáo dục",
-      client: "Trường THPT Nguyễn Du",
-    },
-    {
-      id: 6,
-      title: "Resort biển Mũi Né",
-      location: "Phan Thiết",
-      capacity: "100kW",
-      completedDate: "Tháng 7, 2023",
-      image: "/images/news-6.jpg",
-      description:
-        "Hệ thống điện mặt trời cho resort, kết hợp với hệ thống làm nóng nước năng lượng mặt trời.",
-      category: "Du lịch",
-      client: "Mũi Né Beach Resort",
-    },
-  ];
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/projects?showInHomepage=true&isDisplay=true&limit=100');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+
+        const result = await response.json();
+        setProjects(result.data || []);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load projects');
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const itemsPerPage = 3;
   const mobileProjectsInitial = 4; // Show 2x2 projects initially on mobile
@@ -177,70 +133,92 @@ export default function ProjectsSection() {
 
         {/* Projects Grid */}
         <div className="relative">
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-12">
-            {getCurrentProjects().map((project) => (
-              <div
-                key={project.id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group"
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-solar-blue"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-600 mb-4">Không thể tải dự án: {error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-solar-blue text-white rounded-lg hover:bg-solar-blue/90 transition-colors"
               >
-                {/* Project Image */}
-                <div className="relative h-48 md:h-64 overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute top-2 left-2 md:top-4 md:left-4">
-                    <span
-                      className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium ${getCategoryColor(
-                        project.category
-                      )}`}
-                    >
-                      {project.category}
-                    </span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+                Thử lại
+              </button>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-gray-600 text-lg">Chưa có dự án nào được hiển thị.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-12">
+              {getCurrentProjects().map((project) => (
+                <Link href={`/projects/${project.id}`} key={project.id}>
+                  <div
+                    className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer"
+                  >
+                    {/* Project Image */}
+                    <div className="relative h-48 md:h-64 overflow-hidden">
+                      <Image
+                        src={project.imageUrl || '/images/placeholder.jpg'}
+                        alt={project.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
+                        <span
+                          className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium ${getCategoryColor(
+                            project.category
+                          )}`}
+                        >
+                          {project.category}
+                        </span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
 
-                {/* Project Content */}
-                <div className="p-3 md:p-6">
-                  <div className="flex items-center justify-between mb-2 md:mb-3">
-                    <span className="text-xs md:text-sm text-solar-blue font-medium">
-                      {project.location}
-                    </span>
-                    <span className="text-xs md:text-sm text-gray-500">
-                      {project.completedDate}
-                    </span>
-                  </div>
+                    {/* Project Content */}
+                    <div className="p-3 md:p-6">
+                      <div className="flex items-center justify-between mb-2 md:mb-3">
+                        <span className="text-xs md:text-sm text-solar-blue font-medium">
+                          {project.location || 'N/A'}
+                        </span>
+                        <span className="text-xs md:text-sm text-gray-500">
+                          {project.completedDate || 'N/A'}
+                        </span>
+                      </div>
 
-                  <h3 className="text-sm md:text-xl font-bold text-gray-900 mb-2 md:mb-3 group-hover:text-solar-blue transition-colors line-clamp-2">
-                    {project.title}
-                  </h3>
+                      <h3 className="text-sm md:text-xl font-bold text-gray-900 mb-2 md:mb-3 group-hover:text-solar-blue transition-colors line-clamp-2">
+                        {project.title}
+                      </h3>
 
-                  <p className="text-gray-600 mb-3 md:mb-4 line-clamp-2 md:line-clamp-3 text-xs md:text-base">
-                    {project.description}
-                  </p>
+                      <p className="text-gray-600 mb-3 md:mb-4 line-clamp-2 md:line-clamp-3 text-xs md:text-base">
+                        {project.description || 'Không có mô tả'}
+                      </p>
 
-                  <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-100">
-                    <div className="flex items-center space-x-2 md:space-x-4">
-                      <div>
-                        <div className="text-xs md:text-sm text-gray-500">
-                          Công suất
+                      <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-100">
+                        <div className="flex items-center space-x-2 md:space-x-4">
+                          <div>
+                            <div className="text-xs md:text-sm text-gray-500">
+                              Công suất
+                            </div>
+                            <div className="font-semibold text-solar-orange text-sm md:text-base">
+                              {project.capacity || 'N/A'}
+                            </div>
+                          </div>
                         </div>
-                        <div className="font-semibold text-solar-orange text-sm md:text-base">
-                          {project.capacity}
-                        </div>
+                        <button className="text-solar-blue hover:text-solar-blue/80 font-medium text-xs md:text-sm flex items-center space-x-1 group/btn">
+                          <span>Chi tiết</span>
+                          <ChevronRightIcon className="w-3 h-3 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </button>
                       </div>
                     </div>
-                    <button className="text-solar-blue hover:text-solar-blue/80 font-medium text-xs md:text-sm flex items-center space-x-1 group/btn">
-                      <span>Chi tiết</span>
-                      <ChevronRightIcon className="w-3 h-3 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Mobile "Xem thêm" button */}
           {hasMoreProjects && (
@@ -270,11 +248,10 @@ export default function ProjectsSection() {
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentIndex
-                        ? "bg-solar-blue scale-125"
-                        : "bg-gray-300 hover:bg-gray-400"
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                      ? "bg-solar-blue scale-125"
+                      : "bg-gray-300 hover:bg-gray-400"
+                      }`}
                   />
                 ))}
               </div>
@@ -302,12 +279,16 @@ export default function ProjectsSection() {
               cho dự án của bạn.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-gradient-to-r from-solar-blue to-primary-600 text-white font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
-                Tư vấn miễn phí
-              </button>
-              <button className="px-8 py-3 border-2 border-solar-blue text-solar-blue font-semibold rounded-xl hover:bg-solar-blue hover:text-white transition-all duration-300">
-                Xem thêm dự án
-              </button>
+              <Link href="/contact-us">
+                <button className="px-8 py-3 bg-gradient-to-r from-solar-blue to-primary-600 text-white font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                  Tư vấn miễn phí
+                </button>
+              </Link>
+              <Link href="/projects">
+                <button className="px-8 py-3 border-2 border-solar-blue text-solar-blue font-semibold rounded-xl hover:bg-solar-blue hover:text-white transition-all duration-300">
+                  Xem thêm dự án
+                </button>
+              </Link>
             </div>
           </div>
         </div>

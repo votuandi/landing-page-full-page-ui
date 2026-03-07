@@ -5,13 +5,15 @@ import {
   ShoppingBagIcon, 
   NewspaperIcon, 
   UserGroupIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  BriefcaseIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 interface DashboardStats {
   totalProducts: number;
   activeProducts: number;
+  totalProjects: number;
   totalNews: number;
   totalLeads: number;
 }
@@ -20,6 +22,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     activeProducts: 0,
+    totalProjects: 0,
     totalNews: 0,
     totalLeads: 0,
   });
@@ -37,6 +40,7 @@ export default function AdminDashboard() {
         setStats({
           totalProducts: 24,
           activeProducts: 20,
+          totalProjects: 15,
           totalNews: 12,
           totalLeads: 45,
         });
@@ -59,11 +63,11 @@ export default function AdminDashboard() {
       color: "bg-blue-500",
     },
     {
-      name: "Sản phẩm đang hoạt động",
-      value: stats.activeProducts,
-      icon: ShoppingBagIcon,
-      href: "/admin/products",
-      color: "bg-green-500",
+      name: "Dự án hoàn thành",
+      value: stats.totalProjects,
+      icon: BriefcaseIcon,
+      href: "/admin/projects",
+      color: "bg-teal-500",
     },
     {
       name: "Bài viết tin tức",
@@ -152,6 +156,21 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Quản lý sản phẩm</h3>
                   <p className="text-sm text-gray-600">Thêm, sửa hoặc xóa sản phẩm</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/projects"
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="bg-teal-100 p-3 rounded-lg">
+                  <BriefcaseIcon className="w-6 h-6 text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Quản lý dự án</h3>
+                  <p className="text-sm text-gray-600">Quản lý các dự án đã hoàn thành</p>
                 </div>
               </div>
             </Link>
