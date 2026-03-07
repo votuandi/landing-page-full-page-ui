@@ -171,3 +171,46 @@ model ContactForm {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
+
+model CompanyInfo {
+  id                    Int      @id @default(autoincrement())
+  companyName           String
+  logoUrl               String?
+  slogan                String?
+  
+  // Journey/Story section
+  storyTitle            String?
+  storyDetail           String?
+  storyImageUrl         String?
+  storyVideoUrl         String?
+  storyItems            Json?    // Array of {title, detail}
+  
+  // Milestones
+  milestones            Json?    // Array of {time, title, detail}
+  
+  // Core values
+  coreValues            Json?    // Array of {title, detail} - 4 items
+  
+  // Mission
+  mission               String?
+  
+  // Achievements
+  achievements          Json?    // Array of {title, detail}
+  
+  // Team
+  team                  Json?    // Array of {amount, title, detail}
+  
+  // Why choose us
+  whyChooseUsTitle      String?
+  whyChooseUsDetail     String?
+  
+  // Social media
+  facebook              String?
+  zalo                  String?
+  youtube               String?
+  tiktok                String?
+  instagram             String?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   HomeIcon,
   NewspaperIcon,
@@ -21,7 +22,7 @@ type NavigationItem = {
   badge?: number | string;
 };
 
-const navigation: NavigationItem[] = [
+const baseNavigation: NavigationItem[] = [
   { name: "Bảng điều khiển", href: "/admin", icon: HomeIcon },
   { name: "Sản phẩm", href: "/admin/products", icon: ShoppingBagIcon },
   { name: "Dự án", href: "/admin/projects", icon: BriefcaseIcon, },
@@ -38,6 +39,41 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [navigation, setNavigation] = useState<NavigationItem[]>(baseNavigation);
+  const [unresolvedCount, setUnresolvedCount] = useState<number>(0);
+
+  // Fetch unresolved contact forms count
+  useEffect(() => {
+    const fetchUnresolvedCount = async () => {
+      try {
+        const response = await fetch("/api/contact-form/count?isResolved=false");
+        if (response.ok) {
+          const data = await response.json();
+          setUnresolvedCount(data.count);
+        }
+      } catch (error) {
+        console.error("Error fetching unresolved contact forms count:", error);
+      }
+    };
+
+    fetchUnresolvedCount();
+
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchUnresolvedCount, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update navigation with badge count
+  useEffect(() => {
+    const updatedNavigation = baseNavigation.map((item) => {
+      if (item.name === "Khách hàng liên hệ" && unresolvedCount > 0) {
+        return { ...item, badge: unresolvedCount };
+      }
+      return item;
+    });
+    setNavigation(updatedNavigation);
+  }, [unresolvedCount]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,7 +118,7 @@ export default function AdminLayout({
                       px-2 py-0.5 text-xs font-semibold rounded-full
                       ${isActive
                         ? "bg-primary-100 text-primary-700"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-red-100 text-red-700"
                       }
                     `}>
                       {item.badge}

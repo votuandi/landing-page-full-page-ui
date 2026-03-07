@@ -9,6 +9,7 @@ import newsReducer from './features/news/newsSlice';
 import projectsReducer from './features/projects/projectsSlice';
 import servicesReducer from './features/services/servicesSlice';
 import officesReducer from './features/offices/officesSlice';
+import companyInfoReducer from './features/companyInfo/companyInfoSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -23,6 +24,7 @@ export const makeStore = () => {
       projects: projectsReducer,
       services: servicesReducer,
       offices: officesReducer,
+      companyInfo: companyInfoReducer,
     },
   });
 };

@@ -11,6 +11,7 @@ import {
   ServerIcon,
 } from "@heroicons/react/24/outline";
 import BannerForm from "@/components/BannerForm";
+import CompanyInfoForm from "@/components/CompanyInfoForm";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
   fetchBanners,
@@ -43,7 +44,7 @@ import {
 } from "@/lib/features/partners/partnersSlice";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"banners" | "introduction" | "database" | "partners">(
+  const [activeTab, setActiveTab] = useState<"banners" | "introduction" | "database" | "partners" | "companyInfo">(
     "banners"
   );
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
@@ -423,6 +424,19 @@ export default function SettingsPage() {
               `}
             >
               Đối tác
+            </button>
+            <button
+              onClick={() => setActiveTab("companyInfo")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${
+                  activeTab === "companyInfo"
+                    ? "border-primary-500 text-primary-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Thông tin công ty
             </button>
           </nav>
         </div>
@@ -1244,6 +1258,21 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === "companyInfo" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Thông tin công ty
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Quản lý thông tin chi tiết về công ty, bao gồm logo, slogan, hành trình phát triển, và các thông tin khác.
+              </p>
+            </div>
+
+            <CompanyInfoForm />
           </div>
         )}
       </div>
