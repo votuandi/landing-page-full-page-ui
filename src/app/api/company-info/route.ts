@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET - Fetch company info
+// GET - Fetch company info (singleton pattern - only one record with id=1)
 export async function GET() {
   try {
-    // Get the first (and should be only) company info record
-    let companyInfo = await prisma.companyInfo.findFirst();
+    // Get the singleton company info record (id=1)
+    let companyInfo = await prisma.companyInfo.findUnique({
+      where: { id: 1 },
+    });
 
-    // If no company info exists, create a default one
+    // If no company info exists, create the singleton record
     if (!companyInfo) {
       companyInfo = await prisma.companyInfo.create({
         data: {
+          id: 1, // Explicitly set id to 1 for singleton pattern
           companyName: "Tên công ty",
           slogan: "Slogan công ty",
           storyTitle: "Hành trình phát triển",
@@ -53,26 +56,20 @@ export async function GET() {
   }
 }
 
-// PUT - Update company info
+// PUT - Update company info (singleton pattern - only updates id=1)
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Get the first company info record
-    let companyInfo = await prisma.companyInfo.findFirst();
-
-    if (!companyInfo) {
-      // Create new if doesn't exist
-      companyInfo = await prisma.companyInfo.create({
-        data: body,
-      });
-    } else {
-      // Update existing
-      companyInfo = await prisma.companyInfo.update({
-        where: { id: companyInfo.id },
-        data: body,
-      });
-    }
+    // Always use id=1 for singleton pattern
+    const companyInfo = await prisma.companyInfo.upsert({
+      where: { id: 1 },
+      update: body,
+      create: {
+        id: 1,
+        ...body,
+      },
+    });
 
     return NextResponse.json(companyInfo);
   } catch (error) {
@@ -84,7 +81,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// POST - Create company info (same as PUT for this use case)
+// POST - Create/Update company info (same as PUT for singleton pattern)
 export async function POST(request: NextRequest) {
   return PUT(request);
 }

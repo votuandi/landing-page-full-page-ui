@@ -173,7 +173,7 @@ model ContactForm {
 }
 
 model CompanyInfo {
-  id                    Int      @id @default(autoincrement())
+  id                    Int      @id @default(1)
   companyName           String
   logoUrl               String?
   slogan                String?
@@ -213,4 +213,6 @@ model CompanyInfo {
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  
+  @@map("CompanyInfo")
 }
