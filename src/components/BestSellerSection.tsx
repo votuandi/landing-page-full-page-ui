@@ -120,7 +120,7 @@ export default function BestSellerSection() {
   };
 
   // Calculate discount percentage
-  const calculateDiscount = (original: string | null, current: string | null) => {
+  const calculateDiscount = (original: string | null | undefined, current: string | null) => {
     if (!original || !current) return undefined;
     const origNum = parseFloat(original.replace(/[^0-9]/g, ''));
     const currNum = parseFloat(current.replace(/[^0-9]/g, ''));

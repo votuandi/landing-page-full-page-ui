@@ -5,10 +5,11 @@ import { safeDeleteImage } from '@/lib/imageUtils'
 // PUT /api/partners/[id] - Update a partner
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     const body = await request.json()
     const {
       name,
@@ -55,10 +56,11 @@ export async function PUT(
 // DELETE /api/partners/[id] - Delete a partner
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
 
     // Get the partner to retrieve the image URL before deletion
     const partner = await prisma.partner.findUnique({

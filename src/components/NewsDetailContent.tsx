@@ -74,9 +74,9 @@ export default function NewsDetailContent({ article }: NewsDetailContentProps) {
 
         {/* Featured Image */}
         <div className="relative h-64 md:h-96 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-8">
-          {!imageError ? (
+          {!imageError && (article.image || article.imageUrl) ? (
             <Image
-              src={article.image}
+              src={article.image || article.imageUrl || ''}
               alt={article.title}
               fill
               className="object-cover"

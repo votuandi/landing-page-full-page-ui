@@ -10,6 +10,18 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service }: ServiceCardProps) {
+  // Strip HTML tags for preview text
+  const stripHtml = (html: string) => {
+    if (typeof window === 'undefined') {
+      // Server-side: use a simple regex to strip HTML tags
+      return html.replace(/<[^>]*>/g, '');
+    }
+    // Client-side: use DOM API
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const getCategoryColor = (category: Service["category"]) => {
     switch (category) {
       case "household":
@@ -66,7 +78,9 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           {service.title}
         </h3>
 
-        <p className="text-gray-600 mb-4 line-clamp-3">{service.description}</p>
+        <p className="text-gray-600 mb-4 line-clamp-3">
+          {service.description ? stripHtml(service.description) : ''}
+        </p>
 
         <div className="mb-4">
           <h4 className="text-sm font-medium text-gray-900 mb-2">

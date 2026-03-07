@@ -26,6 +26,9 @@ async function main() {
   await prisma.project.deleteMany({});
   console.log('✅ Cleared existing project data');
 
+  await prisma.service.deleteMany({});
+  console.log('✅ Cleared existing service data');
+
   // Seed projects based on ProjectsSection.tsx
   const projects = [
     {
@@ -258,6 +261,155 @@ async function main() {
   }
 
   console.log(`✅ Created ${projects.length} projects`);
+
+  // Seed services based on SERVICES from constants.ts
+  const services = [
+    {
+      title: 'Tư vấn và thiết kế hệ thống điện hộ gia đình',
+      description: 'Dịch vụ tư vấn chuyên nghiệp và thiết kế hệ thống điện an toàn, hiệu quả cho hộ gia đình.',
+      image: '/images/solar-installation-hero.jpg',
+      features: [
+        'Khảo sát hiện trạng điện',
+        'Thiết kế sơ đồ mạch điện',
+        'Tư vấn thiết bị phù hợp',
+        'Hỗ trợ kỹ thuật 24/7',
+      ],
+      price: 'Liên hệ',
+      category: 'household',
+      duration: '1-2 ngày',
+      warranty: '12 tháng',
+      isActive: true,
+      order: 1,
+    },
+    {
+      title: 'Tư vấn và thiết kế hệ thống điện hộ doanh nghiệp',
+      description: 'Giải pháp hệ thống điện công nghiệp quy mô lớn cho doanh nghiệp, nhà máy.',
+      image: '/images/solar-panels-hero.jpg',
+      features: [
+        'Khảo sát công suất tiêu thụ',
+        'Thiết kế hệ thống ba pha',
+        'Tối ưu chi phí vận hành',
+        'Tuân thủ tiêu chuẩn an toàn',
+      ],
+      price: 'Liên hệ',
+      category: 'business',
+      duration: '3-5 ngày',
+      warranty: '24 tháng',
+      isActive: true,
+      order: 2,
+    },
+    {
+      title: 'Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho hộ gia đình',
+      description: 'Dịch vụ trọn gói từ thiết kế đến lắp đặt hệ thống điện mặt trời cho hộ gia đình.',
+      image: '/images/solar-battery-hero.jpg',
+      features: [
+        'Khảo sát mái nhà',
+        'Thiết kế hệ thống phù hợp',
+        'Lắp đặt chuyên nghiệp',
+        'Bảo hành toàn diện',
+      ],
+      price: '150-300 triệu',
+      category: 'household',
+      duration: '5-7 ngày',
+      warranty: '25 năm',
+      isActive: true,
+      order: 3,
+    },
+    {
+      title: 'Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho doanh nghiệp',
+      description: 'Giải pháp năng lượng mặt trời quy mô lớn cho doanh nghiệp, tiết kiệm chi phí điện.',
+      image: '/images/solar-inverter-hero.jpg',
+      features: [
+        'Khảo sát địa điểm lắp đặt',
+        'Thiết kế hệ thống công suất cao',
+        'Thi công theo tiêu chuẩn quốc tế',
+        'Giám sát và bảo trì định kỳ',
+      ],
+      price: '500 triệu - 5 tỷ',
+      category: 'business',
+      duration: '2-4 tuần',
+      warranty: '25 năm',
+      isActive: true,
+      order: 4,
+    },
+    {
+      title: 'Thiết kế và thi công trạm sạc xe điện năng lượng mặt trời',
+      description: 'Xây dựng trạm sạc xe điện sử dụng năng lượng mặt trời thân thiện môi trường.',
+      image: '/images/product-1.jpg',
+      features: [
+        'Thiết kế trạm sạc hiện đại',
+        'Tích hợp năng lượng mặt trời',
+        'Hệ thống quản lý thông minh',
+        'Hỗ trợ nhiều loại xe điện',
+      ],
+      price: '300-800 triệu',
+      category: 'business',
+      duration: '3-6 tuần',
+      warranty: '20 năm',
+      isActive: true,
+      order: 5,
+    },
+    {
+      title: 'Sửa chữa bảo trì điện',
+      description: 'Dịch vụ sửa chữa, bảo trì hệ thống điện và thiết bị năng lượng mặt trời.',
+      image: '/images/product-2.jpg',
+      features: [
+        'Kiểm tra định kỳ hệ thống',
+        'Sửa chữa nhanh chóng',
+        'Thay thế linh kiện chất lượng',
+        'Hỗ trợ khẩn cấp 24/7',
+      ],
+      price: '500.000 - 5.000.000 VNĐ',
+      category: 'maintenance',
+      duration: '1-3 ngày',
+      warranty: '6 tháng',
+      isActive: true,
+      order: 6,
+    },
+    {
+      title: 'Tư vấn giải pháp tiết kiệm năng lượng',
+      description: 'Tư vấn các giải pháp tối ưu hóa sử dụng năng lượng và giảm chi phí điện.',
+      image: '/images/product-3.jpg',
+      features: [
+        'Phân tích mức tiêu thụ điện',
+        'Đề xuất giải pháp tiết kiệm',
+        'Tư vấn thiết bị hiệu quả cao',
+        'Theo dõi hiệu suất dài hạn',
+      ],
+      price: '2-10 triệu',
+      category: 'consultation',
+      duration: '1-2 tuần',
+      warranty: '12 tháng',
+      isActive: true,
+      order: 7,
+    },
+    {
+      title: 'Lắp đặt hệ thống chiếu sáng LED năng lượng mặt trời',
+      description: 'Giải pháp chiếu sáng tiết kiệm năng lượng sử dụng LED và pin mặt trời.',
+      image: '/images/product-4.jpg',
+      features: [
+        'Đèn LED chất lượng cao',
+        'Pin mặt trời bền bỉ',
+        'Tự động bật/tắt',
+        'Chống thấm nước IP65',
+      ],
+      price: '5-50 triệu',
+      category: 'household',
+      duration: '1-3 ngày',
+      warranty: '3 năm',
+      isActive: true,
+      order: 8,
+    },
+  ];
+
+  // Create services
+  for (const service of services) {
+    await prisma.service.create({
+      data: service,
+    });
+  }
+
+  console.log(`✅ Created ${services.length} services`);
 
   // Seed news articles based on allNewsArticles from NewsPageContent.tsx
   const newsArticles = [

@@ -9,8 +9,10 @@ interface NewsCardProps {
   title: string;
   excerpt: string;
   author: string;
-  date: string;
-  image: string;
+  date?: string;
+  publishedAt?: string;
+  image?: string;
+  imageUrl?: string;
   category: string;
   readTime: string;
 }
@@ -21,20 +23,24 @@ export default function NewsCard({
   excerpt,
   author,
   date,
+  publishedAt,
   image,
+  imageUrl,
   category,
   readTime,
 }: NewsCardProps) {
   const [imageError, setImageError] = useState(false);
+  const displayDate = date || publishedAt || '';
+  const displayImage = image || imageUrl || '';
 
   return (
     <Link href={`/news/${id}`} className="block">
       <article className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow">
       {/* Image */}
       <div className="relative h-32 md:h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-        {!imageError ? (
+        {!imageError && displayImage ? (
           <Image
-            src={image}
+            src={displayImage}
             alt={title}
             fill
             className="object-cover"
@@ -109,7 +115,7 @@ export default function NewsCard({
               <div className="text-xs md:text-sm font-medium text-gray-900">
                 {author}
               </div>
-              <div className="text-xs text-gray-500">{date}</div>
+              <div className="text-xs text-gray-500">{displayDate}</div>
             </div>
           </div>
 

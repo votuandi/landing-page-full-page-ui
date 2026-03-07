@@ -31,7 +31,9 @@ export default function AllServicesSection() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // Scroll to top of services section
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
@@ -44,11 +46,10 @@ export default function AllServicesSection() {
               <button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                  selectedCategory === category.id
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${selectedCategory === category.id
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {category.name} ({category.count})
               </button>
@@ -71,11 +72,10 @@ export default function AllServicesSection() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    currentPage === 1
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${currentPage === 1
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <svg
                     className="w-5 h-5"
@@ -97,11 +97,10 @@ export default function AllServicesSection() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 rounded-md text-sm font-medium ${
-                        currentPage === page
+                      className={`px-3 py-2 rounded-md text-sm font-medium ${currentPage === page
                           ? "bg-blue-600 text-white"
                           : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -111,11 +110,10 @@ export default function AllServicesSection() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    currentPage === totalPages
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${currentPage === totalPages
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <svg
                     className="w-5 h-5"

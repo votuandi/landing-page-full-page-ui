@@ -2,20 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  HomeIcon, 
-  ChartBarIcon, 
-  NewspaperIcon, 
+import {
+  HomeIcon,
+  NewspaperIcon,
   ShoppingBagIcon,
   Cog6ToothIcon,
   UserGroupIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  MegaphoneIcon
 } from "@heroicons/react/24/outline";
+import { SERVICE_CATEGORIES } from "@/utils/constants";
 
-const navigation = [
+type NavigationItem = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  badge?: number | string;
+};
+
+const navigation: NavigationItem[] = [
   { name: "Bảng điều khiển", href: "/admin", icon: HomeIcon },
   { name: "Sản phẩm", href: "/admin/products", icon: ShoppingBagIcon },
-  { name: "Dự án", href: "/admin/projects", icon: BriefcaseIcon },
+  { name: "Dự án", href: "/admin/projects", icon: BriefcaseIcon, },
+  { name: "Dịch vụ", href: "/admin/services", icon: MegaphoneIcon, },
   { name: "Tin tức", href: "/admin/news", icon: NewspaperIcon },
   { name: "Khách hàng tiềm năng", href: "/admin/leads", icon: UserGroupIcon },
   { name: "Cài đặt", href: "/admin/settings", icon: Cog6ToothIcon },
@@ -48,23 +57,35 @@ export default function AdminLayout({
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href || 
+              const isActive = pathname === item.href ||
                 (item.href !== "/admin" && pathname?.startsWith(item.href));
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={`
-                    flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-                    ${
-                      isActive
-                        ? "bg-primary-50 text-primary-700"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                    ${isActive
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     }
                   `}
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
+                  <div className="flex items-center space-x-3">
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </div>
+                  {item.badge !== undefined && (
+                    <span className={`
+                      px-2 py-0.5 text-xs font-semibold rounded-full
+                      ${isActive
+                        ? "bg-primary-100 text-primary-700"
+                        : "bg-gray-100 text-gray-600"
+                      }
+                    `}>
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

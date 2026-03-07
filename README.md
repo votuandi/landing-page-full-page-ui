@@ -68,7 +68,13 @@ A modern, responsive landing page for a solar energy distribution company built 
    docker-compose exec nextjs npm run db:generate
    ```
 
-4. **Open browser**
+4. **Seed database with sample data** (Optional)
+
+   ```bash
+   docker-compose exec nextjs npm run db:seed
+   ```
+
+5. **Open browser**
    ```
    http://localhost:3000
    ```
@@ -96,16 +102,35 @@ A modern, responsive landing page for a solar energy distribution company built 
    npm run db:push
    ```
 
-4. **Run development server**
+4. **Seed database with sample data** (Optional)
+
+   ```bash
+   npm run db:seed
+   ```
+
+   This will populate your database with:
+   - 6 sample projects
+   - 10 news articles
+   - 8 services (household, business, maintenance, consultation)
+
+5. **Run development server**
 
    ```bash
    npm run dev
    ```
 
-5. **Open browser**
+6. **Open browser**
    ```
    http://localhost:3000
    ```
+
+### Database Scripts
+
+- Generate Prisma client: `npm run db:generate`
+- Push schema to database: `npm run db:push`
+- Run migrations: `npm run db:migrate`
+- Open Prisma Studio: `npm run db:studio`
+- Seed database: `npm run db:seed`
 
 ### Docker Commands
 

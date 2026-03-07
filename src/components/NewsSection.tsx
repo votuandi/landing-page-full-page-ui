@@ -200,9 +200,9 @@ export default function NewsSection() {
                 </div>
               </div>
               <div className="relative h-64 lg:h-auto bg-white/10 overflow-hidden">
-                {!featuredImageError ? (
+                {!featuredImageError && (newsArticles[0].image || newsArticles[0].imageUrl) ? (
                   <Image
-                    src={newsArticles[0].image}
+                    src={newsArticles[0].image || newsArticles[0].imageUrl || ''}
                     alt={newsArticles[0].title}
                     fill
                     className="object-cover"

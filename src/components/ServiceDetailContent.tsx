@@ -192,7 +192,10 @@ export default function ServiceDetailContent({
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 {service.title}
               </h1>
-              <p className="text-white/90 text-lg">{service.description}</p>
+              <div 
+                className="text-white/90 text-lg prose prose-lg prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: service.description }}
+              />
             </div>
           </div>
         </div>
@@ -267,9 +270,10 @@ export default function ServiceDetailContent({
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">
                       Mô tả dịch vụ
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {service.description}
-                    </p>
+                    <div 
+                      className="text-gray-600 leading-relaxed prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: service.description }}
+                    />
                   </div>
 
                   <div>
