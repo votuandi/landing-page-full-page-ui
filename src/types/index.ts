@@ -60,6 +60,19 @@ export interface SEOProps {
   url?: string;
 }
 
+export interface Benefit {
+  icon: string;
+  title: string;
+  description: string;
+  color: string;
+}
+
+export interface ProcessStep {
+  step: number;
+  title: string;
+  description: string;
+}
+
 export interface Service {
   id: number;
   title: string;
@@ -70,6 +83,8 @@ export interface Service {
   category: "household" | "business" | "maintenance" | "consultation";
   duration?: string | null;
   warranty?: string | null;
+  benefits?: Benefit[] | null;
+  implementationProcess?: ProcessStep[] | null;
   isActive?: boolean;
   order?: number;
   createdAt?: string;

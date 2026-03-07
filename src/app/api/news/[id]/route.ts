@@ -191,26 +191,13 @@ export async function DELETE(
       }
     })
 
-    // Delete the news article from database
-    await prisma.news.delete({
-      where: { id }
-    })
-
-    // Delete the main news image file if it exists
+    // Delete the main news image file if it exists (before deleting from DB)
     if (existingNews.imageUrl) {
       await deleteImageFile(existingNews.imageUrl)
     }
 
-    // Delete all StorageMedia records associated with this news
+    // Delete all StorageMedia files from storage (before deleting from DB)
     if (storageMediaRecords.length > 0) {
-      await prisma.storageMedia.deleteMany({
-        where: {
-          parentType: 'news-text-editor',
-          parentId: id
-        }
-      })
-
-      // Delete the actual files from storage
       for (const record of storageMediaRecords) {
         if (record.path) {
           // Convert storage path to public URL format
@@ -219,7 +206,20 @@ export async function DELETE(
           await deleteImageFile(publicUrl)
         }
       }
+
+      // Delete all StorageMedia records from database
+      await prisma.storageMedia.deleteMany({
+        where: {
+          parentType: 'news-text-editor',
+          parentId: id
+        }
+      })
     }
+
+    // Finally, delete the news article from database
+    await prisma.news.delete({
+      where: { id }
+    })
 
     return NextResponse.json(
       { message: 'News deleted successfully' },

@@ -116,19 +116,21 @@ model Project {
 }
 
 model Service {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?  // Rich text content edited by divt-text-editor
-  image       String?
-  features    String[] @default([])
-  price       String?
-  category    String   @default("household")
-  duration    String?
-  warranty    String?
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                    Int      @id @default(autoincrement())
+  title                 String
+  description           String?  // Rich text content edited by divt-text-editor
+  image                 String?
+  features              String[] @default([])
+  price                 String?
+  category              String   @default("household")
+  duration              String?
+  warranty              String?
+  benefits              String?  // JSON string containing array of benefit objects
+  implementationProcess String?  // JSON string containing array of process step objects
+  isActive              Boolean  @default(true)
+  order                 Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model StorageMedia {

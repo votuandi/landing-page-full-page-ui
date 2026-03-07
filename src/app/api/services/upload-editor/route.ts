@@ -1,94 +1,151 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     
     // divt-text-editor might send the file with different field names
-    // Try both 'file' and 'image'
-    const file = formData.get('file') as File | null || formData.get('image') as File | null;
-    
+    // Try common field names: 'image', 'file', 'upload'
+    let file = formData.get('image') as File;
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      file = formData.get('file') as File;
     }
-
-    // Validate file type
-    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-    const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
-    const validTypes = [...validImageTypes, ...validVideoTypes];
+    if (!file) {
+      file = formData.get('upload') as File;
+    }
     
-    if (!validTypes.includes(file.type)) {
+    // Get serviceId from query params or form data
+    const { searchParams } = new URL(request.url);
+    const serviceId = searchParams.get('serviceId') || formData.get('serviceId') as string;
+
+    if (!file) {
+      // Log all form data keys for debugging
+      const keys = Array.from(formData.keys());
+      console.error('No file found. Available form data keys:', keys);
       return NextResponse.json(
-        { error: 'Invalid file type. Only images (JPEG, PNG, WebP, GIF) and videos (MP4, WebM, OGG) are allowed.' },
+        { error: 'No file provided', availableKeys: keys },
         { status: 400 }
       );
     }
 
-    const isVideo = validVideoTypes.includes(file.type);
-    const isImage = validImageTypes.includes(file.type);
+    // Determine if file is image or video
+    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
+    const isImage = imageTypes.includes(file.type);
+    const isVideo = videoTypes.includes(file.type);
 
-    // Validate file size (10MB for images, 50MB for videos)
-    const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (!isImage && !isVideo) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid file type. Only images (JPEG, PNG, WebP, GIF) and videos (MP4, WebM, OGG, MOV) are allowed.',
+          receivedType: file.type
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (images: 10MB, videos: 100MB)
+    const maxSize = isImage ? 10 * 1024 * 1024 : 100 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: `File size exceeds ${isVideo ? '50MB' : '10MB'} limit` },
+        { error: `File size exceeds ${isImage ? '10MB' : '100MB'} limit` },
         { status: 400 }
       );
     }
 
-    // Get serviceId from query params (optional)
-    const { searchParams } = new URL(request.url);
-    const serviceId = searchParams.get('serviceId');
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    // Create upload directory structure
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'services', 'editor');
-    await mkdir(uploadDir, { recursive: true });
-
-    // Generate unique filename
+    // Generate filename with timestamp
     const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = isVideo ? path.extname(file.name) : '.webp';
-    const fileName = `service-editor-${serviceId || 'new'}-${timestamp}-${randomString}${fileExtension}`;
-    const filePath = path.join(uploadDir, fileName);
+    let filename: string;
+    let uploadDir: string;
+    let fileUrl: string;
+    let filePath: string;
 
-    if (isVideo) {
-      // For videos, save directly without conversion
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      await writeFile(filePath, buffer);
-    } else if (isImage) {
-      // For images, convert to WebP format
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+    if (isImage) {
+      // Process images - convert to WebP
+      filename = `service_${timestamp}.webp`;
+      uploadDir = path.join(process.cwd(), 'public', 'images', 'services');
+      
+      // Create directory if it doesn't exist
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
+      }
 
-      // Convert to WebP using sharp
+      const filepath = path.join(uploadDir, filename);
+
+      // Convert image to WebP format using sharp
       await sharp(buffer)
+        .resize(1200, null, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
         .webp({ quality: 85 })
-        .toFile(filePath);
+        .toFile(filepath);
+
+      fileUrl = `/images/services/${filename}`;
+      filePath = `public/images/services/${filename}`;
+    } else {
+      // Process videos - save as-is
+      const extension = file.name.split('.').pop() || 'mp4';
+      filename = `service_${timestamp}.${extension}`;
+      uploadDir = path.join(process.cwd(), 'public', 'videos', 'services');
+      
+      // Create directory if it doesn't exist
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
+      }
+
+      const filepath = path.join(uploadDir, filename);
+      await writeFile(filepath, buffer);
+
+      fileUrl = `/videos/services/${filename}`;
+      filePath = `public/videos/services/${filename}`;
     }
 
-    // Generate public URL
-    const fileUrl = `/uploads/services/editor/${fileName}`;
+    // Save to storage_medias table with parent_type = "service-text-editor"
+    // For new services (serviceId = 0), save with parentId = null and include the path in response
+    // The parent will update these records after the service is created
+    try {
+      const parentIdValue = serviceId && serviceId !== '0' ? parseInt(serviceId) : null;
+      
+      await prisma.storageMedia.create({
+        data: {
+          parentId: parentIdValue,
+          type: isImage ? 'image' : 'video',
+          parentType: 'service-text-editor',
+          path: filePath,
+        },
+      });
+    } catch (dbError) {
+      console.error('Error saving to StorageMedia:', dbError);
+      // Continue even if DB save fails - the file is already uploaded
+    }
 
     // Return in the format expected by divt-text-editor
-    return NextResponse.json({
-      success: true,
-      url: fileUrl,  // divt-text-editor expects 'url' field
-      message: `${isVideo ? 'Video' : 'Image'} uploaded successfully`
-    });
-
+    return NextResponse.json(
+      { 
+        url: fileUrl,  // divt-text-editor expects 'url' field
+        success: true,
+        imageUrl: fileUrl,  // Keep for backwards compatibility
+        filename,
+        type: isImage ? 'image' : 'video',
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
       { 
         error: 'Failed to upload file',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

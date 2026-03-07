@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "services");
+    const uploadsDir = path.join(process.cwd(), "public", "images", "services");
     try {
       await mkdir(uploadsDir, { recursive: true });
     } catch (error) {
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       })
       .toFile(filepath);
 
-    const imageUrl = `/uploads/services/${filename}`;
+    const imageUrl = `/images/services/${filename}`;
 
     return NextResponse.json({ imageUrl }, { status: 200 });
   } catch (error) {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  ShoppingBagIcon, 
-  NewspaperIcon, 
+import {
+  ShoppingBagIcon,
+  NewspaperIcon,
   UserGroupIcon,
   ChartBarIcon,
   BriefcaseIcon
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
       try {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 500));
-        
+
         // Mock data - replace with actual API calls
         setStats({
           totalProducts: 24,

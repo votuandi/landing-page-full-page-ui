@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { Benefit, ProcessStep } from "@/types";
 
 export interface Service {
   id: number;
@@ -10,6 +11,8 @@ export interface Service {
   category: string;
   duration: string | null;
   warranty: string | null;
+  benefits?: Benefit[] | null;
+  implementationProcess?: ProcessStep[] | null;
   isActive: boolean;
   order: number;
   createdAt: string;
@@ -131,6 +134,8 @@ const servicesSlice = createSlice({
         category: "household",
         duration: "",
         warranty: "",
+        benefits: [],
+        implementationProcess: [],
         isActive: true,
         order: 0,
         createdAt: new Date().toISOString(),

@@ -198,26 +198,13 @@ export async function DELETE(
       }
     })
 
-    // Delete the project from database
-    await prisma.project.delete({
-      where: { id }
-    })
-
-    // Delete the main project image file if it exists
+    // Delete the main project image file if it exists (before deleting from DB)
     if (existingProject.imageUrl) {
       await deleteImageFile(existingProject.imageUrl)
     }
 
-    // Delete all StorageMedia records associated with this project
+    // Delete all StorageMedia files from storage (before deleting from DB)
     if (storageMediaRecords.length > 0) {
-      await prisma.storageMedia.deleteMany({
-        where: {
-          parentType: 'project-text-editor',
-          parentId: id
-        }
-      })
-
-      // Delete the actual files from storage
       for (const record of storageMediaRecords) {
         if (record.path) {
           // Convert storage path to public URL format
@@ -226,7 +213,20 @@ export async function DELETE(
           await deleteImageFile(publicUrl)
         }
       }
+
+      // Delete all StorageMedia records from database
+      await prisma.storageMedia.deleteMany({
+        where: {
+          parentType: 'project-text-editor',
+          parentId: id
+        }
+      })
     }
+
+    // Finally, delete the project from database
+    await prisma.project.delete({
+      where: { id }
+    })
 
     return NextResponse.json(
       { message: 'Project deleted successfully' },

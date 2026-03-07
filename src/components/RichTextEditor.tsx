@@ -36,6 +36,7 @@ export default function RichTextEditor({
     uploadEndpoint = `/api/projects/upload-editor?projectId=${projectId}`;
   } else if (serviceId !== undefined) {
     // For service editor - use service-specific upload endpoint
+    // Pass serviceId even if it's 0 (for new services)
     uploadEndpoint = `/api/services/upload-editor?serviceId=${serviceId}`;
   } else if (productId !== undefined) {
     // For product editor - use product upload endpoint
