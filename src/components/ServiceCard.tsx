@@ -57,7 +57,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
       <div className="relative h-48 w-full">
         <Image
-          src={service.image}
+          src={service.image || "/images/solar-installation-hero.jpg"}
           alt={service.title}
           fill
           className="object-cover"
@@ -79,42 +79,44 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </h3>
 
         <p className="text-gray-600 mb-4 line-clamp-3">
-          {service.description ? stripHtml(service.description) : ''}
+          {service.description ? stripHtml(service.description) : 'Không có mô tả'}
         </p>
 
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">
-            Đặc điểm nổi bật:
-          </h4>
-          <ul className="text-sm text-gray-600 space-y-1">
-            {service.features.slice(0, 3).map((feature, index) => (
-              <li key={index} className="flex items-start">
-                <svg
-                  className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>{feature}</span>
-              </li>
-            ))}
-            {service.features.length > 3 && (
-              <li className="text-xs text-gray-500 ml-6">
-                +{service.features.length - 3} tính năng khác
-              </li>
-            )}
-          </ul>
-        </div>
+        {service.features && service.features.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-2">
+              Đặc điểm nổi bật:
+            </h4>
+            <ul className="text-sm text-gray-600 space-y-1">
+              {service.features.slice(0, 3).map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <svg
+                    className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>{feature}</span>
+                </li>
+              ))}
+              {service.features.length > 3 && (
+                <li className="text-xs text-gray-500 ml-6">
+                  +{service.features.length - 3} tính năng khác
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
             <span className="text-2xl font-bold text-blue-600">
-              {service.price}
+              {service.price || "Liên hệ"}
             </span>
             {service.duration && (
               <span className="text-sm text-gray-500">

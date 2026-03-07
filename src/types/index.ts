@@ -63,13 +63,17 @@ export interface SEOProps {
 export interface Service {
   id: number;
   title: string;
-  description: string;
-  image: string;
+  description: string | null;
+  image: string | null;
   features: string[];
-  price: string;
+  price: string | null;
   category: "household" | "business" | "maintenance" | "consultation";
-  duration?: string;
-  warranty?: string;
+  duration?: string | null;
+  warranty?: string | null;
+  isActive?: boolean;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WarrantyRegistration {

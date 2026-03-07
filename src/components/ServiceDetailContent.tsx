@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@/types";
-import { SERVICES } from "@/utils/constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ServiceDetailContentProps {
   service: Service;
@@ -160,8 +159,32 @@ export default function ServiceDetailContent({
   const [activeTab, setActiveTab] = useState<
     "overview" | "process" | "pricing"
   >("overview");
+  const [relatedServices, setRelatedServices] = useState<Service[]>([]);
 
   const currentSteps = processSteps[service.category] || processSteps.household;
+
+  // Fetch related services
+  useEffect(() => {
+    const fetchRelatedServices = async () => {
+      try {
+        const response = await fetch(
+          `/api/services?category=${service.category}&limit=100`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          // Filter out current service and limit to 3
+          const filtered = data.services
+            .filter((s: Service) => s.id !== service.id)
+            .slice(0, 3);
+          setRelatedServices(filtered);
+        }
+      } catch (error) {
+        console.error("Error fetching related services:", error);
+      }
+    };
+
+    fetchRelatedServices();
+  }, [service.id, service.category]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -192,10 +215,12 @@ export default function ServiceDetailContent({
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 {service.title}
               </h1>
-              <div 
-                className="text-white/90 text-lg prose prose-lg prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: service.description }}
-              />
+              {service.description && (
+                <div
+                  className="text-white/90 text-lg prose prose-lg prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: service.description }}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -207,7 +232,7 @@ export default function ServiceDetailContent({
         <div className="lg:col-span-2 space-y-8">
           {/* Service Image */}
           <div className="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-            {!imageError ? (
+            {!imageError && service.image ? (
               <Image
                 src={service.image}
                 alt={service.title}
@@ -250,11 +275,10 @@ export default function ServiceDetailContent({
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? "border-solar-blue text-solar-blue"
-                        : "border-transparent text-gray-500 hover:text-gray-700"
-                    }`}
+                    className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
+                      ? "border-solar-blue text-solar-blue"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -266,41 +290,45 @@ export default function ServiceDetailContent({
             <div className="p-6">
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      Mô tả dịch vụ
-                    </h3>
-                    <div 
-                      className="text-gray-600 leading-relaxed prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: service.description }}
-                    />
-                  </div>
+                  {service.description && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        Mô tả dịch vụ
+                      </h3>
+                      <div
+                        className="text-gray-600 leading-relaxed prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: service.description }}
+                      />
+                    </div>
+                  )}
 
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      Dịch vụ bao gồm
-                    </h3>
-                    <ul className="space-y-2">
-                      {service.features.map((feature, index) => (
-                        <li key={index} className="flex items-start space-x-3">
-                          <svg
-                            className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          <span className="text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {service.features && service.features.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        Dịch vụ bao gồm
+                      </h3>
+                      <ul className="space-y-2">
+                        {service.features.map((feature, index) => (
+                          <li key={index} className="flex items-start space-x-3">
+                            <svg
+                              className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            <span className="text-gray-600">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3">
@@ -461,57 +489,61 @@ export default function ServiceDetailContent({
                         </span>
                       </div>
                       <p className="text-2xl font-bold text-solar-blue">
-                        {service.price}
+                        {service.price || "Liên hệ"}
                       </p>
                     </div>
 
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <svg
-                          className="w-5 h-5 text-solar-blue"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="font-medium text-gray-900">
-                          Thời gian thực hiện
-                        </span>
+                    {service.duration && (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <svg
+                            className="w-5 h-5 text-solar-blue"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span className="font-medium text-gray-900">
+                            Thời gian thực hiện
+                          </span>
+                        </div>
+                        <p className="text-lg font-semibold text-gray-700">
+                          {service.duration}
+                        </p>
                       </div>
-                      <p className="text-lg font-semibold text-gray-700">
-                        {service.duration}
-                      </p>
-                    </div>
+                    )}
 
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <svg
-                          className="w-5 h-5 text-solar-blue"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="font-medium text-gray-900">
-                          Bảo hành
-                        </span>
+                    {service.warranty && (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <svg
+                            className="w-5 h-5 text-solar-blue"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span className="font-medium text-gray-900">
+                            Bảo hành
+                          </span>
+                        </div>
+                        <p className="text-lg font-semibold text-gray-700">
+                          {service.warranty}
+                        </p>
                       </div>
-                      <p className="text-lg font-semibold text-gray-700">
-                        {service.warranty}
-                      </p>
-                    </div>
+                    )}
                   </div>
 
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -627,32 +659,30 @@ export default function ServiceDetailContent({
           </div>
 
           {/* Related Services */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Dịch vụ liên quan
-            </h3>
-            <div className="space-y-3">
-              {SERVICES.filter(
-                (s) => s.id !== service.id && s.category === service.category
-              )
-                .slice(0, 3)
-                .map((relatedService) => (
+          {relatedServices.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Dịch vụ liên quan
+              </h3>
+              <div className="space-y-3 flex flex-col gap-1">
+                {relatedServices.map((relatedService) => (
                   <Link
                     key={relatedService.id}
                     href={`/service/${relatedService.id}`}
                   >
-                    <div className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="p-3 border border-lime-200 rounded-lg bg-lime-50 hover:bg-lime-100 transition-colors">
                       <h4 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
                         {relatedService.title}
                       </h4>
                       <p className="text-xs text-gray-600">
-                        {relatedService.price}
+                        {relatedService.price || "Liên hệ"}
                       </p>
                     </div>
                   </Link>
                 ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
