@@ -45,6 +45,10 @@ export default function ProductsPage() {
   const [selectedProductImage, setSelectedProductImage] = useState<{ [key: number]: File }>({});
   const [uploadingProductImage, setUploadingProductImage] = useState<{ [key: number]: boolean }>({});
   const [productImagePreview, setProductImagePreview] = useState<{ [key: number]: string }>({});
+  const [selectedAdditionalImages, setSelectedAdditionalImages] = useState<{ [key: number]: File[] }>({});
+  const [uploadingAdditionalImages, setUploadingAdditionalImages] = useState<{ [key: number]: boolean }>({});
+  const [additionalImagesPreviews, setAdditionalImagesPreviews] = useState<{ [key: number]: string[] }>({});
+  const [imagesToDelete, setImagesToDelete] = useState<{ [key: number]: number[] }>({}); // Track storage media IDs to delete
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | undefined>(undefined);
 
@@ -71,8 +75,8 @@ export default function ProductsPage() {
   }, [dispatch, currentCategoryPage]);
 
   useEffect(() => {
-    dispatch(fetchProducts({ 
-      page: currentProductPage, 
+    dispatch(fetchProducts({
+      page: currentProductPage,
       limit: 10,
       search: searchQuery || undefined,
       categoryId: selectedCategoryFilter
@@ -148,7 +152,7 @@ export default function ProductsPage() {
       }
 
       const data = await response.json();
-      
+
       const newSelectedImages = { ...selectedCategoryImage };
       const newPreviewImages = { ...categoryImagePreview };
       delete newSelectedImages[categoryId];
@@ -214,7 +218,7 @@ export default function ProductsPage() {
           })
         ).unwrap();
       }
-      
+
       alert('Lưu danh mục thành công!');
     } catch (err) {
       alert(err instanceof Error ? err.message : "Không thể lưu danh mục. Vui lòng thử lại.");
@@ -269,6 +273,179 @@ export default function ProductsPage() {
     }
   };
 
+  const handleAdditionalImagesChange = (productId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const maxSize = 10 * 1024 * 1024;
+
+    // Validate all files
+    for (const file of files) {
+      if (!validTypes.includes(file.type)) {
+        alert(`File ${file.name} không hợp lệ. Vui lòng chọn file ảnh (JPEG, PNG, WebP, GIF)`);
+        return;
+      }
+      if (file.size > maxSize) {
+        alert(`File ${file.name} vượt quá giới hạn 10MB`);
+        return;
+      }
+    }
+
+    // Create previews for all files
+    const previews: string[] = [];
+    let loadedCount = 0;
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push(reader.result as string);
+        loadedCount++;
+
+        if (loadedCount === files.length) {
+          setAdditionalImagesPreviews(prev => ({
+            ...prev,
+            [productId]: previews
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setSelectedAdditionalImages(prev => ({
+      ...prev,
+      [productId]: files
+    }));
+  };
+
+  const handleUploadAdditionalImages = async (productId: number): Promise<boolean> => {
+    const files = selectedAdditionalImages[productId];
+    if (!files || files.length === 0) return true;
+
+    setUploadingAdditionalImages(prev => ({ ...prev, [productId]: true }));
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('images', file);
+      });
+      formData.append('productId', productId.toString());
+
+      const response = await fetch('/api/products/upload-additional', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to upload additional images');
+        } else {
+          // If not JSON, it's likely an HTML error page
+          const text = await response.text();
+          console.error('Server error response:', text);
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+      }
+
+      // Clear the selected images after successful upload
+      const newSelectedImages = { ...selectedAdditionalImages };
+      const newPreviews = { ...additionalImagesPreviews };
+      delete newSelectedImages[productId];
+      delete newPreviews[productId];
+      setSelectedAdditionalImages(newSelectedImages);
+      setAdditionalImagesPreviews(newPreviews);
+
+      return true;
+    } catch (error) {
+      console.error('Error uploading additional images:', error);
+      alert(error instanceof Error ? error.message : 'Không thể upload ảnh bổ sung. Vui lòng thử lại.');
+      return false;
+    } finally {
+      setUploadingAdditionalImages(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleMarkImageForDeletion = (productId: number, mediaId: number) => {
+    setImagesToDelete(prev => ({
+      ...prev,
+      [productId]: [...(prev[productId] || []), mediaId]
+    }));
+  };
+
+  const handleUnmarkImageForDeletion = (productId: number, mediaId: number) => {
+    setImagesToDelete(prev => ({
+      ...prev,
+      [productId]: (prev[productId] || []).filter(id => id !== mediaId)
+    }));
+  };
+
+  const handleRemoveSelectedImage = (productId: number, index: number) => {
+    setSelectedAdditionalImages(prev => {
+      const updated = { ...prev };
+      const files = [...(updated[productId] || [])];
+      files.splice(index, 1);
+      if (files.length === 0) {
+        delete updated[productId];
+      } else {
+        updated[productId] = files;
+      }
+      return updated;
+    });
+
+    setAdditionalImagesPreviews(prev => {
+      const updated = { ...prev };
+      const previews = [...(updated[productId] || [])];
+      previews.splice(index, 1);
+      if (previews.length === 0) {
+        delete updated[productId];
+      } else {
+        updated[productId] = previews;
+      }
+      return updated;
+    });
+  };
+
+  const handleDeleteMarkedImages = async (productId: number): Promise<boolean> => {
+    const mediaIds = imagesToDelete[productId];
+    if (!mediaIds || mediaIds.length === 0) return true;
+
+    try {
+      const response = await fetch('/api/storage-medias/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mediaIds }),
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete images');
+        } else {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+      }
+
+      // Clear the deletion list after successful deletion
+      setImagesToDelete(prev => {
+        const updated = { ...prev };
+        delete updated[productId];
+        return updated;
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting images:', error);
+      alert(error instanceof Error ? error.message : 'Không thể xóa ảnh. Vui lòng thử lại.');
+      return false;
+    }
+  };
+
   const handleUploadProductImage = async (productId: number): Promise<string | null> => {
     const file = selectedProductImage[productId];
     if (!file) return null;
@@ -290,7 +467,7 @@ export default function ProductsPage() {
       }
 
       const data = await response.json();
-      
+
       const newSelectedImages = { ...selectedProductImage };
       const newPreviewImages = { ...productImagePreview };
       delete newSelectedImages[productId];
@@ -335,8 +512,10 @@ export default function ProductsPage() {
         return;
       }
 
+      let savedProductId = id;
+
       if (isNewProduct) {
-        await dispatch(
+        const result = await dispatch(
           createProduct({
             title: product.title,
             introduction: product.introduction,
@@ -353,6 +532,7 @@ export default function ProductsPage() {
             order: product.order,
           })
         ).unwrap();
+        savedProductId = result.id;
       } else {
         await dispatch(
           updateProduct({
@@ -375,21 +555,57 @@ export default function ProductsPage() {
           })
         ).unwrap();
       }
-      
+
+      // Delete marked images first
+      if (imagesToDelete[id] && imagesToDelete[id].length > 0) {
+        const deleteSuccess = await handleDeleteMarkedImages(id);
+        if (!deleteSuccess) {
+          alert('Sản phẩm đã được lưu nhưng không thể xóa một số ảnh đã đánh dấu.');
+        }
+      }
+
+      // Upload additional images after product is saved
+      // Use the original id to look up selected images, but savedProductId for the upload
+      if (selectedAdditionalImages[id] && selectedAdditionalImages[id].length > 0) {
+        // Update the selected images to use the saved product ID
+        if (isNewProduct && savedProductId !== id) {
+          setSelectedAdditionalImages(prev => {
+            const updated = { ...prev };
+            updated[savedProductId] = updated[id];
+            delete updated[id];
+            return updated;
+          });
+        }
+
+        const uploadSuccess = await handleUploadAdditionalImages(savedProductId);
+        if (!uploadSuccess) {
+          alert('Sản phẩm đã được lưu nhưng không thể upload ảnh bổ sung.');
+          return;
+        }
+      }
+
       alert('Lưu sản phẩm thành công!');
+
+      // Refresh products to get updated storage medias
+      dispatch(fetchProducts({
+        page: currentProductPage,
+        limit: 10,
+        search: searchQuery || undefined,
+        categoryId: selectedCategoryFilter
+      }));
     } catch (err) {
       alert("Không thể lưu sản phẩm. Vui lòng thử lại.");
     }
   };
 
   // Pagination component
-  const Pagination = ({ 
-    pagination, 
-    currentPage, 
-    onPageChange 
-  }: { 
-    pagination: any; 
-    currentPage: number; 
+  const Pagination = ({
+    pagination,
+    currentPage,
+    onPageChange
+  }: {
+    pagination: any;
+    currentPage: number;
     onPageChange: (page: number) => void;
   }) => {
     if (!pagination || pagination.totalPages <= 1) return null;
@@ -443,11 +659,10 @@ export default function ProductsPage() {
                     <button
                       key={page}
                       onClick={() => onPageChange(page)}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                        page === currentPage
-                          ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
-                          : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${page === currentPage
+                        ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
+                        : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                        }`}
                     >
                       {page}
                     </button>
@@ -499,10 +714,9 @@ export default function ProductsPage() {
               onClick={() => setActiveTab("categories")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "categories"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "categories"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
@@ -512,10 +726,9 @@ export default function ProductsPage() {
               onClick={() => setActiveTab("products")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "products"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "products"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
@@ -950,6 +1163,7 @@ export default function ProductsPage() {
                                 )
                               }
                               placeholder="Mô tả chi tiết sản phẩm"
+                              productId={product.id !== 0 ? product.id : undefined}
                             />
                           </div>
                           <div>
@@ -967,6 +1181,7 @@ export default function ProductsPage() {
                                 )
                               }
                               placeholder="Thông số kỹ thuật của sản phẩm"
+                              productId={product.id !== 0 ? product.id : undefined}
                             />
                           </div>
                           <div>
@@ -984,6 +1199,7 @@ export default function ProductsPage() {
                                 )
                               }
                               placeholder="Thông tin bảo hành sản phẩm"
+                              productId={product.id !== 0 ? product.id : undefined}
                             />
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1063,6 +1279,99 @@ export default function ProductsPage() {
                               <p className="text-xs text-green-600 mt-1">
                                 ✓ Đã chọn: {selectedProductImage[product.id].name}
                               </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Ảnh bổ sung (Additional Images)
+                            </label>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                              multiple
+                              onChange={(e) => handleAdditionalImagesChange(product.id, e)}
+                              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                              disabled={uploadingAdditionalImages[product.id]}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Chọn nhiều ảnh từ thiết bị (JPEG, PNG, WebP, GIF - tối đa 10MB mỗi ảnh). Ảnh sẽ tự động chuyển đổi sang WebP
+                            </p>
+                            {selectedAdditionalImages[product.id] && selectedAdditionalImages[product.id].length > 0 && (
+                              <p className="text-xs text-green-600 mt-1">
+                                ✓ Đã chọn {selectedAdditionalImages[product.id].length} ảnh
+                              </p>
+                            )}
+                            {additionalImagesPreviews[product.id] && additionalImagesPreviews[product.id].length > 0 && (
+                              <div className="mt-2 grid grid-cols-4 gap-2">
+                                {additionalImagesPreviews[product.id].map((preview, idx) => (
+                                  <div key={idx} className="relative h-20 bg-gray-100 rounded border-2 border-gray-200 group">
+                                    <img
+                                      src={preview}
+                                      alt={`Preview ${idx + 1}`}
+                                      className="w-full h-full object-cover rounded"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveSelectedImage(product.id, idx)}
+                                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      title="Xóa ảnh"
+                                    >
+                                      <TrashIcon className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {product.storageMedias && product.storageMedias.length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-xs font-medium text-gray-700 mb-1">Ảnh đã tải lên:</p>
+                                <div className="grid grid-cols-4 gap-2">
+                                  {product.storageMedias.map((media) => {
+                                    const isMarkedForDeletion = imagesToDelete[product.id]?.includes(media.id);
+                                    return (
+                                      <div
+                                        key={media.id}
+                                        className={`relative h-20 bg-gray-100 rounded border-2 group ${isMarkedForDeletion
+                                          ? 'border-red-500 opacity-50'
+                                          : 'border-green-200'
+                                          }`}
+                                      >
+                                        <img
+                                          src={media.path.replace('public', '')}
+                                          alt={`Storage ${media.id}`}
+                                          className="w-full h-full object-cover rounded"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (isMarkedForDeletion) {
+                                              handleUnmarkImageForDeletion(product.id, media.id);
+                                            } else {
+                                              handleMarkImageForDeletion(product.id, media.id);
+                                            }
+                                          }}
+                                          className={`absolute top-1 right-1 rounded-full p-1 transition-all ${isMarkedForDeletion
+                                            ? 'bg-yellow-500 hover:bg-yellow-600 opacity-100'
+                                            : 'bg-red-500 hover:bg-red-600 opacity-0 group-hover:opacity-100'
+                                            } text-white`}
+                                          title={isMarkedForDeletion ? 'Hủy xóa' : 'Đánh dấu xóa'}
+                                        >
+                                          {isMarkedForDeletion ? (
+                                            <XMarkIcon className="w-3 h-3" />
+                                          ) : (
+                                            <TrashIcon className="w-3 h-3" />
+                                          )}
+                                        </button>
+                                        {isMarkedForDeletion && (
+                                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded">
+                                            <span className="text-white text-xs font-bold">Sẽ xóa</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             )}
                           </div>
                           <div className="space-y-2">
@@ -1191,27 +1500,27 @@ export default function ProductsPage() {
                                 </p>
                               )}
                               {product.description && (
-                                <div className="mt-2">
+                                <div className="mt-2 p-2 bg-blue-50 rounded-lg">
                                   <strong className="text-sm text-gray-700">Mô tả:</strong>
-                                  <div 
+                                  <div
                                     className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
                                     dangerouslySetInnerHTML={{ __html: product.description }}
                                   />
                                 </div>
                               )}
                               {product.specifications && (
-                                <div className="mt-2">
+                                <div className="mt-2 p-2 bg-yellow-50 rounded-lg">
                                   <strong className="text-sm text-gray-700">Thông số kỹ thuật:</strong>
-                                  <div 
+                                  <div
                                     className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
                                     dangerouslySetInnerHTML={{ __html: product.specifications }}
                                   />
                                 </div>
                               )}
                               {product.guarantee && (
-                                <div className="mt-2">
+                                <div className="mt-2 p-2 bg-green-50 rounded-lg">
                                   <strong className="text-sm text-gray-700">Bảo hành:</strong>
-                                  <div 
+                                  <div
                                     className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none max-h-32 overflow-y-auto"
                                     dangerouslySetInnerHTML={{ __html: product.guarantee }}
                                   />
@@ -1231,11 +1540,10 @@ export default function ProductsPage() {
                               </div>
                               <div className="mt-2 flex items-center flex-wrap gap-2">
                                 <span
-                                  className={`px-2 py-1 rounded text-xs ${
-                                    product.isActive
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
-                                  }`}
+                                  className={`px-2 py-1 rounded text-xs ${product.isActive
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-800"
+                                    }`}
                                 >
                                   {product.isActive ? "Hiển thị" : "Ẩn"}
                                 </span>

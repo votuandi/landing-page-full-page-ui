@@ -175,7 +175,7 @@ export default function ProductDetailContent({
 
           {/* Description */}
           {product.description && (
-            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap line-clamp-3">
+            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
               {product.introduction}
             </p>
           )}
@@ -209,9 +209,9 @@ export default function ProductDetailContent({
                 Thêm vào giỏ hàng
               </button> */}
               <a href={'/contact-us'}>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                Mua ngay
-              </button>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                  Mua ngay
+                </button>
               </a>
             </div>
           </div>
@@ -272,11 +272,10 @@ export default function ProductDetailContent({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
+                className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
                     ? "border-solar-blue text-solar-blue"
                     : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>

@@ -1,5 +1,15 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
+export interface StorageMedia {
+  id: number;
+  parentId: number | null;
+  type: string;
+  parentType: string;
+  path: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -21,6 +31,7 @@ export interface Product {
   order: number;
   createdAt: string;
   updatedAt: string;
+  storageMedias?: StorageMedia[];
 }
 
 interface PaginationInfo {

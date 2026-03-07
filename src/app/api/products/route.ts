@@ -74,6 +74,11 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true
           }
+        },
+        storageMedias: {
+          where: {
+            parentType: 'product'
+          }
         }
       }
     })
@@ -146,6 +151,11 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true
+          }
+        },
+        storageMedias: {
+          where: {
+            parentType: 'product'
           }
         }
       }

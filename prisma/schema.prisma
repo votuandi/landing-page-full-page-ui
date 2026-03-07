@@ -34,6 +34,7 @@ model Product {
   order          Int             @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  storageMedias  StorageMedia[]  // Relation to storage medias
 }
 
 model News {
@@ -86,4 +87,20 @@ model HeroContent {
   feature2Description  String
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+model StorageMedia {
+  id          Int      @id @default(autoincrement())
+  parentId    Int?     // Link to the product/news/etc. containing it
+  type        String   // "image" or "video"
+  parentType  String   // "product", "news", "text-editor", etc.
+  path        String   // File path
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  product     Product? @relation(fields: [parentId], references: [id], map: "product_storage_media")
+  
+  @@index([parentId, parentType])
+  @@index([parentType])
 }

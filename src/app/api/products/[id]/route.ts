@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { unlink } from 'fs/promises'
+import { existsSync } from 'fs'
+import path from 'path'
 
 // PUT /api/products/[id] - Update a product
 export async function PUT(
@@ -69,6 +72,11 @@ export async function PUT(
             id: true,
             name: true
           }
+        },
+        storageMedias: {
+          where: {
+            parentType: 'product'
+          }
         }
       }
     })
@@ -99,9 +107,19 @@ export async function DELETE(
       )
     }
 
-    // Check if product exists
+    // Check if product exists and get all related data
     const existingProduct = await prisma.product.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        storageMedias: {
+          where: {
+            OR: [
+              { parentType: 'product' },
+              { parentType: 'product-text-editor' }
+            ]
+          }
+        }
+      }
     })
 
     if (!existingProduct) {
@@ -111,12 +129,73 @@ export async function DELETE(
       )
     }
 
+    // Collect all file paths to delete
+    const filesToDelete: string[] = []
+    
+    // Add main product image if exists
+    if (existingProduct.imageUrl) {
+      // Convert URL to file path
+      const imagePath = path.join(process.cwd(), 'public', existingProduct.imageUrl)
+      filesToDelete.push(imagePath)
+    }
+
+    // Add all storage media files
+    existingProduct.storageMedias.forEach(media => {
+      const mediaPath = path.join(process.cwd(), media.path)
+      filesToDelete.push(mediaPath)
+    })
+
+    // Delete files from filesystem
+    const deletionResults = []
+    for (const filepath of filesToDelete) {
+      try {
+        if (existsSync(filepath)) {
+          await unlink(filepath)
+          deletionResults.push({
+            path: filepath,
+            deleted: true
+          })
+        } else {
+          deletionResults.push({
+            path: filepath,
+            deleted: false,
+            reason: 'File not found'
+          })
+        }
+      } catch (error) {
+        console.error(`Error deleting file ${filepath}:`, error)
+        deletionResults.push({
+          path: filepath,
+          deleted: false,
+          reason: error instanceof Error ? error.message : 'Unknown error'
+        })
+      }
+    }
+
+    // Delete storage media records from database
+    await prisma.storageMedia.deleteMany({
+      where: {
+        parentId: id,
+        OR: [
+          { parentType: 'product' },
+          { parentType: 'product-text-editor' }
+        ]
+      }
+    })
+
+    // Delete the product from database
     await prisma.product.delete({
       where: { id }
     })
 
     return NextResponse.json(
-      { success: true, message: 'Product deleted successfully' },
+      { 
+        success: true, 
+        message: 'Product deleted successfully',
+        filesDeleted: deletionResults.filter(r => r.deleted).length,
+        filesNotFound: deletionResults.filter(r => !r.deleted && r.reason === 'File not found').length,
+        deletionResults
+      },
       { status: 200 }
     )
   } catch (error) {

@@ -5,299 +5,73 @@ import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import StaggeredScrollAnimation from "./StaggeredScrollAnimation";
 
+interface ProductCategory {
+  id: number;
+  name: string;
+}
+
 interface Product {
+  id: number;
+  title: string;
+  introduction?: string | null;
+  description?: string | null;
+  specifications?: string | null;
+  guarantee?: string | null;
+  categoryId: number;
+  category?: ProductCategory;
+  price?: string | null;
+  original_price?: string | null;
+  isActive: boolean;
+  isBestSeller: boolean;
+  showInHomePage: boolean;
+  imageUrl?: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Legacy interface for display
+interface DisplayProduct {
   id: number;
   name: string;
   price: string;
   originalPrice?: string;
   image: string;
-  specs: string[];
   discount?: number;
+  introduction?: string;
 }
 
-const productCategories = {
-  "Biến Tần Inverter": [
-    {
-      id: 1,
-      name: "Biến Tần Growatt MIN 3000TL-XE",
-      price: "8,500,000đ",
-      originalPrice: "9,200,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["3kW", "MPPT Dual", "WiFi Monitor", "IP65"],
-      discount: 8,
-    },
-    {
-      id: 2,
-      name: "Biến Tần Huawei SUN2000-5KTL-L1",
-      price: "12,800,000đ",
-      originalPrice: "14,000,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["5kW", "Smart String", "AI Monitoring", "IP65"],
-      discount: 9,
-    },
-    {
-      id: 3,
-      name: "Biến Tần SolarEdge SE7600H-RWS",
-      price: "22,500,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["7.6kW", "Power Optimizer", "HD-Wave", "StorEdge Ready"],
-    },
-    {
-      id: 4,
-      name: "Biến Tần Fronius Symo 8.2-3-M",
-      price: "28,900,000đ",
-      originalPrice: "31,500,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["8.2kW", "SnapINverter", "WiFi", "SuperFlex Design"],
-      discount: 8,
-    },
-    {
-      id: 5,
-      name: "Biến Tần ABB UNO-DM-6.0-TL-PLUS",
-      price: "16,800,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["6kW", "Transformerless", "React Quick", "IP65"],
-    },
-    {
-      id: 6,
-      name: "Biến Tần Sungrow SG10RT",
-      price: "19,200,000đ",
-      originalPrice: "21,000,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["10kW", "String Inverter", "AFCI Protection", "Smart O&M"],
-      discount: 9,
-    },
-    {
-      id: 7,
-      name: "Biến Tần SMA Sunny Boy 6.0",
-      price: "24,500,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["6kW", "OptiTrac Global Peak", "Webconnect", "Secure Power"],
-    },
-    {
-      id: 8,
-      name: "Biến Tần GoodWe GW10K-DT",
-      price: "18,600,000đ",
-      originalPrice: "20,200,000đ",
-      image: "/images/product-1.jpg",
-      specs: ["10kW", "Dual MPPT", "WiFi Monitoring", "Anti-PID"],
-      discount: 8,
-    },
-  ],
-  "Pin Lưu Trữ Lithium": [
-    {
-      id: 9,
-      name: "Pin Lithium Pylontech US3000C",
-      price: "18,500,000đ",
-      originalPrice: "20,000,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["3.55kWh", "LiFePO4", "6000 Cycles", "Modular Design"],
-      discount: 8,
-    },
-    {
-      id: 10,
-      name: "Pin Lithium BYD Battery-Box Premium LVS",
-      price: "45,800,000đ",
-      originalPrice: "49,500,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["4kWh", "High Voltage", "10 Year Warranty", "Scalable"],
-      discount: 7,
-    },
-    {
-      id: 11,
-      name: "Pin Lithium Tesla Powerwall 2",
-      price: "185,000,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["13.5kWh", "AC Coupled", "Weather Resistant", "Mobile App"],
-    },
-    {
-      id: 12,
-      name: "Pin Lithium Huawei LUNA2000-5kWh",
-      price: "35,200,000đ",
-      originalPrice: "38,000,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["5kWh", "Smart Control", "Fast Charging", "Compact Design"],
-      discount: 7,
-    },
-    {
-      id: 13,
-      name: "Pin Lithium LG Chem RESU10H",
-      price: "65,500,000đ",
-      image: "/images/product-2.jpg",
-      specs: [
-        "9.8kWh",
-        "High Energy Density",
-        "10 Year Warranty",
-        "Indoor/Outdoor",
-      ],
-    },
-    {
-      id: 14,
-      name: "Pin Lithium Sonnen eco 8",
-      price: "120,000,000đ",
-      originalPrice: "135,000,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["8kWh", "All-in-One", "Smart Grid Ready", "10,000 Cycles"],
-      discount: 11,
-    },
-    {
-      id: 15,
-      name: "Pin Lithium Alpha ESS SMILE5",
-      price: "42,800,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["5.7kWh", "Modular System", "EMS Integrated", "Safe Chemistry"],
-    },
-    {
-      id: 16,
-      name: "Pin Lithium Goodwe Lynx Home F",
-      price: "28,900,000đ",
-      originalPrice: "31,500,000đ",
-      image: "/images/product-2.jpg",
-      specs: ["6.5kWh", "Stackable", "IP65 Rating", "Smart BMS"],
-      discount: 8,
-    },
-  ],
-  "Tấm Pin Năng Lượng Mặt Trời Solar": [
-    {
-      id: 17,
-      name: "Tấm Pin Canadian Solar BiHiKu7 CS7L-MS 580W",
-      price: "3,200,000đ",
-      originalPrice: "3,500,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["580W", "Mono PERC", "21.4% Efficiency", "25 Year Warranty"],
-      discount: 9,
-    },
-    {
-      id: 18,
-      name: "Tấm Pin JinkoSolar Tiger Neo N-type 575W",
-      price: "3,450,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["575W", "N-Type TOPCon", "22.3% Efficiency", "Low Degradation"],
-    },
-    {
-      id: 19,
-      name: "Tấm Pin Longi Hi-MO 6 Explorer LR5-72HTH 560W",
-      price: "3,150,000đ",
-      originalPrice: "3,400,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["560W", "PERC Technology", "21.7% Efficiency", "Anti-LID"],
-      discount: 7,
-    },
-    {
-      id: 20,
-      name: "Tấm Pin Trina Solar Vertex S+ TSM-DE21 570W",
-      price: "3,380,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["570W", "Multi-busbar", "22.1% Efficiency", "Low Temperature"],
-    },
-    {
-      id: 21,
-      name: "Tấm Pin JA Solar DeepBlue 4.0X JAM72S30 540W",
-      price: "2,950,000đ",
-      originalPrice: "3,200,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["540W", "PERC Half-cell", "20.9% Efficiency", "High Reliability"],
-      discount: 8,
-    },
-    {
-      id: 22,
-      name: "Tấm Pin Risen Energy Titan RSM150-8-535M",
-      price: "2,850,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["535W", "Mono PERC", "20.7% Efficiency", "PID Resistant"],
-    },
-    {
-      id: 23,
-      name: "Tấm Pin Hanwha Q CELLS Q.PEAK DUO L-G10.2 540W",
-      price: "3,680,000đ",
-      originalPrice: "3,950,000đ",
-      image: "/images/product-3.jpg",
-      specs: ["540W", "Q.ANTUM DUO", "20.9% Efficiency", "Hot-Spot Protect"],
-      discount: 7,
-    },
-    {
-      id: 24,
-      name: "Tấm Pin First Solar Series 6 Plus 445W",
-      price: "4,200,000đ",
-      image: "/images/product-3.jpg",
-      specs: [
-        "445W",
-        "CdTe Thin Film",
-        "19.5% Efficiency",
-        "Superior Performance",
-      ],
-    },
-  ],
-  "Inverter Luxpower": [
-    {
-      id: 25,
-      name: "Luxpower SNA 5000 Hybrid Inverter",
-      price: "15,800,000đ",
-      originalPrice: "17,200,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["5kW", "Hybrid MPPT", "Battery Ready", "Grid-Tie"],
-      discount: 8,
-    },
-    {
-      id: 26,
-      name: "Luxpower LXP 3600 ACS Inverter",
-      price: "12,500,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["3.6kW", "AC Coupled", "Smart Load", "WiFi Monitor"],
-    },
-    {
-      id: 27,
-      name: "Luxpower SNA 8000 Three Phase",
-      price: "28,900,000đ",
-      originalPrice: "31,500,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["8kW", "3-Phase", "Commercial Grade", "High Efficiency"],
-      discount: 8,
-    },
-    {
-      id: 28,
-      name: "Luxpower LXP 6000 ACS",
-      price: "18,200,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["6kW", "Pure Sine Wave", "UPS Function", "Remote Monitor"],
-    },
-    {
-      id: 29,
-      name: "Luxpower SNA 10K Hybrid",
-      price: "32,800,000đ",
-      originalPrice: "35,500,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["10kW", "Dual MPPT", "Battery Management", "Grid Support"],
-      discount: 8,
-    },
-    {
-      id: 30,
-      name: "Luxpower LXP 12K ACS Pro",
-      price: "45,600,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["12kW", "Professional", "Smart Grid", "Advanced Protection"],
-    },
-    {
-      id: 31,
-      name: "Luxpower SNA 15K Commercial",
-      price: "58,900,000đ",
-      originalPrice: "63,500,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["15kW", "Commercial Use", "High Power", "Scalable System"],
-      discount: 7,
-    },
-    {
-      id: 32,
-      name: "Luxpower LXP 20K Enterprise",
-      price: "78,500,000đ",
-      image: "/images/product-4.jpg",
-      specs: ["20kW", "Enterprise Grade", "Multi-String", "Cloud Monitoring"],
-    },
-  ],
+// Helper function to convert DB product to display format
+const convertToDisplayProduct = (product: Product): DisplayProduct => {
+  console.log("🚀 ~ convertToDisplayProduct ~ product:", product)
+
+  // Calculate discount percentage if both prices exist
+  let discount: number | undefined;
+  if (product.price && product.original_price) {
+    try {
+      const price = parseFloat(product.price.replace(/[^\d.]/g, ''));
+      const originalPrice = parseFloat(product.original_price.replace(/[^\d.]/g, ''));
+      if (!isNaN(price) && !isNaN(originalPrice) && originalPrice > price) {
+        discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+      }
+    } catch {
+      // Ignore discount calculation errors
+    }
+  }
+
+  return {
+    id: product.id,
+    name: product.title,
+    price: product.price || 'Liên hệ',
+    originalPrice: product.original_price || undefined,
+    image: product.imageUrl || '/images/placeholder-product.svg',
+    introduction: product.introduction ?? "",
+    discount,
+  };
 };
 
 interface ProductCarouselProps {
-  products: Product[];
+  products: DisplayProduct[];
   categoryName: string;
 }
 
@@ -381,15 +155,15 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
         staggerDelay={150}
         duration={800}
         threshold={0.1}
-        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-fr"
       >
         {visibleProducts.map((product) => (
           <Link
             key={product.id}
             href={`/product/${product.id}`}
-            className="block"
+            className="block h-full"
           >
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer h-full flex flex-col">
               {product.discount && (
                 <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
                   <span className="bg-red-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded-md text-xs md:text-sm font-medium">
@@ -398,7 +172,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                 </div>
               )}
 
-              <div className="relative aspect-square bg-gray-100 overflow-hidden">
+              <div className="relative aspect-square bg-gray-100 overflow-hidden flex-shrink-0">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -410,35 +184,26 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                 />
               </div>
 
-              <div className="p-3 md:p-4">
-                <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12">
-                  {product.name}
-                </h4>
-
-                <div className="mb-2 md:mb-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base md:text-lg font-bold text-green-600">
-                      {product.price}
-                    </span>
-                    {product.originalPrice && (
-                      <span className="text-xs md:text-sm text-gray-500 line-through">
-                        {product.originalPrice}
-                      </span>
-                    )}
-                  </div>
+              <div className="p-3 md:p-4 flex flex-col flex-grow justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base">
+                    {product.name}
+                  </h4>
+                  <p
+                    className="text-gray-700 text-xs line-clamp-2 mb-2"
+                  >
+                    {product?.introduction}
+                  </p>
                 </div>
-
-                <div className="mb-3 md:mb-4">
-                  <div className="flex flex-wrap gap-1">
-                    {product.specs.slice(0, 2).map((spec, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-blue-50 text-blue-700 text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded"
-                      >
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-base md:text-lg font-bold text-green-600">
+                    {product.price}
+                  </span>
+                  {product.originalPrice && (
+                    <span className="text-xs md:text-sm text-gray-500 line-through">
+                      {product.originalPrice}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -467,11 +232,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index * productsPerView)}
-                className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                  Math.floor(currentIndex / productsPerView) === index
-                    ? "bg-blue-600"
-                    : "bg-gray-300 hover:bg-gray-400"
-                }`}
+                className={`w-3 h-3 rounded-full transition-colors duration-200 ${Math.floor(currentIndex / productsPerView) === index
+                  ? "bg-blue-600"
+                  : "bg-gray-300 hover:bg-gray-400"
+                  }`}
               />
             )
           )}
@@ -482,6 +246,40 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
 };
 
 const ProductSection: React.FC = () => {
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch products with showInHomePage=true
+        const response = await fetch('/api/products?showInHomePage=true&isActive=true&limit=100&orderBy=order&order=asc');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+
+        const result = await response.json();
+        const dbProducts: Product[] = result.data || [];
+
+        // Convert to display format
+        const displayProducts = dbProducts.map(convertToDisplayProduct);
+        setProducts(displayProducts);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -496,18 +294,38 @@ const ProductSection: React.FC = () => {
           </p>
         </div>
 
-        {Object.entries(productCategories).map(([categoryName, products]) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Đang tải sản phẩm...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Chưa có sản phẩm nào được hiển thị.</p>
+          </div>
+        ) : (
           <ProductCarousel
-            key={categoryName}
-            categoryName={categoryName}
+            categoryName="Sản Phẩm Nổi Bật"
             products={products}
           />
-        ))}
+        )}
 
         <div className="text-center mt-12">
-          <button className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-lg font-medium">
-            Xem Tất Cả Sản Phẩm
-          </button>
+          <Link href="/product">
+            <button className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-lg font-medium">
+              Xem Tất Cả Sản Phẩm
+            </button>
+          </Link>
         </div>
       </div>
     </section>

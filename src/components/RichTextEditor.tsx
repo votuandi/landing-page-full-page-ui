@@ -9,6 +9,7 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  productId?: number;
 }
 
 export default function RichTextEditor({
@@ -16,13 +17,17 @@ export default function RichTextEditor({
   onChange,
   placeholder = "Nhập nội dung...",
   className = "",
+  productId,
 }: RichTextEditorProps) {
+  // Create upload endpoint with productId if provided
+  const uploadEndpoint = productId ? `/api/upload?productId=${productId}` : '/api/upload';
+  
   return (
     <div className={className}>
       <DivtTextEditor
         content={value}
         onChange={onChange}
-        uploadEndpoint="/api/upload"
+        uploadEndpoint={uploadEndpoint}
       />
     </div>
   );
