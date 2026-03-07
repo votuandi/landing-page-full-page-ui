@@ -34,7 +34,7 @@ export default function Header() {
             <div className="mb-2 md:mb-0">
               <h1 className="text-lg md:text-xl font-bold">{companyInfo?.companyName || "Tên Công ty"}</h1>
               <p className="text-sm opacity-90">
-                Hệ thống năng lượng mặt trời chất lượng cao
+                {companyInfo?.slogan || "Slogan của công ty"}
               </p>
             </div>
             <div className="flex items-center space-x-4">

@@ -50,7 +50,7 @@ export default function SettingsPage() {
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  
+
   // Partner image upload state
   const [selectedPartnerImage, setSelectedPartnerImage] = useState<{ [key: number]: File }>({});
   const [uploadingPartnerImage, setUploadingPartnerImage] = useState<{ [key: number]: boolean }>({});
@@ -278,7 +278,7 @@ export default function SettingsPage() {
       }
 
       const data = await response.json();
-      
+
       // Clear the selected file and preview after successful upload
       const newSelectedImages = { ...selectedPartnerImage };
       const newPreviewImages = { ...partnerImagePreview };
@@ -350,7 +350,7 @@ export default function SettingsPage() {
           })
         ).unwrap();
       }
-      
+
       alert('Lưu đối tác thành công!');
     } catch (err) {
       alert("Không thể lưu đối tác. Vui lòng thử lại.");
@@ -377,10 +377,9 @@ export default function SettingsPage() {
               onClick={() => setActiveTab("banners")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "banners"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "banners"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
@@ -390,36 +389,21 @@ export default function SettingsPage() {
               onClick={() => setActiveTab("introduction")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "introduction"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "introduction"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
               Giới thiệu nhanh
             </button>
             <button
-              onClick={() => setActiveTab("database")}
-              className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "database"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              Kết nối database
-            </button>
-            <button
               onClick={() => setActiveTab("partners")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "partners"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "partners"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
@@ -429,14 +413,25 @@ export default function SettingsPage() {
               onClick={() => setActiveTab("companyInfo")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === "companyInfo"
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ${activeTab === "companyInfo"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }
               `}
             >
               Thông tin công ty
+            </button>
+            <button
+              onClick={() => setActiveTab("database")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${activeTab === "database"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Kết nối database
             </button>
           </nav>
         </div>
@@ -542,11 +537,10 @@ export default function SettingsPage() {
                                   Nút: {banner.buttonText} → {banner.buttonLink}
                                 </span>
                                 <span
-                                  className={`px-2 py-1 rounded ${
-                                    banner.isActive
+                                  className={`px-2 py-1 rounded ${banner.isActive
                                       ? "bg-green-100 text-green-800"
                                       : "bg-gray-100 text-gray-800"
-                                  }`}
+                                    }`}
                                 >
                                   {banner.isActive ? "Hoạt động" : "Tạm dừng"}
                                 </span>
@@ -638,7 +632,7 @@ export default function SettingsPage() {
                         placeholder="/videos/hero_video.mp4"
                         disabled
                       />
-                      
+
                       <div className="border-t border-gray-200 pt-3">
                         <label className="block text-xs font-medium text-gray-600 mb-2">
                           Hoặc chọn file video từ thiết bị (tối đa 500MB)
@@ -685,7 +679,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="border-t border-gray-200 pt-4">
                     <label className="block text-sm font-medium text-gray-700 mb-4">
                       Thống kê
@@ -938,7 +932,7 @@ export default function SettingsPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Hình ảnh đối tác
                         </label>
-                        
+
                         {/* Image Preview */}
                         {(partnerImagePreview[partner.id] || partner.image) && (
                           <div className="mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
@@ -949,7 +943,7 @@ export default function SettingsPage() {
                             />
                           </div>
                         )}
-                        
+
                         {/* File Upload */}
                         <div className="space-y-2">
                           <input
@@ -970,7 +964,7 @@ export default function SettingsPage() {
                             </p>
                           )}
                         </div>
-                        
+
                         {/* Manual URL Input (Optional) */}
                         <div className="mt-3 pt-3 border-t border-gray-200">
                           <label className="block text-xs text-gray-600 mb-1">
@@ -1070,11 +1064,10 @@ export default function SettingsPage() {
                             {partner.name || "Chưa có tên"}
                           </h3>
                           <span
-                            className={`px-2 py-1 text-xs rounded ${
-                              partner.isActive
+                            className={`px-2 py-1 text-xs rounded ${partner.isActive
                                 ? "bg-green-100 text-green-800"
                                 : "bg-gray-100 text-gray-800"
-                            }`}
+                              }`}
                           >
                             {partner.isActive ? "Hiển thị" : "Ẩn"}
                           </span>
@@ -1130,13 +1123,12 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                   {/* Status Indicator */}
                   <div
-                    className={`p-4 rounded-lg border-2 ${
-                      databaseStatus.connected
+                    className={`p-4 rounded-lg border-2 ${databaseStatus.connected
                         ? "bg-green-50 border-green-200"
                         : databaseStatus.status === "checking"
-                        ? "bg-yellow-50 border-yellow-200"
-                        : "bg-red-50 border-red-200"
-                    }`}
+                          ? "bg-yellow-50 border-yellow-200"
+                          : "bg-red-50 border-red-200"
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
                       {databaseStatus.status === "checking" ? (
@@ -1148,28 +1140,26 @@ export default function SettingsPage() {
                       )}
                       <div>
                         <h3
-                          className={`font-semibold ${
-                            databaseStatus.connected
+                          className={`font-semibold ${databaseStatus.connected
                               ? "text-green-800"
                               : databaseStatus.status === "checking"
-                              ? "text-yellow-800"
-                              : "text-red-800"
-                          }`}
+                                ? "text-yellow-800"
+                                : "text-red-800"
+                            }`}
                         >
                           {databaseStatus.connected
                             ? "Kết nối thành công"
                             : databaseStatus.status === "checking"
-                            ? "Đang kiểm tra..."
-                            : "Kết nối thất bại"}
+                              ? "Đang kiểm tra..."
+                              : "Kết nối thất bại"}
                         </h3>
                         <p
-                          className={`text-sm mt-1 ${
-                            databaseStatus.connected
+                          className={`text-sm mt-1 ${databaseStatus.connected
                               ? "text-green-700"
                               : databaseStatus.status === "checking"
-                              ? "text-yellow-700"
-                              : "text-red-700"
-                          }`}
+                                ? "text-yellow-700"
+                                : "text-red-700"
+                            }`}
                         >
                           {databaseStatus.message}
                         </p>
