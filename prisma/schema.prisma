@@ -145,3 +145,16 @@ model StorageMedia {
   @@index([parentId, parentType])
   @@index([parentType])
 }
+
+model Office {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  phone              String
+  email              String
+  address            String
+  workingTime        String
+  googleMapEmbedUrl  String?
+  isMainOffice       Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

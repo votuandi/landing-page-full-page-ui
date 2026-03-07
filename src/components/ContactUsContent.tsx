@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SITE_CONFIG, SOCIAL_LINKS, SERVICES } from "@/utils/constants";
 import {
   PhoneIcon,
@@ -8,6 +8,8 @@ import {
   MapPinIcon,
   PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchOffices, Office } from "@/lib/features/offices/officesSlice";
 
 // Product categories from ProductSection component
 const productCategories = {
@@ -62,6 +64,9 @@ interface ContactFormData {
 }
 
 export default function ContactUsContent() {
+  const dispatch = useAppDispatch();
+  const { offices, loading: officesLoading } = useAppSelector((state) => state.offices);
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     phone: "",
@@ -72,6 +77,20 @@ export default function ContactUsContent() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
+
+  // Fetch offices on component mount
+  useEffect(() => {
+    dispatch(fetchOffices({ limit: 100 })); // Fetch all offices
+  }, [dispatch]);
+
+  // Set default office to main office or first office
+  useEffect(() => {
+    if (offices.length > 0 && !selectedOffice) {
+      const mainOffice = offices.find((office) => office.isMainOffice);
+      setSelectedOffice(mainOffice || offices[0]);
+    }
+  }, [offices, selectedOffice]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -159,98 +178,162 @@ export default function ContactUsContent() {
           </p>
         </div>
 
+        {/* Office Selector Dropdown */}
+        {offices.length > 1 && (
+          <div className="mb-6">
+            <label
+              htmlFor="office-select"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Chọn văn phòng
+            </label>
+            <select
+              id="office-select"
+              value={selectedOffice?.id || ""}
+              onChange={(e) => {
+                const office = offices.find(
+                  (o) => o.id === parseInt(e.target.value)
+                );
+                if (office) setSelectedOffice(office);
+              }}
+              className="w-full max-w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              disabled={officesLoading}
+            >
+              {offices.map((office) => (
+                <option key={office.id} value={office.id}>
+                  {office.name}
+                  {office.isMainOffice ? " (Văn phòng chính)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Address Section & Map */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Contact Information */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Thông tin liên hệ
-            </h2>
-
-            <div className="space-y-6">
-              {/* Phone */}
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <PhoneIcon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Điện thoại</p>
-                  <a
-                    href={`tel:${SITE_CONFIG.phone}`}
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    {SITE_CONFIG.phone}
-                  </a>
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <EnvelopeIcon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Email</p>
-                  <a
-                    href={`mailto:${SITE_CONFIG.email}`}
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    {SITE_CONFIG.email}
-                  </a>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <MapPinIcon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Địa chỉ</p>
-                  <p className="text-gray-600">{SITE_CONFIG.address}</p>
-                </div>
-              </div>
-
-              {/* Working Hours */}
-              <div className="border-t pt-6">
-                <p className="font-medium text-gray-900 mb-2">Giờ làm việc</p>
-                <p className="text-gray-600">{SITE_CONFIG.workingHours}</p>
-              </div>
-
-              {/* Social Media */}
-              <div className="border-t pt-6">
-                <p className="font-medium text-gray-900 mb-4">
-                  Kết nối với chúng tôi
-                </p>
-                <div className="flex space-x-4">
-                  {SOCIAL_LINKS.map((social) => (
-                    <a
-                      key={social.name}
-                      href={social.url}
-                      className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
-                      title={social.name}
-                    >
-                      {getSocialIcon(social.icon)}
-                    </a>
-                  ))}
-                </div>
-              </div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Thông tin liên hệ
+              </h2>
+              {selectedOffice?.isMainOffice && (
+                <span className="px-3 py-1 bg-orange-200 text-amber-800 shadow-sm text-sm font-medium rounded-full">
+                  Văn phòng chính
+                </span>
+              )}
             </div>
+
+            {officesLoading && !selectedOffice ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : selectedOffice ? (
+              <div className="space-y-6">
+                {/* Office Name */}
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {selectedOffice.name}
+                  </h3>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <PhoneIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Điện thoại</p>
+                    <a
+                      href={`tel:${selectedOffice.phone}`}
+                      className="text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      {selectedOffice.phone}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <EnvelopeIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Email</p>
+                    <a
+                      href={`mailto:${selectedOffice.email}`}
+                      className="text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      {selectedOffice.email}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <MapPinIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Địa chỉ</p>
+                    <p className="text-gray-600">{selectedOffice.address}</p>
+                  </div>
+                </div>
+
+                {/* Working Hours */}
+                <div className="border-t pt-6">
+                  <p className="font-medium text-gray-900 mb-2">Giờ làm việc</p>
+                  <p className="text-gray-600">{selectedOffice.workingTime}</p>
+                </div>
+
+                {/* Social Media */}
+                <div className="border-t pt-6">
+                  <p className="font-medium text-gray-900 mb-4">
+                    Kết nối với chúng tôi
+                  </p>
+                  <div className="flex space-x-4">
+                    {SOCIAL_LINKS.map((social) => (
+                      <a
+                        key={social.name}
+                        href={social.url}
+                        className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                        title={social.name}
+                      >
+                        {getSocialIcon(social.icon)}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                Không có thông tin văn phòng
+              </div>
+            )}
           </div>
 
           {/* Google Map */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="h-full min-h-[400px]">
-              <iframe
-                src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.8269!2d${SITE_CONFIG.coordinates.lng}!3d${SITE_CONFIG.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDIxJzQzLjciTiAxMDXCsDMxJzEzLjUiRQ!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s`}
-                width="100%"
-                height="100%"
-                style={{ border: 0, minHeight: "400px" }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Vị trí Trọng Tín Solar"
-              ></iframe>
+              {selectedOffice?.googleMapEmbedUrl ? (
+                <iframe
+                  src={selectedOffice.googleMapEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, minHeight: "400px" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Vị trí ${selectedOffice.name}`}
+                ></iframe>
+              ) : (
+                <div className="flex items-center justify-center h-full min-h-[400px] bg-gray-100">
+                  <div className="text-center text-gray-500">
+                    <MapPinIcon className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                    <p>Chưa có thông tin bản đồ</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

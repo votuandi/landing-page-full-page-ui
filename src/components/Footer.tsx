@@ -1,6 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchOffices } from "@/lib/features/offices/officesSlice";
 
 export default function Footer() {
+  const dispatch = useAppDispatch();
+  const { offices } = useAppSelector((state) => state.offices);
+
+  // Fetch offices on component mount
+  useEffect(() => {
+    dispatch(fetchOffices({ limit: 100 }));
+  }, [dispatch]);
+
+  // Get main office or first office
+  const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
+
   const productLinks = [
     { name: "Biến tần Inverter", href: "/inverter" },
     { name: "Tấm pin Solar", href: "/solar-panels" },
@@ -154,9 +170,7 @@ export default function Footer() {
                   />
                 </svg>
                 <p className="text-gray-300 text-sm">
-                  123 Đường ABC, Quận XYZ
-                  <br />
-                  TP. Hồ Chí Minh, Việt Nam
+                  {mainOffice?.address || ""}
                 </p>
               </div>
 
@@ -175,10 +189,10 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="tel:0909019234"
+                  href={`tel:${mainOffice?.phone || "0909019234"}`}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  0909 019 234
+                  {mainOffice?.phone || "0909 019 234"}
                 </a>
               </div>
 
@@ -197,10 +211,10 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="mailto:info@phanphoisolar.com"
+                  href={`mailto:${mainOffice?.email || "info@phanphoisolar.com"}`}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  info@phanphoisolar.com
+                  {mainOffice?.email || "info@phanphoisolar.com"}
                 </a>
               </div>
 
@@ -219,9 +233,7 @@ export default function Footer() {
                   />
                 </svg>
                 <p className="text-gray-300 text-sm">
-                  Thứ 2 - Thứ 6: 8:00 - 17:30
-                  <br />
-                  Thứ 7: 8:00 - 12:00
+                  {mainOffice?.workingTime || "Thứ 2 - Thứ 6: 8:00 - 17:30\nThứ 7: 8:00 - 12:00"}
                 </p>
               </div>
             </div>

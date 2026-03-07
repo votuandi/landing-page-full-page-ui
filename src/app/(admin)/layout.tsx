@@ -9,7 +9,8 @@ import {
   Cog6ToothIcon,
   UserGroupIcon,
   BriefcaseIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
+  BuildingOfficeIcon
 } from "@heroicons/react/24/outline";
 import { SERVICE_CATEGORIES } from "@/utils/constants";
 
@@ -26,6 +27,7 @@ const navigation: NavigationItem[] = [
   { name: "Dự án", href: "/admin/projects", icon: BriefcaseIcon, },
   { name: "Dịch vụ", href: "/admin/services", icon: MegaphoneIcon, },
   { name: "Tin tức", href: "/admin/news", icon: NewspaperIcon },
+  { name: "Chi nhánh", href: "/admin/office", icon: BuildingOfficeIcon },
   { name: "Khách hàng tiềm năng", href: "/admin/leads", icon: UserGroupIcon },
   { name: "Cài đặt", href: "/admin/settings", icon: Cog6ToothIcon },
 ];

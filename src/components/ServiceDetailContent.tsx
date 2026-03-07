@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@/types";
 import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchOffices } from "@/lib/features/offices/officesSlice";
 
 interface ServiceDetailContentProps {
   service: Service;
@@ -24,6 +26,17 @@ export default function ServiceDetailContent({
     "overview" | "process" | "pricing"
   >("overview");
   const [relatedServices, setRelatedServices] = useState<Service[]>([]);
+
+  const dispatch = useAppDispatch();
+  const { offices } = useAppSelector((state) => state.offices);
+
+  // Fetch offices on component mount
+  useEffect(() => {
+    dispatch(fetchOffices({ limit: 100 }));
+  }, [dispatch]);
+
+  // Get main office or first office
+  const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
 
   // Fetch related services
   useEffect(() => {
@@ -415,7 +428,7 @@ export default function ServiceDetailContent({
                       d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                     />
                   </svg>
-                  <span>Hotline: 0909019234</span>
+                  <span>{mainOffice?.phone || ""}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg
@@ -431,7 +444,7 @@ export default function ServiceDetailContent({
                       d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
                   </svg>
-                  <span>info@phanphoisolar.com</span>
+                  <span>{mainOffice?.email || ""}</span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <svg
@@ -453,7 +466,7 @@ export default function ServiceDetailContent({
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  <span>123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</span>
+                  <span>{mainOffice?.address || ""}</span>
                 </div>
               </div>
             </div>

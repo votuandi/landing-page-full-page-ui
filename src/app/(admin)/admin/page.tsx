@@ -6,7 +6,8 @@ import {
   NewspaperIcon,
   UserGroupIcon,
   ChartBarIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  BuildingOfficeIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -201,6 +202,21 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Xem khách hàng tiềm năng</h3>
                   <p className="text-sm text-gray-600">Quản lý yêu cầu khách hàng</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/office"
+              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <BuildingOfficeIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Quản lý chi nhánh</h3>
+                  <p className="text-sm text-gray-600">Thêm và chỉnh sửa chi nhánh</p>
                 </div>
               </div>
             </Link>
