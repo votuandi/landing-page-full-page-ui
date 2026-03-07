@@ -28,7 +28,7 @@ const navigation: NavigationItem[] = [
   { name: "Dịch vụ", href: "/admin/services", icon: MegaphoneIcon, },
   { name: "Tin tức", href: "/admin/news", icon: NewspaperIcon },
   { name: "Chi nhánh", href: "/admin/office", icon: BuildingOfficeIcon },
-  { name: "Khách hàng tiềm năng", href: "/admin/leads", icon: UserGroupIcon },
+  { name: "Khách hàng liên hệ", href: "/admin/contact-forms", icon: UserGroupIcon },
   { name: "Cài đặt", href: "/admin/settings", icon: Cog6ToothIcon },
 ];
 

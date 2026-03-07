@@ -158,3 +158,16 @@ model Office {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
+
+model ContactForm {
+  id                Int      @id @default(autoincrement())
+  name              String
+  phone             String
+  email             String
+  consultationType  String
+  specificItem      String?
+  details           String?
+  isResolved        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

@@ -110,24 +110,41 @@ export default function ContactUsContent() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch("/api/contact-form", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    alert(
-      "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất."
-    );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit form");
+      }
 
-    // Reset form
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      consultationType: "",
-      specificItem: "",
-      details: "",
-    });
+      alert(
+        "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất."
+      );
 
-    setIsSubmitting(false);
+      // Reset form
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        consultationType: "",
+        specificItem: "",
+        details: "",
+      });
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      alert(
+        "Đã có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau hoặc liên hệ trực tiếp qua số điện thoại."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getSpecificOptions = () => {
