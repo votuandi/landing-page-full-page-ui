@@ -85,6 +85,12 @@ export default function ContactUsContent() {
   const [productsFromDB, setProductsFromDB] = useState<Array<{ id: number; title: string }>>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [phoneError, setPhoneError] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Track client-side mount to prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Fetch offices on component mount
   useEffect(() => {
@@ -141,7 +147,7 @@ export default function ContactUsContent() {
             const product = await response.json();
             const productTitle = product.title || "";
             const productIdNum = parseInt(productId);
-            
+
             // Ensure the product is in the productsFromDB list using functional update
             setProductsFromDB((prev) => {
               const productExists = prev.some((p) => p.id === productIdNum);
@@ -208,7 +214,7 @@ export default function ContactUsContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate phone number before submission
     if (!validatePhone(formData.phone)) {
       setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
@@ -366,7 +372,7 @@ export default function ContactUsContent() {
               )}
             </div>
 
-            {officesLoading && !selectedOffice ? (
+            {isMounted && officesLoading && !selectedOffice ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
@@ -523,11 +529,10 @@ export default function ContactUsContent() {
                   required
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    phoneError
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${phoneError
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300"
+                    }`}
                   placeholder="Nhập số điện thoại (10-11 chữ số)"
                 />
                 {phoneError && (
@@ -614,8 +619,8 @@ export default function ContactUsContent() {
                       ? "Chọn sản phẩm"
                       : "Chọn dịch vụ"}
                   </option>
-                  {getSpecificOptions().map((item) => (
-                    <option key={item} value={item}>
+                  {getSpecificOptions().map((item, index) => (
+                    <option key={index} value={item}>
                       {item}
                     </option>
                   ))}
