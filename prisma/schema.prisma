@@ -230,3 +230,13 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Visit {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique @db.Date // Date only (no time)
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Visit")
+}

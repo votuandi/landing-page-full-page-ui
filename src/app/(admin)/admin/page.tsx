@@ -7,7 +7,9 @@ import {
   UserGroupIcon,
   BriefcaseIcon,
   BuildingOfficeIcon,
-  WrenchScrewdriverIcon
+  WrenchScrewdriverIcon,
+  ChartBarIcon,
+  EyeIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -21,6 +23,26 @@ interface DashboardStats {
   totalBranches: number;
 }
 
+interface Visit {
+  id: number;
+  date: string;
+  views: number;
+}
+
+interface VisitStatistics {
+  totalViews: number;
+  averageViews: number;
+  maxViews: number;
+  minViews: number;
+  totalDays: number;
+  todayViews: number;
+}
+
+interface VisitTrackerData {
+  visits: Visit[];
+  statistics: VisitStatistics;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -32,6 +54,26 @@ export default function AdminDashboard() {
     totalBranches: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ id: number; username: string; role: 'admin' | 'editor' } | null>(null);
+  const [visitData, setVisitData] = useState<VisitTrackerData | null>(null);
+  const [visitLoading, setVisitLoading] = useState(false);
+
+  // Fetch user info
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -71,6 +113,39 @@ export default function AdminDashboard() {
 
     fetchStats();
   }, []);
+
+  // Fetch visit tracker data (admin only)
+  useEffect(() => {
+    const fetchVisitData = async () => {
+      if (user?.role !== 'admin') {
+        return;
+      }
+
+      setVisitLoading(true);
+      try {
+        const response = await fetch('/api/admin/visits?limit=30');
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            // Not admin, don't show visit tracker
+            return;
+          }
+          throw new Error('Failed to fetch visit tracker data');
+        }
+
+        const data = await response.json();
+        setVisitData(data);
+      } catch (error) {
+        console.error("Error fetching visit tracker data:", error);
+      } finally {
+        setVisitLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchVisitData();
+    }
+  }, [user]);
 
   const statCards = [
     {
@@ -275,17 +350,136 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity Placeholder */}
-        {/* <div className="mt-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Hoạt động gần đây
-          </h2>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-600 text-center py-8">
-              Hoạt động gần đây sẽ được hiển thị tại đây
-            </p>
+        {/* Visit Tracker (Admin Only) */}
+        {user?.role === 'admin' && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Thống kê lượt truy cập
+            </h2>
+            {visitLoading ? (
+              <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ) : visitData ? (
+              <div className="space-y-6">
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Lượt xem hôm nay
+                        </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                          {visitData.statistics.todayViews.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="bg-blue-500 p-3 rounded-lg">
+                        <EyeIcon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Tổng lượt xem (30 ngày)
+                        </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                          {visitData.statistics.totalViews.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="bg-green-500 p-3 rounded-lg">
+                        <ChartBarIcon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Trung bình/ngày
+                        </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                          {visitData.statistics.averageViews.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="bg-purple-500 p-3 rounded-lg">
+                        <ChartBarIcon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Cao nhất
+                        </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                          {visitData.statistics.maxViews.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="bg-orange-500 p-3 rounded-lg">
+                        <ChartBarIcon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Visit History Table */}
+                <div className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Lịch sử truy cập (30 ngày gần nhất)
+                    </h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ngày
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Lượt xem
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {visitData.visits.length > 0 ? (
+                          visitData.visits.map((visit) => (
+                            <tr key={visit.id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {new Date(visit.date).toLocaleDateString('vi-VN', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {visit.views.toLocaleString()}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={2} className="px-6 py-8 text-center text-sm text-gray-500">
+                              Chưa có dữ liệu truy cập
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
-        </div> */}
+        )}
       </div>
     </div>
   );

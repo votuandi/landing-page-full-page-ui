@@ -5,6 +5,7 @@ import ConditionalLayout from "@/components/ConditionalLayout";
 import StoreProvider from "@/lib/StoreProvider";
 import { prisma } from "@/lib/prisma";
 import StructuredData from "@/components/StructuredData";
+import VisitTracker from "@/components/VisitTracker";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -145,6 +146,7 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning>
         <StoreProvider>
+          <VisitTracker />
           <ConditionalLayout>{children}</ConditionalLayout>
         </StoreProvider>
       </body>
