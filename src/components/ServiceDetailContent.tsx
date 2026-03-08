@@ -95,8 +95,7 @@ export default function ServiceDetailContent({
               {service.description && (
                 <div
                   className="text-white/90 text-lg prose prose-lg prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: service.description }}
-                />
+                >Bảo hành: {service.warranty}</div>
               )}
             </div>
           </div>
@@ -104,7 +103,7 @@ export default function ServiceDetailContent({
       </div>
 
       {/* Service Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 rich-text-content">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           {/* Service Image */}

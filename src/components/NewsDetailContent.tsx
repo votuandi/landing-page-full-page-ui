@@ -106,7 +106,7 @@ export default function NewsDetailContent({ article }: NewsDetailContentProps) {
         </div>
 
         {/* Article Content */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-8 rich-text-content">
           <div
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:leading-relaxed"
             dangerouslySetInnerHTML={{ __html: article.content || "" }}

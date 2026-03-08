@@ -39,20 +39,27 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+import { prisma } from "@/lib/prisma";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getProject(slug);
+  const [project, companyInfo] = await Promise.all([
+    getProject(slug),
+    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+  ]);
+
+  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
 
   if (!project) {
     return {
-      title: "Dự án không tồn tại | Trọng Tín Solar",
+      title: `Dự án không tồn tại | ${companyName}`,
     };
   }
 
   return {
-    title: `${project.title} | Trọng Tín Solar`,
+    title: `${project.title} | ${companyName}`,
     description: project.description || `Dự án năng lượng mặt trời ${project.title} tại ${project.location || 'Việt Nam'}`,
-    keywords: `${project.title}, ${project.category}, năng lượng mặt trời, dự án solar, ${project.location || ''}`,
+    keywords: `${project.title}, ${project.category}, năng lượng mặt trời, dự án solar, ${project.location || ''}, ${companyName}`,
     openGraph: {
       title: project.title,
       description: project.description || '',

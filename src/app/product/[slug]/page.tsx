@@ -41,7 +41,7 @@ async function getProduct(slug: string) {
     }
 
     const product = await prisma.product.findUnique({
-      where: { 
+      where: {
         id: productId,
         isActive: true // Only show active products
       },
@@ -64,24 +64,29 @@ async function getProduct(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const [product, companyInfo] = await Promise.all([
+    getProduct(slug),
+    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+  ]);
+
+  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
 
   if (!product) {
     return {
-      title: "Sản phẩm không tồn tại | Trọng Tín Solar",
+      title: `Sản phẩm không tồn tại | ${companyName}`,
     };
   }
 
   return {
-    title: `${product.title} | Trọng Tín Solar`,
+    title: `${product.title} | ${companyName}`,
     description:
       product.description?.replace(/<[^>]*>/g, '').substring(0, 160) ||
       `${product.title} - ${product.category.name} - Giá ${product.price || 'Liên hệ'}`,
-    keywords: `${product.title}, ${product.category.name}, năng lượng mặt trời`,
+    keywords: `${product.title}, ${product.category.name}, năng lượng mặt trời, ${companyName}`,
     openGraph: {
       title: product.title,
       description:
-        product.description?.replace(/<[^>]*>/g, '').substring(0, 160) || 
+        product.description?.replace(/<[^>]*>/g, '').substring(0, 160) ||
         `${product.title} - ${product.category.name}`,
       images: product.imageUrl ? [product.imageUrl] : [],
     },
@@ -107,8 +112,8 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   // Extract price number for sorting/comparison
-  const priceNumber = product.price 
-    ? parseFloat(product.price.replace(/[^0-9]/g, '')) 
+  const priceNumber = product.price
+    ? parseFloat(product.price.replace(/[^0-9]/g, ''))
     : 0;
 
   // Transform database product to ProductData format expected by ProductDetailContent

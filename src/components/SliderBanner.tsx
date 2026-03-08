@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAppSelector } from "@/lib/hooks";
 
 interface Slide {
   id: number;
@@ -19,6 +20,9 @@ export default function SliderBanner() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  const { offices } = useAppSelector((state) => state.offices);
+  const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
 
   // Ensure component is mounted before rendering client-specific content
   useEffect(() => {
@@ -161,9 +165,11 @@ export default function SliderBanner() {
                   >
                     {slide.buttonText}
                   </Link>
-                  <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300">
-                    Gọi ngay: 0909019234
-                  </button>
+                  <Link href={`tel:${mainOffice?.phone || ""}`}>
+                    <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300">
+                      Gọi ngay: {mainOffice?.phone || ""}
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -224,8 +230,8 @@ export default function SliderBanner() {
             key={index}
             onClick={() => goToSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                ? "bg-white scale-125"
-                : "bg-white/50 hover:bg-white/75"
+              ? "bg-white scale-125"
+              : "bg-white/50 hover:bg-white/75"
               }`}
             aria-label={`Go to slide ${index + 1}`}
           />

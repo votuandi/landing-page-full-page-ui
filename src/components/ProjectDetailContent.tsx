@@ -223,7 +223,7 @@ export default function ProjectDetailContent({ project }: ProjectDetailContentPr
 
                 {/* Project Details */}
                 {project.detail && (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">
+                    <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 rich-text-content">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Chi tiết dự án</h2>
                         <div
                             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:leading-relaxed prose-img:rounded-lg prose-img:shadow-md"

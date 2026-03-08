@@ -3,66 +3,90 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import StoreProvider from "@/lib/StoreProvider";
+import { prisma } from "@/lib/prisma";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-export const metadata: Metadata = {
-  title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-  description:
-    "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-  keywords:
-    "năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, solar panel, renewable energy",
-  authors: [{ name: "Trọng Tín Solar" }],
-  creator: "Trọng Tín Solar",
-  publisher: "Trọng Tín Solar",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL("https://phanphoisolar.com"),
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-    description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-    url: "https://phanphoisolar.com",
-    siteName: "Trọng Tín Solar",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-      },
-    ],
-    locale: "vi_VN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-    description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao.",
-    images: ["/og-image.jpg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+// Fetch company info from database for SEO
+async function getCompanyInfo() {
+  try {
+    const companyInfo = await prisma.companyInfo.findUnique({
+      where: { id: 1 },
+    });
+    return companyInfo;
+  } catch (error) {
+    console.error("Error fetching company info for metadata:", error);
+    return null;
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const companyInfo = await getCompanyInfo();
+
+  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
+  const slogan = companyInfo?.slogan || "Hệ thống Năng lượng Mặt trời";
+  const description = companyInfo?.mission
+    ? `${companyInfo.mission} ${companyInfo.slogan || ""}`.trim()
+    : "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.";
+
+  const title = `${companyName} - ${slogan}`;
+  const ogImage = companyInfo?.logoUrl || "/og-image.jpg";
+
+  return {
+    title,
+    description,
+    keywords:
+      "năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, solar panel, renewable energy",
+    authors: [{ name: companyName }],
+    creator: companyName,
+    publisher: companyName,
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    metadataBase: new URL("https://phanphoisolar.com"),
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title,
+      description,
+      url: "https://phanphoisolar.com",
+      siteName: companyName,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: "vi_VN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: description.substring(0, 200),
+      images: [ogImage],
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  verification: {
-    google: "your-google-verification-code",
-  },
-};
+    verification: {
+      google: "your-google-verification-code",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

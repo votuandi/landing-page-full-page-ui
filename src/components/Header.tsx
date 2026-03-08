@@ -9,6 +9,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
+  const { offices } = useAppSelector((state) => state.offices);
+  const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
 
   // Fetch company info on component mount
   useEffect(() => {
@@ -46,10 +48,10 @@ export default function Header() {
                 />
               </div>
               <a
-                href="tel:0909019234"
+                href={mainOffice?.phone ? `tel:${mainOffice.phone}` : ""}
                 className="bg-solar-orange hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold transition-colors"
               >
-                Hotline: 0909019234
+                Hotline: {mainOffice?.phone || ""}
               </a>
             </div>
           </div>
@@ -62,8 +64,11 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">PS</span>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                {companyInfo?.logoUrl ?
+                  <img src={companyInfo?.logoUrl || ""} alt={companyInfo?.companyName || "Logo"} width={40} height={40} />
+                  : <div className="w-full h-full bg-gray-200" />
+                }
               </div>
               <span className="font-bold text-xl text-gray-800">
                 {companyInfo?.companyName || "Tên Công ty"}

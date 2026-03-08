@@ -71,11 +71,11 @@ export default function AllProductsSection() {
       try {
         setLoading(true);
         let url = '/api/products?isActive=true&limit=1000'; // Get all active products
-        
+
         if (selectedCategoryId) {
           url += `&categoryId=${selectedCategoryId}`;
         }
-        
+
         if (searchTerm) {
           url += `&search=${encodeURIComponent(searchTerm)}`;
         }
@@ -167,9 +167,9 @@ export default function AllProductsSection() {
 
         {/* Search Bar and Filters */}
         <div className="p-1 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-6 search-filters">
+          <div className="flex flex-col md:flex-row lg:items-center gap-6 search-filters">
             {/* Search Input */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative w-full">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -181,7 +181,7 @@ export default function AllProductsSection() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex flex-row items-start sm:items-center gap-4">
               {/* Sort Filter */}
               <div className="min-w-[150px]">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -228,11 +228,10 @@ export default function AllProductsSection() {
             {/* All Products Category */}
             <button
               onClick={() => setSelectedCategoryId(null)}
-              className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${
-                selectedCategoryId === null
-                  ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
-                  : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
-              }`}
+              className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${selectedCategoryId === null
+                ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
+                : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
+                }`}
             >
               <div
                 className="w-1/3 flex-shrink-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
@@ -242,20 +241,18 @@ export default function AllProductsSection() {
               />
               <div className="flex-1 p-3 flex flex-col justify-center text-left min-w-0">
                 <h4
-                  className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${
-                    selectedCategoryId === null
-                      ? "text-primary-700"
-                      : "text-gray-900 group-hover:text-primary-600"
-                  }`}
+                  className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${selectedCategoryId === null
+                    ? "text-primary-700"
+                    : "text-gray-900 group-hover:text-primary-600"
+                    }`}
                 >
                   Tất cả sản phẩm
                 </h4>
                 <div
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
-                    selectedCategoryId === null
-                      ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
-                      : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
-                  }`}
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${selectedCategoryId === null
+                    ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
+                    : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
+                    }`}
                 >
                   {getCategoryCount(null)} sản phẩm
                 </div>
@@ -286,11 +283,10 @@ export default function AllProductsSection() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategoryId(category.id)}
-                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${
-                  selectedCategoryId === category.id
-                    ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
-                    : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
-                }`}
+                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${selectedCategoryId === category.id
+                  ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
+                  : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
+                  }`}
               >
                 <div
                   className="w-1/3 flex-shrink-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
@@ -300,20 +296,18 @@ export default function AllProductsSection() {
                 />
                 <div className="flex-1 p-3 flex flex-col justify-center text-left min-w-0">
                   <h4
-                    className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${
-                      selectedCategoryId === category.id
-                        ? "text-primary-700"
-                        : "text-gray-900 group-hover:text-primary-600"
-                    }`}
+                    className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${selectedCategoryId === category.id
+                      ? "text-primary-700"
+                      : "text-gray-900 group-hover:text-primary-600"
+                      }`}
                   >
                     {category.name}
                   </h4>
                   <div
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
-                      selectedCategoryId === category.id
-                        ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
-                        : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
-                    }`}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${selectedCategoryId === category.id
+                      ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
+                      : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
+                      }`}
                   >
                     {getCategoryCount(category.id)} sản phẩm
                   </div>
@@ -465,11 +459,10 @@ export default function AllProductsSection() {
                 <button
                   key={pageNumber}
                   onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                    currentPage === pageNumber
-                      ? "text-blue-600 bg-blue-50 border border-blue-300"
-                      : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
-                  }`}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg ${currentPage === pageNumber
+                    ? "text-blue-600 bg-blue-50 border border-blue-300"
+                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+                    }`}
                 >
                   {pageNumber}
                 </button>

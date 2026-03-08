@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Convert to WebP format using sharp
     const webpBuffer = await sharp(buffer)
-      .webp({ quality: 85 }) // High quality WebP
+      .webp({ quality: 95 }) // High quality WebP
       .toBuffer()
 
     // Save the file

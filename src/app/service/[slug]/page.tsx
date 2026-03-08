@@ -33,24 +33,31 @@ async function getService(id: string): Promise<Service | null> {
   }
 }
 
+import { prisma } from "@/lib/prisma";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const service = await getService(slug);
+  const [service, companyInfo] = await Promise.all([
+    getService(slug),
+    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+  ]);
+
+  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
 
   if (!service) {
     return {
-      title: "Dịch vụ không tồn tại | Trọng Tín Solar",
+      title: `Dịch vụ không tồn tại | ${companyName}`,
     };
   }
 
   const description = stripHtml(service.description);
 
   return {
-    title: `${service.title} | Trọng Tín Solar`,
+    title: `${service.title} | ${companyName}`,
     description: description,
     keywords: `${service.title}, ${
       service.category
-    }, năng lượng mặt trời, ${service.features.join(", ")}`,
+    }, năng lượng mặt trời, ${service.features.join(", ")}, ${companyName}`,
     openGraph: {
       title: service.title,
       description: description,
