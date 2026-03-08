@@ -9,6 +9,10 @@ import {
   CheckIcon,
   XMarkIcon,
   ServerIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import BannerForm from "@/components/BannerForm";
 import CompanyInfoForm from "@/components/CompanyInfoForm";
@@ -56,6 +60,13 @@ export default function SettingsPage() {
   const [uploadingPartnerImage, setUploadingPartnerImage] = useState<{ [key: number]: boolean }>({});
   const [partnerImagePreview, setPartnerImagePreview] = useState<{ [key: number]: string }>({});
 
+  // Backup/Restore states
+  const [backupLoading, setBackupLoading] = useState(false);
+  const [restoreLoading, setRestoreLoading] = useState(false);
+  const [restoreFile, setRestoreFile] = useState<File | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({ type: null, text: '' });
+  const [user, setUser] = useState<{ id: number; username: string; role: 'admin' | 'editor' } | null>(null);
+
   // Redux state
   const dispatch = useAppDispatch();
   const { banners, loading, error, editingBannerId } = useAppSelector((state) => state.banners);
@@ -75,6 +86,23 @@ export default function SettingsPage() {
     dispatch(fetchHeroContent());
     dispatch(fetchPartners());
   }, [dispatch]);
+
+  // Fetch user info
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleAddBanner = () => {
     dispatch(addNewBanner());
@@ -193,6 +221,228 @@ export default function SettingsPage() {
 
   const handleCheckDatabase = () => {
     dispatch(checkDatabaseConnection());
+  };
+
+  // Backup handler
+  const handleBackup = async () => {
+    if (user?.role !== 'admin') {
+      alert('Chỉ quản trị viên mới có quyền sao lưu dữ liệu');
+      return;
+    }
+
+    setBackupLoading(true);
+    try {
+      const response = await fetch('/api/admin/backup');
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create backup');
+      }
+
+      // Get the backup file as blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database-backup-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      alert(`Lỗi khi tạo bản sao lưu: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  // Restore handler
+  const handleRestore = async () => {
+    if (user?.role !== 'admin') {
+      alert('Chỉ quản trị viên mới có quyền khôi phục dữ liệu');
+      return;
+    }
+
+    if (!restoreFile) {
+      alert('Vui lòng chọn file sao lưu');
+      return;
+    }
+
+    // Validate file again before restore (extra safety check)
+    const validation = await validateBackupFile(restoreFile);
+    if (!validation.valid) {
+      alert(`⚠️ CẢNH BÁO: ${validation.error}\n\nKhôi phục đã bị hủy. Vui lòng chọn file backup hợp lệ.`);
+      setRestoreFile(null);
+      setRestoreMessage({ 
+        type: 'error', 
+        text: `File không hợp lệ: ${validation.error}` 
+      });
+      // Reset file input
+      const fileInput = document.getElementById('restore-file-input') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      return;
+    }
+
+    // Confirm restore action
+    const confirmed = window.confirm(
+      'CẢNH BÁO: Thao tác này sẽ thay thế toàn bộ dữ liệu hiện tại bằng dữ liệu từ file sao lưu.\n\n' +
+      'Dữ liệu hiện tại sẽ bị xóa hoàn toàn. Bạn có chắc chắn muốn tiếp tục?\n\n' +
+      'Chúng tôi khuyến nghị bạn nên tạo bản sao lưu trước khi khôi phục.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setRestoreLoading(true);
+    setRestoreMessage({ type: null, text: '' });
+
+    try {
+      const formData = new FormData();
+      formData.append('file', restoreFile);
+
+      const response = await fetch('/api/admin/restore', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Failed to restore backup');
+      }
+
+      const totalRecords = Object.values(data.stats as Record<string, number>).reduce(
+        (a: number, b: number) => a + b,
+        0
+      );
+      setRestoreMessage({
+        type: 'success',
+        text: `Khôi phục thành công! Đã khôi phục ${totalRecords} bản ghi.`,
+      });
+      setRestoreFile(null);
+      
+      // Reset file input
+      const fileInput = document.getElementById('restore-file-input') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
+      // Refresh stats after restore
+      window.location.reload();
+    } catch (error) {
+      console.error('Error restoring backup:', error);
+      setRestoreMessage({
+        type: 'error',
+        text: `Lỗi khi khôi phục: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+    } finally {
+      setRestoreLoading(false);
+    }
+  };
+
+  // Validate backup file structure
+  const validateBackupFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
+    // Check file extension
+    if (!file.name.endsWith('.json')) {
+      return { valid: false, error: 'File phải có định dạng JSON (.json)' };
+    }
+
+    // Check file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      return { valid: false, error: `File quá lớn. Kích thước tối đa: 50MB. File của bạn: ${(file.size / (1024 * 1024)).toFixed(2)}MB` };
+    }
+
+    if (file.size === 0) {
+      return { valid: false, error: 'File không được để trống' };
+    }
+
+    try {
+      // Read and parse JSON
+      const fileContent = await file.text();
+      let backupData: any;
+
+      try {
+        backupData = JSON.parse(fileContent);
+      } catch (parseError) {
+        return { valid: false, error: 'File JSON không hợp lệ. Vui lòng kiểm tra định dạng JSON.' };
+      }
+
+      // Validate structure
+      if (!backupData || typeof backupData !== 'object') {
+        return { valid: false, error: 'File backup không hợp lệ. File phải là một object JSON.' };
+      }
+
+      // Check for data object
+      if (!backupData.data || typeof backupData.data !== 'object') {
+        return { valid: false, error: 'File backup không hợp lệ. Thiếu object "data".' };
+      }
+
+      // Validate that data properties are arrays (if they exist)
+      const validDataKeys = [
+        'productCategories',
+        'products',
+        'news',
+        'banners',
+        'partners',
+        'heroContent',
+        'projects',
+        'services',
+        'storageMedia',
+        'offices',
+        'contactForms',
+        'companyInfo',
+        'users',
+        'visits',
+      ];
+
+      for (const key of validDataKeys) {
+        if (backupData.data.hasOwnProperty(key)) {
+          if (!Array.isArray(backupData.data[key])) {
+            return { valid: false, error: `File backup không hợp lệ. "${key}" phải là một mảng.` };
+          }
+        }
+      }
+
+      // Check if there's at least some data to restore
+      const hasData = validDataKeys.some(key => 
+        backupData.data[key] && Array.isArray(backupData.data[key]) && backupData.data[key].length > 0
+      );
+
+      if (!hasData) {
+        return { valid: false, error: 'File backup không chứa dữ liệu để khôi phục.' };
+      }
+
+      return { valid: true };
+    } catch (error) {
+      return { valid: false, error: `Lỗi khi đọc file: ${error instanceof Error ? error.message : 'Unknown error'}` };
+    }
+  };
+
+  // Handle file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file before setting it
+      const validation = await validateBackupFile(file);
+      
+      if (!validation.valid) {
+        alert(`⚠️ CẢNH BÁO: ${validation.error}\n\nVui lòng chọn file backup hợp lệ.`);
+        e.target.value = '';
+        setRestoreFile(null);
+        setRestoreMessage({ type: null, text: '' });
+        return;
+      }
+
+      setRestoreFile(file);
+      setRestoreMessage({ type: null, text: '' });
+    }
   };
 
   // Partner handlers
@@ -1245,6 +1495,132 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Backup & Restore Section (Admin Only) */}
+              {user?.role === 'admin' && (
+                <div className="mt-8 border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Sao lưu & Khôi phục dữ liệu
+                  </h3>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {/* Backup Section */}
+                    <div className="border-r border-gray-200 pr-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="bg-blue-100 p-3 rounded-lg">
+                          <ArrowDownTrayIcon className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-semibold text-gray-900">Sao lưu dữ liệu</h4>
+                          <p className="text-sm text-gray-600">Xuất toàn bộ dữ liệu ra file JSON</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Tạo một bản sao lưu đầy đủ của cơ sở dữ liệu. File sẽ được tải xuống tự động.
+                      </p>
+                      <button
+                        onClick={handleBackup}
+                        disabled={backupLoading}
+                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                      >
+                        {backupLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Đang tạo sao lưu...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ArrowDownTrayIcon className="w-5 h-5" />
+                            <span>Tạo bản sao lưu</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Restore Section */}
+                    <div className="pl-6">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="bg-orange-100 p-3 rounded-lg">
+                          <ArrowUpTrayIcon className="w-6 h-6 text-orange-600" />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-semibold text-gray-900">Khôi phục dữ liệu</h4>
+                          <p className="text-sm text-gray-600">Khôi phục dữ liệu từ file sao lưu</p>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <div className="flex items-start space-x-2">
+                          <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-yellow-800">
+                            <strong>Cảnh báo:</strong> Thao tác này sẽ thay thế toàn bộ dữ liệu hiện tại. 
+                            Vui lòng tạo bản sao lưu trước khi khôi phục.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mb-4">
+                        <label
+                          htmlFor="restore-file-input"
+                          className="block text-sm font-medium text-gray-700 mb-2"
+                        >
+                          Chọn file sao lưu (JSON)
+                        </label>
+                        <input
+                          id="restore-file-input"
+                          type="file"
+                          accept=".json"
+                          onChange={handleFileChange}
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                        />
+                        {restoreFile && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            Đã chọn: <span className="font-medium">{restoreFile.name}</span>
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleRestore}
+                        disabled={restoreLoading || !restoreFile}
+                        className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                      >
+                        {restoreLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Đang khôi phục...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ArrowUpTrayIcon className="w-5 h-5" />
+                            <span>Khôi phục dữ liệu</span>
+                          </>
+                        )}
+                      </button>
+                      
+                      {/* Restore Message */}
+                      {restoreMessage.text && (
+                        <div
+                          className={`mt-4 p-3 rounded-lg flex items-start space-x-2 ${
+                            restoreMessage.type === 'success'
+                              ? 'bg-green-50 border border-green-200'
+                              : 'bg-red-50 border border-red-200'
+                          }`}
+                        >
+                          {restoreMessage.type === 'success' ? (
+                            <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <XMarkIcon className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          )}
+                          <p
+                            className={`text-sm ${
+                              restoreMessage.type === 'success' ? 'text-green-800' : 'text-red-800'
+                            }`}
+                          >
+                            {restoreMessage.text}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
