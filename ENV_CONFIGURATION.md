@@ -1,11 +1,16 @@
-# Environment Configuration for Image Upload
+# Environment Configuration
 
-## Required Environment Variable
+## Required Environment Variables
 
-Add this to your `.env` file:
+Add these to your `.env` file:
 
 ```env
+# Storage Configuration for Image Uploads
 STORAGE_PATH=/public/images
+
+# Authentication - JWT Secret Key (REQUIRED for login functionality)
+# Generate a secure secret: openssl rand -base64 32
+JWT_SECRET=your-secret-key-change-in-production
 ```
 
 ## What is STORAGE_PATH?
@@ -53,6 +58,11 @@ DATABASE_URL="postgresql://user:password@localhost:5432/landing_page_db"
 
 # Storage Configuration for Image Uploads
 STORAGE_PATH=/public/images
+
+# Authentication - JWT Secret Key
+# IMPORTANT: Change this to a strong random string in production!
+# Generate a secure secret: openssl rand -base64 32
+JWT_SECRET=your-secret-key-change-in-production
 
 # Optional: Node Environment
 NODE_ENV=development

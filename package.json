@@ -25,8 +25,10 @@
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@reduxjs/toolkit": "^2.11.2",
+    "bcryptjs": "^3.0.3",
     "divt-text-editor": "votuandi/divt-text-editor#v0.1.6",
     "html-react-parser": "^5.2.17",
+    "jose": "^6.2.0",
     "next": "15.4.10",
     "pg": "^8.20.0",
     "react": "19.0.0",
@@ -35,6 +37,7 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/pg": "^8.18.0",
     "@types/react": "^19",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -11,9 +12,12 @@ import {
   UserGroupIcon,
   BriefcaseIcon,
   MegaphoneIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  ArrowRightOnRectangleIcon
 } from "@heroicons/react/24/outline";
-import { SERVICE_CATEGORIES } from "@/utils/constants";
+import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 type NavigationItem = {
   name: string;
@@ -39,8 +43,40 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const [navigation, setNavigation] = useState<NavigationItem[]>(baseNavigation);
   const [unresolvedCount, setUnresolvedCount] = useState<number>(0);
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo());
+  }, [dispatch]);
+
+  // Fetch user info
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          // Not authenticated, redirect to login
+          router.push("/login?redirect=" + encodeURIComponent(pathname || "/admin"));
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        router.push("/login?redirect=" + encodeURIComponent(pathname || "/admin"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router, pathname]);
 
   // Fetch unresolved contact forms count
   useEffect(() => {
@@ -64,6 +100,19 @@ export default function AdminLayout({
     return () => clearInterval(interval);
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still redirect even if API call fails
+      router.push("/login");
+      router.refresh();
+    }
+  };
+
   // Update navigation with badge count
   useEffect(() => {
     const updatedNavigation = baseNavigation.map((item) => {
@@ -75,6 +124,17 @@ export default function AdminLayout({
     setNavigation(updatedNavigation);
   }, [unresolvedCount]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -83,9 +143,10 @@ export default function AdminLayout({
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
             <Link href="/admin" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">PS</span>
-              </div>
+              {companyInfo?.logoUrl ?
+                <Image src={companyInfo.logoUrl} alt={companyInfo?.companyName || "Logo"} width={40} height={40} className="object-contain" />
+                : <div className="w-full h-full bg-gray-200" />
+              }
               <span className="font-bold text-lg text-gray-800">
                 Quản trị CMS
               </span>
@@ -130,10 +191,23 @@ export default function AdminLayout({
           </nav>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200">
+          <div className="px-6 py-4 border-t border-gray-200 space-y-3">
+            {user && (
+              <div className="text-sm text-gray-600 mb-2">
+                <div className="font-medium text-gray-900">{user.username}</div>
+                <div className="text-xs text-green-500">Đã đăng nhập</div>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors p-2 rounded-lg hover:bg-red-100"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4" />
+              <span>Đăng xuất</span>
+            </button>
             <Link
               href="/"
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="block text-sm text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-primary-100"
             >
               ← Quay lại trang web
             </Link>

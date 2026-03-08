@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import 'dotenv/config';
+import bcrypt from 'bcryptjs';
 
 // Create a PostgreSQL connection pool
 const pool = new Pool({
@@ -812,6 +813,27 @@ async function main() {
   }
 
   console.log(`✅ Created ${newsArticles.length} news articles`);
+
+  // Create default admin user if it doesn't exist
+  const existingAdmin = await prisma.user.findUnique({
+    where: { username: 'admin' },
+  });
+
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('admin123', 10); 
+    await prisma.user.create({
+      data: {
+        username: 'admin',
+        password: hashedPassword,
+        isActive: true,
+      },
+    });
+    console.log('✅ Created default admin user (username: admin, password: admin123)');
+    console.log('⚠️  IMPORTANT: Please change the default password after first login!');
+  } else {
+    console.log('ℹ️  Admin user already exists, skipping user creation');
+  }
+
   console.log('🎉 Seed completed successfully!');
 }
 
