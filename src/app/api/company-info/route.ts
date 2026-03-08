@@ -40,8 +40,9 @@ export async function GET() {
           team: [
             { amount: "50+", title: "Nhân viên", detail: "Đội ngũ chuyên nghiệp" },
           ],
-          whyChooseUsTitle: "Tại sao chọn chúng tôi",
-          whyChooseUsDetail: "Lý do bạn nên chọn chúng tôi",
+          whyChooseUs: [
+            { title: "Tại sao chọn chúng tôi", detail: "Lý do bạn nên chọn chúng tôi" },
+          ],
         },
       });
     }

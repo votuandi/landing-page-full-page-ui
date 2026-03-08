@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -16,51 +17,24 @@ export default function IntroductionVideoSection() {
     dispatch(fetchCompanyInfo());
   }, [dispatch]);
 
-  const achievements = [
-    {
-      icon: "🏆",
-      title: "Chứng nhận ISO 9001:2015",
-      description: "Hệ thống quản lý chất lượng quốc tế",
-    },
-    {
-      icon: "⭐",
-      title: "Top 10 nhà phân phối",
-      description: "Năng lượng mặt trời uy tín năm 2023",
-    },
-    {
-      icon: "🤝",
-      title: "Đối tác chính thức",
-      description: "Các thương hiệu hàng đầu thế giới",
-    },
-    {
-      icon: "🔧",
-      title: "Đội ngũ kỹ thuật",
-      description: "Hơn 50 chuyên gia giàu kinh nghiệm",
-    },
-  ];
+  const achievementIcons = ["🏆", "⭐", "🤝", "🔧"];
+  const achievements = companyInfo?.achievements?.map((achievement, index) => ({
+    icon: achievementIcons[index],
+    title: achievement.title,
+    description: achievement.detail,
+  }));
+  const whyChooseUsIcons = ["🎯", "🤝", "🌱", "💡"];
+  const whyChooseUs = companyInfo?.whyChooseUs?.map((whyChooseUs, index) => ({
+    icon: whyChooseUsIcons[index],
+    title: whyChooseUs.title,
+    description: whyChooseUs.detail,
+  }));
 
-  const teamHighlights = [
-    {
-      role: "Ban lãnh đạo",
-      count: "5+",
-      description: "Năm kinh nghiệm trung bình 15+ năm",
-    },
-    {
-      role: "Kỹ sư thiết kế",
-      count: "20+",
-      description: "Chuyên gia hệ thống năng lượng",
-    },
-    {
-      role: "Thợ lắp đặt",
-      count: "30+",
-      description: "Được đào tạo bài bản, chứng chỉ nghề",
-    },
-    {
-      role: "CSKH & Bảo trì",
-      count: "15+",
-      description: "Hỗ trợ khách hàng 24/7",
-    },
-  ];
+  const teamHighlights = companyInfo?.team?.map((team, index) => ({
+    title: team.title,
+    description: team.detail,
+    count: team.amount,
+  }));
 
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
@@ -86,39 +60,10 @@ export default function IntroductionVideoSection() {
           <div className="relative mb-20">
             <div className="relative mx-auto max-w-5xl">
               {/* Video Thumbnail */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer">
-                <img
-                  src="/images/solar-panels-hero.jpg"
-                  alt={`Video giới thiệu ${companyInfo?.companyName || "Tên Công ty"}`}
-                  className="w-full h-[400px] md:h-[500px] object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <button
-                    onClick={() => setIsVideoOpen(true)}
-                    className="w-20 h-20 md:w-24 md:h-24 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300 shadow-2xl"
-                  >
-                    <PlayIcon className="w-8 h-8 md:w-10 md:h-10 text-solar-blue ml-1" />
-                  </button>
-                </div>
-
-                {/* Video Info Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/80 to-transparent text-white">
-                  <h3 className="text-xl md:text-2xl font-bold mb-2">
-                    {companyInfo?.companyName || "Tên Công ty"} - Hành trình 10 năm phát triển
-                  </h3>
-                  <p className="text-sm md:text-base opacity-90">
-                    Khám phá câu chuyện thành công và những giá trị cốt lõi đã
-                    tạo nên thương hiệu {companyInfo?.companyName || "Tên Công ty"}
-                  </p>
-                  <div className="flex items-center mt-3 space-x-4 text-sm">
-                    <span>⏱ 5:30 phút</span>
-                    <span>📅 Cập nhật: Tháng 12, 2023</span>
-                    <span>👁 2.5K lượt xem</span>
-                  </div>
-                </div>
-              </div>
+              <video className="w-full h-full object-cover rounded-2xl" controls poster="/images/solar-panels-hero.jpg">
+                <source src="/videos/hero_video.mp4" type="video/mp4" />
+                Trình duyệt của bạn không hỗ trợ phát video.
+              </video>
             </div>
           </div>
         </ScrollAnimationWrapper>
@@ -130,7 +75,7 @@ export default function IntroductionVideoSection() {
               Thành tựu & Chứng nhận
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {achievements.map((achievement, index) => (
+              {achievements?.map((achievement, index) => (
                 <div
                   key={index}
                   className="text-center bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 group"
@@ -155,13 +100,13 @@ export default function IntroductionVideoSection() {
               Đội ngũ chuyên nghiệp
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {teamHighlights.map((team, index) => (
+              {teamHighlights?.map((team, index) => (
                 <div
                   key={index}
                   className="bg-gradient-to-br from-solar-blue to-primary-600 p-6 rounded-2xl text-white text-center group hover:scale-105 transition-transform duration-300"
                 >
                   <div className="text-3xl font-bold mb-2">{team.count}</div>
-                  <h4 className="text-lg font-semibold mb-3">{team.role}</h4>
+                  <h4 className="text-lg font-semibold mb-3">{team.title}</h4>
                   <p className="text-sm opacity-90">{team.description}</p>
                 </div>
               ))}

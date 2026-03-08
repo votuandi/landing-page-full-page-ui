@@ -21,6 +21,7 @@ import {
   Milestone,
   CoreValue,
   Achievement,
+  WhyChooseUs,
   TeamMember,
 } from "@/lib/features/companyInfo/companyInfoSlice";
 
@@ -178,6 +179,26 @@ export default function CompanyInfoForm() {
     handleFieldChange("achievements", items);
   };
 
+  const addWhyChooseUs = () => {
+    const currentItems = companyInfo?.whyChooseUs || [];
+    handleFieldChange("whyChooseUs", [
+      ...currentItems,
+      { title: "", detail: "" },
+    ]);
+  };
+
+  const updateWhyChooseUs = (index: number, field: keyof WhyChooseUs, value: string) => {
+    const items = [...(companyInfo?.whyChooseUs || [])];
+    items[index] = { ...items[index], [field]: value };
+    handleFieldChange("whyChooseUs", items);
+  };
+
+  const removeWhyChooseUs = (index: number) => {
+    const items = [...(companyInfo?.whyChooseUs || [])];
+    items.splice(index, 1);
+    handleFieldChange("whyChooseUs", items);
+  };
+
   const addTeamMember = () => {
     const currentItems = companyInfo?.team || [];
     handleFieldChange("team", [
@@ -227,7 +248,7 @@ export default function CompanyInfoForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Thông tin cơ bản
         </h3>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -295,7 +316,7 @@ export default function CompanyInfoForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Hành trình phát triển
         </h3>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -406,7 +427,7 @@ export default function CompanyInfoForm() {
             </div>
             <div className="space-y-3">
               {(companyInfo.storyItems || []).map((item, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div key={index} className="border border-gray-200 bg-yellow-50 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">
                       Mục {index + 1}
@@ -455,10 +476,10 @@ export default function CompanyInfoForm() {
             <span>Thêm cột mốc</span>
           </button>
         </div>
-        
+
         <div className="space-y-3">
           {(companyInfo.milestones || []).map((milestone, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4">
+            <div key={index} className="border border-gray-200 bg-green-50 rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">
                   Cột mốc {index + 1}
@@ -503,12 +524,12 @@ export default function CompanyInfoForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Giá trị cốt lõi (4 items)
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[0, 1, 2, 3].map((index) => {
             const value = (companyInfo.coreValues || [])[index] || { title: "", detail: "" };
             return (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <div key={index} className="border border-gray-200 bg-blue-50 rounded-lg p-4">
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Giá trị {index + 1}
                 </div>
@@ -539,7 +560,7 @@ export default function CompanyInfoForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Sứ mệnh
         </h3>
-        
+
         <textarea
           value={companyInfo.mission || ""}
           onChange={(e) => handleFieldChange("mission", e.target.value)}
@@ -562,10 +583,10 @@ export default function CompanyInfoForm() {
             <span>Thêm thành tựu</span>
           </button>
         </div>
-        
+
         <div className="space-y-3">
           {(companyInfo.achievements || []).map((achievement, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4">
+            <div key={index} className="border border-gray-200 bg-orange-50 rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">
                   Thành tựu {index + 1}
@@ -612,10 +633,10 @@ export default function CompanyInfoForm() {
             <span>Thêm</span>
           </button>
         </div>
-        
+
         <div className="space-y-3">
           {(companyInfo.team || []).map((member, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4">
+            <div key={index} className="border border-gray-200 bg-pink-50 rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">
                   Mục {index + 1}
@@ -657,34 +678,51 @@ export default function CompanyInfoForm() {
 
       {/* Why Choose Us */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Tại sao chọn chúng tôi
-        </h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tiêu đề
-            </label>
-            <input
-              type="text"
-              value={companyInfo.whyChooseUsTitle || ""}
-              onChange={(e) => handleFieldChange("whyChooseUsTitle", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Tại sao chọn chúng tôi
+          </h3>
+          <button
+            onClick={addWhyChooseUs}
+            className="flex items-center space-x-1 text-sm text-primary-600 hover:text-primary-700"
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span>Thêm mục</span>
+          </button>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nội dung chi tiết
-            </label>
-            <textarea
-              value={companyInfo.whyChooseUsDetail || ""}
-              onChange={(e) => handleFieldChange("whyChooseUsDetail", e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
+        <div className="space-y-3">
+          {(companyInfo.whyChooseUs || []).map((item, index) => (
+            <div key={index} className="border border-gray-200 bg-purple-50 rounded-lg p-4">
+              <div className="flex items-start justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Mục {index + 1}
+                </span>
+                <button
+                  onClick={() => removeWhyChooseUs(index)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Tiêu đề"
+                  value={item.title}
+                  onChange={(e) => updateWhyChooseUs(index, "title", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                />
+                <textarea
+                  placeholder="Chi tiết"
+                  value={item.detail}
+                  onChange={(e) => updateWhyChooseUs(index, "detail", e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -693,7 +731,7 @@ export default function CompanyInfoForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Mạng xã hội
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

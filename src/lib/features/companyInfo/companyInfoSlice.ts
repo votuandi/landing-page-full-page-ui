@@ -21,6 +21,11 @@ export interface Achievement {
   detail: string;
 }
 
+export interface WhyChooseUs {
+  title: string;
+  detail: string;
+}
+
 export interface TeamMember {
   amount: string;
   title: string;
@@ -56,8 +61,7 @@ export interface CompanyInfo {
   team?: TeamMember[] | null;
   
   // Why choose us
-  whyChooseUsTitle?: string | null;
-  whyChooseUsDetail?: string | null;
+  whyChooseUs?: WhyChooseUs[] | null;
   
   // Social media
   facebook?: string | null;

@@ -201,8 +201,7 @@ model CompanyInfo {
   team                  Json?    // Array of {amount, title, detail}
   
   // Why choose us
-  whyChooseUsTitle      String?
-  whyChooseUsDetail     String?
+  whyChooseUs           Json?    // Array of {title, detail}
   
   // Social media
   facebook              String?

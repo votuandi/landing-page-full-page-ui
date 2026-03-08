@@ -18,21 +18,21 @@ async function getCompanyInfo() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const companyInfo = await getCompanyInfo();
-  
+
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const storyTitle = companyInfo?.storyTitle || "Câu chuyện công ty";
   const mission = companyInfo?.mission || "";
-  
-  const description = mission 
+
+  const description = mission
     ? `Tìm hiểu về ${storyTitle.toLowerCase()} và sứ mệnh của ${companyName} - đơn vị hàng đầu về năng lượng mặt trời tại Việt Nam. ${mission}`
     : `Tìm hiểu về ${storyTitle.toLowerCase()} và các dự án đã hoàn thành của ${companyName} - đơn vị hàng đầu về năng lượng mặt trời tại Việt Nam.`;
-  
+
   const title = `Về chúng tôi - ${companyName}`;
   const baseUrl = "https://phanphoisolar.com";
-  const ogImage = companyInfo?.logoUrl 
-    ? `${baseUrl}${companyInfo.logoUrl}` 
+  const ogImage = companyInfo?.logoUrl
+    ? `${baseUrl}${companyInfo.logoUrl}`
     : `${baseUrl}/og-image.jpg`;
-  
+
   return {
     title,
     description,

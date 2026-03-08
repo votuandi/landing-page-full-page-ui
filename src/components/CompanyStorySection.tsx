@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect } from "react";
@@ -20,59 +21,14 @@ export default function CompanyStorySection() {
     dispatch(fetchCompanyInfo());
   }, [dispatch]);
 
-  const milestones = [
-    {
-      year: "2014",
-      title: "Khởi đầu với ước mơ",
-      description:
-        "Thành lập với tầm nhìn phát triển năng lượng sạch tại Việt Nam",
-      icon: LightBulbIcon,
-    },
-    {
-      year: "2017",
-      title: "Mở rộng quy mô",
-      description:
-        "Hoàn thành 100+ dự án đầu tiên và mở rộng ra các tỉnh thành",
-      icon: CheckIcon,
-    },
-    {
-      year: "2020",
-      title: "Đi tiên phong",
-      description:
-        "Trở thành đối tác chính thức của các thương hiệu hàng đầu thế giới",
-      icon: ShieldCheckIcon,
-    },
-    {
-      year: "2024",
-      title: "Vững vàng phát triển",
-      description: "Hơn 1000 dự án hoàn thành với tổng công suất 50MW+",
-      icon: HeartIcon,
-    },
-  ];
+  const milestoneIcons = ["✨", "🌟", "💡", "💪", "🔥", "🍀", "🌈", "🌻", "💎", "🚀"];
 
-  const values = [
-    {
-      title: "Chất lượng",
-      description:
-        "Cam kết sử dụng thiết bị chính hãng, công nghệ tiên tiến nhất",
-      icon: "🎯",
-    },
-    {
-      title: "Tin cậy",
-      description: "Bảo hành dài hạn và dịch vụ hỗ trợ khách hàng 24/7",
-      icon: "🤝",
-    },
-    {
-      title: "Bền vững",
-      description: "Góp phần bảo vệ môi trường và xây dựng tương lai xanh",
-      icon: "🌱",
-    },
-    {
-      title: "Đổi mới",
-      description: "Liên tục nghiên cứu và ứng dụng công nghệ mới nhất",
-      icon: "💡",
-    },
-  ];
+  const valueIcons = ["🎯", "🤝", "🌱", "💡"];
+  const values = companyInfo?.coreValues?.map((value, index) => ({
+    title: value.title,
+    description: value.detail,
+    icon: valueIcons[index],
+  }));
 
   return (
     <section className="py-20 bg-gradient-to-br from-white to-blue-50">
@@ -99,24 +55,10 @@ export default function CompanyStorySection() {
           <ScrollAnimationWrapper>
             <div className="space-y-6">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Hành trình 10 năm phát triển
+                {companyInfo?.storyTitle || ""}
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                {companyInfo?.companyName || "Tên Công ty"} được thành lập vào năm 2014 với sứ mệnh đưa năng
-                lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ
-                một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không
-                ngừng học hỏi, cải tiến và phát triển.
-              </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Với triết lý &quot;Chất lượng tạo nên uy tín&quot;, chúng tôi luôn đặt lợi
-                ích khách hàng lên hàng đầu. Mỗi dự án được thực hiện đều được
-                chúng tôi coi như ngôi nhà của chính mình, từ khâu tư vấn, thiết
-                kế cho đến lắp đặt và bảo trì.
-              </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Ngày hôm nay, với hơn 1000 dự án đã hoàn thành và tổng công suất
-                lắp đặt hơn 50MW, chúng tôi tự hào là một trong những đơn vị
-                hàng đầu trong lĩnh vực năng lượng mặt trời tại Việt Nam.
+              <p className="text-lg text-gray-600 leading-relaxed whitespace-pre-line">
+                {companyInfo?.storyDetail || ""}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -125,36 +67,36 @@ export default function CompanyStorySection() {
             <div className="relative">
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
                 <img
-                  src="/images/solar-installation-hero.jpg"
+                  src={companyInfo?.storyImageUrl || "/images/solar-installation-hero.jpg"}
                   alt={`${companyInfo?.companyName || "Tên Công ty"} - Lắp đặt hệ thống năng lượng mặt trời`}
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 bg-blue-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-blue">
-                      1000+
+                      {companyInfo?.storyItems?.[0]?.title || ""}
                     </div>
                     <div className="text-sm text-gray-600">
-                      Dự án hoàn thành
+                      {companyInfo?.storyItems?.[0]?.detail || ""}
                     </div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-orange">
-                      50MW+
+                      {companyInfo?.storyItems?.[1]?.title || ""}
                     </div>
-                    <div className="text-sm text-gray-600">Tổng công suất</div>
+                    <div className="text-sm text-gray-600">{companyInfo?.storyItems?.[1]?.detail || ""}</div>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-green">
-                      98%
+                      {companyInfo?.storyItems?.[2]?.title || ""}
                     </div>
-                    <div className="text-sm text-gray-600">Hài lòng</div>
+                    <div className="text-sm text-gray-600">{companyInfo?.storyItems?.[2]?.detail || ""}</div>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-yellow">
-                      24/7
+                      {companyInfo?.storyItems?.[3]?.title || ""}
                     </div>
-                    <div className="text-sm text-gray-600">Hỗ trợ</div>
+                    <div className="text-sm text-gray-600">{companyInfo?.storyItems?.[3]?.detail || ""}</div>
                   </div>
                 </div>
               </div>
@@ -170,24 +112,24 @@ export default function CompanyStorySection() {
             </h2>
             <div className="max-w-4xl mx-auto">
               <div className="space-y-8">
-                {milestones.map((milestone, index) => (
+                {companyInfo?.milestones?.map((milestone, index) => (
                   <div key={index} className="flex items-start space-x-6">
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-r from-solar-blue to-primary-600 rounded-full flex items-center justify-center">
-                        <milestone.icon className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-r from-solar-blue to-primary-600 rounded-full">
+                        <span className="text-2xl" >{milestoneIcons[index]}</span>
                       </div>
                     </div>
                     <div className="flex-1 bg-white p-6 rounded-2xl shadow-lg">
                       <div className="flex items-center mb-3">
                         <span className="text-2xl font-bold text-solar-blue mr-4">
-                          {milestone.year}
+                          {milestone.time}
                         </span>
                         <h3 className="text-xl font-bold text-gray-900">
                           {milestone.title}
                         </h3>
                       </div>
                       <p className="text-gray-600 leading-relaxed">
-                        {milestone.description}
+                        {milestone.detail}
                       </p>
                     </div>
                   </div>
@@ -204,7 +146,7 @@ export default function CompanyStorySection() {
               Giá trị cốt lõi
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {values.map((value, index) => (
+              {values?.map((value, index) => (
                 <div key={index} className="text-center group">
                   <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-solar-blue to-primary-600 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform duration-300">
                     {value.icon}
