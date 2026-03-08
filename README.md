@@ -129,6 +129,7 @@ A modern, responsive landing page for a solar energy distribution company built 
 - Generate Prisma client: `npm run db:generate`
 - Push schema to database: `npm run db:push`
 - Run migrations: `npm run db:migrate`
+- Reset database (with safety checks): `npm run db:reset` ⚠️ See [DATABASE_SAFETY.md](./DATABASE_SAFETY.md)
 - Open Prisma Studio: `npm run db:studio`
 - Seed database: `npm run db:seed`
 

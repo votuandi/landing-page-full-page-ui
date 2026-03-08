@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 );
 
-const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
+const ACCESS_TOKEN_EXPIRY = '8h'; // 8 hours
 const REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
 
 export interface TokenPayload {

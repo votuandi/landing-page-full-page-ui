@@ -12,12 +12,12 @@ export async function setAuthCookies(
 ): Promise<void> {
   const cookieStore = await cookies();
   
-  // Set access token cookie (15 minutes)
+  // Set access token cookie (8 hours)
   cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 8 * 60 * 60, // 8 hours
     path: '/',
   });
 

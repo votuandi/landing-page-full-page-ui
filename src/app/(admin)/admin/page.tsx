@@ -5,9 +5,9 @@ import {
   ShoppingBagIcon,
   NewspaperIcon,
   UserGroupIcon,
-  ChartBarIcon,
   BriefcaseIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  WrenchScrewdriverIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -17,6 +17,8 @@ interface DashboardStats {
   totalProjects: number;
   totalNews: number;
   totalLeads: number;
+  totalServices: number;
+  totalBranches: number;
 }
 
 export default function AdminDashboard() {
@@ -26,27 +28,42 @@ export default function AdminDashboard() {
     totalProjects: 0,
     totalNews: 0,
     totalLeads: 0,
+    totalServices: 0,
+    totalBranches: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API calls
-    // For now, using mock data
     const fetchStats = async () => {
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await fetch('/api/admin/stats');
 
-        // Mock data - replace with actual API calls
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard statistics');
+        }
+
+        const data = await response.json();
         setStats({
-          totalProducts: 24,
-          activeProducts: 20,
-          totalProjects: 15,
-          totalNews: 12,
-          totalLeads: 45,
+          totalProducts: data.totalProducts || 0,
+          activeProducts: data.activeProducts || 0,
+          totalProjects: data.totalProjects || 0,
+          totalNews: data.totalNews || 0,
+          totalLeads: data.totalLeads || 0,
+          totalServices: data.totalServices || 0,
+          totalBranches: data.totalBranches || 0,
         });
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
+        // Set stats to 0 on error to show empty state
+        setStats({
+          totalProducts: 0,
+          activeProducts: 0,
+          totalProjects: 0,
+          totalNews: 0,
+          totalLeads: 0,
+          totalServices: 0,
+          totalBranches: 0,
+        });
       } finally {
         setLoading(false);
       }
@@ -62,6 +79,7 @@ export default function AdminDashboard() {
       icon: ShoppingBagIcon,
       href: "/admin/products",
       color: "bg-blue-500",
+      hover: "hover:bg-blue-50",
     },
     {
       name: "Dự án hoàn thành",
@@ -69,6 +87,23 @@ export default function AdminDashboard() {
       icon: BriefcaseIcon,
       href: "/admin/projects",
       color: "bg-teal-500",
+      hover: "hover:bg-teal-50",
+    },
+    {
+      name: "Tổng dịch vụ",
+      value: stats.totalServices,
+      icon: WrenchScrewdriverIcon,
+      href: "/admin/services",
+      color: "bg-indigo-500",
+      hover: "hover:bg-indigo-50",
+    },
+    {
+      name: "Số lượng chi nhánh",
+      value: stats.totalBranches,
+      icon: BuildingOfficeIcon,
+      href: "/admin/office",
+      color: "bg-green-500",
+      hover: "hover:bg-green-50",
     },
     {
       name: "Bài viết tin tức",
@@ -76,13 +111,15 @@ export default function AdminDashboard() {
       icon: NewspaperIcon,
       href: "/admin/news",
       color: "bg-purple-500",
+      hover: "hover:bg-purple-50",
     },
     {
-      name: "Khách hàng tiềm năng",
+      name: "Khách hàng liên hệ",
       value: stats.totalLeads,
       icon: UserGroupIcon,
       href: "/admin/leads",
       color: "bg-orange-500",
+      hover: "hover:bg-orange-50",
     },
   ];
 
@@ -101,8 +138,8 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="p-8">
         {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
               <div
                 key={i}
                 className="bg-white rounded-lg shadow p-6 animate-pulse"
@@ -113,12 +150,12 @@ export default function AdminDashboard() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {statCards.map((card) => (
               <Link
                 key={card.name}
                 href={card.href}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 group"
+                className={`bg-white ${card.hover} rounded-lg shadow hover:shadow-lg transition-shadow p-6 group ${card.hover}`}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -148,75 +185,90 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Link
               href="/admin/products"
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              className="bg-white group hover:bg-primary-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <ShoppingBagIcon className="w-6 h-6 text-blue-600" />
+                <div className="bg-primary-100 group-hover:bg-white p-3 rounded-lg transition-colors">
+                  <ShoppingBagIcon className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Quản lý sản phẩm</h3>
-                  <p className="text-sm text-gray-600">Thêm, sửa hoặc xóa sản phẩm</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Quản lý sản phẩm</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Thêm, sửa hoặc xóa sản phẩm</p>
                 </div>
               </div>
             </Link>
 
             <Link
               href="/admin/projects"
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              className="bg-white group hover:bg-teal-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-teal-100 p-3 rounded-lg">
+                <div className="bg-teal-100 group-hover:bg-white p-3 rounded-lg transition-colors">
                   <BriefcaseIcon className="w-6 h-6 text-teal-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Quản lý dự án</h3>
-                  <p className="text-sm text-gray-600">Quản lý các dự án đã hoàn thành</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Quản lý dự án</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Quản lý các dự án đã hoàn thành</p>
                 </div>
               </div>
             </Link>
 
             <Link
-              href="/admin/news"
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              href="/admin/services"
+              className="bg-white group hover:bg-indigo-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <NewspaperIcon className="w-6 h-6 text-purple-600" />
+                <div className="bg-indigo-100 group-hover:bg-white p-3 rounded-lg transition-colors">
+                  <WrenchScrewdriverIcon className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Quản lý tin tức</h3>
-                  <p className="text-sm text-gray-600">Tạo và chỉnh sửa bài viết tin tức</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/admin/leads"
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="bg-orange-100 p-3 rounded-lg">
-                  <UserGroupIcon className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Xem khách hàng tiềm năng</h3>
-                  <p className="text-sm text-gray-600">Quản lý yêu cầu khách hàng</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Quản lý dịch vụ</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Thêm, sửa hoặc xóa dịch vụ</p>
                 </div>
               </div>
             </Link>
 
             <Link
               href="/admin/office"
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              className="bg-white group hover:bg-green-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center space-x-4">
-                <div className="bg-green-100 p-3 rounded-lg">
+                <div className="bg-green-100 group-hover:bg-white p-3 rounded-lg transition-colors">
                   <BuildingOfficeIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Quản lý chi nhánh</h3>
-                  <p className="text-sm text-gray-600">Thêm và chỉnh sửa chi nhánh</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Quản lý chi nhánh</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Thêm và chỉnh sửa chi nhánh</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/news"
+              className="bg-white group hover:bg-purple-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="bg-purple-100 group-hover:bg-white p-3 rounded-lg transition-colors">
+                  <NewspaperIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Quản lý tin tức</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Tạo và chỉnh sửa bài viết tin tức</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/contact-forms"
+              className="bg-white group hover:bg-orange-600 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="bg-orange-100 group-hover:bg-white p-3 rounded-lg transition-colors">
+                  <UserGroupIcon className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-white transition-colors">Xem khách hàng liên hệ</h3>
+                  <p className="text-sm text-gray-600 group-hover:text-white transition-colors">Quản lý yêu cầu khách hàng</p>
                 </div>
               </div>
             </Link>
