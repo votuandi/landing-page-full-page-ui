@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getAccessToken } from '@/lib/auth-cookies';
 import { verifyAccessToken } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 
+// GET /api/users - Get all users (admin only)
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
     const accessToken = await getAccessToken();
-
     if (!accessToken) {
       return NextResponse.json(
         { error: 'Not authenticated' },
@@ -14,7 +15,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify access token
     const payload = await verifyAccessToken(accessToken);
     if (!payload) {
       return NextResponse.json(
@@ -23,34 +23,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+    // Check if user is admin
+    if (payload.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Only admins can view users' },
+        { status: 403 }
+      );
+    }
+
+    // Get all users
+    const users = await prisma.user.findMany({
       select: {
         id: true,
         username: true,
         role: true,
         isActive: true,
         createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
-    if (!user || !user.isActive) {
-      return NextResponse.json(
-        { error: 'User not found or inactive' },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        user,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(users, { status: 200 });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('Get users error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

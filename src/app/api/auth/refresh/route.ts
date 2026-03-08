@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     const tokenPayload = {
       userId: user.id,
       username: user.username,
+      role: user.role,
     };
 
     const newAccessToken = await generateAccessToken(tokenPayload);

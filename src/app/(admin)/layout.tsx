@@ -13,7 +13,8 @@ import {
   BriefcaseIcon,
   MegaphoneIcon,
   BuildingOfficeIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  UsersIcon
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -37,6 +38,11 @@ const baseNavigation: NavigationItem[] = [
   { name: "Cài đặt", href: "/admin/settings", icon: Cog6ToothIcon },
 ];
 
+// Admin-only navigation items
+const adminOnlyNavigation: NavigationItem[] = [
+  { name: "Quản lý người dùng", href: "/admin/user", icon: UsersIcon },
+];
+
 export default function AdminLayout({
   children,
 }: {
@@ -47,7 +53,7 @@ export default function AdminLayout({
   const dispatch = useAppDispatch();
   const [navigation, setNavigation] = useState<NavigationItem[]>(baseNavigation);
   const [unresolvedCount, setUnresolvedCount] = useState<number>(0);
-  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [user, setUser] = useState<{ id: number; username: string; role: 'admin' | 'editor' } | null>(null);
   const [loading, setLoading] = useState(true);
   const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
 
@@ -113,16 +119,25 @@ export default function AdminLayout({
     }
   };
 
-  // Update navigation with badge count
+  // Update navigation with badge count and role-based items
   useEffect(() => {
-    const updatedNavigation = baseNavigation.map((item) => {
+    let updatedNavigation = [...baseNavigation];
+
+    // Add admin-only navigation items
+    if (user && user.role === 'admin') {
+      updatedNavigation = [...updatedNavigation, ...adminOnlyNavigation];
+    }
+
+    // Update badge count
+    updatedNavigation = updatedNavigation.map((item) => {
       if (item.name === "Khách hàng liên hệ" && unresolvedCount > 0) {
         return { ...item, badge: unresolvedCount };
       }
       return item;
     });
+
     setNavigation(updatedNavigation);
-  }, [unresolvedCount]);
+  }, [unresolvedCount, user]);
 
   if (loading) {
     return (
@@ -195,7 +210,15 @@ export default function AdminLayout({
             {user && (
               <div className="text-sm text-gray-600 mb-2">
                 <div className="font-medium text-gray-900">{user.username}</div>
-                <div className="text-xs text-green-500">Đã đăng nhập</div>
+                <div className="flex items-center space-x-2 mt-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${user.role === 'admin'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-blue-100 text-blue-700'
+                    }`}>
+                    {user.role === 'admin' ? 'Quản trị viên' : 'Biên tập viên'}
+                  </span>
+                  <span className="text-xs text-green-500">Đã đăng nhập</span>
+                </div>
               </div>
             )}
             <button

@@ -224,7 +224,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity Placeholder */}
-        <div className="mt-8">
+        {/* <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Hoạt động gần đây
           </h2>
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
               Hoạt động gần đây sẽ được hiển thị tại đây
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

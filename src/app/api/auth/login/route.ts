@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
     const tokenPayload = {
       userId: user.id,
       username: user.username,
+      role: user.role,
     };
 
     const accessToken = await generateAccessToken(tokenPayload);
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           username: user.username,
+          role: user.role,
         },
         // In production, you might not want to return tokens in the response
         // since they're already in httpOnly cookies

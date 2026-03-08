@@ -216,10 +216,16 @@ model CompanyInfo {
   @@map("CompanyInfo")
 }
 
+enum UserRole {
+  admin
+  editor
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   username      String   @unique
   password      String   // Hashed password
+  role          UserRole @default(admin)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

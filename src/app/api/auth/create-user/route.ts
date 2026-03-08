@@ -25,8 +25,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user is admin
+    if (payload.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Only admins can create users' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const { username, password } = body;
+    const { username, password, role = 'editor' } = body;
 
     // Validate input
     if (!username || !password) {
@@ -48,17 +56,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate role
+    if (role !== 'admin' && role !== 'editor') {
+      return NextResponse.json(
+        { error: 'Invalid role. Must be "admin" or "editor"' },
+        { status: 400 }
+      );
+    }
+
     // Hash password and create user
     const hashedPassword = await hashPassword(password);
     const user = await prisma.user.create({
       data: {
         username,
         password: hashedPassword,
+        role: role as 'admin' | 'editor',
         isActive: true,
       },
       select: {
         id: true,
         username: true,
+        role: true,
         isActive: true,
         createdAt: true,
       },

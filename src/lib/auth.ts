@@ -12,6 +12,7 @@ const REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
 export interface TokenPayload {
   userId: number;
   username: string;
+  role: 'admin' | 'editor';
 }
 
 /**

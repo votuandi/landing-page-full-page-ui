@@ -825,13 +825,53 @@ async function main() {
       data: {
         username: 'admin',
         password: hashedPassword,
+        role: 'admin',
         isActive: true,
       },
     });
     console.log('✅ Created default admin user (username: admin, password: admin123)');
     console.log('⚠️  IMPORTANT: Please change the default password after first login!');
   } else {
-    console.log('ℹ️  Admin user already exists, skipping user creation');
+    // Update existing admin user to have admin role if it doesn't have one
+    if (!existingAdmin.role) {
+      await prisma.user.update({
+        where: { username: 'admin' },
+        data: { role: 'admin' },
+      });
+      console.log('✅ Updated existing admin user with admin role');
+    } else {
+      console.log('ℹ️  Admin user already exists, skipping user creation');
+    }
+  }
+
+  // Create default editor user if it doesn't exist
+  const existingEditor = await prisma.user.findUnique({
+    where: { username: 'editor' },
+  });
+
+  if (!existingEditor) {
+    const hashedPassword = await bcrypt.hash('editor123', 10); 
+    await prisma.user.create({
+      data: {
+        username: 'editor',
+        password: hashedPassword,
+        role: 'editor',
+        isActive: true,
+      },
+    });
+    console.log('✅ Created default editor user (username: editor, password: editor123)');
+    console.log('⚠️  IMPORTANT: Please change the default password after first login!');
+  } else {
+    // Update existing editor user to have editor role if it doesn't have one
+    if (!existingEditor.role) {
+      await prisma.user.update({
+        where: { username: 'editor' },
+        data: { role: 'editor' },
+      });
+      console.log('✅ Updated existing editor user with editor role');
+    } else {
+      console.log('ℹ️  Editor user already exists, skipping user creation');
+    }
   }
 
   console.log('🎉 Seed completed successfully!');
