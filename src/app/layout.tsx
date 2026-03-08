@@ -4,6 +4,7 @@ import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import StoreProvider from "@/lib/StoreProvider";
 import { prisma } from "@/lib/prisma";
+import StructuredData from "@/components/StructuredData";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -35,8 +36,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    keywords:
-      "năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, solar panel, renewable energy",
     authors: [{ name: companyName }],
     creator: companyName,
     publisher: companyName,
@@ -83,16 +82,35 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     verification: {
-      google: "your-google-verification-code",
+      google: process.env.GOOGLE_SEARCH_CONSOLE_VERIFICATION || undefined,
     },
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const companyInfo = await getCompanyInfo();
+
+  // Fetch main office for LocalBusiness schema
+  let mainOffice = null;
+  try {
+    const offices = await prisma.office.findMany({
+      where: { isMainOffice: true },
+      take: 1,
+    });
+    mainOffice = offices[0] || null;
+    if (!mainOffice) {
+      // Fallback to first office if no main office
+      const firstOffice = await prisma.office.findFirst();
+      mainOffice = firstOffice;
+    }
+  } catch (error) {
+    console.error("Error fetching office for LocalBusiness schema:", error);
+  }
+
   return (
     <html lang="vi" className={inter.variable}>
       <head>
@@ -117,6 +135,13 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0ea5e9" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {process.env.BING_WEBMASTER_VERIFICATION && (
+          <meta name="msvalidate.01" content={process.env.BING_WEBMASTER_VERIFICATION} />
+        )}
+        <StructuredData type="Organization" data={{}} companyInfo={companyInfo} />
+        {mainOffice && (
+          <StructuredData type="LocalBusiness" data={mainOffice} companyInfo={companyInfo} />
+        )}
       </head>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning>
         <StoreProvider>

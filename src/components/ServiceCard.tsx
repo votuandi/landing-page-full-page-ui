@@ -58,9 +58,11 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <div className="relative h-48 w-full">
         <Image
           src={service.image || "/images/solar-installation-hero.jpg"}
-          alt={service.title}
+          alt={`${service.title} - Dịch vụ năng lượng mặt trời`}
           fill
           className="object-cover"
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4">
           <span

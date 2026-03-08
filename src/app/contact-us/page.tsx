@@ -22,14 +22,56 @@ export async function generateMetadata(): Promise<Metadata> {
   const address = mainOffice?.address || "Lấp Vò, Đồng Tháp";
   const phone = mainOffice?.phone || "0909019234";
   const email = mainOffice?.email || "";
+  const baseUrl = "https://phanphoisolar.com";
 
   const description = `Liên hệ với ${companyName} để được tư vấn miễn phí về các giải pháp năng lượng mặt trời. ${address ? `Địa chỉ: ${address}.` : ""} ${phone ? `Hotline: ${phone}` : ""}`.trim();
 
+  const title = `Liên hệ - ${companyName}`;
+  const ogImage = companyInfo?.logoUrl
+    ? `${baseUrl}${companyInfo.logoUrl}`
+    : `${baseUrl}/og-image.jpg`;
+
   return {
-    title: `Liên hệ - ${companyName}`,
+    title,
     description,
-    keywords:
-      `liên hệ, ${companyName}, tư vấn năng lượng mặt trời, ${address}, solar consultation`,
+    keywords: `liên hệ, ${companyName}, tư vấn năng lượng mặt trời, ${address}, solar consultation, contact form, hỗ trợ khách hàng`,
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: "/contact-us",
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/contact-us`,
+      siteName: companyName,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: "vi_VN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: description.substring(0, 200),
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   };
 }
 

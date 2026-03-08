@@ -7,8 +7,17 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchOffices } from "@/lib/features/offices/officesSlice";
 
+interface RelatedService {
+  id: number;
+  title: string;
+  image: string | null;
+  category: string;
+  price?: string | null;
+}
+
 interface ServiceDetailContentProps {
   service: Service;
+  relatedServices?: RelatedService[];
 }
 
 const categoryNames = {
@@ -20,12 +29,13 @@ const categoryNames = {
 
 export default function ServiceDetailContent({
   service,
+  relatedServices: propRelatedServices = [],
 }: ServiceDetailContentProps) {
   const [imageError, setImageError] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "overview" | "process" | "pricing"
   >("overview");
-  const [relatedServices, setRelatedServices] = useState<Service[]>([]);
+  const [relatedServices, setRelatedServices] = useState<Service[]>(propRelatedServices as Service[]);
 
   const dispatch = useAppDispatch();
   const { offices } = useAppSelector((state) => state.offices);
@@ -38,8 +48,12 @@ export default function ServiceDetailContent({
   // Get main office or first office
   const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
 
-  // Fetch related services
+  // Fetch related services only if not provided as prop (for SEO, prefer server-side)
   useEffect(() => {
+    if (propRelatedServices.length > 0) {
+      return; // Use server-side provided related services
+    }
+
     const fetchRelatedServices = async () => {
       try {
         const response = await fetch(
@@ -59,7 +73,7 @@ export default function ServiceDetailContent({
     };
 
     fetchRelatedServices();
-  }, [service.id, service.category]);
+  }, [service.id, service.category, propRelatedServices.length]);
 
   console.log("🚀 service.benefits", service.benefits);
 
@@ -111,10 +125,12 @@ export default function ServiceDetailContent({
             {!imageError && service.image ? (
               <Image
                 src={service.image}
-                alt={service.title}
+                alt={`${service.title} - Dịch vụ năng lượng mặt trời`}
                 fill
                 className="object-cover"
                 onError={() => setImageError(true)}
+                priority
+                sizes="(max-width: 768px) 100vw, 66vw"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">

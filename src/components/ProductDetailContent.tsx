@@ -29,12 +29,22 @@ interface ProductData {
   introduction?: string;
 }
 
+interface RelatedProduct {
+  id: number;
+  title: string;
+  imageUrl: string | null;
+  price: string | null;
+  category: { id: number; name: string };
+}
+
 interface ProductDetailContentProps {
   product: ProductData;
+  relatedProducts?: RelatedProduct[];
 }
 
 export default function ProductDetailContent({
   product,
+  relatedProducts = [],
 }: ProductDetailContentProps) {
   const [imageError, setImageError] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -93,13 +103,13 @@ export default function ProductDetailContent({
     };
 
     fetchProductImages();
-  }, [product.id]);
+  }, [product.id, product.image]);
 
   // Reset selected image when product changes
   useEffect(() => {
     setSelectedImage(product.image);
     setImageError(false);
-  }, [product.image]);
+  }, [product.id, product.image]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -123,7 +133,7 @@ export default function ProductDetailContent({
             {!imageError ? (
               <Image
                 src={selectedImage}
-                alt={product.name}
+                alt={`${product.name} - ${product.category} - Sản phẩm năng lượng mặt trời chất lượng cao`}
                 fill
                 className="object-cover"
                 onError={() => setImageError(true)}
@@ -223,7 +233,7 @@ export default function ProductDetailContent({
                             >
                               <Image
                                 src={img}
-                                alt={`${product.name} view ${actualIndex + 1}`}
+                                alt={`${product.name} - Hình ảnh ${actualIndex + 1} - ${product.category} năng lượng mặt trời`}
                                 fill
                                 className="object-cover rounded"
                               />
@@ -566,6 +576,66 @@ export default function ProductDetailContent({
           )}
         </div>
       </div>
+
+      {/* Related Products */}
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Sản phẩm liên quan
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedProduct) => (
+              <Link
+                key={relatedProduct.id}
+                href={`/product/${relatedProduct.id}`}
+                className="group"
+              >
+                <article className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
+                    {relatedProduct.imageUrl ? (
+                      <Image
+                        src={relatedProduct.imageUrl}
+                        alt={`${relatedProduct.title} - ${relatedProduct.category.name} - Sản phẩm năng lượng mặt trời`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg
+                          className="w-12 h-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <span className="text-xs text-solar-blue font-medium mb-1 block">
+                      {relatedProduct.category.name}
+                    </span>
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-solar-blue transition-colors">
+                      {relatedProduct.title}
+                    </h3>
+                    {relatedProduct.price && (
+                      <p className="text-lg font-bold text-solar-blue">
+                        {relatedProduct.price}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Back to Products */}
       <div className="flex justify-center mt-8">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
@@ -34,7 +35,7 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-2 md:mb-0">
-              <h1 className="text-lg md:text-xl font-bold">{companyInfo?.companyName || "Tên Công ty"}</h1>
+              <div className="text-lg md:text-xl font-bold">{companyInfo?.companyName || "Tên Công ty"}</div>
               <p className="text-sm opacity-90">
                 {companyInfo?.slogan || "Slogan của công ty"}
               </p>
@@ -64,9 +65,9 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden relative">
                 {companyInfo?.logoUrl ?
-                  <img src={companyInfo?.logoUrl || ""} alt={companyInfo?.companyName || "Logo"} width={40} height={40} />
+                  <Image src={companyInfo?.logoUrl || ""} alt={companyInfo?.companyName || "Logo"} width={40} height={40} className="object-contain" />
                   : <div className="w-full h-full bg-gray-200" />
                 }
               </div>

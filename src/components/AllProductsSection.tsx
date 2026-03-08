@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
@@ -370,14 +371,12 @@ export default function AllProductsSection() {
 
                     {/* Product Image */}
                     <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                      <img
+                      <Image
                         src={product.imageUrl || "/images/placeholder-product.svg"}
-                        alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.src = "/images/placeholder-product.svg";
-                        }}
+                        alt={`${product.title} - ${product.category.name} - Sản phẩm năng lượng mặt trời`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                       />
                     </div>
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ProductDetailContent from "@/components/ProductDetailContent";
 import { prisma } from "@/lib/prisma";
 import parse from 'html-react-parser';
+import StructuredData from "@/components/StructuredData";
 
 // Utility function to parse HTML and convert to plain text
 function parseHtml(html: string | null | undefined) {
@@ -64,6 +65,7 @@ async function getProduct(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const baseUrl = "https://phanphoisolar.com";
   const [product, companyInfo] = await Promise.all([
     getProduct(slug),
     prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
@@ -77,25 +79,63 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const description =
+    product.description?.replace(/<[^>]*>/g, '').substring(0, 160) ||
+    `${product.title} - ${product.category.name} - Giá ${product.price || 'Liên hệ'}`;
+  const ogImage = product.imageUrl
+    ? `${baseUrl}${product.imageUrl}`
+    : `${baseUrl}/images/placeholder-product.svg`;
+
   return {
     title: `${product.title} | ${companyName}`,
-    description:
-      product.description?.replace(/<[^>]*>/g, '').substring(0, 160) ||
-      `${product.title} - ${product.category.name} - Giá ${product.price || 'Liên hệ'}`,
+    description,
     keywords: `${product.title}, ${product.category.name}, năng lượng mặt trời, ${companyName}`,
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: `/product/${product.id}`,
+    },
     openGraph: {
-      title: product.title,
-      description:
-        product.description?.replace(/<[^>]*>/g, '').substring(0, 160) ||
-        `${product.title} - ${product.category.name}`,
-      images: product.imageUrl ? [product.imageUrl] : [],
+      title: `${product.title} | ${companyName}`,
+      description,
+      url: `${baseUrl}/product/${product.id}`,
+      siteName: companyName,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: product.title,
+        },
+      ],
+      locale: "vi_VN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} | ${companyName}`,
+      description: description.substring(0, 200),
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
   };
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const [product, companyInfo] = await Promise.all([
+    getProduct(slug),
+    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+  ]);
 
   if (!product) {
     notFound();
@@ -135,9 +175,50 @@ export default async function ProductDetailPage({ params }: Props) {
     technicalSpecs: product.specifications ? { 'Thông số': parseHtml(product.specifications) } : {},
   };
 
+  // Fetch related products (same category, excluding current product)
+  let relatedProducts: any[] = [];
+  try {
+    const related = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        id: { not: product.id },
+        categoryId: product.categoryId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      take: 4,
+      orderBy: { updatedAt: "desc" },
+    });
+
+    relatedProducts = related.map((p) => ({
+      id: p.id,
+      title: p.title,
+      imageUrl: p.imageUrl,
+      price: p.price,
+      category: p.category,
+    }));
+  } catch (error) {
+    console.error('Error fetching related products:', error);
+  }
+
+  // Breadcrumb data
+  const breadcrumbs = [
+    { name: "Trang chủ", url: "/" },
+    { name: "Sản phẩm", url: "/products" },
+    { name: product.title, url: `/product/${product.id}` },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProductDetailContent product={productData} />
+      <StructuredData type="Product" data={product} companyInfo={companyInfo} />
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <ProductDetailContent product={productData} relatedProducts={relatedProducts} />
     </div>
   );
 }

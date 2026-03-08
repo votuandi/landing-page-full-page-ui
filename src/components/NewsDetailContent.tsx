@@ -7,9 +7,10 @@ import { useState } from "react";
 
 interface NewsDetailContentProps {
   article: NewsArticle;
+  relatedArticles?: NewsArticle[];
 }
 
-export default function NewsDetailContent({ article }: NewsDetailContentProps) {
+export default function NewsDetailContent({ article, relatedArticles = [] }: NewsDetailContentProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -77,7 +78,7 @@ export default function NewsDetailContent({ article }: NewsDetailContentProps) {
           {!imageError && (article.image || article.imageUrl) ? (
             <Image
               src={article.image || article.imageUrl || ''}
-              alt={article.title}
+              alt={`${article.title} - Tin tức năng lượng mặt trời ${article.category ? `về ${article.category}` : ''}`}
               fill
               className="object-cover"
               onError={() => setImageError(true)}
@@ -161,6 +162,61 @@ export default function NewsDetailContent({ article }: NewsDetailContentProps) {
           </div>
         </div>
 
+        {/* Related Articles */}
+        {relatedArticles && relatedArticles.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Tin tức liên quan
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedArticles.map((relatedArticle) => (
+                <Link
+                  key={relatedArticle.id}
+                  href={`/news/${relatedArticle.id}`}
+                  className="group"
+                >
+                  <article className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200">
+                      {relatedArticle.image || relatedArticle.imageUrl ? (
+                        <Image
+                          src={relatedArticle.image || relatedArticle.imageUrl || ''}
+                          alt={`${relatedArticle.title} - Tin tức năng lượng mặt trời`}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg
+                            className="w-8 h-8 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-solar-blue transition-colors">
+                        {relatedArticle.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {relatedArticle.date || relatedArticle.publishedAt?.split('T')[0]}
+                      </p>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Navigation */}
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <Link
@@ -184,12 +240,18 @@ export default function NewsDetailContent({ article }: NewsDetailContentProps) {
           </Link>
 
           <div className="flex space-x-4">
-            <button className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+            <Link
+              href="/contact-us"
+              className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+            >
               Liên hệ tư vấn
-            </button>
-            <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors">
+            </Link>
+            <Link
+              href="/product"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg transition-colors"
+            >
               Xem sản phẩm
-            </button>
+            </Link>
           </div>
         </div>
       </div>

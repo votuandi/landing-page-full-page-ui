@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   PhotoIcon,
   PencilIcon,
@@ -781,12 +782,15 @@ export default function ProductsPage() {
                     <div className="grid md:grid-cols-3 gap-4">
                       {/* Image Preview */}
                       <div className="md:col-span-1">
-                        <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+                        <div className="h-48 bg-gray-100 flex items-center justify-center p-4 relative">
                           {(categoryImagePreview[category.id] || category.imageUrl) ? (
-                            <img
+                            <Image
                               src={categoryImagePreview[category.id] || category.imageUrl || ''}
                               alt={category.name}
-                              className="max-h-full max-w-full object-contain"
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              unoptimized
                             />
                           ) : (
                             <PhotoIcon className="w-12 h-12 text-gray-400" />
@@ -901,12 +905,15 @@ export default function ProductsPage() {
                     <div className="grid md:grid-cols-3 gap-4">
                       {/* Image Display */}
                       <div className="md:col-span-1">
-                        <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+                        <div className="h-48 bg-gray-100 flex items-center justify-center p-4 relative">
                           {category.imageUrl ? (
-                            <img
+                            <Image
                               src={category.imageUrl}
                               alt={category.name}
-                              className="max-h-full max-w-full object-contain"
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              unoptimized
                             />
                           ) : (
                             <PhotoIcon className="w-12 h-12 text-gray-400" />
@@ -1067,12 +1074,15 @@ export default function ProductsPage() {
                   <div className="grid md:grid-cols-3 gap-4">
                     {/* Image Preview */}
                     <div className="md:col-span-1">
-                      <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+                      <div className="h-48 bg-gray-100 flex items-center justify-center p-4 relative">
                         {(productImagePreview[product.id] || product.imageUrl) ? (
-                          <img
+                          <Image
                             src={productImagePreview[product.id] || product.imageUrl || ''}
                             alt={product.title}
-                            className="max-h-full max-w-full object-contain"
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            unoptimized
                           />
                         ) : (
                           <PhotoIcon className="w-12 h-12 text-gray-400" />
@@ -1305,15 +1315,18 @@ export default function ProductsPage() {
                               <div className="mt-2 grid grid-cols-4 gap-2">
                                 {additionalImagesPreviews[product.id].map((preview, idx) => (
                                   <div key={idx} className="relative h-20 bg-gray-100 rounded border-2 border-gray-200 group">
-                                    <img
+                                    <Image
                                       src={preview}
                                       alt={`Preview ${idx + 1}`}
-                                      className="w-full h-full object-cover rounded"
+                                      fill
+                                      className="object-cover rounded"
+                                      sizes="(max-width: 768px) 25vw, 20vw"
+                                      unoptimized
                                     />
                                     <button
                                       type="button"
                                       onClick={() => handleRemoveSelectedImage(product.id, idx)}
-                                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                       title="Xóa ảnh"
                                     >
                                       <TrashIcon className="w-3 h-3" />
@@ -1336,10 +1349,13 @@ export default function ProductsPage() {
                                           : 'border-green-200'
                                           }`}
                                       >
-                                        <img
+                                        <Image
                                           src={media.path.replace('public', '')}
                                           alt={`Storage ${media.id}`}
-                                          className="w-full h-full object-cover rounded"
+                                          fill
+                                          className="object-cover rounded"
+                                          sizes="(max-width: 768px) 25vw, 20vw"
+                                          unoptimized
                                         />
                                         <button
                                           type="button"

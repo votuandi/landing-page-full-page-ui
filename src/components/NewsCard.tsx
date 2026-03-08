@@ -41,10 +41,12 @@ export default function NewsCard({
         {!imageError && displayImage ? (
           <Image
             src={displayImage}
-            alt={title}
+            alt={`${title} - Tin tức năng lượng mặt trời`}
             fill
             className="object-cover"
             onError={() => setImageError(true)}
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           /* Fallback placeholder */

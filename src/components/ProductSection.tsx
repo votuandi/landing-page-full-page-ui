@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import StaggeredScrollAnimation from "./StaggeredScrollAnimation";
 
@@ -173,10 +174,12 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
               )}
 
               <div className="relative aspect-square bg-gray-100 overflow-hidden flex-shrink-0">
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
                     target.src = "/images/placeholder-product.svg";
