@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   PhotoIcon,
   PencilIcon,
@@ -49,9 +50,51 @@ import {
 } from "@/lib/features/partners/partnersSlice";
 
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // Map tab indices to tab names
+  const tabMap: Array<"banners" | "introduction" | "partners" | "companyInfo" | "database"> = [
+    "companyInfo",
+    "introduction",
+    "banners",
+    "partners",
+    "database",
+  ];
+
+  // Get initial tab from URL or default to "companyInfo"
+  const getInitialTab = (): "banners" | "introduction" | "database" | "partners" | "companyInfo" => {
+    const indexParam = searchParams.get("index");
+    if (indexParam) {
+      const index = parseInt(indexParam, 10);
+      if (!isNaN(index) && index >= 0 && index < tabMap.length) {
+        return tabMap[index];
+      }
+    }
+    return "companyInfo";
+  };
+
   const [activeTab, setActiveTab] = useState<"banners" | "introduction" | "database" | "partners" | "companyInfo">(
-    "banners"
+    getInitialTab()
   );
+
+  // Update tab from URL when searchParams change (but not on initial render)
+  useEffect(() => {
+    const tabFromUrl = getInitialTab();
+    if (tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Handler to change tab and update URL
+  const handleTabChange = (tab: "banners" | "introduction" | "database" | "partners" | "companyInfo") => {
+    setActiveTab(tab);
+    const index = tabMap.indexOf(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("index", index.toString());
+    router.push(`/admin/settings?${params.toString()}`, { scroll: false });
+  };
   const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -666,43 +709,7 @@ export default function SettingsPage() {
         <div className="px-8">
           <nav className="flex space-x-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab("banners")}
-              className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${activeTab === "banners"
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              Banner
-            </button>
-            <button
-              onClick={() => setActiveTab("introduction")}
-              className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${activeTab === "introduction"
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              Giới thiệu nhanh
-            </button>
-            <button
-              onClick={() => setActiveTab("partners")}
-              className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${activeTab === "partners"
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
-            >
-              Đối tác
-            </button>
-            <button
-              onClick={() => setActiveTab("companyInfo")}
+              onClick={() => handleTabChange("companyInfo")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
                 ${activeTab === "companyInfo"
@@ -714,7 +721,43 @@ export default function SettingsPage() {
               Thông tin công ty
             </button>
             <button
-              onClick={() => setActiveTab("database")}
+              onClick={() => handleTabChange("introduction")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${activeTab === "introduction"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Giới thiệu nhanh
+            </button>
+            <button
+              onClick={() => handleTabChange("banners")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${activeTab === "banners"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Banner
+            </button>
+            <button
+              onClick={() => handleTabChange("partners")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${activeTab === "partners"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Đối tác
+            </button>
+            <button
+              onClick={() => handleTabChange("database")}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
                 ${activeTab === "database"
