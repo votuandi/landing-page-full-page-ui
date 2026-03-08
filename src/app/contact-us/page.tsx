@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ContactUsContent from "@/components/ContactUsContent";
 import { prisma } from "@/lib/prisma";
 
@@ -78,7 +79,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function ContactUsPage() {
   return (
     <main className="min-h-screen">
-      <ContactUsContent />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Đang tải...</div>}>
+        <ContactUsContent />
+      </Suspense>
     </main>
   );
 }

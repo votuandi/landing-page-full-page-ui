@@ -4,6 +4,51 @@ import { unlink } from 'fs/promises'
 import { existsSync } from 'fs'
 import path from 'path'
 
+// GET /api/products/[id] - Get a single product by ID
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: idString } = await params
+    const id = parseInt(idString)
+    
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID' },
+        { status: 400 }
+      )
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    })
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(product, { status: 200 })
+  } catch (error) {
+    console.error('Error fetching product:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch product' },
+      { status: 500 }
+    )
+  }
+}
+
 // PUT /api/products/[id] - Update a product
 export async function PUT(
   request: NextRequest,

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { SITE_CONFIG, SOCIAL_LINKS, SERVICES } from "@/utils/constants";
 import {
   PhoneIcon,
@@ -65,6 +66,8 @@ interface ContactFormData {
 
 export default function ContactUsContent() {
   const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
+  const formRef = useRef<HTMLDivElement>(null);
   const { offices, loading: officesLoading } = useAppSelector((state) => state.offices);
 
   const [formData, setFormData] = useState<ContactFormData>({
@@ -78,11 +81,42 @@ export default function ContactUsContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
+  const [hasAutoFilled, setHasAutoFilled] = useState(false);
+  const [productsFromDB, setProductsFromDB] = useState<Array<{ id: number; title: string }>>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [phoneError, setPhoneError] = useState<string>("");
 
   // Fetch offices on component mount
   useEffect(() => {
     dispatch(fetchOffices({ limit: 100 })); // Fetch all offices
   }, [dispatch]);
+
+  // Fetch products from database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        // Fetch all active products
+        const response = await fetch("/api/products?isActive=true&limit=1000");
+        if (response.ok) {
+          const data = await response.json();
+          const products = data.data || [];
+          setProductsFromDB(
+            products.map((p: any) => ({
+              id: p.id,
+              title: p.title,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Set default office to main office or first office
   useEffect(() => {
@@ -91,6 +125,63 @@ export default function ContactUsContent() {
       setSelectedOffice(mainOffice || offices[0]);
     }
   }, [offices, selectedOffice]);
+
+  // Handle URL params for product purchase
+  useEffect(() => {
+    const type = searchParams.get("type");
+    const productId = searchParams.get("productId");
+    const amount = searchParams.get("amount");
+
+    if (type === "product" && productId && amount && !hasAutoFilled) {
+      // Fetch product information
+      const fetchProduct = async () => {
+        try {
+          const response = await fetch(`/api/products/${productId}`);
+          if (response.ok) {
+            const product = await response.json();
+            const productTitle = product.title || "";
+            const productIdNum = parseInt(productId);
+            
+            // Ensure the product is in the productsFromDB list using functional update
+            setProductsFromDB((prev) => {
+              const productExists = prev.some((p) => p.id === productIdNum);
+              if (!productExists && productTitle) {
+                return [...prev, { id: productIdNum, title: productTitle }];
+              }
+              return prev;
+            });
+
+            setFormData((prev) => ({
+              ...prev,
+              consultationType: "Sản phẩm",
+              specificItem: productTitle,
+              details: `Tôi muốn mua ${amount} sản phẩm.`,
+            }));
+            setHasAutoFilled(true);
+
+            // Scroll to form after a short delay to ensure form is rendered
+            setTimeout(() => {
+              if (formRef.current) {
+                formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }, 100);
+          }
+        } catch (error) {
+          console.error("Error fetching product:", error);
+        }
+      };
+
+      fetchProduct();
+    }
+  }, [searchParams, hasAutoFilled]);
+
+  const validatePhone = (phone: string): boolean => {
+    // Remove spaces, dashes, and parentheses
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
+    // Vietnamese phone numbers: 10-11 digits
+    const phoneRegex = /^[0-9]{10,11}$/;
+    return phoneRegex.test(cleanPhone);
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -104,11 +195,34 @@ export default function ContactUsContent() {
       // Reset specific item when consultation type changes
       ...(name === "consultationType" ? { specificItem: "" } : {}),
     }));
+
+    // Validate phone number in real-time
+    if (name === "phone") {
+      if (value && !validatePhone(value)) {
+        setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
+      } else {
+        setPhoneError("");
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate phone number before submission
+    if (!validatePhone(formData.phone)) {
+      setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
+      // Scroll to phone input
+      const phoneInput = document.getElementById("phone");
+      if (phoneInput) {
+        phoneInput.focus();
+        phoneInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     setIsSubmitting(true);
+    setPhoneError(""); // Clear any previous errors
 
     try {
       const response = await fetch("/api/contact-form", {
@@ -121,6 +235,12 @@ export default function ContactUsContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        // Check if error is related to phone validation
+        if (errorData.error && errorData.error.includes("phone")) {
+          setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
+          setIsSubmitting(false);
+          return;
+        }
         throw new Error(errorData.error || "Failed to submit form");
       }
 
@@ -137,6 +257,7 @@ export default function ContactUsContent() {
         specificItem: "",
         details: "",
       });
+      setPhoneError("");
     } catch (error) {
       console.error("Error submitting contact form:", error);
       alert(
@@ -149,6 +270,10 @@ export default function ContactUsContent() {
 
   const getSpecificOptions = () => {
     if (formData.consultationType === "Sản phẩm") {
+      // Use products from database if available, otherwise fallback to static list
+      if (productsFromDB.length > 0) {
+        return productsFromDB.map((p) => p.title);
+      }
       return allProducts;
     } else if (formData.consultationType === "Dịch vụ") {
       return SERVICES.map((service) => service.title);
@@ -356,7 +481,7 @@ export default function ContactUsContent() {
         </div>
 
         {/* Contact Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div ref={formRef} className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Để lại thông tin cần tư vấn, chúng tôi sẽ liên hệ ngay
           </h2>
@@ -398,9 +523,29 @@ export default function ContactUsContent() {
                   required
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Nhập số điện thoại"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    phoneError
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="Nhập số điện thoại (10-11 chữ số)"
                 />
+                {phoneError && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {phoneError}
+                  </p>
+                )}
               </div>
 
               {/* Email */}

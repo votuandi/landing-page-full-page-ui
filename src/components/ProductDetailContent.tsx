@@ -3,6 +3,7 @@
 import { useAppSelector } from "@/lib/hooks";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ProductImage {
@@ -46,6 +47,7 @@ export default function ProductDetailContent({
   product,
   relatedProducts = [],
 }: ProductDetailContentProps) {
+  const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<
@@ -383,11 +385,16 @@ export default function ProductDetailContent({
               {/* <button className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                 Thêm vào giỏ hàng
               </button> */}
-              <a href={'/contact-us'}>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                  Mua ngay
-                </button>
-              </a>
+              <button
+                onClick={() => {
+                  router.push(
+                    `/contact-us?type=product&productId=${product.id}&amount=${quantity}`
+                  );
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Mua ngay
+              </button>
             </div>
           </div>
 
