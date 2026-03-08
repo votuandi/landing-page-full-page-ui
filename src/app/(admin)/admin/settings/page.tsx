@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   PhotoIcon,
   PencilIcon,
@@ -13,6 +13,7 @@ import {
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import BannerForm from "@/components/BannerForm";
 import CompanyInfoForm from "@/components/CompanyInfoForm";
@@ -66,6 +67,16 @@ export default function SettingsPage() {
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({ type: null, text: '' });
   const [user, setUser] = useState<{ id: number; username: string; role: 'admin' | 'editor' } | null>(null);
+  const [backupHistory, setBackupHistory] = useState<Array<{
+    id: number;
+    action: 'backup' | 'restore';
+    status: 'success' | 'failed';
+    performerId: number;
+    performerUsername: string;
+    errorMessage: string | null;
+    createdAt: string;
+  }>>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Redux state
   const dispatch = useAppDispatch();
@@ -103,6 +114,31 @@ export default function SettingsPage() {
 
     fetchUser();
   }, []);
+
+  // Fetch backup history
+  const fetchBackupHistory = useCallback(async () => {
+    if (user?.role !== 'admin') return;
+    
+    setLoadingHistory(true);
+    try {
+      const response = await fetch('/api/admin/backup-history');
+      if (response.ok) {
+        const data = await response.json();
+        setBackupHistory(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching backup history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [user]);
+
+  // Fetch backup history when user is admin
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      fetchBackupHistory();
+    }
+  }, [user, fetchBackupHistory]);
 
   const handleAddBanner = () => {
     dispatch(addNewBanner());
@@ -256,6 +292,9 @@ export default function SettingsPage() {
       alert(`Lỗi khi tạo bản sao lưu: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setBackupLoading(false);
+      
+      // Refresh backup history after backup
+      fetchBackupHistory();
     }
   };
 
@@ -335,6 +374,9 @@ export default function SettingsPage() {
 
       // Refresh stats after restore
       window.location.reload();
+      
+      // Refresh backup history
+      fetchBackupHistory();
     } catch (error) {
       console.error('Error restoring backup:', error);
       setRestoreMessage({
@@ -1620,6 +1662,105 @@ export default function SettingsPage() {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  {/* Backup History Section */}
+                  <div className="mt-8 border-t border-gray-200 pt-6">
+                    <div className="flex items-center space-x-2 mb-4">
+                      <ClockIcon className="w-5 h-5 text-gray-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Lịch sử Sao lưu & Khôi phục
+                      </h3>
+                    </div>
+                    
+                    {loadingHistory ? (
+                      <div className="flex justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    ) : backupHistory.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>Chưa có lịch sử sao lưu hoặc khôi phục</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ngày & Giờ
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Thao tác
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Người thực hiện
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Trạng thái
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Lỗi
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {backupHistory.map((item) => (
+                              <tr key={item.id} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                  {new Date(item.createdAt).toLocaleString('vi-VN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                  })}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <span
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      item.action === 'backup'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-orange-100 text-orange-800'
+                                    }`}
+                                  >
+                                    {item.action === 'backup' ? 'Sao lưu' : 'Khôi phục'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                  <div>
+                                    <div className="font-medium">{item.performerUsername}</div>
+                                    <div className="text-xs text-gray-500">ID: {item.performerId}</div>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <span
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      item.status === 'success'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-red-100 text-red-800'
+                                    }`}
+                                  >
+                                    {item.status === 'success' ? 'Thành công' : 'Thất bại'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-500">
+                                  {item.errorMessage ? (
+                                    <span className="text-red-600 text-xs" title={item.errorMessage}>
+                                      {item.errorMessage.length > 50
+                                        ? `${item.errorMessage.substring(0, 50)}...`
+                                        : item.errorMessage}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-400">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

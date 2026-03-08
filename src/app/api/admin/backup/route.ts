@@ -123,6 +123,21 @@ export async function GET(request: NextRequest) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
     const filename = `database-backup-${timestamp}.json`
 
+    // Log backup history
+    try {
+      await prisma.backupHistory.create({
+        data: {
+          action: 'backup',
+          status: 'success',
+          performerId: payload.userId,
+          performerUsername: payload.username,
+        },
+      })
+    } catch (historyError) {
+      // Log error but don't fail the backup
+      console.error('Error logging backup history:', historyError)
+    }
+
     // Return JSON file as download
     return new NextResponse(JSON.stringify(backupData, null, 2), {
       status: 200,
@@ -133,6 +148,28 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error creating backup:', error)
+    
+    // Log failed backup history
+    try {
+      const accessToken = await getAccessToken()
+      if (accessToken) {
+        const payload = await verifyAccessToken(accessToken)
+        if (payload) {
+          await prisma.backupHistory.create({
+            data: {
+              action: 'backup',
+              status: 'failed',
+              performerId: payload.userId,
+              performerUsername: payload.username,
+              errorMessage: error instanceof Error ? error.message : 'Unknown error occurred',
+            },
+          })
+        }
+      }
+    } catch (historyError) {
+      console.error('Error logging backup history:', historyError)
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to create backup',

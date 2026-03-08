@@ -531,6 +531,21 @@ export async function POST(request: NextRequest) {
       timeout: 60000, // 60 second timeout for large restores
     })
 
+    // Log successful restore history
+    try {
+      await prisma.backupHistory.create({
+        data: {
+          action: 'restore',
+          status: 'success',
+          performerId: payload.userId,
+          performerUsername: payload.username,
+        },
+      })
+    } catch (historyError) {
+      // Log error but don't fail the restore
+      console.error('Error logging restore history:', historyError)
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -553,6 +568,27 @@ export async function POST(request: NextRequest) {
       } else {
         errorMessage = error.message
       }
+    }
+
+    // Log failed restore history
+    try {
+      const accessToken = await getAccessToken()
+      if (accessToken) {
+        const payload = await verifyAccessToken(accessToken)
+        if (payload) {
+          await prisma.backupHistory.create({
+            data: {
+              action: 'restore',
+              status: 'failed',
+              performerId: payload.userId,
+              performerUsername: payload.username,
+              errorMessage: errorMessage,
+            },
+          })
+        }
+      }
+    } catch (historyError) {
+      console.error('Error logging restore history:', historyError)
     }
 
     return NextResponse.json(

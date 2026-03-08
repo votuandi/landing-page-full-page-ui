@@ -240,3 +240,27 @@ model Visit {
 
   @@map("Visit")
 }
+
+enum BackupAction {
+  backup
+  restore
+}
+
+enum BackupStatus {
+  success
+  failed
+}
+
+model BackupHistory {
+  id          Int          @id @default(autoincrement())
+  action      BackupAction // backup or restore
+  status      BackupStatus // success or failed
+  performerId Int          // User ID who performed the action
+  performerUsername String // Username who performed the action
+  errorMessage String?     // Error message if status is failed
+  createdAt   DateTime     @default(now())
+
+  @@index([createdAt])
+  @@index([performerId])
+  @@map("BackupHistory")
+}
