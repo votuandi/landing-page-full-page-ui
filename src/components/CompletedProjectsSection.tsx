@@ -12,6 +12,7 @@ import {
   FunnelIcon,
 } from "@heroicons/react/24/outline";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import Link from "next/link";
 
 interface Project {
   id: number;
@@ -583,12 +584,14 @@ export default function CompletedProjectsSection() {
                 tự và nhận báo giá miễn phí cho dự án của bạn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="px-8 py-4 bg-white text-solar-blue font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
-                  Tư vấn miễn phí
-                </button>
-                <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-solar-blue transition-all duration-300">
+                <Link href="/contact-us">
+                  <button className="px-8 py-4 bg-white text-solar-blue font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                    Tư vấn miễn phí
+                  </button>
+                </Link>
+                {/* <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-solar-blue transition-all duration-300">
                   Tải catalogue
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
