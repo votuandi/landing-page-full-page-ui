@@ -181,6 +181,53 @@ export default function ContactUsContent() {
     }
   }, [searchParams, hasAutoFilled]);
 
+  // Handle URL params for service consultation/survey
+  useEffect(() => {
+    const type = searchParams.get("type");
+    const serviceId = searchParams.get("serviceId");
+    const action = searchParams.get("action");
+
+    if (type === "service" && serviceId && action && !hasAutoFilled) {
+      // Fetch service information
+      const fetchService = async () => {
+        try {
+          const response = await fetch(`/api/services/${serviceId}`);
+          if (response.ok) {
+            const service = await response.json();
+            const serviceTitle = service.title || "";
+
+            // Determine details message based on action
+            let detailsMessage = "";
+            if (action === "0") {
+              detailsMessage = "Tôi muốn được tư vấn dịch vụ này.";
+            } else if (action === "1") {
+              detailsMessage = "Tôi muốn đăng ký khảo sát dịch vụ này.";
+            }
+
+            setFormData((prev) => ({
+              ...prev,
+              consultationType: "Dịch vụ",
+              specificItem: serviceTitle,
+              details: detailsMessage,
+            }));
+            setHasAutoFilled(true);
+
+            // Scroll to form after a short delay to ensure form is rendered
+            setTimeout(() => {
+              if (formRef.current) {
+                formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }, 100);
+          }
+        } catch (error) {
+          console.error("Error fetching service:", error);
+        }
+      };
+
+      fetchService();
+    }
+  }, [searchParams, hasAutoFilled]);
+
   const validatePhone = (phone: string): boolean => {
     // Remove spaces, dashes, and parentheses
     const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@/types";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchOffices } from "@/lib/features/offices/officesSlice";
 
@@ -31,6 +32,7 @@ export default function ServiceDetailContent({
   service,
   relatedServices: propRelatedServices = [],
 }: ServiceDetailContentProps) {
+  const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "overview" | "process" | "pricing"
@@ -416,10 +418,24 @@ export default function ServiceDetailContent({
               Đăng ký dịch vụ
             </h3>
             <div className="space-y-4">
-              <button className="w-full bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              <button
+                onClick={() => {
+                  router.push(
+                    `/contact-us?type=service&serviceId=${service.id}&action=0`
+                  );
+                }}
+                className="w-full bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
                 Liên hệ tư vấn miễn phí
               </button>
-              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              <button
+                onClick={() => {
+                  router.push(
+                    `/contact-us?type=service&serviceId=${service.id}&action=1`
+                  );
+                }}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
                 Đăng ký khảo sát
               </button>
             </div>
