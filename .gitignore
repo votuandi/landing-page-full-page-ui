@@ -43,3 +43,8 @@ next-env.d.ts
 /public/videos/
 /public/news/
 /public/products/
+/public/backup/
+/public/logs/
+
+# docs
+/docs
