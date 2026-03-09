@@ -537,6 +537,7 @@ export async function POST(request: NextRequest) {
         data: {
           action: 'restore',
           status: 'success',
+          type: 'database',
           performerId: payload.userId,
           performerUsername: payload.username,
         },
@@ -580,6 +581,7 @@ export async function POST(request: NextRequest) {
             data: {
               action: 'restore',
               status: 'failed',
+              type: 'database',
               performerId: payload.userId,
               performerUsername: payload.username,
               errorMessage: errorMessage,

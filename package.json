@@ -25,6 +25,8 @@
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@reduxjs/toolkit": "^2.11.2",
+    "adm-zip": "^0.5.16",
+    "archiver": "^7.0.1",
     "bcryptjs": "^3.0.3",
     "divt-text-editor": "votuandi/divt-text-editor#v0.1.6",
     "html-react-parser": "^5.2.17",

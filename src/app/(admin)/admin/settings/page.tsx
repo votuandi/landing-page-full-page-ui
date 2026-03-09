@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   PhotoIcon,
@@ -52,18 +52,19 @@ import {
 export default function SettingsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   // Map tab indices to tab names
-  const tabMap: Array<"banners" | "introduction" | "partners" | "companyInfo" | "database"> = [
+  const tabMap: Array<"banners" | "introduction" | "partners" | "companyInfo" | "database" | "mediaBackup"> = [
     "companyInfo",
     "introduction",
     "banners",
     "partners",
     "database",
+    "mediaBackup",
   ];
 
   // Get initial tab from URL or default to "companyInfo"
-  const getInitialTab = (): "banners" | "introduction" | "database" | "partners" | "companyInfo" => {
+  const getInitialTab = (): "banners" | "introduction" | "database" | "partners" | "companyInfo" | "mediaBackup" => {
     const indexParam = searchParams.get("index");
     if (indexParam) {
       const index = parseInt(indexParam, 10);
@@ -74,7 +75,7 @@ export default function SettingsPage() {
     return "companyInfo";
   };
 
-  const [activeTab, setActiveTab] = useState<"banners" | "introduction" | "database" | "partners" | "companyInfo">(
+  const [activeTab, setActiveTab] = useState<"banners" | "introduction" | "database" | "partners" | "companyInfo" | "mediaBackup">(
     getInitialTab()
   );
 
@@ -88,7 +89,7 @@ export default function SettingsPage() {
   }, [searchParams]);
 
   // Handler to change tab and update URL
-  const handleTabChange = (tab: "banners" | "introduction" | "database" | "partners" | "companyInfo") => {
+  const handleTabChange = (tab: "banners" | "introduction" | "database" | "partners" | "companyInfo" | "mediaBackup") => {
     setActiveTab(tab);
     const index = tabMap.indexOf(tab);
     const params = new URLSearchParams(searchParams.toString());
@@ -110,16 +111,31 @@ export default function SettingsPage() {
   const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({ type: null, text: '' });
   const [user, setUser] = useState<{ id: number; username: string; role: 'admin' | 'editor' } | null>(null);
-  const [backupHistory, setBackupHistory] = useState<Array<{
+  type BackupHistoryItem = {
     id: number;
     action: 'backup' | 'restore';
     status: 'success' | 'failed';
+    type?: string;
     performerId: number;
     performerUsername: string;
     errorMessage: string | null;
     createdAt: string;
-  }>>([]);
+  };
+  const [backupHistoryDatabase, setBackupHistoryDatabase] = useState<BackupHistoryItem[]>([]);
+  const [backupHistoryDatabaseTotal, setBackupHistoryDatabaseTotal] = useState(0);
+  const [backupHistoryDatabasePage, setBackupHistoryDatabasePage] = useState(1);
+  const [backupHistoryMedia, setBackupHistoryMedia] = useState<BackupHistoryItem[]>([]);
+  const [backupHistoryMediaTotal, setBackupHistoryMediaTotal] = useState(0);
+  const [backupHistoryMediaPage, setBackupHistoryMediaPage] = useState(1);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const PER_PAGE = 10;
+
+  // Media backup/restore (public folder: photos, videos, folders)
+  const [mediaBackupLoading, setMediaBackupLoading] = useState(false);
+  const mediaBackupInProgressRef = useRef(false);
+  const [mediaRestoreLoading, setMediaRestoreLoading] = useState(false);
+  const [mediaRestoreFile, setMediaRestoreFile] = useState<File | null>(null);
+  const [mediaRestoreMessage, setMediaRestoreMessage] = useState<{ type: 'success' | 'error' | null; text: string }>({ type: null, text: '' });
 
   // Redux state
   const dispatch = useAppDispatch();
@@ -158,30 +174,73 @@ export default function SettingsPage() {
     fetchUser();
   }, []);
 
-  // Fetch backup history
-  const fetchBackupHistory = useCallback(async () => {
-    if (user?.role !== 'admin') return;
-    
-    setLoadingHistory(true);
-    try {
-      const response = await fetch('/api/admin/backup-history');
-      if (response.ok) {
-        const data = await response.json();
-        setBackupHistory(data.data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching backup history:', error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }, [user]);
+  // Fetch backup history with type and pagination (10 per page)
+  const fetchBackupHistory = useCallback(
+    async (type: 'database' | 'media', page: number = 1) => {
+      if (user?.role !== 'admin') return;
 
-  // Fetch backup history when user is admin
+      setLoadingHistory(true);
+      try {
+        const offset = (page - 1) * PER_PAGE;
+        const response = await fetch(
+          `/api/admin/backup-history?type=${type}&limit=${PER_PAGE}&offset=${offset}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const list = data.data || [];
+          const total = data.total ?? 0;
+          if (type === 'database') {
+            setBackupHistoryDatabase(list);
+            setBackupHistoryDatabaseTotal(total);
+            setBackupHistoryDatabasePage(page);
+          } else {
+            setBackupHistoryMedia(list);
+            setBackupHistoryMediaTotal(total);
+            setBackupHistoryMediaPage(page);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching backup history:', error);
+      } finally {
+        setLoadingHistory(false);
+      }
+    },
+    [user]
+  );
+
+  // Load both histories when user is admin (parallel fetch, single loading state)
   useEffect(() => {
-    if (user?.role === 'admin') {
-      fetchBackupHistory();
-    }
-  }, [user, fetchBackupHistory]);
+    if (user?.role !== 'admin') return;
+    let cancelled = false;
+    setLoadingHistory(true);
+    const load = async () => {
+      try {
+        const [dbRes, mediaRes] = await Promise.all([
+          fetch(`/api/admin/backup-history?type=database&limit=${PER_PAGE}&offset=0`),
+          fetch(`/api/admin/backup-history?type=media&limit=${PER_PAGE}&offset=0`),
+        ]);
+        if (cancelled) return;
+        if (dbRes.ok) {
+          const d = await dbRes.json();
+          setBackupHistoryDatabase(d.data || []);
+          setBackupHistoryDatabaseTotal(d.total ?? 0);
+          setBackupHistoryDatabasePage(1);
+        }
+        if (mediaRes.ok) {
+          const m = await mediaRes.json();
+          setBackupHistoryMedia(m.data || []);
+          setBackupHistoryMediaTotal(m.total ?? 0);
+          setBackupHistoryMediaPage(1);
+        }
+      } catch (e) {
+        console.error('Error fetching backup history:', e);
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const handleAddBanner = () => {
     dispatch(addNewBanner());
@@ -312,7 +371,7 @@ export default function SettingsPage() {
     setBackupLoading(true);
     try {
       const response = await fetch('/api/admin/backup');
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to create backup');
@@ -320,7 +379,7 @@ export default function SettingsPage() {
 
       // Get the backup file as blob
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -335,9 +394,9 @@ export default function SettingsPage() {
       alert(`Lỗi khi tạo bản sao lưu: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setBackupLoading(false);
-      
+
       // Refresh backup history after backup
-      fetchBackupHistory();
+      fetchBackupHistory('database', 1);
     }
   };
 
@@ -358,9 +417,9 @@ export default function SettingsPage() {
     if (!validation.valid) {
       alert(`⚠️ CẢNH BÁO: ${validation.error}\n\nKhôi phục đã bị hủy. Vui lòng chọn file backup hợp lệ.`);
       setRestoreFile(null);
-      setRestoreMessage({ 
-        type: 'error', 
-        text: `File không hợp lệ: ${validation.error}` 
+      setRestoreMessage({
+        type: 'error',
+        text: `File không hợp lệ: ${validation.error}`
       });
       // Reset file input
       const fileInput = document.getElementById('restore-file-input') as HTMLInputElement;
@@ -408,7 +467,7 @@ export default function SettingsPage() {
         text: `Khôi phục thành công! Đã khôi phục ${totalRecords} bản ghi.`,
       });
       setRestoreFile(null);
-      
+
       // Reset file input
       const fileInput = document.getElementById('restore-file-input') as HTMLInputElement;
       if (fileInput) {
@@ -417,9 +476,9 @@ export default function SettingsPage() {
 
       // Refresh stats after restore
       window.location.reload();
-      
+
       // Refresh backup history
-      fetchBackupHistory();
+      fetchBackupHistory('database', 1);
     } catch (error) {
       console.error('Error restoring backup:', error);
       setRestoreMessage({
@@ -496,7 +555,7 @@ export default function SettingsPage() {
       }
 
       // Check if there's at least some data to restore
-      const hasData = validDataKeys.some(key => 
+      const hasData = validDataKeys.some(key =>
         backupData.data[key] && Array.isArray(backupData.data[key]) && backupData.data[key].length > 0
       );
 
@@ -510,13 +569,131 @@ export default function SettingsPage() {
     }
   };
 
+  // Media backup: create zip of public (excl. backup, logs) and download
+  const handleMediaBackup = async () => {
+    if (user?.role !== 'admin') {
+      alert('Chỉ quản trị viên mới có quyền sao lưu media');
+      return;
+    }
+    if (mediaBackupInProgressRef.current) {
+      return;
+    }
+    mediaBackupInProgressRef.current = true;
+    setMediaBackupLoading(true);
+    setMediaRestoreMessage({ type: null, text: '' });
+    try {
+      const response = await fetch('/api/admin/media-backup');
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || err.message || 'Failed to create media backup');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const match = contentDisposition?.match(/filename="?([^";]+)"?/);
+      a.download = match ? match[1].trim() : `backup_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setMediaRestoreMessage({ type: 'success', text: 'Đã tạo và tải xuống bản sao lưu media thành công.' });
+      fetchBackupHistory('media', 1);
+    } catch (error) {
+      console.error('Media backup error:', error);
+      setMediaRestoreMessage({
+        type: 'error',
+        text: `Lỗi: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+      fetchBackupHistory('media', 1);
+    } finally {
+      mediaBackupInProgressRef.current = false;
+      setMediaBackupLoading(false);
+    }
+  };
+
+  // Media restore: validate zip and upload
+  const validateMediaRestoreFile = (file: File): { valid: boolean; error?: string } => {
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      return { valid: false, error: 'Chỉ chấp nhận file .zip' };
+    }
+    if (file.size === 0) {
+      return { valid: false, error: 'File không được để trống' };
+    }
+    return { valid: true };
+  };
+
+  const handleMediaRestore = async () => {
+    if (user?.role !== 'admin') {
+      alert('Chỉ quản trị viên mới có quyền khôi phục media');
+      return;
+    }
+    if (!mediaRestoreFile) {
+      alert('Vui lòng chọn file .zip sao lưu');
+      return;
+    }
+    const validation = validateMediaRestoreFile(mediaRestoreFile);
+    if (!validation.valid) {
+      setMediaRestoreMessage({ type: 'error', text: validation.error ?? 'File không hợp lệ' });
+      return;
+    }
+    const confirmed = window.confirm(
+      'Khôi phục sẽ ghi đè ảnh/video. Bạn có chắc muốn tiếp tục?'
+    );
+    if (!confirmed) return;
+
+    setMediaRestoreLoading(true);
+    setMediaRestoreMessage({ type: null, text: '' });
+    try {
+      const formData = new FormData();
+      formData.append('file', mediaRestoreFile);
+      const response = await fetch('/api/admin/media-restore', { method: 'POST', body: formData });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Restore failed');
+      }
+      setMediaRestoreMessage({
+        type: 'success',
+        text: data.message || `Đã khôi phục ${data.restoredFiles ?? 0} mục.`,
+      });
+      setMediaRestoreFile(null);
+      const input = document.getElementById('media-restore-file-input') as HTMLInputElement;
+      if (input) input.value = '';
+      fetchBackupHistory('media', 1);
+    } catch (error) {
+      setMediaRestoreMessage({
+        type: 'error',
+        text: `Lỗi: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+      fetchBackupHistory('media', 1);
+    } finally {
+      setMediaRestoreLoading(false);
+    }
+  };
+
+  const handleMediaRestoreFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validation = validateMediaRestoreFile(file);
+      if (!validation.valid) {
+        setMediaRestoreMessage({ type: 'error', text: validation.error ?? '' });
+        e.target.value = '';
+        setMediaRestoreFile(null);
+        return;
+      }
+      setMediaRestoreFile(file);
+      setMediaRestoreMessage({ type: null, text: '' });
+    }
+  };
+
   // Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file before setting it
       const validation = await validateBackupFile(file);
-      
+
       if (!validation.valid) {
         alert(`⚠️ CẢNH BÁO: ${validation.error}\n\nVui lòng chọn file backup hợp lệ.`);
         e.target.value = '';
@@ -768,6 +945,18 @@ export default function SettingsPage() {
             >
               Kết nối database
             </button>
+            <button
+              onClick={() => handleTabChange("mediaBackup")}
+              className={`
+                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                ${activeTab === "mediaBackup"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              Sao lưu ảnh / video
+            </button>
           </nav>
         </div>
       </div>
@@ -873,8 +1062,8 @@ export default function SettingsPage() {
                                 </span>
                                 <span
                                   className={`px-2 py-1 rounded ${banner.isActive
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-800"
                                     }`}
                                 >
                                   {banner.isActive ? "Hoạt động" : "Tạm dừng"}
@@ -1400,8 +1589,8 @@ export default function SettingsPage() {
                           </h3>
                           <span
                             className={`px-2 py-1 text-xs rounded ${partner.isActive
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
                               }`}
                           >
                             {partner.isActive ? "Hiển thị" : "Ẩn"}
@@ -1459,10 +1648,10 @@ export default function SettingsPage() {
                   {/* Status Indicator */}
                   <div
                     className={`p-4 rounded-lg border-2 ${databaseStatus.connected
-                        ? "bg-green-50 border-green-200"
-                        : databaseStatus.status === "checking"
-                          ? "bg-yellow-50 border-yellow-200"
-                          : "bg-red-50 border-red-200"
+                      ? "bg-green-50 border-green-200"
+                      : databaseStatus.status === "checking"
+                        ? "bg-yellow-50 border-yellow-200"
+                        : "bg-red-50 border-red-200"
                       }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -1476,10 +1665,10 @@ export default function SettingsPage() {
                       <div>
                         <h3
                           className={`font-semibold ${databaseStatus.connected
-                              ? "text-green-800"
-                              : databaseStatus.status === "checking"
-                                ? "text-yellow-800"
-                                : "text-red-800"
+                            ? "text-green-800"
+                            : databaseStatus.status === "checking"
+                              ? "text-yellow-800"
+                              : "text-red-800"
                             }`}
                         >
                           {databaseStatus.connected
@@ -1490,10 +1679,10 @@ export default function SettingsPage() {
                         </h3>
                         <p
                           className={`text-sm mt-1 ${databaseStatus.connected
-                              ? "text-green-700"
-                              : databaseStatus.status === "checking"
-                                ? "text-yellow-700"
-                                : "text-red-700"
+                            ? "text-green-700"
+                            : databaseStatus.status === "checking"
+                              ? "text-yellow-700"
+                              : "text-red-700"
                             }`}
                         >
                           {databaseStatus.message}
@@ -1638,7 +1827,7 @@ export default function SettingsPage() {
                         <div className="flex items-start space-x-2">
                           <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                           <p className="text-sm text-yellow-800">
-                            <strong>Cảnh báo:</strong> Thao tác này sẽ thay thế toàn bộ dữ liệu hiện tại. 
+                            <strong>Cảnh báo:</strong> Thao tác này sẽ thay thế toàn bộ dữ liệu hiện tại.
                             Vui lòng tạo bản sao lưu trước khi khôi phục.
                           </p>
                         </div>
@@ -1680,15 +1869,14 @@ export default function SettingsPage() {
                           </>
                         )}
                       </button>
-                      
+
                       {/* Restore Message */}
                       {restoreMessage.text && (
                         <div
-                          className={`mt-4 p-3 rounded-lg flex items-start space-x-2 ${
-                            restoreMessage.type === 'success'
+                          className={`mt-4 p-3 rounded-lg flex items-start space-x-2 ${restoreMessage.type === 'success'
                               ? 'bg-green-50 border border-green-200'
                               : 'bg-red-50 border border-red-200'
-                          }`}
+                            }`}
                         >
                           {restoreMessage.type === 'success' ? (
                             <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -1696,9 +1884,8 @@ export default function SettingsPage() {
                             <XMarkIcon className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                           )}
                           <p
-                            className={`text-sm ${
-                              restoreMessage.type === 'success' ? 'text-green-800' : 'text-red-800'
-                            }`}
+                            className={`text-sm ${restoreMessage.type === 'success' ? 'text-green-800' : 'text-red-800'
+                              }`}
                           >
                             {restoreMessage.text}
                           </p>
@@ -1715,39 +1902,40 @@ export default function SettingsPage() {
                         Lịch sử Sao lưu & Khôi phục
                       </h3>
                     </div>
-                    
+
                     {loadingHistory ? (
                       <div className="flex justify-center items-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                       </div>
-                    ) : backupHistory.length === 0 ? (
+                    ) : backupHistoryDatabase.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
-                        <p>Chưa có lịch sử sao lưu hoặc khôi phục</p>
+                        <p>Chưa có lịch sử sao lưu hoặc khôi phục cơ sở dữ liệu</p>
                       </div>
                     ) : (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ngày & Giờ
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Thao tác
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Người thực hiện
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Trạng thái
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Lỗi
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {backupHistory.map((item) => (
+                      <>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Ngày & Giờ
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Thao tác
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Người thực hiện
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Trạng thái
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Lỗi
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {backupHistoryDatabase.map((item) => (
                               <tr key={item.id} className="hover:bg-gray-50">
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                                   {new Date(item.createdAt).toLocaleString('vi-VN', {
@@ -1761,11 +1949,10 @@ export default function SettingsPage() {
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span
-                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                      item.action === 'backup'
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.action === 'backup'
                                         ? 'bg-blue-100 text-blue-800'
                                         : 'bg-orange-100 text-orange-800'
-                                    }`}
+                                      }`}
                                   >
                                     {item.action === 'backup' ? 'Sao lưu' : 'Khôi phục'}
                                   </span>
@@ -1778,11 +1965,10 @@ export default function SettingsPage() {
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span
-                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                      item.status === 'success'
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.status === 'success'
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-red-100 text-red-800'
-                                    }`}
+                                      }`}
                                   >
                                     {item.status === 'success' ? 'Thành công' : 'Thất bại'}
                                   </span>
@@ -1800,14 +1986,293 @@ export default function SettingsPage() {
                                 </td>
                               </tr>
                             ))}
-                          </tbody>
-                        </table>
-                      </div>
+                            </tbody>
+                          </table>
+                        </div>
+                        {backupHistoryDatabaseTotal > PER_PAGE && (
+                          <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
+                            <span className="text-sm text-gray-600">
+                              Trang {backupHistoryDatabasePage} / {Math.ceil(backupHistoryDatabaseTotal / PER_PAGE) || 1}
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => fetchBackupHistory('database', backupHistoryDatabasePage - 1)}
+                                disabled={backupHistoryDatabasePage <= 1 || loadingHistory}
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Trước
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => fetchBackupHistory('database', backupHistoryDatabasePage + 1)}
+                                disabled={backupHistoryDatabasePage >= Math.ceil(backupHistoryDatabaseTotal / PER_PAGE) || loadingHistory}
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Sau
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === "mediaBackup" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Sao lưu ảnh / video (thư mục public)
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Sao lưu và khôi phục toàn bộ ảnh, video.
+              </p>
+            </div>
+
+            {user?.role !== 'admin' ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 text-sm">
+                Chỉ quản trị viên mới có quyền sao lưu và khôi phục media.
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="border-r border-gray-200 pr-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="bg-blue-100 p-3 rounded-lg">
+                        <ArrowDownTrayIcon className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-semibold text-gray-900">Tạo bản sao lưu</h4>
+                        <p className="text-sm text-gray-600">Nén toàn bộ public (trừ backup, logs) thành file .zip</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-4">
+                      File sẽ được lưu tại /public/backup/backup_{'{time}'}.zip và tải xuống tự động.
+                    </p>
+                    <button
+                      onClick={handleMediaBackup}
+                      disabled={mediaBackupLoading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    >
+                      {mediaBackupLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                          <span>Đang tạo zip...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ArrowDownTrayIcon className="w-5 h-5" />
+                          <span>Tạo và tải xuống backup</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="pl-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="bg-orange-100 p-3 rounded-lg">
+                        <ArrowUpTrayIcon className="w-6 h-6 text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-semibold text-gray-900">Khôi phục từ file .zip</h4>
+                        <p className="text-sm text-gray-600">Upload file backup (.zip) để khôi phục ảnh/video</p>
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                      <div className="flex items-start space-x-2">
+                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-yellow-800">
+                          File .zip sẽ được kiểm tra tính hợp lệ.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="media-restore-file-input"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Chọn file .zip
+                      </label>
+                      <input
+                        id="media-restore-file-input"
+                        type="file"
+                        accept=".zip"
+                        onChange={handleMediaRestoreFileChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      />
+                      {mediaRestoreFile && (
+                        <p className="mt-2 text-sm text-gray-600">
+                          Đã chọn: <span className="font-medium">{mediaRestoreFile.name}</span> ({(mediaRestoreFile.size / 1024).toFixed(1)} KB)
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleMediaRestore}
+                      disabled={mediaRestoreLoading || !mediaRestoreFile}
+                      className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    >
+                      {mediaRestoreLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                          <span>Đang khôi phục...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUpTrayIcon className="w-5 h-5" />
+                          <span>Khôi phục media</span>
+                        </>
+                      )}
+                    </button>
+                    {mediaRestoreMessage.text && (
+                      <div
+                        className={`mt-4 p-3 rounded-lg flex items-start space-x-2 ${mediaRestoreMessage.type === 'success'
+                            ? 'bg-green-50 border border-green-200'
+                            : 'bg-red-50 border border-red-200'
+                          }`}
+                      >
+                        {mediaRestoreMessage.type === 'success' ? (
+                          <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <XMarkIcon className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        )}
+                        <p className={`text-sm ${mediaRestoreMessage.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+                          {mediaRestoreMessage.text}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Media backup/restore history (type=media only) */}
+            {user?.role === 'admin' && (
+              <div className="mt-8 bg-white rounded-lg shadow border border-gray-200 p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <ClockIcon className="w-5 h-5 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Lịch sử Sao lưu & Khôi phục
+                  </h3>
+                </div>
+                {loadingHistory ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                  </div>
+                ) : backupHistoryMedia.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>Chưa có lịch sử sao lưu hoặc khôi phục ảnh/video</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Ngày & Giờ
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Thao tác
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Người thực hiện
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Trạng thái
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Lỗi
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {backupHistoryMedia.map((item) => (
+                            <tr key={item.id} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {new Date(item.createdAt).toLocaleString('vi-VN', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  second: '2-digit',
+                                })}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <span
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.action === 'backup'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-orange-100 text-orange-800'
+                                    }`}
+                                >
+                                  {item.action === 'backup' ? 'Sao lưu' : 'Khôi phục'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                <div>
+                                  <div className="font-medium">{item.performerUsername}</div>
+                                  <div className="text-xs text-gray-500">ID: {item.performerId}</div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <span
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.status === 'success'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-red-100 text-red-800'
+                                    }`}
+                                >
+                                  {item.status === 'success' ? 'Thành công' : 'Thất bại'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-500">
+                                {item.errorMessage ? (
+                                  <span className="text-red-600 text-xs" title={item.errorMessage}>
+                                    {item.errorMessage.length > 50
+                                      ? `${item.errorMessage.substring(0, 50)}...`
+                                      : item.errorMessage}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {backupHistoryMediaTotal > PER_PAGE && (
+                      <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
+                        <span className="text-sm text-gray-600">
+                          Trang {backupHistoryMediaPage} / {Math.ceil(backupHistoryMediaTotal / PER_PAGE) || 1}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fetchBackupHistory('media', backupHistoryMediaPage - 1)}
+                            disabled={backupHistoryMediaPage <= 1 || loadingHistory}
+                            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Trước
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => fetchBackupHistory('media', backupHistoryMediaPage + 1)}
+                            disabled={backupHistoryMediaPage >= Math.ceil(backupHistoryMediaTotal / PER_PAGE) || loadingHistory}
+                            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Sau
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 

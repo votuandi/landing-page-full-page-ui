@@ -34,17 +34,26 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get('limit') || '10', 10)), 100)
+    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10))
+    const typeFilter = searchParams.get('type') // 'database' | 'media'
 
-    // Fetch backup history
+    const where =
+      typeFilter === 'media'
+        ? { type: 'media' }
+        : typeFilter === 'database'
+          ? { type: 'database' }
+          : {}
+
+    // Fetch backup history with optional type filter
     const [history, total] = await Promise.all([
       prisma.backupHistory.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset,
       }),
-      prisma.backupHistory.count(),
+      prisma.backupHistory.count({ where }),
     ])
 
     return NextResponse.json(

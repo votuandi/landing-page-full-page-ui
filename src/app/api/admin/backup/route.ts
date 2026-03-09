@@ -129,6 +129,7 @@ export async function GET(request: NextRequest) {
         data: {
           action: 'backup',
           status: 'success',
+          type: 'database',
           performerId: payload.userId,
           performerUsername: payload.username,
         },
@@ -159,6 +160,7 @@ export async function GET(request: NextRequest) {
             data: {
               action: 'backup',
               status: 'failed',
+              type: 'database',
               performerId: payload.userId,
               performerUsername: payload.username,
               errorMessage: error instanceof Error ? error.message : 'Unknown error occurred',

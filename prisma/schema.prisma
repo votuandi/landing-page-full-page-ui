@@ -252,15 +252,17 @@ enum BackupStatus {
 }
 
 model BackupHistory {
-  id          Int          @id @default(autoincrement())
-  action      BackupAction // backup or restore
-  status      BackupStatus // success or failed
-  performerId Int          // User ID who performed the action
-  performerUsername String // Username who performed the action
-  errorMessage String?     // Error message if status is failed
-  createdAt   DateTime     @default(now())
+  id                Int          @id @default(autoincrement())
+  action            BackupAction // backup or restore
+  status            BackupStatus // success or failed
+  type              String       @default("database") // "database" | "media"
+  performerId       Int          // User ID who performed the action
+  performerUsername String       // Username who performed the action
+  errorMessage      String?      // Error message if status is failed
+  createdAt         DateTime     @default(now())
 
   @@index([createdAt])
   @@index([performerId])
+  @@index([type])
   @@map("BackupHistory")
 }
