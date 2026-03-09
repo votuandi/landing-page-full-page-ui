@@ -102,10 +102,17 @@ export async function GET() {
     const backupZipPattern = /^backup_.*\.zip$/
     for (const name of backupFiles) {
       if (backupZipPattern.test(name) && name !== zipFileName) {
+        const filePath = path.join(backupDir, name)
         try {
-          fs.unlinkSync(path.join(backupDir, name))
-        } catch (unlinkErr) {
-          console.error('Error deleting old backup file:', name, unlinkErr)
+          // Use rmSync with force to better handle Windows file attributes
+          fs.rmSync(filePath, { force: true })
+        } catch (unlinkErr: any) {
+          // On Windows, EPERM/EBUSY can happen if the file is in use; don't treat as fatal
+          if (unlinkErr && (unlinkErr.code === 'EPERM' || unlinkErr.code === 'EBUSY')) {
+            console.warn('Skipping old backup file that is in use:', filePath)
+          } else {
+            console.error('Unexpected error deleting old backup file:', filePath, unlinkErr)
+          }
         }
       }
     }
