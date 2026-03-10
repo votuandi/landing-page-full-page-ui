@@ -54,6 +54,8 @@ Set a strong **CRON_SECRET** in your environment so only your cron runner can ca
    ```env
    CRON_SECRET=your-long-random-secret-here
    BASE_URL=http://localhost:3000
+   # Optional: cron expression (default 0 2 * * 6 = Saturday 2:00 AM). Example: 0 3 * * 0 = Sunday 3:00 AM
+   CRON_SCHEDULE=0 2 * * 6
    ```
 
 2. Run the cron script in the background (e.g. with pm2):
@@ -68,7 +70,7 @@ Set a strong **CRON_SECRET** in your environment so only your cron runner can ca
    pm2 start npm --name "weekly-cron" -- run cron:weekly
    ```
 
-   The script schedules the job for **Saturday at 2:00 AM** (timezone: `TZ` or `Asia/Ho_Chi_Minh`). The Next.js app must be running for the HTTP call to succeed.
+   The script uses **CRON_SCHEDULE** (cron expression; default `0 2 * * 6` = Saturday 2:00 AM) and timezone **TZ** (default `Asia/Ho_Chi_Minh`). The Next.js app must be running for the HTTP call to succeed.
 
 ---
 

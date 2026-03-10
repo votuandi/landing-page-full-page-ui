@@ -1,7 +1,8 @@
 /**
  * Weekly cron runner for VPS: calls the cleanup-orphaned-media endpoint
- * every Saturday at 2:00 AM. Requires the Next.js app to be running
- * (e.g. via pm2) and CRON_SECRET + BASE_URL in env.
+ * on a schedule (default Saturday 2:00 AM). Set CRON_SCHEDULE in env to
+ * override (e.g. "0 3 * * 0" for Sunday 3:00 AM). Requires the Next.js
+ * app to be running (e.g. via pm2) and CRON_SECRET + BASE_URL in env.
  *
  * Usage:
  *   CRON_SECRET=your-secret BASE_URL=http://localhost:3000 node scripts/weekly-cron.js
@@ -21,8 +22,8 @@ if (!CRON_SECRET) {
   process.exit(1)
 }
 
-// Saturday at 2:00 AM
-const schedule = '47 8 * * 2'
+// Default: Saturday at 2:00 AM (min hour day month weekday). Override with CRON_SCHEDULE in .env
+const schedule = process.env.CRON_SCHEDULE || '0 2 * * 6'
 
 function runJob() {
   const url = `${BASE_URL}/api/cron/cleanup-orphaned-media`
@@ -53,4 +54,4 @@ cron.schedule(schedule, runJob, {
   timezone: process.env.TZ || 'Asia/Ho_Chi_Minh',
 })
 
-console.log('[weekly-cron] Scheduled: every Saturday at 2:00 AM. Waiting...')
+console.log('[weekly-cron] Scheduled:', schedule, '(TZ:', process.env.TZ || 'Asia/Ho_Chi_Minh', '). Waiting...')
