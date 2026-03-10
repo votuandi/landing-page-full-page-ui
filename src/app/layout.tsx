@@ -3,27 +3,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import StoreProvider from "@/lib/StoreProvider";
-import { prisma } from "@/lib/prisma";
+import { getCachedCompanyInfo, getCachedMainOffice } from "@/lib/cachedCompany";
 import StructuredData from "@/components/StructuredData";
 import VisitTracker from "@/components/VisitTracker";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-// Fetch company info from database for SEO
-async function getCompanyInfo() {
-  try {
-    const companyInfo = await prisma.companyInfo.findUnique({
-      where: { id: 1 },
-    });
-    return companyInfo;
-  } catch (error) {
-    console.error("Error fetching company info for metadata:", error);
-    return null;
-  }
-}
-
 export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCompanyInfo();
+  const companyInfo = await getCachedCompanyInfo();
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const slogan = companyInfo?.slogan || "Hệ thống Năng lượng Mặt trời";
@@ -93,24 +80,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const companyInfo = await getCompanyInfo();
-
-  // Fetch main office for LocalBusiness schema
-  let mainOffice = null;
-  try {
-    const offices = await prisma.office.findMany({
-      where: { isMainOffice: true },
-      take: 1,
-    });
-    mainOffice = offices[0] || null;
-    if (!mainOffice) {
-      // Fallback to first office if no main office
-      const firstOffice = await prisma.office.findFirst();
-      mainOffice = firstOffice;
-    }
-  } catch (error) {
-    console.error("Error fetching office for LocalBusiness schema:", error);
-  }
+  const [companyInfo, mainOffice] = await Promise.all([
+    getCachedCompanyInfo(),
+    getCachedMainOffice(),
+  ]);
 
   return (
     <html lang="vi" className={inter.variable}>

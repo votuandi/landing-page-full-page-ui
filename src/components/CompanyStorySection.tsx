@@ -68,7 +68,7 @@ export default function CompanyStorySection() {
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
                 <img
                   src={companyInfo?.storyImageUrl || "/images/solar-installation-hero.jpg"}
-                  alt={`${companyInfo?.companyName || "Tên Công ty"} - Lắp đặt hệ thống năng lượng mặt trời`}
+                  alt={`${companyInfo?.companyName || ""} - Lắp đặt hệ thống năng lượng mặt trời`}
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">

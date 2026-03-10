@@ -6,12 +6,16 @@ import { useState, useEffect } from "react";
 import NewsCard from "./NewsCard";
 import { NewsArticle } from "@/types";
 
-export default function NewsSection() {
+interface NewsSectionProps {
+  initialNews?: NewsArticle[];
+}
+
+export default function NewsSection({ initialNews }: NewsSectionProps = {}) {
   const [isMobile, setIsMobile] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialNews ?? []);
+  const [loading, setLoading] = useState(!initialNews?.length);
   const [featuredImageError, setFeaturedImageError] = useState(false);
 
   // Ensure component is mounted before accessing window
@@ -19,15 +23,23 @@ export default function NewsSection() {
     setMounted(true);
   }, []);
 
-  // Fetch news data from API
   useEffect(() => {
+    if (initialNews?.length) {
+      setNewsArticles(initialNews);
+      setLoading(false);
+    }
+  }, [initialNews]);
+
+  // Fetch news data from API only when no initial data
+  useEffect(() => {
+    if (initialNews?.length) return;
+
     const fetchNews = async () => {
       try {
         setLoading(true);
         const response = await fetch('/api/news?limit=6&isActive=true&orderBy=publishedAt&order=desc');
         if (response.ok) {
           const result = await response.json();
-          // Transform data to match component expectations
           const transformedNews = result.data.map((news: any) => ({
             ...news,
             date: news.publishedAt ? new Date(news.publishedAt).toISOString().split('T')[0] : '',
@@ -45,7 +57,7 @@ export default function NewsSection() {
     };
 
     fetchNews();
-  }, []);
+  }, [initialNews?.length]);
 
   // Check if we're on mobile
   useEffect(() => {

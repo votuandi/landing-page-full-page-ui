@@ -52,10 +52,22 @@ const PRICE_SLIDER_MIN = 0;
 const PRICE_SLIDER_MAX = 200_000_000;
 const PRICE_SLIDER_STEP = 5_000_000;
 
-export default function AllProductsSection() {
-  const [products, setProducts] = useState<ProductData[]>([]);
-  const [categories, setCategories] = useState<CategoryData[]>([]);
-  const [loading, setLoading] = useState(true);
+interface AllProductsSectionProps {
+  initialCategories?: CategoryData[];
+  initialProducts?: ProductData[];
+  initialTotal?: number;
+  initialTotalPages?: number;
+}
+
+export default function AllProductsSection({
+  initialCategories,
+  initialProducts,
+  initialTotal,
+  initialTotalPages,
+}: AllProductsSectionProps = {}) {
+  const [products, setProducts] = useState<ProductData[]>(initialProducts ?? []);
+  const [categories, setCategories] = useState<CategoryData[]>(initialCategories ?? []);
+  const [loading, setLoading] = useState(!initialProducts?.length);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("default");
@@ -64,11 +76,36 @@ export default function AllProductsSection() {
   const [maxPrice, setMaxPrice] = useState(PRICE_SLIDER_MAX);
   const [isDragging, setIsDragging] = useState<"min" | "max" | null>(null);
   const priceTrackRef = useRef<HTMLDivElement>(null);
+  const [totalCount, setTotalCount] = useState<number>(initialTotal ?? 0);
+  const [totalPagesState, setTotalPagesState] = useState<number>(initialTotalPages ?? 1);
+  const serverTotalRef = useRef<number | null>(initialTotal ?? null);
+  const serverTotalPagesRef = useRef<number | null>(initialTotalPages ?? null);
 
   const productsPerPage = 12;
 
-  // Fetch categories
   useEffect(() => {
+    if (initialCategories?.length) {
+      setCategories(initialCategories);
+    }
+  }, [initialCategories]);
+
+  useEffect(() => {
+    if (initialProducts?.length != null) {
+      setProducts(initialProducts);
+      setLoading(false);
+      const total = initialTotal ?? 0;
+      const pages = initialTotalPages ?? 1;
+      serverTotalRef.current = total;
+      serverTotalPagesRef.current = pages;
+      setTotalCount(total);
+      setTotalPagesState(pages);
+    }
+  }, [initialProducts, initialTotal, initialTotalPages]);
+
+  // Fetch categories when no initial data
+  useEffect(() => {
+    if (initialCategories?.length) return;
+
     const fetchCategories = async () => {
       try {
         const response = await fetch('/api/product-categories?limit=100');
@@ -82,77 +119,54 @@ export default function AllProductsSection() {
     };
 
     fetchCategories();
-  }, []);
+  }, [initialCategories?.length]);
 
-  // Fetch products
+  // Fetch products from API with pagination and filters
   useEffect(() => {
+    const orderBy = sortBy === "name-asc" || sortBy === "name-desc" ? "title" : sortBy === "price-asc" || sortBy === "price-desc" ? "price" : "order";
+    const order = sortBy === "name-desc" || sortBy === "price-desc" ? "desc" : "asc";
+    const hasFilters = selectedCategoryId != null || searchTerm || sortBy !== "default" || minPrice !== PRICE_SLIDER_MIN || maxPrice !== PRICE_SLIDER_MAX;
+    const useInitial = initialProducts?.length && currentPage === 1 && !hasFilters;
+    if (useInitial) return; // Use state already set from initial props; skip fetch
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        let url = '/api/products?isActive=true&limit=1000'; // Get all active products
-
-        if (selectedCategoryId) {
-          url += `&categoryId=${selectedCategoryId}`;
+        let url = `/api/products?isActive=true&limit=${productsPerPage}&page=${currentPage}&orderBy=${orderBy}&order=${order}`;
+        if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
+        if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+        if (minPrice !== PRICE_SLIDER_MIN || maxPrice !== PRICE_SLIDER_MAX) {
+          url += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         }
-
-        if (searchTerm) {
-          url += `&search=${encodeURIComponent(searchTerm)}`;
-        }
-
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch products');
+        if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
-        setProducts(data.data || []);
+        const list = data.data || [];
+        const pagination = data.pagination || {};
+        setProducts(list);
+        const total = pagination.total ?? list.length;
+        const pages = pagination.totalPages ?? 1;
+        serverTotalRef.current = total;
+        serverTotalPagesRef.current = pages;
+        setTotalCount(total);
+        setTotalPagesState(pages);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
         setProducts([]);
+        serverTotalRef.current = 0;
+        serverTotalPagesRef.current = 0;
+        setTotalCount(0);
+        setTotalPagesState(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [selectedCategoryId, searchTerm]);
+  }, [currentPage, selectedCategoryId, searchTerm, sortBy, minPrice, maxPrice, initialProducts?.length]);
 
-  // Filter and sort products
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = [...products];
-
-    // Filter by price range (use parsed price; non-numeric treated as 0)
-    filtered = filtered.filter((p) => {
-      const num = parsePrice(p.price);
-      return num >= minPrice && num <= maxPrice;
-    });
-
-    // Sort products
-    switch (sortBy) {
-      case "name-asc":
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "name-desc":
-        filtered.sort((a, b) => b.title.localeCompare(a.title));
-        break;
-      case "price-asc":
-        filtered.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-        break;
-      case "price-desc":
-        filtered.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
-        break;
-      default:
-        // Keep original order
-        break;
-    }
-
-    return filtered;
-  }, [products, sortBy, minPrice, maxPrice]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedProducts.length / productsPerPage);
-  const startIndex = (currentPage - 1) * productsPerPage;
-  const paginatedProducts = filteredAndSortedProducts.slice(
-    startIndex,
-    startIndex + productsPerPage
-  );
+  const totalPages = totalPagesState;
+  const paginatedProducts = products;
 
   // Reset page when filters change
   useEffect(() => {
@@ -538,7 +552,7 @@ export default function AllProductsSection() {
 
         <div className="text-sm text-gray-600 whitespace-nowrap mb-2">
           <span className="font-semibold">
-            {filteredAndSortedProducts.length}
+            {totalCount}
           </span>{" "}
           sản phẩm
         </div>

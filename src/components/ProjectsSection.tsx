@@ -17,12 +17,16 @@ interface Project {
   client: string | null;
 }
 
-export default function ProjectsSection() {
+interface ProjectsSectionProps {
+  initialProjects?: Project[];
+}
+
+export default function ProjectsSection({ initialProjects }: ProjectsSectionProps = {}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>(initialProjects ?? []);
+  const [loading, setLoading] = useState(!initialProjects?.length);
   const [error, setError] = useState<string | null>(null);
 
   // Check if we're on mobile
@@ -36,8 +40,17 @@ export default function ProjectsSection() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  // Fetch projects from API
   useEffect(() => {
+    if (initialProjects?.length) {
+      setProjects(initialProjects);
+      setLoading(false);
+    }
+  }, [initialProjects]);
+
+  // Fetch projects from API only when no initial data
+  useEffect(() => {
+    if (initialProjects?.length) return;
+
     const fetchProjects = async () => {
       try {
         setLoading(true);
@@ -60,7 +73,7 @@ export default function ProjectsSection() {
     };
 
     fetchProjects();
-  }, []);
+  }, [initialProjects?.length]);
 
   const itemsPerPage = 3;
   const mobileProjectsInitial = 4; // Show 2x2 projects initially on mobile

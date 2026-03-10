@@ -15,10 +15,14 @@ interface Slide {
   backgroundColor: string;
 }
 
-export default function SliderBanner() {
+interface SliderBannerProps {
+  initialSlides?: Slide[];
+}
+
+export default function SliderBanner({ initialSlides }: SliderBannerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [slides, setSlides] = useState<Slide[]>(initialSlides ?? []);
+  const [loading, setLoading] = useState(!initialSlides?.length);
   const [mounted, setMounted] = useState(false);
 
   const { offices } = useAppSelector((state) => state.offices);
@@ -29,15 +33,22 @@ export default function SliderBanner() {
     setMounted(true);
   }, []);
 
-  // Fetch banners from API
+  // When initialSlides is provided, use it and skip fetch
   useEffect(() => {
-    if (!mounted) return;
+    if (initialSlides?.length) {
+      setSlides(initialSlides);
+      setLoading(false);
+    }
+  }, [initialSlides]);
+
+  // Fetch banners from API only when no initial data
+  useEffect(() => {
+    if (!mounted || initialSlides?.length) return;
 
     const fetchBanners = async () => {
       try {
         const response = await fetch("/api/banners?isActive=true&orderBy=order");
         if (!response.ok) {
-          // Try to get error details from response
           let errorMessage = "Failed to fetch banners";
           try {
             const errorData = await response.json();
@@ -49,7 +60,6 @@ export default function SliderBanner() {
           throw new Error(errorMessage);
         }
         const data = await response.json();
-        // Map API response to Slide format
         const mappedSlides: Slide[] = data.map((banner: any) => ({
           id: banner.id,
           title: banner.title,
@@ -65,12 +75,10 @@ export default function SliderBanner() {
         setSlides(mappedSlides);
       } catch (err) {
         console.error("Error fetching banners:", err);
-        // Log more details about the error
         if (err instanceof Error) {
           console.error("Error message:", err.message);
           console.error("Error stack:", err.stack);
         }
-        // Fallback to empty array if API fails
         setSlides([]);
       } finally {
         setLoading(false);
@@ -78,7 +86,7 @@ export default function SliderBanner() {
     };
 
     fetchBanners();
-  }, [mounted]);
+  }, [mounted, initialSlides?.length]);
 
   // Auto slide functionality
   useEffect(() => {

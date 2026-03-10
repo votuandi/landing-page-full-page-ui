@@ -148,7 +148,7 @@ export default function CompletedProjectsSection() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('/api/projects?isDisplay=true&limit=1000&orderBy=completedDate&order=desc');
+        const response = await fetch('/api/projects?isDisplay=true&limit=100&orderBy=completedDate&order=desc');
 
         if (!response.ok) {
           throw new Error('Failed to fetch projects');

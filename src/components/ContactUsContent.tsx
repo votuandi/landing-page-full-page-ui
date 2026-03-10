@@ -103,7 +103,7 @@ export default function ContactUsContent() {
       try {
         setLoadingProducts(true);
         // Fetch all active products
-        const response = await fetch("/api/products?isActive=true&limit=1000");
+        const response = await fetch("/api/products?isActive=true&limit=200");
         if (response.ok) {
           const data = await response.json();
           const products = data.data || [];

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/products - Get all products with pagination
@@ -27,6 +28,10 @@ export async function GET(request: NextRequest) {
     const orderBy = searchParams.get('orderBy') || 'createdAt'
     const order = searchParams.get('order') || 'desc'
     const search = searchParams.get('search')
+    const minPriceParam = searchParams.get('minPrice')
+    const maxPriceParam = searchParams.get('maxPrice')
+    const minPrice = minPriceParam != null && minPriceParam !== '' ? parseFloat(minPriceParam) : null
+    const maxPrice = maxPriceParam != null && maxPriceParam !== '' ? parseFloat(maxPriceParam) : null
 
     const skip = (page - 1) * limit
 
@@ -49,6 +54,48 @@ export async function GET(request: NextRequest) {
         contains: search,
         mode: 'insensitive'
       }
+    }
+
+    // Price filter: use raw SQL when both min and max price are provided
+    const usePriceFilter = minPrice != null && Number.isFinite(minPrice) && maxPrice != null && Number.isFinite(maxPrice)
+    if (usePriceFilter) {
+      const categoryCond = categoryId ? Prisma.sql`AND "categoryId" = ${parseInt(categoryId)}` : Prisma.sql``
+      const searchCond = search ? Prisma.sql`AND "title" ILIKE ${'%' + search + '%'}` : Prisma.sql``
+      const priceSubquery = Prisma.sql`COALESCE(NULLIF(REGEXP_REPLACE(REGEXP_REPLACE(TRIM(COALESCE(price, '0')), '[^0-9.,]', '', 'g'), ',', '.', 'g'), '')::numeric, 0)`
+      const priceFilteredIds = await prisma.$queryRaw<{ id: number }[]>`
+        SELECT id FROM "Product"
+        WHERE "isActive" = true
+          ${categoryCond}
+          ${searchCond}
+          AND (${priceSubquery}) BETWEEN ${minPrice} AND ${maxPrice}
+        ORDER BY "order" ASC, id ASC
+        LIMIT ${limit} OFFSET ${skip}
+      `
+      const ids = priceFilteredIds.map((r) => r.id)
+      const totalResult = await prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*) as count FROM "Product"
+        WHERE "isActive" = true
+          ${categoryCond}
+          ${searchCond}
+          AND (${priceSubquery}) BETWEEN ${minPrice} AND ${maxPrice}
+      `
+      const total = Number(totalResult[0]?.count ?? 0)
+      if (ids.length === 0) {
+        return NextResponse.json({
+          data: [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        }, { status: 200 })
+      }
+      const products = await prisma.product.findMany({
+        where: { id: { in: ids } },
+        include: { category: { select: { id: true, name: true } } },
+      })
+      const orderMap = new Map(products.map((p) => [p.id, p]))
+      const orderedProducts = ids.map((id) => orderMap.get(id)).filter(Boolean) as typeof products
+      return NextResponse.json({
+        data: orderedProducts,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      }, { status: 200 })
     }
 
     // Validate orderBy field

@@ -2,22 +2,10 @@ import type { Metadata } from "next";
 import CompanyStorySection from "@/components/CompanyStorySection";
 import IntroductionVideoSection from "@/components/IntroductionVideoSection";
 import CompletedProjectsSection from "@/components/CompletedProjectsSection";
-import { prisma } from "@/lib/prisma";
-
-async function getCompanyInfo() {
-  try {
-    const companyInfo = await prisma.companyInfo.findUnique({
-      where: { id: 1 },
-    });
-    return companyInfo;
-  } catch (error) {
-    console.error("Error fetching company info for metadata:", error);
-    return null;
-  }
-}
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCompanyInfo();
+  const companyInfo = await getCachedCompanyInfo();
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const storyTitle = companyInfo?.storyTitle || "Câu chuyện công ty";

@@ -14,10 +14,10 @@ export async function GET() {
       companyInfo = await prisma.companyInfo.create({
         data: {
           id: 1, // Explicitly set id to 1 for singleton pattern
-          companyName: "Tên công ty",
-          slogan: "Slogan công ty",
-          storyTitle: "Hành trình phát triển",
-          storyDetail: "Chi tiết hành trình phát triển",
+          companyName: "",
+          slogan: "",
+          storyTitle: "",
+          storyDetail: "",
           storyItems: [
             { title: "Mục tiêu 1", detail: "Chi tiết mục tiêu 1" },
             { title: "Mục tiêu 2", detail: "Chi tiết mục tiêu 2" },

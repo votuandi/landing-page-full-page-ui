@@ -4,18 +4,7 @@ import WarrantySection from "@/components/WarrantySection";
 import { prisma } from "@/lib/prisma";
 import ServicePageClient from "@/components/ServicePageClient";
 import { Service } from "@/types";
-
-async function getCompanyInfo() {
-  try {
-    const companyInfo = await prisma.companyInfo.findUnique({
-      where: { id: 1 },
-    });
-    return companyInfo;
-  } catch (error) {
-    console.error("Error fetching company info for metadata:", error);
-    return null;
-  }
-}
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 
 async function getServices() {
   try {
@@ -45,7 +34,7 @@ async function getServices() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCompanyInfo();
+  const companyInfo = await getCachedCompanyInfo();
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const baseUrl = "https://phanphoisolar.com";
@@ -101,7 +90,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ServicePage() {
   const [companyInfo, services] = await Promise.all([
-    getCompanyInfo(),
+    getCachedCompanyInfo(),
     getServices(),
   ]);
 
@@ -116,7 +105,7 @@ export default async function ServicePage() {
                 Dịch Vụ Năng Lượng Mặt Trời
               </h1>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                {companyInfo?.companyName || "Tên Công ty"} cung cấp đầy đủ các
+                {companyInfo?.companyName || ""} cung cấp đầy đủ các
                 dịch vụ từ tư vấn, thiết kế, lắp đặt đến bảo trì hệ thống năng
                 lượng mặt trời. Chúng tôi cam kết mang đến giải pháp tối ưu và
                 dịch vụ chất lượng cao nhất.

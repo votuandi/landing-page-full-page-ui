@@ -1,23 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import ContactUsContent from "@/components/ContactUsContent";
-import { prisma } from "@/lib/prisma";
-
-async function getContactInfo() {
-  try {
-    const [companyInfo, mainOffice] = await Promise.all([
-      prisma.companyInfo.findUnique({ where: { id: 1 } }),
-      prisma.office.findFirst({ where: { isMainOffice: true } }),
-    ]);
-    return { companyInfo, mainOffice };
-  } catch (error) {
-    console.error("Error fetching contact info for metadata:", error);
-    return { companyInfo: null, mainOffice: null };
-  }
-}
+import { getCachedCompanyInfo, getCachedMainOffice } from "@/lib/cachedCompany";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { companyInfo, mainOffice } = await getContactInfo();
+  const [companyInfo, mainOffice] = await Promise.all([
+    getCachedCompanyInfo(),
+    getCachedMainOffice(),
+  ]);
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const address = mainOffice?.address || "Lấp Vò, Đồng Tháp";

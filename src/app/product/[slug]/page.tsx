@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductDetailContent from "@/components/ProductDetailContent";
 import { prisma } from "@/lib/prisma";
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import parse from 'html-react-parser';
 import StructuredData from "@/components/StructuredData";
 
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = "https://phanphoisolar.com";
   const [product, companyInfo] = await Promise.all([
     getProduct(slug),
-    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+    getCachedCompanyInfo(),
   ]);
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
@@ -134,7 +135,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const [product, companyInfo] = await Promise.all([
     getProduct(slug),
-    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+    getCachedCompanyInfo(),
   ]);
 
   if (!product) {

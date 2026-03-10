@@ -1,20 +1,8 @@
 import { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
-
-async function getCompanyInfo() {
-  try {
-    const companyInfo = await prisma.companyInfo.findUnique({
-      where: { id: 1 },
-    });
-    return companyInfo;
-  } catch (error) {
-    console.error("Error fetching company info for metadata:", error);
-    return null;
-  }
-}
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCompanyInfo();
+  const companyInfo = await getCachedCompanyInfo();
   
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const baseUrl = "https://phanphoisolar.com";

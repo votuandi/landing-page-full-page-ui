@@ -35,7 +35,7 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-2 md:mb-0">
-              <div className="text-lg md:text-xl font-bold">{companyInfo?.companyName || "Tên Công ty"}</div>
+              <div className="text-lg md:text-xl font-bold">{companyInfo?.companyName || ""}</div>
               <p className="text-sm opacity-90">
                 {companyInfo?.slogan || "Slogan của công ty"}
               </p>
@@ -72,7 +72,7 @@ export default function Header() {
                 }
               </div>
               <span className="font-bold text-xl text-gray-800">
-                {companyInfo?.companyName || "Tên Công ty"}
+                {companyInfo?.companyName || ""}
               </span>
             </Link>
 

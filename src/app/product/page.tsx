@@ -1,22 +1,11 @@
 import { Metadata } from "next";
 import BestSellerSection from "@/components/BestSellerSection";
 import AllProductsSection from "@/components/AllProductsSection";
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import { prisma } from "@/lib/prisma";
 
-async function getCompanyInfo() {
-  try {
-    const companyInfo = await prisma.companyInfo.findUnique({
-      where: { id: 1 },
-    });
-    return companyInfo;
-  } catch (error) {
-    console.error("Error fetching company info for metadata:", error);
-    return null;
-  }
-}
-
 export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCompanyInfo();
+  const companyInfo = await getCachedCompanyInfo();
   
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
   const baseUrl = "https://phanphoisolar.com";
@@ -70,8 +59,61 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+async function getProductPageData() {
+  const productsPerPage = 12; // Match AllProductsSection productsPerPage
+  const [companyInfo, bestSellers, categories, firstPageResult] = await Promise.all([
+    getCachedCompanyInfo(),
+    prisma.product.findMany({
+      where: { isBestSeller: true, isActive: true },
+      orderBy: { order: "asc" },
+      take: 12,
+      include: { category: { select: { id: true, name: true } } },
+    }),
+    prisma.productCategory.findMany({
+      take: 100,
+      orderBy: { id: "asc" },
+      include: { _count: { select: { products: true } } },
+    }),
+    (async () => {
+      const where = { isActive: true };
+      const [products, total] = await Promise.all([
+        prisma.product.findMany({
+          where,
+          orderBy: { order: "asc" },
+          skip: 0,
+          take: productsPerPage,
+          include: { category: { select: { id: true, name: true } } },
+        }),
+        prisma.product.count({ where }),
+      ]);
+      return {
+        products: products.map((p) => ({
+          ...p,
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+        })),
+        total,
+        totalPages: Math.ceil(total / productsPerPage),
+      };
+    })(),
+  ]);
+  return {
+    companyInfo,
+    bestSellers: bestSellers.map((p) => ({
+      ...p,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    })),
+    categories: categories.map((c) => ({
+      ...c,
+      imageUrl: c.imageUrl ?? null,
+    })),
+    firstPage: firstPageResult,
+  };
+}
+
 export default async function ProductPage() {
-  const companyInfo = await getCompanyInfo();
+  const { companyInfo, bestSellers, categories, firstPage } = await getProductPageData();
 
   return (
     <main className="min-h-screen">
@@ -93,10 +135,15 @@ export default async function ProductPage() {
         </div>
 
         {/* Best Seller Section */}
-        <BestSellerSection />
+        <BestSellerSection initialProducts={bestSellers} />
 
         {/* All Products Section */}
-        <AllProductsSection />
+        <AllProductsSection
+          initialCategories={categories}
+          initialProducts={firstPage.products}
+          initialTotal={firstPage.total}
+          initialTotalPages={firstPage.totalPages}
+        />
       </div>
     </main>
   );

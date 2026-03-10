@@ -36,6 +36,7 @@ interface Props {
 }
 
 import { prisma } from "@/lib/prisma";
+import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 
 export const revalidate = 3600; // Revalidate every hour (ISR)
 
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = "https://phanphoisolar.com";
   const [article, companyInfo] = await Promise.all([
     getNewsArticle(slug),
-    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+    getCachedCompanyInfo(),
   ]);
 
   const companyName = companyInfo?.companyName || "Trọng Tín Solar";
@@ -112,7 +113,7 @@ export default async function NewsDetailPage({ params }: Props) {
   const { slug } = await params;
   const [article, companyInfo] = await Promise.all([
     getNewsArticle(slug),
-    prisma.companyInfo.findUnique({ where: { id: 1 } }).catch(() => null),
+    getCachedCompanyInfo(),
   ]);
 
   if (!article) {

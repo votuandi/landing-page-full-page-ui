@@ -44,8 +44,6 @@ interface DisplayProduct {
 
 // Helper function to convert DB product to display format
 const convertToDisplayProduct = (product: Product): DisplayProduct => {
-  console.log("🚀 ~ convertToDisplayProduct ~ product:", product)
-
   // Calculate discount percentage if both prices exist
   let discount: number | undefined;
   if (product.price && product.original_price) {
@@ -248,18 +246,33 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
   );
 };
 
-const ProductSection: React.FC = () => {
-  const [products, setProducts] = useState<DisplayProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ProductSectionProps {
+  initialProducts?: Product[];
+}
+
+const ProductSection: React.FC<ProductSectionProps> = ({ initialProducts }) => {
+  const [products, setProducts] = useState<DisplayProduct[]>(
+    () => (initialProducts?.length ? initialProducts.map(convertToDisplayProduct) : [])
+  );
+  const [loading, setLoading] = useState(!initialProducts?.length);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialProducts?.length) {
+      setProducts(initialProducts.map(convertToDisplayProduct));
+      setLoading(false);
+      return;
+    }
+  }, [initialProducts]);
+
+  useEffect(() => {
+    if (initialProducts?.length) return;
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch products with showInHomePage=true
         const response = await fetch('/api/products?showInHomePage=true&isActive=true&limit=100&orderBy=order&order=asc');
 
         if (!response.ok) {
@@ -268,8 +281,6 @@ const ProductSection: React.FC = () => {
 
         const result = await response.json();
         const dbProducts: Product[] = result.data || [];
-
-        // Convert to display format
         const displayProducts = dbProducts.map(convertToDisplayProduct);
         setProducts(displayProducts);
       } catch (err) {
@@ -281,7 +292,7 @@ const ProductSection: React.FC = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [initialProducts?.length]);
 
   return (
     <section className="py-16 bg-gray-50">

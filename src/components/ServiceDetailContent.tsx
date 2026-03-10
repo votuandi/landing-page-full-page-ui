@@ -77,8 +77,6 @@ export default function ServiceDetailContent({
     fetchRelatedServices();
   }, [service.id, service.category, propRelatedServices.length]);
 
-  console.log("🚀 service.benefits", service.benefits);
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}

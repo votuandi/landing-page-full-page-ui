@@ -18,9 +18,13 @@ interface BestSellerProduct {
   isBestSeller: boolean;
 }
 
-export default function BestSellerSection() {
-  const [bestSellerProducts, setBestSellerProducts] = useState<BestSellerProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+interface BestSellerSectionProps {
+  initialProducts?: BestSellerProduct[];
+}
+
+export default function BestSellerSection({ initialProducts }: BestSellerSectionProps = {}) {
+  const [bestSellerProducts, setBestSellerProducts] = useState<BestSellerProduct[]>(initialProducts ?? []);
+  const [loading, setLoading] = useState(!initialProducts?.length);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
@@ -29,8 +33,17 @@ export default function BestSellerSection() {
   const productsPerView = 4; // Desktop: 4 products per view
   const mobileProductsPerView = 2; // Mobile: 2 products per view
 
-  // Fetch best seller products from database
   useEffect(() => {
+    if (initialProducts?.length) {
+      setBestSellerProducts(initialProducts);
+      setLoading(false);
+    }
+  }, [initialProducts]);
+
+  // Fetch best seller products when no initial data
+  useEffect(() => {
+    if (initialProducts?.length) return;
+
     const fetchBestSellers = async () => {
       try {
         setLoading(true);
@@ -49,7 +62,7 @@ export default function BestSellerSection() {
     };
 
     fetchBestSellers();
-  }, []);
+  }, [initialProducts?.length]);
 
   useEffect(() => {
     const checkIsMobile = () => {
