@@ -1,0 +1,1396 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-03-10T01:47:02.629Z",
+  "exportedBy": "auto_backup_weekly",
+  "data": {
+    "productCategories": [
+      {
+        "id": 1,
+        "name": "Tấm pin năng lượng mặt trời",
+        "description": "Tấm pin solar chất lượng cao, hiệu suất vượt trội",
+        "createdAt": "2026-03-06T08:36:46.617Z",
+        "updatedAt": "2026-03-06T09:53:18.212Z",
+        "imageUrl": "/images/categories/category_1772790797942.webp"
+      },
+      {
+        "id": 2,
+        "name": "Biến tần Inverter",
+        "description": "Biến tần chuyển đổi năng lượng hiệu quả",
+        "createdAt": "2026-03-06T08:36:46.623Z",
+        "updatedAt": "2026-03-06T09:53:09.317Z",
+        "imageUrl": "/images/categories/category_1772790789168.webp"
+      },
+      {
+        "id": 3,
+        "name": "Pin lưu trữ năng lượng",
+        "description": "Pin lưu trữ dung lượng cao, an toàn",
+        "createdAt": "2026-03-06T08:36:46.627Z",
+        "updatedAt": "2026-03-06T09:53:00.678Z",
+        "imageUrl": "/images/categories/category_1772790778974.webp"
+      }
+    ],
+    "products": [
+      {
+        "id": 1,
+        "title": "Tấm pin Solar 550W Mono PERC",
+        "description": "Tấm pin công suất 550W, hiệu suất 21.5%, bảo hành 25 năm",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791244439.webp",
+        "createdAt": "2026-03-06T08:36:46.636Z",
+        "updatedAt": "2026-03-06T10:00:44.614Z",
+        "categoryId": 1,
+        "order": 0,
+        "price": "2500000",
+        "original_price": "3000000",
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 2,
+        "title": "Tấm pin Solar 450W Poly",
+        "description": "Tấm pin công suất 450W, giá tốt, phù hợp mọi công trình",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791219436.webp",
+        "createdAt": "2026-03-06T08:36:46.642Z",
+        "updatedAt": "2026-03-06T10:00:19.578Z",
+        "categoryId": 1,
+        "order": 1,
+        "price": "1800000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 3,
+        "title": "Biến tần Inverter 5kW",
+        "description": "Biến tần công suất 5kW, hiệu suất 97%, giám sát từ xa",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791211471.webp",
+        "createdAt": "2026-03-06T08:36:46.646Z",
+        "updatedAt": "2026-03-06T10:00:27.219Z",
+        "categoryId": 2,
+        "order": 0,
+        "price": "Liên hệ",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 4,
+        "title": "Biến tần Inverter 10kW",
+        "description": "Biến tần công suất 10kW, phù hợp hệ thống lớn",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791205420.webp",
+        "createdAt": "2026-03-06T08:36:46.649Z",
+        "updatedAt": "2026-03-06T10:00:05.521Z",
+        "categoryId": 2,
+        "order": 1,
+        "price": "25000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 5,
+        "title": "Pin lưu trữ Lithium 10kWh",
+        "description": "Pin Lithium dung lượng 10kWh, sạc nhanh, tuổi thọ cao",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791196722.webp",
+        "createdAt": "2026-03-06T08:36:46.654Z",
+        "updatedAt": "2026-03-06T09:59:56.870Z",
+        "categoryId": 3,
+        "order": 0,
+        "price": "80000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 6,
+        "title": "Pin lưu trữ Lithium 5kWh",
+        "description": "Pin Lithium dung lượng 5kWh, phù hợp hộ gia đình",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791181932.webp",
+        "createdAt": "2026-03-06T08:36:46.657Z",
+        "updatedAt": "2026-03-06T09:59:43.674Z",
+        "categoryId": 3,
+        "order": 1,
+        "price": "45000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 9,
+        "title": "Tấm pin Solar 550W Mono PERC",
+        "description": "Tấm pin công suất 550W, hiệu suất 21.5%, bảo hành 25 năm",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791392836.webp",
+        "createdAt": "2026-03-06T08:36:46.636Z",
+        "updatedAt": "2026-03-07T04:58:30.740Z",
+        "categoryId": 1,
+        "order": 0,
+        "price": "2500000",
+        "original_price": null,
+        "isBestSeller": true,
+        "showInHomePage": true,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 10,
+        "title": "Tấm pin Solar 450W Poly",
+        "description": "Tấm pin công suất 450W, giá tốt, phù hợp mọi công trình",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791379033.webp",
+        "createdAt": "2026-03-06T08:36:46.642Z",
+        "updatedAt": "2026-03-06T10:02:59.149Z",
+        "categoryId": 1,
+        "order": 1,
+        "price": "1800000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 11,
+        "title": "Biến tần Inverter 5kW",
+        "description": "Biến tần công suất 5kW, hiệu suất 97%, giám sát từ xa",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791367335.webp",
+        "createdAt": "2026-03-06T08:36:46.646Z",
+        "updatedAt": "2026-03-06T10:02:47.427Z",
+        "categoryId": 2,
+        "order": 0,
+        "price": "15000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 12,
+        "title": "Biến tần Inverter 10kW",
+        "description": "Biến tần công suất 10kW, phù hợp hệ thống lớn",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791352228.webp",
+        "createdAt": "2026-03-06T08:36:46.649Z",
+        "updatedAt": "2026-03-07T04:58:13.768Z",
+        "categoryId": 2,
+        "order": 1,
+        "price": "25000000",
+        "original_price": null,
+        "isBestSeller": true,
+        "showInHomePage": true,
+        "guarantee": null,
+        "introduction": "Biến tần hòa lưới DEYE 10kW 3 pha kèm CT bám tải\n\nModel: SUN-10K-G06\n\nCông suất: 10kW\n\nThương hiệu: DEYE\n\nBảo hành: 5 năm",
+        "specifications": null
+      },
+      {
+        "id": 13,
+        "title": "Pin lưu trữ Lithium 10kWh",
+        "description": "Pin Lithium dung lượng 10kWh, sạc nhanh, tuổi thọ cao",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791322654.webp",
+        "createdAt": "2026-03-06T08:36:46.654Z",
+        "updatedAt": "2026-03-06T10:02:02.800Z",
+        "categoryId": 3,
+        "order": 0,
+        "price": "80000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 16,
+        "title": "Tấm pin Solar 550W Mono PERC",
+        "description": "Tấm pin công suất 550W, hiệu suất 21.5%, bảo hành 25 năm",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791400986.webp",
+        "createdAt": "2026-03-06T08:36:46.636Z",
+        "updatedAt": "2026-03-06T10:03:21.108Z",
+        "categoryId": 1,
+        "order": 0,
+        "price": "2500000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 17,
+        "title": "Tấm pin Solar 450W Poly",
+        "description": "Tấm pin công suất 450W, giá tốt, phù hợp mọi công trình",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791386213.webp",
+        "createdAt": "2026-03-06T08:36:46.642Z",
+        "updatedAt": "2026-03-06T10:03:06.336Z",
+        "categoryId": 1,
+        "order": 1,
+        "price": "1800000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 18,
+        "title": "Biến tần Inverter 5kW",
+        "description": "Biến tần công suất 5kW, hiệu suất 97%, giám sát từ xa",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791373088.webp",
+        "createdAt": "2026-03-06T08:36:46.646Z",
+        "updatedAt": "2026-03-06T10:02:53.186Z",
+        "categoryId": 2,
+        "order": 0,
+        "price": "15000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 19,
+        "title": "Biến tần Inverter 10kW",
+        "description": "Biến tần công suất 10kW, phù hợp hệ thống lớn",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791358703.webp",
+        "createdAt": "2026-03-06T08:36:46.649Z",
+        "updatedAt": "2026-03-06T10:02:38.799Z",
+        "categoryId": 2,
+        "order": 1,
+        "price": "25000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 20,
+        "title": "Pin lưu trữ Lithium 10kWh",
+        "description": "Pin Lithium dung lượng 10kWh, sạc nhanh, tuổi thọ cao",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791336051.webp",
+        "createdAt": "2026-03-06T08:36:46.654Z",
+        "updatedAt": "2026-03-06T10:02:16.190Z",
+        "categoryId": 3,
+        "order": 0,
+        "price": "80000000",
+        "original_price": null,
+        "isBestSeller": false,
+        "showInHomePage": false,
+        "guarantee": null,
+        "introduction": null,
+        "specifications": null
+      },
+      {
+        "id": 21,
+        "title": "Pin lưu trữ Lithium 5kWh",
+        "description": "<h2><span style=\"color: rgb(0, 128, 0);\"><strong>Pin lưu trữ LifePo4 16kWh 314Ah VAMI – Bảo hành 10 năm</strong></span></h2><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/pin-luu-tru-dien-lithium-lifepo4-lfp/\">Pin lưu trữ</a> Vami 16kWh với thiết kế nguyên khối cao cấp, sử dụng pin LiFePO₄ an toàn, bền bỉ trên 6.000 chu kỳ. Cung cấp nguồn điện ổn định 51.2V – 314Ah, tối ưu cho hệ thống điện mặt trời Hybrid dân dụng &amp; thương mại.</p><ul><li><p>Vòng đời sạc xả 6000 chu kỳ</p></li><li><p>Cell pin mật độ năng lượng cao</p></li><li><p>Màn hình Led hiển thị điện áp và vạch led hiển thị dung lượng</p></li><li><p>Nên dùng nhiều bộ pin để hoạt động tốt với Inverter Hybrid công suất lớn</p></li></ul><img src=\"https://gwsolar.vn/wp-content/uploads/2026/01/Pin-luu-tru-LifePo4-16kWh-314Ah-VAMI-Bao-hanh-10-nam-1024x1024.webp\" alt=\"Pin lưu trữ LifePo4 16kWh 314Ah VAMI - Bảo hành 10 năm\" title=\"Pin lưu trữ LifePo4 16kWh 314Ah VAMI - Bảo hành 10 năm\" width=\"700\" height=\"700\"><p style=\"text-align: center;\"><em>Pin lưu trữ LifePo4 16kWh 314Ah VAMI – Bảo hành 10 năm</em></p><p style=\"text-align: left;\"></p><img src=\"https://gwsolar.vn/wp-content/uploads/2026/01/MCB-va-hai-dau-cuc-cua-pin-lithium-Vami-51.2V314Ah.webp\" alt=\"MCB và hai đầu cực của pin lithium Vami 51.2V314Ah\" title=\"MCB và hai đầu cực của pin lithium Vami 51.2V314Ah\" width=\"700\" height=\"448\"><p><em>MCB và hai đầu cực của pin lithium Vami 51.2V314Ah</em></p><img src=\"https://gwsolar.vn/wp-content/uploads/2026/01/Tem-thong-so-ky-thuat-cua-pin-luu-tru-Vami-16kWh.webp\" alt=\"Tem thông số kỹ thuật của pin lưu trữ Vami 16kWh\" width=\"700\" height=\"933\"><p><em>Tem thông số kỹ thuật của pin lưu trữ Vami 16kWh</em></p><h2><span style=\"color: rgb(0, 128, 0);\"><strong>Ưu điểm nổi bật pin lưu trữ lithium Vami 16kW<br></strong></span></h2><img src=\"https://gwsolar.vn/wp-content/uploads/2026/01/Mat-sau-cua-pin-luu-tru-51.2V314Ah-pack-pin-duoc-trang-bi-4-banh-xe-thuan-tien-di-chuyen.webp\" alt=\"Mặt sau của pin lưu trữ 51.2V314Ah, pack pin được trang bị 4 bánh xe thuận tiện di chuyển\" width=\"1000\" height=\"1000\"><p>Mặt sau của pin lưu trữ 51.2V314Ah, pack pin được trang bị 4 bánh xe thuận tiện di chuyển</p><img src=\"https://gwsolar.vn/wp-content/uploads/2026/01/Mat-sau-cua-pin-luu-tru-Vami-51.2V314Ah.webp\" alt=\"Mặt sau của pin lưu trữ Vami 51.2V314Ah\" width=\"1000\" height=\"1000\"><p>Mặt sau của pin lưu trữ Vami 51.2V314Ah</p><h4><strong>Pin lithium LiFePO₄ chất lượng cao</strong></h4><p>Sử dụng cell pin Lithium Sắt Photphat (LiFePO₄) cho tuổi thọ trên 6.000 chu kỳ sạc–xả, vận hành ổn định, an toàn và bền bỉ theo thời gian.</p><h4><strong>Hệ thống tản nhiệt thông minh</strong></h4><p>Đảm bảo pin luôn hoạt động trong điều kiện tối ưu, kéo dài tuổi thọ.</p><h4><strong>An toàn và đáng tin cậy</strong></h4><p>Thiết kế chống bụi, chống nước IP20, bảo hành 10 năm</p><h4><strong>Tương thích linh hoạt với nhiều biến tần</strong></h4><p>Pin lithium Vami 51.2V – 314Ah (16kWh) tương thích tốt với hầu hết các inverter Hybrid đang được sử dụng phổ biến tại thị trường Việt Nam.</p><h4><strong>Giám sát &amp; quản lý từ xa thông minh</strong></h4><p>Hỗ trợ giám sát qua ứng dụng Vami, cho phép theo dõi trạng thái pin theo thời gian thực, chủ động quản lý nguồn điện, phát hiện sự cố sớm và cập nhật phần mềm tự động (OTA).</p><h2><span style=\"color: rgb(0, 128, 0);\"><strong>Pin lưu trữ Lithium Vami 48V 314Ah giao tiếp được với Inverter Hybrid nào?</strong></span></h2><p>BMS thông minh giao tiếp tốt với 95% inverter Hybrid phổ biến trên thị trường.</p><p>Với khả năng mở rộng giao tiếp không giới hạn của mình, chúng tôi sẽ tiếp tục cập nhật danh sách Inverter Hybrid giao tiếp với pin lưu trữ Vami trong tương lai.</p><h3 style=\"padding-left: 8px;\"><span><strong>Lợi ích của khách hàng khi sử dụng Pin lưu trữ Vami</strong></span><strong><br></strong><span style=\"color: rgb(0, 0, 0);\"><strong>– Được sử dụng sản phẩm chính hãng<br>– Được cam kết chế độ bảo hành nghiêm túc<br>– Được cung cấp đầy đủ hóa đơn chứng từ thuận lợi cho dự án doanh nghiệp<br>– Chế độ giao hàng nhanh chóng và chuyên nghiệp<br>– Mức giá cạnh tranh bậc nhất phân khúc tại Việt Nam<br>– Có giá đại lý cho khách hàng lấy số lượng<br>– Hỗ trợ toàn diện của Gigawatt về thiết kế hệ thống, hướng dẫn thi công, hướng dẫn sử dụng an toàn và bền lâu<br>– Giảm giá đặc biệt cho các thiết bị liên quan khi mua kèm Pin: Hybrid inverter, Pin mặt trời, cáp Solar….</strong></span></h3><p>===&gt;&gt;<strong>GIGAWATT Cam kết chính sách giá cực tốt so sánh với sản phẩm tương đương trên thị trường pin lưu trữ 16kwh – Bảo hành 10 năm – Đủ dung lượng</strong></p><h2><span style=\"color: rgb(0, 128, 0);\"><strong>Hỗ trợ khách hàng mua pin lưu trữ phân phối bởi Gigawatt Solar</strong></span></h2><ul><li><p>Vận chuyển miễn phí nội thành HCM</p></li><li><p>Hỗ trợ tư vấn hệ thống</p></li><li><p>Hỗ trợ thiết kế hệ thống</p></li><li><p>Giảm giá đặc biệt cho khách hàng mua trọn gói sản phẩm:&nbsp;<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/inverter-hoa-luoi-transformerless/\">Inverter hòa lưới</a> (Hypontech, Senergy);&nbsp;<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/pin-mat-troi/\">Tấm pin năng lượng mặt trời</a> (Astronergy); <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/inverter-hybrid/\">Inverter hybrid</a> (Senergy, Hypontech, Luxpower, Chisage); <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/pin-luu-tru-dien-lithium-lifepo4-lfp/\">Pin lưu trữ điện mặt trời</a> (GIGABOX 5E, GIGABOX 5S, GIGABOX 5S Pro, GIGABOX 10S, GIGABOX 15E, GIGABOX 16S) ; <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/phu-kien-thi-cong-dien-mat-troi/\">Phụ kiện điện mặt trời</a>&nbsp;(MCB, Meter, Tủ điện, <a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/san-pham/jack-ket-noi-mc4/\">Jack kết nối MC4</a>,&nbsp;<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/san-pham/day-dien-dc-chuyen-dung-cho-dien-mat-troi/\">Dây cáp điện DC</a>,&nbsp;<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/san-pham/thanh-rail-nhom-4-2m/\">Thanh rail nhôm</a>,&nbsp;<a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://gwsolar.vn/san-pham/chong-set-lan-truyen-dc-3-pha/\">Chống sét lan truyền DC</a>…)</p></li></ul><p><span style=\"color: rgb(40, 40, 40);\">Cam kết nhập hàng 100% chính hãng kèm giấy chứng nhận nguồn gốc xuất xứ.</span></p>",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772791316010.webp",
+        "createdAt": "2026-03-06T08:36:46.657Z",
+        "updatedAt": "2026-03-07T04:42:06.870Z",
+        "categoryId": 3,
+        "order": 1,
+        "price": "45000000",
+        "original_price": "48000000",
+        "isBestSeller": true,
+        "showInHomePage": true,
+        "guarantee": "<h3><span style=\"color: rgb(57, 128, 0);\"><strong>Bảo hành 10 năm – Dài nhất thị trường</strong></span></h3><p>Pin lưu trữ lithium Vami được bảo hành chính hãng lên đến 10 năm, thuộc nhóm thời gian bảo hành dài nhất trên thị trường hiện nay. Cam kết độ bền, độ ổn định và giá trị đầu tư lâu dài, giúp người dùng an tâm tuyệt đối trong suốt quá trình sử dụng.</p>",
+        "introduction": "Pin Lithium 16kwh Vami\n\n16KWh 51.2V 314Ah\n\nLiFePO4 Lithium Battery\n\nSolar Energy Storage System\n\nChú ý:\n\nPin lithium 51.2V 314Ah Vami cần được sạc với bộ sạc pin chuyên dụng cho pin Lifepo4 để đảm bảo an toàn.\n\nNên sử dụng Inverter hybrid có giao tiếp để đảm bảo dòng xạc và dòng xả hợp lý, tăng tuổi thọ thiết bị.",
+        "specifications": "<h2><span style=\"color: rgb(0, 128, 0);\"><strong>Thông số kỹ thuật của pin lưu trữ Vami</strong></span></h2><table style=\"min-width: 75px;\"><colgroup><col style=\"min-width: 25px;\"><col style=\"min-width: 25px;\"><col style=\"min-width: 25px;\"></colgroup><tbody><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(255, 255, 255);\"><strong>STT</strong></span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(255, 255, 255);\"><strong>VAMI</strong></span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(255, 255, 255);\"><strong>THÔNG SỐ</strong></span></p></td></tr><tr><td colspan=\"3\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;THÔNG SỐ CHUNG</strong></span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">1</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Điện áp</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">48V (51.2V)</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">2</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Dung lượng danh định</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">314Ah</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">3</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Năng lượng</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">16.08 kWh</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">4</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Nối song song tối đa</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">16 máy</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">5</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Dải điện áp hoạt động</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">43.2~57.6V</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">6</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Dòng xả khuyến nghị</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">150A</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">7</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Dòng xả tối đa</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">200A</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">8</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Dòng xả đỉnh (2 phút, 25°C)</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">250A</span></p></td></tr><tr><td colspan=\"3\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;THÔNG SỐ KHÁC</strong></span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">9</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Vòng đời (0.5C, 25°C)</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Độ xả sâu 80%, &gt;6000 chu kỳ</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">10</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Kích thước</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">530*840*255(mm)</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">11</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Khối lượng</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">127kg</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">12</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Cấp chống nước/bụi</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">IP20</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">13</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Nhiệt độ hoạt động</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Sạc: 0°C ~ 55°C</span><br><span style=\"color: rgb(40, 40, 40);\">Xả: -20°C ~ 60°C</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">14</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Nhiệt độ bảo quản</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">0°C ~ 40°C</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">15</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Độ ẩm tương đối</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">5°C ~ 95°C</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">16</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Độ cao lắp đặt</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">&lt;2000m</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">17</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Phương thức giao tiếp</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">RS485, CAN2.0</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">18</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Bảo hành</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">10 năm</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">19</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Giao tiếp Inverter Hybrid</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Vami, Senergy, Hypontech, Luxpower, Chisage, Deye, Solis, Goodwe, Megarevo, Victron, Sofar, Growatt, Voltronic, SRNE,…</span></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">20</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">Chứng nhận</span></p></td><td colspan=\"1\" rowspan=\"1\"><p><span style=\"color: rgb(40, 40, 40);\">UN38.3, IEC62619, CE</span></p></td></tr></tbody></table><p></p>"
+      },
+      {
+        "id": 23,
+        "title": "Tấm Pin thế hợi mới - Modem 2026",
+        "description": "<p>Tấm Pin được chúng tôi nhập khẩu từ Nhập</p><div data-youtube-video=\"\"><iframe width=\"640\" height=\"480\" allowfullscreen=\"true\" autoplay=\"false\" disablekbcontrols=\"false\" enableiframeapi=\"false\" endtime=\"0\" ivloadpolicy=\"0\" loop=\"false\" modestbranding=\"false\" origin=\"\" playlist=\"\" rel=\"1\" src=\"https://www.youtube.com/embed/2J3Bfim7A_s?controls=0&amp;rel=1\" start=\"0\"></iframe></div><p><br>Hình ảnh:<br></p><img src=\"/images/products/product_1772862771594.webp\"><img src=\"/images/products/product_1772862781510.webp\"><p></p><img src=\"/images/products/product_1772871197896.webp\"><p>Videos:</p><video src=\"/videos/products/product_1772863066266.mp4\" controls=\"true\" width=\"100%\"><source src=\"/videos/products/product_1772863066266.mp4\"></video><p></p>",
+        "isActive": true,
+        "imageUrl": "/images/products/product_1772796696422.webp",
+        "createdAt": "2026-03-06T11:31:36.974Z",
+        "updatedAt": "2026-03-07T08:13:36.779Z",
+        "categoryId": 1,
+        "order": 0,
+        "price": "Liên hệ",
+        "original_price": null,
+        "isBestSeller": true,
+        "showInHomePage": true,
+        "guarantee": "<h4>Điều kện bảo hành:</h4><ul><li><p>Sản phẩm còn trong thời hạn bảo hành</p></li><li><p>Sản phẩm được lắp đặt bởi kỹ thuật viên được ủy quyền</p></li><li><p>Không có dấu hiệu tác động vật lý từ bên ngoài</p></li><li><p>Còn tem bảo hành và hóa đơn mua hàng</p></li></ul><h4>Quy trình bảo hành:</h4><ul><li><p>Liên hệ hotline: 0909019234</p></li><li><p>Cung cấp thông tin sản phẩm và mô tả lỗi</p></li><li><p>Kỹ thuật viên đến kiểm tra và báo giá (nếu có)</p></li><li><p>Thực hiện sửa chữa hoặc thay thế</p></li><li><p>Bàn giao và ký nhận</p></li></ul><p></p>",
+        "introduction": "Tấm Pin thế hợi mới được sản xuất tại Nhật",
+        "specifications": "<ul><li><p><strong>Hiệu Suất Cao 23.34%:</strong> Tăng mật độ công suất trên mỗi m² mái.</p></li><li><p><strong>N-Type TOPCon:</strong> Không LID, không LeTID, suy hao thấp dài hạn.</p></li><li><p><strong>Thiết kế 2 mặt kính (Bifacial):</strong> Tăng thêm 5–25% sản lượng nhờ hấp thụ ánh sáng phản xạ.</p></li><li><p><strong>Chống PID – chống muối – chống amoniac – chống cát bụi:</strong> Phù hợp môi trường ven biển &amp; trang trại.</p></li><li><p><strong>Chịu tải cao:</strong> 5400Pa tuyết, 2400Pa gió.</p></li><li><p><strong>Bảo hành hiệu suất 30 năm:</strong> Đầu tư an toàn lâu dài.</p></li></ul><p></p>"
+      }
+    ],
+    "news": [
+      {
+        "id": 57,
+        "title": "Điện mặt trời được bán tối đa 20% công suất",
+        "excerpt": "Quy định mới về việc bán điện mặt trời áp mái cho lưới điện quốc gia với tỷ lệ tối đa 20% công suất lắp đặt.",
+        "content": "\n<p>Bộ Công thương vừa ban hành quy định mới về việc bán điện năng lượng mặt trời áp mái cho lưới điện quốc gia. Theo đó, các hộ gia đình và doanh nghiệp chỉ được phép bán tối đa 20% công suất lắp đặt của hệ thống điện mặt trời.</p>\n\n<p>Quy định này nhằm đảm bảo tính ổn định của lưới điện quốc gia và tránh tình trạng quá tải trong những giờ cao điểm sản xuất điện mặt trời. Đồng thời, việc giới hạn này cũng khuyến khích người dân sử dụng năng lượng mặt trời chủ yếu cho nhu cầu tiêu thụ điện của chính mình.</p>\n\n<h3>Lợi ích của quy định mới</h3>\n<ul>\n<li>Đảm bảo ổn định lưới điện quốc gia</li>\n<li>Khuyến khích sử dụng năng lượng tái tạo bền vững</li>\n<li>Tạo cơ chế minh bạch cho việc mua bán điện</li>\n<li>Giảm thiểu rủi ro về kỹ thuật</li>\n</ul>\n\n<p>Các chuyên gia trong ngành đánh giá đây là bước tiến tích cực, tạo khuôn khổ pháp lý rõ ràng cho việc phát triển năng lượng mặt trời tại Việt Nam.</p>\n      ",
+        "author": "Administrator",
+        "category": "Chính sách",
+        "readTime": "5 phút đọc",
+        "imageUrl": "/images/news-1.jpg",
+        "tags": [
+          "Chính sách",
+          "Điện mặt trời",
+          "Lưới điện",
+          "Quy định"
+        ],
+        "isActive": true,
+        "order": 1,
+        "publishedAt": "2024-01-15T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.533Z",
+        "updatedAt": "2026-03-08T14:27:44.533Z"
+      },
+      {
+        "id": 58,
+        "title": "Giá điện sinh hoạt tăng thêm 4,8% từ ngày hôm nay",
+        "excerpt": "EVN thông báo điều chỉnh tăng giá điện sinh hoạt bậc 3 trở lên nhằm khuyến khích tiết kiệm điện.",
+        "content": "\n<p>Tập đoàn Điện lực Việt Nam (EVN) chính thức thông báo điều chỉnh tăng giá điện sinh hoạt đối với các bậc tiêu thụ từ bậc 3 trở lên, với mức tăng trung bình 4,8%.</p>\n\n<p>Quyết định này được đưa ra nhằm khuyến khích người dân tiết kiệm điện và sử dụng năng lượng hiệu quả hơn. Đặc biệt, việc tăng giá chỉ áp dụng đối với các hộ gia đình có mức tiêu thụ điện cao.</p>\n\n<h3>Chi tiết mức giá mới</h3>\n<ul>\n<li>Bậc 1 (0-50 kWh): Không thay đổi - 1.678 đồng/kWh</li>\n<li>Bậc 2 (51-100 kWh): Không thay đổi - 1.734 đồng/kWh</li>\n<li>Bậc 3 (101-200 kWh): Tăng 4,8% - 2.014 đồng/kWh</li>\n<li>Bậc 4 (201-300 kWh): Tăng 4,8% - 2.536 đồng/kWh</li>\n<li>Bậc 5 (301-400 kWh): Tăng 4,8% - 2.834 đồng/kWh</li>\n<li>Bậc 6 (từ 401 kWh trở lên): Tăng 4,8% - 2.927 đồng/kWh</li>\n</ul>\n\n<p>Đây là thời điểm thích hợp để các hộ gia đình cân nhắc đầu tư vào hệ thống năng lượng mặt trời để giảm thiểu chi phí điện hàng tháng.</p>\n      ",
+        "author": "Administrator",
+        "category": "Tin tức",
+        "readTime": "3 phút đọc",
+        "imageUrl": "/images/news-2.jpg",
+        "tags": [
+          "Giá điện",
+          "EVN",
+          "Tiết kiệm điện",
+          "Năng lượng"
+        ],
+        "isActive": true,
+        "order": 2,
+        "publishedAt": "2024-01-10T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.539Z",
+        "updatedAt": "2026-03-08T14:27:44.539Z"
+      },
+      {
+        "id": 59,
+        "title": "Điện mặt trời thừa có thể bù trừ cho EVN",
+        "excerpt": "Cơ chế bù trừ điện năng mới cho phép hộ gia đình có thể bán điện thừa từ hệ thống solar về lưới.",
+        "content": "\n<p>Cơ chế bù trừ điện năng (Net Metering) chính thức được triển khai, cho phép các hộ gia đình và doanh nghiệp có hệ thống điện mặt trời áp mái có thể bán điện thừa về lưới điện quốc gia.</p>\n\n<p>Đây là bước đột phá quan trọng trong việc phát triển năng lượng tái tạo tại Việt Nam, tạo động lực mạnh mẽ cho các hộ gia đình đầu tư vào hệ thống năng lượng mặt trời.</p>\n\n<h3>Cách thức hoạt động của cơ chế bù trừ</h3>\n<ol>\n<li>Lắp đặt đồng hồ điện 2 chiều để đo lượng điện tiêu thụ và phát lên lưới</li>\n<li>Trong ngày, hệ thống solar sản xuất điện phục vụ nhu cầu sử dụng</li>\n<li>Điện dư thừa được bán về EVN với giá bù trừ</li>\n<li>Vào ban đêm hoặc ngày không nắng, hộ gia đình sử dụng điện từ lưới</li>\n<li>Cuối tháng, EVN tính toán bù trừ giữa điện mua và điện bán</li>\n</ol>\n\n<h3>Lợi ích của cơ chế bù trừ</h3>\n<ul>\n<li>Giảm thời gian hoàn vốn đầu tư xuống còn 6-8 năm</li>\n<li>Tối ưu hóa hiệu quả sử dụng năng lượng mặt trời</li>\n<li>Góp phần giảm tải cho lưới điện quốc gia</li>\n<li>Khuyến khích phát triển năng lượng sạch</li>\n</ul>\n\n<p>Với cơ chế này, việc đầu tư vào hệ thống năng lượng mặt trời trở nên hấp dẫn hơn bao giờ hết.</p>\n      ",
+        "author": "Administrator",
+        "category": "Công nghệ",
+        "readTime": "7 phút đọc",
+        "imageUrl": "/images/news-3.jpg",
+        "tags": [
+          "Bù trừ điện",
+          "Net Metering",
+          "Solar",
+          "Lưới điện"
+        ],
+        "isActive": true,
+        "order": 3,
+        "publishedAt": "2024-01-08T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.546Z",
+        "updatedAt": "2026-03-08T14:27:44.546Z"
+      },
+      {
+        "id": 60,
+        "title": "Năng lượng mặt trời - Giải pháp \"chống sốc\" cho điện lưới",
+        "excerpt": "Hệ thống năng lượng mặt trời giúp giảm tải cho lưới điện quốc gia trong những giờ cao điểm.",
+        "content": "\n<p>Trong bối cảnh nhu cầu điện ngày càng tăng cao, đặc biệt vào các giờ cao điểm mùa hè, hệ thống năng lượng mặt trời phân tán đang trở thành giải pháp hiệu quả để giảm tải cho lưới điện quốc gia.</p>\n\n<p>Theo báo cáo của Viện Năng lượng, việc phát triển năng lượng mặt trời áp mái có thể giảm tới 30% áp lực lên lưới điện trong những giờ có nắng tốt.</p>\n\n<h3>Tác động tích cực đến hệ thống điện</h3>\n<ul>\n<li>Giảm tải đỉnh: Năng lượng mặt trời sản xuất nhiều nhất vào giờ cao điểm (10h-14h)</li>\n<li>Phân tán nguồn điện: Giảm phụ thuộc vào các nhà máy điện tập trung</li>\n<li>Tăng độ tin cậy: Đa dạng hóa nguồn cung cấp điện</li>\n<li>Giảm tổn thất truyền tải: Sản xuất điện gần nơi tiêu thụ</li>\n</ul>\n\n<h3>Thách thức cần giải quyết</h3>\n<p>Tuy nhiên, việc tích hợp năng lượng mặt trời vào lưới điện cũng đặt ra một số thách thức:</p>\n<ul>\n<li>Biến động theo thời tiết và thời gian trong ngày</li>\n<li>Cần có hệ thống lưu trữ năng lượng</li>\n<li>Đầu tư nâng cấp lưới điện thông minh</li>\n<li>Đào tạo nhân lực vận hành và bảo trì</li>\n</ul>\n\n<p>Chuyên gia khuyến nghị cần có lộ trình phát triển hài hòa giữa năng lượng mặt trời và các nguồn năng lượng khác để đảm bảo an ninh năng lượng quốc gia.</p>\n      ",
+        "author": "Administrator",
+        "category": "Phân tích",
+        "readTime": "6 phút đọc",
+        "imageUrl": "/images/news-4.jpg",
+        "tags": [
+          "Lưới điện",
+          "An ninh năng lượng",
+          "Phân tích",
+          "Công nghệ"
+        ],
+        "isActive": true,
+        "order": 4,
+        "publishedAt": "2024-01-05T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.552Z",
+        "updatedAt": "2026-03-08T14:27:44.552Z"
+      },
+      {
+        "id": 61,
+        "title": "Nhà máy điện mặt trời lớn nhất thế giới",
+        "excerpt": "Cập nhật về dự án nhà máy điện mặt trời có công suất lớn nhất thế giới và tác động đến ngành năng lượng.",
+        "content": "\n<p>Dự án nhà máy điện mặt trời Mohammed bin Rashid Al Maktoum Solar Park tại Dubai vừa hoàn thành giai đoạn cuối, trở thành nhà máy điện mặt trời lớn nhất thế giới với tổng công suất 5.000 MW.</p>\n\n<p>Dự án này không chỉ là một kỳ tích kỹ thuật mà còn là minh chứng cho tiềm năng to lớn của năng lượng mặt trời trong việc đáp ứng nhu cầu năng lượng toàn cầu.</p>\n\n<h3>Những con số ấn tượng</h3>\n<ul>\n<li>Tổng công suất: 5.000 MW</li>\n<li>Diện tích: 77 km²</li>\n<li>Số tấm pin mặt trời: Hơn 2,3 triệu tấm</li>\n<li>Sản lượng điện hàng năm: 13,6 tỷ kWh</li>\n<li>Giảm phát thải CO2: 6,5 triệu tấn/năm</li>\n<li>Tổng đầu tư: 13,6 tỷ USD</li>\n</ul>\n\n<h3>Công nghệ tiên tiến được áp dụng</h3>\n<p>Dự án sử dụng nhiều công nghệ tiên tiến nhất hiện tại:</p>\n<ul>\n<li>Tấm pin đơn tinh thể hiệu suất cao 22-24%</li>\n<li>Hệ thống theo dõi mặt trời tự động</li>\n<li>Công nghệ điện mặt trời nhiệt (CSP) với tháp năng lượng</li>\n<li>Hệ thống lưu trữ năng lượng molten salt</li>\n<li>AI và IoT trong quản lý vận hành</li>\n</ul>\n\n<h3>Tác động đến ngành năng lượng toàn cầu</h3>\n<p>Thành công của dự án này mở ra nhiều hướng phát triển mới:</p>\n<ul>\n<li>Chứng minh tính khả thi của năng lượng mặt trời quy mô lớn</li>\n<li>Giảm mạnh chi phí sản xuất điện mặt trời</li>\n<li>Tạo động lực cho các quốc gia khác đầu tư vào năng lượng sạch</li>\n<li>Phát triển chuỗi cung ứng và công nghệ hỗ trợ</li>\n</ul>\n\n<p>Việt Nam cũng có thể học hỏi kinh nghiệm từ dự án này để phát triển các nhà máy điện mặt trời quy mô lớn, góp phần đạt mục tiêu Net Zero vào năm 2050.</p>\n      ",
+        "author": "Administrator",
+        "category": "Quốc tế",
+        "readTime": "8 phút đọc",
+        "imageUrl": "/images/news-5.jpg",
+        "tags": [
+          "Quốc tế",
+          "Dự án lớn",
+          "Công nghệ",
+          "Dubai"
+        ],
+        "isActive": true,
+        "order": 5,
+        "publishedAt": "2024-01-03T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.558Z",
+        "updatedAt": "2026-03-08T14:27:44.558Z"
+      },
+      {
+        "id": 62,
+        "title": "Top 10 thương hiệu năng lượng mặt trời hàng đầu thế giới",
+        "excerpt": "Danh sách các thương hiệu dẫn đầu về công nghệ và chất lượng trong ngành năng lượng mặt trời.",
+        "content": "\n<p>Ngành năng lượng mặt trời toàn cầu đã có những bước phát triển vượt bậc trong những năm gần đây. Dưới đây là danh sách 10 thương hiệu hàng đầu thế giới về sản xuất thiết bị năng lượng mặt trời.</p>\n\n<h3>1. LONGi Solar (Trung Quốc)</h3>\n<p>Dẫn đầu về công suất sản xuất với hơn 32 GW/năm. Chuyên về tấm pin đơn tinh thể hiệu suất cao.</p>\n\n<h3>2. JinkoSolar (Trung Quốc)</h3>\n<p>Thương hiệu có mặt tại hơn 160 quốc gia, nổi tiếng với độ bền và hiệu suất ổn định.</p>\n\n<h3>3. Trina Solar (Trung Quốc)</h3>\n<p>Tiên phong trong nghiên cứu công nghệ tấm pin thế hệ mới, đạt hiệu suất chuyển đổi cao nhất.</p>\n\n<h3>4. Canadian Solar (Canada)</h3>\n<p>Thương hiệu uy tín với hơn 20 năm kinh nghiệm, có mặt mạnh tại thị trường Bắc Mỹ và châu Âu.</p>\n\n<h3>5. JA Solar (Trung Quốc)</h3>\n<p>Chuyên sản xuất tấm pin PERC và TOPCon với hiệu suất cao, giá thành cạnh tranh.</p>\n\n<h3>6. Hanwha Q CELLS (Hàn Quốc)</h3>\n<p>Nổi tiếng với công nghệ Q.ANTUM, đảm bảo hiệu suất cao ngay cả trong điều kiện ánh sáng yếu.</p>\n\n<h3>7. First Solar (Mỹ)</h3>\n<p>Chuyên về công nghệ CdTe thin-film, phù hợp cho các dự án quy mô lớn tại vùng sa mạc.</p>\n\n<h3>8. SunPower Corporation (Mỹ)</h3>\n<p>Tấm pin hiệu suất cao nhất thị trường với công nghệ Maxeon, bảo hành lên đến 40 năm.</p>\n\n<h3>9. Sharp Solar (Nhật Bản)</h3>\n<p>Thương hiệu lâu đời với hơn 60 năm kinh nghiệm, chất lượng Nhật Bản được tin cậy toàn cầu.</p>\n\n<h3>10. Panasonic Solar (Nhật Bản)</h3>\n<p>Công nghệ HIT độc quyền, hiệu suất cao và độ bền vượt trội trong điều kiện khắc nghiệt.</p>\n\n<h3>Xu hướng phát triển</h3>\n<p>Các thương hiệu hàng đầu đang tập trung vào:</p>\n<ul>\n<li>Nâng cao hiệu suất chuyển đổi năng lượng</li>\n<li>Giảm chi phí sản xuất</li>\n<li>Phát triển công nghệ tấm pin thế hệ mới (Perovskite, Tandem)</li>\n<li>Tích hợp AI và IoT trong hệ thống quản lý</li>\n<li>Cam kết bền vững và thân thiện môi trường</li>\n</ul>\n\n<p>Tại Việt Nam, nhiều thương hiệu này đã có mặt và được tin dùng bởi các nhà thầu uy tín trong ngành.</p>\n      ",
+        "author": "Web Số",
+        "category": "Tổng hợp",
+        "readTime": "10 phút đọc",
+        "imageUrl": "/images/news-6.jpg",
+        "tags": [
+          "Thương hiệu",
+          "Tổng hợp",
+          "Đánh giá",
+          "Toàn cầu"
+        ],
+        "isActive": true,
+        "order": 6,
+        "publishedAt": "2024-01-01T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.563Z",
+        "updatedAt": "2026-03-08T14:27:44.563Z"
+      },
+      {
+        "id": 63,
+        "title": "Chính phủ hỗ trợ vay vốn lắp đặt điện mặt trời hộ gia đình",
+        "excerpt": "Gói hỗ trợ tín dụng ưu đãi 50.000 tỷ đồng dành cho các hộ gia đình đầu tư hệ thống năng lượng mặt trời.",
+        "content": "\n<p>Chính phủ vừa phê duyệt gói hỗ trợ tín dụng ưu đãi trị giá 50.000 tỷ đồng dành cho các hộ gia đình và doanh nghiệp nhỏ muốn đầu tư vào hệ thống năng lượng mặt trời.</p>\n\n<h3>Điều kiện vay vốn</h3>\n<ul>\n<li>Lãi suất ưu đãi: 3-5%/năm</li>\n<li>Thời gian vay: Tối đa 10 năm</li>\n<li>Hạn mức vay: Tối đa 500 triệu đồng/hộ</li>\n<li>Không yêu cầu tài sản thế chấp cho khoản vay dưới 200 triệu</li>\n</ul>\n\n<h3>Đối tượng được hỗ trợ</h3>\n<ul>\n<li>Hộ gia đình có nhu cầu lắp đặt hệ thống điện mặt trời áp mái</li>\n<li>Doanh nghiệp vừa và nhỏ</li>\n<li>Cơ sở sản xuất kinh doanh</li>\n<li>Trường học và bệnh viện</li>\n</ul>\n\n<p>Đây là cơ hội tuyệt vời để các hộ gia đình tiếp cận nguồn vốn ưu đãi, giảm gánh nặng tài chính ban đầu khi đầu tư vào năng lượng sạch.</p>\n      ",
+        "author": "Administrator",
+        "category": "Chính sách",
+        "readTime": "4 phút đọc",
+        "imageUrl": "/images/news-1.jpg",
+        "tags": [
+          "Hỗ trợ vốn",
+          "Chính sách",
+          "Hộ gia đình"
+        ],
+        "isActive": true,
+        "order": 7,
+        "publishedAt": "2023-12-28T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.568Z",
+        "updatedAt": "2026-03-08T14:27:44.568Z"
+      },
+      {
+        "id": 64,
+        "title": "Công nghệ tấm pin mặt trời thế hệ mới với hiệu suất 47%",
+        "excerpt": "Các nhà khoa học đã phát triển thành công tấm pin mặt trời có hiệu suất chuyển đổi cao kỷ lục.",
+        "content": "\n<p>Đột phá mới trong công nghệ tấm pin mặt trời: Các nhà khoa học tại Viện Năng lượng Fraunhofer (Đức) đã phát triển thành công tấm pin mặt trời đa lớp với hiệu suất chuyển đổi năng lượng đạt 47.6%, phá vỡ kỷ lục thế giới.</p>\n\n<h3>Công nghệ đột phá</h3>\n<p>Tấm pin sử dụng công nghệ tandem kết hợp nhiều lớp vật liệu bán dẫn khác nhau:</p>\n<ul>\n<li>Lớp trên: Perovskite - hấp thụ ánh sáng xanh và tử ngoại</li>\n<li>Lớp giữa: Gallium arsenide - hấp thụ ánh sáng vàng và xanh lá</li>\n<li>Lớp dưới: Silicon - hấp thụ ánh sáng đỏ và hồng ngoại</li>\n</ul>\n\n<h3>Ý nghĩa của đột phá</h3>\n<p>Với hiệu suất gần 50%, công nghệ này có thể:</p>\n<ul>\n<li>Giảm diện tích lắp đặt xuống 50% so với tấm pin thông thường</li>\n<li>Tăng gấp đôi sản lượng điện trên cùng diện tích mái</li>\n<li>Giảm chi phí lắp đặt và bảo trì</li>\n<li>Mở ra khả năng ứng dụng cho các không gian hạn chế</li>\n</ul>\n\n<h3>Lộ trình thương mại hóa</h3>\n<p>Dự kiến công nghệ này sẽ được thương mại hóa trong vòng 3-5 năm tới với mức giá cạnh tranh.</p>\n      ",
+        "author": "Tech Solar",
+        "category": "Công nghệ",
+        "readTime": "6 phút đọc",
+        "imageUrl": "/images/news-2.jpg",
+        "tags": [
+          "Công nghệ mới",
+          "Hiệu suất cao",
+          "Nghiên cứu"
+        ],
+        "isActive": true,
+        "order": 8,
+        "publishedAt": "2023-12-25T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.573Z",
+        "updatedAt": "2026-03-08T14:27:44.573Z"
+      },
+      {
+        "id": 65,
+        "title": "Dự báo thị trường năng lượng mặt trời Việt Nam 2024",
+        "excerpt": "Thị trường điện mặt trời Việt Nam dự kiến tăng trưởng 45% trong năm 2024 với nhiều chính sách hỗ trợ mới.",
+        "content": "\n<p>Báo cáo thị trường năng lượng mặt trời Việt Nam 2024 cho thấy triển vọng tích cực với tốc độ tăng trưởng dự kiến đạt 45% so với năm 2023.</p>\n\n<h3>Động lực tăng trưởng</h3>\n<ul>\n<li>Giá điện sinh hoạt tăng, khuyến khích đầu tư solar</li>\n<li>Chính sách hỗ trợ vay vốn ưu đãi</li>\n<li>Cơ chế bù trừ điện năng (Net Metering) được triển khai rộng rãi</li>\n<li>Chi phí lắp đặt giảm 20-30% so với 2 năm trước</li>\n<li>Công nghệ tấm pin ngày càng hiệu quả hơn</li>\n</ul>\n\n<h3>Phân khúc thị trường</h3>\n<p>Thị trường được chia thành các phân khúc chính:</p>\n<ul>\n<li>Hộ gia đình: Chiếm 40% thị trường, tăng trưởng 50%</li>\n<li>Doanh nghiệp vừa và nhỏ: 35%, tăng trưởng 45%</li>\n<li>Nhà máy và khu công nghiệp: 20%, tăng trưởng 35%</li>\n<li>Dự án quy mô lớn: 5%, tăng trưởng 40%</li>\n</ul>\n\n<h3>Thách thức</h3>\n<ul>\n<li>Cần nâng cấp hạ tầng lưới điện</li>\n<li>Thiếu nhân lực kỹ thuật chất lượng cao</li>\n<li>Cạnh tranh gay gắt về giá</li>\n<li>Vấn đề chất lượng sản phẩm từ một số nhà cung cấp</li>\n</ul>\n\n<p>Nhìn chung, 2024 hứa hẹn là năm bùng nổ của ngành năng lượng mặt trời tại Việt Nam.</p>\n      ",
+        "author": "Market Analyst",
+        "category": "Thị trường",
+        "readTime": "7 phút đọc",
+        "imageUrl": "/images/news-3.jpg",
+        "tags": [
+          "Thị trường",
+          "Dự báo",
+          "Tăng trưởng"
+        ],
+        "isActive": true,
+        "order": 9,
+        "publishedAt": "2023-12-20T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.581Z",
+        "updatedAt": "2026-03-08T14:27:44.581Z"
+      },
+      {
+        "id": 66,
+        "title": "Lắp đặt hệ thống solar cho trường học - Xu hướng mới",
+        "excerpt": "Nhiều trường học tại Việt Nam đã bắt đầu đầu tư hệ thống điện mặt trời để tiết kiệm chi phí và giáo dục môi trường.",
+        "content": "\n<p>Xu hướng lắp đặt hệ thống năng lượng mặt trời cho các trường học đang ngày càng phổ biến tại Việt Nam, mang lại nhiều lợi ích về kinh tế và giáo dục.</p>\n\n<h3>Lợi ích kép: Kinh tế và Giáo dục</h3>\n<p>Các trường học lắp đặt solar không chỉ tiết kiệm chi phí điện mà còn tạo ra môi trường học tập thực tế về năng lượng tái tạo cho học sinh.</p>\n\n<h3>Các trường tiên phong</h3>\n<ul>\n<li>Trường THPT Lê Quý Đôn (TP.HCM): Tiết kiệm 40% chi phí điện/năm</li>\n<li>Trường Quốc tế Singapore (Hà Nội): Hệ thống 500kWp</li>\n<li>Trường Đại học Bách Khoa (TP.HCM): Dự án 1MWp</li>\n<li>Trường THCS Nguyễn Du (Đà Nẵng): Hệ thống 100kWp</li>\n</ul>\n\n<h3>Mô hình triển khai</h3>\n<p>Các trường học có thể lựa chọn nhiều mô hình:</p>\n<ul>\n<li>Đầu tư trực tiếp: Trường tự bỏ vốn lắp đặt</li>\n<li>Thuê mua tài chính: Trả góp trong 5-7 năm</li>\n<li>PPP: Hợp tác công tư với doanh nghiệp năng lượng</li>\n<li>Tài trợ: Nhận hỗ trợ từ các tổ chức, doanh nghiệp</li>\n</ul>\n\n<h3>Giá trị giáo dục</h3>\n<ul>\n<li>Học sinh được tiếp cận trực tiếp với công nghệ xanh</li>\n<li>Nâng cao ý thức bảo vệ môi trường</li>\n<li>Tạo nguồn dữ liệu thực tế cho các bài học STEM</li>\n<li>Truyền cảm hứng cho thế hệ trẻ về năng lượng sạch</li>\n</ul>\n\n<p>Bộ Giáo dục đang xây dựng chương trình khuyến khích các trường học trên toàn quốc đầu tư vào năng lượng mặt trời.</p>\n      ",
+        "author": "Education Solar",
+        "category": "Giáo dục",
+        "readTime": "5 phút đọc",
+        "imageUrl": "/images/news-4.jpg",
+        "tags": [
+          "Giáo dục",
+          "Trường học",
+          "Tiết kiệm"
+        ],
+        "isActive": true,
+        "order": 10,
+        "publishedAt": "2023-12-15T00:00:00.000Z",
+        "createdAt": "2026-03-08T14:27:44.587Z",
+        "updatedAt": "2026-03-08T14:27:44.587Z"
+      }
+    ],
+    "banners": [
+      {
+        "id": 14,
+        "title": "GIẢM GIÁ ĐẶC BIỆT",
+        "description": "Giảm ngay 20% cho đơn hàng đầu tiên. Chất lượng cao, hiệu suất vượt trội, bảo hành 25 năm.",
+        "isActive": true,
+        "order": 0,
+        "createdAt": "2026-03-06T08:36:46.555Z",
+        "updatedAt": "2026-03-08T06:26:43.589Z",
+        "backgroundColor": "bg-gradient-to-r from-blue-600 to-purple-600",
+        "backgroundImage": "/images/banner_1772951197694.webp",
+        "buttonLink": "/solar-panels",
+        "buttonText": "Xem ngay",
+        "subtitle": "Tấm pin năng lượng mặt trời"
+      },
+      {
+        "id": 15,
+        "title": "CÔNG NGHỆ TIÊN TIẾN",
+        "description": "Hiệu suất chuyển đổi 97%, giám sát từ xa, tương thích với mọi hệ thống solar.",
+        "isActive": true,
+        "order": 1,
+        "createdAt": "2026-03-06T08:36:46.563Z",
+        "updatedAt": "2026-03-08T06:26:50.900Z",
+        "backgroundColor": "bg-gradient-to-r from-pink-500 to-red-500",
+        "backgroundImage": "/images/banner_1772951209693.webp",
+        "buttonLink": "/inverter",
+        "buttonText": "Tìm hiểu thêm",
+        "subtitle": "Biến tần Inverter thông minh"
+      },
+      {
+        "id": 16,
+        "title": "GIẢI PHÁP HOÀN CHỈNH",
+        "description": "Tư vấn miễn phí, lắp đặt chuyên nghiệp, bảo hành toàn diện. Tiết kiệm 70% hóa đơn điện.",
+        "isActive": true,
+        "order": 2,
+        "createdAt": "2026-03-06T08:36:46.568Z",
+        "updatedAt": "2026-03-08T06:27:07.013Z",
+        "backgroundColor": "bg-gradient-to-r from-teal-400 to-pink-300",
+        "backgroundImage": "/images/banner_1772951225794.webp",
+        "buttonLink": "/contact",
+        "buttonText": "Liên hệ ngay",
+        "subtitle": "Hệ thống năng lượng mặt trời"
+      },
+      {
+        "id": 17,
+        "title": "ƯU ĐÃI HẤP DẪN",
+        "description": "Mua ngay hôm nay - Nhận ưu đãi lên đến 15%. Dung lượng lớn, sạc nhanh, an toàn tuyệt đối.",
+        "isActive": true,
+        "order": 3,
+        "createdAt": "2026-03-06T08:36:46.574Z",
+        "updatedAt": "2026-03-08T06:27:15.866Z",
+        "backgroundColor": "bg-gradient-to-r from-yellow-400 to-orange-500",
+        "backgroundImage": "/images/banner_1772951234593.webp",
+        "buttonLink": "/batteries",
+        "buttonText": "Khám phá",
+        "subtitle": "Pin lưu trữ năng lượng"
+      }
+    ],
+    "partners": [
+      {
+        "id": 8,
+        "name": "An Khang Pharmacy",
+        "image": "/images/partners/Logo-Nha-Thuoc-An-Khang-.webp",
+        "order": 0,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.580Z",
+        "updatedAt": "2026-03-06T08:36:46.580Z"
+      },
+      {
+        "id": 9,
+        "name": "The Gioi Di Dong",
+        "image": "/images/partners/logo-the-gioi-di-dong-2.jpg",
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.585Z",
+        "updatedAt": "2026-03-06T08:36:46.585Z"
+      },
+      {
+        "id": 10,
+        "name": "Bach Hoa Xanh",
+        "image": "/images/partners/logo-bach-hoa-xanh-compressed.jpg",
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.589Z",
+        "updatedAt": "2026-03-06T08:36:46.589Z"
+      },
+      {
+        "id": 11,
+        "name": "Partner 1",
+        "image": "/images/partners/1-4748-hinh.png",
+        "order": 3,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.594Z",
+        "updatedAt": "2026-03-06T08:36:46.594Z"
+      },
+      {
+        "id": 12,
+        "name": "Partner 2",
+        "image": "/images/partners/3-1114-hinh.jpg",
+        "order": 4,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.600Z",
+        "updatedAt": "2026-03-06T08:36:46.600Z"
+      },
+      {
+        "id": 13,
+        "name": "Partner 3",
+        "image": "/images/partners/4-7734-hinh.png",
+        "order": 5,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.604Z",
+        "updatedAt": "2026-03-06T08:36:46.604Z"
+      },
+      {
+        "id": 14,
+        "name": "Partner 4",
+        "image": "/images/partners/images.jpg",
+        "order": 6,
+        "isActive": true,
+        "createdAt": "2026-03-06T08:36:46.609Z",
+        "updatedAt": "2026-03-06T08:36:46.609Z"
+      }
+    ],
+    "heroContent": [
+      {
+        "id": 3,
+        "title": "Giải pháp Năng lượng Mặt trời hàng đầu",
+        "description": "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin solar, biến tần inverter, pin lưu trữ và giải pháp năng lượng tái tạo toàn diện.",
+        "videoUrl": "/videos/hero_video.mp4",
+        "stat1Value": "10+",
+        "stat1Label": "Năm kinh nghiệm",
+        "stat2Value": "1000+",
+        "stat2Label": "Dự án hoàn thành",
+        "stat3Value": "24/7",
+        "stat3Label": "Hỗ trợ kỹ thuật",
+        "feature1Title": "Thân thiện",
+        "feature1Description": "Thân thiện môi trường",
+        "feature2Title": "Tiết kiệm điện",
+        "feature2Description": "Lên đến 90%",
+        "createdAt": "2026-03-06T08:36:46.540Z",
+        "updatedAt": "2026-03-06T08:36:46.540Z"
+      }
+    ],
+    "projects": [
+      {
+        "id": 41,
+        "title": "Hệ thống điện mặt trời nhà máy ABC",
+        "location": "Bình Dương",
+        "capacity": "500kW",
+        "completedDate": "Tháng 12, 2023",
+        "imageUrl": "/images/news-1.jpg",
+        "description": "Hệ thống điện mặt trời quy mô lớn cho nhà máy sản xuất, giúp tiết kiệm 70% chi phí điện năng hàng năm.",
+        "detail": "\n<h2>Tổng quan dự án</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời áp mái cho nhà máy sản xuất ABC tại Bình Dương là một trong những dự án tiêu biểu của chúng tôi trong lĩnh vực công nghiệp.</p>\n\n<h3>Thông số kỹ thuật</h3>\n<ul>\n<li>Tổng công suất: 500kWp</li>\n<li>Số lượng tấm pin: 1,250 tấm (400W/tấm)</li>\n<li>Loại tấm pin: Mono PERC hiệu suất cao</li>\n<li>Inverter: 3 x 150kW + 1 x 50kW</li>\n<li>Diện tích lắp đặt: 3,500m²</li>\n</ul>\n\n<h3>Hiệu quả kinh tế</h3>\n<p>Hệ thống giúp nhà máy tiết kiệm 70% chi phí điện năng hàng năm, tương đương khoảng 1.2 tỷ đồng. Thời gian hoàn vốn dự kiến: 5-6 năm.</p>\n\n<h3>Lợi ích môi trường</h3>\n<p>Giảm phát thải CO2: 450 tấn/năm, tương đương việc trồng 20,000 cây xanh.</p>\n      ",
+        "category": "Công nghiệp",
+        "client": "Công ty ABC Manufacturing",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 1,
+        "createdAt": "2026-03-08T14:27:44.445Z",
+        "updatedAt": "2026-03-08T14:27:44.445Z"
+      },
+      {
+        "id": 42,
+        "title": "Điện mặt trời áp mái biệt thự",
+        "location": "TP. Hồ Chí Minh",
+        "capacity": "15kW",
+        "completedDate": "Tháng 11, 2023",
+        "imageUrl": "/images/news-2.jpg",
+        "description": "Hệ thống điện mặt trời áp mái cho biệt thự, tích hợp pin lưu trữ và hệ thống smart home.",
+        "detail": "\n<h2>Giải pháp năng lượng thông minh cho gia đình</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời kết hợp pin lưu trữ và smart home cho biệt thự tại Quận 7, TP.HCM.</p>\n\n<h3>Cấu hình hệ thống</h3>\n<ul>\n<li>Công suất tấm pin: 15kWp</li>\n<li>Pin lưu trữ: 20kWh LiFePO4</li>\n<li>Inverter hybrid: 15kW</li>\n<li>Hệ thống giám sát: App di động + Web</li>\n<li>Tích hợp smart home: Điều khiển tự động theo sản lượng điện</li>\n</ul>\n\n<h3>Đặc điểm nổi bật</h3>\n<p>Hệ thống hoạt động hoàn toàn độc lập trong ban ngày, pin lưu trữ cung cấp điện vào ban đêm. Chủ nhà có thể giám sát và điều khiển mọi lúc mọi nơi qua smartphone.</p>\n\n<h3>Hiệu quả</h3>\n<p>Tiết kiệm 95% hóa đơn tiền điện, tự cung tự cấp năng lượng sạch cho gia đình.</p>\n      ",
+        "category": "Dân dụng",
+        "client": "Gia đình Nguyễn Văn A",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 2,
+        "createdAt": "2026-03-08T14:27:44.456Z",
+        "updatedAt": "2026-03-08T14:27:44.456Z"
+      },
+      {
+        "id": 43,
+        "title": "Trung tâm thương mại Solar Plaza",
+        "location": "Đồng Nai",
+        "capacity": "300kW",
+        "completedDate": "Tháng 10, 2023",
+        "imageUrl": "/images/news-3.jpg",
+        "description": "Dự án điện mặt trời cho trung tâm thương mại, cung cấp năng lượng sạch cho toàn bộ hệ thống.",
+        "detail": "\n<h2>Năng lượng xanh cho trung tâm thương mại</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời quy mô lớn cho trung tâm thương mại Solar Plaza tại Đồng Nai.</p>\n\n<h3>Quy mô dự án</h3>\n<ul>\n<li>Tổng công suất: 300kWp</li>\n<li>Số lượng tấm pin: 750 tấm</li>\n<li>Diện tích mái: 2,100m²</li>\n<li>Inverter: 6 x 50kW</li>\n<li>Hệ thống giám sát trung tâm</li>\n</ul>\n\n<h3>Giải pháp kỹ thuật</h3>\n<p>Hệ thống được thiết kế tối ưu để cung cấp điện cho hệ thống điều hòa, chiếu sáng và các thiết bị điện trong giờ hoạt động của trung tâm thương mại.</p>\n\n<h3>Lợi ích</h3>\n<ul>\n<li>Giảm 60% chi phí điện năng</li>\n<li>Nâng cao hình ảnh thương hiệu xanh</li>\n<li>Thu hút khách hàng quan tâm đến môi trường</li>\n<li>Tiết kiệm 850 triệu đồng/năm</li>\n</ul>\n      ",
+        "category": "Thương mại",
+        "client": "Solar Plaza JSC",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 3,
+        "createdAt": "2026-03-08T14:27:44.462Z",
+        "updatedAt": "2026-03-08T14:27:44.462Z"
+      },
+      {
+        "id": 44,
+        "title": "Khu công nghiệp Việt Phú",
+        "location": "Bình Phước",
+        "capacity": "1.2MW",
+        "completedDate": "Tháng 9, 2023",
+        "imageUrl": "/images/news-4.jpg",
+        "description": "Hệ thống điện mặt trời lớn nhất khu vực với công nghệ tiên tiến, giảm 80% phát thải carbon.",
+        "detail": "\n<h2>Dự án điện mặt trời quy mô lớn</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời công suất 1.2MWp cho Khu công nghiệp Việt Phú, Bình Phước - dự án lớn nhất của chúng tôi trong năm 2023.</p>\n\n<h3>Thông số kỹ thuật</h3>\n<ul>\n<li>Tổng công suất: 1,200kWp (1.2MW)</li>\n<li>Số lượng tấm pin: 3,000 tấm (400W/tấm)</li>\n<li>Công nghệ: Tấm pin Bifacial Mono PERC</li>\n<li>Inverter: 12 x 100kW</li>\n<li>Diện tích: 8,500m²</li>\n<li>Hệ thống giám sát AI</li>\n</ul>\n\n<h3>Công nghệ tiên tiến</h3>\n<p>Sử dụng tấm pin 2 mặt (Bifacial) tăng hiệu suất 10-15%, kết hợp hệ thống giám sát AI dự đoán sản lượng và phát hiện sự cố tự động.</p>\n\n<h3>Hiệu quả vượt trội</h3>\n<ul>\n<li>Sản lượng điện: 1,800,000 kWh/năm</li>\n<li>Tiết kiệm: 3.2 tỷ đồng/năm</li>\n<li>Giảm phát thải CO2: 1,350 tấn/năm</li>\n<li>Thời gian hoàn vốn: 4.5 năm</li>\n</ul>\n      ",
+        "category": "Công nghiệp",
+        "client": "Khu công nghiệp Việt Phú",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 4,
+        "createdAt": "2026-03-08T14:27:44.467Z",
+        "updatedAt": "2026-03-08T14:27:44.467Z"
+      },
+      {
+        "id": 45,
+        "title": "Trường học xanh Nguyễn Du",
+        "location": "Long An",
+        "capacity": "50kW",
+        "completedDate": "Tháng 8, 2023",
+        "imageUrl": "/images/news-5.jpg",
+        "description": "Dự án điện mặt trời cho trường học, góp phần giáo dục ý thức bảo vệ môi trường cho học sinh.",
+        "detail": "\n<h2>Năng lượng xanh cho giáo dục</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời cho Trường THPT Nguyễn Du, Long An - mô hình trường học xanh tiên phong.</p>\n\n<h3>Cấu hình hệ thống</h3>\n<ul>\n<li>Công suất: 50kWp</li>\n<li>Số lượng tấm pin: 125 tấm</li>\n<li>Inverter: 1 x 50kW</li>\n<li>Màn hình giám sát công khai</li>\n<li>Hệ thống giáo dục tương tác</li>\n</ul>\n\n<h3>Giá trị giáo dục</h3>\n<p>Ngoài việc tiết kiệm điện năng, hệ thống còn được tích hợp màn hình hiển thị công khai tại sảnh trường, giúp học sinh theo dõi sản lượng điện thực tế và hiểu về năng lượng tái tạo.</p>\n\n<h3>Kết quả đạt được</h3>\n<ul>\n<li>Tiết kiệm 40% chi phí điện của trường</li>\n<li>Giảm 37.5 tấn CO2/năm</li>\n<li>Nâng cao ý thức môi trường cho 1,200 học sinh</li>\n<li>Tạo nguồn học liệu thực tế cho môn Khoa học</li>\n</ul>\n      ",
+        "category": "Giáo dục",
+        "client": "Trường THPT Nguyễn Du",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 5,
+        "createdAt": "2026-03-08T14:27:44.472Z",
+        "updatedAt": "2026-03-08T14:27:44.472Z"
+      },
+      {
+        "id": 46,
+        "title": "Resort biển Mũi Né",
+        "location": "Phan Thiết",
+        "capacity": "100kW",
+        "completedDate": "Tháng 7, 2023",
+        "imageUrl": "/images/news-6.jpg",
+        "description": "Hệ thống điện mặt trời cho resort, kết hợp với hệ thống làm nóng nước năng lượng mặt trời.",
+        "detail": "\n<h2>Giải pháp năng lượng toàn diện cho resort</h2>\n<p>Dự án lắp đặt hệ thống điện mặt trời và nước nóng năng lượng mặt trời cho Mũi Né Beach Resort, Phan Thiết.</p>\n\n<h3>Hệ thống điện mặt trời</h3>\n<ul>\n<li>Công suất: 100kWp</li>\n<li>Số lượng tấm pin: 250 tấm</li>\n<li>Inverter: 2 x 50kW</li>\n<li>Pin lưu trữ: 50kWh</li>\n</ul>\n\n<h3>Hệ thống nước nóng mặt trời</h3>\n<ul>\n<li>30 bộ máy nước nóng năng lượng mặt trời</li>\n<li>Tổng dung tích: 6,000 lít</li>\n<li>Phục vụ 50 phòng nghỉ</li>\n</ul>\n\n<h3>Lợi ích cho resort</h3>\n<ul>\n<li>Tiết kiệm 65% chi phí điện và nước nóng</li>\n<li>Nâng cao hình ảnh resort xanh, thân thiện môi trường</li>\n<li>Thu hút khách du lịch có ý thức môi trường</li>\n<li>Giảm 75 tấn CO2/năm</li>\n<li>Tiết kiệm 280 triệu đồng/năm</li>\n</ul>\n\n<h3>Đánh giá của khách hàng</h3>\n<p>\"Hệ thống hoạt động rất ổn định, đặc biệt phù hợp với điều kiện nắng tốt tại Mũi Né. Khách hàng rất hài lòng với cam kết xanh của resort.\" - Giám đốc Resort</p>\n      ",
+        "category": "Du lịch",
+        "client": "Mũi Né Beach Resort",
+        "isDisplay": true,
+        "showInHomepage": true,
+        "order": 6,
+        "createdAt": "2026-03-08T14:27:44.476Z",
+        "updatedAt": "2026-03-08T14:27:44.476Z"
+      }
+    ],
+    "services": [
+      {
+        "id": 23,
+        "title": "Tư vấn và thiết kế hệ thống điện hộ gia đình",
+        "description": "Dịch vụ tư vấn chuyên nghiệp và thiết kế hệ thống điện an toàn, hiệu quả cho hộ gia đình.",
+        "image": "/images/solar-installation-hero.jpg",
+        "features": [
+          "Khảo sát hiện trạng điện",
+          "Thiết kế sơ đồ mạch điện",
+          "Tư vấn thiết bị phù hợp",
+          "Hỗ trợ kỹ thuật 24/7"
+        ],
+        "price": "Liên hệ",
+        "category": "household",
+        "duration": "1-2 ngày",
+        "warranty": "12 tháng",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 1,
+        "createdAt": "2026-03-08T14:27:44.485Z",
+        "updatedAt": "2026-03-08T14:27:44.485Z"
+      },
+      {
+        "id": 24,
+        "title": "Tư vấn và thiết kế hệ thống điện hộ doanh nghiệp",
+        "description": "Giải pháp hệ thống điện công nghiệp quy mô lớn cho doanh nghiệp, nhà máy.",
+        "image": "/images/solar-panels-hero.jpg",
+        "features": [
+          "Khảo sát công suất tiêu thụ",
+          "Thiết kế hệ thống ba pha",
+          "Tối ưu chi phí vận hành",
+          "Tuân thủ tiêu chuẩn an toàn"
+        ],
+        "price": "Liên hệ",
+        "category": "business",
+        "duration": "3-5 ngày",
+        "warranty": "24 tháng",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 2,
+        "createdAt": "2026-03-08T14:27:44.491Z",
+        "updatedAt": "2026-03-08T14:27:44.491Z"
+      },
+      {
+        "id": 25,
+        "title": "Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho hộ gia đình",
+        "description": "Dịch vụ trọn gói từ thiết kế đến lắp đặt hệ thống điện mặt trời cho hộ gia đình.",
+        "image": "/images/solar-battery-hero.jpg",
+        "features": [
+          "Khảo sát mái nhà",
+          "Thiết kế hệ thống phù hợp",
+          "Lắp đặt chuyên nghiệp",
+          "Bảo hành toàn diện"
+        ],
+        "price": "150-300 triệu",
+        "category": "household",
+        "duration": "5-7 ngày",
+        "warranty": "25 năm",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 3,
+        "createdAt": "2026-03-08T14:27:44.497Z",
+        "updatedAt": "2026-03-08T14:27:44.497Z"
+      },
+      {
+        "id": 26,
+        "title": "Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho doanh nghiệp",
+        "description": "Giải pháp năng lượng mặt trời quy mô lớn cho doanh nghiệp, tiết kiệm chi phí điện.",
+        "image": "/images/solar-inverter-hero.jpg",
+        "features": [
+          "Khảo sát địa điểm lắp đặt",
+          "Thiết kế hệ thống công suất cao",
+          "Thi công theo tiêu chuẩn quốc tế",
+          "Giám sát và bảo trì định kỳ"
+        ],
+        "price": "500 triệu - 5 tỷ",
+        "category": "business",
+        "duration": "2-4 tuần",
+        "warranty": "25 năm",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 4,
+        "createdAt": "2026-03-08T14:27:44.503Z",
+        "updatedAt": "2026-03-08T14:27:44.503Z"
+      },
+      {
+        "id": 27,
+        "title": "Thiết kế và thi công trạm sạc xe điện năng lượng mặt trời",
+        "description": "Xây dựng trạm sạc xe điện sử dụng năng lượng mặt trời thân thiện môi trường.",
+        "image": "/images/product-1.jpg",
+        "features": [
+          "Thiết kế trạm sạc hiện đại",
+          "Tích hợp năng lượng mặt trời",
+          "Hệ thống quản lý thông minh",
+          "Hỗ trợ nhiều loại xe điện"
+        ],
+        "price": "300-800 triệu",
+        "category": "business",
+        "duration": "3-6 tuần",
+        "warranty": "20 năm",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 5,
+        "createdAt": "2026-03-08T14:27:44.508Z",
+        "updatedAt": "2026-03-08T14:27:44.508Z"
+      },
+      {
+        "id": 28,
+        "title": "Sửa chữa bảo trì điện",
+        "description": "Dịch vụ sửa chữa, bảo trì hệ thống điện và thiết bị năng lượng mặt trời.",
+        "image": "/images/product-2.jpg",
+        "features": [
+          "Kiểm tra định kỳ hệ thống",
+          "Sửa chữa nhanh chóng",
+          "Thay thế linh kiện chất lượng",
+          "Hỗ trợ khẩn cấp 24/7"
+        ],
+        "price": "500.000 - 5.000.000 VNĐ",
+        "category": "maintenance",
+        "duration": "1-3 ngày",
+        "warranty": "6 tháng",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 6,
+        "createdAt": "2026-03-08T14:27:44.514Z",
+        "updatedAt": "2026-03-08T14:27:44.514Z"
+      },
+      {
+        "id": 29,
+        "title": "Tư vấn giải pháp tiết kiệm năng lượng",
+        "description": "Tư vấn các giải pháp tối ưu hóa sử dụng năng lượng và giảm chi phí điện.",
+        "image": "/images/product-3.jpg",
+        "features": [
+          "Phân tích mức tiêu thụ điện",
+          "Đề xuất giải pháp tiết kiệm",
+          "Tư vấn thiết bị hiệu quả cao",
+          "Theo dõi hiệu suất dài hạn"
+        ],
+        "price": "2-10 triệu",
+        "category": "consultation",
+        "duration": "1-2 tuần",
+        "warranty": "12 tháng",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 7,
+        "createdAt": "2026-03-08T14:27:44.520Z",
+        "updatedAt": "2026-03-08T14:27:44.520Z"
+      },
+      {
+        "id": 30,
+        "title": "Lắp đặt hệ thống chiếu sáng LED năng lượng mặt trời",
+        "description": "Giải pháp chiếu sáng tiết kiệm năng lượng sử dụng LED và pin mặt trời.",
+        "image": "/images/product-4.jpg",
+        "features": [
+          "Đèn LED chất lượng cao",
+          "Pin mặt trời bền bỉ",
+          "Tự động bật/tắt",
+          "Chống thấm nước IP65"
+        ],
+        "price": "5-50 triệu",
+        "category": "household",
+        "duration": "1-3 ngày",
+        "warranty": "3 năm",
+        "benefits": null,
+        "implementationProcess": null,
+        "isActive": true,
+        "order": 8,
+        "createdAt": "2026-03-08T14:27:44.527Z",
+        "updatedAt": "2026-03-08T14:27:44.527Z"
+      }
+    ],
+    "storageMedia": [
+      {
+        "id": 1,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product",
+        "path": "public/images/products/product_1772861643388_6977.webp",
+        "createdAt": "2026-03-07T05:34:03.462Z",
+        "updatedAt": "2026-03-07T05:34:03.462Z"
+      },
+      {
+        "id": 3,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product",
+        "path": "public/images/products/product_1772861643811_4405.webp",
+        "createdAt": "2026-03-07T05:34:03.943Z",
+        "updatedAt": "2026-03-07T05:34:03.943Z"
+      },
+      {
+        "id": 5,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product",
+        "path": "public/images/products/product_1772862360159_6504.webp",
+        "createdAt": "2026-03-07T05:46:00.328Z",
+        "updatedAt": "2026-03-07T05:46:00.328Z"
+      },
+      {
+        "id": 6,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product",
+        "path": "public/images/products/product_1772862382487_8232.webp",
+        "createdAt": "2026-03-07T05:46:22.731Z",
+        "updatedAt": "2026-03-07T05:46:22.731Z"
+      },
+      {
+        "id": 7,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product",
+        "path": "public/images/products/product_1772862382742_9196.webp",
+        "createdAt": "2026-03-07T05:46:22.858Z",
+        "updatedAt": "2026-03-07T05:46:22.858Z"
+      },
+      {
+        "id": 8,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product-text-editor",
+        "path": "public/images/products/product_1772862771594.webp",
+        "createdAt": "2026-03-07T05:52:51.894Z",
+        "updatedAt": "2026-03-07T05:52:51.894Z"
+      },
+      {
+        "id": 9,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product-text-editor",
+        "path": "public/images/products/product_1772862781510.webp",
+        "createdAt": "2026-03-07T05:53:01.706Z",
+        "updatedAt": "2026-03-07T05:53:01.706Z"
+      },
+      {
+        "id": 10,
+        "parentId": 23,
+        "type": "video",
+        "parentType": "product-text-editor",
+        "path": "public/videos/products/product_1772863066266.mp4",
+        "createdAt": "2026-03-07T05:57:46.386Z",
+        "updatedAt": "2026-03-07T05:57:46.386Z"
+      },
+      {
+        "id": 16,
+        "parentId": 11,
+        "type": "image",
+        "parentType": "news-text-editor",
+        "path": "public/images/news/news_1772869622369.webp",
+        "createdAt": "2026-03-07T07:47:02.460Z",
+        "updatedAt": "2026-03-07T07:47:02.460Z"
+      },
+      {
+        "id": 17,
+        "parentId": 21,
+        "type": "image",
+        "parentType": "news-text-editor",
+        "path": "public/images/news/news_1772869750233.webp",
+        "createdAt": "2026-03-07T07:49:10.292Z",
+        "updatedAt": "2026-03-07T07:49:10.292Z"
+      },
+      {
+        "id": 19,
+        "parentId": 22,
+        "type": "video",
+        "parentType": "news-text-editor",
+        "path": "public/videos/news/news_1772869956603.mp4",
+        "createdAt": "2026-03-07T07:52:36.606Z",
+        "updatedAt": "2026-03-07T07:53:05.433Z"
+      },
+      {
+        "id": 20,
+        "parentId": 22,
+        "type": "image",
+        "parentType": "news-text-editor",
+        "path": "public/images/news/news_1772869975390.webp",
+        "createdAt": "2026-03-07T07:52:55.402Z",
+        "updatedAt": "2026-03-07T07:53:05.433Z"
+      },
+      {
+        "id": 21,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "product-text-editor",
+        "path": "public/images/products/product_1772871197896.webp",
+        "createdAt": "2026-03-07T08:13:17.935Z",
+        "updatedAt": "2026-03-07T08:13:17.935Z"
+      },
+      {
+        "id": 22,
+        "parentId": 23,
+        "type": "image",
+        "parentType": "news-text-editor",
+        "path": "public/images/news/news_1772871228071.webp",
+        "createdAt": "2026-03-07T08:13:48.194Z",
+        "updatedAt": "2026-03-07T08:14:08.721Z"
+      },
+      {
+        "id": 30,
+        "parentId": 1,
+        "type": "image",
+        "parentType": "project-text-editor",
+        "path": "public/images/projects/project_1772874891937.webp",
+        "createdAt": "2026-03-07T09:14:52.047Z",
+        "updatedAt": "2026-03-07T09:14:52.047Z"
+      },
+      {
+        "id": 33,
+        "parentId": 1,
+        "type": "image",
+        "parentType": "service-text-editor",
+        "path": "public/images/services/service_1772895565903.webp",
+        "createdAt": "2026-03-07T14:59:25.978Z",
+        "updatedAt": "2026-03-07T14:59:25.978Z"
+      },
+      {
+        "id": 37,
+        "parentId": 1,
+        "type": "image",
+        "parentType": "service-text-editor",
+        "path": "public/images/services/service_1772898001151.webp",
+        "createdAt": "2026-03-07T15:40:01.191Z",
+        "updatedAt": "2026-03-07T15:40:01.191Z"
+      }
+    ],
+    "offices": [
+      {
+        "id": 1,
+        "name": "Chi Nhánh An Giang",
+        "phone": "0888888888",
+        "email": "angiang@trongtinsolar.com",
+        "address": "217 Tổ 6, khóm Hoà Hưng, Phường Thới Sơn, An Giang",
+        "workingTime": "8:00 - 17:00",
+        "googleMapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7842.854140294527!2d105.00187404546074!3d10.623892558062966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31098ac845adfdad%3A0xb63ec689d6055636!2zSMOyYSBIxrBuZywgTmjDoCBCw6BuZywgVHAuIENow6J1IMSQ4buRYywgQW4gR2lhbmcsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1772901922565!5m2!1svi!2s",
+        "isMainOffice": true,
+        "createdAt": "2026-03-07T16:45:39.458Z",
+        "updatedAt": "2026-03-07T16:55:09.598Z"
+      },
+      {
+        "id": 2,
+        "name": "Chi nhánh Lấp Vò",
+        "phone": "08668686868",
+        "email": "lapvo@trongtinsolar.com",
+        "address": "Chợ Lấp Vò, Đồng Tháp",
+        "workingTime": "7:00 - 17:00",
+        "googleMapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.757772118935!2d105.51950777603598!3d10.361242989763403!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310a71729a291a1b%3A0xa3366a07d9ba82df!2zQ2jhu6MgTOG6pXAgVsOy!5e0!3m2!1svi!2s!4v1772902003473!5m2!1svi!2s",
+        "isMainOffice": false,
+        "createdAt": "2026-03-07T16:47:21.141Z",
+        "updatedAt": "2026-03-07T16:47:21.141Z"
+      },
+      {
+        "id": 3,
+        "name": "Trọng Tính Solar TPHCM",
+        "phone": "0686868688",
+        "email": "tphcm@trontinsolar.com",
+        "address": "720A Điện Biên Phủ, Phường, Bình Thạnh, Thành phố Hồ Chí Minh 72300, Việt Nam",
+        "workingTime": "8:00 - 20:00",
+        "googleMapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.2114364847907!2d106.71952107604065!3d10.795111889354843!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317527c2f8f30911%3A0x36ac5073f8c91acd!2sLandmark%2081%20skyview!5e0!3m2!1svi!2s!4v1772902095266!5m2!1svi!2s",
+        "isMainOffice": false,
+        "createdAt": "2026-03-07T16:48:26.769Z",
+        "updatedAt": "2026-03-07T16:48:26.769Z"
+      }
+    ],
+    "contactForms": [
+      {
+        "id": 1,
+        "name": "Nguyễn Văn A",
+        "phone": "0708090909",
+        "email": "nguyenvana@gmail.com",
+        "consultationType": "Dịch vụ",
+        "specificItem": "Sửa chữa bảo trì điện",
+        "details": "hello",
+        "isResolved": true,
+        "createdAt": "2026-03-07T17:27:42.526Z",
+        "updatedAt": "2026-03-07T17:29:34.398Z"
+      },
+      {
+        "id": 2,
+        "name": "Lê Thành B",
+        "phone": "0708699888",
+        "email": "hello@hello.com",
+        "consultationType": "Sản phẩm",
+        "specificItem": "Pin Lithium Alpha ESS SMILE5",
+        "details": "ABC",
+        "isResolved": false,
+        "createdAt": "2026-03-07T17:29:17.085Z",
+        "updatedAt": "2026-03-07T17:29:17.085Z"
+      },
+      {
+        "id": 3,
+        "name": "Minh Minh",
+        "phone": "0765039909",
+        "email": "votuyetminh1002@gmail.com",
+        "consultationType": "Dịch vụ",
+        "specificItem": "Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho hộ gia đình",
+        "details": "Cần tư vấn giá",
+        "isResolved": false,
+        "createdAt": "2026-03-08T08:31:44.324Z",
+        "updatedAt": "2026-03-08T08:31:44.324Z"
+      }
+    ],
+    "companyInfo": [
+      {
+        "id": 1,
+        "companyName": "Minwy Solar",
+        "logoUrl": "/images/logo.png",
+        "slogan": "Mang đến nguồn năng lượng sạch cho tương lai",
+        "storyTitle": "Hành trình 10 năm phát triển",
+        "storyDetail": "Minwy Solar được thành lập vào năm 2014 với sứ mệnh đưa năng lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không ngừng học hỏi, cải tiến và phát triển.\n\nVới triết lý \"Chất lượng tạo nên uy tín\", chúng tôi luôn đặt lợi ích khách hàng lên hàng đầu. Mỗi dự án được thực hiện đều được chúng tôi coi như ngôi nhà của chính mình, từ khâu tư vấn, thiết kế cho đến lắp đặt và bảo trì.\n\nNgày hôm nay, với hơn 1000 dự án đã hoàn thành và tổng công suất lắp đặt hơn 50MW, chúng tôi tự hào là một trong những đơn vị hàng đầu trong lĩnh vực năng lượng mặt trời tại Việt Nam.",
+        "storyImageUrl": "/images/our_story.webp",
+        "storyVideoUrl": null,
+        "storyItems": [
+          {
+            "title": "1000+",
+            "detail": "Dự án hoàn thành"
+          },
+          {
+            "title": "50MW+",
+            "detail": "Tổng công suất"
+          },
+          {
+            "title": "98%",
+            "detail": "Hài lòng"
+          },
+          {
+            "title": "24/7",
+            "detail": "Hỗ trợ"
+          }
+        ],
+        "milestones": [
+          {
+            "time": "2014",
+            "title": "Khởi đầu với ước mơ",
+            "detail": "Thành lập với tầm nhìn phát triển năng lượng sạch tại Việt Nam"
+          },
+          {
+            "time": "2017",
+            "title": "Mở rộng quy mô",
+            "detail": "Hoàn thành 100+ dự án đầu tiên và mở rộng ra các tỉnh thành"
+          },
+          {
+            "time": "2020",
+            "title": "Đi tiên phong",
+            "detail": "Trở thành đối tác chính thức của các thương hiệu hàng đầu thế giới"
+          },
+          {
+            "time": "2024",
+            "title": "Vững vàng phát triển",
+            "detail": "Hơn 1000 dự án hoàn thành với tổng công suất 50MW+"
+          }
+        ],
+        "coreValues": [
+          {
+            "title": "Chất lượng",
+            "detail": "Cam kết sử dụng thiết bị chính hãng, công nghệ tiên tiến nhất"
+          },
+          {
+            "title": "Tin cậy",
+            "detail": "Bảo hành dài hạn và dịch vụ hỗ trợ khách hàng 24/7"
+          },
+          {
+            "title": "Bền vững",
+            "detail": "Góp phần bảo vệ môi trường và xây dựng tương lai xan"
+          },
+          {
+            "title": "Đổi mới",
+            "detail": "Liên tục nghiên cứu và ứng dụng công nghệ mới nhất"
+          }
+        ],
+        "mission": "Sứ mệnh của công ty",
+        "achievements": [
+          {
+            "title": "Chứng nhận ISO 9001:2015",
+            "detail": "Hệ thống quản lý chất lượng quốc tế"
+          },
+          {
+            "title": "Top 10 nhà phân phối",
+            "detail": "Năng lượng mặt trời uy tín năm 2023"
+          },
+          {
+            "title": "Đối tác chính thức",
+            "detail": "Các thương hiệu hàng đầu thế giới"
+          },
+          {
+            "title": "Đội ngũ kỹ thuật",
+            "detail": "Hơn 50 chuyên gia giàu kinh nghiệm"
+          }
+        ],
+        "team": [
+          {
+            "title": "Nhân viên",
+            "amount": "50+",
+            "detail": "Đội ngũ chuyên nghiệp"
+          },
+          {
+            "title": "Kỹ sư thiết kế",
+            "amount": "20+",
+            "detail": "Chuyên gia hệ thống năng lượng"
+          },
+          {
+            "title": "Thợ lắp đặt",
+            "amount": "30+",
+            "detail": "Được đào tạo bài bản, chứng chỉ nghề"
+          },
+          {
+            "title": "CSKH & Bảo trì",
+            "amount": "15+",
+            "detail": "Hỗ trợ khách hàng 24/7"
+          }
+        ],
+        "whyChooseUs": [
+          {
+            "title": "Tư vấn miễn phí",
+            "detail": "Khảo sát và tư vấn thiết kế hệ thống hoàn toàn miễn phí, không phát sinh chi phí ẩn."
+          },
+          {
+            "title": "Lắp đặt nhanh",
+            "detail": "Quy trình lắp đặt chuyên nghiệp, nhanh chóng với cam kết hoàn thành đúng tiến độ."
+          },
+          {
+            "title": "Bảo hành dài hạn",
+            "detail": "Bảo hành sản phẩm lên đến 25 năm, bảo trì và hỗ trợ kỹ thuật trọn đời."
+          }
+        ],
+        "facebook": "https://www.facebook.com/TeslaNorthAmerica",
+        "zalo": "https://zalo.me/0123456789",
+        "youtube": "https://www.youtube.com/@tesla",
+        "tiktok": "https://www.tiktok.com/@cristiano_ronaldor07",
+        "instagram": "https://www.instagram.com/tesla",
+        "createdAt": "2026-03-07T18:05:41.153Z",
+        "updatedAt": "2026-03-07T18:05:41.153Z"
+      }
+    ],
+    "users": [
+      {
+        "id": 1,
+        "username": "admin",
+        "role": "admin",
+        "isActive": true,
+        "createdAt": "2026-03-08T13:46:47.140Z",
+        "updatedAt": "2026-03-08T13:46:47.140Z"
+      },
+      {
+        "id": 2,
+        "username": "editor",
+        "role": "editor",
+        "isActive": true,
+        "createdAt": "2026-03-08T14:27:44.745Z",
+        "updatedAt": "2026-03-08T14:27:44.745Z"
+      }
+    ],
+    "visits": [
+      {
+        "id": 1,
+        "date": "2026-03-08T00:00:00.000Z",
+        "views": 71,
+        "createdAt": "2026-03-08T15:22:06.584Z",
+        "updatedAt": "2026-03-08T16:27:46.025Z"
+      },
+      {
+        "id": 72,
+        "date": "2026-03-09T00:00:00.000Z",
+        "views": 6,
+        "createdAt": "2026-03-09T16:03:29.348Z",
+        "updatedAt": "2026-03-09T17:04:49.598Z"
+      },
+      {
+        "id": 78,
+        "date": "2026-03-10T00:00:00.000Z",
+        "views": 1,
+        "createdAt": "2026-03-10T01:34:43.916Z",
+        "updatedAt": "2026-03-10T01:34:43.916Z"
+      }
+    ]
+  }
+}
