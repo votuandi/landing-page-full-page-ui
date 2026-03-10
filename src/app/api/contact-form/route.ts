@@ -71,17 +71,18 @@ export async function POST(request: NextRequest) {
       details,
     } = body;
 
-    // Validate required fields
-    if (!name || !phone || !email || !consultationType) {
+    // Validate required fields (email is optional)
+    if (!name || !phone || !consultationType) {
       return NextResponse.json(
-        { error: "Name, phone, email, and consultation type are required" },
+        { error: "Name, phone, and consultation type are required" },
         { status: 400 }
       );
     }
 
-    // Validate email format
+    // Validate email format only when provided
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const emailValue = typeof email === "string" ? email.trim() : "";
+    if (emailValue && !emailRegex.test(emailValue)) {
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 }
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         phone,
-        email,
+        email: emailValue || null,
         consultationType,
         specificItem: specificItem || null,
         details: details || null,

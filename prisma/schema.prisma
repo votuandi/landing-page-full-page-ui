@@ -163,7 +163,7 @@ model ContactForm {
   id                Int      @id @default(autoincrement())
   name              String
   phone             String
-  email             String
+  email             String?
   consultationType  String
   specificItem      String?
   details           String?
