@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -36,7 +36,21 @@ const sortOptions = [
   { label: "Mặc định", value: "default" },
   { label: "Tên A-Z", value: "name-asc" },
   { label: "Tên Z-A", value: "name-desc" },
+  { label: "Giá thấp đến cao", value: "price-asc" },
+  { label: "Giá cao đến thấp", value: "price-desc" },
 ];
+
+/** Parse price string to number; returns 0 if not a number or unable to convert. */
+function parsePrice(price: string | null | undefined): number {
+  if (price == null || price === "") return 0;
+  const cleaned = String(price).replace(/[^0-9.,\-]/g, "").replace(",", ".");
+  const num = parseFloat(cleaned);
+  return Number.isFinite(num) ? num : 0;
+}
+
+const PRICE_SLIDER_MIN = 0;
+const PRICE_SLIDER_MAX = 200_000_000;
+const PRICE_SLIDER_STEP = 5_000_000;
 
 export default function AllProductsSection() {
   const [products, setProducts] = useState<ProductData[]>([]);
@@ -46,6 +60,10 @@ export default function AllProductsSection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
+  const [minPrice, setMinPrice] = useState(PRICE_SLIDER_MIN);
+  const [maxPrice, setMaxPrice] = useState(PRICE_SLIDER_MAX);
+  const [isDragging, setIsDragging] = useState<"min" | "max" | null>(null);
+  const priceTrackRef = useRef<HTMLDivElement>(null);
 
   const productsPerPage = 12;
 
@@ -100,6 +118,12 @@ export default function AllProductsSection() {
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = [...products];
 
+    // Filter by price range (use parsed price; non-numeric treated as 0)
+    filtered = filtered.filter((p) => {
+      const num = parsePrice(p.price);
+      return num >= minPrice && num <= maxPrice;
+    });
+
     // Sort products
     switch (sortBy) {
       case "name-asc":
@@ -108,13 +132,19 @@ export default function AllProductsSection() {
       case "name-desc":
         filtered.sort((a, b) => b.title.localeCompare(a.title));
         break;
+      case "price-asc":
+        filtered.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+        break;
+      case "price-desc":
+        filtered.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+        break;
       default:
         // Keep original order
         break;
     }
 
     return filtered;
-  }, [products, sortBy]);
+  }, [products, sortBy, minPrice, maxPrice]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedProducts.length / productsPerPage);
@@ -127,19 +157,78 @@ export default function AllProductsSection() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategoryId, sortBy]);
+  }, [searchTerm, selectedCategoryId, sortBy, minPrice, maxPrice]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Calculate discount percentage
+  // Convert clientX to price value (0–200M) from track bounds
+  const clientXToPrice = useCallback((clientX: number) => {
+    const track = priceTrackRef.current;
+    if (!track) return PRICE_SLIDER_MIN;
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const raw = PRICE_SLIDER_MIN + ratio * (PRICE_SLIDER_MAX - PRICE_SLIDER_MIN);
+    const stepped = Math.round(raw / PRICE_SLIDER_STEP) * PRICE_SLIDER_STEP;
+    return Math.max(PRICE_SLIDER_MIN, Math.min(PRICE_SLIDER_MAX, stepped));
+  }, []);
+
+  const handleThumbMouseDown = useCallback(
+    (which: "min" | "max") => (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(which);
+      const onMove = (moveEvent: MouseEvent) => {
+        const value = clientXToPrice(moveEvent.clientX);
+        if (which === "min") {
+          setMinPrice((prev) => Math.min(value, maxPrice));
+        } else {
+          setMaxPrice((prev) => Math.max(value, minPrice));
+        }
+      };
+      const onUp = () => {
+        setIsDragging(null);
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    },
+    [clientXToPrice, minPrice, maxPrice]
+  );
+
+  const handleThumbTouchStart = useCallback(
+    (which: "min" | "max") => (e: React.TouchEvent) => {
+      setIsDragging(which);
+      const touch = e.touches[0];
+      if (!touch) return;
+      const onMove = (moveEvent: TouchEvent) => {
+        const t = moveEvent.touches[0];
+        if (!t) return;
+        const value = clientXToPrice(t.clientX);
+        if (which === "min") {
+          setMinPrice((prev) => Math.min(value, maxPrice));
+        } else {
+          setMaxPrice((prev) => Math.max(value, minPrice));
+        }
+      };
+      const onEnd = () => {
+        setIsDragging(null);
+        document.removeEventListener("touchmove", onMove);
+        document.removeEventListener("touchend", onEnd);
+      };
+      document.addEventListener("touchmove", onMove, { passive: true });
+      document.addEventListener("touchend", onEnd);
+    },
+    [clientXToPrice, minPrice, maxPrice]
+  );
+
+  // Calculate discount percentage (uses parsePrice so invalid prices are treated as 0)
   const calculateDiscount = (original: string | null | undefined, current: string | null) => {
-    if (!original || !current) return undefined;
-    const origNum = parseFloat(original.replace(/[^0-9]/g, ''));
-    const currNum = parseFloat(current.replace(/[^0-9]/g, ''));
-    if (origNum && currNum && origNum > currNum) {
+    const origNum = parsePrice(original);
+    const currNum = parsePrice(current);
+    if (origNum > 0 && currNum >= 0 && origNum > currNum) {
       return Math.round(((origNum - currNum) / origNum) * 100);
     }
     return undefined;
@@ -168,9 +257,9 @@ export default function AllProductsSection() {
 
         {/* Search Bar and Filters */}
         <div className="p-1 mb-8">
-          <div className="flex flex-col md:flex-row lg:items-center gap-6 search-filters">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-6">
             {/* Search Input */}
-            <div className="flex-1 relative w-full">
+            <div className="flex-1 relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -182,40 +271,150 @@ export default function AllProductsSection() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-row items-start sm:items-center gap-4">
-              {/* Sort Filter */}
-              <div className="min-w-[150px]">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sắp xếp
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {/* Price Range Slider */}
+              <div className="w-full sm:min-w-[320px]">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <span className="flex items-center justify-between">
+                    <span>Khoảng giá</span>
+                    <span className="text-blue-600 font-semibold">
+                      {(minPrice / 1_000_000).toFixed(0)}M -{" "}
+                      {maxPrice === PRICE_SLIDER_MAX
+                        ? "200M+"
+                        : (maxPrice / 1_000_000).toFixed(0) + "M"}{" "}
+                      đ
+                    </span>
+                  </span>
                 </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-white transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer text-sm"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+
+                <div ref={priceTrackRef} className="relative px-2">
+                  {/* Background track */}
+                  <div className="relative h-2 bg-gray-200 rounded-full">
+                    {/* Active range highlight */}
+                    <div
+                      className="absolute h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-200"
+                      style={{
+                        left: `${(minPrice / PRICE_SLIDER_MAX) * 100}%`,
+                        width: `${((maxPrice - minPrice) / PRICE_SLIDER_MAX) * 100}%`,
+                      }}
+                    />
+                  </div>
+
+                  {/* Min Price Slider */}
+                  <input
+                    type="range"
+                    min={PRICE_SLIDER_MIN}
+                    max={PRICE_SLIDER_MAX}
+                    step={PRICE_SLIDER_STEP}
+                    value={minPrice}
+                    onChange={(e) => {
+                      const newMinPrice = Number(e.target.value);
+                      if (newMinPrice <= maxPrice) {
+                        setMinPrice(newMinPrice);
+                      }
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 opacity-0 pointer-events-auto cursor-pointer z-[1]"
+                  />
+
+                  {/* Max Price Slider */}
+                  <input
+                    type="range"
+                    min={PRICE_SLIDER_MIN}
+                    max={PRICE_SLIDER_MAX}
+                    step={PRICE_SLIDER_STEP}
+                    value={maxPrice}
+                    onChange={(e) => {
+                      const newMaxPrice = Number(e.target.value);
+                      if (newMaxPrice >= minPrice) {
+                        setMaxPrice(newMaxPrice);
+                      }
+                    }}
+                    className="absolute top-0 left-0 w-full h-2 opacity-0 pointer-events-auto cursor-pointer z-[2]"
+                  />
+
+                  {/* Custom Thumbs */}
+                  <div
+                    className={`absolute w-5 h-5 bg-white border-2 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none pointer-events-auto ${isDragging === "min"
+                      ? "cursor-grabbing scale-110 shadow-xl"
+                      : ""
+                      }`}
+                    style={{
+                      left: `calc(${(minPrice / PRICE_SLIDER_MAX) * 100}% - 10px)`,
+                      top: "-6px",
+                      zIndex: isDragging === "min" ? 10 : 3,
+                    }}
+                    onMouseDown={handleThumbMouseDown("min")}
+                    onTouchStart={handleThumbTouchStart("min")}
+                    title={`Giá tối thiểu: ${(minPrice / 1_000_000).toFixed(0)}M đ`}
+                  />
+                  <div
+                    className={`absolute w-5 h-5 bg-white border-2 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none pointer-events-auto ${isDragging === "max"
+                      ? "cursor-grabbing scale-110 shadow-xl"
+                      : ""
+                      }`}
+                    style={{
+                      left: `calc(${(maxPrice / PRICE_SLIDER_MAX) * 100}% - 10px)`,
+                      top: "-6px",
+                      zIndex: isDragging === "max" ? 10 : 4,
+                    }}
+                    onMouseDown={handleThumbMouseDown("max")}
+                    onTouchStart={handleThumbTouchStart("max")}
+                    title={`Giá tối đa: ${maxPrice === PRICE_SLIDER_MAX
+                      ? "200M+"
+                      : (maxPrice / 1_000_000).toFixed(0) + "M"
+                      } đ`}
+                  />
+                </div>
+
+                {/* Price scale labels */}
+                <div className="flex justify-between text-xs text-gray-500 mt-3 px-2">
+                  <span>0M</span>
+                  <span>5M</span>
+                  <span>10M</span>
+                  <span>20M</span>
+                  <span>50M</span>
+                  <span>200M</span>
+                </div>
               </div>
 
-              {/* Clear Filters & Results Count */}
-              <div className="flex items-center gap-4 mt-auto">
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSelectedCategoryId(null);
-                    setSortBy("default");
-                  }}
-                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 text-sm font-medium"
-                  title="Đặt lại bộ lọc"
-                >
-                  <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-                  <span className="hidden sm:inline">Đặt lại</span>
-                </button>
+              {/* Sort Filter */}
+              <div className="flex flex-row w-full gap-4">
+                <div className="min-w-[150px] w-full sm:w-auto">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sắp xếp
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-white transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer text-sm"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Clear Filters & Results Count */}
+                <div className="flex items-center gap-4 mt-auto">
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSelectedCategoryId(null);
+                      setMinPrice(PRICE_SLIDER_MIN);
+                      setMaxPrice(PRICE_SLIDER_MAX);
+                      setSortBy("default");
+                    }}
+                    className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 text-sm font-medium"
+                    title="Đặt lại bộ lọc"
+                  >
+                    <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
+                    <span className="hidden sm:inline">Đặt lại</span>
+                  </button>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -421,6 +620,8 @@ export default function AllProductsSection() {
                 setSearchTerm("");
                 setSelectedCategoryId(null);
                 setSortBy("default");
+                setMinPrice(PRICE_SLIDER_MIN);
+                setMaxPrice(PRICE_SLIDER_MAX);
               }}
               className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
             >
