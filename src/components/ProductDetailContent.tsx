@@ -470,10 +470,8 @@ export default function ProductDetailContent({
           {activeTab === "description" && (
             <div className="space-y-6">
               {product.description ? (
-                <div>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                    {product.description}
-                  </p>
+                <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                  {product.description}
                 </div>
               ) : (
                 <p className="text-gray-500 italic">Chưa có mô tả sản phẩm</p>
