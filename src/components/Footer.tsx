@@ -62,7 +62,7 @@ export default function Footer() {
             </div>
 
             <p className="text-gray-300 mb-6 leading-relaxed">
-              {companyInfo?.slogan || "Slogan của công ty"}
+              {companyInfo?.slogan || ""}
             </p>
 
             {/* Social Links */}
