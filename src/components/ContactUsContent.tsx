@@ -76,7 +76,7 @@ export default function ContactUsContent() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -91,22 +91,15 @@ export default function ContactUsContent() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    alert(
-      "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất."
-    );
-
-    // Reset form
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      consultationType: "",
-      specificItem: "",
-      details: "",
-    });
+    const subject = `Yêu cầu tư vấn ${formData.consultationType} - ${formData.name}`;
+    const body = [
+      `Họ tên: ${formData.name}`,
+      `Điện thoại: ${formData.phone}`,
+      `Email: ${formData.email}`,
+      `Nội dung: ${formData.specificItem}`,
+      formData.details,
+    ].join("\n");
+    window.location.href = `mailto:${SITE_CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     setIsSubmitting(false);
   };
@@ -171,13 +164,13 @@ export default function ContactUsContent() {
               {/* Phone */}
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <PhoneIcon className="w-6 h-6 text-blue-600" />
+                  <PhoneIcon className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Điện thoại</p>
                   <a
                     href={`tel:${SITE_CONFIG.phone}`}
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
+                    className="text-emerald-600 hover:text-emerald-700 transition-colors"
                   >
                     {SITE_CONFIG.phone}
                   </a>
@@ -187,13 +180,13 @@ export default function ContactUsContent() {
               {/* Email */}
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <EnvelopeIcon className="w-6 h-6 text-blue-600" />
+                  <EnvelopeIcon className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Email</p>
                   <a
                     href={`mailto:${SITE_CONFIG.email}`}
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
+                    className="text-emerald-600 hover:text-emerald-700 transition-colors"
                   >
                     {SITE_CONFIG.email}
                   </a>
@@ -203,7 +196,7 @@ export default function ContactUsContent() {
               {/* Address */}
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <MapPinIcon className="w-6 h-6 text-blue-600" />
+                  <MapPinIcon className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Địa chỉ</p>
@@ -227,7 +220,7 @@ export default function ContactUsContent() {
                     <a
                       key={social.name}
                       href={social.url}
-                      className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                      className="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                       title={social.name}
                     >
                       {getSocialIcon(social.icon)}
@@ -249,7 +242,7 @@ export default function ContactUsContent() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Vị trí Trọng Tín Solar"
+                title="Vị trí Minwy Solar"
               ></iframe>
             </div>
           </div>
@@ -261,6 +254,10 @@ export default function ContactUsContent() {
             Để lại thông tin cần tư vấn, chúng tôi sẽ liên hệ ngay
           </h2>
 
+          <p className="mb-6 text-gray-600">
+            Biểu mẫu mở ứng dụng email của bạn. Vui lòng nhấn gửi trong ứng dụng
+            email, hoặc gọi {SITE_CONFIG.phoneDisplay} để được tư vấn.
+          </p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
@@ -278,7 +275,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
                   placeholder="Nhập họ và tên của bạn"
                 />
               </div>
@@ -298,7 +295,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
                   placeholder="Nhập số điện thoại"
                 />
               </div>
@@ -318,7 +315,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
                   placeholder="Nhập địa chỉ email"
                 />
               </div>
@@ -337,7 +334,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.consultationType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
                 >
                   <option value="">Chọn loại tư vấn</option>
                   <option value="Sản phẩm">Sản phẩm</option>
@@ -362,7 +359,7 @@ export default function ContactUsContent() {
                   name="specificItem"
                   value={formData.specificItem}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
                 >
                   <option value="">
                     {formData.consultationType === "Sản phẩm"
@@ -392,7 +389,7 @@ export default function ContactUsContent() {
                 rows={5}
                 value={formData.details}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-vertical"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors resize-vertical"
                 placeholder="Nhập chi tiết về yêu cầu tư vấn của bạn (công suất, diện tích, ngân sách, v.v.)"
               />
             </div>
@@ -402,7 +399,7 @@ export default function ContactUsContent() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-8 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
@@ -431,7 +428,7 @@ export default function ContactUsContent() {
                 ) : (
                   <>
                     <PaperAirplaneIcon className="w-5 h-5 mr-2" />
-                    Gửi thông tin tư vấn
+                    Soạn email tư vấn
                   </>
                 )}
               </button>

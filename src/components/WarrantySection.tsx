@@ -1,11 +1,12 @@
 "use client";
+import { SITE_CONFIG } from "@/utils/constants";
 
 import React, { useState } from "react";
 import { WarrantyRegistration, WarrantyLookup } from "@/types";
 
 export default function WarrantySection() {
   const [activeSubTab, setActiveSubTab] = useState<"register" | "lookup">(
-    "register"
+    "register",
   );
   const [registrationForm, setRegistrationForm] =
     useState<WarrantyRegistration>({
@@ -29,36 +30,22 @@ export default function WarrantySection() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitMessage(
-        "Đăng ký bảo hành thành công! Mã bảo hành của bạn là: WR" + Date.now()
-      );
-      setRegistrationForm({
-        productCode: "",
-        customerName: "",
-        customerPhone: "",
-        customerEmail: "",
-        purchaseDate: "",
-        installationDate: "",
-        address: "",
-        notes: "",
-      });
-    }, 2000);
+    const subject = `Yêu cầu đăng ký bảo hành - ${registrationForm.productCode}`;
+    const body = Object.entries(registrationForm)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    window.location.href = `mailto:${SITE_CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setIsSubmitting(false);
+    setSubmitMessage(
+      "Đã mở email đăng ký. Vui lòng gửi email để chúng tôi kiểm tra và xác nhận bảo hành.",
+    );
   };
 
-  const handleLookupSubmit = async (e: React.FormEvent) => {
+  const handleLookupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitMessage(
-        "Đã tìm thấy thông tin bảo hành cho: " + lookupForm.searchTerm
-      );
-    }, 1500);
+    setSubmitMessage(
+      `Vui lòng gọi ${SITE_CONFIG.phoneDisplay} hoặc gửi email tới ${SITE_CONFIG.email} để kiểm tra bảo hành cho ${lookupForm.searchTerm}.`,
+    );
   };
 
   return (
@@ -72,7 +59,7 @@ export default function WarrantySection() {
                 onClick={() => setActiveSubTab("register")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeSubTab === "register"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-emerald-500 text-emerald-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
@@ -97,7 +84,7 @@ export default function WarrantySection() {
                 onClick={() => setActiveSubTab("lookup")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeSubTab === "lookup"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-emerald-500 text-emerald-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
@@ -194,7 +181,7 @@ export default function WarrantySection() {
                         productCode: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập mã sản phẩm"
                   />
                 </div>
@@ -217,7 +204,7 @@ export default function WarrantySection() {
                         customerName: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập họ và tên"
                   />
                 </div>
@@ -240,7 +227,7 @@ export default function WarrantySection() {
                         customerPhone: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập số điện thoại"
                   />
                 </div>
@@ -263,7 +250,7 @@ export default function WarrantySection() {
                         customerEmail: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập địa chỉ email"
                   />
                 </div>
@@ -286,7 +273,7 @@ export default function WarrantySection() {
                         purchaseDate: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
 
@@ -307,7 +294,7 @@ export default function WarrantySection() {
                         installationDate: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -330,7 +317,7 @@ export default function WarrantySection() {
                       address: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Nhập địa chỉ chi tiết"
                 />
               </div>
@@ -352,7 +339,7 @@ export default function WarrantySection() {
                       notes: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Thông tin bổ sung (không bắt buộc)"
                 />
               </div>
@@ -361,7 +348,7 @@ export default function WarrantySection() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đăng ký bảo hành"}
                 </button>
@@ -394,9 +381,7 @@ export default function WarrantySection() {
                     setLookupForm({
                       ...lookupForm,
                       searchType: e.target.value as
-                        | "productCode"
-                        | "phone"
-                        | "email",
+                        "productCode" | "phone" | "email",
                     })
                   }
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-white transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
@@ -422,13 +407,13 @@ export default function WarrantySection() {
                   onChange={(e) =>
                     setLookupForm({ ...lookupForm, searchTerm: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder={
                     lookupForm.searchType === "productCode"
                       ? "Nhập mã sản phẩm"
                       : lookupForm.searchType === "phone"
-                      ? "Nhập số điện thoại"
-                      : "Nhập địa chỉ email"
+                        ? "Nhập số điện thoại"
+                        : "Nhập địa chỉ email"
                   }
                 />
               </div>
@@ -437,7 +422,7 @@ export default function WarrantySection() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang tìm kiếm..." : "Tra cứu"}
                 </button>

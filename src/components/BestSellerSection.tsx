@@ -1,96 +1,30 @@
 "use client";
+import SafeImage from "@/components/template/SafeImage";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { allProductsData, type ProductData } from "@/data/products";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 
-interface BestSellerProduct {
-  id: number;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  image: string;
-  specs: string[];
-  discount?: number;
+interface BestSellerProduct extends ProductData {
   rating: number;
   salesCount: number;
-  category: string;
 }
-
-// Best seller products (top rated and most sold items)
-const bestSellerProducts: BestSellerProduct[] = [
-  {
-    id: 1,
-    name: "Biến Tần Growatt MIN 3000TL-XE",
-    price: "8,500,000đ",
-    originalPrice: "9,200,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["3kW", "MPPT Dual", "WiFi Monitor", "IP65"],
-    discount: 8,
-    rating: 4.8,
-    salesCount: 450,
-    category: "Biến Tần Inverter",
-  },
-  {
-    id: 17,
-    name: "Tấm Pin Canadian Solar BiHiKu7 CS7L-MS 580W",
-    price: "3,200,000đ",
-    originalPrice: "3,500,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["580W", "Mono PERC", "21.4% Efficiency", "25 Year Warranty"],
-    discount: 9,
-    rating: 4.9,
-    salesCount: 680,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-  },
-  {
-    id: 9,
-    name: "Pin Lithium Pylontech US3000C",
-    price: "18,500,000đ",
-    originalPrice: "20,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["3.55kWh", "LiFePO4", "6000 Cycles", "Modular Design"],
-    discount: 8,
-    rating: 4.7,
-    salesCount: 320,
-    category: "Pin Lưu Trữ Lithium",
-  },
-  {
-    id: 25,
-    name: "Luxpower SNA 5000 Hybrid Inverter",
-    price: "15,800,000đ",
-    originalPrice: "17,200,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["5kW", "Hybrid MPPT", "Battery Ready", "Grid-Tie"],
-    discount: 8,
-    rating: 4.6,
-    salesCount: 280,
-    category: "Inverter Luxpower",
-  },
-  {
-    id: 18,
-    name: "Tấm Pin JinkoSolar Tiger Neo N-type 575W",
-    price: "3,450,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["575W", "N-Type TOPCon", "22.3% Efficiency", "Low Degradation"],
-    rating: 4.8,
-    salesCount: 520,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-  },
-  {
-    id: 2,
-    name: "Biến Tần Huawei SUN2000-5KTL-L1",
-    price: "12,800,000đ",
-    originalPrice: "14,000,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["5kW", "Smart String", "AI Monitoring", "IP65"],
-    discount: 9,
-    rating: 4.7,
-    salesCount: 380,
-    category: "Biến Tần Inverter",
-  },
+const featuredProducts = [
+  { id: 1, rating: 4.8, salesCount: 450 },
+  { id: 17, rating: 4.9, salesCount: 680 },
+  { id: 9, rating: 4.7, salesCount: 320 },
+  { id: 25, rating: 4.6, salesCount: 280 },
+  { id: 18, rating: 4.8, salesCount: 520 },
+  { id: 2, rating: 4.7, salesCount: 380 },
 ];
+const bestSellerProducts: BestSellerProduct[] = featuredProducts.flatMap(
+  (featured) => {
+    const product = allProductsData.find((item) => item.id === featured.id);
+    return product ? [{ ...product, ...featured }] : [];
+  },
+);
 
 export default function BestSellerSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -140,7 +74,7 @@ export default function BestSellerSection() {
 
   const visibleProducts = bestSellerProducts.slice(
     currentIndex,
-    currentIndex + currentProductsPerView
+    currentIndex + currentProductsPerView,
   );
 
   // Minimum swipe distance (in px)
@@ -238,26 +172,25 @@ export default function BestSellerSection() {
 
                   {/* Product Image */}
                   <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                    <img
+                    <SafeImage
+                      width={800}
+                      height={600}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.src = "/images/placeholder-product.svg";
-                      }}
                     />
                   </div>
 
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category */}
-                    <div className="text-xs text-blue-600 font-medium mb-2">
+                    <div className="text-xs text-emerald-600 font-medium mb-2">
                       {product.category}
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-emerald-600 transition-colors">
                       {product.name}
                     </h3>
 
@@ -291,7 +224,7 @@ export default function BestSellerSection() {
                         {product.specs.slice(0, 2).map((spec, index) => (
                           <span
                             key={index}
-                            className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded"
+                            className="inline-block bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded"
                           >
                             {spec}
                           </span>

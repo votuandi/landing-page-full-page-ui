@@ -1,13 +1,11 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/utils/seo";
 import ContactUsContent from "@/components/ContactUsContent";
 
-export const metadata: Metadata = {
-  title: "Liên hệ - Trọng Tín Solar",
-  description:
-    "Liên hệ với Trọng Tín Solar để được tư vấn miễn phí về các giải pháp năng lượng mặt trời. Địa chỉ: Lấp Vò, Đồng Tháp. Hotline: 0909019234",
-  keywords:
-    "liên hệ, Trọng Tín solar, tư vấn năng lượng mặt trời, lấp vò đồng tháp, solar consultation",
-};
+export const metadata = pageMetadata(
+  "Liên hệ tư vấn",
+  "Liên hệ Minwy Solar tại Đồng Tháp. Hotline 0708 699 808. Email divt.it97@gmail.com.",
+  "/contact-us",
+);
 
 export default function ContactUsPage() {
   return (

@@ -1,4 +1,5 @@
 "use client";
+import SafeImage from "@/components/template/SafeImage";
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -9,359 +10,7 @@ import {
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 
-interface ProductData {
-  id: number;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  image: string;
-  specs: string[];
-  discount?: number;
-  category: string;
-  priceNumber: number; // for sorting
-}
-
-// All products data (consolidated from ProductSection.tsx)
-const allProductsData: ProductData[] = [
-  // Biến Tần Inverter
-  {
-    id: 1,
-    name: "Biến Tần Growatt MIN 3000TL-XE",
-    price: "8,500,000đ",
-    originalPrice: "9,200,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["3kW", "MPPT Dual", "WiFi Monitor", "IP65"],
-    discount: 8,
-    category: "Biến Tần Inverter",
-    priceNumber: 8500000,
-  },
-  {
-    id: 2,
-    name: "Biến Tần Huawei SUN2000-5KTL-L1",
-    price: "12,800,000đ",
-    originalPrice: "14,000,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["5kW", "Smart String", "AI Monitoring", "IP65"],
-    discount: 9,
-    category: "Biến Tần Inverter",
-    priceNumber: 12800000,
-  },
-  {
-    id: 3,
-    name: "Biến Tần SolarEdge SE7600H-RWS",
-    price: "22,500,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["7.6kW", "Power Optimizer", "HD-Wave", "StorEdge Ready"],
-    category: "Biến Tần Inverter",
-    priceNumber: 22500000,
-  },
-  {
-    id: 4,
-    name: "Biến Tần Fronius Symo 8.2-3-M",
-    price: "28,900,000đ",
-    originalPrice: "31,500,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["8.2kW", "SnapINverter", "WiFi", "SuperFlex Design"],
-    discount: 8,
-    category: "Biến Tần Inverter",
-    priceNumber: 28900000,
-  },
-  {
-    id: 5,
-    name: "Biến Tần ABB UNO-DM-6.0-TL-PLUS",
-    price: "16,800,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["6kW", "Transformerless", "React Quick", "IP65"],
-    category: "Biến Tần Inverter",
-    priceNumber: 16800000,
-  },
-  {
-    id: 6,
-    name: "Biến Tần Sungrow SG10RT",
-    price: "19,200,000đ",
-    originalPrice: "21,000,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["10kW", "String Inverter", "AFCI Protection", "Smart O&M"],
-    discount: 9,
-    category: "Biến Tần Inverter",
-    priceNumber: 19200000,
-  },
-  {
-    id: 7,
-    name: "Biến Tần SMA Sunny Boy 6.0",
-    price: "24,500,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["6kW", "OptiTrac Global Peak", "Webconnect", "Secure Power"],
-    category: "Biến Tần Inverter",
-    priceNumber: 24500000,
-  },
-  {
-    id: 8,
-    name: "Biến Tần GoodWe GW10K-DT",
-    price: "18,600,000đ",
-    originalPrice: "20,200,000đ",
-    image: "/images/product-1.jpg",
-    specs: ["10kW", "Dual MPPT", "WiFi Monitoring", "Anti-PID"],
-    discount: 8,
-    category: "Biến Tần Inverter",
-    priceNumber: 18600000,
-  },
-  // Pin Lưu Trữ Lithium
-  {
-    id: 9,
-    name: "Pin Lithium Pylontech US3000C",
-    price: "18,500,000đ",
-    originalPrice: "20,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["3.55kWh", "LiFePO4", "6000 Cycles", "Modular Design"],
-    discount: 8,
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 18500000,
-  },
-  {
-    id: 10,
-    name: "Pin Lithium BYD Battery-Box Premium LVS",
-    price: "45,800,000đ",
-    originalPrice: "49,500,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["4kWh", "High Voltage", "10 Year Warranty", "Scalable"],
-    discount: 7,
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 45800000,
-  },
-  {
-    id: 11,
-    name: "Pin Lithium Tesla Powerwall 2",
-    price: "185,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["13.5kWh", "AC Coupled", "Weather Resistant", "Mobile App"],
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 185000000,
-  },
-  {
-    id: 12,
-    name: "Pin Lithium Huawei LUNA2000-5kWh",
-    price: "35,200,000đ",
-    originalPrice: "38,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["5kWh", "Smart Control", "Fast Charging", "Compact Design"],
-    discount: 7,
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 35200000,
-  },
-  {
-    id: 13,
-    name: "Pin Lithium LG Chem RESU10H",
-    price: "65,500,000đ",
-    image: "/images/product-2.jpg",
-    specs: [
-      "9.8kWh",
-      "High Energy Density",
-      "10 Year Warranty",
-      "Indoor/Outdoor",
-    ],
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 65500000,
-  },
-  {
-    id: 14,
-    name: "Pin Lithium Sonnen eco 8",
-    price: "120,000,000đ",
-    originalPrice: "135,000,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["8kWh", "All-in-One", "Smart Grid Ready", "10,000 Cycles"],
-    discount: 11,
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 120000000,
-  },
-  {
-    id: 15,
-    name: "Pin Lithium Alpha ESS SMILE5",
-    price: "42,800,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["5.7kWh", "Modular System", "EMS Integrated", "Safe Chemistry"],
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 42800000,
-  },
-  {
-    id: 16,
-    name: "Pin Lithium Goodwe Lynx Home F",
-    price: "28,900,000đ",
-    originalPrice: "31,500,000đ",
-    image: "/images/product-2.jpg",
-    specs: ["6.5kWh", "Stackable", "IP65 Rating", "Smart BMS"],
-    discount: 8,
-    category: "Pin Lưu Trữ Lithium",
-    priceNumber: 28900000,
-  },
-  // Tấm Pin Năng Lượng Mặt Trời Solar
-  {
-    id: 17,
-    name: "Tấm Pin Canadian Solar BiHiKu7 CS7L-MS 580W",
-    price: "3,200,000đ",
-    originalPrice: "3,500,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["580W", "Mono PERC", "21.4% Efficiency", "25 Year Warranty"],
-    discount: 9,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 3200000,
-  },
-  {
-    id: 18,
-    name: "Tấm Pin JinkoSolar Tiger Neo N-type 575W",
-    price: "3,450,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["575W", "N-Type TOPCon", "22.3% Efficiency", "Low Degradation"],
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 3450000,
-  },
-  {
-    id: 19,
-    name: "Tấm Pin Longi Hi-MO 6 Explorer LR5-72HTH 560W",
-    price: "3,150,000đ",
-    originalPrice: "3,400,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["560W", "PERC Technology", "21.7% Efficiency", "Anti-LID"],
-    discount: 7,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 3150000,
-  },
-  {
-    id: 20,
-    name: "Tấm Pin Trina Solar Vertex S+ TSM-DE21 570W",
-    price: "3,380,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["570W", "Multi-busbar", "22.1% Efficiency", "Low Temperature"],
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 3380000,
-  },
-  {
-    id: 21,
-    name: "Tấm Pin JA Solar DeepBlue 4.0X JAM72S30 540W",
-    price: "2,950,000đ",
-    originalPrice: "3,200,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["540W", "PERC Half-cell", "20.9% Efficiency", "High Reliability"],
-    discount: 8,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 2950000,
-  },
-  {
-    id: 22,
-    name: "Tấm Pin Risen Energy Titan RSM150-8-535M",
-    price: "2,850,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["535W", "Mono PERC", "20.7% Efficiency", "PID Resistant"],
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 2850000,
-  },
-  {
-    id: 23,
-    name: "Tấm Pin Hanwha Q CELLS Q.PEAK DUO L-G10.2 540W",
-    price: "3,680,000đ",
-    originalPrice: "3,950,000đ",
-    image: "/images/product-3.jpg",
-    specs: ["540W", "Q.ANTUM DUO", "20.9% Efficiency", "Hot-Spot Protect"],
-    discount: 7,
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 3680000,
-  },
-  {
-    id: 24,
-    name: "Tấm Pin First Solar Series 6 Plus 445W",
-    price: "4,200,000đ",
-    image: "/images/product-3.jpg",
-    specs: [
-      "445W",
-      "CdTe Thin Film",
-      "19.5% Efficiency",
-      "Superior Performance",
-    ],
-    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
-    priceNumber: 4200000,
-  },
-  // Inverter Luxpower
-  {
-    id: 25,
-    name: "Luxpower SNA 5000 Hybrid Inverter",
-    price: "15,800,000đ",
-    originalPrice: "17,200,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["5kW", "Hybrid MPPT", "Battery Ready", "Grid-Tie"],
-    discount: 8,
-    category: "Inverter Luxpower",
-    priceNumber: 15800000,
-  },
-  {
-    id: 26,
-    name: "Luxpower LXP 3600 ACS Inverter",
-    price: "12,500,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["3.6kW", "AC Coupled", "Smart Load", "WiFi Monitor"],
-    category: "Inverter Luxpower",
-    priceNumber: 12500000,
-  },
-  {
-    id: 27,
-    name: "Luxpower SNA 8000 Three Phase",
-    price: "28,900,000đ",
-    originalPrice: "31,500,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["8kW", "3-Phase", "Commercial Grade", "High Efficiency"],
-    discount: 8,
-    category: "Inverter Luxpower",
-    priceNumber: 28900000,
-  },
-  {
-    id: 28,
-    name: "Luxpower LXP 6000 ACS",
-    price: "18,200,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["6kW", "Pure Sine Wave", "UPS Function", "Remote Monitor"],
-    category: "Inverter Luxpower",
-    priceNumber: 18200000,
-  },
-  {
-    id: 29,
-    name: "Luxpower SNA 10K Hybrid",
-    price: "32,800,000đ",
-    originalPrice: "35,500,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["10kW", "Dual MPPT", "Battery Management", "Grid Support"],
-    discount: 8,
-    category: "Inverter Luxpower",
-    priceNumber: 32800000,
-  },
-  {
-    id: 30,
-    name: "Luxpower LXP 12K ACS Pro",
-    price: "45,600,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["12kW", "Professional", "Smart Grid", "Advanced Protection"],
-    category: "Inverter Luxpower",
-    priceNumber: 45600000,
-  },
-  {
-    id: 31,
-    name: "Luxpower SNA 15K Commercial",
-    price: "58,900,000đ",
-    originalPrice: "63,500,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["15kW", "Commercial Use", "High Power", "Scalable System"],
-    discount: 7,
-    category: "Inverter Luxpower",
-    priceNumber: 58900000,
-  },
-  {
-    id: 32,
-    name: "Luxpower LXP 20K Enterprise",
-    price: "78,500,000đ",
-    image: "/images/product-4.jpg",
-    specs: ["20kW", "Enterprise Grade", "Multi-String", "Cloud Monitoring"],
-    category: "Inverter Luxpower",
-    priceNumber: 78500000,
-  },
-];
+import { allProductsData } from "@/data/products";
 
 const categories = [
   {
@@ -435,22 +84,22 @@ export default function AllProductsSection() {
         (product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.specs.some((spec) =>
-            spec.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+            spec.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
     // Category filter
     if (selectedCategory !== "Tất cả sản phẩm") {
       filtered = filtered.filter(
-        (product) => product.category === selectedCategory
+        (product) => product.category === selectedCategory,
       );
     }
 
     // Price range filter
     filtered = filtered.filter(
       (product) =>
-        product.priceNumber >= minPrice && product.priceNumber <= maxPrice
+        product.priceNumber >= minPrice && product.priceNumber <= maxPrice,
     );
 
     // Sort products
@@ -477,12 +126,12 @@ export default function AllProductsSection() {
 
   // Pagination
   const totalPages = Math.ceil(
-    filteredAndSortedProducts.length / productsPerPage
+    filteredAndSortedProducts.length / productsPerPage,
   );
   const startIndex = (currentPage - 1) * productsPerPage;
   const paginatedProducts = filteredAndSortedProducts.slice(
     startIndex,
-    startIndex + productsPerPage
+    startIndex + productsPerPage,
   );
 
   // Reset page when filters change
@@ -508,7 +157,7 @@ export default function AllProductsSection() {
         const rect = slider.getBoundingClientRect();
         const percent = Math.max(
           0,
-          Math.min(1, (e.clientX - rect.left - 8) / (rect.width - 16))
+          Math.min(1, (e.clientX - rect.left - 8) / (rect.width - 16)),
         ); // Adjust for padding
         const newPrice = Math.round((percent * 200000000) / 5000000) * 5000000; // Round to step
 
@@ -542,7 +191,7 @@ export default function AllProductsSection() {
         const rect = slider.getBoundingClientRect();
         const percent = Math.max(
           0,
-          Math.min(1, (touch.clientX - rect.left - 8) / (rect.width - 16))
+          Math.min(1, (touch.clientX - rect.left - 8) / (rect.width - 16)),
         ); // Adjust for padding
         const newPrice = Math.round((percent * 200000000) / 5000000) * 5000000; // Round to step
 
@@ -589,7 +238,7 @@ export default function AllProductsSection() {
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
 
@@ -600,7 +249,7 @@ export default function AllProductsSection() {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   <span className="flex items-center justify-between">
                     <span>Khoảng giá</span>
-                    <span className="text-blue-600 font-semibold">
+                    <span className="text-emerald-600 font-semibold">
                       {(minPrice / 1000000).toFixed(0)}M -{" "}
                       {maxPrice === 200000000
                         ? "200M+"
@@ -615,7 +264,7 @@ export default function AllProductsSection() {
                   <div className="relative h-2 bg-gray-200 rounded-full">
                     {/* Active range highlight */}
                     <div
-                      className="absolute h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-200"
+                      className="absolute h-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transition-all duration-200"
                       style={{
                         left: `${(minPrice / 200000000) * 100}%`,
                         width: `${((maxPrice - minPrice) / 200000000) * 100}%`,
@@ -659,7 +308,7 @@ export default function AllProductsSection() {
 
                   {/* Custom Thumbs */}
                   <div
-                    className={`absolute w-5 h-5 bg-white border-3 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                    className={`absolute w-5 h-5 bg-white border-3 border-emerald-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
                       isDragging === "min"
                         ? "cursor-grabbing scale-110 shadow-xl"
                         : ""
@@ -672,11 +321,11 @@ export default function AllProductsSection() {
                     onMouseDown={handleThumbMouseDown("min")}
                     onTouchStart={handleThumbTouchStart("min")}
                     title={`Giá tối thiểu: ${(minPrice / 1000000).toFixed(
-                      0
+                      0,
                     )}M đ`}
                   />
                   <div
-                    className={`absolute w-5 h-5 bg-white border-3 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                    className={`absolute w-5 h-5 bg-white border-3 border-emerald-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
                       isDragging === "max"
                         ? "cursor-grabbing scale-110 shadow-xl"
                         : ""
@@ -735,7 +384,7 @@ export default function AllProductsSection() {
                     setMaxPrice(200000000);
                     setSortBy("default");
                   }}
-                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 text-sm font-medium"
+                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg border border-gray-200 hover:border-emerald-300 transition-all duration-200 text-sm font-medium"
                   title="Đặt lại bộ lọc"
                 >
                   <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
@@ -795,7 +444,7 @@ export default function AllProductsSection() {
                 {/* Selected Indicator */}
                 {selectedCategory === category.value && (
                   <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                       <svg
                         className="w-3 h-3 text-white"
                         fill="none"
@@ -845,26 +494,25 @@ export default function AllProductsSection() {
 
                   {/* Product Image */}
                   <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                    <img
+                    <SafeImage
+                      width={800}
+                      height={600}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.src = "/images/placeholder-product.svg";
-                      }}
                     />
                   </div>
 
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category */}
-                    <div className="text-xs text-blue-600 font-medium mb-2">
+                    <div className="text-xs text-emerald-600 font-medium mb-2">
                       {product.category}
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-emerald-600 transition-colors">
                       {product.name}
                     </h3>
 
@@ -874,7 +522,7 @@ export default function AllProductsSection() {
                         {product.specs.slice(0, 2).map((spec, index) => (
                           <span
                             key={index}
-                            className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded"
+                            className="inline-block bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded"
                           >
                             {spec}
                           </span>
@@ -913,7 +561,7 @@ export default function AllProductsSection() {
                 setMaxPrice(200000000);
                 setSortBy("default");
               }}
-              className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+              className="mt-4 text-emerald-600 hover:text-emerald-700 font-medium"
             >
               Xóa bộ lọc
             </button>
@@ -951,7 +599,7 @@ export default function AllProductsSection() {
                   onClick={() => handlePageChange(pageNumber)}
                   className={`px-3 py-2 text-sm font-medium rounded-lg ${
                     currentPage === pageNumber
-                      ? "text-blue-600 bg-blue-50 border border-blue-300"
+                      ? "text-emerald-600 bg-emerald-50 border border-emerald-300"
                       : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
                   }`}
                 >

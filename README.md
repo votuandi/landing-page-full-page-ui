@@ -1,168 +1,53 @@
-# Trọng Tín Solar - Landing Page
+# Minwy Solar — Template 2
 
-A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.
+A reusable Vietnamese solar website built with Next.js 15, React 19, TypeScript, and Tailwind CSS. This branch starts from `master` and replaces the previous homepage with a split hero, solution cards, equipment highlights, a process section, native FAQ disclosures, and a contact banner.
 
-## Features
+## Run and verify
 
-- ✅ **Modern Stack**: Next.js 15, TypeScript, TailwindCSS
-- ✅ **SEO Optimized**: Meta tags, structured data, sitemap
-- ✅ **Responsive Design**: Mobile-first approach
-- ✅ **Component-Based**: Modular, reusable components
-- ✅ **Performance**: Optimized images, fonts, and loading
-- ✅ **Accessibility**: WCAG compliant
+Use Node.js 20+ and the committed npm lockfile.
 
-## Components
+```sh
+npm ci
+cp .env.example .env.local
+npm run dev
+```
 
-### Layout Components
+Set `NEXT_PUBLIC_SITE_URL` to the site's actual public origin **before building**. Canonicals, social URLs, organization structured data, robots, and sitemap use this setting. The development fallback is `http://localhost:3000`; it is not a production domain.
 
-- `Header` - Navigation with mobile menu and search
-- `Footer` - Contact info, links, and social media
-- `Hero` - Main banner with call-to-action
-
-### Content Components
-
-- `ProductSection` - Product categories showcase
-- `ProductCard` - Individual product display
-- `NewsSection` - Latest news and articles
-- `NewsCard` - News article preview
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-
-### Installation
-
-1. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-2. **Run development server**
-
-   ```bash
-   npm run dev
-   ```
-
-3. **Open browser**
-   ```
-   http://localhost:3000
-   ```
-
-### Build for Production
-
-```bash
+```sh
+npm run lint
+npm run typecheck
+npm test
 npm run build
 npm start
+# In another terminal, against the running production server:
+npm run test:smoke
 ```
 
-### Linting
+Set `SMOKE_URL` if testing a different host or port. The smoke check visits every sitemap entry, validates canonical paths and contact links, checks SEO assets, and verifies invalid detail pages return 404.
 
-```bash
-npm run lint
-```
+## Reuse the template
 
-## Project Structure
+| Change | Location |
+| --- | --- |
+| Company name, phone, email, address, navigation | `src/utils/constants.ts` |
+| Hero copy, solutions, process, questions | `src/data/home.ts` |
+| Product catalog and detail information | `src/data/products.ts` |
+| Articles and article content | `src/data/news.ts` |
+| Service catalog | `SERVICES` in `src/utils/constants.ts` |
+| Brand colors, spacing, responsive layout | Template 2 tokens and styles in `src/app/globals.css`; `tailwind.config.ts` |
+| Shared brand, sections, image fallback | `src/components/template/` |
+| Page and social metadata | `src/utils/seo.ts` and individual route files |
+| Brand icon | `public/icon.svg`, `public/favicon.ico`, `public/apple-icon.png` |
 
-```
-src/
-├── app/                 # Next.js App Router
-│   ├── globals.css      # Global styles
-│   ├── layout.tsx       # Root layout with SEO
-│   ├── page.tsx         # Home page
-│   └── sitemap.ts       # Dynamic sitemap
-├── components/          # React components
-│   ├── Header.tsx       # Main navigation
-│   ├── Hero.tsx         # Hero section
-│   ├── ProductSection.tsx
-│   ├── ProductCard.tsx
-│   ├── NewsSection.tsx
-│   ├── NewsCard.tsx
-│   └── Footer.tsx
-```
+The homepage is a server component. Only interactive navigation, filters, forms, detail tabs, and scroll effects need client JavaScript. Images use Next Image, responsive sizes, AVIF/WebP output, and lazy loading; the hero image has priority. The homepage no longer downloads or autoplays the 37 MB background video. Product, service, and news detail routes are prerendered from their shared catalogs.
 
-## Key Features
+Navigation has an active state, an accessible mobile toggle, Escape dismissal, and a skip link. FAQs use native `details` elements. Content remains visible without JavaScript and scroll effects honor reduced motion.
 
-### SEO Optimization
+## Integration boundaries
 
-- Comprehensive meta tags
-- Open Graph and Twitter Card support
-- Structured data for search engines
-- Automatic sitemap generation
-- Robots.txt configuration
+This is a frontend template, without a cart, payment, lead-storage, or warranty backend. Contact and quote actions compose an email or open a telephone link. Email drafts must be sent in the user's email application. Warranty registration composes a request; lookup asks the visitor to contact the company and does not manufacture a warranty result.
 
-### Performance
+Existing product prices/specifications, reviews/sales counts, company milestones, example projects, and article content were carried forward from the base branch. Review and replace that sample content with verified business data before publishing. No current market, policy, or warranty claims were independently verified in this refactor.
 
-- Next.js Image optimization
-- Font optimization with Google Fonts
-- TailwindCSS for efficient styling
-- Component code splitting
-
-### Responsive Design
-
-- Mobile-first approach
-- Flexible grid layouts
-- Touch-friendly interactions
-- Optimized for all screen sizes
-
-## Customization
-
-### Colors
-
-The color scheme is defined in `tailwind.config.ts`:
-
-- Primary: Blue theme for professionalism
-- Solar colors: Orange, blue, green, yellow
-- Semantic colors for different states
-
-### Content
-
-- Update company information in components
-- Modify product data in `ProductSection.tsx`
-- Update news articles in `NewsSection.tsx`
-- Customize contact details in `Footer.tsx`
-
-### Styling
-
-- Global styles in `src/app/globals.css`
-- Component-specific styling using TailwindCSS
-- Custom utilities for solar-themed effects
-
-## Deployment
-
-This project is ready for deployment on:
-
-- Vercel (recommended for Next.js)
-- Netlify
-- AWS Amplify
-- Any Node.js hosting service
-
-## Technologies Used
-
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety and better DX
-- **TailwindCSS** - Utility-first CSS framework
-- **React 19** - Latest React features
-- **ESLint** - Code linting and formatting
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers
-
-## License
-
-This project is proprietary software for Trọng Tín Solar.
-
-## Support
-
-For technical support or questions:
-
-- Email: info@phanphoisolar.com
-- Phone: 0909 019 234
+See `CODEBASE_REVIEW.md` for the review and changes.

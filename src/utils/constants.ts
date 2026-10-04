@@ -1,12 +1,16 @@
 // Constants for the solar website
 
 export const SITE_CONFIG = {
-  name: "Trọng Tín Solar",
+  name: "Minwy Solar",
   description: "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao",
-  url: "https://phanphoisolar.com",
-  ogImage: "/og-image.jpg",
-  phone: "0909019234",
-  email: "info@phanphoisolar.com",
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(
+    /\/$/,
+    "",
+  ),
+  ogImage: "/images/solar-panels-hero.jpg",
+  phoneDisplay: "0708 699 808",
+  phone: "0708699808",
+  email: "divt.it97@gmail.com",
   address: "Lấp Vò, Đồng Tháp, Việt Nam",
   workingHours: "Thứ 2 - Thứ 6: 8:00 - 17:30, Thứ 7: 8:00 - 12:00",
   coordinates: {
@@ -17,21 +21,15 @@ export const SITE_CONFIG = {
 
 export const NAVIGATION_ITEMS = [
   { name: "Trang chủ", href: "/" },
-  { name: "Về chúng tôi", href: "/about-us" },
+  { name: "Về Minwy", href: "/about-us" },
   { name: "Sản phẩm", href: "/product" },
-  { name: "Dịch vụ", href: "/service" },
-  { name: "Biến tần Inverter", href: "/inverter" },
-  { name: "Tấm pin năng lượng mặt trời", href: "/solar-panels" },
-  { name: "Pin lưu trữ", href: "/batteries" },
+  { name: "Giải pháp", href: "/service" },
   { name: "Tin tức", href: "/news" },
-  { name: "Liên hệ", href: "/contact" },
+  { name: "Liên hệ", href: "/contact-us" },
 ];
 
-export const SOCIAL_LINKS = [
-  { name: "Facebook", url: "#", icon: "facebook" },
-  { name: "YouTube", url: "#", icon: "youtube" },
-  { name: "TikTok", url: "#", icon: "tiktok" },
-];
+// Add verified social URLs when available; do not render placeholder links.
+export const SOCIAL_LINKS: { name: string; url: string; icon: string }[] = [];
 
 export const STATISTICS = [
   { label: "Năm kinh nghiệm", value: "10+", color: "text-solar-blue" },

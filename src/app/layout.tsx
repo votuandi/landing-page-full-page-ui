@@ -1,68 +1,24 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+import { SITE_CONFIG } from "@/utils/constants";
+import { serializeJsonLd } from "@/utils/seo";
 
 export const metadata: Metadata = {
-  title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-  description:
-    "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-  keywords:
-    "năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, solar panel, renewable energy",
-  authors: [{ name: "Trọng Tín Solar" }],
-  creator: "Trọng Tín Solar",
-  publisher: "Trọng Tín Solar",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  metadataBase: new URL(SITE_CONFIG.url),
+  title: {
+    default: `${SITE_CONFIG.name} | Giải pháp điện mặt trời`,
+    template: `%s | ${SITE_CONFIG.name}`,
   },
-  metadataBase: new URL("https://phanphoisolar.com"),
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-    description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-    url: "https://phanphoisolar.com",
-    siteName: "Trọng Tín Solar",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-      },
-    ],
-    locale: "vi_VN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
-    description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao.",
-    images: ["/og-image.jpg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  verification: {
-    google: "your-google-verification-code",
-  },
+  description: SITE_CONFIG.description,
+  authors: [{ name: SITE_CONFIG.name }],
+  creator: SITE_CONFIG.name,
+  publisher: SITE_CONFIG.name,
+  icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+  robots: { index: true, follow: true },
 };
+export const viewport: Viewport = { themeColor: "#14532d" };
 
 export default function RootLayout({
   children,
@@ -70,34 +26,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={inter.variable}>
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#0ea5e9" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body className={`${inter.className} antialiased`}>
+    <html lang="vi">
+      <body className="antialiased">
+        <a href="#main-content" className="skip-link">
+          Đến nội dung chính
+        </a>
         <Header />
-        {children}
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
         <Footer />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: SITE_CONFIG.name,
+              url: SITE_CONFIG.url,
+              logo: `${SITE_CONFIG.url}/icon.svg`,
+              email: SITE_CONFIG.email,
+              telephone: SITE_CONFIG.phone,
+              contactPoint: {
+                "@type": "ContactPoint",
+                telephone: SITE_CONFIG.phone,
+                contactType: "customer service",
+                availableLanguage: "Vietnamese",
+              },
+            }),
+          }}
+        />
       </body>
     </html>
   );

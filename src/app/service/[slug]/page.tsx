@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/utils/seo";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ServiceDetailContent from "@/components/ServiceDetailContent";
@@ -13,22 +14,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!service) {
     return {
-      title: "Dịch vụ không tồn tại | Trọng Tín Solar",
+      title: "Dịch vụ không tồn tại | Minwy Solar",
     };
   }
 
-  return {
-    title: `${service.title} | Trọng Tín Solar`,
-    description: service.description,
-    keywords: `${service.title}, ${
-      service.category
-    }, năng lượng mặt trời, ${service.features.join(", ")}`,
-    openGraph: {
-      title: service.title,
-      description: service.description,
-      images: [service.image],
-    },
-  };
+  return pageMetadata(
+    service.title,
+    service.description,
+    `/service/${slug}`,
+    service.image,
+  );
 }
 
 export default async function ServiceDetailPage({ params }: Props) {
@@ -44,4 +39,8 @@ export default async function ServiceDetailPage({ params }: Props) {
       <ServiceDetailContent service={service} />
     </div>
   );
+}
+
+export function generateStaticParams() {
+  return SERVICES.map((item) => ({ slug: String(item.id) }));
 }

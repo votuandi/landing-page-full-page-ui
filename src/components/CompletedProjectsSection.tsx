@@ -1,4 +1,5 @@
 "use client";
+import SafeImage from "@/components/template/SafeImage";
 
 import React, { useState, useMemo } from "react";
 import {
@@ -29,6 +30,218 @@ interface Project {
   features: string[];
 }
 
+// Extended projects data
+const allProjects: Project[] = [
+  {
+    id: 1,
+    title: "Hệ thống điện mặt trời nhà máy ABC",
+    location: "Bình Dương",
+    capacity: "500kW",
+    completedDate: "Tháng 12, 2023",
+    completedYear: 2023,
+    completedMonth: 12,
+    image: "/images/news-1.jpg",
+    description:
+      "Hệ thống điện mặt trời quy mô lớn cho nhà máy sản xuất, giúp tiết kiệm 70% chi phí điện năng hàng năm.",
+    category: "Công nghiệp",
+    client: "Công ty ABC Manufacturing",
+    investment: "8.5 tỷ VNĐ",
+    duration: "3 tháng",
+    features: ["Hệ thống monitoring", "Bảo trì tự động", "Kết nối EVN"],
+  },
+  {
+    id: 2,
+    title: "Điện mặt trời áp mái biệt thự",
+    location: "TP. Hồ Chí Minh",
+    capacity: "15kW",
+    completedDate: "Tháng 11, 2023",
+    completedYear: 2023,
+    completedMonth: 11,
+    image: "/images/news-2.jpg",
+    description:
+      "Hệ thống điện mặt trời áp mái cho biệt thự, tích hợp pin lưu trữ và hệ thống smart home.",
+    category: "Dân dụng",
+    client: "Gia đình Nguyễn Văn A",
+    investment: "250 triệu VNĐ",
+    duration: "1 tuần",
+    features: ["Pin lưu trữ", "Smart home", "App điều khiển"],
+  },
+  {
+    id: 3,
+    title: "Trung tâm thương mại Solar Plaza",
+    location: "Đồng Nai",
+    capacity: "300kW",
+    completedDate: "Tháng 10, 2023",
+    completedYear: 2023,
+    completedMonth: 10,
+    image: "/images/news-3.jpg",
+    description:
+      "Dự án điện mặt trời cho trung tâm thương mại, cung cấp năng lượng sạch cho toàn bộ hệ thống.",
+    category: "Thương mại",
+    client: "Solar Plaza JSC",
+    investment: "5.2 tỷ VNĐ",
+    duration: "2 tháng",
+    features: ["Hệ thống tự động", "Giám sát 24/7", "Backup điện"],
+  },
+  {
+    id: 4,
+    title: "Khu công nghiệp Việt Phú",
+    location: "Bình Phước",
+    capacity: "1.2MW",
+    completedDate: "Tháng 9, 2023",
+    completedYear: 2023,
+    completedMonth: 9,
+    image: "/images/news-4.jpg",
+    description:
+      "Hệ thống điện mặt trời lớn nhất khu vực với công nghệ tiên tiến, giảm 80% phát thải carbon.",
+    category: "Công nghiệp",
+    client: "Khu công nghiệp Việt Phú",
+    investment: "18 tỷ VNĐ",
+    duration: "6 tháng",
+    features: ["Công nghệ AI", "Bảo trì dự báo", "Hệ thống tự làm sạch"],
+  },
+  {
+    id: 5,
+    title: "Trường học xanh Nguyễn Du",
+    location: "Long An",
+    capacity: "50kW",
+    completedDate: "Tháng 8, 2023",
+    completedYear: 2023,
+    completedMonth: 8,
+    image: "/images/news-5.jpg",
+    description:
+      "Dự án điện mặt trời cho trường học, góp phần giáo dục ý thức bảo vệ môi trường cho học sinh.",
+    category: "Giáo dục",
+    client: "Trường THPT Nguyễn Du",
+    investment: "850 triệu VNĐ",
+    duration: "1 tháng",
+    features: ["Màn hình hiển thị", "Hệ thống giáo dục", "An toàn tuyệt đối"],
+  },
+  {
+    id: 6,
+    title: "Resort biển Mũi Né",
+    location: "Phan Thiết",
+    capacity: "100kW",
+    completedDate: "Tháng 7, 2023",
+    completedYear: 2023,
+    completedMonth: 7,
+    image: "/images/news-6.jpg",
+    description:
+      "Hệ thống điện mặt trời cho resort, kết hợp với hệ thống làm nóng nước năng lượng mặt trời.",
+    category: "Du lịch",
+    client: "Mũi Né Beach Resort",
+    investment: "1.8 tỷ VNĐ",
+    duration: "2 tháng",
+    features: ["Nước nóng solar", "Hệ thống hồ bơi", "Chiếu sáng sân vườn"],
+  },
+  {
+    id: 7,
+    title: "Nhà máy dệt may Tân Tiến",
+    location: "Đồng Nai",
+    capacity: "800kW",
+    completedDate: "Tháng 6, 2023",
+    completedYear: 2023,
+    completedMonth: 6,
+    image: "/images/product-1.jpg",
+    description:
+      "Hệ thống năng lượng mặt trời cho nhà máy dệt may, giảm thiểu chi phí sản xuất và tác động môi trường.",
+    category: "Công nghiệp",
+    client: "Công ty Dệt may Tân Tiến",
+    investment: "12 tỷ VNĐ",
+    duration: "4 tháng",
+    features: ["Hệ thống làm mát", "Tiết kiệm 60% điện", "Chứng chỉ xanh"],
+  },
+  {
+    id: 8,
+    title: "Khu dân cư Vinhomes Central",
+    location: "TP. Hồ Chí Minh",
+    capacity: "200kW",
+    completedDate: "Tháng 5, 2023",
+    completedYear: 2023,
+    completedMonth: 5,
+    image: "/images/product-2.jpg",
+    description:
+      "Dự án năng lượng mặt trời cho khu dân cư cao cấp, cung cấp điện cho khu vực công cộng.",
+    category: "Dân dụng",
+    client: "Vingroup",
+    investment: "3.5 tỷ VNĐ",
+    duration: "2 tháng",
+    features: ["Chiếu sáng công cộng", "Sạc xe điện", "Hệ thống tưới"],
+  },
+  {
+    id: 9,
+    title: "Bệnh viện Đa khoa Quốc tế",
+    location: "Cần Thơ",
+    capacity: "350kW",
+    completedDate: "Tháng 4, 2023",
+    completedYear: 2023,
+    completedMonth: 4,
+    image: "/images/product-3.jpg",
+    description:
+      "Hệ thống điện mặt trời cho bệnh viện, đảm bảo nguồn điện ổn định cho các thiết bị y tế.",
+    category: "Y tế",
+    client: "Bệnh viện Đa khoa Quốc tế",
+    investment: "6.2 tỷ VNĐ",
+    duration: "3 tháng",
+    features: ["UPS tích hợp", "Hệ thống dự phòng", "Giám sát y tế"],
+  },
+  {
+    id: 10,
+    title: "Siêu thị Co.opMart",
+    location: "Hà Nội",
+    capacity: "180kW",
+    completedDate: "Tháng 3, 2023",
+    completedYear: 2023,
+    completedMonth: 3,
+    image: "/images/product-4.jpg",
+    description:
+      "Lắp đặt hệ thống năng lượng mặt trời cho chuỗi siêu thị, tiết kiệm chi phí vận hành.",
+    category: "Thương mại",
+    client: "Saigon Co.op",
+    investment: "3.1 tỷ VNĐ",
+    duration: "1.5 tháng",
+    features: ["Hệ thống làm lạnh", "Chiếu sáng LED", "Quản lý thông minh"],
+  },
+  {
+    id: 11,
+    title: "Nhà máy sản xuất Phúc Hưng",
+    location: "Bà Rịa - Vũng Tàu",
+    capacity: "600kW",
+    completedDate: "Tháng 2, 2023",
+    completedYear: 2023,
+    completedMonth: 2,
+    image: "/images/solar-battery-hero.jpg",
+    description:
+      "Hệ thống năng lượng mặt trời cho nhà máy sản xuất thực phẩm, đảm bảo an toàn thực phẩm.",
+    category: "Công nghiệp",
+    client: "Công ty Phúc Hưng",
+    investment: "9.8 tỷ VNĐ",
+    duration: "3.5 tháng",
+    features: [
+      "Hệ thống làm lạnh",
+      "Kiểm soát nhiệt độ",
+      "Truy xuất nguồn gốc",
+    ],
+  },
+  {
+    id: 12,
+    title: "Trang trại thông minh EcoFarm",
+    location: "Tiền Giang",
+    capacity: "75kW",
+    completedDate: "Tháng 1, 2023",
+    completedYear: 2023,
+    completedMonth: 1,
+    image: "/images/solar-inverter-hero.jpg",
+    description:
+      "Ứng dụng năng lượng mặt trời cho nông nghiệp thông minh, tưới tiêu tự động.",
+    category: "Nông nghiệp",
+    client: "HTX EcoFarm",
+    investment: "1.2 tỷ VNĐ",
+    duration: "1 tháng",
+    features: ["Tưới tiêu tự động", "Cảm biến đất", "IoT nông nghiệp"],
+  },
+];
+
 export default function CompletedProjectsSection() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -36,218 +249,6 @@ export default function CompletedProjectsSection() {
   const [sortBy, setSortBy] = useState<"date" | "capacity">("date");
 
   const projectsPerPage = 6;
-
-  // Extended projects data
-  const allProjects: Project[] = [
-    {
-      id: 1,
-      title: "Hệ thống điện mặt trời nhà máy ABC",
-      location: "Bình Dương",
-      capacity: "500kW",
-      completedDate: "Tháng 12, 2023",
-      completedYear: 2023,
-      completedMonth: 12,
-      image: "/images/news-1.jpg",
-      description:
-        "Hệ thống điện mặt trời quy mô lớn cho nhà máy sản xuất, giúp tiết kiệm 70% chi phí điện năng hàng năm.",
-      category: "Công nghiệp",
-      client: "Công ty ABC Manufacturing",
-      investment: "8.5 tỷ VNĐ",
-      duration: "3 tháng",
-      features: ["Hệ thống monitoring", "Bảo trì tự động", "Kết nối EVN"],
-    },
-    {
-      id: 2,
-      title: "Điện mặt trời áp mái biệt thự",
-      location: "TP. Hồ Chí Minh",
-      capacity: "15kW",
-      completedDate: "Tháng 11, 2023",
-      completedYear: 2023,
-      completedMonth: 11,
-      image: "/images/news-2.jpg",
-      description:
-        "Hệ thống điện mặt trời áp mái cho biệt thự, tích hợp pin lưu trữ và hệ thống smart home.",
-      category: "Dân dụng",
-      client: "Gia đình Nguyễn Văn A",
-      investment: "250 triệu VNĐ",
-      duration: "1 tuần",
-      features: ["Pin lưu trữ", "Smart home", "App điều khiển"],
-    },
-    {
-      id: 3,
-      title: "Trung tâm thương mại Solar Plaza",
-      location: "Đồng Nai",
-      capacity: "300kW",
-      completedDate: "Tháng 10, 2023",
-      completedYear: 2023,
-      completedMonth: 10,
-      image: "/images/news-3.jpg",
-      description:
-        "Dự án điện mặt trời cho trung tâm thương mại, cung cấp năng lượng sạch cho toàn bộ hệ thống.",
-      category: "Thương mại",
-      client: "Solar Plaza JSC",
-      investment: "5.2 tỷ VNĐ",
-      duration: "2 tháng",
-      features: ["Hệ thống tự động", "Giám sát 24/7", "Backup điện"],
-    },
-    {
-      id: 4,
-      title: "Khu công nghiệp Việt Phú",
-      location: "Bình Phước",
-      capacity: "1.2MW",
-      completedDate: "Tháng 9, 2023",
-      completedYear: 2023,
-      completedMonth: 9,
-      image: "/images/news-4.jpg",
-      description:
-        "Hệ thống điện mặt trời lớn nhất khu vực với công nghệ tiên tiến, giảm 80% phát thải carbon.",
-      category: "Công nghiệp",
-      client: "Khu công nghiệp Việt Phú",
-      investment: "18 tỷ VNĐ",
-      duration: "6 tháng",
-      features: ["Công nghệ AI", "Bảo trì dự báo", "Hệ thống tự làm sạch"],
-    },
-    {
-      id: 5,
-      title: "Trường học xanh Nguyễn Du",
-      location: "Long An",
-      capacity: "50kW",
-      completedDate: "Tháng 8, 2023",
-      completedYear: 2023,
-      completedMonth: 8,
-      image: "/images/news-5.jpg",
-      description:
-        "Dự án điện mặt trời cho trường học, góp phần giáo dục ý thức bảo vệ môi trường cho học sinh.",
-      category: "Giáo dục",
-      client: "Trường THPT Nguyễn Du",
-      investment: "850 triệu VNĐ",
-      duration: "1 tháng",
-      features: ["Màn hình hiển thị", "Hệ thống giáo dục", "An toàn tuyệt đối"],
-    },
-    {
-      id: 6,
-      title: "Resort biển Mũi Né",
-      location: "Phan Thiết",
-      capacity: "100kW",
-      completedDate: "Tháng 7, 2023",
-      completedYear: 2023,
-      completedMonth: 7,
-      image: "/images/news-6.jpg",
-      description:
-        "Hệ thống điện mặt trời cho resort, kết hợp với hệ thống làm nóng nước năng lượng mặt trời.",
-      category: "Du lịch",
-      client: "Mũi Né Beach Resort",
-      investment: "1.8 tỷ VNĐ",
-      duration: "2 tháng",
-      features: ["Nước nóng solar", "Hệ thống hồ bơi", "Chiếu sáng sân vườn"],
-    },
-    {
-      id: 7,
-      title: "Nhà máy dệt may Tân Tiến",
-      location: "Đồng Nai",
-      capacity: "800kW",
-      completedDate: "Tháng 6, 2023",
-      completedYear: 2023,
-      completedMonth: 6,
-      image: "/images/product-1.jpg",
-      description:
-        "Hệ thống năng lượng mặt trời cho nhà máy dệt may, giảm thiểu chi phí sản xuất và tác động môi trường.",
-      category: "Công nghiệp",
-      client: "Công ty Dệt may Tân Tiến",
-      investment: "12 tỷ VNĐ",
-      duration: "4 tháng",
-      features: ["Hệ thống làm mát", "Tiết kiệm 60% điện", "Chứng chỉ xanh"],
-    },
-    {
-      id: 8,
-      title: "Khu dân cư Vinhomes Central",
-      location: "TP. Hồ Chí Minh",
-      capacity: "200kW",
-      completedDate: "Tháng 5, 2023",
-      completedYear: 2023,
-      completedMonth: 5,
-      image: "/images/product-2.jpg",
-      description:
-        "Dự án năng lượng mặt trời cho khu dân cư cao cấp, cung cấp điện cho khu vực công cộng.",
-      category: "Dân dụng",
-      client: "Vingroup",
-      investment: "3.5 tỷ VNĐ",
-      duration: "2 tháng",
-      features: ["Chiếu sáng công cộng", "Sạc xe điện", "Hệ thống tưới"],
-    },
-    {
-      id: 9,
-      title: "Bệnh viện Đa khoa Quốc tế",
-      location: "Cần Thơ",
-      capacity: "350kW",
-      completedDate: "Tháng 4, 2023",
-      completedYear: 2023,
-      completedMonth: 4,
-      image: "/images/product-3.jpg",
-      description:
-        "Hệ thống điện mặt trời cho bệnh viện, đảm bảo nguồn điện ổn định cho các thiết bị y tế.",
-      category: "Y tế",
-      client: "Bệnh viện Đa khoa Quốc tế",
-      investment: "6.2 tỷ VNĐ",
-      duration: "3 tháng",
-      features: ["UPS tích hợp", "Hệ thống dự phòng", "Giám sát y tế"],
-    },
-    {
-      id: 10,
-      title: "Siêu thị Co.opMart",
-      location: "Hà Nội",
-      capacity: "180kW",
-      completedDate: "Tháng 3, 2023",
-      completedYear: 2023,
-      completedMonth: 3,
-      image: "/images/product-4.jpg",
-      description:
-        "Lắp đặt hệ thống năng lượng mặt trời cho chuỗi siêu thị, tiết kiệm chi phí vận hành.",
-      category: "Thương mại",
-      client: "Saigon Co.op",
-      investment: "3.1 tỷ VNĐ",
-      duration: "1.5 tháng",
-      features: ["Hệ thống làm lạnh", "Chiếu sáng LED", "Quản lý thông minh"],
-    },
-    {
-      id: 11,
-      title: "Nhà máy sản xuất Phúc Hưng",
-      location: "Bà Rịa - Vũng Tàu",
-      capacity: "600kW",
-      completedDate: "Tháng 2, 2023",
-      completedYear: 2023,
-      completedMonth: 2,
-      image: "/images/solar-battery-hero.jpg",
-      description:
-        "Hệ thống năng lượng mặt trời cho nhà máy sản xuất thực phẩm, đảm bảo an toàn thực phẩm.",
-      category: "Công nghiệp",
-      client: "Công ty Phúc Hưng",
-      investment: "9.8 tỷ VNĐ",
-      duration: "3.5 tháng",
-      features: [
-        "Hệ thống làm lạnh",
-        "Kiểm soát nhiệt độ",
-        "Truy xuất nguồn gốc",
-      ],
-    },
-    {
-      id: 12,
-      title: "Trang trại thông minh EcoFarm",
-      location: "Tiền Giang",
-      capacity: "75kW",
-      completedDate: "Tháng 1, 2023",
-      completedYear: 2023,
-      completedMonth: 1,
-      image: "/images/solar-inverter-hero.jpg",
-      description:
-        "Ứng dụng năng lượng mặt trời cho nông nghiệp thông minh, tưới tiêu tự động.",
-      category: "Nông nghiệp",
-      client: "HTX EcoFarm",
-      investment: "1.2 tỷ VNĐ",
-      duration: "1 tháng",
-      features: ["Tưới tiêu tự động", "Cảm biến đất", "IoT nông nghiệp"],
-    },
-  ];
 
   // Get unique years and categories for filtering
   const availableYears = [
@@ -262,19 +263,19 @@ export default function CompletedProjectsSection() {
     // Filter by year
     if (selectedYear) {
       filtered = filtered.filter(
-        (project) => project.completedYear === selectedYear
+        (project) => project.completedYear === selectedYear,
       );
     }
 
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (project) => project.category === selectedCategory
+        (project) => project.category === selectedCategory,
       );
     }
 
     // Sort projects
-    return filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       if (sortBy === "date") {
         return b.completedYear !== a.completedYear
           ? b.completedYear - a.completedYear
@@ -283,14 +284,14 @@ export default function CompletedProjectsSection() {
         return parseInt(b.capacity) - parseInt(a.capacity);
       }
     });
-  }, [allProjects, selectedYear, selectedCategory, sortBy]);
+  }, [selectedYear, selectedCategory, sortBy]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const startIndex = (currentPage - 1) * projectsPerPage;
   const currentProjects = filteredProjects.slice(
     startIndex,
-    startIndex + projectsPerPage
+    startIndex + projectsPerPage,
   );
 
   // Reset page when filters change
@@ -300,7 +301,7 @@ export default function CompletedProjectsSection() {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      "Công nghiệp": "bg-blue-100 text-blue-800",
+      "Công nghiệp": "bg-emerald-100 text-emerald-800",
       "Dân dụng": "bg-green-100 text-green-800",
       "Thương mại": "bg-orange-100 text-orange-800",
       "Giáo dục": "bg-purple-100 text-purple-800",
@@ -382,7 +383,7 @@ export default function CompletedProjectsSection() {
                   value={selectedYear || ""}
                   onChange={(e) =>
                     setSelectedYear(
-                      e.target.value ? parseInt(e.target.value) : null
+                      e.target.value ? parseInt(e.target.value) : null,
                     )
                   }
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solar-blue focus:border-transparent"
@@ -459,7 +460,10 @@ export default function CompletedProjectsSection() {
               >
                 {/* Project Image */}
                 <div className="relative h-56 overflow-hidden">
-                  <img
+                  <SafeImage
+                    width={800}
+                    height={600}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -467,7 +471,7 @@ export default function CompletedProjectsSection() {
                   <div className="absolute top-4 left-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                        project.category
+                        project.category,
                       )}`}
                     >
                       {project.category}
@@ -575,7 +579,7 @@ export default function CompletedProjectsSection() {
                         {pageNum}
                       </button>
                     );
-                  }
+                  },
                 )}
               </div>
 

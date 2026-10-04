@@ -46,7 +46,7 @@ export default function AllServicesSection() {
                 onClick={() => handleCategoryChange(category.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                   selectedCategory === category.id
-                    ? "bg-blue-600 text-white"
+                    ? "bg-emerald-600 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -99,13 +99,13 @@ export default function AllServicesSection() {
                       onClick={() => handlePageChange(page)}
                       className={`px-3 py-2 rounded-md text-sm font-medium ${
                         currentPage === page
-                          ? "bg-blue-600 text-white"
+                          ? "bg-emerald-600 text-white"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
                       {page}
                     </button>
-                  )
+                  ),
                 )}
 
                 <button

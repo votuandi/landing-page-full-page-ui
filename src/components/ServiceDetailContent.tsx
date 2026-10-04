@@ -1,5 +1,7 @@
 "use client";
 
+import { SITE_CONFIG } from "@/utils/constants";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@/types";
@@ -246,7 +248,7 @@ export default function ServiceDetailContent({
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as typeof activeTab)}
                     className={`py-4 text-sm font-medium border-b-2 transition-colors ${
                       activeTab === tab.id
                         ? "border-solar-blue text-solar-blue"
@@ -327,10 +329,10 @@ export default function ServiceDetailContent({
                         </p>
                       </div>
 
-                      <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="bg-emerald-50 p-4 rounded-lg">
                         <div className="flex items-center space-x-2 mb-2">
                           <svg
-                            className="w-5 h-5 text-blue-600"
+                            className="w-5 h-5 text-emerald-600"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -342,11 +344,11 @@ export default function ServiceDetailContent({
                               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <span className="font-medium text-blue-800">
+                          <span className="font-medium text-emerald-800">
                             Chất lượng cao
                           </span>
                         </div>
-                        <p className="text-blue-700 text-sm">
+                        <p className="text-emerald-700 text-sm">
                           Sử dụng thiết bị và công nghệ tiên tiến
                         </p>
                       </div>
@@ -551,12 +553,18 @@ export default function ServiceDetailContent({
               Đăng ký dịch vụ
             </h3>
             <div className="space-y-4">
-              <button className="w-full bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              <a
+                href={`tel:${SITE_CONFIG.phone}`}
+                className="block text-center w-full bg-solar-blue hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
                 Liên hệ tư vấn miễn phí
-              </button>
-              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              </a>
+              <Link
+                href="/contact-us"
+                className="block text-center w-full bg-amber-400 hover:bg-amber-500 text-gray-900 px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
                 Đăng ký khảo sát
-              </button>
+              </Link>
             </div>
 
             <div className="mt-6 pt-6 border-t border-gray-200">
@@ -578,7 +586,7 @@ export default function ServiceDetailContent({
                       d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                     />
                   </svg>
-                  <span>Hotline: 0909019234</span>
+                  <span>Hotline: {SITE_CONFIG.phoneDisplay}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg
@@ -594,7 +602,7 @@ export default function ServiceDetailContent({
                       d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
                   </svg>
-                  <span>info@phanphoisolar.com</span>
+                  <span>{SITE_CONFIG.email}</span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <svg
@@ -629,7 +637,7 @@ export default function ServiceDetailContent({
             </h3>
             <div className="space-y-3">
               {SERVICES.filter(
-                (s) => s.id !== service.id && s.category === service.category
+                (s) => s.id !== service.id && s.category === service.category,
               )
                 .slice(0, 3)
                 .map((relatedService) => (

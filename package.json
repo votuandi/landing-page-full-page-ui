@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test scripts/seo.test.cjs",
+    "test:smoke": "node scripts/smoke.cjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

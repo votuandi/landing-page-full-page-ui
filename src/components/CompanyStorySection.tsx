@@ -1,4 +1,5 @@
 "use client";
+import SafeImage from "@/components/template/SafeImage";
 
 import React from "react";
 import {
@@ -65,7 +66,7 @@ export default function CompanyStorySection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white to-blue-50">
+    <section className="py-20 bg-gradient-to-br from-white to-emerald-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <ScrollAnimationWrapper>
@@ -92,16 +93,16 @@ export default function CompanyStorySection() {
                 Hành trình 10 năm phát triển
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Trọng Tín Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
+                Minwy Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
                 lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ
                 một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không
                 ngừng học hỏi, cải tiến và phát triển.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Với triết lý &quot;Chất lượng tạo nên uy tín&quot;, chúng tôi luôn đặt lợi
-                ích khách hàng lên hàng đầu. Mỗi dự án được thực hiện đều được
-                chúng tôi coi như ngôi nhà của chính mình, từ khâu tư vấn, thiết
-                kế cho đến lắp đặt và bảo trì.
+                Với triết lý &quot;Chất lượng tạo nên uy tín&quot;, chúng tôi
+                luôn đặt lợi ích khách hàng lên hàng đầu. Mỗi dự án được thực
+                hiện đều được chúng tôi coi như ngôi nhà của chính mình, từ khâu
+                tư vấn, thiết kế cho đến lắp đặt và bảo trì.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Ngày hôm nay, với hơn 1000 dự án đã hoàn thành và tổng công suất
@@ -114,13 +115,16 @@ export default function CompanyStorySection() {
           <ScrollAnimationWrapper>
             <div className="relative">
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
-                <img
+                <SafeImage
+                  width={800}
+                  height={600}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   src="/images/solar-installation-hero.jpg"
-                  alt="Trọng Tín Solar - Lắp đặt hệ thống năng lượng mặt trời"
+                  alt="Minwy Solar - Lắp đặt hệ thống năng lượng mặt trời"
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-xl">
+                  <div className="text-center p-4 bg-emerald-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-blue">
                       1000+
                     </div>
@@ -216,10 +220,10 @@ export default function CompanyStorySection() {
           <div className="mt-20 text-center bg-gradient-to-r from-solar-blue to-primary-600 rounded-3xl p-12 text-white">
             <h2 className="text-3xl font-bold mb-6">Sứ mệnh của chúng tôi</h2>
             <p className="text-xl leading-relaxed max-w-4xl mx-auto">
-              &quot;Đưa năng lượng mặt trời đến mọi mái nhà Việt Nam, góp phần xây
-              dựng một tương lai xanh và bền vững cho thế hệ mai sau. Chúng tôi
-              cam kết mang đến những giải pháp năng lượng chất lượng cao với giá
-              thành hợp lý, giúp khách hàng tiết kiệm chi phí và bảo vệ môi
+              &quot;Đưa năng lượng mặt trời đến mọi mái nhà Việt Nam, góp phần
+              xây dựng một tương lai xanh và bền vững cho thế hệ mai sau. Chúng
+              tôi cam kết mang đến những giải pháp năng lượng chất lượng cao với
+              giá thành hợp lý, giúp khách hàng tiết kiệm chi phí và bảo vệ môi
               trường.&quot;
             </p>
           </div>
