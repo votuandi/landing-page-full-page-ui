@@ -65,7 +65,7 @@ export default function CompanyStorySection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white to-blue-50">
+    <section className="py-20 bg-gradient-to-br from-white to-green-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <ScrollAnimationWrapper>
@@ -92,7 +92,7 @@ export default function CompanyStorySection() {
                 Hành trình 10 năm phát triển
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Trọng Tín Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
+                Minwy Solar được thành lập vào năm 2014 với sứ mệnh đưa năng
                 lượng mặt trời đến gần hơn với mọi gia đình Việt Nam. Bắt đầu từ
                 một team nhỏ gồm 5 thành viên đầy đam mê, chúng tôi đã không
                 ngừng học hỏi, cải tiến và phát triển.
@@ -116,11 +116,11 @@ export default function CompanyStorySection() {
               <div className="bg-white p-8 rounded-2xl shadow-2xl">
                 <img
                   src="/images/solar-installation-hero.jpg"
-                  alt="Trọng Tín Solar - Lắp đặt hệ thống năng lượng mặt trời"
+                  alt="Minwy Solar - Lắp đặt hệ thống năng lượng mặt trời"
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-xl">
+                  <div className="text-center p-4 bg-green-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-blue">
                       1000+
                     </div>
