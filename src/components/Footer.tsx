@@ -2,17 +2,17 @@ import Link from "next/link";
 
 export default function Footer() {
   const productLinks = [
-    { name: "Biến tần Inverter", href: "/inverter" },
-    { name: "Tấm pin Solar", href: "/solar-panels" },
-    { name: "Pin lưu trữ", href: "/batteries" },
-    { name: "Phụ kiện lắp đặt", href: "/accessories" },
+    { name: "Biến tần Inverter", href: "/product" },
+    { name: "Tấm pin Solar", href: "/product" },
+    { name: "Pin lưu trữ", href: "/product" },
+    { name: "Phụ kiện lắp đặt", href: "/product" },
   ];
 
   const serviceLinks = [
-    { name: "Tư vấn thiết kế", href: "/services/design" },
-    { name: "Lắp đặt hệ thống", href: "/services/installation" },
-    { name: "Bảo trì - Bảo hành", href: "/services/maintenance" },
-    { name: "Hỗ trợ kỹ thuật", href: "/services/support" },
+    { name: "Tư vấn thiết kế", href: "/service" },
+    { name: "Lắp đặt hệ thống", href: "/service" },
+    { name: "Bảo trì - Bảo hành", href: "/service" },
+    { name: "Hỗ trợ kỹ thuật", href: "/service" },
   ];
 
   const companyLinks = [
@@ -23,7 +23,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-green-950 text-white">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -46,7 +46,7 @@ export default function Footer() {
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -58,7 +58,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -70,7 +70,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -82,7 +82,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -135,7 +135,7 @@ export default function Footer() {
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 mt-1 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 mt-1 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -162,7 +162,7 @@ export default function Footer() {
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -184,7 +184,7 @@ export default function Footer() {
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -206,7 +206,7 @@ export default function Footer() {
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
