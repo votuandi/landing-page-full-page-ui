@@ -72,7 +72,7 @@ export default function WarrantySection() {
                 onClick={() => setActiveSubTab("register")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeSubTab === "register"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
@@ -97,7 +97,7 @@ export default function WarrantySection() {
                 onClick={() => setActiveSubTab("lookup")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeSubTab === "lookup"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
@@ -194,7 +194,7 @@ export default function WarrantySection() {
                         productCode: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Nhập mã sản phẩm"
                   />
                 </div>
@@ -217,7 +217,7 @@ export default function WarrantySection() {
                         customerName: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Nhập họ và tên"
                   />
                 </div>
@@ -240,7 +240,7 @@ export default function WarrantySection() {
                         customerPhone: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Nhập số điện thoại"
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function WarrantySection() {
                         customerEmail: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Nhập địa chỉ email"
                   />
                 </div>
@@ -286,7 +286,7 @@ export default function WarrantySection() {
                         purchaseDate: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
 
@@ -307,7 +307,7 @@ export default function WarrantySection() {
                         installationDate: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -330,7 +330,7 @@ export default function WarrantySection() {
                       address: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Nhập địa chỉ chi tiết"
                 />
               </div>
@@ -352,7 +352,7 @@ export default function WarrantySection() {
                       notes: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Thông tin bổ sung (không bắt buộc)"
                 />
               </div>
@@ -361,7 +361,7 @@ export default function WarrantySection() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Đăng ký bảo hành"}
                 </button>
@@ -422,7 +422,7 @@ export default function WarrantySection() {
                   onChange={(e) =>
                     setLookupForm({ ...lookupForm, searchTerm: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder={
                     lookupForm.searchType === "productCode"
                       ? "Nhập mã sản phẩm"
@@ -437,7 +437,7 @@ export default function WarrantySection() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Đang tìm kiếm..." : "Tra cứu"}
                 </button>

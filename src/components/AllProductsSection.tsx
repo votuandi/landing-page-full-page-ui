@@ -589,7 +589,7 @@ export default function AllProductsSection() {
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
 
@@ -600,7 +600,7 @@ export default function AllProductsSection() {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   <span className="flex items-center justify-between">
                     <span>Khoảng giá</span>
-                    <span className="text-blue-600 font-semibold">
+                    <span className="text-green-600 font-semibold">
                       {(minPrice / 1000000).toFixed(0)}M -{" "}
                       {maxPrice === 200000000
                         ? "200M+"
@@ -615,7 +615,7 @@ export default function AllProductsSection() {
                   <div className="relative h-2 bg-gray-200 rounded-full">
                     {/* Active range highlight */}
                     <div
-                      className="absolute h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-200"
+                      className="absolute h-2 bg-gradient-to-r from-green-500 to-green-500 rounded-full transition-all duration-200"
                       style={{
                         left: `${(minPrice / 200000000) * 100}%`,
                         width: `${((maxPrice - minPrice) / 200000000) * 100}%`,
@@ -659,7 +659,7 @@ export default function AllProductsSection() {
 
                   {/* Custom Thumbs */}
                   <div
-                    className={`absolute w-5 h-5 bg-white border-3 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                    className={`absolute w-5 h-5 bg-white border-3 border-green-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
                       isDragging === "min"
                         ? "cursor-grabbing scale-110 shadow-xl"
                         : ""
@@ -676,7 +676,7 @@ export default function AllProductsSection() {
                     )}M đ`}
                   />
                   <div
-                    className={`absolute w-5 h-5 bg-white border-3 border-blue-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                    className={`absolute w-5 h-5 bg-white border-3 border-green-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
                       isDragging === "max"
                         ? "cursor-grabbing scale-110 shadow-xl"
                         : ""
@@ -735,7 +735,7 @@ export default function AllProductsSection() {
                     setMaxPrice(200000000);
                     setSortBy("default");
                   }}
-                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 text-sm font-medium"
+                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg border border-gray-200 hover:border-green-300 transition-all duration-200 text-sm font-medium"
                   title="Đặt lại bộ lọc"
                 >
                   <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
@@ -795,7 +795,7 @@ export default function AllProductsSection() {
                 {/* Selected Indicator */}
                 {selectedCategory === category.value && (
                   <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                       <svg
                         className="w-3 h-3 text-white"
                         fill="none"
@@ -859,12 +859,12 @@ export default function AllProductsSection() {
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category */}
-                    <div className="text-xs text-blue-600 font-medium mb-2">
+                    <div className="text-xs text-green-600 font-medium mb-2">
                       {product.category}
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-green-600 transition-colors">
                       {product.name}
                     </h3>
 
@@ -874,7 +874,7 @@ export default function AllProductsSection() {
                         {product.specs.slice(0, 2).map((spec, index) => (
                           <span
                             key={index}
-                            className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded"
+                            className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded"
                           >
                             {spec}
                           </span>
@@ -913,7 +913,7 @@ export default function AllProductsSection() {
                 setMaxPrice(200000000);
                 setSortBy("default");
               }}
-              className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+              className="mt-4 text-green-600 hover:text-green-700 font-medium"
             >
               Xóa bộ lọc
             </button>
@@ -951,7 +951,7 @@ export default function AllProductsSection() {
                   onClick={() => handlePageChange(pageNumber)}
                   className={`px-3 py-2 text-sm font-medium rounded-lg ${
                     currentPage === pageNumber
-                      ? "text-blue-600 bg-blue-50 border border-blue-300"
+                      ? "text-green-600 bg-green-50 border border-green-300"
                       : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
                   }`}
                 >

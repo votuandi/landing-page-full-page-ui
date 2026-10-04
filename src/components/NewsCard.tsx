@@ -113,7 +113,7 @@ export default function NewsCard({
             </div>
           </div>
 
-          <div className="text-solar-blue font-medium text-xs md:text-sm hover:text-blue-700 transition-colors">
+          <div className="text-solar-blue font-medium text-xs md:text-sm hover:text-green-700 transition-colors">
             Đọc thêm →
           </div>
         </div>

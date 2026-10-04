@@ -252,12 +252,12 @@ export default function BestSellerSection() {
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category */}
-                    <div className="text-xs text-blue-600 font-medium mb-2">
+                    <div className="text-xs text-green-600 font-medium mb-2">
                       {product.category}
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-green-600 transition-colors">
                       {product.name}
                     </h3>
 
@@ -291,7 +291,7 @@ export default function BestSellerSection() {
                         {product.specs.slice(0, 2).map((spec, index) => (
                           <span
                             key={index}
-                            className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded"
+                            className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded"
                           >
                             {spec}
                           </span>

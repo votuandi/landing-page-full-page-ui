@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
@@ -12,17 +11,17 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
+          50: "#f0fdf4",
+          100: "#dcfce7",
+          500: "#16a34a",
+          600: "#15803d",
+          700: "#166534",
         },
         solar: {
-          orange: "#ff6b35",
-          blue: "#004d7a",
-          green: "#008744",
-          yellow: "#ffa700",
+          orange: "#facc15",
+          blue: "#15803d",
+          green: "#16a34a",
+          yellow: "#facc15",
         },
       },
       fontFamily: {
@@ -41,50 +40,24 @@ const config: Config = {
       },
       keyframes: {
         "fade-in-up": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(30px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
+          "0%": { opacity: "0", transform: "translateY(30px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "slide-in-left": {
-          "0%": {
-            opacity: "0",
-            transform: "translateX(-50px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0)",
-          },
+          "0%": { opacity: "0", transform: "translateX(-50px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
         },
         "slide-in-right": {
-          "0%": {
-            opacity: "0",
-            transform: "translateX(50px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0)",
-          },
+          "0%": { opacity: "0", transform: "translateX(50px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
         },
         "float-up": {
-          "0%, 100%": {
-            transform: "translateY(0)",
-          },
-          "50%": {
-            transform: "translateY(-10px)",
-          },
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
         },
         "float-down": {
-          "0%, 100%": {
-            transform: "translateY(0)",
-          },
-          "50%": {
-            transform: "translateY(10px)",
-          },
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(10px)" },
         },
         "gradient-x": {
           "0%, 100%": {
@@ -97,36 +70,18 @@ const config: Config = {
           },
         },
         "spin-slow": {
-          "0%": {
-            transform: "rotate(0deg)",
-          },
-          "100%": {
-            transform: "rotate(360deg)",
-          },
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
         wave: {
-          "0%, 100%": {
-            transform: "translateX(0) translateY(0) scaleX(1)",
-          },
-          "25%": {
-            transform: "translateX(-5px) translateY(-2px) scaleX(1.02)",
-          },
-          "50%": {
-            transform: "translateX(0) translateY(-3px) scaleX(1)",
-          },
-          "75%": {
-            transform: "translateX(5px) translateY(-1px) scaleX(0.98)",
-          },
+          "0%, 100%": { transform: "translateX(0) translateY(0) scaleX(1)" },
+          "25%": { transform: "translateX(-5px) translateY(-2px) scaleX(1.02)" },
+          "50%": { transform: "translateX(0) translateY(-3px) scaleX(1)" },
+          "75%": { transform: "translateX(5px) translateY(-1px) scaleX(0.98)" },
         },
         "count-up": {
-          "0%": {
-            opacity: "0",
-            transform: "scale(0.5)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "scale(1)",
-          },
+          "0%": { opacity: "0", transform: "scale(0.5)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
       },
       boxShadow: {
@@ -142,4 +97,5 @@ const config: Config = {
   },
   plugins: [],
 };
+
 export default config;

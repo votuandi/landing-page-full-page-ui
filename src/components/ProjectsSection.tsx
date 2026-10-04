@@ -133,7 +133,7 @@ export default function ProjectsSection() {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      "Công nghiệp": "bg-blue-100 text-blue-800",
+      "Công nghiệp": "bg-green-100 text-green-800",
       "Dân dụng": "bg-green-100 text-green-800",
       "Thương mại": "bg-orange-100 text-orange-800",
       "Giáo dục": "bg-purple-100 text-purple-800",
@@ -145,7 +145,7 @@ export default function ProjectsSection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section className="py-20 bg-gradient-to-br from-gray-50 to-green-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -247,7 +247,7 @@ export default function ProjectsSection() {
             <div className="flex justify-end mb-6 md:hidden">
               <button
                 onClick={() => setShowAllMobile(true)}
-                className="text-blue-600 hover:text-blue-700 transition-colors duration-200 text-sm font-medium"
+                className="text-green-600 hover:text-green-700 transition-colors duration-200 text-sm font-medium"
               >
                 Xem thêm &gt;
               </button>

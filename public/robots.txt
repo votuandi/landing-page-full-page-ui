@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://phanphoisolar.com/sitemap.xml
+Host: https://phanphoisolar.com

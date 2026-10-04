@@ -433,7 +433,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                     {product.specs.slice(0, 2).map((spec, index) => (
                       <span
                         key={index}
-                        className="inline-block bg-blue-50 text-blue-700 text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded"
+                        className="inline-block bg-green-50 text-green-700 text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded"
                       >
                         {spec}
                       </span>
@@ -451,7 +451,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
         <div className="flex justify-end mt-6 md:hidden">
           <button
             onClick={() => setShowAllMobile(true)}
-            className="text-blue-600 hover:text-blue-700 transition-colors duration-200 text-sm font-medium"
+            className="text-green-600 hover:text-green-700 transition-colors duration-200 text-sm font-medium"
           >
             Xem thêm &gt;
           </button>
@@ -469,7 +469,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                 onClick={() => setCurrentIndex(index * productsPerView)}
                 className={`w-3 h-3 rounded-full transition-colors duration-200 ${
                   Math.floor(currentIndex / productsPerView) === index
-                    ? "bg-blue-600"
+                    ? "bg-green-600"
                     : "bg-gray-300 hover:bg-gray-400"
                 }`}
               />
@@ -505,7 +505,7 @@ const ProductSection: React.FC = () => {
         ))}
 
         <div className="text-center mt-12">
-          <button className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-lg font-medium">
+          <button className="bg-green-600 text-white py-3 px-8 rounded-lg hover:bg-green-700 transition-colors duration-200 text-lg font-medium">
             Xem Tất Cả Sản Phẩm
           </button>
         </div>

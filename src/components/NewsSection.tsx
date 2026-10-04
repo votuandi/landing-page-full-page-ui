@@ -224,7 +224,7 @@ export default function NewsSection() {
         {hasMoreNews && (
           <div className="flex justify-end mt-6 md:hidden">
             <Link href="/news">
-              <span className="text-blue-600 hover:text-blue-700 transition-colors duration-200 text-sm font-medium cursor-pointer">
+              <span className="text-green-600 hover:text-green-700 transition-colors duration-200 text-sm font-medium cursor-pointer">
                 Xem thêm &gt;
               </span>
             </Link>

@@ -1,39 +1,37 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const productLinks = [
-    { name: "Biến tần Inverter", href: "/inverter" },
-    { name: "Tấm pin Solar", href: "/solar-panels" },
-    { name: "Pin lưu trữ", href: "/batteries" },
-    { name: "Phụ kiện lắp đặt", href: "/accessories" },
+    { name: "Biến tần Inverter", href: "/product" },
+    { name: "Tấm pin Solar", href: "/product" },
+    { name: "Pin lưu trữ", href: "/product" },
+    { name: "Phụ kiện lắp đặt", href: "/product" },
   ];
 
   const serviceLinks = [
-    { name: "Tư vấn thiết kế", href: "/services/design" },
-    { name: "Lắp đặt hệ thống", href: "/services/installation" },
-    { name: "Bảo trì - Bảo hành", href: "/services/maintenance" },
-    { name: "Hỗ trợ kỹ thuật", href: "/services/support" },
-  ];
-
-  const companyLinks = [
-    { name: "Về chúng tôi", href: "/about" },
-    { name: "Dự án đã thực hiện", href: "/projects" },
-    { name: "Chứng nhận", href: "/certifications" },
-    { name: "Tuyển dụng", href: "/careers" },
+    { name: "Tư vấn thiết kế", href: "/service" },
+    { name: "Lắp đặt hệ thống", href: "/service" },
+    { name: "Bảo trì - Bảo hành", href: "/service" },
+    { name: "Hỗ trợ kỹ thuật", href: "/service" },
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-green-950 text-white">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">PS</span>
-              </div>
-              <span className="font-bold text-xl">Trọng Tín Solar</span>
+              <Image
+                src="/minwy-icon.png"
+                alt="Minwy Solar"
+                width={44}
+                height={44}
+                className="h-11 w-11 rounded-full"
+              />
+              <span className="font-bold text-xl">Minwy Solar</span>
             </div>
 
             <p className="text-gray-300 mb-6 leading-relaxed">
@@ -46,7 +44,7 @@ export default function Footer() {
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -58,7 +56,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -70,7 +68,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -82,7 +80,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
+                className="w-10 h-10 bg-green-900 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -135,7 +133,7 @@ export default function Footer() {
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 mt-1 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 mt-1 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -162,7 +160,7 @@ export default function Footer() {
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -175,16 +173,16 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="tel:0909019234"
+                  href="tel:0708699808"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  0909 019 234
+                  0708 699 808
                 </a>
               </div>
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -197,16 +195,16 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="mailto:info@phanphoisolar.com"
+                  href="mailto:divt.it97@gmail.com"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  info@phanphoisolar.com
+                  divt.it97@gmail.com
                 </a>
               </div>
 
               <div className="flex items-center space-x-3">
                 <svg
-                  className="w-5 h-5 text-primary-400 flex-shrink-0"
+                  className="w-5 h-5 text-yellow-300 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -234,7 +232,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Trọng Tín Solar. Tất cả quyền được bảo lưu.
+              © 2024 Minwy Solar. Tất cả quyền được bảo lưu.
             </p>
 
             <div className="flex space-x-6">

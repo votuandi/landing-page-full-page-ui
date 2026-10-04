@@ -2,116 +2,87 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { NAVIGATION_ITEMS, SITE_CONFIG } from "@/utils/constants";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const menuItems = [
-    { name: "Trang chủ", href: "/" },
-    { name: "Sản phẩm", href: "/product" },
-    { name: "Dịch vụ", href: "/service" },
-    { name: "Tin Tức", href: "/news" },
-    { name: "Về Chúng tôi", href: "/about-us" },
-    { name: "Liên hệ", href: "/contact-us" },
-  ];
-
   return (
     <>
-      {/* Top Banner */}
-      <section className="hero-gradient text-white py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-2 md:mb-0">
-              <h1 className="text-lg md:text-xl font-bold">Trọng Tín Solar</h1>
-              <p className="text-sm opacity-90">
-                Hệ thống năng lượng mặt trời chất lượng cao
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:block">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="px-4 py-2 rounded-lg text-gray-800 w-64"
-                />
-              </div>
-              <a
-                href="tel:0909019234"
-                className="bg-solar-orange hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Hotline: 0909019234
-              </a>
-            </div>
+      <div className="bg-primary-700 py-3 text-white">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-2 px-4 md:flex-row">
+          <div>
+            <p className="font-bold">{SITE_CONFIG.name}</p>
+            <p className="text-sm text-green-50">
+              Giải pháp năng lượng sạch cho gia đình và doanh nghiệp
+            </p>
           </div>
+          <a
+            href={`tel:${SITE_CONFIG.phone}`}
+            className="rounded-lg bg-solar-yellow px-4 py-2 font-semibold text-slate-900 transition hover:bg-yellow-300"
+          >
+            Hotline: {SITE_CONFIG.phone}
+          </a>
         </div>
-      </section>
+      </div>
 
-      {/* Navigation Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">PS</span>
-              </div>
-              <span className="font-bold text-xl text-gray-800">
-                Trọng Tín Solar
-              </span>
-            </Link>
+      <header className="sticky top-0 z-50 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2" aria-label="Minwy Solar - Trang chủ">
+            <Image
+              src="/minwy-icon.png"
+              alt="Minwy Solar"
+              width={44}
+              height={44}
+              priority
+              className="h-11 w-11 rounded-full"
+            />
+            <span className="text-xl font-bold text-primary-700">Minwy Solar</span>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {menuItems.map((item, index) => (
+          <nav className="hidden items-center gap-7 lg:flex" aria-label="Điều hướng chính">
+            {NAVIGATION_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="font-medium text-slate-700 transition hover:text-primary-600"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((open) => !open)}
+            className="rounded-lg border border-green-200 p-2 text-primary-700 lg:hidden"
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
+        {isMenuOpen && (
+          <nav id="mobile-navigation" className="border-t border-green-100 px-4 py-3 lg:hidden" aria-label="Điều hướng di động">
+            <div className="flex flex-col gap-1">
+              {NAVIGATION_ITEMS.map((item) => (
                 <Link
-                  key={index}
+                  key={item.href}
                   href={item.href}
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
+                  className="rounded-lg px-3 py-2 font-medium text-slate-700 hover:bg-green-50 hover:text-primary-700"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden flex items-center px-3 py-2 border rounded text-gray-500 border-gray-300 hover:text-gray-700 hover:border-gray-400"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <nav className="lg:hidden py-4 border-t">
-              <div className="flex flex-col space-y-2">
-                {menuItems.map((item, index) => (
-                  <Link
-                    key={index}
-                    href={item.href}
-                    className="text-gray-700 hover:text-primary-600 font-medium py-2 px-4 rounded hover:bg-gray-50 transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </nav>
-          )}
-        </div>
+            </div>
+          </nav>
+        )}
       </header>
     </>
   );
