@@ -200,7 +200,7 @@ export default function ProductDetailContent({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <button className="bg-solar-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              <button className="bg-solar-blue hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                 Thêm vào giỏ hàng
               </button>
               <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
@@ -229,7 +229,7 @@ export default function ProductDetailContent({
                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span>Hotline: 0909019234</span>
+                <span>Hotline: 0708699808</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg
@@ -245,7 +245,7 @@ export default function ProductDetailContent({
                     d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span>Email: info@phanphoisolar.com</span>
+                <span>Email: divt.it97@gmail.com</span>
               </div>
             </div>
           </div>
@@ -399,7 +399,7 @@ export default function ProductDetailContent({
 
                   <h4>Quy trình bảo hành:</h4>
                   <ol>
-                    <li>Liên hệ hotline: 0909019234</li>
+                    <li>Liên hệ hotline: 0708699808</li>
                     <li>Cung cấp thông tin sản phẩm và mô tả lỗi</li>
                     <li>Kỹ thuật viên đến kiểm tra và báo giá (nếu có)</li>
                     <li>Thực hiện sửa chữa hoặc thay thế</li>
