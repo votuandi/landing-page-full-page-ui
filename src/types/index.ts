@@ -58,7 +58,7 @@ export interface Service {
   title: string;
   description: string;
   image: string;
-  features: string[];
+  features: readonly string[];
   price: string;
   category: "household" | "business" | "maintenance" | "consultation";
   duration?: string;
