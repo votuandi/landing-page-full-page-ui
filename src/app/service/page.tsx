@@ -20,7 +20,7 @@ export default function ServicePage() {
                 Dịch Vụ Năng Lượng Mặt Trời
               </h1>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Trọng Tín Solar cung cấp đầy đủ các dịch vụ từ tư vấn, thiết kế,
+                Minwy Solar cung cấp đầy đủ các dịch vụ từ tư vấn, thiết kế,
                 lắp đặt đến bảo trì hệ thống năng lượng mặt trời. Chúng tôi cam
                 kết mang đến giải pháp tối ưu và dịch vụ chất lượng cao nhất.
               </p>
@@ -36,7 +36,7 @@ export default function ServicePage() {
                 onClick={() => setActiveTab("services")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === "services"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
@@ -61,7 +61,7 @@ export default function ServicePage() {
                 onClick={() => setActiveTab("warranty")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === "warranty"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
