@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "next/link";\nimport Image from "next/image";
 import { NAVIGATION_ITEMS, SITE_CONFIG } from "@/utils/constants";
 
 export default function Header() {
@@ -28,11 +28,16 @@ export default function Header() {
 
       <header className="sticky top-0 z-50 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2" aria-label="Trọng Tín Solar - Trang chủ">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 font-bold text-white">
-              TT
-            </span>
-            <span className="text-xl font-bold text-primary-700">Trọng Tín Solar</span>
+          <Link href="/" className="flex items-center gap-2" aria-label="Minwy Solar - Trang chủ">
+            <Image
+              src="/minwy-icon.png"
+              alt="Minwy Solar"
+              width={44}
+              height={44}
+              priority
+              className="h-11 w-11 rounded-full"
+            />
+            <span className="text-xl font-bold text-primary-700">Minwy Solar</span>
           </Link>
 
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Điều hướng chính">
