@@ -300,7 +300,7 @@ export default function CompletedProjectsSection() {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      "Công nghiệp": "bg-blue-100 text-blue-800",
+      "Công nghiệp": "bg-green-100 text-green-800",
       "Dân dụng": "bg-green-100 text-green-800",
       "Thương mại": "bg-orange-100 text-orange-800",
       "Giáo dục": "bg-purple-100 text-purple-800",
