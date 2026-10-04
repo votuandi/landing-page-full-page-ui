@@ -26,7 +26,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">PS</span>
               </div>
-              <span className="font-bold text-xl">Trọng Tín Solar</span>
+              <span className="font-bold text-xl">Minwy Solar</span>
             </div>
 
             <p className="text-gray-300 mb-6 leading-relaxed">
@@ -168,7 +168,7 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="tel:0909019234"
+                  href="tel:0708699808"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   0909 019 234
@@ -190,10 +190,10 @@ export default function Footer() {
                   />
                 </svg>
                 <a
-                  href="mailto:info@phanphoisolar.com"
+                  href="mailto:divt.it97@gmail.com"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  info@phanphoisolar.com
+                  divt.it97@gmail.com
                 </a>
               </div>
 
@@ -227,7 +227,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Trọng Tín Solar. Tất cả quyền được bảo lưu.
+              © 2024 Minwy Solar. Tất cả quyền được bảo lưu.
             </p>
 
             <div className="flex space-x-6">
