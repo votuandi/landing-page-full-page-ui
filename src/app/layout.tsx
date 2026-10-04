@@ -1,41 +1,55 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { SITE_CONFIG } from "@/utils/constants";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#15803d",
+};
 
 export const metadata: Metadata = {
-  title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
+  metadataBase: new URL(SITE_CONFIG.url),
+  title: {
+    default: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
+    template: "%s | Trọng Tín Solar",
+  },
   description:
-    "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-  keywords:
-    "năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, solar panel, renewable energy",
-  authors: [{ name: "Trọng Tín Solar" }],
-  creator: "Trọng Tín Solar",
-  publisher: "Trọng Tín Solar",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL("https://phanphoisolar.com"),
-  alternates: {
-    canonical: "/",
-  },
+    "Trọng Tín Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
+  keywords: [
+    "năng lượng mặt trời",
+    "điện mặt trời",
+    "tấm pin solar",
+    "biến tần inverter",
+    "pin lưu trữ",
+    "thi công điện mặt trời",
+  ],
+  authors: [{ name: SITE_CONFIG.name }],
+  creator: SITE_CONFIG.name,
+  publisher: SITE_CONFIG.name,
+  alternates: { canonical: "/" },
+  category: "renewable energy",
   openGraph: {
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
+    title: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
     description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.",
-    url: "https://phanphoisolar.com",
-    siteName: "Trọng Tín Solar",
+      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/images/solar-panels-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
+        alt: "Hệ thống năng lượng mặt trời Trọng Tín Solar",
       },
     ],
     locale: "vi_VN",
@@ -43,10 +57,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trọng Tín Solar - Hệ thống Năng lượng Mặt trời",
+    title: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
     description:
-      "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao.",
-    images: ["/og-image.jpg"],
+      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
+    images: ["/images/solar-panels-hero.jpg"],
   },
   robots: {
     index: true,
@@ -59,42 +73,39 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code",
+  icons: {
+    icon: "/favicon.ico",
   },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: SITE_CONFIG.name,
+  url: SITE_CONFIG.url,
+  telephone: SITE_CONFIG.phone,
+  email: SITE_CONFIG.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: SITE_CONFIG.address,
+    addressCountry: "VN",
+  },
+  areaServed: "VN",
+  description: SITE_CONFIG.description,
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="vi" className={inter.variable}>
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
+      <body className="bg-white font-sans text-slate-900 antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#0ea5e9" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body className={`${inter.className} antialiased`}>
         <Header />
         {children}
         <Footer />
