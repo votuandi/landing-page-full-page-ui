@@ -1,3 +1,5 @@
+import type { Service } from "@/types";
+
 // Shared content and configuration for the solar website.
 
 export const SITE_CONFIG = {
@@ -42,7 +44,7 @@ export const PRODUCT_STATISTICS = [
   { label: "Hỗ trợ kỹ thuật", value: "24/7", color: "text-solar-yellow" },
 ] as const;
 
-export const SERVICES = [
+export const SERVICES: Service[] = [
   {
     id: 1,
     title: "Tư vấn và thiết kế hệ thống điện hộ gia đình",
@@ -131,9 +133,9 @@ export const SERVICES = [
     duration: "1-3 ngày",
     warranty: "3 năm",
   },
-] as const;
+];
 
-export const SERVICE_CATEGORIES = [
+export const SERVICE_CATEGORIES/ = [
   { id: "all", name: "Tất cả dịch vụ", count: SERVICES.length },
   { id: "household", name: "Hộ gia đình", count: SERVICES.filter((service) => service.category === "household").length },
   { id: "business", name: "Doanh nghiệp", count: SERVICES.filter((service) => service.category === "business").length },
