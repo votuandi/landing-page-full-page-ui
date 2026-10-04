@@ -1,4 +1,4 @@
-# Trọng Tín Solar - Landing Page
+# Minwy Solar - Landing Page
 
 A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.
 
@@ -158,11 +158,11 @@ This project is ready for deployment on:
 
 ## License
 
-This project is proprietary software for Trọng Tín Solar.
+This project is proprietary software for Minwy Solar.
 
 ## Support
 
 For technical support or questions:
 
-- Email: info@phanphoisolar.com
+- Email: divt.it97@gmail.com
 - Phone: 0909 019 234
