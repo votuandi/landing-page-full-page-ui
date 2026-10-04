@@ -25,7 +25,7 @@
   height: 20px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid #3b82f6;
+  border: 3px solid #16a34a;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
@@ -33,13 +33,13 @@
 }
 
 .price-slider::-webkit-slider-thumb:hover {
-  border-color: #2563eb;
+  border-color: #15803d;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
   transform: scale(1.1);
 }
 
 .price-slider::-webkit-slider-thumb:active {
-  border-color: #1d4ed8;
+  border-color: #166534;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.6);
   transform: scale(1.05);
 }
@@ -56,14 +56,14 @@
   height: 20px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid #3b82f6;
+  border: 3px solid #16a34a;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
 }
 
 .price-slider::-moz-range-thumb:hover {
-  border-color: #2563eb;
+  border-color: #15803d;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
   transform: scale(1.1);
 }
@@ -116,7 +116,7 @@ body {
 
 /* Custom styles for solar website */
 .hero-gradient {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 }
 
 .solar-shadow {
@@ -168,7 +168,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #166534 0%, #16a34a 100%);
   z-index: -1;
 }
 
@@ -201,12 +201,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0ea5e9;
+  background: #16a34a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: #15803d;
 }
 
 /* Hero Animations */
