@@ -5,7 +5,7 @@ export interface Product {
   title: string;
   description: string;
   image: string;
-  features: readonly string[];
+  features: string[];
   price: string;
   href: string;
   category?: string;
@@ -58,7 +58,7 @@ export interface Service {
   title: string;
   description: string;
   image: string;
-  features: readonly string[];
+  features: string[];
   price: string;
   category: "household" | "business" | "maintenance" | "consultation";
   duration?: string;
