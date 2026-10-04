@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";\nimport { SITE_CONFIG } from "@/utils/constants";
+import Link from "next/link";
+import { SITE_CONFIG } from "@/utils/constants";
 
 interface Slide {
   id: number;
