@@ -1,42 +1,20 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { SITE_CONFIG } from "@/utils/constants";
+
+const routes = [
+  { path: "", changeFrequency: "weekly" as const, priority: 1 },
+  { path: "/product", changeFrequency: "weekly" as const, priority: 0.9 },
+  { path: "/service", changeFrequency: "monthly" as const, priority: 0.8 },
+  { path: "/news", changeFrequency: "weekly" as const, priority: 0.7 },
+  { path: "/about-us", changeFrequency: "yearly" as const, priority: 0.6 },
+  { path: "/contact-us", changeFrequency: "yearly" as const, priority: 0.6 },
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: "https://phanphoisolar.com",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 1,
-    },
-    {
-      url: "https://phanphoisolar.com/inverter",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: "https://phanphoisolar.com/solar-panels",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: "https://phanphoisolar.com/batteries",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: "https://phanphoisolar.com/news",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.5,
-    },
-    {
-      url: "https://phanphoisolar.com/contact",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-  ];
+  return routes.map((route) => ({
+    url: `${SITE_CONFIG.url}${route.path}`,
+    lastModified: new Date(),
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
+  }));
 }
