@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ScrollRevealObserver from "@/components/ScrollRevealObserver";
 import { SITE_CONFIG } from "@/utils/constants";
 
 const inter = Inter({
@@ -106,6 +107,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
+        <ScrollRevealObserver />
         <Header />
         {children}
         <Footer />
