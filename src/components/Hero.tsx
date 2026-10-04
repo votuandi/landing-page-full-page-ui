@@ -68,7 +68,7 @@ export default function Hero() {
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
                 <Image
                   src="/images/solar-installation-hero.jpg"
-                  alt="Hệ thống điện mặt trời được thi công bởi Trọng Tín Solar"
+                  alt="Hệ thống điện mặt trời được thi công bởi Minwy Solar"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"
