@@ -15,13 +15,6 @@ export default function Footer() {
     { name: "Hỗ trợ kỹ thuật", href: "/service" },
   ];
 
-  const companyLinks = [
-    { name: "Về chúng tôi", href: "/about" },
-    { name: "Dự án đã thực hiện", href: "/projects" },
-    { name: "Chứng nhận", href: "/certifications" },
-    { name: "Tuyển dụng", href: "/careers" },
-  ];
-
   return (
     <footer className="bg-green-950 text-white">
       {/* Main Footer */}
