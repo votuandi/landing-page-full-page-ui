@@ -20,11 +20,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: {
-    default: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
-    template: "%s | Trọng Tín Solar",
+    default: "Minwy Solar | Giải pháp năng lượng mặt trời",
+    template: "%s | Minwy Solar",
   },
   description:
-    "Trọng Tín Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
+    "Minwy Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
   keywords: [
     "năng lượng mặt trời",
     "điện mặt trời",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   category: "renewable energy",
   openGraph: {
-    title: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
+    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
     description:
       "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
     url: SITE_CONFIG.url,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
         url: "/images/solar-panels-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Hệ thống năng lượng mặt trời Trọng Tín Solar",
+        alt: "Hệ thống năng lượng mặt trời Minwy Solar",
       },
     ],
     locale: "vi_VN",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trọng Tín Solar | Giải pháp năng lượng mặt trời",
+    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
     description:
       "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
     images: ["/images/solar-panels-hero.jpg"],
