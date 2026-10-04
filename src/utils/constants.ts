@@ -3,11 +3,11 @@ import type { Service } from "@/types";
 // Shared content and configuration for the solar website.
 
 export const SITE_CONFIG = {
-  name: "Trọng Tín Solar",
+  name: "Minwy Solar",
   description: "Thiết bị và giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp.",
   url: "https://phanphoisolar.com",
-  phone: "0909019234",
-  email: "info@phanphoisolar.com",
+  phone: "0708699808",
+  email: "divt.it97@gmail.com",
   address: "Lấp Vò, Đồng Tháp, Việt Nam",
   workingHours: "Thứ 2 - Thứ 6: 8:00 - 17:30, Thứ 7: 8:00 - 12:00",
   coordinates: {
