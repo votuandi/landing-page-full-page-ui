@@ -1,11 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    optimizePackageImports: ["lucide-react"],
-  },
+  compress: true,
+  poweredByHeader: false,
   images: {
-    domains: ["phanphoisolar.com"],
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "phanphoisolar.com",
+      },
+    ],
   },
 };
 
