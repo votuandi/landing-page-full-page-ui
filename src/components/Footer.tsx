@@ -176,7 +176,7 @@ export default function Footer() {
                   href="tel:0708699808"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  0909 019 234
+                  0708 699 808
                 </a>
               </div>
 
