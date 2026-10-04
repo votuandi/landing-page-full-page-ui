@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "next/link";\nimport { SITE_CONFIG } from "@/utils/constants";
 
 interface Slide {
   id: number;
@@ -59,7 +59,7 @@ export default function SliderBanner() {
   }, [slideCount]);
 
   return (
-    <section className="relative isolate min-h-[72vh] overflow-hidden bg-primary-900">
+    <section className="relative isolate min-h-[calc(100vh-7.5rem)] overflow-hidden bg-slate-900">
       {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
@@ -77,8 +77,8 @@ export default function SliderBanner() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-950/85 via-green-900/65 to-slate-950/35" />
-          <div className="container relative mx-auto flex min-h-[72vh] items-center px-4 py-20">
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="container relative mx-auto flex min-h-[calc(100vh-7.5rem)] items-center px-4 py-20">
             <div className="max-w-3xl text-white">
               <p className="mb-4 font-semibold tracking-[0.2em] text-yellow-300">{slide.title}</p>
               <h2 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">{slide.subtitle}</h2>
@@ -87,8 +87,8 @@ export default function SliderBanner() {
                 <Link href={slide.buttonLink} className="rounded-lg bg-yellow-400 px-7 py-3 font-semibold text-slate-900 transition hover:bg-yellow-300">
                   {slide.buttonText}
                 </Link>
-                <a href="tel:0909019234" className="rounded-lg border border-white/60 px-7 py-3 font-semibold text-white transition hover:bg-white/10">
-                  Gọi 0909019234
+                <a href={`tel:${SITE_CONFIG.phone}`} className="rounded-lg border border-white/60 px-7 py-3 font-semibold text-white transition hover:bg-white/10">
+                  Gọi {SITE_CONFIG.phone}
                 </a>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function SliderBanner() {
         </div>
       ))}
 
-      <div className="container relative z-20 mx-auto flex min-h-[72vh] items-end justify-center px-4 pb-8">
+      <div className="container relative z-20 mx-auto flex min-h-[calc(100vh-7.5rem)] items-end justify-center px-4 pb-8">
         <div className="flex gap-2" role="tablist" aria-label="Banner trang chủ">
           {SLIDES.map((slide, index) => (
             <button
