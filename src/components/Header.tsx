@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";\nimport Image from "next/image";
+import Link from "next/link";
+import Image from "next/image";
 import { NAVIGATION_ITEMS, SITE_CONFIG } from "@/utils/constants";
 
 export default function Header() {
