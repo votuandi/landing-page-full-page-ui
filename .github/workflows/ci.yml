@@ -25,6 +25,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify branding
+        run: |
+          if grep -R -n -E "Trọng Tín Solar|0909019234|info@phanphoisolar.com" --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "Legacy branding/contact values are still present."
+            exit 1
+          fi
+
+      - name: Check direct blue UI classes
+        run: |
+          matches=$(grep -R -n "blue-" src --include="*.tsx" --include="*.ts" --include="*.css" | grep -v "solar-blue" || true)
+          if [ -n "$matches" ]; then
+            echo "$matches"
+            echo "Direct blue UI classes are still present."
+            exit 1
+          fi
+
       - name: Type check
         run: npm run typecheck
 
