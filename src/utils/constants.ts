@@ -135,7 +135,7 @@ export const SERVICES: Service[] = [
   },
 ];
 
-export const SERVICE_CATEGORIES/ = [
+export const SERVICE_CATEGORIES = [
   { id: "all", name: "Tất cả dịch vụ", count: SERVICES.length },
   { id: "household", name: "Hộ gia đình", count: SERVICES.filter((service) => service.category === "household").length },
   { id: "business", name: "Doanh nghiệp", count: SERVICES.filter((service) => service.category === "business").length },
