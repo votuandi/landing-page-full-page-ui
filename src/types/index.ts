@@ -5,7 +5,7 @@ export interface Product {
   title: string;
   description: string;
   image: string;
-  features: string[];
+  features: readonly string[];
   price: string;
   href: string;
   category?: string;
