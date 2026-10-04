@@ -27,7 +27,7 @@ jobs:
 
       - name: Verify branding
         run: |
-          if grep -R -n -E "Trọng Tín Solar|0909019234|info@phanphoisolar.com" --exclude-dir=node_modules --exclude-dir=.git .; then
+          if grep -R -n -E "Trọng Tín Solar|0909019234|info@phanphoisolar.com" --exclude-dir=node_modules --exclude-dir=.git --exclude="ci.yml" .; then
             echo "Legacy branding/contact values are still present."
             exit 1
           fi
