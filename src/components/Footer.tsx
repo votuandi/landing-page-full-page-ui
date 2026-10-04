@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const productLinks = [
@@ -23,9 +24,13 @@ export default function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">PS</span>
-              </div>
+              <Image
+                src="/minwy-icon.png"
+                alt="Minwy Solar"
+                width={44}
+                height={44}
+                className="h-11 w-11 rounded-full"
+              />
               <span className="font-bold text-xl">Minwy Solar</span>
             </div>
 
