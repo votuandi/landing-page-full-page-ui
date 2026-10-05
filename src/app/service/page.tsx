@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import ServicePageClient from "@/components/ServicePageClient";
 import { Service } from "@/types";
 import { getCachedCompanyInfo } from "@/lib/cachedCompany";
+import WarmPageHero from "@/components/WarmPageHero";
 
 async function getServices() {
   try {
@@ -96,23 +97,34 @@ export default async function ServicePage() {
 
   return (
     <main className="min-h-screen">
-      <div className="bg-gray-50">
-        {/* Page Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Dịch Vụ Năng Lượng Mặt Trời
-              </h1>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                {companyInfo?.companyName || ""} cung cấp đầy đủ các
-                dịch vụ từ tư vấn, thiết kế, lắp đặt đến bảo trì hệ thống năng
-                lượng mặt trời. Chúng tôi cam kết mang đến giải pháp tối ưu và
-                dịch vụ chất lượng cao nhất.
-              </p>
-            </div>
+      <div className="bg-[#fffaf0]">
+        <WarmPageHero
+          eyebrow="Từ khảo sát đến vận hành"
+          title="Dịch vụ solar trọn quy trình, rõ trách nhiệm ở từng bước"
+          description={`${companyInfo?.companyName || "Chúng tôi"} đồng hành từ tư vấn, thiết kế, lắp đặt đến bảo trì để hệ thống hoạt động ổn định và dễ kiểm soát lâu dài.`}
+          image="/images/solar-installation-hero.jpg"
+          primaryLabel="Đăng ký khảo sát"
+          primaryHref="/contact-us"
+          secondaryLabel="Xem sản phẩm"
+          secondaryHref="/product"
+        />
+
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              ["01", "Khảo sát", "Đánh giá hiện trạng, nhu cầu và điều kiện thi công."],
+              ["02", "Thiết kế", "Lên cấu hình, phương án kỹ thuật và dự toán phù hợp."],
+              ["03", "Lắp đặt", "Thi công gọn, an toàn và kiểm tra vận hành trước bàn giao."],
+              ["04", "Bảo hành", "Theo dõi, bảo trì và hỗ trợ kỹ thuật sau khi hệ thống hoạt động."],
+            ].map(([step, title, detail]) => (
+              <div key={step} className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+                <div className="text-sm font-black tracking-[0.2em] text-orange-600">{step}</div>
+                <h2 className="mt-3 text-xl font-bold text-stone-900">{title}</h2>
+                <p className="mt-2 leading-7 text-stone-600">{detail}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
 
         {/* Service Content */}
         <ServicePageClient services={services} />
