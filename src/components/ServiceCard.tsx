@@ -27,7 +27,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       case "household":
         return "bg-green-100 text-green-800";
       case "business":
-        return "bg-blue-100 text-blue-800";
+        return "bg-amber-100 text-orange-800";
       case "maintenance":
         return "bg-orange-100 text-orange-800";
       case "consultation":
@@ -117,7 +117,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-blue-600">
+            <span className="text-2xl font-bold text-orange-600">
               {service.price || "Liên hệ"}
             </span>
             {service.duration && (
@@ -137,7 +137,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         <div className="flex justify-end">
-          <span className="text-blue-600 font-medium text-sm hover:text-blue-700 transition-colors">
+          <span className="text-orange-600 font-medium text-sm hover:text-orange-700 transition-colors">
             Xem chi tiết →
           </span>
         </div>
