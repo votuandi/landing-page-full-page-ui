@@ -72,7 +72,7 @@ export default function CompanyStorySection() {
                   className="w-full h-80 object-cover rounded-xl mb-6"
                 />
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-xl">
+                  <div className="text-center p-4 bg-amber-50 rounded-xl">
                     <div className="text-2xl font-bold text-solar-blue">
                       {companyInfo?.storyItems?.[0]?.title || ""}
                     </div>
