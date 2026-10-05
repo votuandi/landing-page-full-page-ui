@@ -217,7 +217,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
         <div className="flex justify-end mt-6 md:hidden">
           <button
             onClick={() => setShowAllMobile(true)}
-            className="text-blue-600 hover:text-blue-700 transition-colors duration-200 text-sm font-medium"
+            className="text-orange-600 hover:text-orange-700 transition-colors duration-200 text-sm font-medium"
           >
             Xem thêm &gt;
           </button>
@@ -234,7 +234,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                 key={index}
                 onClick={() => setCurrentIndex(index * productsPerView)}
                 className={`w-3 h-3 rounded-full transition-colors duration-200 ${Math.floor(currentIndex / productsPerView) === index
-                  ? "bg-blue-600"
+                  ? "bg-orange-600"
                   : "bg-gray-300 hover:bg-gray-400"
                   }`}
               />
@@ -310,7 +310,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ initialProducts }) => {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
             <p className="mt-4 text-gray-600">Đang tải sản phẩm...</p>
           </div>
         ) : error ? (
@@ -318,7 +318,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ initialProducts }) => {
             <p className="text-red-600 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="bg-orange-600 text-white py-2 px-6 rounded-lg hover:bg-orange-700 transition-colors duration-200"
             >
               Thử lại
             </button>
@@ -336,7 +336,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ initialProducts }) => {
 
         <div className="text-center mt-12">
           <Link href="/product">
-            <button className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-lg font-medium">
+            <button className="bg-orange-600 text-white py-3 px-8 rounded-lg hover:bg-orange-700 transition-colors duration-200 text-lg font-medium">
               Xem Tất Cả Sản Phẩm
             </button>
           </Link>
