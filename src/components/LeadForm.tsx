@@ -28,11 +28,11 @@ export default function LeadForm({ source = "website", compact = false, defaultM
       <label className="t5-label">Số điện thoại<input name="phone" required inputMode="tel" className="t5-input" placeholder="09xx xxx xxx" /></label>
       {!compact && <label className="t5-label">Email<input name="email" type="email" className="t5-input" placeholder="name@company.vn" /></label>}
       {!compact && <label className="t5-label">Doanh nghiệp / công trình<input name="company" className="t5-input" placeholder="Tên công ty hoặc loại công trình" /></label>}
-      <label className={compact ? "t5-label" : "t5-label md:col-span-2"}>Nhu cầu<textarea name="message" defaultValue={defaultMessage} rows={compact ? 3 : 4} className="t5-input resize-none" placeholder="Tiền điện/tháng, diện tích mái, nhu cầu backup..." /></label>
+      <label className={compact ? "t5-label" : "t5-label md:col-span-2"}>Nhu cầu<textarea name="message" defaultValue={defaultMessage} rows={compact ? 3 : 4} className="t5-input resize-none" placeholder="Tiền điện/tháng, diện tích mái, nhu cầu điện dự phòng..." /></label>
       <button disabled={status === "sending"} className={compact ? "t5-button t5-button-primary" : "t5-button t5-button-primary md:col-span-2"}>
         {status === "sending" ? "Đang gửi..." : "Nhận tư vấn & báo giá"}
       </button>
-      {status === "error" && <p className="text-sm font-bold text-red-600 md:col-span-2">Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi hotline.</p>}
+      {status === "error" && <p className="text-sm font-bold text-red-600 md:col-span-2">Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi số điện thoại hỗ trợ.</p>}
     </form>
   );
 }

@@ -4,8 +4,8 @@ import { SERVICES } from "@/data/solar";
 import { makeMetadata } from "@/utils/solar";
 
 export const metadata = makeMetadata(
-  "Giải pháp solar nhà xưởng, gia đình, hybrid & O&M",
-  "Giải pháp điện mặt trời theo từng bài toán: C&I, hộ tiêu thụ cao, hybrid lưu trữ và O&M định kỳ.",
+  "Giải pháp điện mặt trời nhà xưởng, gia đình, hybrid & O&M",
+  "Giải pháp điện mặt trời theo từng bài toán: C&I, hộ tiêu thụ cao, hệ hybrid & lưu trữ và O&M định kỳ.",
   "/service",
   "/images/solar-installation-hero.jpg"
 );

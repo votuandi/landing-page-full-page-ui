@@ -62,11 +62,11 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
       {demoVisible && (
         <div className="t5-demo-bar">
           <div className="t5-container flex min-h-11 items-center justify-between gap-3 py-2 text-xs sm:text-sm">
-            <div className="font-bold">Đây là website mẫu dành cho doanh nghiệp solar.</div>
+            <div className="font-bold">Đây là trang web mẫu dành cho doanh nghiệp điện mặt trời.</div>
             <div className="flex items-center gap-2">
               <a href={SITE_CONFIG.demo.templateCtaUrl} className="t5-demo-link">Dùng mẫu này cho công ty tôi</a>
               <a href={SITE_CONFIG.demo.pricingUrl} className="hidden t5-demo-link sm:inline-flex">Xem bảng giá</a>
-              <button type="button" onClick={() => setDemoVisible(false)} aria-label="Ẩn thanh website mẫu"><XMarkIcon className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setDemoVisible(false)} aria-label="Ẩn thanh trang web mẫu"><XMarkIcon className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
@@ -114,10 +114,10 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
           <div>
             <h2 className="t5-footer-title">Giải pháp</h2>
             <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Solar nhà xưởng</Link>
-              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Solar hộ gia đình</Link>
-              <Link className="block hover:text-white" href="/service/hybrid-luu-tru">Hybrid lưu trữ</Link>
-              <Link className="block hover:text-white" href="/service/om-ve-sinh">O&M & vệ sinh</Link>
+              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Điện mặt trời nhà xưởng</Link>
+              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Điện mặt trời hộ gia đình</Link>
+              <Link className="block hover:text-white" href="/service/hybrid-luu-tru">Hệ hybrid & lưu trữ</Link>
+              <Link className="block hover:text-white" href="/service/om-ve-sinh">Vận hành, bảo trì (O&M) & vệ sinh</Link>
             </div>
           </div>
           <div>
@@ -138,7 +138,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
+        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Trang web mẫu.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
       </footer>
 
       {SITE_CONFIG.demo.enabled && (
@@ -168,9 +168,9 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-0 z-[70] flex justify-end bg-slate-950/50" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
           <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
           <aside className="relative h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">RFQ</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
-            <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem catalog thiết bị"}</Link>
+            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">Yêu cầu báo giá</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
+            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong danh mục để gửi một yêu cầu báo giá chung.</p>}
+            <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem danh mục thiết bị"}</Link>
           </aside>
         </div>
       )}

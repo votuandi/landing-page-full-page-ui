@@ -50,7 +50,7 @@ export default function ProductCatalog() {
     <section className="t5-section bg-slate-50">
       <div className="t5-container">
         <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div><span className="t5-eyebrow">Catalog kỹ thuật</span><h2 className="mt-2 text-3xl font-black text-[var(--t5-primary)]">Thiết bị theo cấu hình hệ thống</h2></div>
+          <div><span className="t5-eyebrow">Danh mục kỹ thuật</span><h2 className="mt-2 text-3xl font-black text-[var(--t5-primary)]">Thiết bị theo cấu hình hệ thống</h2></div>
           <div className="flex gap-2"><button type="button" onClick={() => setDrawer(true)} className="t5-button t5-button-secondary lg:hidden"><AdjustmentsHorizontalIcon className="h-5 w-5" /> Bộ lọc</button><select value={sort} onChange={(e) => setQuery("sort",e.target.value)} className="t5-input !w-auto"><option value="featured">Đề xuất</option><option value="price-asc">Giá thấp → cao</option><option value="power-desc">Công suất cao → thấp</option></select></div>
         </div>
 
@@ -62,7 +62,7 @@ export default function ProductCatalog() {
               <Link href={`/product/${p.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-slate-100"><Image src={p.image} alt={`${p.brand} ${p.name}`} fill className="object-cover transition duration-500 group-hover:scale-[1.03]" /></Link>
               <div className="flex flex-1 flex-col p-5"><div className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{p.brand}</div><Link href={`/product/${p.slug}`}><h3 className="mt-2 text-lg font-black leading-snug text-[var(--t5-primary)]">{p.name}</h3></Link>
               <dl className="mt-4 grid gap-2 text-sm">{Object.entries(p.specs).slice(0,3).map(([k,v]) => <div key={k} className="flex justify-between gap-4 border-b border-slate-100 pb-2"><dt className="text-slate-500">{k}</dt><dd className="text-right font-bold text-slate-800">{v}</dd></div>)}</dl>
-              <div className="mt-auto pt-5"><div className="text-lg font-black text-[var(--t5-primary)]">{p.quoteOnly || !p.price ? "Liên hệ báo giá" : formatMoney(p.price)}</div><div className="mt-3 grid grid-cols-2 gap-2"><Link href={`/product/${p.slug}`} className="t5-button t5-button-secondary justify-center">Chi tiết</Link><button type="button" onClick={() => { rfq.add(p.slug); rfq.open(); }} className="t5-button t5-button-primary justify-center">Thêm RFQ</button></div></div>
+              <div className="mt-auto pt-5"><div className="text-lg font-black text-[var(--t5-primary)]">{p.quoteOnly || !p.price ? "Liên hệ báo giá" : formatMoney(p.price)}</div><div className="mt-3 grid grid-cols-2 gap-2"><Link href={`/product/${p.slug}`} className="t5-button t5-button-secondary justify-center">Chi tiết</Link><button type="button" onClick={() => { rfq.add(p.slug); rfq.open(); }} className="t5-button t5-button-primary justify-center">Thêm báo giá</button></div></div>
               </div>
             </article>)}</div> : <div className="border border-dashed border-slate-300 bg-white p-12 text-center"><div className="text-xl font-black text-[var(--t5-primary)]">Không có kết quả</div><p className="mt-2 text-slate-500">Hãy nới công suất, khoảng giá hoặc chọn lại hãng.</p><button type="button" onClick={() => router.replace(pathname)} className="mt-5 t5-button t5-button-primary">Xóa bộ lọc</button></div>}
           </div>

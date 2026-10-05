@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  brand: { name: "Minwy Solar", legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]", tagline: "Industrial solar engineering. Measurable energy performance.", logoText: "MW" },
+  brand: { name: "Minwy Solar", legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]", tagline: "Kỹ thuật điện mặt trời công nghiệp. Hiệu suất năng lượng có thể đo lường.", logoText: "MW" },
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-6.minwysoft.com",
   contact: {
     phone: "0901 234 567", phoneRaw: "0901234567", zalo: "https://zalo.me/0901234567",
@@ -33,8 +33,8 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const THEME_PRESETS = {
-  industrial: { label: "Navy / Đỏ đô", primary: "#071b33", accent: "#f5b927" },
+  industrial: { label: "Xanh navy / Đỏ đô", primary: "#071b33", accent: "#f5b927" },
   burgundy: { label: "Đỏ đô", primary: "#641723", accent: "#f5b927" },
-  deepNavy: { label: "Navy đậm", primary: "#08172b", accent: "#ffca3a" },
+  deepNavy: { label: "Xanh navy đậm", primary: "#08172b", accent: "#ffca3a" },
   graphite: { label: "Than kỹ thuật", primary: "#19202b", accent: "#f5b927" }
 } as const;

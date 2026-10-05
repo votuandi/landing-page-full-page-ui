@@ -3,8 +3,8 @@ import IndustrialSolarHomepage from "@/components/IndustrialSolarHomepage";
 import { makeMetadata } from "@/utils/solar";
 
 export const metadata = makeMetadata(
-  "Minwy Solar | Industrial Solar Engineering & Investment",
-  "Giải pháp điện mặt trời công nghiệp theo hướng engineering-first: phân tích phụ tải 24h, single-line system, monitoring và financial proposal cho doanh nghiệp.",
+  "Minwy Solar | Kỹ thuật & đầu tư điện mặt trời công nghiệp",
+  "Giải pháp điện mặt trời công nghiệp theo hướng ưu tiên kỹ thuật: phân tích phụ tải 24 giờ, sơ đồ một sợi, giám sát vận hành và hồ sơ tài chính cho doanh nghiệp.",
   "/"
 );
 
