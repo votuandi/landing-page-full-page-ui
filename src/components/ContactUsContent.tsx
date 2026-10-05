@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { SITE_CONFIG, SOCIAL_LINKS, SERVICES } from "@/utils/constants";
 import {
   PhoneIcon,
@@ -9,8 +8,6 @@ import {
   MapPinIcon,
   PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { fetchOffices, Office } from "@/lib/features/offices/officesSlice";
 
 // Product categories from ProductSection component
 const productCategories = {
@@ -65,11 +62,6 @@ interface ContactFormData {
 }
 
 export default function ContactUsContent() {
-  const dispatch = useAppDispatch();
-  const searchParams = useSearchParams();
-  const formRef = useRef<HTMLDivElement>(null);
-  const { offices, loading: officesLoading } = useAppSelector((state) => state.offices);
-
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     phone: "",
@@ -80,161 +72,6 @@ export default function ContactUsContent() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [hasAutoFilled, setHasAutoFilled] = useState(false);
-  const [productsFromDB, setProductsFromDB] = useState<Array<{ id: number; title: string }>>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [phoneError, setPhoneError] = useState<string>("");
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Track client-side mount to prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Fetch offices on component mount
-  useEffect(() => {
-    dispatch(fetchOffices({ limit: 100 })); // Fetch all offices
-  }, [dispatch]);
-
-  // Fetch products from database
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoadingProducts(true);
-        // Fetch all active products
-        const response = await fetch("/api/products?isActive=true&limit=200");
-        if (response.ok) {
-          const data = await response.json();
-          const products = data.data || [];
-          setProductsFromDB(
-            products.map((p: any) => ({
-              id: p.id,
-              title: p.title,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  // Set default office to main office or first office
-  useEffect(() => {
-    if (offices.length > 0 && !selectedOffice) {
-      const mainOffice = offices.find((office) => office.isMainOffice);
-      setSelectedOffice(mainOffice || offices[0]);
-    }
-  }, [offices, selectedOffice]);
-
-  // Handle URL params for product purchase
-  useEffect(() => {
-    const type = searchParams.get("type");
-    const productId = searchParams.get("productId");
-    const amount = searchParams.get("amount");
-
-    if (type === "product" && productId && amount && !hasAutoFilled) {
-      // Fetch product information
-      const fetchProduct = async () => {
-        try {
-          const response = await fetch(`/api/products/${productId}`);
-          if (response.ok) {
-            const product = await response.json();
-            const productTitle = product.title || "";
-            const productIdNum = parseInt(productId);
-
-            // Ensure the product is in the productsFromDB list using functional update
-            setProductsFromDB((prev) => {
-              const productExists = prev.some((p) => p.id === productIdNum);
-              if (!productExists && productTitle) {
-                return [...prev, { id: productIdNum, title: productTitle }];
-              }
-              return prev;
-            });
-
-            setFormData((prev) => ({
-              ...prev,
-              consultationType: "Sản phẩm",
-              specificItem: productTitle,
-              details: `Tôi muốn mua ${amount} sản phẩm.`,
-            }));
-            setHasAutoFilled(true);
-
-            // Scroll to form after a short delay to ensure form is rendered
-            setTimeout(() => {
-              if (formRef.current) {
-                formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-              }
-            }, 100);
-          }
-        } catch (error) {
-          console.error("Error fetching product:", error);
-        }
-      };
-
-      fetchProduct();
-    }
-  }, [searchParams, hasAutoFilled]);
-
-  // Handle URL params for service consultation/survey
-  useEffect(() => {
-    const type = searchParams.get("type");
-    const serviceId = searchParams.get("serviceId");
-    const action = searchParams.get("action");
-
-    if (type === "service" && serviceId && action && !hasAutoFilled) {
-      // Fetch service information
-      const fetchService = async () => {
-        try {
-          const response = await fetch(`/api/services/${serviceId}`);
-          if (response.ok) {
-            const service = await response.json();
-            const serviceTitle = service.title || "";
-
-            // Determine details message based on action
-            let detailsMessage = "";
-            if (action === "0") {
-              detailsMessage = "Tôi muốn được tư vấn dịch vụ này.";
-            } else if (action === "1") {
-              detailsMessage = "Tôi muốn đăng ký khảo sát dịch vụ này.";
-            }
-
-            setFormData((prev) => ({
-              ...prev,
-              consultationType: "Dịch vụ",
-              specificItem: serviceTitle,
-              details: detailsMessage,
-            }));
-            setHasAutoFilled(true);
-
-            // Scroll to form after a short delay to ensure form is rendered
-            setTimeout(() => {
-              if (formRef.current) {
-                formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-              }
-            }, 100);
-          }
-        } catch (error) {
-          console.error("Error fetching service:", error);
-        }
-      };
-
-      fetchService();
-    }
-  }, [searchParams, hasAutoFilled]);
-
-  const validatePhone = (phone: string): boolean => {
-    // Remove spaces, dashes, and parentheses
-    const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
-    // Vietnamese phone numbers: 10-11 digits
-    const phoneRegex = /^[0-9]{10,11}$/;
-    return phoneRegex.test(cleanPhone);
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -248,85 +85,34 @@ export default function ContactUsContent() {
       // Reset specific item when consultation type changes
       ...(name === "consultationType" ? { specificItem: "" } : {}),
     }));
-
-    // Validate phone number in real-time
-    if (name === "phone") {
-      if (value && !validatePhone(value)) {
-        setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
-      } else {
-        setPhoneError("");
-      }
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate phone number before submission
-    if (!validatePhone(formData.phone)) {
-      setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
-      // Scroll to phone input
-      const phoneInput = document.getElementById("phone");
-      if (phoneInput) {
-        phoneInput.focus();
-        phoneInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      return;
-    }
-
     setIsSubmitting(true);
-    setPhoneError(""); // Clear any previous errors
 
-    try {
-      const response = await fetch("/api/contact-form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    // Simulate form submission
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        // Check if error is related to phone validation
-        if (errorData.error && errorData.error.includes("phone")) {
-          setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập 10-11 chữ số.");
-          setIsSubmitting(false);
-          return;
-        }
-        throw new Error(errorData.error || "Failed to submit form");
-      }
+    alert(
+      "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất."
+    );
 
-      alert(
-        "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất."
-      );
+    // Reset form
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      consultationType: "",
+      specificItem: "",
+      details: "",
+    });
 
-      // Reset form
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        consultationType: "",
-        specificItem: "",
-        details: "",
-      });
-      setPhoneError("");
-    } catch (error) {
-      console.error("Error submitting contact form:", error);
-      alert(
-        "Đã có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau hoặc liên hệ trực tiếp qua số điện thoại."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsSubmitting(false);
   };
 
   const getSpecificOptions = () => {
     if (formData.consultationType === "Sản phẩm") {
-      // Use products from database if available, otherwise fallback to static list
-      if (productsFromDB.length > 0) {
-        return productsFromDB.map((p) => p.title);
-      }
       return allProducts;
     } else if (formData.consultationType === "Dịch vụ") {
       return SERVICES.map((service) => service.title);
@@ -373,168 +159,104 @@ export default function ContactUsContent() {
           </p>
         </div>
 
-        {/* Office Selector Dropdown */}
-        {offices.length > 1 && (
-          <div className="mb-6">
-            <label
-              htmlFor="office-select"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Chọn văn phòng
-            </label>
-            <select
-              id="office-select"
-              value={selectedOffice?.id || ""}
-              onChange={(e) => {
-                const office = offices.find(
-                  (o) => o.id === parseInt(e.target.value)
-                );
-                if (office) setSelectedOffice(office);
-              }}
-              className="w-full max-w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              disabled={officesLoading}
-            >
-              {offices.map((office) => (
-                <option key={office.id} value={office.id}>
-                  {office.name}
-                  {office.isMainOffice ? " (Văn phòng chính)" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
         {/* Address Section & Map */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Contact Information */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Thông tin liên hệ
-              </h2>
-              {selectedOffice?.isMainOffice && (
-                <span className="px-3 py-1 bg-orange-200 text-amber-800 shadow-sm text-sm font-medium rounded-full">
-                  Văn phòng chính
-                </span>
-              )}
-            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Thông tin liên hệ
+            </h2>
 
-            {isMounted && officesLoading && !selectedOffice ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            ) : selectedOffice ? (
-              <div className="space-y-6">
-                {/* Office Name */}
+            <div className="space-y-6">
+              {/* Phone */}
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <PhoneIcon className="w-6 h-6 text-green-600" />
+                </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {selectedOffice.name}
-                  </h3>
-                </div>
-
-                {/* Phone */}
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <PhoneIcon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Điện thoại</p>
-                    <a
-                      href={`tel:${selectedOffice.phone}`}
-                      className="text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                      {selectedOffice.phone}
-                    </a>
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <EnvelopeIcon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Email</p>
-                    <a
-                      href={`mailto:${selectedOffice.email}`}
-                      className="text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                      {selectedOffice.email}
-                    </a>
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <MapPinIcon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Địa chỉ</p>
-                    <p className="text-gray-600">{selectedOffice.address}</p>
-                  </div>
-                </div>
-
-                {/* Working Hours */}
-                <div className="border-t pt-6">
-                  <p className="font-medium text-gray-900 mb-2">Giờ làm việc</p>
-                  <p className="text-gray-600">{selectedOffice.workingTime}</p>
-                </div>
-
-                {/* Social Media */}
-                <div className="border-t pt-6">
-                  <p className="font-medium text-gray-900 mb-4">
-                    Kết nối với chúng tôi
-                  </p>
-                  <div className="flex space-x-4">
-                    {SOCIAL_LINKS.map((social) => (
-                      <a
-                        key={social.name}
-                        href={social.url}
-                        className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
-                        title={social.name}
-                      >
-                        {getSocialIcon(social.icon)}
-                      </a>
-                    ))}
-                  </div>
+                  <p className="font-medium text-gray-900">Điện thoại</p>
+                  <a
+                    href={`tel:${SITE_CONFIG.phone}`}
+                    className="text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    {SITE_CONFIG.phone}
+                  </a>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                Không có thông tin văn phòng
+
+              {/* Email */}
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <EnvelopeIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Email</p>
+                  <a
+                    href={`mailto:${SITE_CONFIG.email}`}
+                    className="text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    {SITE_CONFIG.email}
+                  </a>
+                </div>
               </div>
-            )}
+
+              {/* Address */}
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <MapPinIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Địa chỉ</p>
+                  <p className="text-gray-600">{SITE_CONFIG.address}</p>
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="border-t pt-6">
+                <p className="font-medium text-gray-900 mb-2">Giờ làm việc</p>
+                <p className="text-gray-600">{SITE_CONFIG.workingHours}</p>
+              </div>
+
+              {/* Social Media */}
+              <div className="border-t pt-6">
+                <p className="font-medium text-gray-900 mb-4">
+                  Kết nối với chúng tôi
+                </p>
+                <div className="flex space-x-4">
+                  {SOCIAL_LINKS.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors"
+                      title={social.name}
+                    >
+                      {getSocialIcon(social.icon)}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Google Map */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="h-full min-h-[400px]">
-              {selectedOffice?.googleMapEmbedUrl ? (
-                <iframe
-                  src={selectedOffice.googleMapEmbedUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, minHeight: "400px" }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`Vị trí ${selectedOffice.name}`}
-                ></iframe>
-              ) : (
-                <div className="flex items-center justify-center h-full min-h-[400px] bg-gray-100">
-                  <div className="text-center text-gray-500">
-                    <MapPinIcon className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <p>Chưa có thông tin bản đồ</p>
-                  </div>
-                </div>
-              )}
+              <iframe
+                src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.8269!2d${SITE_CONFIG.coordinates.lng}!3d${SITE_CONFIG.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDIxJzQzLjciTiAxMDXCsDMxJzEzLjUiRQ!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s`}
+                width="100%"
+                height="100%"
+                style={{ border: 0, minHeight: "400px" }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Vị trí Minwy Solar"
+              ></iframe>
             </div>
           </div>
         </div>
 
         {/* Contact Form */}
-        <div ref={formRef} className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Để lại thông tin cần tư vấn, chúng tôi sẽ liên hệ ngay
           </h2>
@@ -556,7 +278,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                   placeholder="Nhập họ và tên của bạn"
                 />
               </div>
@@ -576,28 +298,9 @@ export default function ContactUsContent() {
                   required
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${phoneError
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300"
-                    }`}
-                  placeholder="Nhập số điện thoại (10-11 chữ số)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                  placeholder="Nhập số điện thoại"
                 />
-                {phoneError && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center">
-                    <svg
-                      className="w-4 h-4 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {phoneError}
-                  </p>
-                )}
               </div>
 
               {/* Email */}
@@ -612,9 +315,10 @@ export default function ContactUsContent() {
                   type="email"
                   id="email"
                   name="email"
+                  required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                   placeholder="Nhập địa chỉ email"
                 />
               </div>
@@ -633,7 +337,7 @@ export default function ContactUsContent() {
                   required
                   value={formData.consultationType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                 >
                   <option value="">Chọn loại tư vấn</option>
                   <option value="Sản phẩm">Sản phẩm</option>
@@ -658,15 +362,15 @@ export default function ContactUsContent() {
                   name="specificItem"
                   value={formData.specificItem}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                 >
                   <option value="">
                     {formData.consultationType === "Sản phẩm"
                       ? "Chọn sản phẩm"
                       : "Chọn dịch vụ"}
                   </option>
-                  {getSpecificOptions().map((item, index) => (
-                    <option key={index} value={item}>
+                  {getSpecificOptions().map((item) => (
+                    <option key={item} value={item}>
                       {item}
                     </option>
                   ))}
@@ -688,7 +392,7 @@ export default function ContactUsContent() {
                 rows={5}
                 value={formData.details}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-vertical"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-vertical"
                 placeholder="Nhập chi tiết về yêu cầu tư vấn của bạn (công suất, diện tích, ngân sách, v.v.)"
               />
             </div>
@@ -698,7 +402,7 @@ export default function ContactUsContent() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
