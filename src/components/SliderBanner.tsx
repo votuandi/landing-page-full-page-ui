@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useAppSelector } from "@/lib/hooks";
+import { SITE_CONFIG } from "@/utils/constants";
 
 interface Slide {
   id: number;
@@ -11,281 +12,104 @@ interface Slide {
   description: string;
   buttonText: string;
   buttonLink: string;
-  backgroundImage: string;
-  backgroundColor: string;
+  image: string;
 }
 
-interface SliderBannerProps {
-  initialSlides?: Slide[];
-}
+const SLIDES: Slide[] = [
+  {
+    id: 1,
+    title: "TẤM PIN HIỆU SUẤT CAO",
+    subtitle: "Tối ưu sản lượng điện mỗi ngày",
+    description: "Giải pháp tấm pin chất lượng cao, phù hợp cho nhà ở và doanh nghiệp.",
+    buttonText: "Xem sản phẩm",
+    buttonLink: "/product",
+    image: "/images/solar-panels-hero.jpg",
+  },
+  {
+    id: 2,
+    title: "BIẾN TẦN THÔNG MINH",
+    subtitle: "Vận hành ổn định, giám sát thuận tiện",
+    description: "Thiết bị inverter đáp ứng nhiều quy mô hệ thống và nhu cầu sử dụng.",
+    buttonText: "Khám phá sản phẩm",
+    buttonLink: "/product",
+    image: "/images/solar-inverter-hero.jpg",
+  },
+  {
+    id: 3,
+    title: "THI CÔNG TRỌN GÓI",
+    subtitle: "Từ khảo sát đến vận hành hệ thống",
+    description: "Đội ngũ kỹ thuật đồng hành từ tư vấn, thiết kế, thi công đến bảo trì.",
+    buttonText: "Xem dịch vụ",
+    buttonLink: "/service",
+    image: "/images/solar-installation-hero.jpg",
+  },
+];
 
-export default function SliderBanner({ initialSlides }: SliderBannerProps) {
+export default function SliderBanner() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>(initialSlides ?? []);
-  const [loading, setLoading] = useState(!initialSlides?.length);
-  const [mounted, setMounted] = useState(false);
+  const slideCount = useMemo(() => SLIDES.length, []);
 
-  const { offices } = useAppSelector((state) => state.offices);
-  const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
-
-  // Ensure component is mounted before rendering client-specific content
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  // When initialSlides is provided, use it and skip fetch
-  useEffect(() => {
-    if (initialSlides?.length) {
-      setSlides(initialSlides);
-      setLoading(false);
-    }
-  }, [initialSlides]);
+    const timer = window.setInterval(() => {
+      setCurrentSlide((previous) => (previous + 1) % slideCount);
+    }, 6000);
 
-  // Fetch banners from API only when no initial data
-  useEffect(() => {
-    if (!mounted || initialSlides?.length) return;
-
-    const fetchBanners = async () => {
-      try {
-        const response = await fetch("/api/banners?isActive=true&orderBy=order");
-        if (!response.ok) {
-          let errorMessage = "Failed to fetch banners";
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-            console.error("API Error:", errorData);
-          } catch (e) {
-            console.error("Response status:", response.status, response.statusText);
-          }
-          throw new Error(errorMessage);
-        }
-        const data = await response.json();
-        const mappedSlides: Slide[] = data.map((banner: any) => ({
-          id: banner.id,
-          title: banner.title,
-          subtitle: banner.subtitle || "",
-          description: banner.description || "",
-          buttonText: banner.buttonText || "",
-          buttonLink: banner.buttonLink || "",
-          backgroundImage: banner.backgroundImage
-            ? `url('${banner.backgroundImage}')`
-            : "",
-          backgroundColor: banner.backgroundColor || "bg-gradient-to-r from-blue-600 to-purple-600",
-        }));
-        setSlides(mappedSlides);
-      } catch (err) {
-        console.error("Error fetching banners:", err);
-        if (err instanceof Error) {
-          console.error("Error message:", err.message);
-          console.error("Error stack:", err.stack);
-        }
-        setSlides([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, [mounted, initialSlides?.length]);
-
-  // Auto slide functionality
-  useEffect(() => {
-    if (slides.length === 0) return;
-
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Change slide every 5 seconds
-
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  // Don't render if not mounted or loading or no slides
-  if (!mounted || loading) {
-    return (
-      <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-gray-100">
-        <div className="text-gray-500">Đang tải...</div>
-      </section>
-    );
-  }
-
-  if (slides.length === 0) {
-    return (
-      <section className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-gray-100">
-        <div className="text-gray-500">Chưa có banner nào</div>
-      </section>
-    );
-  }
+    return () => window.clearInterval(timer);
+  }, [slideCount]);
 
   return (
-    <section className="relative w-full h-screen overflow-hidden">
-      {/* Slides Container */}
-      <div
-        className="flex transition-transform duration-700 ease-in-out h-full"
-        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-      >
-        {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className="min-w-full h-full relative flex items-center justify-center bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: slide.backgroundImage,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-950/70 via-orange-950/35 to-amber-900/20"></div>
-
-            {/* Content */}
-            <div className="container mx-auto px-4 relative z-10">
-              <div className="max-w-4xl mx-auto text-center text-white">
-                <div className="mb-4">
-                  <span className="inline-block bg-amber-300/90 text-stone-900 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold mb-4">
-                    {slide.title}
-                  </span>
-                </div>
-
-                <h1 className="slider-title text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-                  {slide.subtitle}
-                </h1>
-
-                <p className="slider-subtitle text-xl md:text-2xl mb-8 leading-relaxed max-w-3xl mx-auto opacity-90">
-                  {slide.description}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    href={slide.buttonLink}
-                    className="bg-orange-600 text-white hover:bg-orange-700 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
-                  >
-                    {slide.buttonText}
-                  </Link>
-                  <Link href={`tel:${mainOffice?.phone || ""}`}>
-                    <button className="border-2 border-amber-300 text-white hover:bg-amber-300 hover:text-stone-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300">
-                      Gọi ngay: {mainOffice?.phone || ""}
-                    </button>
-                  </Link>
-                </div>
+    <section className="relative isolate min-h-[calc(100vh-7.5rem)] overflow-hidden bg-slate-900">
+      {SLIDES.map((slide, index) => (
+        <div
+          key={slide.id}
+          className={[
+            "absolute inset-0 transition-opacity duration-700",
+            index === currentSlide ? "z-10 opacity-100" : "pointer-events-none opacity-0",
+          ].join(" ")}
+          aria-hidden={index !== currentSlide}
+        >
+          <Image
+            src={slide.image}
+            alt=""
+            fill
+            priority={index === 0}
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="container relative mx-auto flex min-h-[calc(100vh-7.5rem)] items-center px-4 py-20">
+            <div className="max-w-3xl text-white">
+              <p className="mb-4 font-semibold tracking-[0.2em] text-yellow-300">{slide.title}</p>
+              <h2 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">{slide.subtitle}</h2>
+              <p className="mb-8 max-w-2xl text-lg text-green-50 md:text-xl">{slide.description}</p>
+              <div className="flex flex-wrap gap-4">
+                <Link href={slide.buttonLink} className="rounded-lg bg-yellow-400 px-7 py-3 font-semibold text-slate-900 transition hover:bg-yellow-300">
+                  {slide.buttonText}
+                </Link>
+                <a href={`tel:${SITE_CONFIG.phone}`} className="rounded-lg border border-white/60 px-7 py-3 font-semibold text-white transition hover:bg-white/10">
+                  Gọi {SITE_CONFIG.phone}
+                </a>
               </div>
             </div>
-
-            {/* Decorative Elements */}
-            <div className="absolute top-10 right-10 w-32 h-32 border border-white/20 rounded-full hidden lg:block"></div>
-            <div className="absolute bottom-10 left-10 w-24 h-24 border border-white/20 rounded-full hidden lg:block"></div>
-            <div className="absolute top-1/2 left-20 w-16 h-16 border border-white/30 rounded-full hidden lg:block transform -translate-y-1/2"></div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
-      {/* Navigation Arrows - Hidden on mobile */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 z-20 hidden md:block"
-        aria-label="Previous slide"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-
-      <button
-        onClick={nextSlide}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 z-20 hidden md:block"
-        aria-label="Next slide"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
-
-      {/* Slide Indicators */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
-              ? "bg-white scale-125"
-              : "bg-white/50 hover:bg-white/75"
-              }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-black/20">
-        <div
-          className="h-full bg-amber-300 transition-all duration-100 ease-linear"
-          style={{
-            width: `${((currentSlide + 1) / slides.length) * 100}%`,
-          }}
-        />
-      </div>
-
-      {/* Mobile Swipe Indicators */}
-      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 text-white/60 text-sm hidden max-md:block">
-        <div className="flex items-center space-x-2">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 16l-4-4m0 0l4-4m-4 4h18"
+      <div className="container relative z-20 mx-auto flex min-h-[calc(100vh-7.5rem)] items-end justify-center px-4 pb-8">
+        <div className="flex gap-2" role="tablist" aria-label="Banner trang chủ">
+          {SLIDES.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => setCurrentSlide(index)}
+              className={index === currentSlide ? "h-2 w-10 rounded-full bg-yellow-400" : "h-2 w-6 rounded-full bg-white/50"}
+              aria-label={`Hiển thị banner ${index + 1}`}
+              aria-selected={index === currentSlide}
+              role="tab"
             />
-          </svg>
-          <span>Vuốt để xem thêm</span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
+          ))}
         </div>
       </div>
     </section>
