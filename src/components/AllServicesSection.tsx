@@ -104,7 +104,7 @@ export default function AllServicesSection({ services: servicesProp }: AllServic
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
             <span className="ml-3 text-gray-600">Đang tải dịch vụ...</span>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function AllServicesSection({ services: servicesProp }: AllServic
             <h3 className="mt-2 text-sm font-medium text-gray-900">{error}</h3>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
             >
               Tải lại trang
             </button>
@@ -155,7 +155,7 @@ export default function AllServicesSection({ services: servicesProp }: AllServic
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${selectedCategory === category.id
-                  ? "bg-blue-600 text-white"
+                  ? "bg-orange-600 text-white"
                   : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                   }`}
               >
@@ -206,7 +206,7 @@ export default function AllServicesSection({ services: servicesProp }: AllServic
                       key={page}
                       onClick={() => handlePageChange(page)}
                       className={`px-3 py-2 rounded-md text-sm font-medium ${currentPage === page
-                        ? "bg-blue-600 text-white"
+                        ? "bg-orange-600 text-white"
                         : "text-gray-700 hover:bg-gray-100"
                         }`}
                     >
