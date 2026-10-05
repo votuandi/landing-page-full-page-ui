@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import bcrypt from 'bcryptjs';
 
 // JWT Secret - should be in environment variables
@@ -9,7 +9,7 @@ const JWT_SECRET = new TextEncoder().encode(
 const ACCESS_TOKEN_EXPIRY = '8h'; // 8 hours
 const REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
 
-export interface TokenPayload {
+export interface TokenPayload extends JWTPayload {
   userId: number;
   username: string;
   role: 'admin' | 'editor';
