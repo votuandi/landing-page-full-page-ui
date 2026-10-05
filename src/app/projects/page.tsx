@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import ProjectsPageContent from "@/components/ProjectsPageContent";
 import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const companyInfo = await getCachedCompanyInfo();
   
