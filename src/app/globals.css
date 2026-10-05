@@ -91,7 +91,7 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #fffaf0;
   --foreground: #171717;
 }
 
@@ -116,7 +116,7 @@ body {
 
 /* Custom styles for solar website */
 .hero-gradient {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
 }
 
 .solar-shadow {
@@ -201,12 +201,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0ea5e9;
+  background: #f59e0b;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: #ea580c;
 }
 
 /* Hero Animations */
