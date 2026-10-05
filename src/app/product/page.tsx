@@ -5,6 +5,8 @@ import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import { prisma } from "@/lib/prisma";
 import WarmPageHero from "@/components/WarmPageHero";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const companyInfo = await getCachedCompanyInfo();
   
