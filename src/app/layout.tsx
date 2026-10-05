@@ -7,6 +7,8 @@ import { getCachedCompanyInfo, getCachedMainOffice } from "@/lib/cachedCompany";
 import StructuredData from "@/components/StructuredData";
 import VisitTracker from "@/components/VisitTracker";
 
+export const dynamic = "force-dynamic";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export async function generateMetadata(): Promise<Metadata> {
