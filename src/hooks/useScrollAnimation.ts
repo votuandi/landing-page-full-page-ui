@@ -15,39 +15,30 @@ export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
     triggerOnce = true,
   } = options;
 
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [hasTriggered, setHasTriggered] = useState(false);
 
   useEffect(() => {
     const element = elementRef.current;
-    if (!element) return;
+    if (!element || typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (triggerOnce) {
-            setHasTriggered(true);
-          }
-        } else if (!triggerOnce && !hasTriggered) {
-          setIsVisible(false);
+        setIsVisible(entry.isIntersecting);
+
+        if (entry.isIntersecting && triggerOnce) {
+          observer.unobserve(entry.target);
         }
       },
-      {
-        threshold,
-        rootMargin,
-      }
+      { threshold, rootMargin }
     );
 
     observer.observe(element);
-
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
-  }, [threshold, rootMargin, triggerOnce, hasTriggered]);
+    return () => observer.disconnect();
+  }, [threshold, rootMargin, triggerOnce]);
 
   return { elementRef, isVisible };
 }
