@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { delay } from "@/utils/reveal";
 import { ArrowRightIcon, BuildingOffice2Icon, BuildingStorefrontIcon, CheckIcon, HomeModernIcon } from "@heroicons/react/24/outline";
 
 const segments = [
@@ -64,54 +65,79 @@ const segments = [
 
 export default function SavingsBySegment() {
   return (
-    <section id="tiet-kiem" className="relative overflow-hidden bg-[var(--t8-beige)] py-16 md:py-24">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.35),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute -left-40 bottom-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(47_111_228_/_.15),transparent_65%)]" />
-      <div className="t5-container relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="t5-eyebrow">Lợi ích theo từng công trình</span>
-          <h2 className="t5-heading mx-auto">Mỗi mái nhà một bài toán tiết kiệm riêng.</h2>
-          <p className="t5-subheading mx-auto">Cùng là điện mặt trời, nhưng nhà máy, cửa hàng và gia đình có giờ dùng điện, giá điện và mục tiêu khác nhau.</p>
-          <nav aria-label="Chọn loại công trình" className="t8-glass mx-auto mt-8 inline-flex flex-wrap justify-center gap-1 rounded-[28px] p-1.5 sm:rounded-full">
-            {segments.map(({ id, tag, Icon }) => <a key={id} href={`#${id}`} className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-[var(--t8-ink)]"><Icon className="h-4 w-4" />{tag}</a>)}
-          </nav>
-        </div>
-
-        <div className="mt-14 space-y-16 md:space-y-24">
-          {segments.map((s, index) => (
-            <article key={s.id} id={s.id} className="grid scroll-mt-28 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-              <div className={`relative ${index % 2 ? "lg:order-2" : ""}`}>
-                <div className="relative aspect-[5/4] overflow-hidden rounded-[36px] border-[6px] border-white/80 shadow-[0_40px_80px_-40px_rgb(11_31_58_/_.5)]">
-                  <Image src={s.image} alt={s.alt} fill className="object-cover transition duration-700 hover:scale-[1.04]" sizes="(max-width:1024px) 100vw, 50vw" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.50)] via-transparent to-transparent" />
-                  <div className="t8-glass-dark absolute bottom-5 left-5 rounded-2xl px-4 py-3 text-white">
-                    <div className="text-[11px] font-semibold uppercase tracking-[.14em] text-white/70">{s.float.label}</div>
-                    <div className="text-lg font-black">{s.float.value}</div>
+    <>
+      <section id="tiet-kiem" className="t8-screen t5-section relative overflow-hidden bg-[var(--t8-beige)]">
+        <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.4),transparent_65%)]" />
+        <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(47_111_228_/_.16),transparent_65%)]" />
+        <div className="t5-container relative">
+          <div className="mx-auto max-w-3xl text-center">
+            <span data-reveal="down" className="t5-eyebrow">Lợi ích theo từng công trình</span>
+            <h2 data-reveal="up" style={delay(0.1)} className="t5-heading mx-auto">Mỗi mái nhà một bài toán tiết kiệm riêng.</h2>
+            <p data-reveal="up" style={delay(0.2)} className="t5-subheading mx-auto">Cùng là điện mặt trời, nhưng nhà máy, cửa hàng và gia đình có giờ dùng điện, giá điện và mục tiêu khác nhau.</p>
+          </div>
+          <div data-reveal-stagger="up" data-reveal-step="0.15" className="mt-12 grid gap-5 md:grid-cols-3">
+            {segments.map(({ id, no, tag, Icon, image, alt, metrics }) => (
+              <a key={id} href={`#${id}`} className="group relative block overflow-hidden rounded-[32px] border-[5px] border-white/80 shadow-[0_30px_60px_-35px_rgb(11_31_58_/_.55)] transition hover:-translate-y-1.5">
+                <div className="relative aspect-[4/5] md:aspect-[3/4] lg:aspect-[10/9]">
+                  <Image src={image} alt={alt} fill className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:768px) 100vw, 33vw" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.85)] via-[rgb(11_31_58_/_.15)] to-transparent" />
+                </div>
+                <span className="t8-glass absolute left-4 top-4 grid h-11 w-11 place-items-center rounded-2xl text-[var(--t5-primary)]"><Icon className="h-5 w-5" /></span>
+                <span className="absolute right-5 top-5 text-sm font-black text-white/80">{no}</span>
+                <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-white/20 bg-white/10 p-5 text-white backdrop-blur-xl">
+                  <div className="text-lg font-black">{tag}</div>
+                  <div className="mt-2 flex items-end justify-between gap-3">
+                    <div><div className="text-[11px] font-semibold uppercase tracking-[.14em] text-white/65">Tiết kiệm đến</div><div className="text-3xl font-black text-[var(--t8-sun)]">{metrics[0][0]}</div></div>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[var(--t5-primary)] transition group-hover:translate-x-1"><ArrowRightIcon className="h-4 w-4" /></span>
                   </div>
                 </div>
-                <div className={`t8-glass t8-float absolute -top-5 flex items-center gap-3 rounded-2xl px-4 py-3 ${index % 2 ? "-left-2 sm:-left-5" : "-right-2 sm:-right-5"}`}>
-                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--t5-accent)] text-[var(--t8-ink)]"><s.Icon className="h-5 w-5" /></span>
-                  <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">Tiết kiệm đến</div><div className="text-xl font-black text-[var(--t5-primary)]">{s.metrics[0][0]}</div></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-3 text-sm font-black text-[var(--t5-primary)]"><span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 text-xs shadow-sm">{s.no}</span>{s.tag}</div>
-                <h3 className="mt-5 text-3xl font-black leading-tight tracking-[-.035em] text-[var(--t8-ink)] sm:text-4xl">{s.title}</h3>
-                <p className="mt-5 leading-8 text-slate-600">{s.desc}</p>
-                <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {s.benefits.map((b) => <li key={b} className="flex gap-3 rounded-2xl bg-white/60 p-3 text-sm font-semibold leading-6 text-slate-700 backdrop-blur"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--t8-blue)] text-white"><CheckIcon className="h-3 w-3" strokeWidth={3} /></span>{b}</li>)}
-                </ul>
-                <dl className="mt-6 grid grid-cols-3 gap-3">
-                  {s.metrics.map(([value, label]) => <div key={label} className="rounded-2xl border border-white/80 bg-gradient-to-br from-white/90 to-white/40 p-4 shadow-sm"><dd className="text-lg font-black text-[var(--t5-primary)] sm:text-2xl">{value}</dd><dt className="mt-1 text-xs font-semibold text-slate-500">{label}</dt></div>)}
-                </dl>
-                <Link href={s.href} className="mt-7 inline-flex items-center gap-2 text-sm font-black text-[var(--t5-primary)] hover:gap-3">Xem giải pháp {s.tag.toLowerCase()} <ArrowRightIcon className="h-4 w-4" /></Link>
-              </div>
-            </article>
-          ))}
+              </a>
+            ))}
+          </div>
         </div>
-        <p className="mt-12 text-center text-xs text-slate-500">*Số liệu tham khảo, phụ thuộc phụ tải, khu vực, giá điện và cấu hình hệ thống. [CẦN XÁC MINH]</p>
-      </div>
-    </section>
+      </section>
+
+      {segments.map((s, index) => {
+        const imageSide = index % 2 ? "right" : "left";
+        const textSide = index % 2 ? "left" : "right";
+        return (
+          <section key={s.id} id={s.id} className={`t8-screen t5-section relative overflow-hidden ${index % 2 ? "bg-gradient-to-br from-white via-[#f3f7ff] to-[var(--t8-sky)]" : "bg-gradient-to-br from-[var(--t8-beige)] via-white to-[var(--t8-beige)]"}`}>
+            <div aria-hidden className={`pointer-events-none absolute top-1/4 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.35),transparent_65%)] ${index % 2 ? "-left-40" : "-right-40"}`} />
+            <div className="t5-container relative">
+              <article className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+                <div className={`relative ${index % 2 ? "lg:order-2" : ""}`}>
+                  <div data-reveal={imageSide} className="relative aspect-[5/4] overflow-hidden rounded-[36px] border-[6px] border-white/80 shadow-[0_40px_80px_-40px_rgb(11_31_58_/_.5)]">
+                    <Image src={s.image} alt={s.alt} fill className="object-cover transition duration-700 hover:scale-[1.04]" sizes="(max-width:1024px) 100vw, 50vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.50)] via-transparent to-transparent" />
+                    <div data-reveal="up" style={delay(0.45)} className="t8-glass-dark absolute bottom-5 left-5 rounded-2xl px-4 py-3 text-white">
+                      <div className="text-[11px] font-semibold uppercase tracking-[.14em] text-white/70">{s.float.label}</div>
+                      <div className="text-lg font-black">{s.float.value}</div>
+                    </div>
+                  </div>
+                  <div data-reveal="down" style={delay(0.35)} className={`t8-glass t8-float absolute -top-5 flex items-center gap-3 rounded-2xl px-4 py-3 ${index % 2 ? "-left-2 sm:-left-5" : "-right-2 sm:-right-5"}`}>
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--t5-accent)] text-[var(--t8-ink)]"><s.Icon className="h-5 w-5" /></span>
+                    <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">Tiết kiệm đến</div><div className="text-xl font-black text-[var(--t5-primary)]">{s.metrics[0][0]}</div></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div data-reveal="down" className="flex items-center gap-3 text-sm font-black text-[var(--t5-primary)]"><span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 text-xs shadow-sm">{s.no}</span>{s.tag}</div>
+                  <h3 data-reveal={textSide} style={delay(0.1)} className="mt-5 text-3xl font-black leading-tight tracking-[-.035em] text-[var(--t8-ink)] sm:text-4xl">{s.title}</h3>
+                  <p data-reveal={textSide} style={delay(0.2)} className="mt-5 leading-8 text-slate-600">{s.desc}</p>
+                  <ul data-reveal-stagger={textSide} data-reveal-step="0.08" className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {s.benefits.map((b) => <li key={b} className="flex gap-3 rounded-2xl bg-white/60 p-3 text-sm font-semibold leading-6 text-slate-700 backdrop-blur"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--t8-blue)] text-white"><CheckIcon className="h-3 w-3" strokeWidth={3} /></span>{b}</li>)}
+                  </ul>
+                  <dl data-reveal-stagger="up" data-reveal-step="0.1" className="mt-6 grid grid-cols-3 gap-3">
+                    {s.metrics.map(([value, label]) => <div key={label} className="rounded-2xl border border-white/80 bg-gradient-to-br from-white/90 to-white/40 p-4 shadow-sm"><dd className="text-lg font-black text-[var(--t5-primary)] sm:text-2xl">{value}</dd><dt className="mt-1 text-xs font-semibold text-slate-500">{label}</dt></div>)}
+                  </dl>
+                  <Link data-reveal="up" style={delay(0.3)} href={s.href} className="mt-7 inline-flex items-center gap-2 text-sm font-black text-[var(--t5-primary)] hover:gap-3">Xem giải pháp {s.tag.toLowerCase()} <ArrowRightIcon className="h-4 w-4" /></Link>
+                </div>
+              </article>
+              {index === segments.length - 1 && <p className="mt-12 text-center text-xs text-slate-500">*Số liệu tham khảo, phụ thuộc phụ tải, khu vực, giá điện và cấu hình hệ thống. [CẦN XÁC MINH]</p>}
+            </div>
+          </section>
+        );
+      })}
+    </>
   );
 }

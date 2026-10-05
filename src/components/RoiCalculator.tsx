@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { calculateSolar, formatMoney } from "@/utils/solar";
+import { delay } from "@/utils/reveal";
 
 type CustomerType = "household" | "business" | "manufacturing";
 type Region = "north" | "central" | "south";
@@ -33,15 +34,15 @@ export default function RoiCalculator() {
   }
 
   return (
-    <section id="roi" className="t5-section bg-gradient-to-b from-white to-[var(--t8-beige)]">
+    <section id="roi" className="t8-screen t5-section bg-gradient-to-b from-white to-[var(--t8-beige)]">
       <div className="t5-container">
-        <div className="max-w-3xl">
+        <div data-reveal="down" className="max-w-3xl">
           <span className="t5-eyebrow">Ước tính đầu tư</span>
           <h2 className="t5-heading">Biết quy mô và thời gian hoàn vốn trước khi khảo sát.</h2>
           <p className="t5-subheading">Kết quả là ước tính sơ bộ từ cùng bộ tham số cấu hình của website. Hồ sơ đầu tư chính thức cần dữ liệu phụ tải, mái và báo giá thực tế.</p>
         </div>
         <div className="mt-10 grid gap-8 lg:grid-cols-[.9fr_1.1fr]">
-          <div className="t8-card p-6 md:p-8">
+          <div data-reveal="left" style={delay(0.15)} className="t8-card p-6 md:p-8">
             <div className="grid gap-5">
               <label className="t5-label">Loại khách hàng
                 <select value={customerType} onChange={(e) => setCustomerType(e.target.value as CustomerType)} className="t5-input">
@@ -65,7 +66,7 @@ export default function RoiCalculator() {
               </label>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[#1d5bb8] p-6 text-white shadow-[0_40px_80px_-40px_rgb(13_59_120_/_.7)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(247_185_40_/_.35),transparent_65%)]" />
+          <div data-reveal="right" style={delay(0.3)} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[#1d5bb8] p-6 text-white shadow-[0_40px_80px_-40px_rgb(13_59_120_/_.7)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(247_185_40_/_.35),transparent_65%)]" />
             <div className="relative grid gap-3 sm:grid-cols-2">
               {[
                 ["Công suất đề xuất", `${result.kwp.toFixed(1)} kWp`],
