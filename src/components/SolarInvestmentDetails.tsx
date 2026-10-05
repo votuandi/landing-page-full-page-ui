@@ -1,5 +1,11 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { POLICY_SUMMARY, TESTIMONIALS } from "@/data/solar";
+import {
+  FeedbackIllustration,
+  InvestmentIllustration,
+  PolicyIllustration,
+  WarrantyIllustration,
+} from "@/components/SolarIllustrations";
 
 const investmentModels = [
   [
@@ -37,12 +43,31 @@ export default function SolarInvestmentDetails() {
     <div className="solar-investment-details">
       <section className="t5-section bg-slate-50">
         <div className="t5-container">
-          <span className="t5-eyebrow" data-reveal="top">
-            Mô hình đầu tư
-          </span>
-          <h2 className="t5-heading" data-reveal="left">
-            Chọn cấu trúc tài chính phù hợp dòng tiền.
-          </h2>
+          <div className="solar-intro-split">
+            <div>
+              <span className="t5-eyebrow" data-reveal="top">
+                Mô hình đầu tư
+              </span>
+              <h2 className="t5-heading" data-reveal="left">
+                Chọn cấu trúc tài chính phù hợp dòng tiền.
+              </h2>
+              <p
+                className="t5-subheading"
+                data-reveal="bottom"
+                data-reveal-delay="80"
+              >
+                Tự đầu tư để tối đa tiết kiệm, trả góp để nhẹ dòng tiền, hoặc
+                hợp tác thuê mái khi muốn hạn chế vốn ban đầu.
+              </p>
+            </div>
+            <div
+              className="solar-intro-visual"
+              data-reveal="right"
+              data-reveal-delay="120"
+            >
+              <InvestmentIllustration />
+            </div>
+          </div>
           <div
             className="mt-10 overflow-x-auto border border-slate-200 bg-white"
             data-reveal="bottom"
@@ -80,7 +105,11 @@ export default function SolarInvestmentDetails() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-slate-500">
+          <p
+            className="mt-3 text-xs text-slate-500"
+            data-reveal="bottom"
+            data-reveal-delay="200"
+          >
             PPA/thuê mái phụ thuộc đối tác tài chính, pháp lý và điều kiện dự
             án. [CẦN XÁC MINH]
           </p>
@@ -88,7 +117,7 @@ export default function SolarInvestmentDetails() {
       </section>
 
       <section className="t5-section">
-        <div className="t5-container grid gap-12 lg:grid-cols-2">
+        <div className="t5-container grid items-center gap-12 lg:grid-cols-2">
           <div>
             <span className="t5-eyebrow" data-reveal="top">
               Bảo hành tách bạch
@@ -100,15 +129,24 @@ export default function SolarInvestmentDetails() {
               Không gộp “bảo hành 25 năm” thành một câu quảng cáo. Mỗi hạng mục
               có thời hạn, điều kiện và đơn vị chịu trách nhiệm khác nhau.
             </p>
+            <div
+              className="solar-side-visual"
+              data-reveal="zoom"
+              data-reveal-delay="160"
+            >
+              <WarrantyIllustration />
+            </div>
           </div>
           <div
             className="border border-slate-200"
             data-reveal="right"
             data-reveal-delay="100"
           >
-            {warranties.map(([item, period, note]) => (
+            {warranties.map(([item, period, note], index) => (
               <div
                 key={item}
+                data-reveal="right"
+                data-reveal-delay={160 + index * 70}
                 className="grid grid-cols-[1fr_1fr] gap-4 border-b border-slate-200 p-5 last:border-0"
               >
                 <div>
@@ -133,6 +171,13 @@ export default function SolarInvestmentDetails() {
             <h2 className="t5-heading" data-reveal="left">
               Tóm tắt để ra quyết định, không thay thế tư vấn pháp lý.
             </h2>
+            <div
+              className="solar-side-visual"
+              data-reveal="zoom"
+              data-reveal-delay="140"
+            >
+              <PolicyIllustration />
+            </div>
           </div>
           <div className="grid gap-3">
             {POLICY_SUMMARY.map((item) => (
@@ -152,12 +197,31 @@ export default function SolarInvestmentDetails() {
 
       <section className="t5-section">
         <div className="t5-container">
-          <span className="t5-eyebrow" data-reveal="top">
-            Khách hàng nói gì
-          </span>
-          <h2 className="t5-heading" data-reveal="left">
-            Niềm tin đến từ cách dự án được triển khai.
-          </h2>
+          <div className="solar-intro-split">
+            <div>
+              <span className="t5-eyebrow" data-reveal="top">
+                Khách hàng nói gì
+              </span>
+              <h2 className="t5-heading" data-reveal="left">
+                Niềm tin đến từ cách dự án được triển khai.
+              </h2>
+              <p
+                className="t5-subheading"
+                data-reveal="bottom"
+                data-reveal-delay="80"
+              >
+                Phản hồi từ những đơn vị đã cùng chúng tôi đi qua khảo sát, thi
+                công và vận hành hệ thống.
+              </p>
+            </div>
+            <div
+              className="solar-intro-visual"
+              data-reveal="zoom"
+              data-reveal-delay="120"
+            >
+              <FeedbackIllustration />
+            </div>
+          </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {TESTIMONIALS.map((item) => (
               <blockquote

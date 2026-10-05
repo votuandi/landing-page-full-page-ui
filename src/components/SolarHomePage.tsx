@@ -22,6 +22,13 @@ import RoiCalculator from "@/components/RoiCalculator";
 import LeadForm from "@/components/LeadForm";
 import SolarInvestmentDetails from "@/components/SolarInvestmentDetails";
 import ScrollRevealObserver from "@/components/ScrollRevealObserver";
+import {
+  ContactIllustration,
+  EquipmentIllustration,
+  JourneyIllustration,
+  QuestionIllustration,
+  SolarSceneIllustration,
+} from "@/components/SolarIllustrations";
 
 // These are illustrative scenarios, using the same assumptions as the calculator.
 const solutions = [
@@ -271,6 +278,13 @@ export default function SolarHomePage() {
               từ nhu cầu của bạn để thiết kế giải pháp phù hợp.
             </p>
           </div>
+          <div
+            className="solar-scene"
+            data-reveal="zoom"
+            data-reveal-delay="120"
+          >
+            <SolarSceneIllustration />
+          </div>
           <div className="solar-solution-nav">
             {solutions.map(({ id, label, icon: Icon, number }) => (
               <a
@@ -383,7 +397,11 @@ export default function SolarHomePage() {
                     <span>hóa đơn mẫu</span>
                   </div>
                 </div>
-                <p className="solar-estimate-note">
+                <p
+                  className="solar-estimate-note"
+                  data-reveal="bottom"
+                  data-reveal-delay="200"
+                >
                   {solution.context}. Giả định điện mặt trời thay thế{" "}
                   {solution.daytimeUse}% điện mua từ lưới, khu vực miền Nam. Kết
                   quả thực tế tùy phụ tải, diện tích mái và cấu hình; chưa tính
@@ -443,8 +461,12 @@ export default function SolarHomePage() {
                     description:
                       "Xem mức pin và trạng thái sạc, xả khi có lưu trữ.",
                   },
-                ].map(({ icon: Icon, title, description }) => (
-                  <div key={title}>
+                ].map(({ icon: Icon, title, description }, index) => (
+                  <div
+                    key={title}
+                    data-reveal="left"
+                    data-reveal-delay={160 + index * 80}
+                  >
                     <span>
                       <Icon className="h-5 w-5" />
                     </span>
@@ -500,7 +522,7 @@ export default function SolarHomePage() {
         aria-labelledby="expertise-title"
       >
         <div className="t5-container">
-          <div className="solar-section-intro">
+          <div className="solar-intro-split">
             <div>
               <span className="t5-eyebrow" data-reveal="top">
                 Không chỉ là lắp đặt
@@ -514,10 +536,35 @@ export default function SolarHomePage() {
                 <br />
                 Suốt vòng đời hệ thống.
               </h2>
+              <p
+                className="t5-subheading"
+                data-reveal="bottom"
+                data-reveal-delay="80"
+              >
+                Từ buổi khảo sát đầu tiên đến từng lần bảo trì, mỗi bước đều có
+                đầu ra rõ ràng để bạn theo dõi và kiểm chứng.
+              </p>
+              <Link
+                href="/about-us"
+                className="solar-text-link mt-6"
+                data-reveal="bottom"
+                data-reveal-delay="140"
+              >
+                Tìm hiểu Minwy Solar <ArrowUpRightIcon className="h-5 w-5" />
+              </Link>
             </div>
-            <Link href="/about-us" className="solar-text-link">
-              Tìm hiểu Minwy Solar <ArrowUpRightIcon className="h-5 w-5" />
-            </Link>
+            <div
+              className="solar-intro-visual"
+              data-reveal="right"
+              data-reveal-delay="120"
+            >
+              <JourneyIllustration />
+            </div>
+          </div>
+          <div className="solar-step-track" data-reveal="left" aria-hidden="true">
+            {steps.map(({ title }) => (
+              <span key={title} />
+            ))}
           </div>
           <div className="solar-expertise-cards">
             {steps.map(({ icon: Icon, title, text, output }, index) => (
@@ -609,18 +656,33 @@ export default function SolarHomePage() {
 
       <section className="solar-brands" aria-labelledby="brands-title">
         <div className="t5-container">
-          <span className="t5-eyebrow" data-reveal="top">
-            Thiết bị trong danh mục mẫu
-          </span>
-          <h2 id="brands-title" className="t5-heading" data-reveal="bottom">
-            Thiết bị tốt.
-            <br />
-            Nền tảng bền vững.
-          </h2>
-          <p className="t5-subheading" data-reveal="bottom">
-            Khám phá tấm pin, Inverter, pin lưu trữ và phụ kiện để chọn cấu hình
-            phù hợp cho công trình.
-          </p>
+          <div className="solar-intro-split">
+            <div>
+              <span className="t5-eyebrow" data-reveal="top">
+                Thiết bị trong danh mục mẫu
+              </span>
+              <h2 id="brands-title" className="t5-heading" data-reveal="left">
+                Thiết bị tốt.
+                <br />
+                Nền tảng bền vững.
+              </h2>
+              <p
+                className="t5-subheading"
+                data-reveal="bottom"
+                data-reveal-delay="80"
+              >
+                Khám phá tấm pin, Inverter, pin lưu trữ và phụ kiện để chọn cấu
+                hình phù hợp cho công trình.
+              </p>
+            </div>
+            <div
+              className="solar-intro-visual"
+              data-reveal="zoom"
+              data-reveal-delay="120"
+            >
+              <EquipmentIllustration />
+            </div>
+          </div>
           <div className="solar-brand-grid">
             {Array.from(new Set(PRODUCTS.map((p) => p.brand))).map(
               (brand, index) => (
@@ -658,6 +720,13 @@ export default function SolarHomePage() {
               Hiểu hệ thống trước khi đầu tư để chọn đúng giải pháp cho công
               trình.
             </p>
+            <div
+              className="solar-side-visual"
+              data-reveal="zoom"
+              data-reveal-delay="160"
+            >
+              <QuestionIllustration />
+            </div>
           </div>
           <div className="solar-faq-list">
             {FAQS.map(([q, a]) => (
@@ -685,7 +754,7 @@ export default function SolarHomePage() {
       >
         <div className="t5-container grid items-center gap-12 lg:grid-cols-[.8fr_1.2fr]">
           <div>
-            <span className="solar-pill">
+            <span className="solar-pill" data-reveal="top">
               <SunIcon className="h-4 w-4" /> Bắt đầu hành trình năng lượng sạch
             </span>
             <h2 id="contact-title" className="t5-heading" data-reveal="left">
@@ -701,9 +770,20 @@ export default function SolarHomePage() {
               Chia sẻ hóa đơn điện và nhu cầu sử dụng. Chúng tôi sẽ cùng bạn tìm
               một phương án vừa vặn, rõ chi phí và dễ vận hành.
             </p>
-            <div className="mt-7 flex items-center gap-3 text-sm font-semibold text-[var(--t5-primary)]">
+            <div
+              className="mt-7 flex items-center gap-3 text-sm font-semibold text-[var(--t5-primary)]"
+              data-reveal="bottom"
+              data-reveal-delay="120"
+            >
               <ShieldCheckIcon className="h-6 w-6" /> Tư vấn rõ ràng từ thiết kế
               đến bảo hành
+            </div>
+            <div
+              className="solar-side-visual"
+              data-reveal="zoom"
+              data-reveal-delay="180"
+            >
+              <ContactIllustration />
             </div>
           </div>
           <div
