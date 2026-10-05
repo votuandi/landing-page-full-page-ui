@@ -1522,7 +1522,7 @@ didyoumean@^1.2.2:
 
 divt-text-editor@votuandi/divt-text-editor#v0.1.6:
   version "0.1.6"
-  resolved "git+ssh://git@github.com/votuandi/divt-text-editor.git#199f6eced9782c180443c3eeb22edcd5e3f64ff8"
+  resolved "git+https://github.com/votuandi/divt-text-editor.git#199f6eced9782c180443c3eeb22edcd5e3f64ff8"
   dependencies:
     "@tiptap/extension-color" "^3.20.0"
     "@tiptap/extension-highlight" "^3.20.0"
