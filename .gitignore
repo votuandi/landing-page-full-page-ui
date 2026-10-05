@@ -48,3 +48,8 @@ next-env.d.ts
 
 # docs
 /docs
+# Versioned, optimized imagery for the solar homepage
+!/public/images/
+/public/images/*
+!/public/images/solar/
+!/public/images/solar/*.webp

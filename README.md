@@ -1,3 +1,19 @@
+## Template 7 — Solar cho mọi công trình
+
+Nhánh `template-7` được phát triển từ `template-5`. Homepage nằm trong `src/components/SolarHomePage.tsx`; nội dung đầu tư, bảo hành, chính sách và đánh giá nằm trong `SolarInvestmentDetails.tsx`.
+
+- Banner chia hai cột với hình ngôi nhà điện mặt trời, các chỉ số đặt `absolute`, nền chuyển sắc và các thẻ trong suốt.
+- Ba phần riêng cho nhà máy, cửa hàng và gia đình. Số liệu tiết kiệm là ví dụ tính bằng `calculateSolar`, cùng bộ giả định với công cụ ước tính; không phải cam kết tiết kiệm thực tế.
+- Phần theo dõi điện năng 24/7 gồm ảnh cầm điện thoại, sản lượng, tiêu thụ và lưu trữ. Đây là nội dung giới thiệu giải pháp, không phải ứng dụng đọc dữ liệu Inverter trực tiếp.
+- Bảng màu xanh dương, vàng, be và trắng; bo góc, hiệu ứng cuộn và hỗ trợ giảm chuyển động.
+- Ảnh WebP mới được quản lý trong Git tại `public/images/solar/solar-home-hero.webp` và `public/images/solar/energy-monitoring-phone.webp`. Ảnh banner tải ưu tiên, các ảnh còn lại tải khi cần.
+
+Hai ảnh được tạo bằng ImageGen với mô tả: mô hình ngôi nhà hiện đại ở Việt Nam có mái pin mặt trời, Inverter và pin lưu trữ trên nền xanh nhạt; bàn tay cầm điện thoại hiển thị bảng năng lượng tiếng Việt với màn hình theo dõi làm mờ phía sau.
+
+Kiểm tra: `npm run lint`, `npm run typecheck`, `npm run build`. Không có lệnh unit test trong package hiện tại. Trước khi deploy, đặt `NEXT_PUBLIC_SITE_URL` bằng địa chỉ Vercel hoặc domain thật của nhánh này để canonical và sitemap trỏ đúng website.
+
+---
+
 # Trọng Tín Solar - Landing Page
 
 A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.

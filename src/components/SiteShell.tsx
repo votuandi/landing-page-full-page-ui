@@ -62,7 +62,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
       {demoVisible && (
         <div className="t5-demo-bar">
           <div className="t5-container flex min-h-11 items-center justify-between gap-3 py-2 text-xs sm:text-sm">
-            <div className="font-bold">Đây là website mẫu dành cho doanh nghiệp solar.</div>
+            <div className="font-bold">Đây là website mẫu dành cho doanh nghiệp điện mặt trời.</div>
             <div className="flex items-center gap-2">
               <a href={SITE_CONFIG.demo.templateCtaUrl} className="t5-demo-link">Dùng mẫu này cho công ty tôi</a>
               <a href={SITE_CONFIG.demo.pricingUrl} className="hidden t5-demo-link sm:inline-flex">Xem bảng giá</a>
@@ -107,17 +107,17 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
       <footer className="bg-[var(--t5-primary)] text-white">
         <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="inline-flex rounded-sm bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
+            <div className="inline-flex rounded-2xl bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
             <p className="mt-5 text-sm leading-7 text-white/70">{SITE_CONFIG.brand.tagline}</p>
             <p className="mt-5 text-xs leading-6 text-white/55">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
           </div>
           <div>
             <h2 className="t5-footer-title">Giải pháp</h2>
             <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Solar nhà xưởng</Link>
-              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Solar hộ gia đình</Link>
+              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Điện mặt trời nhà xưởng</Link>
+              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Điện mặt trời hộ gia đình</Link>
               <Link className="block hover:text-white" href="/service/hybrid-luu-tru">Hybrid lưu trữ</Link>
-              <Link className="block hover:text-white" href="/service/om-ve-sinh">O&M & vệ sinh</Link>
+              <Link className="block hover:text-white" href="/service/om-ve-sinh">Bảo trì & vệ sinh</Link>
             </div>
           </div>
           <div>
@@ -138,19 +138,19 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
+        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website mẫu.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
       </footer>
 
       {SITE_CONFIG.demo.enabled && (
         <div className="fixed right-4 top-[45%] z-50 hidden lg:block">
           <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện"><SwatchIcon className="h-5 w-5" /></button>
           {themeOpen && (
-            <div className="absolute right-14 top-0 w-72 rounded-sm border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="absolute right-14 top-0 w-72 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
               <div className="text-sm font-black text-slate-900">Thử nhận diện thương hiệu</div>
               <label className="mt-4 block text-xs font-bold text-slate-500">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
               <div className="mt-4 text-xs font-bold text-slate-500">Màu chủ đạo</div>
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-sm border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
+                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-2xl border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
               </div>
               <button type="button" onClick={toggleDark} className="mt-4 w-full t5-button t5-button-secondary">Bật / tắt nền tối</button>
             </div>
@@ -158,7 +158,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-sm border border-slate-200 bg-white p-2 shadow-2xl lg:hidden">
+      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl lg:hidden">
         <a className="t5-mobile-cta" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
         <a className="t5-mobile-cta" href={SITE_CONFIG.contact.zalo}>Zalo</a>
         <button type="button" className="t5-mobile-cta" onClick={() => setRfqOpen(true)}>Báo giá {items.length ? `(${items.length})` : ""}</button>
@@ -169,8 +169,8 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
           <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
           <aside className="relative h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">RFQ</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
-            <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem catalog thiết bị"}</Link>
+            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong danh mục để gửi một yêu cầu báo giá chung.</p>}
+            <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem danh mục thiết bị"}</Link>
           </aside>
         </div>
       )}

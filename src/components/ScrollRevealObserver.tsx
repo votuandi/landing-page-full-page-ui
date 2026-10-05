@@ -6,7 +6,7 @@ export default function ScrollRevealObserver() {
   useEffect(() => {
     const elements = Array.from(
       document.querySelectorAll<HTMLElement>(
-        "main section:not(:first-child), main > div > section, footer"
+        "main section:not(.solar-hero), footer"
       )
     );
 
