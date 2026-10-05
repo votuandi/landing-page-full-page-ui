@@ -244,12 +244,12 @@ export default function BestSellerSection({ initialProducts }: BestSellerSection
                     {/* Product Info */}
                     <div className="p-4">
                       {/* Category */}
-                      <div className="text-xs text-blue-600 font-medium mb-2">
+                      <div className="text-xs text-orange-600 font-medium mb-2">
                         {product.category.name}
                       </div>
 
                       {/* Product Name */}
-                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-orange-600 transition-colors">
                         {product.title}
                       </h3>
 
