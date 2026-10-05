@@ -147,13 +147,13 @@ export default function SliderBanner({ initialSlides }: SliderBannerProps) {
             }}
           >
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-stone-950/70 via-orange-950/35 to-amber-900/20"></div>
 
             {/* Content */}
             <div className="container mx-auto px-4 relative z-10">
               <div className="max-w-4xl mx-auto text-center text-white">
                 <div className="mb-4">
-                  <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-4">
+                  <span className="inline-block bg-amber-300/90 text-stone-900 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold mb-4">
                     {slide.title}
                   </span>
                 </div>
@@ -169,12 +169,12 @@ export default function SliderBanner({ initialSlides }: SliderBannerProps) {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
                     href={slide.buttonLink}
-                    className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
+                    className="bg-orange-600 text-white hover:bg-orange-700 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
                   >
                     {slide.buttonText}
                   </Link>
                   <Link href={`tel:${mainOffice?.phone || ""}`}>
-                    <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300">
+                    <button className="border-2 border-amber-300 text-white hover:bg-amber-300 hover:text-stone-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300">
                       Gọi ngay: {mainOffice?.phone || ""}
                     </button>
                   </Link>
@@ -249,7 +249,7 @@ export default function SliderBanner({ initialSlides }: SliderBannerProps) {
       {/* Progress Bar */}
       <div className="absolute bottom-0 left-0 w-full h-1 bg-black/20">
         <div
-          className="h-full bg-white transition-all duration-100 ease-linear"
+          className="h-full bg-amber-300 transition-all duration-100 ease-linear"
           style={{
             width: `${((currentSlide + 1) / slides.length) * 100}%`,
           }}
