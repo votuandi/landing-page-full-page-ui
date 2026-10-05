@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { fetchCompanyInfo } from "@/lib/features/companyInfo/companyInfoSlice";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { data: companyInfo } = useAppSelector((state) => state.companyInfo);
   const { offices } = useAppSelector((state) => state.offices);
   const mainOffice = offices.find((office) => office.isMainOffice) || offices[0];
 
-  // Fetch company info on component mount
   useEffect(() => {
     dispatch(fetchCompanyInfo());
   }, [dispatch]);
@@ -23,108 +24,121 @@ export default function Header() {
     { name: "Sản phẩm", href: "/product" },
     { name: "Dịch vụ", href: "/service" },
     { name: "Dự án", href: "/projects" },
-    { name: "Tin Tức", href: "/news" },
-    { name: "Về Chúng tôi", href: "/about-us" },
+    { name: "Tin tức", href: "/news" },
+    { name: "Về chúng tôi", href: "/about-us" },
     { name: "Liên hệ", href: "/contact-us" },
   ];
 
   return (
     <>
-      {/* Top Banner */}
-      <section className="hero-gradient text-white py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-2 md:mb-0">
-              <div className="text-lg md:text-xl font-bold">{companyInfo?.companyName || ""}</div>
-              <p className="text-sm opacity-90">
-                {companyInfo?.slogan || ""}
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:block">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="px-4 py-2 rounded-lg text-gray-800 w-64"
-                />
-              </div>
-              <a
-                href={mainOffice?.phone ? `tel:${mainOffice.phone}` : ""}
-                className="bg-solar-orange hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Hotline: {mainOffice?.phone || ""}
-              </a>
-            </div>
+      <section className="border-b border-orange-100 bg-[#2f241a] text-stone-100">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 text-sm sm:px-6 lg:px-8">
+          <p className="hidden text-stone-300 md:block">
+            {companyInfo?.slogan || "Giải pháp năng lượng mặt trời bền vững"}
+          </p>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="hidden text-stone-400 sm:inline">Tư vấn hệ thống solar</span>
+            <a
+              href={mainOffice?.phone ? `tel:${mainOffice.phone}` : "#"}
+              className="rounded-full bg-amber-300 px-4 py-2 font-bold text-stone-900 transition hover:bg-amber-200"
+            >
+              {mainOffice?.phone ? `Hotline: ${mainOffice.phone}` : "Liên hệ tư vấn"}
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Navigation Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden relative">
-                {companyInfo?.logoUrl ?
-                  <Image src={companyInfo?.logoUrl || ""} alt={companyInfo?.companyName || "Logo"} width={40} height={40} className="object-contain" />
-                  : <div className="w-full h-full bg-gray-200" />
-                }
+      <header className="sticky top-0 z-50 border-b border-orange-100/80 bg-[#fffaf0]/95 shadow-sm backdrop-blur-xl">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-[76px] items-center justify-between gap-6">
+            <Link href="/" className="flex min-w-0 items-center gap-3">
+              <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100">
+                {companyInfo?.logoUrl ? (
+                  <Image
+                    src={companyInfo.logoUrl}
+                    alt={companyInfo?.companyName || "Logo"}
+                    fill
+                    className="object-contain p-1"
+                    sizes="44px"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-br from-amber-300 to-orange-500" />
+                )}
               </div>
-              <span className="font-bold text-xl text-gray-800">
-                {companyInfo?.companyName || ""}
-              </span>
+              <div className="min-w-0">
+                <div className="truncate text-lg font-black tracking-tight text-stone-900 md:text-xl">
+                  {companyInfo?.companyName || "Solar"}
+                </div>
+                <div className="hidden text-xs font-semibold uppercase tracking-[0.16em] text-orange-600 sm:block">
+                  Solar energy solutions
+                </div>
+              </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {menuItems.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
-                >
-                  {item.name}
-                </Link>
-              ))}
+            <nav className="hidden items-center gap-1 lg:flex">
+              {menuItems.map((item) => {
+                const active =
+                  item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${active
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-stone-700 hover:bg-orange-50 hover:text-orange-700"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
             </nav>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden flex items-center px-3 py-2 border rounded text-gray-500 border-gray-300 hover:text-gray-700 hover:border-gray-400"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="hidden lg:block">
+              <Link
+                href="/contact-us"
+                className="inline-flex items-center rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-bold text-orange-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-50"
               >
+                Nhận tư vấn
+              </Link>
+            </div>
+
+            <button
+              onClick={() => setIsMenuOpen((value) => !value)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-200 bg-white text-stone-700 lg:hidden"
+              aria-label="Mở menu"
+              aria-expanded={isMenuOpen}
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
           </div>
 
-          {/* Mobile Navigation */}
           {isMenuOpen && (
-            <nav className="lg:hidden py-4 border-t">
-              <div className="flex flex-col space-y-2">
-                {menuItems.map((item, index) => (
+            <nav className="grid gap-2 border-t border-orange-100 py-4 lg:hidden">
+              {menuItems.map((item) => {
+                const active =
+                  item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href);
+                return (
                   <Link
-                    key={index}
+                    key={item.href}
                     href={item.href}
-                    className="text-gray-700 hover:text-primary-600 font-medium py-2 px-4 rounded hover:bg-gray-50 transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
+                    className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${active
+                      ? "bg-orange-600 text-white"
+                      : "text-stone-700 hover:bg-orange-50 hover:text-orange-700"
+                    }`}
                   >
                     {item.name}
                   </Link>
-                ))}
-              </div>
+                );
+              })}
             </nav>
           )}
         </div>
