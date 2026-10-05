@@ -12,19 +12,19 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
-          50: "#fff8ed",
-          100: "#ffedd5",
-          500: "#f59e0b",
-          600: "#ea580c",
-          700: "#c2410c",
+          50: "#f1f7f3",
+          100: "#deeee3",
+          500: "#2f7a5a",
+          600: "#1B5E45",
+          700: "#12372A",
         },
         solar: {
-          orange: "#ea580c",
-          blue: "#d97706",
-          green: "#a16207",
-          yellow: "#fbbf24",
-          beige: "#f5ead7",
-          cream: "#fffaf0",
+          orange: "#F4C95D",
+          blue: "#1B5E45",
+          green: "#12372A",
+          yellow: "#C9E265",
+          beige: "#eef4ef",
+          cream: "#f7f9f6",
         },
       },
       fontFamily: {
@@ -42,104 +42,18 @@ const config: Config = {
         "count-up": "count-up 0.6s ease-out 0.8s forwards",
       },
       keyframes: {
-        "fade-in-up": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(30px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
-        },
-        "slide-in-left": {
-          "0%": {
-            opacity: "0",
-            transform: "translateX(-50px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0)",
-          },
-        },
-        "slide-in-right": {
-          "0%": {
-            opacity: "0",
-            transform: "translateX(50px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0)",
-          },
-        },
-        "float-up": {
-          "0%, 100%": {
-            transform: "translateY(0)",
-          },
-          "50%": {
-            transform: "translateY(-10px)",
-          },
-        },
-        "float-down": {
-          "0%, 100%": {
-            transform: "translateY(0)",
-          },
-          "50%": {
-            transform: "translateY(10px)",
-          },
-        },
-        "gradient-x": {
-          "0%, 100%": {
-            "background-size": "200% 200%",
-            "background-position": "left center",
-          },
-          "50%": {
-            "background-size": "200% 200%",
-            "background-position": "right center",
-          },
-        },
-        "spin-slow": {
-          "0%": {
-            transform: "rotate(0deg)",
-          },
-          "100%": {
-            transform: "rotate(360deg)",
-          },
-        },
-        wave: {
-          "0%, 100%": {
-            transform: "translateX(0) translateY(0) scaleX(1)",
-          },
-          "25%": {
-            transform: "translateX(-5px) translateY(-2px) scaleX(1.02)",
-          },
-          "50%": {
-            transform: "translateX(0) translateY(-3px) scaleX(1)",
-          },
-          "75%": {
-            transform: "translateX(5px) translateY(-1px) scaleX(0.98)",
-          },
-        },
-        "count-up": {
-          "0%": {
-            opacity: "0",
-            transform: "scale(0.5)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "scale(1)",
-          },
-        },
+        "fade-in-up": { "0%": { opacity: "0", transform: "translateY(30px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        "slide-in-left": { "0%": { opacity: "0", transform: "translateX(-50px)" }, "100%": { opacity: "1", transform: "translateX(0)" } },
+        "slide-in-right": { "0%": { opacity: "0", transform: "translateX(50px)" }, "100%": { opacity: "1", transform: "translateX(0)" } },
+        "float-up": { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
+        "float-down": { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(10px)" } },
+        "gradient-x": { "0%, 100%": { "background-size": "200% 200%", "background-position": "left center" }, "50%": { "background-size": "200% 200%", "background-position": "right center" } },
+        "spin-slow": { "0%": { transform: "rotate(0deg)" }, "100%": { transform: "rotate(360deg)" } },
+        wave: { "0%, 100%": { transform: "translateX(0) translateY(0) scaleX(1)" }, "50%": { transform: "translateX(0) translateY(-3px) scaleX(1)" } },
+        "count-up": { "0%": { opacity: "0", transform: "scale(0.5)" }, "100%": { opacity: "1", transform: "scale(1)" } },
       },
-      boxShadow: {
-        "3xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-      },
-      transitionDuration: {
-        "600": "600ms",
-        "800": "800ms",
-        "900": "900ms",
-        "1200": "1200ms",
-      },
+      boxShadow: { "3xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)" },
+      transitionDuration: { "600": "600ms", "800": "800ms", "900": "900ms", "1200": "1200ms" },
     },
   },
   plugins: [],

@@ -1,18 +1,24 @@
 import type { Service } from "@/types";
 
-// Shared content and configuration for the solar website.
-
 export const SITE_CONFIG = {
   name: "Minwy Solar",
-  description: "Thiết bị và giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp.",
-  url: "https://phanphoisolar.com",
+  description: "Phân phối thiết bị, tư vấn thiết kế và thi công điện mặt trời cho gia đình và doanh nghiệp.",
+  url: "https://solarservice.minwysoft.com",
   phone: "0708699808",
-  email: "divt.it97@gmail.com",
-  address: "Lấp Vò, Đồng Tháp, Việt Nam",
-  workingHours: "Thứ 2 - Thứ 6: 8:00 - 17:30, Thứ 7: 8:00 - 12:00",
-  coordinates: {
-    lat: 10.362137,
-    lng: 105.520426,
+  displayPhone: "0708 699 808",
+  zalo: "https://zalo.me/0708699808",
+  messenger: "https://m.me/minwysolar",
+  email: "hello@minwysolar.vn",
+  address: "128 Nguyễn Văn Linh, Tân Phong, Quận 7, TP. Hồ Chí Minh",
+  workingHours: "Thứ 2 - Thứ 7: 08:00 - 17:30",
+  coordinates: { lat: 10.729, lng: 106.702 },
+  calculator: {
+    averageResidentialRate: 2850,
+    averageBusinessRate: 3100,
+    systemCostPerKwp: 14500000,
+    selfUseRatioResidential: 0.78,
+    selfUseRatioBusiness: 0.9,
+    regionalSunHours: { bac: 3.4, trung: 4.2, nam: 4.7 },
   },
 } as const;
 
@@ -26,119 +32,37 @@ export const NAVIGATION_ITEMS = [
 ] as const;
 
 export const SOCIAL_LINKS = [
-  { name: "Facebook", url: "#", icon: "facebook" },
-  { name: "YouTube", url: "#", icon: "youtube" },
-  { name: "TikTok", url: "#", icon: "tiktok" },
+  { name: "Facebook", url: "https://facebook.com/minwysolar", icon: "facebook" },
+  { name: "YouTube", url: "https://youtube.com/@minwysolar", icon: "youtube" },
+  { name: "TikTok", url: "https://tiktok.com/@minwysolar", icon: "tiktok" },
 ] as const;
 
 export const STATISTICS = [
-  { label: "Năm kinh nghiệm", value: "10+", color: "text-solar-green" },
-  { label: "Dự án hoàn thành", value: "1000+", color: "text-solar-green" },
-  { label: "Hỗ trợ kỹ thuật", value: "24/7", color: "text-solar-green" },
+  { label: "Năm kinh nghiệm", value: "10+", color: "text-emerald-700" },
+  { label: "Dự án hoàn thành", value: "1.000+", color: "text-emerald-700" },
+  { label: "Tổng công suất", value: "50 MW+", color: "text-emerald-700" },
+  { label: "Bảo hành thiết bị", value: "25 năm", color: "text-emerald-700" },
 ] as const;
 
 export const PRODUCT_STATISTICS = [
-  { label: "Tấm pin lắp đặt", value: "5000+", color: "text-solar-green" },
-  { label: "Hệ thống hoàn thiện", value: "500+", color: "text-solar-yellow" },
-  { label: "Khách hàng hài lòng", value: "98%", color: "text-solar-green" },
-  { label: "Hỗ trợ kỹ thuật", value: "24/7", color: "text-solar-yellow" },
+  { label: "Tấm pin lắp đặt", value: "5.000+", color: "text-emerald-700" },
+  { label: "Hệ thống hoàn thiện", value: "500+", color: "text-emerald-700" },
+  { label: "Khách hàng hài lòng", value: "98%", color: "text-emerald-700" },
+  { label: "Hỗ trợ kỹ thuật", value: "24/7", color: "text-emerald-700" },
 ] as const;
 
 export const SERVICES: Service[] = [
-  {
-    id: 1,
-    title: "Tư vấn và thiết kế hệ thống điện hộ gia đình",
-    description: "Dịch vụ tư vấn chuyên nghiệp và thiết kế hệ thống điện an toàn, hiệu quả cho hộ gia đình.",
-    image: "/images/solar-installation-hero.jpg",
-    features: ["Khảo sát hiện trạng điện", "Thiết kế sơ đồ mạch điện", "Tư vấn thiết bị phù hợp", "Hỗ trợ kỹ thuật 24/7"],
-    price: "Liên hệ",
-    category: "household" as const,
-    duration: "1-2 ngày",
-    warranty: "12 tháng",
-  },
-  {
-    id: 2,
-    title: "Tư vấn và thiết kế hệ thống điện hộ doanh nghiệp",
-    description: "Giải pháp hệ thống điện công nghiệp quy mô lớn cho doanh nghiệp, nhà máy.",
-    image: "/images/solar-panels-hero.jpg",
-    features: ["Khảo sát công suất tiêu thụ", "Thiết kế hệ thống ba pha", "Tối ưu chi phí vận hành", "Tuân thủ tiêu chuẩn an toàn"],
-    price: "Liên hệ",
-    category: "business" as const,
-    duration: "3-5 ngày",
-    warranty: "24 tháng",
-  },
-  {
-    id: 3,
-    title: "Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho hộ gia đình",
-    description: "Dịch vụ trọn gói từ thiết kế đến lắp đặt hệ thống điện mặt trời cho hộ gia đình.",
-    image: "/images/solar-battery-hero.jpg",
-    features: ["Khảo sát mái nhà", "Thiết kế hệ thống phù hợp", "Lắp đặt chuyên nghiệp", "Bảo hành toàn diện"],
-    price: "150-300 triệu",
-    category: "household" as const,
-    duration: "5-7 ngày",
-    warranty: "25 năm",
-  },
-  {
-    id: 4,
-    title: "Thiết kế và thi công trọn gói hệ thống năng lượng mặt trời cho doanh nghiệp",
-    description: "Giải pháp năng lượng mặt trời quy mô lớn cho doanh nghiệp, tiết kiệm chi phí điện.",
-    image: "/images/solar-inverter-hero.jpg",
-    features: ["Khảo sát địa điểm lắp đặt", "Thiết kế hệ thống công suất cao", "Thi công theo tiêu chuẩn quốc tế", "Giám sát và bảo trì định kỳ"],
-    price: "500 triệu - 5 tỷ",
-    category: "business" as const,
-    duration: "2-4 tuần",
-    warranty: "25 năm",
-  },
-  {
-    id: 5,
-    title: "Thiết kế và thi công trạm sạc xe điện năng lượng mặt trời",
-    description: "Xây dựng trạm sạc xe điện sử dụng năng lượng mặt trời thân thiện môi trường.",
-    image: "/images/product-1.jpg",
-    features: ["Thiết kế trạm sạc hiện đại", "Tích hợp năng lượng mặt trời", "Hệ thống quản lý thông minh", "Hỗ trợ nhiều loại xe điện"],
-    price: "300-800 triệu",
-    category: "business" as const,
-    duration: "3-6 tuần",
-    warranty: "20 năm",
-  },
-  {
-    id: 6,
-    title: "Sửa chữa bảo trì điện",
-    description: "Dịch vụ sửa chữa, bảo trì hệ thống điện và thiết bị năng lượng mặt trời.",
-    image: "/images/product-2.jpg",
-    features: ["Kiểm tra định kỳ hệ thống", "Sửa chữa nhanh chóng", "Thay thế linh kiện chất lượng", "Hỗ trợ khẩn cấp 24/7"],
-    price: "500.000 - 5.000.000 VNĐ",
-    category: "maintenance" as const,
-    duration: "1-3 ngày",
-    warranty: "6 tháng",
-  },
-  {
-    id: 7,
-    title: "Tư vấn giải pháp tiết kiệm năng lượng",
-    description: "Tư vấn các giải pháp tối ưu hóa sử dụng năng lượng và giảm chi phí điện.",
-    image: "/images/product-3.jpg",
-    features: ["Phân tích mức tiêu thụ điện", "Đề xuất giải pháp tiết kiệm", "Tư vấn thiết bị hiệu quả cao", "Theo dõi hiệu suất dài hạn"],
-    price: "2-10 triệu",
-    category: "consultation" as const,
-    duration: "1-2 tuần",
-    warranty: "12 tháng",
-  },
-  {
-    id: 8,
-    title: "Lắp đặt hệ thống chiếu sáng LED năng lượng mặt trời",
-    description: "Giải pháp chiếu sáng tiết kiệm năng lượng sử dụng LED và pin mặt trời.",
-    image: "/images/product-4.jpg",
-    features: ["Đèn LED chất lượng cao", "Pin mặt trời bền bỉ", "Tự động bật/tắt", "Chống thấm nước IP65"],
-    price: "5-50 triệu",
-    category: "household" as const,
-    duration: "1-3 ngày",
-    warranty: "3 năm",
-  },
+  { id: 1, title: "Tư vấn & thiết kế điện mặt trời", description: "Khảo sát tải điện, mái, hướng nắng và thiết kế cấu hình tối ưu theo mục tiêu hoàn vốn.", image: "/images/solar-installation-hero.jpg", features: ["Khảo sát hiện trạng", "Mô phỏng sản lượng", "Thiết kế kỹ thuật", "Dự toán đầu tư"], price: "Miễn phí khảo sát", category: "consultation", duration: "1-2 ngày", warranty: "Hồ sơ rõ ràng" },
+  { id: 2, title: "Lắp đặt solar hộ gia đình", description: "Giải pháp hòa lưới hoặc hybrid giúp giảm hóa đơn điện và có thể dự phòng khi mất điện.", image: "/images/solar-panels-hero.jpg", features: ["3-15 kWp", "Thi công gọn", "Giám sát từ xa", "Bảo hành dài hạn"], price: "Từ 45 triệu", category: "household", duration: "2-5 ngày", warranty: "Tới 25 năm" },
+  { id: 3, title: "Điện mặt trời nhà xưởng", description: "Giải pháp công suất lớn tối ưu điện giờ cao điểm cho nhà máy, kho và cơ sở sản xuất.", image: "/images/solar-inverter-hero.jpg", features: ["Khảo sát phụ tải", "Thiết kế 3 pha", "An toàn PCCC", "Theo dõi hiệu suất"], price: "Theo công suất", category: "business", duration: "2-6 tuần", warranty: "Tới 25 năm" },
+  { id: 4, title: "Bảo trì & vệ sinh hệ thống", description: "Kiểm tra thiết bị, vệ sinh tấm pin và đánh giá hiệu suất để duy trì sản lượng ổn định.", image: "/images/product-2.jpg", features: ["Đo kiểm điện", "Vệ sinh tấm pin", "Kiểm tra inverter", "Báo cáo hiệu suất"], price: "Từ 800.000đ", category: "maintenance", duration: "Trong ngày", warranty: "Biên bản kỹ thuật" },
+  { id: 5, title: "Sửa chữa & nâng cấp hệ thống", description: "Chẩn đoán lỗi, thay thế thiết bị và nâng cấp pin lưu trữ cho hệ thống đang vận hành.", image: "/images/solar-battery-hero.jpg", features: ["Kiểm tra tại chỗ", "Xử lý lỗi inverter", "Nâng cấp lưu trữ", "Tối ưu cấu hình"], price: "Liên hệ báo giá", category: "maintenance", duration: "1-3 ngày", warranty: "Theo hạng mục" },
 ];
 
 export const SERVICE_CATEGORIES = [
   { id: "all", name: "Tất cả dịch vụ", count: SERVICES.length },
-  { id: "household", name: "Hộ gia đình", count: SERVICES.filter((service) => service.category === "household").length },
-  { id: "business", name: "Doanh nghiệp", count: SERVICES.filter((service) => service.category === "business").length },
-  { id: "maintenance", name: "Bảo trì", count: SERVICES.filter((service) => service.category === "maintenance").length },
-  { id: "consultation", name: "Tư vấn", count: SERVICES.filter((service) => service.category === "consultation").length },
+  { id: "household", name: "Hộ gia đình", count: SERVICES.filter((s) => s.category === "household").length },
+  { id: "business", name: "Doanh nghiệp", count: SERVICES.filter((s) => s.category === "business").length },
+  { id: "maintenance", name: "Bảo trì", count: SERVICES.filter((s) => s.category === "maintenance").length },
+  { id: "consultation", name: "Tư vấn", count: SERVICES.filter((s) => s.category === "consultation").length },
 ] as const;

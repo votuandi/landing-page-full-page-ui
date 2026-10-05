@@ -1,89 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { Bars3Icon, XMarkIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { NAVIGATION_ITEMS, SITE_CONFIG } from "@/utils/constants";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const [open, setOpen] = useState(false);
   return (
-    <>
-      <div className="bg-primary-700 py-3 text-white">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-2 px-4 md:flex-row">
-          <div>
-            <p className="font-bold">{SITE_CONFIG.name}</p>
-            <p className="text-sm text-green-50">
-              Giải pháp năng lượng sạch cho gia đình và doanh nghiệp
-            </p>
-          </div>
-          <a
-            href={`tel:${SITE_CONFIG.phone}`}
-            className="rounded-lg bg-solar-yellow px-4 py-2 font-semibold text-slate-900 transition hover:bg-yellow-300"
-          >
-            Hotline: {SITE_CONFIG.phone}
-          </a>
+    <header className="sticky top-0 z-50 border-b border-emerald-950/10 bg-[#f8faf7]/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label={SITE_CONFIG.name}>
+          <Image src="/images/logo.png" alt={SITE_CONFIG.name} width={46} height={46} priority className="h-11 w-11 rounded-xl bg-white object-contain p-0.5" />
+          <div className="min-w-0"><div className="truncate text-lg font-black tracking-tight text-[#12372A]">{SITE_CONFIG.name}</div><div className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Solar engineering & distribution</div></div>
+        </Link>
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Điều hướng chính">
+          {NAVIGATION_ITEMS.map((item) => <Link key={item.href} href={item.href} className="text-sm font-semibold text-slate-700 transition hover:text-[#1B5E45]">{item.name}</Link>)}
+        </nav>
+        <div className="hidden items-center gap-3 lg:flex">
+          <a href={SITE_CONFIG.zalo} className="rounded-xl border border-emerald-900/15 bg-white px-4 py-2.5 text-sm font-bold text-[#12372A] transition hover:bg-emerald-50">Chat Zalo</a>
+          <a href={`tel:${SITE_CONFIG.phone}`} className="inline-flex items-center gap-2 rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#1B5E45]"><PhoneIcon className="h-4 w-4" />{SITE_CONFIG.displayPhone}</a>
         </div>
+        <button type="button" className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-950/10 bg-white text-[#12372A] lg:hidden" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label={open ? "Đóng menu" : "Mở menu"}>{open ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}</button>
       </div>
-
-      <header className="sticky top-0 z-50 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2" aria-label="Minwy Solar - Trang chủ">
-            <Image
-              src="/images/logo.png"
-              alt="Minwy Solar"
-              width={44}
-              height={44}
-              priority
-              className="h-11 w-11 rounded-xl object-contain bg-white p-0.5"
-            />
-            <span className="text-xl font-bold text-primary-700">Minwy Solar</span>
-          </Link>
-
-          <nav className="hidden items-center gap-7 lg:flex" aria-label="Điều hướng chính">
-            {NAVIGATION_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="font-medium text-slate-700 transition hover:text-primary-600"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen((open) => !open)}
-            className="rounded-lg border border-green-200 p-2 text-primary-700 lg:hidden"
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-navigation"
-            aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-
-        {isMenuOpen && (
-          <nav id="mobile-navigation" className="border-t border-green-100 px-4 py-3 lg:hidden" aria-label="Điều hướng di động">
-            <div className="flex flex-col gap-1">
-              {NAVIGATION_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-lg px-3 py-2 font-medium text-slate-700 hover:bg-green-50 hover:text-primary-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </nav>
-        )}
-      </header>
-    </>
+      {open && <div className="border-t border-emerald-950/10 bg-white px-4 py-4 lg:hidden"><nav className="mx-auto max-w-7xl space-y-1">{NAVIGATION_ITEMS.map((item)=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)} className="block rounded-xl px-4 py-3 font-semibold text-slate-700 hover:bg-emerald-50">{item.name}</Link>)}<div className="grid grid-cols-2 gap-2 pt-3"><a href={SITE_CONFIG.zalo} className="rounded-xl border border-emerald-900/15 px-4 py-3 text-center text-sm font-bold text-[#12372A]">Zalo</a><a href={`tel:${SITE_CONFIG.phone}`} className="rounded-xl bg-[#12372A] px-4 py-3 text-center text-sm font-bold text-white">Gọi ngay</a></div></nav></div>}
+    </header>
   );
 }

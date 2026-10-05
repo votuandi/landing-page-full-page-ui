@@ -2,425 +2,108 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  ArrowDownTrayIcon,
+  CheckCircleIcon,
+  ChevronRightIcon,
+  PhoneIcon,
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline";
+import { SITE_CONFIG } from "@/utils/constants";
 
 interface ProductData {
-  id: number;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  image: string;
-  specs: string[];
-  discount?: number;
-  category: string;
-  priceNumber: number;
-  description?: string;
-  features?: string[];
-  warranty?: string;
-  technicalSpecs?: Record<string, string>;
+  id:number; name:string; price:string; originalPrice?:string; image:string; specs:string[];
+  discount?:number; category:string; priceNumber:number; description?:string; features?:string[];
+  warranty?:string; technicalSpecs?:Record<string,string>;
 }
+interface ProductDetailContentProps { product: ProductData; }
 
-interface ProductDetailContentProps {
-  product: ProductData;
-}
-
-export default function ProductDetailContent({
-  product,
-}: ProductDetailContentProps) {
-  const [imageError, setImageError] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<
-    "description" | "specs" | "warranty"
-  >("description");
-
-  const handleQuantityChange = (change: number) => {
-    const newQuantity = quantity + change;
-    if (newQuantity >= 1) {
-      setQuantity(newQuantity);
-    }
-  };
+export default function ProductDetailContent({ product }: ProductDetailContentProps) {
+  const [activeImage,setActiveImage] = useState(0);
+  const [quoteOpen,setQuoteOpen] = useState(false);
+  const gallery = useMemo(() => {
+    const fallback = product.category.includes("Pin") ? ["/images/product-2.jpg","/images/solar-battery-hero.jpg","/images/solar-installation-hero.jpg"] :
+      product.category.includes("Tấm") ? ["/images/product-3.jpg","/images/solar-panels-hero.jpg","/images/solar-installation-hero.jpg"] :
+      [product.image,"/images/solar-inverter-hero.jpg","/images/solar-installation-hero.jpg"];
+    return Array.from(new Set([product.image,...fallback]));
+  },[product]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-600 mb-8">
-        <Link href="/" className="hover:text-solar-blue">
-          Trang chủ
-        </Link>
-        <span className="mx-2">/</span>
-        <Link href="/product" className="hover:text-solar-blue">
-          Sản phẩm
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-gray-900">{product.name}</span>
-      </nav>
+    <main className="bg-[#f7f9f6]">
+      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+        <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          <Link href="/" className="hover:text-[#12372A]">Trang chủ</Link><ChevronRightIcon className="h-4 w-4" />
+          <Link href="/product" className="hover:text-[#12372A]">Sản phẩm</Link><ChevronRightIcon className="h-4 w-4" />
+          <span className="truncate text-slate-700">{product.name}</span>
+        </nav>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-        {/* Product Image */}
-        <div className="space-y-4">
-          <div className="relative h-96 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-            {!imageError ? (
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-                onError={() => setImageError(true)}
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <svg
-                    className="w-20 h-20 mx-auto mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                    />
-                  </svg>
-                  <span>Ảnh sản phẩm</span>
-                </div>
-              </div>
-            )}
-
-            {/* Discount Badge */}
-            {product.discount && (
-              <div className="absolute top-4 left-4">
-                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  -{product.discount}%
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Thumbnail images (placeholder for future enhancement) */}
-          <div className="grid grid-cols-4 gap-2">
-            {[...Array(4)].map((_, index) => (
-              <div
-                key={index}
-                className="relative h-20 bg-gray-100 rounded border-2 border-transparent hover:border-solar-blue cursor-pointer"
-              >
-                <Image
-                  src={product.image}
-                  alt={`${product.name} view ${index + 1}`}
-                  fill
-                  className="object-cover rounded"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Product Details */}
-        <div className="space-y-6">
-          {/* Category */}
+      <section className="border-y border-emerald-950/10 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-14">
           <div>
-            <span className="bg-solar-blue/10 text-solar-blue px-3 py-1 rounded-full text-sm font-medium">
-              {product.category}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            {product.name}
-          </h1>
-
-          {/* Price */}
-          <div className="flex items-center space-x-4">
-            <span className="text-3xl font-bold text-solar-blue">
-              {product.price}
-            </span>
-            {product.originalPrice && (
-              <span className="text-xl text-gray-500 line-through">
-                {product.originalPrice}
-              </span>
-            )}
-          </div>
-
-          {/* Key Specs */}
-          <div className="grid grid-cols-2 gap-4">
-            {product.specs.map((spec, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-2 text-gray-600"
-              >
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>{spec}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Description */}
-          {product.description && (
-            <p className="text-gray-600 leading-relaxed">
-              {product.description}
-            </p>
-          )}
-
-          {/* Quantity and Add to Cart */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700 font-medium">Số lượng:</span>
-              <div className="flex items-center border border-gray-300 rounded">
-                <button
-                  onClick={() => handleQuantityChange(-1)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <span className="px-4 py-2 border-x border-gray-300">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => handleQuantityChange(1)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                >
-                  +
-                </button>
-              </div>
+            <div className="relative aspect-[4/3] overflow-hidden border border-emerald-950/10 bg-[#eef4ef]">
+              <Image src={gallery[activeImage]} alt={product.name} fill priority className="object-cover" sizes="(max-width:1024px) 100vw, 55vw" />
+              {product.discount && <span className="absolute left-4 top-4 rounded-md bg-[#C9E265] px-3 py-1.5 text-xs font-black text-[#12372A]">Tiết kiệm {product.discount}%</span>}
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button className="bg-solar-blue hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                Thêm vào giỏ hàng
-              </button>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                Mua ngay
-              </button>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              {gallery.map((src,index)=><button type="button" key={src} onClick={()=>setActiveImage(index)} className={`relative aspect-[4/3] overflow-hidden border ${activeImage===index?"border-[#12372A]":"border-emerald-950/10"}`}><Image src={src} alt={`${product.name} - góc nhìn ${index+1}`} fill className="object-cover" /></button>)}
             </div>
           </div>
 
-          {/* Contact Info */}
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Liên hệ tư vấn
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="w-4 h-4 text-solar-blue"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-                <span>Hotline: 0708699808</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="w-4 h-4 text-solar-blue"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                <span>Email: divt.it97@gmail.com</span>
-              </div>
+          <div className="lg:pl-4">
+            <div className="text-xs font-black uppercase tracking-[0.16em] text-[#1B5E45]">{product.category}</div>
+            <h1 className="mt-4 text-4xl font-black leading-[1.05] tracking-[-0.035em] text-[#10271f] md:text-5xl">{product.name}</h1>
+            <p className="mt-5 text-lg leading-8 text-slate-600">{product.description || "Thiết bị được chọn theo tiêu chí hiệu suất, độ ổn định và khả năng tích hợp trong hệ thống điện mặt trời dân dụng hoặc thương mại."}</p>
+
+            <div className="mt-7 border-y border-emerald-950/10 py-5">
+              <div className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">Giá thiết bị tham khảo</div>
+              <div className="mt-1 flex items-end gap-3"><div className="text-3xl font-black text-[#1B5E45]">{product.price}</div>{product.originalPrice&&<div className="pb-1 text-sm text-slate-400 line-through">{product.originalPrice}</div>}</div>
+              <p className="mt-2 text-xs text-slate-500">Giá lắp đặt trọn gói phụ thuộc công suất, mái và cấu hình hệ thống.</p>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              {product.specs.slice(0,4).map((spec)=><div key={spec} className="border border-emerald-950/10 bg-[#f7f9f6] p-4 text-sm font-bold text-slate-700"><CheckCircleIcon className="mb-2 h-5 w-5 text-[#1B5E45]" />{spec}</div>)}
+            </div>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              <button type="button" onClick={()=>setQuoteOpen(true)} className="rounded-xl bg-[#12372A] px-5 py-4 font-black text-white">Hỏi giá lắp đặt trọn gói</button>
+              <a href={SITE_CONFIG.zalo} className="rounded-xl border border-emerald-950/15 bg-white px-5 py-4 text-center font-black text-[#12372A]">Chat Zalo</a>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="flex gap-3 border border-emerald-950/10 p-4"><ShieldCheckIcon className="h-6 w-6 shrink-0 text-[#1B5E45]" /><div><div className="font-black text-[#12372A]">Bảo hành rõ ràng</div><div className="mt-1 text-sm text-slate-500">{product.warranty || "Theo chính sách chính hãng"}</div></div></div>
+              <a href="#thong-so" className="flex gap-3 border border-emerald-950/10 p-4"><ArrowDownTrayIcon className="h-6 w-6 shrink-0 text-[#1B5E45]" /><div><div className="font-black text-[#12372A]">Datasheet kỹ thuật</div><div className="mt-1 text-sm text-slate-500">Xem thông số bên dưới</div></div></a>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Detailed Information Tabs */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {/* Tab Headers */}
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
-            {[
-              { id: "description", label: "Mô tả sản phẩm" },
-              { id: "specs", label: "Thông số kỹ thuật" },
-              { id: "warranty", label: "Bảo hành" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? "border-solar-blue text-solar-blue"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+      <section id="thong-so" className="scroll-mt-24 py-16 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[.9fr_1.1fr] lg:px-8">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.16em] text-[#1B5E45]">Thông tin sản phẩm</div>
+            <h2 className="mt-3 text-3xl font-black tracking-[-0.03em]">Điểm nổi bật & bảo hành</h2>
+            <ul className="mt-7 space-y-3">{(product.features || product.specs).map((feature)=><li key={feature} className="flex gap-3 text-slate-600"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#1B5E45]" />{feature}</li>)}</ul>
+            <div className="mt-8 bg-[#12372A] p-6 text-white"><div className="text-xs font-black uppercase tracking-[0.14em] text-[#C9E265]">Hỗ trợ kỹ thuật</div><div className="mt-2 text-xl font-black">{SITE_CONFIG.displayPhone}</div><p className="mt-2 text-sm leading-6 text-emerald-50/70">Tư vấn tương thích inverter, pin lưu trữ, tủ điện và cấu hình lắp đặt.</p></div>
+          </div>
+          <div>
+            <h2 className="text-3xl font-black tracking-[-0.03em]">Thông số kỹ thuật</h2>
+            <div className="mt-6 overflow-hidden border border-emerald-950/10 bg-white">
+              {(product.technicalSpecs ? Object.entries(product.technicalSpecs) : product.specs.map((value,index)=>[`Thông số ${index+1}`,value])).map(([key,value],index)=><div key={key} className={`grid grid-cols-[.9fr_1.1fr] gap-4 px-5 py-4 text-sm ${index%2===0?"bg-[#f7f9f6]":"bg-white"}`}><div className="font-bold text-slate-500">{key}</div><div className="font-semibold text-[#10271f]">{value}</div></div>)}
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Tab Content */}
-        <div className="p-6">
-          {activeTab === "description" && (
-            <div className="space-y-6">
-              {product.description && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Giới thiệu sản phẩm
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              )}
-
-              {product.features && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Tính năng nổi bật
-                  </h3>
-                  <ul className="space-y-2">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-start space-x-3">
-                        <svg
-                          className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span className="text-gray-600">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "specs" && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Thông số kỹ thuật chi tiết
-              </h3>
-              {product.technicalSpecs ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(product.technicalSpecs).map(
-                    ([key, value]) => (
-                      <div
-                        key={key}
-                        className="border border-gray-200 rounded p-3"
-                      >
-                        <div className="font-medium text-gray-900">{key}</div>
-                        <div className="text-gray-600">{value}</div>
-                      </div>
-                    )
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {product.specs.map((spec, index) => (
-                    <div
-                      key={index}
-                      className="border border-gray-200 rounded p-3"
-                    >
-                      <div className="text-gray-700">{spec}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "warranty" && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Chính sách bảo hành
-              </h3>
-              <div className="space-y-4">
-                {product.warranty && (
-                  <div className="bg-green-50 border border-green-200 rounded p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <svg
-                        className="w-5 h-5 text-green-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="font-medium text-green-800">
-                        Thời gian bảo hành
-                      </span>
-                    </div>
-                    <p className="text-green-700">{product.warranty}</p>
-                  </div>
-                )}
-
-                <div className="prose prose-sm max-w-none">
-                  <h4>Điều kện bảo hành:</h4>
-                  <ul>
-                    <li>Sản phẩm còn trong thời hạn bảo hành</li>
-                    <li>
-                      Sản phẩm được lắp đặt bởi kỹ thuật viên được ủy quyền
-                    </li>
-                    <li>Không có dấu hiệu tác động vật lý từ bên ngoài</li>
-                    <li>Còn tem bảo hành và hóa đơn mua hàng</li>
-                  </ul>
-
-                  <h4>Quy trình bảo hành:</h4>
-                  <ol>
-                    <li>Liên hệ hotline: 0708699808</li>
-                    <li>Cung cấp thông tin sản phẩm và mô tả lỗi</li>
-                    <li>Kỹ thuật viên đến kiểm tra và báo giá (nếu có)</li>
-                    <li>Thực hiện sửa chữa hoặc thay thế</li>
-                    <li>Bàn giao và ký nhận</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          )}
+      <section className="bg-[#10271f] py-16 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col gap-7 px-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div><div className="text-xs font-black uppercase tracking-[0.15em] text-[#C9E265]">Cần cấu hình hoàn chỉnh?</div><h2 className="mt-2 text-3xl font-black">Đừng chỉ hỏi giá thiết bị — hãy hỏi chi phí hệ thống phù hợp.</h2></div>
+          <button onClick={()=>setQuoteOpen(true)} className="rounded-xl bg-[#C9E265] px-6 py-4 font-black text-[#12372A]">Nhận cấu hình & báo giá</button>
         </div>
-      </div>
+      </section>
 
-      {/* Back to Products */}
-      <div className="flex justify-center mt-8">
-        <Link
-          href="/product"
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors"
-        >
-          ← Quay lại danh sách sản phẩm
-        </Link>
-      </div>
-    </div>
+      {quoteOpen && <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"><button className="absolute inset-0" aria-label="Đóng" onClick={()=>setQuoteOpen(false)} /><div className="relative w-full max-w-xl rounded-t-3xl bg-white p-6 sm:rounded-2xl sm:p-8"><div className="text-xs font-black uppercase tracking-[0.15em] text-[#1B5E45]">Báo giá trọn gói</div><h2 className="mt-2 text-2xl font-black">{product.name}</h2><p className="mt-2 text-sm text-slate-500">Demo frontend: thông tin không được gửi lên server.</p><div className="mt-6 grid gap-4"><input defaultValue={product.name} readOnly className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500" /><input placeholder="Họ và tên" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#1B5E45]" /><input placeholder="Số điện thoại" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#1B5E45]" /><textarea rows={3} placeholder="Diện tích mái / tiền điện / nhu cầu lưu trữ..." className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-[#1B5E45]" /><div className="grid grid-cols-2 gap-3"><button type="button" onClick={()=>setQuoteOpen(false)} className="rounded-xl border border-emerald-950/15 px-4 py-3 font-bold">Đóng</button><a href={`tel:${SITE_CONFIG.phone}`} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#12372A] px-4 py-3 font-black text-white"><PhoneIcon className="h-5 w-5" /> Gọi tư vấn</a></div></div></div></div>}
+    </main>
   );
 }
