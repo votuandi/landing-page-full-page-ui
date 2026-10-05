@@ -15,7 +15,7 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#15803d",
+  themeColor: "#ea580c",
 };
 
 export const metadata: Metadata = {
@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
   description:
     "Minwy Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
+  icons: {
+    icon: [{ url: "/images/logo.png", type: "image/png" }],
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
+  manifest: "/site.webmanifest",
   keywords: [
     "năng lượng mặt trời",
     "điện mặt trời",

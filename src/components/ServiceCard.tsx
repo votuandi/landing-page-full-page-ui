@@ -1,130 +1,28 @@
 "use client";
-
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@/types";
 
-interface ServiceCardProps {
-  service: Service;
-}
-
-export default function ServiceCard({ service }: ServiceCardProps) {
-  const getCategoryColor = (category: Service["category"]) => {
-    switch (category) {
-      case "household":
-        return "bg-green-100 text-green-800";
-      case "business":
-        return "bg-green-100 text-green-800";
-      case "maintenance":
-        return "bg-orange-100 text-orange-800";
-      case "consultation":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getCategoryLabel = (category: Service["category"]) => {
-    switch (category) {
-      case "household":
-        return "Hộ gia đình";
-      case "business":
-        return "Doanh nghiệp";
-      case "maintenance":
-        return "Bảo trì";
-      case "consultation":
-        return "Tư vấn";
-      default:
-        return "Khác";
-    }
-  };
-
+export default function ServiceCard({ service }: { service: Service }) {
+  const labels: Record<string,string>={household:"Hộ gia đình",business:"Doanh nghiệp",maintenance:"Bảo trì",consultation:"Tư vấn"};
   return (
-    <Link href={`/service/${service.id}`} className="block">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-      <div className="relative h-48 w-full">
-        <Image
-          src={service.image}
-          alt={service.title}
-          fill
-          className="object-cover"
-        />
-        <div className="absolute top-4 left-4">
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(
-              service.category
-            )}`}
-          >
-            {getCategoryLabel(service.category)}
-          </span>
+    <Link href={`/service/${service.id}`} className="group block h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-orange-100 bg-white shadow-[0_16px_45px_rgba(120,75,20,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(120,75,20,0.14)]">
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <Image src={service.image} alt={service.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width:768px) 100vw, 33vw" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/45 via-transparent to-transparent" />
+          <span className="absolute left-4 top-4 rounded-full bg-[#fff8ed]/95 px-3 py-1 text-xs font-bold text-orange-700">{labels[service.category] || "Dịch vụ"}</span>
         </div>
-      </div>
-
-      <div className="p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-          {service.title}
-        </h3>
-
-        <p className="text-gray-600 mb-4 line-clamp-3">{service.description}</p>
-
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">
-            Đặc điểm nổi bật:
-          </h4>
-          <ul className="text-sm text-gray-600 space-y-1">
-            {service.features.slice(0, 3).map((feature, index) => (
-              <li key={index} className="flex items-start">
-                <svg
-                  className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>{feature}</span>
-              </li>
-            ))}
-            {service.features.length > 3 && (
-              <li className="text-xs text-gray-500 ml-6">
-                +{service.features.length - 3} tính năng khác
-              </li>
-            )}
-          </ul>
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold text-green-600">
-              {service.price}
-            </span>
-            {service.duration && (
-              <span className="text-sm text-gray-500">
-                Thời gian: {service.duration}
-              </span>
-            )}
+        <div className="flex flex-1 flex-col p-6">
+          <h3 className="text-xl font-black text-stone-900 transition group-hover:text-orange-600">{service.title}</h3>
+          <p className="mt-3 line-clamp-3 leading-7 text-stone-600">{service.description}</p>
+          <ul className="mt-5 space-y-2">{service.features.slice(0,3).map(feature=><li key={feature} className="flex gap-2 text-sm text-stone-600"><span className="mt-1 text-orange-500">●</span>{feature}</li>)}</ul>
+          <div className="mt-auto flex items-end justify-between border-t border-orange-100 pt-5">
+            <div><div className="text-xl font-black text-orange-600">{service.price}</div>{service.duration&&<div className="mt-1 text-xs text-stone-500">{service.duration}</div>}</div>
+            <span className="font-bold text-orange-600">Chi tiết →</span>
           </div>
-          {service.warranty && (
-            <div className="text-right">
-              <span className="text-sm text-gray-500">Bảo hành</span>
-              <div className="text-sm font-medium text-green-600">
-                {service.warranty}
-              </div>
-            </div>
-          )}
         </div>
-
-        <div className="flex justify-end">
-          <span className="text-green-600 font-medium text-sm hover:text-green-700 transition-colors">
-            Xem chi tiết →
-          </span>
-        </div>
-      </div>
-    </div>
+      </article>
     </Link>
   );
 }

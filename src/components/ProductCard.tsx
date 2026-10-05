@@ -1,91 +1,28 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface ProductCardProps {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  features: string[];
-  price: string;
-  href: string;
+  id: number; title: string; description: string; image: string; features: string[]; price: string; href: string;
 }
 
-export default function ProductCard({
-  title,
-  description,
-  image,
-  features,
-  price,
-  href,
-}: ProductCardProps) {
+export default function ProductCard({ title, description, image, features, price, href }: ProductCardProps) {
   return (
-    <Link href={href} className="block">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden solar-hover group cursor-pointer">
-        {/* Image */}
-        <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <svg
-                className="w-16 h-16 mx-auto mb-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <span className="text-sm">Hình ảnh sản phẩm</span>
-            </div>
+    <Link href={href} className="group block h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-orange-100 bg-white shadow-[0_16px_45px_rgba(120,75,20,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(120,75,20,0.14)]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#fff8ed]">
+          <Image src={image} alt={title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width:768px) 100vw, 33vw" />
+          <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-700 backdrop-blur">Minwy selection</span>
+        </div>
+        <div className="flex flex-1 flex-col p-6">
+          <h3 className="text-xl font-black leading-snug text-stone-900 transition group-hover:text-orange-600">{title}</h3>
+          <p className="mt-3 line-clamp-2 leading-7 text-stone-600">{description}</p>
+          <div className="mt-5 flex flex-wrap gap-2">{features.slice(0,3).map(feature=><span key={feature} className="rounded-full bg-[#fff8ed] px-3 py-1 text-xs font-semibold text-stone-600">{feature}</span>)}</div>
+          <div className="mt-auto flex items-end justify-between border-t border-orange-100 pt-5">
+            <div><span className="text-xs font-bold uppercase tracking-wider text-stone-400">Giá tham khảo</span><div className="mt-1 text-xl font-black text-orange-600">{price}</div></div>
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-xl text-white transition group-hover:translate-x-1">→</span>
           </div>
         </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-solar-blue transition-colors">
-            {title}
-          </h3>
-
-          <p className="text-gray-600 mb-4 line-clamp-3">{description}</p>
-
-          {/* Features */}
-          <ul className="space-y-2 mb-6">
-            {features.map((feature, index) => (
-              <li
-                key={index}
-                className="flex items-center text-sm text-gray-600"
-              >
-                <svg
-                  className="w-4 h-4 text-solar-green mr-2 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          {/* Price */}
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-solar-orange">
-                {price}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      </article>
     </Link>
   );
 }

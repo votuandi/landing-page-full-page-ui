@@ -751,27 +751,27 @@ export default function AllProductsSection() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Danh mục sản phẩm
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.value)}
-                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${
+                className={`group relative overflow-hidden rounded-[1.5rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col aspect-[4/3] transform ${
                   selectedCategory === category.value
-                    ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
-                    : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
+                    ? "border-orange-500 bg-orange-50 ring-4 ring-orange-100 shadow-lg"
+                    : "border-orange-100 bg-white hover:border-orange-300 shadow-sm hover:shadow-lg"
                 }`}
               >
                 {/* Category Image */}
                 <div
-                  className="w-1/3 flex-shrink-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  className="h-2/3 w-full flex-shrink-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{
                     backgroundImage: `url(${category.image}), url('/images/placeholder-product.svg')`,
                   }}
                 />
 
                 {/* Category Info */}
-                <div className="flex-1 p-3 flex flex-col justify-center text-left min-w-0">
+                <div className="flex-1 p-4 flex flex-col justify-center text-left min-w-0">
                   <h4
                     className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${
                       selectedCategory === category.value
@@ -784,8 +784,8 @@ export default function AllProductsSection() {
                   <div
                     className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
                       selectedCategory === category.value
-                        ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
-                        : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
+                        ? "bg-orange-100 text-orange-700 shadow-sm"
+                        : "bg-[#fff8ed] text-stone-600 group-hover:bg-orange-100 group-hover:text-orange-700"
                     }`}
                   >
                     {category.count} sản phẩm
@@ -795,7 +795,7 @@ export default function AllProductsSection() {
                 {/* Selected Indicator */}
                 {selectedCategory === category.value && (
                   <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
                       <svg
                         className="w-3 h-3 text-white"
                         fill="none"
@@ -833,7 +833,7 @@ export default function AllProductsSection() {
                 href={`/product/${product.id}`}
                 className="block"
               >
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
+                <div className="relative h-full bg-white rounded-[1.75rem] border border-orange-100 overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group cursor-pointer">
                   {/* Discount Badge */}
                   {product.discount && (
                     <div className="absolute top-2 right-2 z-10">
@@ -844,7 +844,7 @@ export default function AllProductsSection() {
                   )}
 
                   {/* Product Image */}
-                  <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-[#fff8ed] overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -859,12 +859,12 @@ export default function AllProductsSection() {
                   {/* Product Info */}
                   <div className="p-4">
                     {/* Category */}
-                    <div className="text-xs text-green-600 font-medium mb-2">
+                    <div className="text-xs text-orange-600 font-bold uppercase tracking-wide mb-2">
                       {product.category}
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-green-600 transition-colors">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-orange-600 transition-colors">
                       {product.name}
                     </h3>
 
@@ -874,7 +874,7 @@ export default function AllProductsSection() {
                         {product.specs.slice(0, 2).map((spec, index) => (
                           <span
                             key={index}
-                            className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded"
+                            className="inline-block bg-orange-50 text-orange-700 text-xs px-2 py-1 rounded"
                           >
                             {spec}
                           </span>
@@ -885,7 +885,7 @@ export default function AllProductsSection() {
                     {/* Price */}
                     <div className="mb-4">
                       <div className="flex items-center space-x-2">
-                        <span className="text-base md:text-lg font-bold text-green-600">
+                        <span className="text-base md:text-lg font-black text-orange-600">
                           {product.price}
                         </span>
                         {product.originalPrice && (
