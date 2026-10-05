@@ -1,10 +1,10 @@
 import { FAQS } from "@/data/solar";
-import HomeT5 from "@/components/HomeT5";
+import HomeT6 from "@/components/HomeT6";
 import { makeMetadata } from "@/utils/solar";
 
 export const metadata = makeMetadata(
-  "Minwy Solar | Điện mặt trời nhà xưởng & doanh nghiệp",
-  "Giải pháp điện mặt trời C&I tập trung vào tỷ lệ tự dùng, ROI, an toàn thi công và O&M dài hạn.",
+  "Minwy Solar | Industrial Solar Engineering & Investment",
+  "Giải pháp điện mặt trời công nghiệp theo hướng engineering-first: phân tích phụ tải 24h, single-line system, monitoring và financial proposal cho doanh nghiệp.",
   "/"
 );
 
@@ -20,6 +20,6 @@ const faqSchema = {
 export default function Page() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html:JSON.stringify(faqSchema) }} />
-    <HomeT5 />
+    <HomeT6 />
   </>;
 }

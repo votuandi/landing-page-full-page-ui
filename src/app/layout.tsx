@@ -10,8 +10,8 @@ export const viewport: Viewport = { width:"device-width", initialScale:1, themeC
 
 export const metadata: Metadata = {
   metadataBase:new URL(SITE_CONFIG.url),
-  title:{ default:"Minwy Solar | Solar cho doanh nghiệp", template:"%s | Minwy Solar" },
-  description:"Giải pháp điện mặt trời nhà xưởng, hybrid và O&M tập trung vào ROI và hiệu quả vận hành.",
+  title:{ default:"Minwy Solar | Industrial Solar Engineering", template:"%s | Minwy Solar" },
+  description:"Giải pháp điện mặt trời công nghiệp theo hướng engineering-first: load study, single-line design, monitoring và financial proposal.",
   icons:{ icon:"/favicon.svg" },
   robots:{ index:true, follow:true },
 };

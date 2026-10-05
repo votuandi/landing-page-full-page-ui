@@ -5,6 +5,7 @@ on:
     branches:
       - template-3
       - template-5
+      - template-6
   pull_request:
     branches:
       - develop
