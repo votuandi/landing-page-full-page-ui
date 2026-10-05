@@ -3,6 +3,7 @@ import BestSellerSection from "@/components/BestSellerSection";
 import AllProductsSection from "@/components/AllProductsSection";
 import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import { prisma } from "@/lib/prisma";
+import WarmPageHero from "@/components/WarmPageHero";
 
 export async function generateMetadata(): Promise<Metadata> {
   const companyInfo = await getCachedCompanyInfo();
@@ -117,20 +118,30 @@ export default async function ProductPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="bg-gray-50">
-        {/* Page Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Sản Phẩm Năng Lượng Mặt Trời
-              </h1>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Khám phá bộ sưu tập đầy đủ các sản phẩm năng lượng mặt trời chất
-                lượng cao từ {companyInfo?.companyName || "chúng tôi"}. Tấm pin
-                solar, biến tần inverter, pin lưu trữ và phụ kiện chính hãng.
-              </p>
-            </div>
+      <div className="bg-[#fffaf0]">
+        <WarmPageHero
+          eyebrow="Thiết bị & giải pháp"
+          title="Sản phẩm solar được chọn cho hiệu suất và độ bền dài hạn"
+          description={`Khám phá tấm pin, inverter, pin lưu trữ và phụ kiện phù hợp cho từng quy mô hệ thống từ ${companyInfo?.companyName || "chúng tôi"}.`}
+          image="/images/solar-inverter-hero.jpg"
+          primaryLabel="Tư vấn chọn thiết bị"
+          primaryHref="/contact-us"
+          secondaryLabel="Xem dịch vụ lắp đặt"
+          secondaryHref="/service"
+        />
+
+        <div className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              ["Thiết bị chính hãng", "Ưu tiên sản phẩm có nguồn gốc rõ ràng và thông số phù hợp với nhu cầu thực tế."],
+              ["Cấu hình đồng bộ", "Kết hợp tấm pin, inverter và lưu trữ theo một cấu hình cân bằng, dễ vận hành."],
+              ["Hỗ trợ sau bán", "Tư vấn kỹ thuật, bảo hành và hỗ trợ trong suốt quá trình sử dụng hệ thống."],
+            ].map(([title, detail]) => (
+              <div key={title} className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-stone-900">{title}</h2>
+                <p className="mt-2 leading-7 text-stone-600">{detail}</p>
+              </div>
+            ))}
           </div>
         </div>
 
