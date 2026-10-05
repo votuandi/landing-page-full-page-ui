@@ -11,8 +11,9 @@ const segments = [
     tag: "Nhà máy & nhà xưởng",
     title: "Cắt giảm chi phí điện sản xuất ngay trong giờ cao điểm ban ngày.",
     desc: "Dây chuyền, máy nén, tải lạnh chạy chủ yếu ban ngày — trùng với khung giờ hệ solar phát mạnh nhất. Mái nhà xưởng diện tích lớn trở thành nhà máy điện riêng, giảm phụ thuộc vào điện lưới.",
-    image: "/images/solar-panels-hero.jpg",
-    alt: "Hệ thống điện mặt trời trên mái nhà xưởng",
+    image: "/images/illustrations/factory-solar.webp",
+    cover: "/images/illustrations/factory-solar-tall.webp",
+    alt: "Minh họa nhà máy với hệ thống điện mặt trời áp mái",
     href: "/service/solar-nha-xuong",
     benefits: [
       "Tỷ lệ tự dùng 90%+ nhờ phụ tải ổn định ban ngày",
@@ -30,8 +31,9 @@ const segments = [
     tag: "Cửa hàng & kinh doanh",
     title: "Điều hòa, tủ mát, chiếu sáng — chạy bằng nắng thay vì giá điện kinh doanh.",
     desc: "Giá điện kinh doanh thuộc nhóm cao nhất, nên mỗi kWh solar tự dùng tiết kiệm nhiều hơn. Phù hợp cửa hàng tiện lợi, showroom, nhà hàng, khách sạn mini và văn phòng.",
-    image: "/images/solar-installation-hero.jpg",
-    alt: "Tấm pin năng lượng mặt trời dưới bầu trời nắng",
+    image: "/images/illustrations/shop-solar.webp",
+    cover: "/images/illustrations/shop-solar-tall.webp",
+    alt: "Minh họa cửa hàng tiện lợi có tấm pin mặt trời trên mái",
     href: "/service/hybrid-luu-tru",
     benefits: [
       "Giờ mở cửa trùng giờ nắng — dùng trực tiếp, ít lãng phí",
@@ -49,8 +51,9 @@ const segments = [
     tag: "Hộ gia đình",
     title: "Thoát bậc thang giá điện cao, có điện cả buổi tối với pin lưu trữ.",
     desc: "Điều hòa, bình nóng lạnh, bơm nước, xe điện đẩy hóa đơn lên bậc 5–6. Hệ hòa lưới hoặc hybrid giúp cắt phần tiêu thụ đắt nhất và theo dõi mọi thứ trên điện thoại.",
-    image: "/images/banner_1773114021067.webp",
-    alt: "Kỹ thuật viên lắp tấm pin trên mái ngói nhà ở",
+    image: "/images/illustrations/home-solar.webp",
+    cover: "/images/illustrations/home-solar-tall.webp",
+    alt: "Minh họa nhà ở có pin mặt trời, pin lưu trữ và trạm sạc xe điện",
     href: "/service/solar-gia-dinh",
     benefits: [
       "Giảm phần điện tiêu thụ ở bậc giá cao nhất",
@@ -98,42 +101,44 @@ export default function SavingsBySegment() {
       </section>
 
       {segments.map((s, index) => {
-        const imageSide = index % 2 ? "right" : "left";
-        const textSide = index % 2 ? "left" : "right";
+        const flip = index % 2 === 1;
+        const imageSide = flip ? "right" : "left";
+        const textSide = flip ? "left" : "right";
         return (
-          <section key={s.id} id={s.id} className={`t8-screen t5-section relative overflow-hidden ${index % 2 ? "bg-gradient-to-br from-white via-[#f3f7ff] to-[var(--t8-sky)]" : "bg-gradient-to-br from-[var(--t8-beige)] via-white to-[var(--t8-beige)]"}`}>
-            <div aria-hidden className={`pointer-events-none absolute top-1/4 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.35),transparent_65%)] ${index % 2 ? "-left-40" : "-right-40"}`} />
-            <div className="t5-container relative">
-              <article className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-                <div className={`relative ${index % 2 ? "lg:order-2" : ""}`}>
-                  <div data-reveal={imageSide} className="relative aspect-[5/4] overflow-hidden rounded-[36px] border-[6px] border-white/80 shadow-[0_40px_80px_-40px_rgb(11_31_58_/_.5)]">
-                    <Image src={s.image} alt={s.alt} fill className="object-cover transition duration-700 hover:scale-[1.04]" sizes="(max-width:1024px) 100vw, 50vw" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.50)] via-transparent to-transparent" />
-                    <div data-reveal="up" style={delay(0.45)} className="t8-glass-dark absolute bottom-5 left-5 rounded-2xl px-4 py-3 text-white">
-                      <div className="text-[11px] font-semibold uppercase tracking-[.14em] text-white/70">{s.float.label}</div>
-                      <div className="text-lg font-black">{s.float.value}</div>
-                    </div>
-                  </div>
-                  <div data-reveal="down" style={delay(0.35)} className={`t8-glass t8-float absolute -top-5 flex items-center gap-3 rounded-2xl px-4 py-3 ${index % 2 ? "-left-2 sm:-left-5" : "-right-2 sm:-right-5"}`}>
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--t5-accent)] text-[var(--t8-ink)]"><s.Icon className="h-5 w-5" /></span>
-                    <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">Tiết kiệm đến</div><div className="text-xl font-black text-[var(--t5-primary)]">{s.metrics[0][0]}</div></div>
-                  </div>
+          <section key={s.id} id={s.id} className={`t8-screen relative ${flip ? "bg-gradient-to-br from-white via-[#f3f7ff] to-[var(--t8-sky)]" : "bg-gradient-to-br from-[var(--t8-beige)] via-white to-[var(--t8-beige)]"}`}>
+            <div className="grid flex-1 lg:grid-cols-2">
+              {/* Full-bleed illustration half */}
+              <div data-reveal={imageSide} className={`relative min-h-[52vh] overflow-hidden lg:min-h-0 ${flip ? "lg:order-2" : ""}`}>
+                <Image src={s.cover} alt={s.alt} fill className="object-cover object-bottom transition duration-700 hover:scale-[1.03]" sizes="(max-width:1024px) 100vw, 50vw" />
+                <div className={`absolute inset-0 ${flip ? "bg-gradient-to-l" : "bg-gradient-to-r"} from-transparent via-transparent to-[rgb(248_242_231_/_.35)]`} />
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[rgb(11_31_58_/_.45)] to-transparent" />
+                <div data-reveal="down" style={delay(0.35)} className={`t8-glass t8-float absolute top-6 flex items-center gap-3 rounded-2xl px-4 py-3 sm:top-10 ${flip ? "left-4 sm:left-10" : "right-4 sm:right-10"}`}>
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--t5-accent)] text-[var(--t8-ink)]"><s.Icon className="h-5 w-5" /></span>
+                  <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">Tiết kiệm đến</div><div className="text-xl font-black text-[var(--t5-primary)]">{s.metrics[0][0]}</div></div>
                 </div>
+                <div data-reveal="up" style={delay(0.45)} className={`t8-glass-dark absolute bottom-6 rounded-2xl px-4 py-3 text-white sm:bottom-10 ${flip ? "right-4 sm:right-10" : "left-4 sm:left-10"}`}>
+                  <div className="text-[11px] font-semibold uppercase tracking-[.14em] text-white/75">{s.float.label}</div>
+                  <div className="text-lg font-black">{s.float.value}</div>
+                </div>
+              </div>
 
-                <div>
+              {/* Copy half */}
+              <div className={`relative flex items-center px-4 py-16 sm:px-10 lg:py-20 xl:px-20 ${flip ? "lg:justify-end" : ""}`}>
+                <div aria-hidden className={`pointer-events-none absolute top-1/4 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.3),transparent_65%)] ${flip ? "-left-20" : "-right-20"}`} />
+                <div className="relative w-full max-w-[600px]">
                   <div data-reveal="down" className="flex items-center gap-3 text-sm font-black text-[var(--t5-primary)]"><span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 text-xs shadow-sm">{s.no}</span>{s.tag}</div>
                   <h3 data-reveal={textSide} style={delay(0.1)} className="mt-5 text-3xl font-black leading-tight tracking-[-.035em] text-[var(--t8-ink)] sm:text-4xl">{s.title}</h3>
                   <p data-reveal={textSide} style={delay(0.2)} className="mt-5 leading-8 text-slate-600">{s.desc}</p>
                   <ul data-reveal-stagger={textSide} data-reveal-step="0.08" className="mt-6 grid gap-3 sm:grid-cols-2">
-                    {s.benefits.map((b) => <li key={b} className="flex gap-3 rounded-2xl bg-white/60 p-3 text-sm font-semibold leading-6 text-slate-700 backdrop-blur"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--t8-blue)] text-white"><CheckIcon className="h-3 w-3" strokeWidth={3} /></span>{b}</li>)}
+                    {s.benefits.map((b) => <li key={b} className="flex gap-3 rounded-2xl bg-white/70 p-3 text-sm font-semibold leading-6 text-slate-700 backdrop-blur"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--t8-blue)] text-white"><CheckIcon className="h-3 w-3" strokeWidth={3} /></span>{b}</li>)}
                   </ul>
                   <dl data-reveal-stagger="up" data-reveal-step="0.1" className="mt-6 grid grid-cols-3 gap-3">
                     {s.metrics.map(([value, label]) => <div key={label} className="rounded-2xl border border-white/80 bg-gradient-to-br from-white/90 to-white/40 p-4 shadow-sm"><dd className="text-lg font-black text-[var(--t5-primary)] sm:text-2xl">{value}</dd><dt className="mt-1 text-xs font-semibold text-slate-500">{label}</dt></div>)}
                   </dl>
                   <Link data-reveal="up" style={delay(0.3)} href={s.href} className="mt-7 inline-flex items-center gap-2 text-sm font-black text-[var(--t5-primary)] hover:gap-3">Xem giải pháp {s.tag.toLowerCase()} <ArrowRightIcon className="h-4 w-4" /></Link>
+                  {index === segments.length - 1 && <p className="mt-8 text-xs text-slate-500">*Số liệu tham khảo, phụ thuộc phụ tải, khu vực, giá điện và cấu hình hệ thống. [CẦN XÁC MINH]</p>}
                 </div>
-              </article>
-              {index === segments.length - 1 && <p className="mt-12 text-center text-xs text-slate-500">*Số liệu tham khảo, phụ thuộc phụ tải, khu vực, giá điện và cấu hình hệ thống. [CẦN XÁC MINH]</p>}
+              </div>
             </div>
           </section>
         );
