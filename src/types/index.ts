@@ -6,8 +6,7 @@ export interface Product {
   description: string;
   image: string;
   features: string[];
-  price: string; // Giá sau khuyến mãi
-  original_price?: string; // Giá gốc
+  price: string;
   href: string;
   category?: string;
   specifications?: Record<string, string>;
@@ -18,18 +17,12 @@ export interface NewsArticle {
   title: string;
   excerpt: string;
   author: string;
-  date?: string; // For backward compatibility
-  publishedAt?: string; // From database
-  image?: string; // For backward compatibility
-  imageUrl?: string; // From database
+  date: string;
+  image: string;
   category: string;
   readTime: string;
   content?: string;
   tags?: string[];
-  isActive?: boolean;
-  order?: number;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface ContactInfo {
@@ -60,36 +53,16 @@ export interface SEOProps {
   url?: string;
 }
 
-export interface Benefit {
-  icon: string;
-  title: string;
-  description: string;
-  color: string;
-}
-
-export interface ProcessStep {
-  step: number;
-  title: string;
-  description: string;
-}
-
 export interface Service {
   id: number;
   title: string;
-  description: string | null;
-  image: string | null;
+  description: string;
+  image: string;
   features: string[];
-  price: string | null;
+  price: string;
   category: "household" | "business" | "maintenance" | "consultation";
-  duration?: string | null;
-  warranty?: string | null;
-  benefits?: Benefit[] | null;
-  implementationProcess?: ProcessStep[] | null;
-  isActive?: boolean;
-  order?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  
+  duration?: string;
+  warranty?: string;
 }
 
 export interface WarrantyRegistration {
