@@ -9,6 +9,8 @@ import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import { prisma } from "@/lib/prisma";
 import { NewsArticle } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 const ProductSection = dynamic(
   () => import("@/components/ProductSection").then((m) => m.default),
   { ssr: true }
