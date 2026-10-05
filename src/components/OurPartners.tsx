@@ -190,7 +190,7 @@ export default function OurPartners() {
                 onClick={() => goToSlide(index)}
                 className={`w-3 h-3 rounded-full transition-colors duration-300 ${
                   currentIndex === index
-                    ? "bg-blue-600"
+                    ? "bg-orange-600"
                     : "bg-gray-300 hover:bg-gray-400"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
