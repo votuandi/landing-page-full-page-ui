@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate that data properties are arrays (if they exist)
-    const validDataKeys = [
+    const validDataKeys: Array<keyof BackupData['data']> = [
       'productCategories',
       'products',
       'news',
