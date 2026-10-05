@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import SliderBanner from "@/components/SliderBanner";
 import Hero from "@/components/Hero";
 import OurPartners from "@/components/OurPartners";
@@ -11,15 +11,15 @@ import { NewsArticle } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-const ProductSection = dynamic(
+const ProductSection = nextDynamic(
   () => import("@/components/ProductSection").then((m) => m.default),
   { ssr: true }
 );
-const ProjectsSection = dynamic(
+const ProjectsSection = nextDynamic(
   () => import("@/components/ProjectsSection").then((m) => m.default),
   { ssr: true }
 );
-const NewsSection = dynamic(
+const NewsSection = nextDynamic(
   () => import("@/components/NewsSection").then((m) => m.default),
   { ssr: true }
 );
