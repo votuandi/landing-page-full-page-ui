@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import ScrollAnimationWrapper from "./ScrollAnimationWrapper";
 import StaggeredScrollAnimation from "./StaggeredScrollAnimation";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -17,237 +17,100 @@ export default function Hero() {
 
   if (loading) {
     return (
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 py-16 md:py-24">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-solar-blue mx-auto"></div>
-          </div>
+      <section className="bg-[#fffaf0] py-24">
+        <div className="mx-auto flex max-w-7xl justify-center px-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-orange-100 border-t-orange-600" />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 py-16 md:py-24">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 animate-pulse"></div>
+    <section className="relative overflow-hidden bg-[#fffaf0] py-20 md:py-28">
+      <div className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl" />
+      <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-orange-200/40 blur-3xl" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div className="text-center lg:text-left">
-            <ScrollAnimationWrapper
-              animation="fall-down"
-              delay={200}
-              duration={800}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                {heroContent.title.split(' ').map((word, index) => {
-                  // Check if this word or phrase should be highlighted
-                  const highlightWords = ['Năng lượng Mặt trời', 'Mặt trời'];
-                  const isHighlight = highlightWords.some(hw => heroContent.title.includes(hw) && word.includes('Mặt'));
-                  
-                  if (isHighlight) {
-                    const phrase = heroContent.title.match(/Năng lượng Mặt trời/)?.[0] || 'Năng lượng Mặt trời';
-                    const parts = heroContent.title.split(phrase);
-                    return (
-                      <span key={index}>
-                        {parts[0]}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-solar-blue to-primary-600 animate-gradient-x">
-                          {phrase}
-                        </span>
-                        {parts[1]}
-                      </span>
-                    );
-                  }
-                  return null;
-                }).filter(Boolean)[0] || heroContent.title}
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr]">
+          <div>
+            <ScrollAnimationWrapper animation="fade-in-up" duration={800}>
+              <span className="inline-flex rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] text-orange-700">
+                Năng lượng sạch cho tương lai
+              </span>
+              <h1 className="mt-6 text-4xl font-black leading-[1.06] tracking-tight text-stone-900 md:text-6xl">
+                {heroContent.title}
               </h1>
-            </ScrollAnimationWrapper>
-
-            <ScrollAnimationWrapper
-              animation="fall-down"
-              delay={400}
-              duration={800}
-            >
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-600 md:text-xl">
                 {heroContent.description}
               </p>
             </ScrollAnimationWrapper>
 
-            <ScrollAnimationWrapper
-              animation="drop-in"
-              delay={600}
-              duration={900}
-            >
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button className="bg-solar-blue hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 solar-hover hover:scale-105 transform group relative overflow-hidden">
-                  <span className="relative z-10">Tư vấn miễn phí</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                </button>
-                <button className="border-2 border-solar-blue text-solar-blue hover:bg-solar-blue hover:text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 transform group relative overflow-hidden">
-                  <span className="relative z-10">Xem sản phẩm</span>
-                  <div className="absolute inset-0 bg-solar-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                </button>
+            <ScrollAnimationWrapper animation="fade-in-up" delay={160} duration={800}>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/contact-us"
+                  className="rounded-full bg-orange-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-orange-700"
+                >
+                  Tư vấn miễn phí
+                </Link>
+                <Link
+                  href="/product"
+                  className="rounded-full border border-orange-200 bg-white px-7 py-3.5 font-bold text-stone-800 transition hover:-translate-y-0.5 hover:bg-orange-50"
+                >
+                  Xem sản phẩm
+                </Link>
               </div>
             </ScrollAnimationWrapper>
 
-            {/* Features */}
             <StaggeredScrollAnimation
-              animation="fall-down"
-              staggerDelay={150}
-              className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-12"
+              animation="fade-in-up"
+              staggerDelay={120}
+              className="mt-12 grid grid-cols-3 gap-3"
             >
-              <div className="text-center hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-solar-blue mb-2">
-                  {heroContent.stat1Value}
+              {[
+                [heroContent.stat1Value, heroContent.stat1Label],
+                [heroContent.stat2Value, heroContent.stat2Label],
+                [heroContent.stat3Value, heroContent.stat3Label],
+              ].map(([value, label]) => (
+                <div key={label} className="rounded-3xl border border-orange-100 bg-white/80 p-4 text-center shadow-sm backdrop-blur">
+                  <div className="text-2xl font-black text-orange-600 md:text-3xl">{value}</div>
+                  <div className="mt-1 text-xs font-semibold text-stone-500 md:text-sm">{label}</div>
                 </div>
-                <div className="text-gray-600">{heroContent.stat1Label}</div>
-              </div>
-              <div className="text-center hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-solar-blue mb-2">
-                  {heroContent.stat2Value}
-                </div>
-                <div className="text-gray-600">{heroContent.stat2Label}</div>
-              </div>
-              <div className="text-center hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-solar-blue mb-2">
-                  {heroContent.stat3Value}
-                </div>
-                <div className="text-gray-600">{heroContent.stat3Label}</div>
-              </div>
+              ))}
             </StaggeredScrollAnimation>
           </div>
 
-          {/* Right Content - Hero Video */}
-          <div className="relative">
-            <ScrollAnimationWrapper
-              animation="zoom-in"
-              delay={300}
-              duration={1000}
-            >
-              <div className="relative z-10">
-                <div className="bg-white rounded-2xl shadow-2xl p-8 hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2">
-                  <div className="aspect-video relative rounded-xl overflow-hidden group">
-                    {/* Background Video */}
-                    <video
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    >
-                      <source src={heroContent.videoUrl} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-
-                    {/* Overlay Content */}
-                    <div className="relative z-10 h-full flex items-center justify-center bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all duration-500">
-                      <div className="text-center text-white transform group-hover:scale-105 transition-transform duration-500">
-                        <svg
-                          className="w-24 h-24 mx-auto mb-4 animate-spin-slow"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                          />
-                        </svg>
-                        <h3 className="text-xl font-semibold animate-fade-in-up delay-600">
-                          Hệ thống Solar
-                        </h3>
-                        <p className="text-sm opacity-90 animate-fade-in-up delay-700">
-                          Tiết kiệm 70% điện năng
-                        </p>
-                      </div>
+          <ScrollAnimationWrapper animation="zoom-in" duration={1000}>
+            <div className="relative">
+              <div className="absolute -left-6 -top-6 h-full w-full rounded-[2rem] border border-orange-200" />
+              <div className="relative overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl shadow-orange-950/10">
+                <div className="relative aspect-[5/4] overflow-hidden bg-stone-900">
+                  <video
+                    className="absolute inset-0 h-full w-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  >
+                    <source src={heroContent.videoUrl} type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-7 text-white">
+                    <div className="text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
+                      Thiết kế • Lắp đặt • Bảo hành
                     </div>
+                    <h2 className="mt-2 text-2xl font-bold">Một hệ thống được tính cho nhiều năm vận hành</h2>
                   </div>
                 </div>
               </div>
-            </ScrollAnimationWrapper>
 
-            {/* Floating Cards */}
-            <ScrollAnimationWrapper
-              animation="drop-in"
-              delay={800}
-              duration={600}
-            >
-              <div className="absolute -top-4 -right-4 bg-white rounded-lg shadow-lg p-4 solar-hover cursor-pointer group">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-solar-green rounded-full flex items-center justify-center group-hover:animate-bounce">
-                    <svg
-                      className="w-6 h-6 text-white transition-transform duration-300 group-hover:scale-110"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900 group-hover:text-solar-green transition-colors duration-300">
-                      {heroContent.feature2Title}
-                    </div>
-                    <div className="text-sm text-gray-600">{heroContent.feature2Description}</div>
-                  </div>
-                </div>
+              <div className="absolute -bottom-6 -right-2 max-w-[260px] rounded-3xl bg-amber-300 p-5 text-stone-900 shadow-xl md:-right-6">
+                <div className="font-black">{heroContent.feature1Title}</div>
+                <p className="mt-1 text-sm leading-6 text-stone-700">{heroContent.feature1Description}</p>
               </div>
-            </ScrollAnimationWrapper>
-
-            <ScrollAnimationWrapper
-              animation="drop-in"
-              delay={1000}
-              duration={600}
-            >
-              <div className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-lg p-4 solar-hover cursor-pointer group">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center group-hover:animate-pulse">
-                    <svg
-                      className="w-6 h-6 text-white transition-transform duration-300 group-hover:scale-110"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900 group-hover:text-primary-500 transition-colors duration-300">
-                      {heroContent.feature1Title}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {heroContent.feature1Description}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ScrollAnimationWrapper>
-          </div>
+            </div>
+          </ScrollAnimationWrapper>
         </div>
-      </div>
-
-      {/* Bottom Wave */}
-      <div className="absolute bottom-0 left-0 right-0 animate-wave">
-        <svg
-          viewBox="0 0 1440 120"
-          className="w-full h-12 fill-white transition-all duration-1000"
-        >
-          <path d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
-        </svg>
       </div>
     </section>
   );
