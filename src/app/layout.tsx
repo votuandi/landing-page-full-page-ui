@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   description:
     "Minwy Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
   icons: {
-    icon: [{ url: "/images/logo.png", type: "image/png" }],
-    shortcut: "/images/logo.png",
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
     apple: "/images/logo.png",
   },
   manifest: "/site.webmanifest",

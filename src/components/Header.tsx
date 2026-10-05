@@ -31,12 +31,12 @@ export default function Header() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2" aria-label="Minwy Solar - Trang chủ">
             <Image
-              src="/minwy-icon.png"
+              src="/images/logo.png"
               alt="Minwy Solar"
               width={44}
               height={44}
               priority
-              className="h-11 w-11 rounded-full"
+              className="h-11 w-11 rounded-xl object-contain bg-white p-0.5"
             />
             <span className="text-xl font-bold text-primary-700">Minwy Solar</span>
           </Link>
