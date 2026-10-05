@@ -10,24 +10,12 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service }: ServiceCardProps) {
-  // Strip HTML tags for preview text
-  const stripHtml = (html: string) => {
-    if (typeof window === 'undefined') {
-      // Server-side: use a simple regex to strip HTML tags
-      return html.replace(/<[^>]*>/g, '');
-    }
-    // Client-side: use DOM API
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
   const getCategoryColor = (category: Service["category"]) => {
     switch (category) {
       case "household":
         return "bg-green-100 text-green-800";
       case "business":
-        return "bg-amber-100 text-orange-800";
+        return "bg-green-100 text-green-800";
       case "maintenance":
         return "bg-orange-100 text-orange-800";
       case "consultation":
@@ -57,12 +45,10 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
       <div className="relative h-48 w-full">
         <Image
-          src={service.image || "/images/solar-installation-hero.jpg"}
-          alt={`${service.title} - Dịch vụ năng lượng mặt trời`}
+          src={service.image}
+          alt={service.title}
           fill
           className="object-cover"
-          loading="lazy"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4">
           <span
@@ -80,45 +66,41 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           {service.title}
         </h3>
 
-        <p className="text-gray-600 mb-4 line-clamp-3">
-          {service.description ? stripHtml(service.description) : 'Không có mô tả'}
-        </p>
+        <p className="text-gray-600 mb-4 line-clamp-3">{service.description}</p>
 
-        {service.features && service.features.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              Đặc điểm nổi bật:
-            </h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              {service.features.slice(0, 3).map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <svg
-                    className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{feature}</span>
-                </li>
-              ))}
-              {service.features.length > 3 && (
-                <li className="text-xs text-gray-500 ml-6">
-                  +{service.features.length - 3} tính năng khác
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">
+            Đặc điểm nổi bật:
+          </h4>
+          <ul className="text-sm text-gray-600 space-y-1">
+            {service.features.slice(0, 3).map((feature, index) => (
+              <li key={index} className="flex items-start">
+                <svg
+                  className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>{feature}</span>
+              </li>
+            ))}
+            {service.features.length > 3 && (
+              <li className="text-xs text-gray-500 ml-6">
+                +{service.features.length - 3} tính năng khác
+              </li>
+            )}
+          </ul>
+        </div>
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-orange-600">
-              {service.price || "Liên hệ"}
+            <span className="text-2xl font-bold text-green-600">
+              {service.price}
             </span>
             {service.duration && (
               <span className="text-sm text-gray-500">
@@ -137,7 +119,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         <div className="flex justify-end">
-          <span className="text-orange-600 font-medium text-sm hover:text-orange-700 transition-colors">
+          <span className="text-green-600 font-medium text-sm hover:text-green-700 transition-colors">
             Xem chi tiết →
           </span>
         </div>
