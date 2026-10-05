@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 import SliderBanner from "@/components/SliderBanner";
 import Hero from "@/components/Hero";
 import OurPartners from "@/components/OurPartners";
+import SolarBenefitsSection from "@/components/SolarBenefitsSection";
+import SolarExpertiseSection from "@/components/SolarExpertiseSection";
 import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import { prisma } from "@/lib/prisma";
 import { NewsArticle } from "@/types";
@@ -154,8 +156,10 @@ export default async function Home() {
     <main className="min-h-screen">
       <SliderBanner initialSlides={homeData.slides} />
       <Hero />
-      <OurPartners />
+      <SolarBenefitsSection />
       <ProductSection initialProducts={homeData.products} />
+      <SolarExpertiseSection />
+      <OurPartners />
       <ProjectsSection initialProjects={homeData.projects} />
       <NewsSection initialNews={homeData.news as NewsArticle[]} />
     </main>
