@@ -1,129 +1,113 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ConditionalLayout from "@/components/ConditionalLayout";
-import StoreProvider from "@/lib/StoreProvider";
-import { getCachedCompanyInfo, getCachedMainOffice } from "@/lib/cachedCompany";
-import StructuredData from "@/components/StructuredData";
-import VisitTracker from "@/components/VisitTracker";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ScrollRevealObserver from "@/components/ScrollRevealObserver";
+import { SITE_CONFIG } from "@/utils/constants";
 
-export const dynamic = "force-dynamic";
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#15803d",
+};
 
-export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCachedCompanyInfo();
-
-  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
-  const slogan = companyInfo?.slogan || "Hệ thống Năng lượng Mặt trời";
-  const description = companyInfo?.mission
-    ? `${companyInfo.mission} ${companyInfo.slogan || ""}`.trim()
-    : "Chuyên phân phối thiết bị năng lượng mặt trời chất lượng cao. Tấm pin, biến tần inverter, hệ thống lưu trữ năng lượng và giải pháp năng lượng tái tạo.";
-
-  const title = `${companyName} - ${slogan}`;
-  const ogImage = companyInfo?.logoUrl || "/og-image.jpg";
-
-  return {
-    title,
-    description,
-    authors: [{ name: companyName }],
-    creator: companyName,
-    publisher: companyName,
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
-    },
-    metadataBase: new URL("https://phanphoisolar.com"),
-    alternates: {
-      canonical: "/",
-    },
-    openGraph: {
-      title,
-      description,
-      url: "https://phanphoisolar.com",
-      siteName: companyName,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-      locale: "vi_VN",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: description.substring(0, 200),
-      images: [ogImage],
-    },
-    robots: {
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
+  title: {
+    default: "Minwy Solar | Giải pháp năng lượng mặt trời",
+    template: "%s | Minwy Solar",
+  },
+  description:
+    "Minwy Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
+  keywords: [
+    "năng lượng mặt trời",
+    "điện mặt trời",
+    "tấm pin solar",
+    "biến tần inverter",
+    "pin lưu trữ",
+    "thi công điện mặt trời",
+  ],
+  authors: [{ name: SITE_CONFIG.name }],
+  creator: SITE_CONFIG.name,
+  publisher: SITE_CONFIG.name,
+  alternates: { canonical: "/" },
+  category: "renewable energy",
+  openGraph: {
+    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
+    description:
+      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: "/images/solar-panels-hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Hệ thống năng lượng mặt trời Minwy Solar",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
+    description:
+      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
+    images: ["/images/solar-panels-hero.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
       index: true,
       follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
-    verification: {
-      google: process.env.GOOGLE_SEARCH_CONSOLE_VERIFICATION || undefined,
-    },
-  };
-}
+  },
+};
 
-export default async function RootLayout({
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: SITE_CONFIG.name,
+  url: SITE_CONFIG.url,
+  telephone: SITE_CONFIG.phone,
+  email: SITE_CONFIG.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: SITE_CONFIG.address,
+    addressCountry: "VN",
+  },
+  areaServed: "VN",
+  description: SITE_CONFIG.description,
+};
+
+export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
-  const [companyInfo, mainOffice] = await Promise.all([
-    getCachedCompanyInfo(),
-    getCachedMainOffice(),
-  ]);
-
+}>) {
   return (
     <html lang="vi" className={inter.variable}>
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
+      <body className="bg-white font-sans text-slate-900 antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#0ea5e9" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {process.env.BING_WEBMASTER_VERIFICATION && (
-          <meta name="msvalidate.01" content={process.env.BING_WEBMASTER_VERIFICATION} />
-        )}
-        <StructuredData type="Organization" data={{}} companyInfo={companyInfo} />
-        {mainOffice && (
-          <StructuredData type="LocalBusiness" data={mainOffice} companyInfo={companyInfo} />
-        )}
-      </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
-        <StoreProvider>
-          <VisitTracker />
-          <ConditionalLayout>{children}</ConditionalLayout>
-        </StoreProvider>
+        <ScrollRevealObserver />
+        <Header />
+        {children}
+        <Footer />
       </body>
     </html>
   );
