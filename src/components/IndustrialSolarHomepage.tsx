@@ -4,6 +4,7 @@ import { SITE_CONFIG } from "@/config/site";
 import { PROJECTS } from "@/data/solar";
 import RoiCalculator from "@/components/RoiCalculator";
 import LeadForm from "@/components/LeadForm";
+import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
 
 const load=[34,31,30,29,31,40,58,76,89,96,100,98,92,95,101,103,99,91,82,69,56,48,42,37];
 const solar=[0,0,0,0,0,4,18,42,67,84,96,100,94,82,66,44,21,6,0,0,0,0,0,0];
@@ -34,7 +35,7 @@ function PowerChart({light=false}:{light?:boolean}){return <svg viewBox="0 0 600
   <text x="24" y="214" fill={light?"#64748b":"rgba(255,255,255,.4)"} fontSize="10">00:00</text><text x="281" y="214" fill={light?"#64748b":"rgba(255,255,255,.4)"} fontSize="10">12:00</text><text x="544" y="214" fill={light?"#64748b":"rgba(255,255,255,.4)"} fontSize="10">24:00</text>
 </svg>}
 
-export default function HomeT6(){return <main className="overflow-hidden">
+export default function IndustrialSolarHomepage(){return <main className="overflow-hidden">
   <section className="relative bg-[var(--t5-primary)] text-white">
     <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.09)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.09)_1px,transparent_1px)] [background-size:48px_48px]"/>
     <div className="absolute inset-y-0 right-0 hidden w-[38%] bg-[var(--t5-burgundy)]/20 [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%)] lg:block"/>
@@ -63,6 +64,8 @@ export default function HomeT6(){return <main className="overflow-hidden">
   <section className="t5-section bg-[var(--t5-primary)] text-white"><div className="t5-container"><span className="t5-eyebrow !text-[var(--t5-accent)]">Monitoring mock</span><h2 className="mt-4 max-w-4xl text-4xl font-black tracking-[-.045em] sm:text-5xl">Sau nghiệm thu, hệ thống vẫn phải “nói chuyện” được với đội vận hành.</h2>
   <div className="mt-10 grid gap-4 lg:grid-cols-[1.2fr_.8fr]"><div className="border border-white/10 p-5"><div className="flex justify-between border-b border-white/10 pb-4"><div><div className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Plant performance</div><div className="mt-1 text-xl font-black">October / current month</div></div><div className="text-right"><div className="text-[10px] text-white/40">PERFORMANCE RATIO</div><div className="text-3xl font-black text-[var(--t5-accent)]">82.7%</div></div></div><div className="mt-5 grid gap-px bg-white/10 sm:grid-cols-3"><Kpi label="Generated" value="112.4 MWh" note="+3.8% plan"/><Kpi label="Self-used" value="103.8 MWh" note="92.3%"/><Kpi label="Availability" value="99.72%" note="rolling 30d"/></div><div className="mt-7 grid grid-cols-12 items-end gap-2 border-b border-white/10 pb-2">{[42,58,68,52,78,87,91,73,88,95,84,96].map((v,i)=><div key={i} className="bg-[var(--t5-accent)]/80" style={{height:`${Math.round(v*1.25)}px`}}/>)}</div></div>
   <div className="space-y-4"><div className="border border-white/10 p-5"><div className="flex justify-between"><strong>Active alerts</strong><span className="bg-[var(--t5-burgundy)] px-2 py-1 text-[10px] font-black">2 OPEN</span></div>{[["INV-05","DC current mismatch"],["ZONE-C","Yield -8.2% vs baseline"]].map(([a,b])=><div key={a} className="mt-3 border border-white/10 p-4"><strong>{a}</strong><div className="mt-1 text-sm text-white/55">{b}</div></div>)}</div><div className="grid grid-cols-2 gap-4"><div className="border border-white/10 p-5"><CpuChipIcon className="h-6 w-6 text-[var(--t5-accent)]"/><div className="mt-4 text-2xl font-black">8 / 8</div><div className="text-xs text-white/40">inverters online</div></div><div className="border border-white/10 p-5"><ShieldCheckIcon className="h-6 w-6 text-[var(--t5-accent)]"/><div className="mt-4 text-2xl font-black">14 min</div><div className="text-xs text-white/40">alert triage</div></div></div></div></div></div></section>
+
+  <EnergyMonitoringSection />
 
   <section className="t5-section"><div className="t5-container grid gap-8 lg:grid-cols-[.68fr_1.32fr]"><div><span className="t5-eyebrow">Engineering assurance</span><h2 className="t5-heading">Hồ sơ triển khai có checkpoint, không dựa vào kinh nghiệm truyền miệng.</h2></div><div className="grid gap-px bg-slate-200 sm:grid-cols-2">{checks.map(([n,t,d])=><article key={n} className="bg-white p-6"><div className="flex justify-between"><span className="font-black text-[var(--t5-burgundy)]">{n}</span><CheckCircleIcon className="h-5 w-5 text-[var(--t5-accent)]"/></div><h3 className="mt-7 text-xl font-black text-[var(--t5-primary)]">{t}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{d}</p></article>)}</div></div></section>
 
