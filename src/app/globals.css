@@ -293,3 +293,115 @@ img { max-width: 100%; }
 @media(min-width:1024px) { .solar-expertise-cards { grid-template-columns:repeat(5,minmax(0,1fr)); gap:15px; } .solar-expertise-cards article { padding:23px; } .solar-expertise-cards h3 { font-size:17px; } }
 .solar-step-output { margin-top:20px; border-top:1px solid #dce5f0; padding-top:15px; color:#3b648a; font-size:11px; font-weight:650; line-height:1.7; }
 .solar-house-image { mask-image:radial-gradient(ellipse 80% 47% at 50% 50%,#000 65%,transparent 95%); }
+
+/* Each scene fills the viewport; long content can grow on small screens. */
+.solar-home section {
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-block:clamp(56px,8vh,100px);
+  overflow:clip;
+}
+.solar-home section>.t5-container { flex-shrink:0; }
+.solar-home .solar-hero { padding-block:28px; }
+.solar-home .solar-benefit-edge,
+.solar-home .solar-monitoring.solar-full-width { padding:0; }
+.solar-benefit-edge>.solar-benefit-grid,
+.solar-full-width>.t5-container { max-width:none; padding-inline:0; }
+.solar-benefit-edge>.solar-benefit-grid { gap:0; align-items:stretch; }
+.solar-benefit-edge .solar-benefit-image {
+  min-height:100vh;
+  min-height:100svh;
+  height:auto;
+  border-radius:0 32px 32px 0;
+  box-shadow:none;
+}
+.solar-benefit-edge .solar-benefit-copy {
+  align-self:center;
+  max-width:760px;
+  padding:clamp(32px,5vw,80px);
+}
+.solar-full-width .solar-monitoring-panel {
+  min-height:100vh;
+  min-height:100svh;
+  border-radius:0;
+  align-items:stretch;
+}
+.solar-full-width .solar-monitoring-copy { align-self:center; padding:clamp(32px,5vw,88px); }
+.solar-full-width .solar-monitoring-visual { min-height:100%; }
+.solar-full-width .solar-section-intro {
+  max-width:1280px;
+  margin-inline:auto;
+  padding-inline:32px;
+}
+.solar-full-width .solar-project-grid { gap:18px; }
+.solar-full-width .solar-project-card { border-radius:0 0 24px 24px; }
+.solar-brands { background:radial-gradient(ellipse at center,#edf6ff,white 78%); text-align:center; }
+.solar-brands .t5-heading,.solar-brands .t5-subheading { margin-inline:auto; }
+.solar-brands .t5-subheading { max-width:550px; text-transform:none; letter-spacing:0; }
+.solar-brands .t5-container>.solar-brand-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  max-width:1080px;
+  gap:18px;
+  margin:42px auto 0;
+}
+.solar-brand-grid>a {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:100px;
+  gap:12px;
+  padding:24px;
+  border:1px solid #dce7f1;
+  border-radius:20px;
+  background:#ffffffb8;
+  color:var(--solar-ink);
+  text-align:left;
+}
+.solar-brand-grid>a:hover { background:#e7f1fe; }
+.solar-brand-grid svg { flex-shrink:0; color:#6485a7; }
+
+/* Reveal only individual content blocks, keeping section backgrounds visible. */
+.solar-home [data-reveal].scroll-reveal-target {
+  --reveal-x:0px;
+  --reveal-y:32px;
+  opacity:0;
+  transform:translate3d(var(--reveal-x),var(--reveal-y),0);
+  transition:opacity .8s cubic-bezier(.2,.65,.25,1),transform .8s cubic-bezier(.2,.65,.25,1);
+  transition-delay:var(--reveal-delay,0ms);
+}
+.solar-home [data-reveal="top"].scroll-reveal-target { --reveal-y:-32px; }
+.solar-home [data-reveal="left"].scroll-reveal-target { --reveal-x:-44px; --reveal-y:0px; }
+.solar-home [data-reveal="right"].scroll-reveal-target { --reveal-x:44px; --reveal-y:0px; }
+.solar-home [data-reveal].scroll-reveal-target.is-visible { opacity:1; transform:none; }
+@media(max-width:1023px) {
+  .solar-benefit-edge .solar-benefit-image { min-height:70svh; }
+  .solar-benefit-edge .solar-benefit-copy { padding:36px 28px; }
+  .solar-full-width .solar-monitoring-visual { min-height:65svh; }
+  .solar-brands .t5-container>.solar-brand-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:767px) {
+  .solar-home section { padding-block:56px; }
+  .solar-home .solar-hero { padding-block:18px; }
+  .solar-home .solar-benefit-edge,
+  .solar-home .solar-monitoring.solar-full-width { padding:0; }
+  .solar-benefit-edge .solar-benefit-image { min-height:46svh; aspect-ratio:auto; border-radius:0 0 26px 26px; }
+  .solar-benefit-edge .solar-benefit-copy { padding:40px 24px 52px; }
+  .solar-full-width .solar-monitoring-copy { padding:45px 25px; }
+  .solar-full-width .solar-monitoring-visual { min-height:55svh; }
+  .solar-full-width .solar-section-intro { padding-inline:24px; }
+  .solar-full-width .solar-project-grid { gap:26px; }
+  .solar-brand-grid>a { min-height:90px; padding:18px; font-size:14px; }
+  .solar-brands .t5-container>.solar-brand-grid { gap:12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .solar-home [data-reveal].scroll-reveal-target { opacity:1; transform:none; transition:none; }
+}
+.t5-dark .solar-brands { background:#0f1a29; }
+.t5-dark .solar-brand-grid>a { background:#16263b; border-color:#2e4865; }
+.solar-home span[data-reveal] { display:inline-block; }
+
+.solar-home [data-reveal].scroll-reveal-target.reveal-focused { transition:none; }

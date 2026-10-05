@@ -37,11 +37,17 @@ export default function SolarInvestmentDetails() {
     <div className="solar-investment-details">
       <section className="t5-section bg-slate-50">
         <div className="t5-container">
-          <span className="t5-eyebrow">Mô hình đầu tư</span>
-          <h2 className="t5-heading">
+          <span className="t5-eyebrow" data-reveal="top">
+            Mô hình đầu tư
+          </span>
+          <h2 className="t5-heading" data-reveal="left">
             Chọn cấu trúc tài chính phù hợp dòng tiền.
           </h2>
-          <div className="mt-10 overflow-x-auto border border-slate-200 bg-white">
+          <div
+            className="mt-10 overflow-x-auto border border-slate-200 bg-white"
+            data-reveal="bottom"
+            data-reveal-delay="120"
+          >
             <table className="min-w-[760px] w-full text-left text-sm">
               <thead className="bg-slate-100 text-[var(--t5-primary)]">
                 <tr>
@@ -84,16 +90,22 @@ export default function SolarInvestmentDetails() {
       <section className="t5-section">
         <div className="t5-container grid gap-12 lg:grid-cols-2">
           <div>
-            <span className="t5-eyebrow">Bảo hành tách bạch</span>
-            <h2 className="t5-heading">
+            <span className="t5-eyebrow" data-reveal="top">
+              Bảo hành tách bạch
+            </span>
+            <h2 className="t5-heading" data-reveal="left">
               Biết rõ ai chịu trách nhiệm cho từng phần.
             </h2>
-            <p className="t5-subheading">
+            <p className="t5-subheading" data-reveal="bottom">
               Không gộp “bảo hành 25 năm” thành một câu quảng cáo. Mỗi hạng mục
               có thời hạn, điều kiện và đơn vị chịu trách nhiệm khác nhau.
             </p>
           </div>
-          <div className="border border-slate-200">
+          <div
+            className="border border-slate-200"
+            data-reveal="right"
+            data-reveal-delay="100"
+          >
             {warranties.map(([item, period, note]) => (
               <div
                 key={item}
@@ -115,8 +127,10 @@ export default function SolarInvestmentDetails() {
       <section className="t5-section bg-amber-50">
         <div className="t5-container grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
           <div>
-            <span className="t5-eyebrow">Chính sách mái nhà</span>
-            <h2 className="t5-heading">
+            <span className="t5-eyebrow" data-reveal="top">
+              Chính sách mái nhà
+            </span>
+            <h2 className="t5-heading" data-reveal="left">
               Tóm tắt để ra quyết định, không thay thế tư vấn pháp lý.
             </h2>
           </div>
@@ -125,6 +139,8 @@ export default function SolarInvestmentDetails() {
               <div
                 key={item}
                 className="flex gap-3 border-b border-amber-200 py-4"
+                data-reveal="right"
+                data-reveal-delay={POLICY_SUMMARY.indexOf(item) * 70}
               >
                 <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
                 <p className="text-sm leading-7 text-slate-700">{item}</p>
@@ -136,8 +152,10 @@ export default function SolarInvestmentDetails() {
 
       <section className="t5-section">
         <div className="t5-container">
-          <span className="t5-eyebrow">Khách hàng nói gì</span>
-          <h2 className="t5-heading">
+          <span className="t5-eyebrow" data-reveal="top">
+            Khách hàng nói gì
+          </span>
+          <h2 className="t5-heading" data-reveal="left">
             Niềm tin đến từ cách dự án được triển khai.
           </h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -145,6 +163,7 @@ export default function SolarInvestmentDetails() {
               <blockquote
                 key={item.company}
                 className="border border-slate-200 p-7"
+                data-reveal={TESTIMONIALS.indexOf(item) % 2 ? "right" : "left"}
               >
                 <div className="text-sm font-black text-amber-600">
                   {item.rating}

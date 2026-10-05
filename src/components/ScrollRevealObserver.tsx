@@ -5,41 +5,76 @@ import { useEffect } from "react";
 export default function ScrollRevealObserver() {
   useEffect(() => {
     const elements = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        "main section:not(.solar-hero), footer"
-      )
+      document.querySelectorAll<HTMLElement>(".solar-home [data-reveal]"),
     );
-
     if (!elements.length) return;
 
-    if (
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      typeof IntersectionObserver === "undefined"
-    ) {
+    const motionPreference = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+    let observer: IntersectionObserver | undefined;
+    const showAll = () => {
+      observer?.disconnect();
       elements.forEach((element) => element.classList.add("is-visible"));
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      showAll();
       return;
     }
 
-    elements.forEach((element) => element.classList.add("scroll-reveal-target"));
-
-    const observer = new IntersectionObserver(
+    observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          observer?.unobserve(entry.target);
         });
       },
-      {
-        threshold: 0.08,
-        rootMargin: "0px 0px -8% 0px",
-      }
+      { threshold: 0.08, rootMargin: "0px 0px -5% 0px" },
     );
 
-    elements.forEach((element) => observer.observe(element));
+    if (motionPreference.matches) {
+      showAll();
+    } else {
+      elements.forEach((element) => {
+        const delay = Math.min(
+          360,
+          Math.max(0, Number(element.dataset.revealDelay) || 0),
+        );
+        element.style.setProperty("--reveal-delay", `${delay}ms`);
+        element.classList.add("scroll-reveal-target");
+        observer?.observe(element);
+      });
+    }
 
-    return () => observer.disconnect();
+    // Keyboard navigation must never focus a control that is still invisible.
+    const revealFocused = (event: FocusEvent) => {
+      if (!(event.target instanceof HTMLElement)) return;
+      const element = event.target.closest<HTMLElement>("[data-reveal]");
+      if (element) {
+        element.classList.add("is-visible", "reveal-focused");
+        observer?.unobserve(element);
+      }
+    };
+    const onMotionChange = () => {
+      if (motionPreference.matches) showAll();
+    };
+    document.addEventListener("focusin", revealFocused);
+    motionPreference.addEventListener("change", onMotionChange);
+    return () => {
+      observer?.disconnect();
+      motionPreference.removeEventListener("change", onMotionChange);
+      document.removeEventListener("focusin", revealFocused);
+      elements.forEach((element) => {
+        element.classList.remove(
+          "scroll-reveal-target",
+          "is-visible",
+          "reveal-focused",
+        );
+        element.style.removeProperty("--reveal-delay");
+      });
+    };
   }, []);
 
   return null;

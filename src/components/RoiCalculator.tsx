@@ -35,13 +35,13 @@ export default function RoiCalculator() {
   return (
     <section id="roi" className="t5-section bg-slate-50">
       <div className="t5-container">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl" data-reveal="top">
           <span className="t5-eyebrow">Ước tính đầu tư</span>
           <h2 className="t5-heading">Biết quy mô và thời gian hoàn vốn trước khi khảo sát.</h2>
           <p className="t5-subheading">Kết quả là ước tính sơ bộ từ cùng bộ tham số cấu hình của website. Hồ sơ đầu tư chính thức cần dữ liệu phụ tải, mái và báo giá thực tế.</p>
         </div>
         <div className="mt-10 grid gap-8 lg:grid-cols-[.9fr_1.1fr]">
-          <div className="border border-slate-200 bg-white p-6 md:p-8">
+          <div className="border border-slate-200 bg-white p-6 md:p-8" data-reveal="left">
             <div className="grid gap-5">
               <label className="t5-label">Loại khách hàng
                 <select value={customerType} onChange={(e) => setCustomerType(e.target.value as CustomerType)} className="t5-input">
@@ -65,7 +65,7 @@ export default function RoiCalculator() {
               </label>
             </div>
           </div>
-          <div className="bg-[var(--t5-primary)] p-6 text-white md:p-8">
+          <div className="bg-[var(--t5-primary)] p-6 text-white md:p-8" data-reveal="right" data-reveal-delay="100">
             <div className="grid gap-px bg-white/15 sm:grid-cols-2">
               {[
                 ["Công suất đề xuất", `${result.kwp.toFixed(1)} kWp`],
