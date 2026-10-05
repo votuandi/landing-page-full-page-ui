@@ -66,7 +66,7 @@ export async function runMediaBackup(
     const archive = archiver('zip', { zlib: { level: 9 } })
 
     output.on('close', () => resolve())
-    archive.on('error', (err) => reject(err))
+    archive.on('error', (err: Error) => reject(err))
     output.on('error', (err) => reject(err))
 
     archive.pipe(output)
