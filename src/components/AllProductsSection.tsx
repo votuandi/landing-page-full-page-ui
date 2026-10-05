@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
@@ -12,249 +11,559 @@ import {
 
 interface ProductData {
   id: number;
-  title: string;
-  price: string | null;
-  original_price?: string | null;
-  imageUrl: string | null;
-  isActive: boolean;
-  category: {
-    id: number;
-    name: string;
-  };
+  name: string;
+  price: string;
+  originalPrice?: string;
+  image: string;
+  specs: string[];
+  discount?: number;
+  category: string;
+  priceNumber: number; // for sorting
 }
 
-interface CategoryData {
-  id: number;
-  name: string;
-  imageUrl: string | null;
-  _count?: {
-    products: number;
-  };
-}
+// All products data (consolidated from ProductSection.tsx)
+const allProductsData: ProductData[] = [
+  // Biến Tần Inverter
+  {
+    id: 1,
+    name: "Biến Tần Growatt MIN 3000TL-XE",
+    price: "8,500,000đ",
+    originalPrice: "9,200,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["3kW", "MPPT Dual", "WiFi Monitor", "IP65"],
+    discount: 8,
+    category: "Biến Tần Inverter",
+    priceNumber: 8500000,
+  },
+  {
+    id: 2,
+    name: "Biến Tần Huawei SUN2000-5KTL-L1",
+    price: "12,800,000đ",
+    originalPrice: "14,000,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["5kW", "Smart String", "AI Monitoring", "IP65"],
+    discount: 9,
+    category: "Biến Tần Inverter",
+    priceNumber: 12800000,
+  },
+  {
+    id: 3,
+    name: "Biến Tần SolarEdge SE7600H-RWS",
+    price: "22,500,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["7.6kW", "Power Optimizer", "HD-Wave", "StorEdge Ready"],
+    category: "Biến Tần Inverter",
+    priceNumber: 22500000,
+  },
+  {
+    id: 4,
+    name: "Biến Tần Fronius Symo 8.2-3-M",
+    price: "28,900,000đ",
+    originalPrice: "31,500,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["8.2kW", "SnapINverter", "WiFi", "SuperFlex Design"],
+    discount: 8,
+    category: "Biến Tần Inverter",
+    priceNumber: 28900000,
+  },
+  {
+    id: 5,
+    name: "Biến Tần ABB UNO-DM-6.0-TL-PLUS",
+    price: "16,800,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["6kW", "Transformerless", "React Quick", "IP65"],
+    category: "Biến Tần Inverter",
+    priceNumber: 16800000,
+  },
+  {
+    id: 6,
+    name: "Biến Tần Sungrow SG10RT",
+    price: "19,200,000đ",
+    originalPrice: "21,000,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["10kW", "String Inverter", "AFCI Protection", "Smart O&M"],
+    discount: 9,
+    category: "Biến Tần Inverter",
+    priceNumber: 19200000,
+  },
+  {
+    id: 7,
+    name: "Biến Tần SMA Sunny Boy 6.0",
+    price: "24,500,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["6kW", "OptiTrac Global Peak", "Webconnect", "Secure Power"],
+    category: "Biến Tần Inverter",
+    priceNumber: 24500000,
+  },
+  {
+    id: 8,
+    name: "Biến Tần GoodWe GW10K-DT",
+    price: "18,600,000đ",
+    originalPrice: "20,200,000đ",
+    image: "/images/product-1.jpg",
+    specs: ["10kW", "Dual MPPT", "WiFi Monitoring", "Anti-PID"],
+    discount: 8,
+    category: "Biến Tần Inverter",
+    priceNumber: 18600000,
+  },
+  // Pin Lưu Trữ Lithium
+  {
+    id: 9,
+    name: "Pin Lithium Pylontech US3000C",
+    price: "18,500,000đ",
+    originalPrice: "20,000,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["3.55kWh", "LiFePO4", "6000 Cycles", "Modular Design"],
+    discount: 8,
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 18500000,
+  },
+  {
+    id: 10,
+    name: "Pin Lithium BYD Battery-Box Premium LVS",
+    price: "45,800,000đ",
+    originalPrice: "49,500,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["4kWh", "High Voltage", "10 Year Warranty", "Scalable"],
+    discount: 7,
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 45800000,
+  },
+  {
+    id: 11,
+    name: "Pin Lithium Tesla Powerwall 2",
+    price: "185,000,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["13.5kWh", "AC Coupled", "Weather Resistant", "Mobile App"],
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 185000000,
+  },
+  {
+    id: 12,
+    name: "Pin Lithium Huawei LUNA2000-5kWh",
+    price: "35,200,000đ",
+    originalPrice: "38,000,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["5kWh", "Smart Control", "Fast Charging", "Compact Design"],
+    discount: 7,
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 35200000,
+  },
+  {
+    id: 13,
+    name: "Pin Lithium LG Chem RESU10H",
+    price: "65,500,000đ",
+    image: "/images/product-2.jpg",
+    specs: [
+      "9.8kWh",
+      "High Energy Density",
+      "10 Year Warranty",
+      "Indoor/Outdoor",
+    ],
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 65500000,
+  },
+  {
+    id: 14,
+    name: "Pin Lithium Sonnen eco 8",
+    price: "120,000,000đ",
+    originalPrice: "135,000,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["8kWh", "All-in-One", "Smart Grid Ready", "10,000 Cycles"],
+    discount: 11,
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 120000000,
+  },
+  {
+    id: 15,
+    name: "Pin Lithium Alpha ESS SMILE5",
+    price: "42,800,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["5.7kWh", "Modular System", "EMS Integrated", "Safe Chemistry"],
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 42800000,
+  },
+  {
+    id: 16,
+    name: "Pin Lithium Goodwe Lynx Home F",
+    price: "28,900,000đ",
+    originalPrice: "31,500,000đ",
+    image: "/images/product-2.jpg",
+    specs: ["6.5kWh", "Stackable", "IP65 Rating", "Smart BMS"],
+    discount: 8,
+    category: "Pin Lưu Trữ Lithium",
+    priceNumber: 28900000,
+  },
+  // Tấm Pin Năng Lượng Mặt Trời Solar
+  {
+    id: 17,
+    name: "Tấm Pin Canadian Solar BiHiKu7 CS7L-MS 580W",
+    price: "3,200,000đ",
+    originalPrice: "3,500,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["580W", "Mono PERC", "21.4% Efficiency", "25 Year Warranty"],
+    discount: 9,
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 3200000,
+  },
+  {
+    id: 18,
+    name: "Tấm Pin JinkoSolar Tiger Neo N-type 575W",
+    price: "3,450,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["575W", "N-Type TOPCon", "22.3% Efficiency", "Low Degradation"],
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 3450000,
+  },
+  {
+    id: 19,
+    name: "Tấm Pin Longi Hi-MO 6 Explorer LR5-72HTH 560W",
+    price: "3,150,000đ",
+    originalPrice: "3,400,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["560W", "PERC Technology", "21.7% Efficiency", "Anti-LID"],
+    discount: 7,
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 3150000,
+  },
+  {
+    id: 20,
+    name: "Tấm Pin Trina Solar Vertex S+ TSM-DE21 570W",
+    price: "3,380,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["570W", "Multi-busbar", "22.1% Efficiency", "Low Temperature"],
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 3380000,
+  },
+  {
+    id: 21,
+    name: "Tấm Pin JA Solar DeepBlue 4.0X JAM72S30 540W",
+    price: "2,950,000đ",
+    originalPrice: "3,200,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["540W", "PERC Half-cell", "20.9% Efficiency", "High Reliability"],
+    discount: 8,
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 2950000,
+  },
+  {
+    id: 22,
+    name: "Tấm Pin Risen Energy Titan RSM150-8-535M",
+    price: "2,850,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["535W", "Mono PERC", "20.7% Efficiency", "PID Resistant"],
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 2850000,
+  },
+  {
+    id: 23,
+    name: "Tấm Pin Hanwha Q CELLS Q.PEAK DUO L-G10.2 540W",
+    price: "3,680,000đ",
+    originalPrice: "3,950,000đ",
+    image: "/images/product-3.jpg",
+    specs: ["540W", "Q.ANTUM DUO", "20.9% Efficiency", "Hot-Spot Protect"],
+    discount: 7,
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 3680000,
+  },
+  {
+    id: 24,
+    name: "Tấm Pin First Solar Series 6 Plus 445W",
+    price: "4,200,000đ",
+    image: "/images/product-3.jpg",
+    specs: [
+      "445W",
+      "CdTe Thin Film",
+      "19.5% Efficiency",
+      "Superior Performance",
+    ],
+    category: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    priceNumber: 4200000,
+  },
+  // Inverter Luxpower
+  {
+    id: 25,
+    name: "Luxpower SNA 5000 Hybrid Inverter",
+    price: "15,800,000đ",
+    originalPrice: "17,200,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["5kW", "Hybrid MPPT", "Battery Ready", "Grid-Tie"],
+    discount: 8,
+    category: "Inverter Luxpower",
+    priceNumber: 15800000,
+  },
+  {
+    id: 26,
+    name: "Luxpower LXP 3600 ACS Inverter",
+    price: "12,500,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["3.6kW", "AC Coupled", "Smart Load", "WiFi Monitor"],
+    category: "Inverter Luxpower",
+    priceNumber: 12500000,
+  },
+  {
+    id: 27,
+    name: "Luxpower SNA 8000 Three Phase",
+    price: "28,900,000đ",
+    originalPrice: "31,500,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["8kW", "3-Phase", "Commercial Grade", "High Efficiency"],
+    discount: 8,
+    category: "Inverter Luxpower",
+    priceNumber: 28900000,
+  },
+  {
+    id: 28,
+    name: "Luxpower LXP 6000 ACS",
+    price: "18,200,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["6kW", "Pure Sine Wave", "UPS Function", "Remote Monitor"],
+    category: "Inverter Luxpower",
+    priceNumber: 18200000,
+  },
+  {
+    id: 29,
+    name: "Luxpower SNA 10K Hybrid",
+    price: "32,800,000đ",
+    originalPrice: "35,500,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["10kW", "Dual MPPT", "Battery Management", "Grid Support"],
+    discount: 8,
+    category: "Inverter Luxpower",
+    priceNumber: 32800000,
+  },
+  {
+    id: 30,
+    name: "Luxpower LXP 12K ACS Pro",
+    price: "45,600,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["12kW", "Professional", "Smart Grid", "Advanced Protection"],
+    category: "Inverter Luxpower",
+    priceNumber: 45600000,
+  },
+  {
+    id: 31,
+    name: "Luxpower SNA 15K Commercial",
+    price: "58,900,000đ",
+    originalPrice: "63,500,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["15kW", "Commercial Use", "High Power", "Scalable System"],
+    discount: 7,
+    category: "Inverter Luxpower",
+    priceNumber: 58900000,
+  },
+  {
+    id: 32,
+    name: "Luxpower LXP 20K Enterprise",
+    price: "78,500,000đ",
+    image: "/images/product-4.jpg",
+    specs: ["20kW", "Enterprise Grade", "Multi-String", "Cloud Monitoring"],
+    category: "Inverter Luxpower",
+    priceNumber: 78500000,
+  },
+];
+
+const categories = [
+  {
+    id: "all",
+    name: "Tất cả sản phẩm",
+    value: "Tất cả sản phẩm",
+    image: "/images/solar-panels-hero.jpg",
+    description: "Xem tất cả",
+    count: 32,
+  },
+  {
+    id: "inverter",
+    name: "Biến Tần Inverter",
+    value: "Biến Tần Inverter",
+    image: "/images/solar-inverter-hero.jpg",
+    description: "Thiết bị chuyển đổi điện",
+    count: 8,
+  },
+  {
+    id: "battery",
+    name: "Pin Lưu Trữ",
+    value: "Pin Lưu Trữ Lithium",
+    image: "/images/solar-battery-hero.jpg",
+    description: "Hệ thống lưu trữ năng lượng",
+    count: 8,
+  },
+  {
+    id: "solar-panel",
+    name: "Tấm Pin Solar",
+    value: "Tấm Pin Năng Lượng Mặt Trời Solar",
+    image: "/images/solar-panels-hero.jpg",
+    description: "Tấm pin năng lượng mặt trời",
+    count: 8,
+  },
+  {
+    id: "luxpower",
+    name: "Inverter Luxpower",
+    value: "Inverter Luxpower",
+    image: "/images/solar-installation-hero.jpg",
+    description: "Inverter thương hiệu Luxpower",
+    count: 8,
+  },
+];
 
 const sortOptions = [
   { label: "Mặc định", value: "default" },
   { label: "Tên A-Z", value: "name-asc" },
   { label: "Tên Z-A", value: "name-desc" },
-  { label: "Giá thấp đến cao", value: "price-asc" },
-  { label: "Giá cao đến thấp", value: "price-desc" },
+  { label: "Giá thấp - cao", value: "price-asc" },
+  { label: "Giá cao - thấp", value: "price-desc" },
 ];
 
-/** Parse price string to number; returns 0 if not a number or unable to convert. */
-function parsePrice(price: string | null | undefined): number {
-  if (price == null || price === "") return 0;
-  const cleaned = String(price).replace(/[^0-9.,\-]/g, "").replace(",", ".");
-  const num = parseFloat(cleaned);
-  return Number.isFinite(num) ? num : 0;
-}
-
-const PRICE_SLIDER_MIN = 0;
-const PRICE_SLIDER_MAX = 200_000_000;
-const PRICE_SLIDER_STEP = 5_000_000;
-
-interface AllProductsSectionProps {
-  initialCategories?: CategoryData[];
-  initialProducts?: ProductData[];
-  initialTotal?: number;
-  initialTotalPages?: number;
-}
-
-export default function AllProductsSection({
-  initialCategories,
-  initialProducts,
-  initialTotal,
-  initialTotalPages,
-}: AllProductsSectionProps = {}) {
-  const [products, setProducts] = useState<ProductData[]>(initialProducts ?? []);
-  const [categories, setCategories] = useState<CategoryData[]>(initialCategories ?? []);
-  const [loading, setLoading] = useState(!initialProducts?.length);
+export default function AllProductsSection() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả sản phẩm");
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(200000000);
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
-  const [minPrice, setMinPrice] = useState(PRICE_SLIDER_MIN);
-  const [maxPrice, setMaxPrice] = useState(PRICE_SLIDER_MAX);
   const [isDragging, setIsDragging] = useState<"min" | "max" | null>(null);
-  const priceTrackRef = useRef<HTMLDivElement>(null);
-  const [totalCount, setTotalCount] = useState<number>(initialTotal ?? 0);
-  const [totalPagesState, setTotalPagesState] = useState<number>(initialTotalPages ?? 1);
-  const serverTotalRef = useRef<number | null>(initialTotal ?? null);
-  const serverTotalPagesRef = useRef<number | null>(initialTotalPages ?? null);
 
   const productsPerPage = 12;
 
-  useEffect(() => {
-    if (initialCategories?.length) {
-      setCategories(initialCategories);
+  // Filter and sort products
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = allProductsData;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.specs.some((spec) =>
+            spec.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+      );
     }
-  }, [initialCategories]);
 
-  useEffect(() => {
-    if (initialProducts?.length != null) {
-      setProducts(initialProducts);
-      setLoading(false);
-      const total = initialTotal ?? 0;
-      const pages = initialTotalPages ?? 1;
-      serverTotalRef.current = total;
-      serverTotalPagesRef.current = pages;
-      setTotalCount(total);
-      setTotalPagesState(pages);
+    // Category filter
+    if (selectedCategory !== "Tất cả sản phẩm") {
+      filtered = filtered.filter(
+        (product) => product.category === selectedCategory
+      );
     }
-  }, [initialProducts, initialTotal, initialTotalPages]);
 
-  // Fetch categories when no initial data
-  useEffect(() => {
-    if (initialCategories?.length) return;
+    // Price range filter
+    filtered = filtered.filter(
+      (product) =>
+        product.priceNumber >= minPrice && product.priceNumber <= maxPrice
+    );
 
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/product-categories?limit=100');
-        if (!response.ok) throw new Error('Failed to fetch categories');
-        const data = await response.json();
-        setCategories(data.data || []);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-        setCategories([]);
-      }
-    };
+    // Sort products
+    switch (sortBy) {
+      case "name-asc":
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "price-asc":
+        filtered.sort((a, b) => a.priceNumber - b.priceNumber);
+        break;
+      case "price-desc":
+        filtered.sort((a, b) => b.priceNumber - a.priceNumber);
+        break;
+      default:
+        // Keep original order
+        break;
+    }
 
-    fetchCategories();
-  }, [initialCategories?.length]);
+    return filtered;
+  }, [searchTerm, selectedCategory, minPrice, maxPrice, sortBy]);
 
-  // Fetch products from API with pagination and filters
-  useEffect(() => {
-    const orderBy = sortBy === "name-asc" || sortBy === "name-desc" ? "title" : sortBy === "price-asc" || sortBy === "price-desc" ? "price" : "order";
-    const order = sortBy === "name-desc" || sortBy === "price-desc" ? "desc" : "asc";
-    const hasFilters = selectedCategoryId != null || searchTerm || sortBy !== "default" || minPrice !== PRICE_SLIDER_MIN || maxPrice !== PRICE_SLIDER_MAX;
-    const useInitial = initialProducts?.length && currentPage === 1 && !hasFilters;
-    if (useInitial) return; // Use state already set from initial props; skip fetch
-
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        let url = `/api/products?isActive=true&limit=${productsPerPage}&page=${currentPage}&orderBy=${orderBy}&order=${order}`;
-        if (selectedCategoryId) url += `&categoryId=${selectedCategoryId}`;
-        if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
-        if (minPrice !== PRICE_SLIDER_MIN || maxPrice !== PRICE_SLIDER_MAX) {
-          url += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
-        }
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch products");
-        const data = await response.json();
-        const list = data.data || [];
-        const pagination = data.pagination || {};
-        setProducts(list);
-        const total = pagination.total ?? list.length;
-        const pages = pagination.totalPages ?? 1;
-        serverTotalRef.current = total;
-        serverTotalPagesRef.current = pages;
-        setTotalCount(total);
-        setTotalPagesState(pages);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setProducts([]);
-        serverTotalRef.current = 0;
-        serverTotalPagesRef.current = 0;
-        setTotalCount(0);
-        setTotalPagesState(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [currentPage, selectedCategoryId, searchTerm, sortBy, minPrice, maxPrice, initialProducts?.length]);
-
-  const totalPages = totalPagesState;
-  const paginatedProducts = products;
+  // Pagination
+  const totalPages = Math.ceil(
+    filteredAndSortedProducts.length / productsPerPage
+  );
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const paginatedProducts = filteredAndSortedProducts.slice(
+    startIndex,
+    startIndex + productsPerPage
+  );
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategoryId, sortBy, minPrice, maxPrice]);
+  }, [searchTerm, selectedCategory, minPrice, maxPrice, sortBy]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Convert clientX to price value (0–200M) from track bounds
-  const clientXToPrice = useCallback((clientX: number) => {
-    const track = priceTrackRef.current;
-    if (!track) return PRICE_SLIDER_MIN;
-    const rect = track.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const raw = PRICE_SLIDER_MIN + ratio * (PRICE_SLIDER_MAX - PRICE_SLIDER_MIN);
-    const stepped = Math.round(raw / PRICE_SLIDER_STEP) * PRICE_SLIDER_STEP;
-    return Math.max(PRICE_SLIDER_MIN, Math.min(PRICE_SLIDER_MAX, stepped));
-  }, []);
-
-  const handleThumbMouseDown = useCallback(
-    (which: "min" | "max") => (e: React.MouseEvent) => {
+  // Drag and drop functionality for price thumbs
+  const handleThumbMouseDown =
+    (type: "min" | "max") => (e: React.MouseEvent) => {
       e.preventDefault();
-      setIsDragging(which);
-      const onMove = (moveEvent: MouseEvent) => {
-        const value = clientXToPrice(moveEvent.clientX);
-        if (which === "min") {
-          setMinPrice((prev) => Math.min(value, maxPrice));
-        } else {
-          setMaxPrice((prev) => Math.max(value, minPrice));
+      setIsDragging(type);
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const slider = (e.target as HTMLElement).closest(".relative");
+        if (!slider) return;
+
+        const rect = slider.getBoundingClientRect();
+        const percent = Math.max(
+          0,
+          Math.min(1, (e.clientX - rect.left - 8) / (rect.width - 16))
+        ); // Adjust for padding
+        const newPrice = Math.round((percent * 200000000) / 5000000) * 5000000; // Round to step
+
+        if (type === "min" && newPrice <= maxPrice) {
+          setMinPrice(newPrice);
+        } else if (type === "max" && newPrice >= minPrice) {
+          setMaxPrice(newPrice);
         }
       };
-      const onUp = () => {
-        setIsDragging(null);
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onUp);
-      };
-      document.addEventListener("mousemove", onMove);
-      document.addEventListener("mouseup", onUp);
-    },
-    [clientXToPrice, minPrice, maxPrice]
-  );
 
-  const handleThumbTouchStart = useCallback(
-    (which: "min" | "max") => (e: React.TouchEvent) => {
-      setIsDragging(which);
-      const touch = e.touches[0];
-      if (!touch) return;
-      const onMove = (moveEvent: TouchEvent) => {
-        const t = moveEvent.touches[0];
-        if (!t) return;
-        const value = clientXToPrice(t.clientX);
-        if (which === "min") {
-          setMinPrice((prev) => Math.min(value, maxPrice));
-        } else {
-          setMaxPrice((prev) => Math.max(value, minPrice));
+      const handleMouseUp = () => {
+        setIsDragging(null);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    };
+
+  const handleThumbTouchStart =
+    (type: "min" | "max") => (e: React.TouchEvent) => {
+      e.preventDefault();
+      setIsDragging(type);
+
+      const handleTouchMove = (e: TouchEvent) => {
+        const touch = e.touches[0];
+        const slider = (e.target as HTMLElement).closest(".relative");
+        if (!slider || !touch) return;
+
+        const rect = slider.getBoundingClientRect();
+        const percent = Math.max(
+          0,
+          Math.min(1, (touch.clientX - rect.left - 8) / (rect.width - 16))
+        ); // Adjust for padding
+        const newPrice = Math.round((percent * 200000000) / 5000000) * 5000000; // Round to step
+
+        if (type === "min" && newPrice <= maxPrice) {
+          setMinPrice(newPrice);
+        } else if (type === "max" && newPrice >= minPrice) {
+          setMaxPrice(newPrice);
         }
       };
-      const onEnd = () => {
+
+      const handleTouchEnd = () => {
         setIsDragging(null);
-        document.removeEventListener("touchmove", onMove);
-        document.removeEventListener("touchend", onEnd);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
       };
-      document.addEventListener("touchmove", onMove, { passive: true });
-      document.addEventListener("touchend", onEnd);
-    },
-    [clientXToPrice, minPrice, maxPrice]
-  );
 
-  // Calculate discount percentage (uses parsePrice so invalid prices are treated as 0)
-  const calculateDiscount = (original: string | null | undefined, current: string | null) => {
-    const origNum = parsePrice(original);
-    const currNum = parsePrice(current);
-    if (origNum > 0 && currNum >= 0 && origNum > currNum) {
-      return Math.round(((origNum - currNum) / origNum) * 100);
-    }
-    return undefined;
-  };
-
-  // Calculate total products per category
-  const getCategoryCount = (categoryId: number | null) => {
-    if (categoryId === null) {
-      return products.length;
-    }
-    return products.filter(p => p.category.id === categoryId).length;
-  };
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleTouchEnd);
+    };
 
   return (
     <section className="py-16 bg-gray-50">
@@ -280,36 +589,36 @@ export default function AllProductsSection({
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
 
             {/* Filters */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               {/* Price Range Slider */}
-              <div className="w-full sm:min-w-[320px]">
+              <div className="min-w-[320px]">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   <span className="flex items-center justify-between">
                     <span>Khoảng giá</span>
-                    <span className="text-orange-600 font-semibold">
-                      {(minPrice / 1_000_000).toFixed(0)}M -{" "}
-                      {maxPrice === PRICE_SLIDER_MAX
+                    <span className="text-green-600 font-semibold">
+                      {(minPrice / 1000000).toFixed(0)}M -{" "}
+                      {maxPrice === 200000000
                         ? "200M+"
-                        : (maxPrice / 1_000_000).toFixed(0) + "M"}{" "}
+                        : (maxPrice / 1000000).toFixed(0) + "M"}{" "}
                       đ
                     </span>
                   </span>
                 </label>
 
-                <div ref={priceTrackRef} className="relative px-2">
+                <div className="relative px-2">
                   {/* Background track */}
                   <div className="relative h-2 bg-gray-200 rounded-full">
                     {/* Active range highlight */}
                     <div
-                      className="absolute h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-200"
+                      className="absolute h-2 bg-gradient-to-r from-green-500 to-green-500 rounded-full transition-all duration-200"
                       style={{
-                        left: `${(minPrice / PRICE_SLIDER_MAX) * 100}%`,
-                        width: `${((maxPrice - minPrice) / PRICE_SLIDER_MAX) * 100}%`,
+                        left: `${(minPrice / 200000000) * 100}%`,
+                        width: `${((maxPrice - minPrice) / 200000000) * 100}%`,
                       }}
                     />
                   </div>
@@ -317,66 +626,73 @@ export default function AllProductsSection({
                   {/* Min Price Slider */}
                   <input
                     type="range"
-                    min={PRICE_SLIDER_MIN}
-                    max={PRICE_SLIDER_MAX}
-                    step={PRICE_SLIDER_STEP}
+                    min="0"
+                    max="200000000"
+                    step="5000000"
                     value={minPrice}
                     onChange={(e) => {
-                      const newMinPrice = Number(e.target.value);
+                      const newMinPrice = parseInt(e.target.value);
                       if (newMinPrice <= maxPrice) {
                         setMinPrice(newMinPrice);
                       }
                     }}
-                    className="absolute top-0 left-0 w-full h-2 opacity-0 pointer-events-auto cursor-pointer z-[1]"
+                    className="absolute top-0 left-0 w-full h-2 price-slider opacity-0 pointer-events-auto"
+                    style={{ zIndex: 1 }}
                   />
 
                   {/* Max Price Slider */}
                   <input
                     type="range"
-                    min={PRICE_SLIDER_MIN}
-                    max={PRICE_SLIDER_MAX}
-                    step={PRICE_SLIDER_STEP}
+                    min="0"
+                    max="200000000"
+                    step="5000000"
                     value={maxPrice}
                     onChange={(e) => {
-                      const newMaxPrice = Number(e.target.value);
+                      const newMaxPrice = parseInt(e.target.value);
                       if (newMaxPrice >= minPrice) {
                         setMaxPrice(newMaxPrice);
                       }
                     }}
-                    className="absolute top-0 left-0 w-full h-2 opacity-0 pointer-events-auto cursor-pointer z-[2]"
+                    className="absolute top-0 left-0 w-full h-2 price-slider opacity-0 pointer-events-auto"
+                    style={{ zIndex: 2 }}
                   />
 
                   {/* Custom Thumbs */}
                   <div
-                    className={`absolute w-5 h-5 bg-white border-2 border-orange-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none pointer-events-auto ${isDragging === "min"
-                      ? "cursor-grabbing scale-110 shadow-xl"
-                      : ""
-                      }`}
+                    className={`absolute w-5 h-5 bg-white border-3 border-green-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                      isDragging === "min"
+                        ? "cursor-grabbing scale-110 shadow-xl"
+                        : ""
+                    }`}
                     style={{
-                      left: `calc(${(minPrice / PRICE_SLIDER_MAX) * 100}% - 10px)`,
+                      left: `calc(${(minPrice / 200000000) * 100}% - 10px)`,
                       top: "-6px",
                       zIndex: isDragging === "min" ? 10 : 3,
                     }}
                     onMouseDown={handleThumbMouseDown("min")}
                     onTouchStart={handleThumbTouchStart("min")}
-                    title={`Giá tối thiểu: ${(minPrice / 1_000_000).toFixed(0)}M đ`}
+                    title={`Giá tối thiểu: ${(minPrice / 1000000).toFixed(
+                      0
+                    )}M đ`}
                   />
                   <div
-                    className={`absolute w-5 h-5 bg-white border-2 border-orange-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none pointer-events-auto ${isDragging === "max"
-                      ? "cursor-grabbing scale-110 shadow-xl"
-                      : ""
-                      }`}
+                    className={`absolute w-5 h-5 bg-white border-3 border-green-500 rounded-full shadow-lg cursor-grab transition-all duration-200 hover:scale-110 select-none ${
+                      isDragging === "max"
+                        ? "cursor-grabbing scale-110 shadow-xl"
+                        : ""
+                    }`}
                     style={{
-                      left: `calc(${(maxPrice / PRICE_SLIDER_MAX) * 100}% - 10px)`,
+                      left: `calc(${(maxPrice / 200000000) * 100}% - 10px)`,
                       top: "-6px",
                       zIndex: isDragging === "max" ? 10 : 4,
                     }}
                     onMouseDown={handleThumbMouseDown("max")}
                     onTouchStart={handleThumbTouchStart("max")}
-                    title={`Giá tối đa: ${maxPrice === PRICE_SLIDER_MAX
-                      ? "200M+"
-                      : (maxPrice / 1_000_000).toFixed(0) + "M"
-                      } đ`}
+                    title={`Giá tối đa: ${
+                      maxPrice === 200000000
+                        ? "200M+"
+                        : (maxPrice / 1000000).toFixed(0) + "M"
+                    } đ`}
                   />
                 </div>
 
@@ -392,43 +708,40 @@ export default function AllProductsSection({
               </div>
 
               {/* Sort Filter */}
-              <div className="flex flex-row w-full gap-4">
-                <div className="min-w-[150px] w-full sm:w-auto">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sắp xếp
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-white transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer text-sm"
-                  >
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Clear Filters & Results Count */}
-                <div className="flex items-center gap-4 mt-auto">
-                  <button
-                    onClick={() => {
-                      setSearchTerm("");
-                      setSelectedCategoryId(null);
-                      setMinPrice(PRICE_SLIDER_MIN);
-                      setMaxPrice(PRICE_SLIDER_MAX);
-                      setSortBy("default");
-                    }}
-                    className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-orange-600 hover:bg-amber-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 text-sm font-medium"
-                    title="Đặt lại bộ lọc"
-                  >
-                    <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-                    <span className="hidden sm:inline">Đặt lại</span>
-                  </button>
-                </div>
+              <div className="min-w-[150px]">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sắp xếp
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-white transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer text-sm"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
+              {/* Clear Filters & Results Count */}
+              <div className="flex items-center gap-4 mt-auto">
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory("Tất cả sản phẩm");
+                    setMinPrice(0);
+                    setMaxPrice(200000000);
+                    setSortBy("default");
+                  }}
+                  className="group flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg border border-gray-200 hover:border-green-300 transition-all duration-200 text-sm font-medium"
+                  title="Đặt lại bộ lọc"
+                >
+                  <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
+                  <span className="hidden sm:inline">Đặt lại</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -439,96 +752,50 @@ export default function AllProductsSection({
             Danh mục sản phẩm
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {/* All Products Category */}
-            <button
-              onClick={() => setSelectedCategoryId(null)}
-              className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${selectedCategoryId === null
-                ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
-                : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
-                }`}
-            >
-              <div
-                className="w-1/3 flex-shrink-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-                style={{
-                  backgroundImage: `url(/images/solar-panels-hero.jpg), url('/images/placeholder-product.svg')`,
-                }}
-              />
-              <div className="flex-1 p-3 flex flex-col justify-center text-left min-w-0">
-                <h4
-                  className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${selectedCategoryId === null
-                    ? "text-primary-700"
-                    : "text-gray-900 group-hover:text-primary-600"
-                    }`}
-                >
-                  Tất cả sản phẩm
-                </h4>
-                <div
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${selectedCategoryId === null
-                    ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
-                    : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
-                    }`}
-                >
-                  {getCategoryCount(null)} sản phẩm
-                </div>
-              </div>
-              {selectedCategoryId === null && (
-                <div className="absolute top-2 right-2">
-                  <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              )}
-            </button>
-
-            {/* Category Cards */}
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => setSelectedCategoryId(category.id)}
-                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${selectedCategoryId === category.id
-                  ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
-                  : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
-                  }`}
+                onClick={() => setSelectedCategory(category.value)}
+                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-stretch aspect-[5/2] transform ${
+                  selectedCategory === category.value
+                    ? "border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100 ring-4 ring-primary-200/50 shadow-lg scale-[1.02]"
+                    : "border-gray-200 bg-gradient-to-r from-white to-gray-50 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-25 hover:to-primary-50 shadow-sm hover:shadow-lg"
+                }`}
               >
+                {/* Category Image */}
                 <div
                   className="w-1/3 flex-shrink-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
                   style={{
-                    backgroundImage: `url(${category.imageUrl || '/images/placeholder-product.svg'})`,
+                    backgroundImage: `url(${category.image}), url('/images/placeholder-product.svg')`,
                   }}
                 />
+
+                {/* Category Info */}
                 <div className="flex-1 p-3 flex flex-col justify-center text-left min-w-0">
                   <h4
-                    className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${selectedCategoryId === category.id
-                      ? "text-primary-700"
-                      : "text-gray-900 group-hover:text-primary-600"
-                      }`}
+                    className={`font-semibold text-sm mb-1 transition-colors leading-tight truncate ${
+                      selectedCategory === category.value
+                        ? "text-primary-700"
+                        : "text-gray-900 group-hover:text-primary-600"
+                    }`}
                   >
                     {category.name}
                   </h4>
                   <div
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${selectedCategoryId === category.id
-                      ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
-                      : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
-                      }`}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${
+                      selectedCategory === category.value
+                        ? "bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 shadow-sm"
+                        : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 group-hover:from-primary-100 group-hover:to-primary-200 group-hover:text-primary-700"
+                    }`}
                   >
-                    {getCategoryCount(category.id)} sản phẩm
+                    {category.count} sản phẩm
                   </div>
                 </div>
-                {selectedCategoryId === category.id && (
+
+                {/* Selected Indicator */}
+                {selectedCategory === category.value && (
                   <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                       <svg
                         className="w-3 h-3 text-white"
                         fill="none"
@@ -552,77 +819,86 @@ export default function AllProductsSection({
 
         <div className="text-sm text-gray-600 whitespace-nowrap mb-2">
           <span className="font-semibold">
-            {totalCount}
+            {filteredAndSortedProducts.length}
           </span>{" "}
           sản phẩm
         </div>
 
         {/* Products Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500">Đang tải sản phẩm...</div>
-          </div>
-        ) : paginatedProducts.length > 0 ? (
+        {paginatedProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-            {paginatedProducts.map((product) => {
-              const discount = calculateDiscount(product.original_price, product.price);
-              return (
-                <Link
-                  key={product.id}
-                  href={`/product/${product.id}`}
-                  className="block"
-                >
-                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer relative">
-                    {/* Discount Badge */}
-                    {discount && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
-                          -{discount}%
-                        </span>
-                      </div>
-                    )}
+            {paginatedProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={`/product/${product.id}`}
+                className="block"
+              >
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
+                  {/* Discount Badge */}
+                  {product.discount && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+                        -{product.discount}%
+                      </span>
+                    </div>
+                  )}
 
-                    {/* Product Image */}
-                    <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                      <Image
-                        src={product.imageUrl || "/images/placeholder-product.svg"}
-                        alt={`${product.title} - ${product.category.name} - Sản phẩm năng lượng mặt trời`}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      />
+                  {/* Product Image */}
+                  <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.src = "/images/placeholder-product.svg";
+                      }}
+                    />
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    {/* Category */}
+                    <div className="text-xs text-green-600 font-medium mb-2">
+                      {product.category}
                     </div>
 
-                    {/* Product Info */}
-                    <div className="p-4">
-                      {/* Category */}
-                      <div className="text-xs text-orange-600 font-medium mb-2">
-                        {product.category.name}
-                      </div>
+                    {/* Product Name */}
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-green-600 transition-colors">
+                      {product.name}
+                    </h3>
 
-                      {/* Product Name */}
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm md:text-base h-10 md:h-12 group-hover:text-orange-600 transition-colors">
-                        {product.title}
-                      </h3>
-
-                      {/* Price */}
-                      <div className="mb-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-base md:text-lg font-bold text-green-600">
-                            {product.price || "Liên hệ"}
+                    {/* Specifications */}
+                    <div className="mb-3">
+                      <div className="flex flex-wrap gap-1">
+                        {product.specs.slice(0, 2).map((spec, index) => (
+                          <span
+                            key={index}
+                            className="inline-block bg-green-50 text-green-700 text-xs px-2 py-1 rounded"
+                          >
+                            {spec}
                           </span>
-                          {product.original_price && (
-                            <span className="text-xs md:text-sm text-gray-500 line-through">
-                              {product.original_price}
-                            </span>
-                          )}
-                        </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Price */}
+                    <div className="mb-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-base md:text-lg font-bold text-green-600">
+                          {product.price}
+                        </span>
+                        {product.originalPrice && (
+                          <span className="text-xs md:text-sm text-gray-500 line-through">
+                            {product.originalPrice}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              </Link>
+            ))}
           </div>
         ) : (
           <div className="text-center py-12">
@@ -632,12 +908,12 @@ export default function AllProductsSection({
             <button
               onClick={() => {
                 setSearchTerm("");
-                setSelectedCategoryId(null);
+                setSelectedCategory("Tất cả sản phẩm");
+                setMinPrice(0);
+                setMaxPrice(200000000);
                 setSortBy("default");
-                setMinPrice(PRICE_SLIDER_MIN);
-                setMaxPrice(PRICE_SLIDER_MAX);
               }}
-              className="mt-4 text-orange-600 hover:text-orange-700 font-medium"
+              className="mt-4 text-green-600 hover:text-green-700 font-medium"
             >
               Xóa bộ lọc
             </button>
@@ -673,10 +949,11 @@ export default function AllProductsSection({
                 <button
                   key={pageNumber}
                   onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg ${currentPage === pageNumber
-                    ? "text-orange-600 bg-amber-50 border border-blue-300"
-                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
-                    }`}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                    currentPage === pageNumber
+                      ? "text-green-600 bg-green-50 border border-green-300"
+                      : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+                  }`}
                 >
                   {pageNumber}
                 </button>
