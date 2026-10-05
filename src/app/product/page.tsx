@@ -1,162 +1,18 @@
-import { Metadata } from "next";
+"use client";
+
+import React from "react";
 import BestSellerSection from "@/components/BestSellerSection";
 import AllProductsSection from "@/components/AllProductsSection";
-import { getCachedCompanyInfo } from "@/lib/cachedCompany";
-import { prisma } from "@/lib/prisma";
-import WarmPageHero from "@/components/WarmPageHero";
 
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const companyInfo = await getCachedCompanyInfo();
-  
-  const companyName = companyInfo?.companyName || "Trọng Tín Solar";
-  const baseUrl = "https://phanphoisolar.com";
-  const title = `Sản phẩm năng lượng mặt trời | ${companyName}`;
-  const description = `Khám phá các sản phẩm năng lượng mặt trời chất lượng cao từ ${companyName}. Tấm pin solar, biến tần inverter, pin lưu trữ và phụ kiện chính hãng với giá tốt nhất.`;
-  const ogImage = companyInfo?.logoUrl
-    ? `${baseUrl}${companyInfo.logoUrl}`
-    : `${baseUrl}/og-image.jpg`;
-  
-  return {
-    title,
-    description,
-    keywords: `sản phẩm năng lượng mặt trời, tấm pin solar, biến tần inverter, pin lưu trữ, thiết bị solar, ${companyName}`,
-    metadataBase: new URL(baseUrl),
-    alternates: {
-      canonical: "/product",
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${baseUrl}/product`,
-      siteName: companyName,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-      locale: "vi_VN",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: description.substring(0, 200),
-      images: [ogImage],
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
-  };
-}
-
-async function getProductPageData() {
-  const productsPerPage = 12; // Match AllProductsSection productsPerPage
-  const [companyInfo, bestSellers, categories, firstPageResult] = await Promise.all([
-    getCachedCompanyInfo(),
-    prisma.product.findMany({
-      where: { isBestSeller: true, isActive: true },
-      orderBy: { order: "asc" },
-      take: 12,
-      include: { category: { select: { id: true, name: true } } },
-    }),
-    prisma.productCategory.findMany({
-      take: 100,
-      orderBy: { id: "asc" },
-      include: { _count: { select: { products: true } } },
-    }),
-    (async () => {
-      const where = { isActive: true };
-      const [products, total] = await Promise.all([
-        prisma.product.findMany({
-          where,
-          orderBy: { order: "asc" },
-          skip: 0,
-          take: productsPerPage,
-          include: { category: { select: { id: true, name: true } } },
-        }),
-        prisma.product.count({ where }),
-      ]);
-      return {
-        products: products.map((p) => ({
-          ...p,
-          createdAt: p.createdAt.toISOString(),
-          updatedAt: p.updatedAt.toISOString(),
-        })),
-        total,
-        totalPages: Math.ceil(total / productsPerPage),
-      };
-    })(),
-  ]);
-  return {
-    companyInfo,
-    bestSellers: bestSellers.map((p) => ({
-      ...p,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-    })),
-    categories: categories.map((c) => ({
-      ...c,
-      imageUrl: c.imageUrl ?? null,
-    })),
-    firstPage: firstPageResult,
-  };
-}
-
-export default async function ProductPage() {
-  const { companyInfo, bestSellers, categories, firstPage } = await getProductPageData();
-
+export default function ProductPage() {
   return (
     <main className="min-h-screen">
-      <div className="bg-[#fffaf0]">
-        <WarmPageHero
-          eyebrow="Thiết bị & giải pháp"
-          title="Sản phẩm solar được chọn cho hiệu suất và độ bền dài hạn"
-          description={`Khám phá tấm pin, inverter, pin lưu trữ và phụ kiện phù hợp cho từng quy mô hệ thống từ ${companyInfo?.companyName || "chúng tôi"}.`}
-          image="/images/solar-inverter-hero.jpg"
-          primaryLabel="Tư vấn chọn thiết bị"
-          primaryHref="/contact-us"
-          secondaryLabel="Xem dịch vụ lắp đặt"
-          secondaryHref="/service"
-        />
-
-        <div className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              ["Thiết bị chính hãng", "Ưu tiên sản phẩm có nguồn gốc rõ ràng và thông số phù hợp với nhu cầu thực tế."],
-              ["Cấu hình đồng bộ", "Kết hợp tấm pin, inverter và lưu trữ theo một cấu hình cân bằng, dễ vận hành."],
-              ["Hỗ trợ sau bán", "Tư vấn kỹ thuật, bảo hành và hỗ trợ trong suốt quá trình sử dụng hệ thống."],
-            ].map(([title, detail]) => (
-              <div key={title} className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
-                <h2 className="text-lg font-bold text-stone-900">{title}</h2>
-                <p className="mt-2 leading-7 text-stone-600">{detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="bg-gray-50">
         {/* Best Seller Section */}
-        <BestSellerSection initialProducts={bestSellers} />
+        <BestSellerSection />
 
         {/* All Products Section */}
-        <AllProductsSection
-          initialCategories={categories}
-          initialProducts={firstPage.products}
-          initialTotal={firstPage.total}
-          initialTotalPages={firstPage.totalPages}
-        />
+        <AllProductsSection />
       </div>
     </main>
   );
