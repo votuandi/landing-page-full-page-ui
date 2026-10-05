@@ -961,3 +961,50 @@ body {
     line-height: 1.5 !important;
   }
 }
+
+/* Template 3 warm solar palette — public UI normalization */
+:root {
+  --background: #fffaf0;
+  --foreground: #2f241a;
+}
+
+body {
+  background: #fffaf0;
+  color: #2f241a;
+}
+
+.bg-green-950 { background-color: #2f241a !important; }
+.bg-green-900 { background-color: #443426 !important; }
+.bg-green-800 { background-color: #5c4128 !important; }
+.bg-green-700, .bg-green-600, .bg-blue-600, .bg-blue-700 { background-color: #ea580c !important; }
+.bg-green-500, .bg-blue-500 { background-color: #f59e0b !important; }
+.bg-green-100, .bg-green-50, .bg-blue-50, .bg-blue-100 { background-color: #fff8ed !important; }
+
+.text-green-50, .text-green-100 { color: #fff7ed !important; }
+.text-green-500, .text-green-600, .text-green-700,
+.text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800 { color: #c2410c !important; }
+
+.border-green-100, .border-green-200, .border-green-300,
+.border-blue-100, .border-blue-200, .border-blue-300 { border-color: #fed7aa !important; }
+.border-green-500, .border-green-600, .border-blue-500, .border-blue-600 { border-color: #ea580c !important; }
+
+.hover\:bg-green-50:hover, .hover\:bg-blue-50:hover { background-color: #fff7ed !important; }
+.hover\:bg-green-600:hover, .hover\:bg-green-700:hover,
+.hover\:bg-blue-600:hover, .hover\:bg-blue-700:hover { background-color: #c2410c !important; }
+.hover\:text-green-600:hover, .hover\:text-green-700:hover,
+.hover\:text-blue-600:hover, .hover\:text-blue-700:hover { color: #c2410c !important; }
+
+.from-green-50 { --tw-gradient-from: #fff8ed var(--tw-gradient-from-position) !important; --tw-gradient-to: rgb(255 248 237 / 0) var(--tw-gradient-to-position) !important; }
+.to-green-50 { --tw-gradient-to: #fff8ed var(--tw-gradient-to-position) !important; }
+.from-green-600, .from-blue-600 { --tw-gradient-from: #ea580c var(--tw-gradient-from-position) !important; --tw-gradient-to: rgb(234 88 12 / 0) var(--tw-gradient-to-position) !important; }
+.to-green-600, .to-blue-600, .to-blue-800 { --tw-gradient-to: #f59e0b var(--tw-gradient-to-position) !important; }
+
+.price-slider::-webkit-slider-thumb,
+.price-slider::-moz-range-thumb {
+  border-color: #ea580c;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.28);
+}
+
+.slider-background::before {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}

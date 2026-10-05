@@ -1,98 +1,57 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import WarmPageHero from "@/components/WarmPageHero";
 import AllServicesSection from "@/components/AllServicesSection";
 import WarrantySection from "@/components/WarrantySection";
 
 export default function ServicePage() {
-  const [activeTab, setActiveTab] = useState<"services" | "warranty">(
-    "services"
-  );
+  const [activeTab, setActiveTab] = useState<"services" | "warranty">("services");
 
   return (
-    <main className="min-h-screen">
-      <div className="bg-gray-50">
-        {/* Page Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Dịch Vụ Năng Lượng Mặt Trời
-              </h1>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Minwy Solar cung cấp đầy đủ các dịch vụ từ tư vấn, thiết kế,
-                lắp đặt đến bảo trì hệ thống năng lượng mặt trời. Chúng tôi cam
-                kết mang đến giải pháp tối ưu và dịch vụ chất lượng cao nhất.
-              </p>
-            </div>
-          </div>
-        </div>
+    <main className="min-h-screen bg-[#fffaf0]">
+      <WarmPageHero
+        eyebrow="Dịch vụ trọn quy trình"
+        title="Từ khảo sát mái nhà đến vận hành ổn định nhiều năm"
+        description="Minwy Solar đồng hành xuyên suốt từ khảo sát, thiết kế, chọn thiết bị, thi công đến bảo hành và bảo trì để hệ thống hoạt động an toàn, hiệu quả."
+        image="/images/solar-installation-hero.jpg"
+        primaryLabel="Đăng ký khảo sát"
+        primaryHref="/contact-us"
+        secondaryLabel="Xem sản phẩm"
+        secondaryHref="/product"
+      />
 
-        {/* Service Tabs */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-8" aria-label="Tabs">
-              <button
-                onClick={() => setActiveTab("services")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === "services"
-                    ? "border-green-500 text-green-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Tất cả dịch vụ</span>
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab("warranty")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === "warranty"
-                    ? "border-green-500 text-green-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                  <span>Bảo hành</span>
-                </span>
-              </button>
-            </nav>
-          </div>
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-4">
+          {[
+            ["01", "Khảo sát", "Hiện trạng mái, tải điện, hướng nắng và nhu cầu sử dụng."],
+            ["02", "Thiết kế", "Cấu hình thiết bị và phương án thi công phù hợp công trình."],
+            ["03", "Lắp đặt", "Thi công an toàn, gọn, chú trọng chống thấm và thẩm mỹ."],
+            ["04", "Đồng hành", "Bảo hành, bảo trì và hỗ trợ kỹ thuật sau bàn giao."],
+          ].map(([step, title, detail]) => (
+            <article key={step} className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-sm">
+              <span className="text-sm font-black tracking-[0.22em] text-orange-600">{step}</span>
+              <h2 className="mt-4 text-xl font-bold text-stone-900">{title}</h2>
+              <p className="mt-2 leading-7 text-stone-600">{detail}</p>
+            </article>
+          ))}
         </div>
+      </section>
 
-        {/* Tab Content */}
-        {activeTab === "services" ? (
-          <AllServicesSection />
-        ) : (
-          <WarrantySection />
-        )}
-      </div>
+      <section className="border-y border-orange-100 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <nav className="flex justify-center gap-3 py-5" aria-label="Dịch vụ">
+            <button onClick={() => setActiveTab("services")} className={`rounded-full px-6 py-3 text-sm font-bold transition ${activeTab === "services" ? "bg-orange-600 text-white shadow-lg shadow-orange-100" : "bg-[#fff8ed] text-stone-700 hover:bg-orange-50"}`}>
+              Tất cả dịch vụ
+            </button>
+            <button onClick={() => setActiveTab("warranty")} className={`rounded-full px-6 py-3 text-sm font-bold transition ${activeTab === "warranty" ? "bg-orange-600 text-white shadow-lg shadow-orange-100" : "bg-[#fff8ed] text-stone-700 hover:bg-orange-50"}`}>
+              Bảo hành dài hạn
+            </button>
+          </nav>
+        </div>
+      </section>
+
+      {activeTab === "services" ? <AllServicesSection /> : <WarrantySection />}
     </main>
   );
 }
