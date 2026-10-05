@@ -1,20 +1,18 @@
 import type { MetadataRoute } from "next";
-import { SITE_CONFIG } from "@/utils/constants";
-
-const routes = [
-  { path: "", changeFrequency: "weekly" as const, priority: 1 },
-  { path: "/product", changeFrequency: "weekly" as const, priority: 0.9 },
-  { path: "/service", changeFrequency: "monthly" as const, priority: 0.8 },
-  { path: "/news", changeFrequency: "weekly" as const, priority: 0.7 },
-  { path: "/about-us", changeFrequency: "yearly" as const, priority: 0.6 },
-  { path: "/contact-us", changeFrequency: "yearly" as const, priority: 0.6 },
-];
+import { SITE_CONFIG } from "@/config/site";
+import { PRODUCTS, PROJECTS, SERVICES } from "@/data/solar";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return routes.map((route) => ({
-    url: `${SITE_CONFIG.url}${route.path}`,
-    lastModified: new Date(),
-    changeFrequency: route.changeFrequency,
-    priority: route.priority,
+  const paths = ["","/product","/service","/about-us","/contact-us"];
+  const dynamic = [
+    ...PRODUCTS.map((p) => `/product/${p.slug}`),
+    ...SERVICES.map((s) => `/service/${s.slug}`),
+    ...PROJECTS.map((p) => `/project/${p.slug}`),
+  ];
+  return [...paths,...dynamic].map((path) => ({
+    url:`${SITE_CONFIG.url}${path}`,
+    lastModified:new Date(),
+    changeFrequency:path === "" ? "weekly" as const : "monthly" as const,
+    priority:path === "" ? 1 : 0.8
   }));
 }

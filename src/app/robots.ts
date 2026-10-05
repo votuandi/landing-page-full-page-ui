@@ -1,37 +1,5 @@
-import { MetadataRoute } from "next";
-
+import type { MetadataRoute } from "next";
+import { SITE_CONFIG } from "@/config/site";
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://phanphoisolar.com";
-
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: [
-          "/api/",
-          "/admin/",
-          "/_next/",
-          "/static/",
-        ],
-      },
-      {
-        userAgent: "Googlebot",
-        allow: "/",
-        disallow: [
-          "/api/",
-          "/admin/",
-        ],
-      },
-      {
-        userAgent: "Bingbot",
-        allow: "/",
-        disallow: [
-          "/api/",
-          "/admin/",
-        ],
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-  };
+  return { rules:{ userAgent:"*", allow:"/", disallow:["/api/","/admin/"] }, sitemap:`${SITE_CONFIG.url}/sitemap.xml`, host:SITE_CONFIG.url };
 }

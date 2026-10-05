@@ -1,19 +1,20 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { SERVICES } from "@/data/solar";
+import { makeMetadata } from "@/utils/solar";
 
-import { useState } from "react";
-import WarmPageHero from "@/components/WarmPageHero";
-import AllServicesSection from "@/components/AllServicesSection";
-import WarrantySection from "@/components/WarrantySection";
+export const metadata = makeMetadata(
+  "Giải pháp solar nhà xưởng, gia đình, hybrid & O&M",
+  "Giải pháp điện mặt trời theo từng bài toán: C&I, hộ tiêu thụ cao, hybrid lưu trữ và O&M định kỳ.",
+  "/service",
+  "/images/solar-installation-hero.jpg"
+);
 
 export default function ServicePage() {
-  const [activeTab, setActiveTab] = useState<"services" | "warranty">("services");
-  return (
-    <main className="min-h-screen bg-[#f7f9f6]">
-      <WarmPageHero eyebrow="Dịch vụ kỹ thuật" title="Một đội ngũ xuyên suốt từ khảo sát đến bảo trì" description="Minwy Solar triển khai theo quy trình kỹ thuật rõ ràng để hệ thống an toàn, dễ kiểm soát sản lượng và thuận tiện bảo trì về sau." image="/images/solar-installation-hero.jpg" primaryLabel="Đăng ký khảo sát" primaryHref="/contact-us" secondaryLabel="Xem thiết bị" secondaryHref="/product" />
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"><div className="grid gap-px bg-emerald-950/10 md:grid-cols-4">{[["01","Khảo sát","Mái, tải điện, hướng nắng và điều kiện thi công."],["02","Thiết kế","Cấu hình, sơ đồ và dự toán sản lượng."],["03","Thi công","Lắp đặt gọn, an toàn điện và chống thấm."],["04","Đồng hành","Theo dõi, bảo trì và hỗ trợ sau bàn giao."]].map(([step,title,detail])=><article key={step} className="bg-white p-6"><div className="text-sm font-black text-[#1B5E45]">{step}</div><h2 className="mt-4 text-xl font-black">{title}</h2><p className="mt-2 leading-7 text-slate-600">{detail}</p></article>)}</div></section>
-      <section className="border-y border-emerald-950/10 bg-white"><div className="mx-auto flex max-w-7xl gap-2 px-4 py-4 sm:px-6 lg:px-8"><button onClick={()=>setActiveTab("services")} className={`rounded-xl px-5 py-3 text-sm font-black ${activeTab==="services"?"bg-[#12372A] text-white":"bg-[#eef4ef] text-[#12372A]"}`}>Dịch vụ</button><button onClick={()=>setActiveTab("warranty")} className={`rounded-xl px-5 py-3 text-sm font-black ${activeTab==="warranty"?"bg-[#12372A] text-white":"bg-[#eef4ef] text-[#12372A]"}`}>Bảo hành</button></div></section>
-      {activeTab === "services" ? <AllServicesSection /> : <WarrantySection />}
-      <section className="bg-[#12372A] py-16 text-white"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><h2 className="text-3xl font-black">Hòa lưới, hybrid hay độc lập?</h2><div className="mt-8 overflow-x-auto"><table className="min-w-[720px] w-full border-collapse text-left text-sm"><thead><tr className="border-b border-white/15 text-[#C9E265]"><th className="p-4">Tiêu chí</th><th className="p-4">Hòa lưới</th><th className="p-4">Hybrid</th><th className="p-4">Độc lập</th></tr></thead><tbody className="text-emerald-50/75">{[["Khi mất điện","Dừng hệ thống","Có thể dự phòng","Vẫn hoạt động"],["Pin lưu trữ","Không bắt buộc","Có","Có"],["Chi phí đầu tư","Thấp nhất","Trung bình – cao","Cao"],["Phù hợp","Khu vực lưới ổn định","Cần backup tải quan trọng","Khu vực xa lưới"]].map((row)=><tr key={row[0]} className="border-b border-white/10">{row.map((cell)=><td key={cell} className="p-4">{cell}</td>)}</tr>)}</tbody></table></div></div></section>
-    </main>
-  );
+  return <main>
+    <section className="t5-page-hero"><div className="t5-container"><span className="t5-eyebrow !text-[var(--t5-accent)]">Giải pháp kỹ thuật</span><h1 className="t5-page-title">Không bán một cấu hình cho mọi công trình.</h1><p className="t5-page-desc">Mỗi dịch vụ bắt đầu từ vấn đề vận hành, đi qua dữ liệu và kết thúc bằng đầu ra kỹ thuật rõ ràng.</p></div></section>
+    <section className="t5-section"><div className="t5-container grid gap-5 md:grid-cols-2">
+      {SERVICES.map((service) => <Link key={service.slug} href={`/service/${service.slug}`} className="group grid overflow-hidden border border-slate-200 bg-white sm:grid-cols-[.85fr_1.15fr]"><div className="relative min-h-64 bg-slate-100"><Image src={service.image} alt={service.title} fill className="object-cover transition duration-500 group-hover:scale-[1.03]" /></div><div className="p-6"><div className="text-xs font-black uppercase tracking-[.15em] text-slate-400">{service.audience}</div><h2 className="mt-3 text-2xl font-black text-[var(--t5-primary)]">{service.title}</h2><p className="mt-4 text-sm leading-7 text-slate-600">{service.solution}</p><div className="mt-6 font-black text-[var(--t5-primary)]">{service.price}</div><div className="mt-6 text-sm font-black">Xem quy trình & gói tham khảo →</div></div></Link>)}
+    </div></section>
+  </main>;
 }

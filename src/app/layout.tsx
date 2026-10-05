@@ -1,120 +1,33 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ScrollRevealObserver from "@/components/ScrollRevealObserver";
-import { SITE_CONFIG } from "@/utils/constants";
+import SiteShell from "@/components/SiteShell";
+import { SITE_CONFIG } from "@/config/site";
 
-const inter = Inter({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-inter",
-  display: "swap",
-});
+const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#ea580c",
-};
+export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#071b33" };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_CONFIG.url),
-  title: {
-    default: "Minwy Solar | Giải pháp năng lượng mặt trời",
-    template: "%s | Minwy Solar",
-  },
-  description:
-    "Minwy Solar cung cấp thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp.",
-  icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: "/favicon.svg",
-    apple: "/images/logo.png",
-  },
-  manifest: "/site.webmanifest",
-  keywords: [
-    "năng lượng mặt trời",
-    "điện mặt trời",
-    "tấm pin solar",
-    "biến tần inverter",
-    "pin lưu trữ",
-    "thi công điện mặt trời",
-  ],
-  authors: [{ name: SITE_CONFIG.name }],
-  creator: SITE_CONFIG.name,
-  publisher: SITE_CONFIG.name,
-  alternates: { canonical: "/" },
-  category: "renewable energy",
-  openGraph: {
-    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
-    description:
-      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
-    url: SITE_CONFIG.url,
-    siteName: SITE_CONFIG.name,
-    images: [
-      {
-        url: "/images/solar-panels-hero.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Hệ thống năng lượng mặt trời Minwy Solar",
-      },
-    ],
-    locale: "vi_VN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Minwy Solar | Giải pháp năng lượng mặt trời",
-    description:
-      "Thiết bị và giải pháp điện mặt trời chất lượng cao cho gia đình và doanh nghiệp.",
-    images: ["/images/solar-panels-hero.jpg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
+  metadataBase:new URL(SITE_CONFIG.url),
+  title:{ default:"Minwy Solar | Solar cho doanh nghiệp", template:"%s | Minwy Solar" },
+  description:"Giải pháp điện mặt trời nhà xưởng, hybrid và O&M tập trung vào ROI và hiệu quả vận hành.",
+  icons:{ icon:"/favicon.svg" },
+  robots:{ index:true, follow:true },
 };
 
 const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: SITE_CONFIG.name,
-  url: SITE_CONFIG.url,
-  telephone: SITE_CONFIG.phone,
-  email: SITE_CONFIG.email,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: SITE_CONFIG.address,
-    addressCountry: "VN",
-  },
-  areaServed: "VN",
-  description: SITE_CONFIG.description,
+  "@context":"https://schema.org",
+  "@type":["Organization","LocalBusiness"],
+  name:SITE_CONFIG.brand.name,
+  legalName:SITE_CONFIG.brand.legalName,
+  url:SITE_CONFIG.url,
+  telephone:SITE_CONFIG.contact.phoneRaw,
+  email:SITE_CONFIG.contact.email,
+  address:{ "@type":"PostalAddress", streetAddress:SITE_CONFIG.contact.address, addressCountry:"VN" },
+  areaServed:"VN",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="vi" className={inter.variable}>
-      <body className="bg-white font-sans text-slate-900 antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <ScrollRevealObserver />
-        <Header />
-        {children}
-        <Footer />
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
+  return <html lang="vi" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell>{children}</SiteShell></body></html>;
 }
