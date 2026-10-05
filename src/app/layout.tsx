@@ -6,7 +6,7 @@ import { SITE_CONFIG } from "@/config/site";
 
 const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
 
-export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#071b33" };
+export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#0d3b78" };
 
 export const metadata: Metadata = {
   metadataBase:new URL(SITE_CONFIG.url),

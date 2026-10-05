@@ -19,7 +19,7 @@ export default function LeadForm({ source = "website", compact = false, defaultM
   }
 
   if (status === "success") {
-    return <div className="rounded-sm border border-emerald-200 bg-emerald-50 p-6"><div className="text-lg font-black text-emerald-900">Đã nhận thông tin của bạn.</div><p className="mt-2 text-sm leading-6 text-emerald-800">Bộ phận dự án sẽ liên hệ theo thông tin bạn đã cung cấp.</p></div>;
+    return <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6"><div className="text-lg font-black text-emerald-900">Đã nhận thông tin của bạn.</div><p className="mt-2 text-sm leading-6 text-emerald-800">Bộ phận dự án sẽ liên hệ theo thông tin bạn đã cung cấp.</p></div>;
   }
 
   return (
