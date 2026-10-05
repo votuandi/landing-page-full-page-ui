@@ -31,7 +31,6 @@ jobs:
       JWT_SECRET: build-validation-secret
       CRON_SECRET: build-validation-secret
       BASE_URL: http://localhost:3000
-      NODE_ENV: production
 
     steps:
       - name: Checkout
