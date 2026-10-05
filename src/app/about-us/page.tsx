@@ -5,6 +5,8 @@ import CompletedProjectsSection from "@/components/CompletedProjectsSection";
 import { getCachedCompanyInfo } from "@/lib/cachedCompany";
 import WarmPageHero from "@/components/WarmPageHero";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const companyInfo = await getCachedCompanyInfo();
 
