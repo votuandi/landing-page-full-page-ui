@@ -20,11 +20,7 @@ async function getMainOfficeUncached() {
       where: { isMainOffice: true },
       take: 1,
     });
-    let mainOffice = offices[0] ?? null;
-    if (!mainOffice) {
-      mainOffice = await prisma.office.findFirst();
-    }
-    return mainOffice;
+    return offices[0] ?? (await prisma.office.findFirst());
   } catch (error) {
     console.error("Error fetching office for LocalBusiness schema:", error);
     return null;
