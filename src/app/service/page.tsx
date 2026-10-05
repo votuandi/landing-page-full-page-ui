@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import AllServicesSection from "@/components/AllServicesSection";
-import WarrantySection from "@/components/WarrantySection";
 import { prisma } from "@/lib/prisma";
 import ServicePageClient from "@/components/ServicePageClient";
 import { Service } from "@/types";
