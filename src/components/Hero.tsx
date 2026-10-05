@@ -1,61 +1,46 @@
-"use client";
-
-import { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import ScrollAnimationWrapper from "./ScrollAnimationWrapper";
 import StaggeredScrollAnimation from "./StaggeredScrollAnimation";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { fetchHeroContent } from "@/lib/features/introduction/introductionSlice";
+import { STATISTICS } from "@/utils/constants";
 
 export default function Hero() {
-  const dispatch = useAppDispatch();
-  const { data: heroContent, loading } = useAppSelector((state) => state.introduction);
-
-  useEffect(() => {
-    dispatch(fetchHeroContent());
-  }, [dispatch]);
-
-  if (loading) {
-    return (
-      <section className="bg-[#fffaf0] py-24">
-        <div className="mx-auto flex max-w-7xl justify-center px-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-orange-100 border-t-orange-600" />
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="relative overflow-hidden bg-[#fffaf0] py-20 md:py-28">
-      <div className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl" />
-      <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-orange-200/40 blur-3xl" />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr]">
-          <div>
-            <ScrollAnimationWrapper animation="fade-in-up" duration={800}>
-              <span className="inline-flex rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] text-orange-700">
-                Năng lượng sạch cho tương lai
-              </span>
-              <h1 className="mt-6 text-4xl font-black leading-[1.06] tracking-tight text-stone-900 md:text-6xl">
-                {heroContent.title}
+    <section className="relative overflow-hidden bg-gradient-to-br from-green-50 via-white to-yellow-50 py-16 md:py-24">
+      <div className="container relative z-10 mx-auto px-4">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+          <div className="text-center lg:text-left">
+            <ScrollAnimationWrapper animation="fall-down" delay={120}>
+              <p className="mb-4 inline-flex rounded-full bg-yellow-100 px-4 py-2 text-sm font-semibold text-yellow-900">
+                Năng lượng sạch • Hiệu quả bền vững
+              </p>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+                Giải pháp{" "}
+                <span className="bg-gradient-to-r from-primary-700 to-solar-yellow bg-clip-text text-transparent">
+                  năng lượng mặt trời
+                </span>{" "}
+                cho mọi công trình
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-600 md:text-xl">
-                {heroContent.description}
+            </ScrollAnimationWrapper>
+
+            <ScrollAnimationWrapper animation="fade-in-up" delay={240}>
+              <p className="mb-8 text-lg leading-relaxed text-slate-600 md:text-xl">
+                Tư vấn, cung cấp thiết bị và thi công hệ thống điện mặt trời cho
+                gia đình và doanh nghiệp, tối ưu hiệu suất và chi phí vận hành.
               </p>
             </ScrollAnimationWrapper>
 
-            <ScrollAnimationWrapper animation="fade-in-up" delay={160} duration={800}>
-              <div className="mt-8 flex flex-wrap gap-3">
+            <ScrollAnimationWrapper animation="fade-in-up" delay={320}>
+              <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                 <Link
                   href="/contact-us"
-                  className="rounded-full bg-orange-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-orange-700"
+                  className="rounded-lg bg-primary-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-primary-700"
                 >
                   Tư vấn miễn phí
                 </Link>
                 <Link
                   href="/product"
-                  className="rounded-full border border-orange-200 bg-white px-7 py-3.5 font-bold text-stone-800 transition hover:-translate-y-0.5 hover:bg-orange-50"
+                  className="rounded-lg border-2 border-primary-600 px-8 py-4 text-lg font-semibold text-primary-700 transition hover:bg-green-50"
                 >
                   Xem sản phẩm
                 </Link>
@@ -64,49 +49,36 @@ export default function Hero() {
 
             <StaggeredScrollAnimation
               animation="fade-in-up"
-              staggerDelay={120}
-              className="mt-12 grid grid-cols-3 gap-3"
+              staggerDelay={100}
+              className="mt-12 grid grid-cols-3 gap-4"
             >
-              {[
-                [heroContent.stat1Value, heroContent.stat1Label],
-                [heroContent.stat2Value, heroContent.stat2Label],
-                [heroContent.stat3Value, heroContent.stat3Label],
-              ].map(([value, label]) => (
-                <div key={label} className="rounded-3xl border border-orange-100 bg-white/80 p-4 text-center shadow-sm backdrop-blur">
-                  <div className="text-2xl font-black text-orange-600 md:text-3xl">{value}</div>
-                  <div className="mt-1 text-xs font-semibold text-stone-500 md:text-sm">{label}</div>
+              {STATISTICS.map((item) => (
+                <div key={item.label} className="text-center">
+                  <div className="mb-1 text-3xl font-bold text-primary-700">
+                    {item.value}
+                  </div>
+                  <div className="text-sm text-slate-600 md:text-base">{item.label}</div>
                 </div>
               ))}
             </StaggeredScrollAnimation>
           </div>
 
-          <ScrollAnimationWrapper animation="zoom-in" duration={1000}>
-            <div className="relative">
-              <div className="absolute -left-6 -top-6 h-full w-full rounded-[2rem] border border-orange-200" />
-              <div className="relative overflow-hidden rounded-[2rem] border-8 border-white bg-white shadow-2xl shadow-orange-950/10">
-                <div className="relative aspect-[5/4] overflow-hidden bg-stone-900">
-                  <video
-                    className="absolute inset-0 h-full w-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  >
-                    <source src={heroContent.videoUrl} type="video/mp4" />
-                  </video>
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-7 text-white">
-                    <div className="text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                      Thiết kế • Lắp đặt • Bảo hành
-                    </div>
-                    <h2 className="mt-2 text-2xl font-bold">Một hệ thống được tính cho nhiều năm vận hành</h2>
-                  </div>
+          <ScrollAnimationWrapper animation="zoom-in" delay={200}>
+            <div className="relative overflow-hidden rounded-3xl border border-green-100 bg-white p-3 shadow-2xl">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+                <Image
+                  src="/images/solar-installation-hero.jpg"
+                  alt="Hệ thống điện mặt trời được thi công bởi Minwy Solar"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-green-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <p className="text-sm font-medium text-yellow-300">Giải pháp trọn gói</p>
+                  <h2 className="mt-1 text-2xl font-bold">Thiết kế • Thi công • Bảo trì</h2>
                 </div>
-              </div>
-
-              <div className="absolute -bottom-6 -right-2 max-w-[260px] rounded-3xl bg-amber-300 p-5 text-stone-900 shadow-xl md:-right-6">
-                <div className="font-black">{heroContent.feature1Title}</div>
-                <p className="mt-1 text-sm leading-6 text-stone-700">{heroContent.feature1Description}</p>
               </div>
             </div>
           </ScrollAnimationWrapper>
