@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockClosedIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useAppSelector } from "@/lib/hooks";
 
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get("redirect") || "/admin";
@@ -184,5 +184,20 @@ export default function LoginPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+
+export default function LoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-200 border-t-orange-600" />
+                </div>
+            }
+        >
+            <LoginPageContent />
+        </Suspense>
     );
 }
