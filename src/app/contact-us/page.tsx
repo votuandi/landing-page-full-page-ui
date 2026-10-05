@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import ContactUsContent from "@/components/ContactUsContent";
 import { getCachedCompanyInfo, getCachedMainOffice } from "@/lib/cachedCompany";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const [companyInfo, mainOffice] = await Promise.all([
     getCachedCompanyInfo(),
