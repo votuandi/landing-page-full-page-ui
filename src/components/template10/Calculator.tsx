@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   CALCULATOR,
   COPY,
@@ -15,21 +15,18 @@ import { SectionTitle } from "./Sections";
 export default function Calculator({ fixed }: { fixed?: Segment }) {
   const { segment, select } = useSegment();
   const current = segment ?? fixed ?? "factory";
-  const [mode, setMode] = useState<"bill" | "roof">("bill"),
-    [region, setRegion] = useState<Region>("south"),
-    [value, setValue] = useState(
-      String(CALCULATOR.segments[current].defaultBill),
+  const [mode, setMode] = useState<"bill" | "roof">("bill");
+  const [region, setRegion] = useState<Region>("south");
+  const [values, setValues] = useState<Record<string, string>>({});
+  const key = `${current}-${mode}`;
+  const value =
+    values[key] ??
+    String(
+      mode === "bill"
+        ? CALCULATOR.segments[current].defaultBill
+        : CALCULATOR.segments[current].defaultRoof,
     );
   const t = COPY.calculator;
-  useEffect(() => {
-    setValue(
-      String(
-        mode === "bill"
-          ? CALCULATOR.segments[current].defaultBill
-          : CALCULATOR.segments[current].defaultRoof,
-      ),
-    );
-  }, [current, mode]);
   const input = { segment: current, region, mode, value: Number(value) };
   const result = estimateSolar(input),
     s = CALCULATOR.segments[current],
@@ -87,7 +84,12 @@ export default function Calculator({ fixed }: { fixed?: Segment }) {
                 max={limit.max}
                 step="any"
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) =>
+                  setValues((previous) => ({
+                    ...previous,
+                    [key]: e.target.value,
+                  }))
+                }
                 className="t5-input"
                 aria-describedby="estimate-range"
                 aria-invalid={!result}

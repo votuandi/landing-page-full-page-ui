@@ -220,7 +220,7 @@ export function Finance() {
                   ["investment", "ownership", "advantage", "suitable"] as const
                 ).map((k) => (
                   <div key={k}>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <dt className="text-xs font-bold uppercase tracking-wider text-slate-600">
                       {COPY.financeLabels[k]}
                     </dt>
                     <dd className="mt-1 text-sm leading-7 text-slate-800">
@@ -298,13 +298,27 @@ export function Partners() {
               className="flex min-h-24 items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white px-3"
               key={p.id}
             >
-              <span className="text-xl text-slate-500" aria-hidden="true">
-                ◇
-              </span>
-              <div>
-                <p className="text-sm font-bold text-slate-600">{p.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{p.category}</p>
-              </div>
+              {p.logo ? (
+                <Image
+                  src={p.logo}
+                  alt={p.label}
+                  width={160}
+                  height={64}
+                  className="h-16 object-contain"
+                />
+              ) : (
+                <>
+                  <span className="text-xl text-slate-600" aria-hidden="true">
+                    ◇
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-600">
+                      {p.label}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-600">{p.category}</p>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -358,7 +372,9 @@ export function Monitoring() {
     <section className="t5-section bg-[var(--t8-ink)] text-white">
       <div className="t5-container grid items-center gap-10 lg:grid-cols-[.8fr_1.2fr]">
         <div>
-          <p className="t5-eyebrow">{DASHBOARD.eyebrow}</p>
+          <p className="t5-eyebrow !bg-amber-100 !text-amber-950">
+            {DASHBOARD.eyebrow}
+          </p>
           <h2 className="mt-6 text-4xl font-black leading-tight tracking-tight">
             {DASHBOARD.title}
           </h2>

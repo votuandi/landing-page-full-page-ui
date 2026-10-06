@@ -84,7 +84,7 @@ export default function Hero({ fixed }: { fixed?: Segment }) {
               sizes="(min-width:1024px) 570px, 95vw"
               className="object-cover"
             />
-            <span className="absolute right-6 top-8 rounded-full bg-white/95 px-3 py-2 text-xs font-bold">
+            <span className="absolute left-1/2 top-8 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-3 py-2 text-xs font-bold">
               {COPY.imageNote}
             </span>
           </div>

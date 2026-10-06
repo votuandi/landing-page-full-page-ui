@@ -18,7 +18,7 @@ Tất cả ảnh đang hiển thị được tạo mới bằng OpenAI imagegen 
 
 Các ảnh công trình/thiết bị được chuyển WebP (quality 79), cạnh dài không vượt 1600 px; avatar 240 × 240 px. Toàn bộ file nằm trong repo. `next/image` tạo các kích thước responsive, lazy-load mọi ảnh dưới màn hình đầu; ảnh hero được ưu tiên tải. Alt tiếng Việt nằm trong `src/content/site.ts`.
 
-11 logo ở `public/images/clients/` là SVG tự tạo bằng chữ + hình đơn giản và màu riêng qua `scripts/generate-client-logos.cjs`; không sao chép nhận diện thương hiệu thật. Tên chỉ dùng làm tên hư cấu trong kịch bản này, không xác nhận một doanh nghiệp cùng tên ngoài đời là khách hàng. Logo công ty và favicon kế thừa template-8, cần thay nhận diện của bên mua.
+11 logo ở `public/images/clients/` là SVG tự tạo bằng chữ + hình đơn giản và màu riêng qua `scripts/generate-client-logos.cjs`; không sao chép nhận diện thương hiệu thật. Tên chỉ dùng làm tên hư cấu trong kịch bản này, không xác nhận một doanh nghiệp cùng tên ngoài đời là khách hàng. Biểu tượng công ty `public/brand-mark.svg` tự vẽ bằng SVG, giữ màu xanh/vàng của template-8; favicon kế thừa template-8. Cần thay nhận diện của bên mua.
 
 ## Prompt nguồn
 

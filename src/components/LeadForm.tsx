@@ -62,7 +62,7 @@ export default function LeadForm({
             type="tel"
             autoComplete="tel"
             required
-            pattern="[+0-9() .\-]{9,20}"
+            pattern="[+0-9\(\) .\-]{9,20}"
             maxLength={20}
             placeholder={t.phonePlaceholder}
           />

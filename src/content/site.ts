@@ -9,7 +9,7 @@ export const SITE_CONFIG = {
     legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
     tagline: "Giảm chi phí điện. Tăng hiệu quả vận hành.",
     logoText: "MW",
-    logo: "/logo.svg",
+    logo: "/brand-mark.svg",
     favicon: "/favicon.svg",
   },
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-10.minwysoft.com",
@@ -600,6 +600,7 @@ export const CLIENTS = [
 export const PARTNERS = Array.from({ length: 8 }, (_, index) => ({
   id: `partner-${index}`,
   label: "Logo đối tác",
+  logo: "", // Điền đường dẫn logo thật có quyền sử dụng.
   category: index < 5 ? "Thiết bị" : "Tài chính",
   isDemo: true,
 }));
