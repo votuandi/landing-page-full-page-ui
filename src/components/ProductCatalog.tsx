@@ -58,7 +58,7 @@ export default function ProductCatalog() {
           <aside className="hidden border-r border-slate-200 pr-6 lg:block"><Filters /></aside>
           <div>
             <div className="mb-5 text-sm text-slate-500"><strong className="text-slate-900">{list.length}</strong> thiết bị phù hợp</div>
-            {list.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{list.map((p) => <article key={p.slug} className="group flex h-full flex-col border border-slate-200 bg-white">
+            {list.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{list.map((p) => <article key={p.slug} className="rounded-[28px] overflow-hidden group flex h-full flex-col border border-slate-200 bg-white/80 backdrop-blur">
               <Link href={`/product/${p.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-slate-100"><Image src={p.image} alt={`${p.brand} ${p.name}`} fill className="object-cover transition duration-500 group-hover:scale-[1.03]" /></Link>
               <div className="flex flex-1 flex-col p-5"><div className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{p.brand}</div><Link href={`/product/${p.slug}`}><h3 className="mt-2 text-lg font-black leading-snug text-[var(--t5-primary)]">{p.name}</h3></Link>
               <dl className="mt-4 grid gap-2 text-sm">{Object.entries(p.specs).slice(0,3).map(([k,v]) => <div key={k} className="flex justify-between gap-4 border-b border-slate-100 pb-2"><dt className="text-slate-500">{k}</dt><dd className="text-right font-bold text-slate-800">{v}</dd></div>)}</dl>

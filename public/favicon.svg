@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Minwy Solar">
-  <rect width="64" height="64" rx="14" fill="#071b33"/>
-  <circle cx="46" cy="17" r="8" fill="#f5b927"/>
-  <path d="M9 43h46l-7 12H16z" fill="#ffffff"/>
-  <path d="M17 43 24 24h24l8 19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
-  <path d="M22 37h29M28 25l-4 18M40 25l4 18" stroke="#f5b927" stroke-width="2"/>
+  <circle cx="32" cy="32" r="32" fill="#071b33"/>
+  <circle cx="34" cy="24" r="10" fill="#f5b927"/>
+  <path d="M34 7v3M49 10l-3 3M54 24h-3M19 10l3 3M14 24h3" stroke="#f5b927" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M14 45l11-11 8 6 18-17M42 23h9v9" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 54h37" stroke="#f5b927" stroke-width="2" stroke-linecap="round"/>
 </svg>

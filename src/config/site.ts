@@ -1,6 +1,6 @@
 export const SITE_CONFIG = {
   brand: { name: "Minwy Solar", legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]", tagline: "Kỹ thuật điện mặt trời công nghiệp. Hiệu suất năng lượng có thể đo lường.", logoText: "MW" },
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-6.minwysoft.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-9.minwysoft.com",
   contact: {
     phone: "0901 234 567", phoneRaw: "0901234567", zalo: "https://zalo.me/0901234567",
     email: "duan@minwysolar.example", address: "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",

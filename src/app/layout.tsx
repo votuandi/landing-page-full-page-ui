@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   metadataBase:new URL(SITE_CONFIG.url),
   title:{ default:"Minwy Solar | Kỹ thuật điện mặt trời công nghiệp", template:"%s | Minwy Solar" },
   description:"Giải pháp điện mặt trời công nghiệp theo hướng ưu tiên kỹ thuật: phân tích phụ tải, thiết kế sơ đồ một sợi, giám sát vận hành và hồ sơ tài chính.",
-  icons:{ icon:"/favicon.svg" },
+  icons:{
+    icon:[{ url:"/favicon.svg?v=9", type:"image/svg+xml" }, { url:"/favicon.ico?v=9", sizes:"any" }],
+    shortcut:"/favicon.ico?v=9",
+    apple:{ url:"/apple-touch-icon.png?v=9", sizes:"180x180", type:"image/png" },
+  },
   robots:{ index:true, follow:true },
 };
 

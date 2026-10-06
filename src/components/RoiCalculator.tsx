@@ -35,13 +35,13 @@ export default function RoiCalculator() {
   return (
     <section id="roi" className="t5-section bg-slate-50">
       <div className="t5-container">
-        <div className="max-w-3xl">
+        <div data-reveal="down" className="max-w-3xl">
           <span className="t5-eyebrow">Ước tính đầu tư</span>
           <h2 className="t5-heading">Biết quy mô và thời gian hoàn vốn trước khi khảo sát.</h2>
           <p className="t5-subheading">Kết quả là ước tính sơ bộ từ cùng bộ tham số cấu hình của website. Hồ sơ đầu tư chính thức cần dữ liệu phụ tải, mái và báo giá thực tế.</p>
         </div>
         <div className="mt-10 grid gap-8 lg:grid-cols-[.9fr_1.1fr]">
-          <div className="border border-slate-200 bg-white p-6 md:p-8">
+          <div data-reveal="left" className="t8-card p-6 md:p-8">
             <div className="grid gap-5">
               <label className="t5-label">Loại khách hàng
                 <select value={customerType} onChange={(e) => setCustomerType(e.target.value as CustomerType)} className="t5-input">
@@ -65,14 +65,14 @@ export default function RoiCalculator() {
               </label>
             </div>
           </div>
-          <div className="bg-[var(--t5-primary)] p-6 text-white md:p-8">
-            <div className="grid gap-px bg-white/15 sm:grid-cols-2">
+          <div data-reveal="right" className="overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[#26364a] p-6 text-white shadow-xl md:p-8">
+            <div className="grid gap-3 sm:grid-cols-2">
               {[
                 ["Công suất đề xuất", `${result.kwp.toFixed(1)} kWp`],
                 ["Vốn đầu tư ước tính", formatMoney(result.investment)],
                 ["Tiết kiệm tháng đầu", formatMoney(result.monthlySaving)],
                 ["Hoàn vốn ước tính", `${result.paybackYears.toFixed(1).replace(".", ",")} năm`],
-              ].map(([label,value]) => <div key={label} className="bg-[var(--t5-primary)] p-5"><div className="text-xs font-bold uppercase tracking-[.14em] text-white/55">{label}</div><div className="mt-2 text-2xl font-black text-[var(--t5-accent)]">{value}</div></div>)}
+              ].map(([label,value]) => <div key={label} className="t8-glass-dark rounded-2xl p-5"><div className="text-xs font-bold uppercase tracking-[.14em] text-white/55">{label}</div><div className="mt-2 text-2xl font-black text-[var(--t5-accent)]">{value}</div></div>)}
             </div>
             <div className="mt-7">
               <div className="mb-3 flex items-center justify-between"><strong>Tiết kiệm lũy kế 25 năm</strong><span className="text-xs text-white/55">ước tính</span></div>
@@ -85,7 +85,7 @@ export default function RoiCalculator() {
             </div>
             <div className="mt-6 border-t border-white/15 pt-6">
               <label className="text-sm font-bold">Nhận bản tính chi tiết qua Zalo</label>
-              <div className="mt-2 flex gap-2"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-slate-900 outline-none" placeholder="Số điện thoại" /><button type="button" onClick={requestDetail} className="bg-[var(--t5-accent)] px-4 py-3 text-sm font-black text-[var(--t5-primary)]">Nhận bản tính</button></div>
+              <div className="mt-2 flex gap-2"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="min-w-0 flex-1 rounded-full bg-white/95 px-4 py-3 text-sm text-slate-900 outline-none" placeholder="Số điện thoại" /><button type="button" onClick={requestDetail} className="rounded-full bg-[var(--t5-accent)] px-4 py-3 text-sm font-black text-[var(--t5-primary)]">Nhận bản tính</button></div>
               {sent && <p className="mt-2 text-sm font-bold text-emerald-300">Đã ghi nhận yêu cầu của bạn.</p>}
             </div>
           </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Bars3Icon, XMarkIcon, PhoneIcon, SwatchIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS } from "@/config/site";
+import SectionReveal from "@/components/SectionReveal";
 import { PRODUCTS } from "@/data/solar";
 
 type RfqContextValue = {
@@ -59,6 +60,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <RfqContext.Provider value={ctx}>
+      <SectionReveal />
       {demoVisible && (
         <div className="t5-demo-bar">
           <div className="t5-container flex min-h-11 items-center justify-between gap-3 py-2 text-xs sm:text-sm">
@@ -104,10 +106,10 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
       {children}
 
-      <footer className="bg-[var(--t5-primary)] text-white">
+      <footer className="bg-gradient-to-br from-[var(--t8-ink)] to-[var(--t5-primary)] text-white">
         <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="inline-flex rounded-sm bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
+            <div className="inline-flex rounded-2xl bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
             <p className="mt-5 text-sm leading-7 text-white/70">{SITE_CONFIG.brand.tagline}</p>
             <p className="mt-5 text-xs leading-6 text-white/55">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
           </div>
@@ -145,12 +147,12 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="fixed right-4 top-[45%] z-50 hidden lg:block">
           <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện"><SwatchIcon className="h-5 w-5" /></button>
           {themeOpen && (
-            <div className="absolute right-14 top-0 w-72 rounded-sm border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="absolute right-14 top-0 w-72 rounded-3xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl">
               <div className="text-sm font-black text-slate-900">Thử nhận diện thương hiệu</div>
               <label className="mt-4 block text-xs font-bold text-slate-500">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
               <div className="mt-4 text-xs font-bold text-slate-500">Màu chủ đạo</div>
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-sm border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
+                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
               </div>
               <button type="button" onClick={toggleDark} className="mt-4 w-full t5-button t5-button-secondary">Bật / tắt nền tối</button>
             </div>
@@ -158,18 +160,18 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-sm border border-slate-200 bg-white p-2 shadow-2xl lg:hidden">
+      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-full border border-white/70 bg-white/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
         <a className="t5-mobile-cta" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
         <a className="t5-mobile-cta" href={SITE_CONFIG.contact.zalo}>Zalo</a>
         <button type="button" className="t5-mobile-cta" onClick={() => setRfqOpen(true)}>Báo giá {items.length ? `(${items.length})` : ""}</button>
       </div>
 
       {rfqOpen && (
-        <div className="fixed inset-0 z-[70] flex justify-end bg-slate-950/50" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
+        <div className="fixed inset-0 z-[70] flex justify-end bg-slate-950/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
           <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
-          <aside className="relative h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl">
+          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-white/95 p-6 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">Yêu cầu báo giá</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong danh mục để gửi một yêu cầu báo giá chung.</p>}
+            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong danh mục để gửi một yêu cầu báo giá chung.</p>}
             <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem danh mục thiết bị"}</Link>
           </aside>
         </div>
