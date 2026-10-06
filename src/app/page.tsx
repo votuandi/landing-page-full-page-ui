@@ -1,10 +1,11 @@
 import { FAQS } from "@/data/solar";
 import HomeT8 from "@/components/HomeT8";
 import { makeMetadata } from "@/utils/solar";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata = makeMetadata(
-  "Minwy Solar | Điện mặt trời cho nhà máy, cửa hàng & gia đình",
-  "Giải pháp điện mặt trời tiết kiệm điện cho nhà máy, cửa hàng và hộ gia đình, kèm ứng dụng theo dõi điện năng 24/7.",
+  `${SITE_CONFIG.brand.name} | Điện mặt trời cho gia đình, cửa hàng & nhà xưởng`,
+  "Dự toán chi phí lắp điện mặt trời miễn phí trong 30 giây. Gói giải pháp cho hộ gia đình, cửa hàng và nhà xưởng, trả góp hoặc lắp đặt 0 đồng.",
   "/"
 );
 

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { billFromKwh, calculateSolar, estimateSavingForKwp, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
 import { TARIFFS } from "../../config/solar";
 import { isVnMobile, normalizeVnPhone } from "../phone";
+import { resolvePrice } from "../price";
 
 const close = (actual: number, expected: number, tolerance = 0.01) =>
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} ≉ ${expected}`);
@@ -81,4 +82,12 @@ test("số di động Việt Nam", () => {
 test("tiết kiệm của gói 5 kWp hộ gia đình tại TP HCM", () => {
   // 5 × 4,6 × 30 × 0,8 = 552 kWh × 3.460 đ × 1,08
   close(estimateSavingForKwp("household", 5, "TP Hồ Chí Minh"), 552 * 3460 * 1.08, 1);
+});
+
+test("salePrice chỉ hiển thị khi nhỏ hơn price", () => {
+  assert.deepEqual(resolvePrice(100, 90), { current: 90, original: 100 });
+  assert.deepEqual(resolvePrice(100, 120), { current: 100, original: undefined });
+  assert.deepEqual(resolvePrice(100, 100), { current: 100, original: undefined });
+  assert.deepEqual(resolvePrice(100), { current: 100, original: undefined });
+  assert.deepEqual(resolvePrice(undefined, 50), { current: undefined, original: undefined });
 });

@@ -7,7 +7,10 @@ import { SITE_CONFIG } from "@/config/site";
 import { SEGMENTS, SEGMENT_ORDER, type Segment } from "@/config/solar";
 import { STORIES, STORY_TYPE_LABELS, TOTAL_CHANNEL_VIDEOS, type Story } from "@/data/stories";
 import { FacebookIcon, TikTokIcon, YouTubeIcon } from "@/components/BrandIcons";
-import StoryPlayer from "@/components/StoryPlayer";
+import dynamic from "next/dynamic";
+
+// Trình phát chỉ được tải khi người dùng mở video
+const StoryPlayer = dynamic(() => import("@/components/StoryPlayer"), { ssr: false });
 
 const socials = SITE_CONFIG.socials;
 const SOCIAL_BUTTONS = [

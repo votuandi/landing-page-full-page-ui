@@ -27,11 +27,11 @@ export default function HeroT8() {
 
       <div className="t5-container grid items-center gap-10 pb-14 pt-12 lg:grid-cols-[1fr_1.02fr] lg:gap-6 lg:py-10">
         <div className="relative z-10">
-          <div data-reveal="down" className="inline-flex items-center gap-2 rounded-full border border-glass-border bg-glass py-1.5 pl-1.5 pr-4 text-xs font-bold text-fg-muted shadow-sm backdrop-blur">
+          <div data-hero="down" className="inline-flex items-center gap-2 rounded-full border border-glass-border bg-glass py-1.5 pl-1.5 pr-4 text-xs font-bold text-fg-muted shadow-sm backdrop-blur">
             <span className="grid h-6 w-6 place-items-center rounded-full bg-accent text-on-accent"><SunIcon className="h-4 w-4" /></span>
             Điện mặt trời cho nhà máy • cửa hàng • gia đình
           </div>
-          <h1 data-reveal="left" style={delay(0.1)} className="mt-6 max-w-2xl text-[2.6rem] font-black leading-[1.05] tracking-[-.045em] text-fg sm:text-6xl lg:text-[3.8rem]">
+          <h1 data-hero="left" style={delay(0.1)} className="mt-6 max-w-2xl text-[2.6rem] font-black leading-[1.05] tracking-[-.045em] text-fg sm:text-6xl lg:text-[3.8rem]">
             Cùng biến nắng thành{" "}
             <span className="relative whitespace-nowrap text-primary">
               dòng tiền
@@ -39,16 +39,16 @@ export default function HeroT8() {
             </span>{" "}
             cho công trình của bạn
           </h1>
-          <p data-reveal="left" style={delay(0.22)} className="mt-7 max-w-xl text-base leading-8 text-fg-muted sm:text-lg">
+          <p data-hero="left" style={delay(0.22)} className="mt-7 max-w-xl text-base leading-8 text-fg-muted sm:text-lg">
             Thiết kế hệ solar theo đúng phụ tải, theo dõi điện năng 24/7 trên điện thoại và tối ưu hóa đơn từ tháng đầu tiên vận hành.
           </p>
-          <div data-reveal="up" style={delay(0.34)} className="mt-9 flex flex-wrap gap-3">
+          <div data-hero="up" style={delay(0.34)} className="mt-9 flex flex-wrap gap-3">
             <a href="#du-toan" className="t5-button bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(var(--c-accent)/.7)] hover:brightness-110">Dự toán chi phí <ArrowRightIcon className="h-4 w-4" /></a>
             <Link href="/lien-he" className="t5-button border border-line/20 bg-glass text-fg backdrop-blur hover:bg-glass-tint/10">Đặt lịch khảo sát</Link>
           </div>
-          <dl data-reveal-stagger="up" data-reveal-step="0.12" className="mt-12 grid max-w-lg grid-cols-3 gap-4 sm:mt-16">
-            {stats.map(([value, unit, label]) => (
-              <div key={label}>
+          <dl className="mt-12 grid max-w-lg grid-cols-3 gap-4 sm:mt-16">
+            {stats.map(([value, unit, label], i) => (
+              <div key={label} data-hero="up" style={delay(0.46 + i * 0.12)}>
                 <dt className="sr-only">{label}</dt>
                 <dd className="text-2xl font-black tracking-tight text-fg sm:text-4xl">{value}<span className="ml-1 text-xs font-bold text-fg-subtle sm:text-base">{unit}</span></dd>
                 <dd className="mt-1 text-xs font-semibold text-fg-muted sm:text-sm">{label}</dd>
@@ -67,7 +67,7 @@ export default function HeroT8() {
           ))}
 
           {/* Arch photo */}
-          <div data-reveal="up" style={delay(0.15)} className="absolute bottom-0 left-[12%] h-[90%] w-[60%] overflow-hidden rounded-b-[36px] rounded-t-full border-[6px] border-glass-tint/15 bg-bg-tint shadow-[0_40px_80px_-30px_rgb(var(--c-shadow)/.55)]">
+          <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[12%] h-[90%] w-[60%] overflow-hidden rounded-b-[36px] rounded-t-full border-[6px] border-glass-tint/15 bg-bg-tint shadow-[0_40px_80px_-30px_rgb(var(--c-shadow)/.55)]">
             <Image src="/images/services/service_1772895565903.webp" alt="Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" fill priority className="object-cover object-[72%_center]" sizes="(max-width:1024px) 70vw, 360px" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/55 via-transparent to-glass-tint/10" />
           </div>

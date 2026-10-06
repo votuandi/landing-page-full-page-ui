@@ -1,10 +1,8 @@
-"use client";
-
 import Image from "next/image";
 import { delay } from "@/utils/reveal";
 import { ArrowRightIcon, BuildingOffice2Icon, BuildingStorefrontIcon, HomeModernIcon } from "@heroicons/react/24/outline";
 import type { Segment } from "@/config/solar";
-import { openPackages } from "@/lib/calculatorBus";
+import OpenPackagesButton from "@/components/OpenPackagesButton";
 
 /** Số liệu tham khảo hiển thị trên thẻ. [CẦN XÁC MINH] theo dữ liệu công trình thực tế của công ty. */
 const segments: { id: Segment; no: string; Icon: typeof HomeModernIcon; tag: string; image: string; alt: string; saving: string }[] = [
@@ -26,7 +24,7 @@ export default function SavingsBySegment() {
         </div>
         <div data-reveal-stagger="up" data-reveal-step="0.15" className="mt-12 grid gap-5 md:grid-cols-3">
           {segments.map(({ id, no, tag, Icon, image, alt, saving }) => (
-            <button key={id} type="button" onClick={() => openPackages(id)} className="group relative block overflow-hidden rounded-[32px] border-[5px] border-glass-border text-left shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.55)] transition hover:-translate-y-1.5">
+            <OpenPackagesButton key={id} segment={id} className="group relative block overflow-hidden rounded-[32px] border-[5px] border-glass-border text-left shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.55)] transition hover:-translate-y-1.5">
               <div className="relative aspect-[4/3] md:aspect-[3/4] lg:aspect-[10/9]">
                 <Image src={image} alt={alt} fill loading="lazy" className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:768px) 100vw, 33vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-scrim/85 via-scrim/15 to-transparent" />
@@ -40,7 +38,7 @@ export default function SavingsBySegment() {
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-accent text-on-accent transition group-hover:translate-x-1"><ArrowRightIcon className="h-4 w-4" /></span>
                 </div>
               </div>
-            </button>
+            </OpenPackagesButton>
           ))}
         </div>
       </div>
