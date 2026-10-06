@@ -39,3 +39,6 @@ Sửa brand qua lớp dữ liệu; nhập giá/gói/thiết bị/bảo hành và
 
 ### QA giai đoạn 0
 npm run lint: PASS (7 cảnh báo img có sẵn, 0 lỗi). npm run build: PASS. Không có thay đổi code ở giai đoạn này.
+
+### QA giai đoạn 1
+Lint PASS (7 cảnh báo cũ), build PASS. `node scripts/check-solar-calc.cjs` PASS: 12 gói, 34 tỉnh, thay giá, ranh giới dải hóa đơn và đầu vào không hợp lệ. Biểu đồ 12 tháng dùng hệ số mùa mẫu có tổng 12; mỗi tháng quy ước 30 ngày. PR là hệ số điều chỉnh demo; khi dùng PVOUT đã bao gồm tổn hao của nguồn thực cần kiểm tra để tránh tính tổn hao hai lần. Hoàn vốn đơn giản không gồm O&M, suy giảm, lãi vay, thu nhập điện dư. Trả góp mặc định không lãi chỉ là phép chia mô phỏng, không phải sản phẩm tín dụng.
