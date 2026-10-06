@@ -55,6 +55,7 @@ export const assumptions: Assumptions = {
   defaultBill: 2200000, defaultProvince: "ho-chi-minh", years: 20,
   installment: { minMonths: 6, maxMonths: 24, defaultMonths: 12, interestPerMonth: 0 },
   monthlyFactors: [0.9, 0.95, 1.08, 1.12, 1.1, 1.02, 0.98, 0.96, 0.94, 0.95, 0.98, 1.02],
+  solarProfile: [0,0,0,0,0,0,5,20,45,65,85,95,100,95,80,60,35,10,0,0,0,0,0,0],
   carbonKgPerKwh: 0.6, source: "Giả định mô phỏng nội bộ; không phải biểu giá điện, chỉ số phát thải hay đề nghị tín dụng.", verified: false,
 };
 const legalSource = "https://chinhphu.vn/he-thong-van-ban";

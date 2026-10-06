@@ -16,7 +16,7 @@ export interface Assumptions {
   electricityPrice: number; pr: number; selfUse: Record<SystemType, number>;
   defaultBill: number; defaultProvince: string; years: number;
   installment: { minMonths: number; maxMonths: number; defaultMonths: number; interestPerMonth: number };
-  monthlyFactors: number[]; carbonKgPerKwh: number; source: string; verified: boolean;
+  monthlyFactors: number[]; solarProfile: number[]; carbonKgPerKwh: number; source: string; verified: boolean;
 }
 export interface LegalItem { id: string; question: string; answer: string; source: string; verified: boolean }
 export interface Project {

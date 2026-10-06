@@ -48,3 +48,6 @@ Lint PASS (7 cảnh báo cũ), build PASS. Hero chia đôi + mini-calculator tí
 
 ### QA giai đoạn 3
 Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. Bộ tính chọn dải hóa đơn/nhập tiền/kWh, tra 34 tỉnh, so sánh hòa lưới/hybrid, chi tiết mở bằng details, biểu đồ 12 tháng/hoàn vốn và bảng số liệu riêng từng gói. Tỉnh và gói chọn cập nhật trả góp 6–24 tháng. CTA Zalo là URL tĩnh theo contactSegment trong dữ liệu, không POST. Clipboard chỉ chạy khi bấm, có nội dung sao chép thủ công nếu quyền clipboard không khả dụng. State mới chỉ ở React, không localStorage hay analytics.
+
+### QA giai đoạn 4
+Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. Ba tab phân khúc có bàn phím mũi tên/Home/End, SVG 24h kèm bảng và kiểu nét. Case study theo khung công suất/MWh/tiết kiệm/thiết bị/CO₂/doanh nghiệp, bộ lọc và tổng cộng đều tính từ adapter. Video chỉ mount sau khi bấm, preload none; chưa có video thật trong dữ liệu mẫu. Ảnh lazy-load. Hồ sơ không có lookupUrl được ẩn; demo không giả lập giấy phép. Cờ verified:false của legal chỉ có ghi chú nhỏ ở dev; nội dung [CẦN XÁC MINH] vẫn giữ để tránh tuyên bố pháp lý chưa kiểm chứng. Đánh giá hỗ trợ photo/sourceUrl nếu có; mẫu hiện không giả mạo người thật.
