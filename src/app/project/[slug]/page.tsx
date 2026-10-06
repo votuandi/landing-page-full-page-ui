@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PROJECTS } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import { makeMetadata } from "@/utils/solar";
+const { PROJECTS } = getLegacyContent();
 
 export async function generateStaticParams() { return PROJECTS.map((p) => ({slug:p.slug})); }
 

@@ -1,3 +1,4 @@
+import { getBrand } from "@/content/solar";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import NewsDetailContent from "@/components/NewsDetailContent";
@@ -251,12 +252,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!article) {
     return {
-      title: "Tin tức không tồn tại | Minwy Solar",
+      title: `Tin tức không tồn tại | ${getBrand().name}`,
     };
   }
 
   return {
-    title: `${article.title} | Minwy Solar`,
+    title: `${article.title} | ${getBrand().name}`,
     description: article.excerpt,
     keywords: article.tags?.join(", "),
     openGraph: {

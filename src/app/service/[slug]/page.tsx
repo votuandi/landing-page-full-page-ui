@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PROJECTS, SERVICES } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import { makeMetadata } from "@/utils/solar";
 import LeadForm from "@/components/LeadForm";
+const { PROJECTS, SERVICES } = getLegacyContent();
 
 export async function generateStaticParams() { return SERVICES.map((s) => ({ slug:s.slug })); }
 

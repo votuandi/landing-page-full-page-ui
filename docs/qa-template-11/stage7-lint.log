@@ -1,0 +1,26 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> landing-page-full-page-ui@0.1.0 lint
+> eslint .
+
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/BestSellerSection.tsx
+  241:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/CompanyStorySection.tsx
+  117:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/CompletedProjectsSection.tsx
+   41:9   warning  The 'allProjects' array makes the dependencies of useMemo Hook (at line 286) change on every render. To fix this, wrap the initialization of 'allProjects' in its own useMemo() Hook                                                                                                     react-hooks/exhaustive-deps
+  462:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/IntroductionVideoSection.tsx
+  81:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/ProductSection.tsx
+  402:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/workspace/scratch/79f576a7139c/landing-page-full-page-ui/src/components/ProjectsSection.tsx
+  188:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 7 problems (0 errors, 7 warnings)

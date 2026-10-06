@@ -1,8 +1,9 @@
+import { getBrand } from "@/content/solar";
 import { Metadata } from "next";
 import NewsPageContent from "@/components/NewsPageContent";
 
 export const metadata: Metadata = {
-  title: "Tin tức năng lượng mặt trời | Minwy Solar",
+  title: `Tin tức năng lượng mặt trời | ${getBrand().name}`,
   description:
     "Cập nhật những tin tức mới nhất về ngành năng lượng mặt trời, chính sách, công nghệ và xu hướng phát triển tại Việt Nam và thế giới.",
   keywords:

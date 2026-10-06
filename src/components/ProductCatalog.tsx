@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { PRODUCTS } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import { formatMoney, productBrands } from "@/utils/solar";
 import { useRFQ } from "@/components/SiteShell";
+const { PRODUCTS } = getLegacyContent();
 
 const categories = [
   ["","Tất cả"],["panel","Tấm pin"],["inverter","Inverter"],["battery","Pin lưu trữ"],["accessory","Phụ kiện"]

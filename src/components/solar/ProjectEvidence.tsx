@@ -2,17 +2,219 @@
 import Image from "next/image";
 import { useState } from "react";
 import { PlayIcon } from "@heroicons/react/24/outline";
-import { getAssumptions, getPricing, getProjects, getPvout, getSegments, getTestimonials, type SegmentId } from "@/content/solar";
+import {
+  getAssumptions,
+  getPricing,
+  getProjects,
+  getPvout,
+  getSegments,
+  getTestimonials,
+  type SegmentId,
+} from "@/content/solar";
 import { estimate, money, number } from "@/lib/solar-calc";
 import SectionHeading from "./SectionHeading";
 export default function ProjectEvidence() {
-  const [filter,setFilter]=useState<SegmentId|"all">("all"), [playing,setPlaying]=useState<string[]>([]), a=getAssumptions();
-  const rows=getProjects().filter(p=>filter==="all"||p.segment===filter).map(project=>{const pkg=getPricing().find(p=>p.id===project.packageId), province=getPvout().find(p=>p.id===project.provinceId);return pkg&&province ? {project,pkg,result:estimate(pkg,province,a)} : null;}).filter((row):row is NonNullable<typeof row>=>row!==null);
-  const totals=rows.reduce((s,r)=>({kwp:s.kwp+r.pkg.kwp,mwh:s.mwh+r.result.annualKwh/1000,saving:s.saving+r.result.annualSaving,co2:s.co2+r.result.annualKwh*a.carbonKgPerKwh/1000}),{kwp:0,mwh:0,saving:0,co2:0});
-  return <section className="solar-section solar-surface" id="du-an"><div className="solar-container"><SectionHeading step="04" label="Từ bài toán đến phương án" title="Dự án tương tự có thể tiết kiệm bao nhiêu?" answer="Kết quả cần đọc cùng công suất, địa điểm và cách sử dụng điện. Các case study dưới đây là tình huống mô phỏng, không phải hồ sơ dự án đã nghiệm thu." />
-    <div className="solar-project-filters" role="group" aria-label="Lọc case study"><button type="button" aria-pressed={filter==="all"} onClick={()=>setFilter("all")}>Tất cả</button>{getSegments().map(s=><button type="button" key={s.id} aria-pressed={filter===s.id} onClick={()=>setFilter(s.id)}>{s.label}</button>)}</div>
-    <div className="solar-project-grid">{rows.map(({project,pkg,result})=><article className="solar-project" key={project.id}><div className="solar-project-image">{project.video&&playing.includes(project.id) ? <video src={project.video} controls autoPlay preload="none" aria-label={`Video ${project.title}`} /> : <><Image src={project.image} alt={`Minh họa điện mặt trời: ${project.title}`} fill sizes="(max-width:767px) 100vw, 50vw" className="object-cover" unoptimized={project.image.startsWith("http")} loading="lazy" />{project.video&&<button type="button" className="solar-video-button" aria-label={`Tải và phát video ${project.title}`} onClick={()=>setPlaying(v=>[...v,project.id])}><PlayIcon />Xem video</button>}</>}<span className="solar-status">{project.verified?"Hồ sơ dự án":"Tình huống minh họa"}</span></div><div className="solar-project-body"><p className="solar-project-business">{project.business}</p><h3>{project.title}</h3><p>{project.description}</p><dl className="solar-project-stats"><div><dt>Công suất</dt><dd>{number(pkg.kwp)} kWp</dd></div><div><dt>Sản lượng/năm</dt><dd>{number(result.annualKwh/1000)} MWh</dd></div><div><dt>Tiết kiệm/năm</dt><dd>{money(result.annualSaving)}</dd></div><div><dt>CO₂ giảm/năm*</dt><dd>{number(result.annualKwh*a.carbonKgPerKwh/1000)} tấn</dd></div></dl><details className="solar-accordion"><summary>Cấu hình thiết bị</summary><ul>{pkg.equipment.map(e=><li key={e}>{e}</li>)}</ul><p>{pkg.warranty}</p></details></div></article>)}</div>
-    <div className="solar-table-scroll solar-project-total" tabIndex={0} role="region" aria-label="Bảng tổng theo bộ lọc" aria-live="polite"><table><caption>Tổng tự cộng theo bộ lọc hiện tại · {rows.length} tình huống</caption><thead><tr><th scope="col">Công suất</th><th scope="col">Sản lượng/năm</th><th scope="col">Tiết kiệm/năm</th><th scope="col">CO₂/năm*</th></tr></thead><tbody><tr><td>{number(totals.kwp)} kWp</td><td>{number(totals.mwh)} MWh</td><td>{money(totals.saving)}</td><td>{number(totals.co2)} tấn</td></tr></tbody></table></div><p className="solar-note">* CO₂ dùng hệ số mẫu {number(a.carbonKgPerKwh)} kg/kWh, chưa xác minh. Sản lượng và tiết kiệm áp dụng cùng công thức bộ tính, không phải số đo thực.</p>
-    <div className="solar-testimonials"><h3>Khách hàng thường muốn làm rõ điều gì?</h3><p className="solar-note">Nội dung minh họa góc nhìn người dùng, không phải đánh giá thực. Thay bằng đánh giá được khách hàng cho phép sử dụng.</p><div className="solar-testimonial-grid">{getTestimonials().map(t=><figure className="solar-card" key={t.id}><blockquote>{t.quote}</blockquote><figcaption>{t.photo&&<Image src={t.photo} alt={t.name} width={48} height={48} loading="lazy" unoptimized={t.photo.startsWith("http")} />}<div><strong>{t.name}</strong><span>{t.role}</span>{t.sourceUrl&&<a href={t.sourceUrl} target="_blank" rel="noreferrer">Xem nguồn đánh giá</a>}</div></figcaption></figure>)}</div></div>
-  </div></section>;
+  const [filter, setFilter] = useState<SegmentId | "all">("all"),
+    [playing, setPlaying] = useState<string[]>([]),
+    a = getAssumptions();
+  const rows = getProjects()
+    .filter((p) => filter === "all" || p.segment === filter)
+    .map((project) => {
+      const pkg = getPricing().find((p) => p.id === project.packageId),
+        province = getPvout().find((p) => p.id === project.provinceId);
+      return pkg && province
+        ? { project, pkg, result: estimate(pkg, province, a) }
+        : null;
+    })
+    .filter((row): row is NonNullable<typeof row> => row !== null);
+  const totals = rows.reduce(
+    (s, r) => ({
+      kwp: s.kwp + r.pkg.kwp,
+      mwh: s.mwh + r.result.annualKwh / 1000,
+      saving: s.saving + r.result.annualSaving,
+      co2: s.co2 + (r.result.annualKwh * a.carbonKgPerKwh) / 1000,
+    }),
+    { kwp: 0, mwh: 0, saving: 0, co2: 0 },
+  );
+  return (
+    <section className="solar-section solar-surface" id="du-an">
+      <div className="solar-container">
+        <SectionHeading
+          step="04"
+          label="Từ bài toán đến phương án"
+          title="Dự án tương tự có thể tiết kiệm bao nhiêu?"
+          answer="Kết quả cần đọc cùng công suất, địa điểm và cách sử dụng điện. Các case study dưới đây là tình huống mô phỏng, không phải hồ sơ dự án đã nghiệm thu."
+        />
+        <div
+          className="solar-project-filters"
+          role="group"
+          aria-label="Lọc case study"
+        >
+          <button
+            type="button"
+            aria-pressed={filter === "all"}
+            onClick={() => setFilter("all")}
+          >
+            Tất cả
+          </button>
+          {getSegments().map((s) => (
+            <button
+              type="button"
+              key={s.id}
+              aria-pressed={filter === s.id}
+              onClick={() => setFilter(s.id)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="solar-project-grid">
+          {rows.map(({ project, pkg, result }) => (
+            <article className="solar-project" key={project.id}>
+              <div className="solar-project-image">
+                {project.video && playing.includes(project.id) ? (
+                  <video
+                    src={project.video}
+                    controls
+                    autoPlay
+                    preload="none"
+                    aria-label={`Video ${project.title}`}
+                  />
+                ) : (
+                  <>
+                    <Image
+                      src={project.image}
+                      alt={`Minh họa điện mặt trời: ${project.title}`}
+                      fill
+                      sizes="(max-width:767px) 100vw, 50vw"
+                      className="object-cover"
+                      unoptimized={project.image.startsWith("http")}
+                      loading="lazy"
+                    />
+                    {project.video && (
+                      <button
+                        type="button"
+                        className="solar-video-button"
+                        aria-label={`Tải và phát video ${project.title}`}
+                        onClick={() => setPlaying((v) => [...v, project.id])}
+                      >
+                        <PlayIcon />
+                        Xem video
+                      </button>
+                    )}
+                  </>
+                )}
+                <span className="solar-status">
+                  {project.verified ? "Hồ sơ dự án" : "Tình huống minh họa"}
+                </span>
+              </div>
+              <div className="solar-project-body">
+                <p className="solar-project-business">{project.business}</p>
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+                <dl className="solar-project-stats">
+                  <div>
+                    <dt>Công suất</dt>
+                    <dd>{number(pkg.kwp)} kWp</dd>
+                  </div>
+                  <div>
+                    <dt>Sản lượng/năm</dt>
+                    <dd>{number(result.annualKwh / 1000)} MWh</dd>
+                  </div>
+                  <div>
+                    <dt>Tiết kiệm/năm</dt>
+                    <dd>{money(result.annualSaving)}</dd>
+                  </div>
+                  <div>
+                    <dt>CO₂ giảm/năm*</dt>
+                    <dd>
+                      {number((result.annualKwh * a.carbonKgPerKwh) / 1000)} tấn
+                    </dd>
+                  </div>
+                </dl>
+                <details className="solar-accordion">
+                  <summary>Cấu hình thiết bị</summary>
+                  <ul>
+                    {pkg.equipment.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                  <p>{pkg.warranty}</p>
+                </details>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div
+          className="solar-table-scroll solar-project-total"
+          tabIndex={0}
+          role="region"
+          aria-label="Bảng tổng theo bộ lọc"
+          aria-live="polite"
+        >
+          <table>
+            <caption>
+              Tổng tự cộng theo bộ lọc hiện tại · {rows.length} tình huống
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Công suất</th>
+                <th scope="col">Sản lượng/năm</th>
+                <th scope="col">Tiết kiệm/năm</th>
+                <th scope="col">CO₂/năm*</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{number(totals.kwp)} kWp</td>
+                <td>{number(totals.mwh)} MWh</td>
+                <td>{money(totals.saving)}</td>
+                <td>{number(totals.co2)} tấn</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="solar-note">
+          * CO₂ dùng hệ số mẫu {number(a.carbonKgPerKwh)} kg/kWh, chưa xác minh.
+          Sản lượng và tiết kiệm áp dụng cùng công thức bộ tính, không phải số
+          đo thực.
+        </p>
+        <div className="solar-testimonials">
+          <h3>Khách hàng thường muốn làm rõ điều gì?</h3>
+          <p className="solar-note">
+            Nội dung minh họa góc nhìn người dùng, không phải đánh giá thực.
+            Thay bằng đánh giá được khách hàng cho phép sử dụng.
+          </p>
+          <div className="solar-testimonial-grid">
+            {getTestimonials().map((t) => (
+              <figure className="solar-card" key={t.id}>
+                <blockquote>{t.quote}</blockquote>
+                <figcaption>
+                  {t.photo && (
+                    <Image
+                      src={t.photo}
+                      alt={t.name}
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      unoptimized={t.photo.startsWith("http")}
+                    />
+                  )}
+                  <div>
+                    <strong>{t.name}</strong>
+                    <span>{t.role}</span>
+                    {t.sourceUrl && (
+                      <a href={t.sourceUrl} target="_blank" rel="noreferrer">
+                        Xem nguồn đánh giá
+                      </a>
+                    )}
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

@@ -1,0 +1,29 @@
+{
+  "viewports": [
+    {
+      "width": 360,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "axeViolations": 0
+    }
+  ],
+  "flows": [
+    "province formulas, money/kWh, selected package, 24-month installment, four per-package charts, keyboard tabs, project filtering, legal hiding, invalid input, client state reset, no new API calls",
+    "dark mode WCAG AA: zero axe violations",
+    "existing contact form POST intercepted: exact fields and home-bottom source preserved; no submission sent",
+    "existing RFQ and contact-us?rfq= path preserved",
+    "existing static frontend routes return 200, zero page errors"
+  ],
+  "integrity": [
+    "backend/API/env/server configuration hashes unchanged, LeadForm file byte-identical, old calculator fetch expressions byte-identical, no new component fetch calls, favicon dimensions and ICO frames correct"
+  ]
+}

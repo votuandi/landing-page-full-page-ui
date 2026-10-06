@@ -2,13 +2,171 @@ import { useId } from "react";
 import { money, number } from "@/lib/solar-calc";
 import type { estimate } from "@/lib/solar-calc";
 type Result = ReturnType<typeof estimate>;
-export function MonthlyChart({ result, name }: { result: Result; name: string }) {
-  const id = useId(), max = Math.max(...result.monthly.map(m => m.kwh));
-  return <figure className="solar-chart"><figcaption>Sản lượng 12 tháng · {name}</figcaption><svg viewBox="0 0 480 220" role="img" aria-labelledby={id}><title id={id}>Sản lượng mô phỏng từng tháng của {name}, tổng {number(result.annualKwh)} kWh/năm</title><line x1="45" y1="175" x2="465" y2="175" className="solar-chart-axis" />{result.monthly.map((m,i) => { const h=m.kwh/max*120; return <g key={m.month}><rect x={50+i*34} y={175-h} width="22" height={h} rx="3" className="solar-chart-sun"><title>Tháng {m.month}: {number(m.kwh)} kWh</title></rect><text x={61+i*34} y="197" textAnchor="middle">{m.month}</text></g>; })}<text x="46" y="24">kWh · cao nhất {number(max)}</text></svg><details><summary>Xem số liệu từng tháng</summary><div className="solar-table-scroll" tabIndex={0} role="region" aria-label="Bảng số liệu có thể cuộn"><table><caption>{name}: sản lượng theo tháng</caption><thead><tr><th scope="col">Tháng</th><th scope="col">Sản lượng (kWh)</th></tr></thead><tbody>{result.monthly.map(m => <tr key={m.month}><th scope="row">{m.month}</th><td>{number(m.kwh)}</td></tr>)}</tbody></table></div></details></figure>;
+export function MonthlyChart({
+  result,
+  name,
+}: {
+  result: Result;
+  name: string;
+}) {
+  const id = useId(),
+    max = Math.max(...result.monthly.map((m) => m.kwh));
+  return (
+    <figure className="solar-chart">
+      <figcaption>Sản lượng 12 tháng · {name}</figcaption>
+      <svg viewBox="0 0 480 220" role="img" aria-labelledby={id}>
+        <title id={id}>
+          {`Sản lượng mô phỏng từng tháng của ${name}, tổng ${number(result.annualKwh)} kWh/năm`}
+        </title>
+        <line x1="45" y1="175" x2="465" y2="175" className="solar-chart-axis" />
+        {result.monthly.map((m, i) => {
+          const h = (m.kwh / max) * 120;
+          return (
+            <g key={m.month}>
+              <rect
+                x={50 + i * 34}
+                y={175 - h}
+                width="22"
+                height={h}
+                rx="3"
+                className="solar-chart-sun"
+              >
+                <title>{`Tháng ${m.month}: ${number(m.kwh)} kWh`}</title>
+              </rect>
+              <text x={61 + i * 34} y="197" textAnchor="middle">
+                {m.month}
+              </text>
+            </g>
+          );
+        })}
+        <text x="46" y="24">
+          kWh · cao nhất {number(max)}
+        </text>
+      </svg>
+      <details>
+        <summary>Xem số liệu từng tháng</summary>
+        <div
+          className="solar-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Bảng số liệu có thể cuộn"
+        >
+          <table>
+            <caption>{name}: sản lượng theo tháng</caption>
+            <thead>
+              <tr>
+                <th scope="col">Tháng</th>
+                <th scope="col">Sản lượng (kWh)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.monthly.map((m) => (
+                <tr key={m.month}>
+                  <th scope="row">{m.month}</th>
+                  <td>{number(m.kwh)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </figure>
+  );
 }
-export function PaybackChart({ result, name }: { result: Result; name: string }) {
-  const id = useId(), values=result.cumulative.map(v=>v.net), min=Math.min(...values), max=Math.max(0,...values), range=max-min || 1;
-  const y=(v:number)=>175-(v-min)/range*135, x=(year:number)=>50+year/(result.cumulative.length-1)*410;
-  const points=result.cumulative.map(v=>`${x(v.year)},${y(v.net)}`).join(" ");
-  return <figure className="solar-chart"><figcaption>Hoàn vốn tích lũy · {name}</figcaption><svg viewBox="0 0 480 235" role="img" aria-labelledby={id}><title id={id}>{name}: dòng tiền ròng bắt đầu âm do đầu tư; hoàn vốn đơn giản {result.paybackYears === null ? "không xác định" : `${number(result.paybackYears)} năm`}</title><line x1="50" y1={y(0)} x2="460" y2={y(0)} className="solar-chart-axis" strokeDasharray="4 4" /><polyline points={points} className="solar-chart-consumption" fill="none" strokeWidth="3" />{result.cumulative.filter(v=>v.year%5===0).map(v=><g key={v.year}><circle cx={x(v.year)} cy={y(v.net)} r="3" className="solar-chart-dot" /><text x={x(v.year)} y="200" textAnchor="middle">{v.year}</text></g>)}<text x="50" y="23">Ròng cuối kỳ: {money(max)}</text><text x="50" y="224">Năm · đường ngang = thu hồi vốn ban đầu</text></svg><details><summary>Xem dòng tiền theo năm</summary><div className="solar-table-scroll" tabIndex={0} role="region" aria-label="Bảng số liệu có thể cuộn"><table><caption>{name}: tiết kiệm lũy kế và ròng sau vốn đầu tư</caption><thead><tr><th scope="col">Năm</th><th scope="col">Tiết kiệm lũy kế</th><th scope="col">Ròng sau đầu tư</th></tr></thead><tbody>{result.cumulative.map(v=><tr key={v.year}><th scope="row">{v.year}</th><td>{money(v.savings)}</td><td>{money(v.net)}</td></tr>)}</tbody></table></div></details></figure>;
+export function PaybackChart({
+  result,
+  name,
+}: {
+  result: Result;
+  name: string;
+}) {
+  const id = useId(),
+    values = result.cumulative.map((v) => v.net),
+    min = Math.min(...values),
+    max = Math.max(0, ...values),
+    range = max - min || 1;
+  const y = (v: number) => 175 - ((v - min) / range) * 135,
+    x = (year: number) => 50 + (year / (result.cumulative.length - 1)) * 410;
+  const points = result.cumulative
+    .map((v) => `${x(v.year)},${y(v.net)}`)
+    .join(" ");
+  return (
+    <figure className="solar-chart">
+      <figcaption>Hoàn vốn tích lũy · {name}</figcaption>
+      <svg viewBox="0 0 480 235" role="img" aria-labelledby={id}>
+        <title id={id}>
+          {`${name}: dòng tiền ròng bắt đầu âm do đầu tư; hoàn vốn đơn giản ${
+            result.paybackYears === null
+              ? "không xác định"
+              : `${number(result.paybackYears)} năm`
+          }`}
+        </title>
+        <line
+          x1="50"
+          y1={y(0)}
+          x2="460"
+          y2={y(0)}
+          className="solar-chart-axis"
+          strokeDasharray="4 4"
+        />
+        <polyline
+          points={points}
+          className="solar-chart-consumption"
+          fill="none"
+          strokeWidth="3"
+        />
+        {result.cumulative
+          .filter((v) => v.year % 5 === 0)
+          .map((v) => (
+            <g key={v.year}>
+              <circle
+                cx={x(v.year)}
+                cy={y(v.net)}
+                r="3"
+                className="solar-chart-dot"
+              />
+              <text x={x(v.year)} y="200" textAnchor="middle">
+                {v.year}
+              </text>
+            </g>
+          ))}
+        <text x="50" y="23">
+          Ròng cuối kỳ:{" "}
+          {money(result.cumulative[result.cumulative.length - 1].net)}
+        </text>
+        <text x="50" y="224">
+          Năm · đường ngang = thu hồi vốn ban đầu
+        </text>
+      </svg>
+      <details>
+        <summary>Xem dòng tiền theo năm</summary>
+        <div
+          className="solar-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="Bảng số liệu có thể cuộn"
+        >
+          <table>
+            <caption>{name}: tiết kiệm lũy kế và ròng sau vốn đầu tư</caption>
+            <thead>
+              <tr>
+                <th scope="col">Năm</th>
+                <th scope="col">Tiết kiệm lũy kế</th>
+                <th scope="col">Ròng sau đầu tư</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.cumulative.map((v) => (
+                <tr key={v.year}>
+                  <th scope="row">{v.year}</th>
+                  <td>{money(v.savings)}</td>
+                  <td>{money(v.net)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </figure>
+  );
 }

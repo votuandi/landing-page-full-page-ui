@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SERVICES } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import { makeMetadata } from "@/utils/solar";
+const { SERVICES } = getLegacyContent();
 
 export const metadata = makeMetadata(
   "Giải pháp solar nhà xưởng, gia đình, hybrid & O&M",

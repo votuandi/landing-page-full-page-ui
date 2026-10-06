@@ -57,3 +57,60 @@ Lint PASS (7 cảnh báo cũ), build PASS. Meta sinh từ min giá và min hoàn
 
 ### QA giai đoạn 6
 Lint PASS (7 cảnh báo cũ), build PASS. Token xanh lá/vàng/trắng đúng yêu cầu tại globals.css; Tailwind dùng các RGB token tương ứng để hỗ trợ opacity. Toàn bộ literal màu cũ trong JSX/TS frontend đã chuyển sang token, kể cả component legacy không dùng trên home. Mã màu literal chỉ còn ở định nghĩa token và metadata theme-color. Dark mode có token riêng và badge nền sáng giữ chữ xanh đậm. Không sửa logic/API của component legacy. Kiểm tra 360/768/1280 không tràn ngang; axe WCAG AA không có lỗi tương phản sau sửa. Bảng tổng mobile đã thêm tabIndex để cuộn bằng bàn phím. Kiểm tra đầy đủ và Lighthouse sau logo/favicon ở giai đoạn 7.
+
+## Bàn giao giai đoạn 7
+- Logo phương án 1: mặt trời và lá, SVG rõ ở 24px; component nhận `getBrand().name` qua prop, hỗ trợ full/mark/white. Ba phương án trong `docs/logo-options/`, áp dụng phương án 1.
+- Chạy `node scripts/generate-solar-brand.cjs` để sinh lại logo SVG, favicon.svg, favicon.ico (16/32/48), favicon-32.png, apple-touch-icon.png (180, nền trắng có padding), icon-192.png, icon-512.png và site.webmanifest. Dùng Sharp có sẵn, không thêm dependency production. Metadata khai báo icon/manifest và theme-color primary.
+- Chỉnh sửa cuối đồng bộ thương hiệu các trang con, đưa nội dung legacy qua `getLegacyContent`/`getCatalog`, sửa tương phản dark mode và title SVG để SSR/client khớp. Logic form và API cũ giữ nguyên.
+
+### Danh sách chưa xác minh
+| Nhóm | Mục `verified: false` | Cần kiểm chứng |
+| --- | --- | --- |
+| PVout | Toàn bộ 34 tỉnh | Lấy số liệu theo vị trí và cấu hình thực; nguồn hiện là trang Global Solar Atlas, số trong demo là mô phỏng |
+| Assumptions | Toàn bộ bộ giả định | Giá điện, PR, tự dùng, hệ số mùa, CO₂, trả góp |
+| Legal | process, penalty, surplus | Quy trình, mức phạt, điện dư; giữ `[CẦN XÁC MINH]` |
+| Projects | factory, farm, shop, home | Công trình và kết quả đo thật; ảnh hiện là minh họa |
+| Testimonials | operations, family | Đồng ý sử dụng nội dung, ảnh và nguồn đánh giá thật |
+
+Giá/gói/thiết bị là dữ liệu mẫu, không phải báo giá thương mại. Hồ sơ giấy phép chưa có link thực nên không hiển thị giấy phép giả. Ghi chú nhỏ của cờ legal chỉ hiển thị dev; nhãn mô phỏng và placeholder trong nội dung vẫn hiển thị production.
+
+### Cách đổi thương hiệu
+1. Sửa `brand` trong `src/content/solar/data.ts`: tên, slogan, hotline theo nhóm, Zalo, email, địa chỉ, mạng xã hội và `licenses[].lookupUrl`. Không dùng số điện thoại/link mẫu cho khách thật. Đồng bộ dữ liệu legacy trong `src/data/solar.ts` nếu sử dụng trang sản phẩm/dịch vụ cũ.
+2. Sửa pricing, assumptions, PVout, phân khúc, projects, testimonials, FAQ qua cùng lớp dữ liệu. Giữ liên kết packageId/provinceId của dự án. Thay một giá sẽ cập nhật calculator, chart, trả góp và meta tự động; chạy kiểm chứng công thức.
+3. Màu quản lý trong `src/app/globals.css` và token RGB tương ứng; Tailwind tham chiếu token. Font local trong `src/app/fonts`, có giấy phép OFL; không cần gọi dịch vụ font bên ngoài.
+4. Chạy lại script logo/favicon khi đổi tên hoặc biểu tượng. Component logo dùng tên động; SVG file sinh sẵn cần tái tạo. Thay hình/video được cấp quyền; video chỉ mount khi người dùng bấm.
+5. Xác minh nội dung pháp lý/PVout và ghi nguồn cụ thể trước khi bật `verified: true`. Không nhập số hiệu văn bản nếu chưa kiểm chứng.
+
+### Chờ backend — bổ sung hợp đồng dữ liệu
+- Adapter còn cần kết nối: getBrand, getPricing, getPvout, getAssumptions, getLegal, getProjects, getTestimonials, getSegments, getCopy, getCatalog, getLegacyContent. Giữ API getter đồng bộ bằng snapshot/cache/provider được nạp bên ngoài UI; không đổi sang Promise trực tiếp khi chưa có lớp hydrate. Dữ liệu mới hiện hoàn toàn tĩnh.
+- LeadForm và RoiCalculator cũ dùng endpoint `/api/lead` sẵn có. Không tạo form/endpoint mới; cấu hình webhook, CRM, lưu lead và kiểm chứng nghiệp vụ nằm ngoài phạm vi frontend này.
+- Không có chức năng mới bị ép triển khai bằng backend. Calculator/trả góp/tra tỉnh không lưu hoặc gửi dữ liệu; nút sao chép chỉ hoạt động theo thao tác người dùng. RFQ cũ vẫn giữ localStorage và query như template-8.
+
+### Lệnh kiểm tra
+```sh
+npm run lint
+npm run build
+node scripts/check-solar-calc.cjs
+QA_NODE_MODULES=/path/to/qa/node_modules QA_CHROMIUM_PATH=/path/to/chromium node scripts/check-template-11.cjs
+git diff template-8 --stat
+git diff --check
+```
+QA bên ngoài cần playwright-core và @axe-core/playwright, không thêm vào dependency website. Báo cáo/screenshot nằm trong `docs/qa-template-11/`; form trong kiểm tra được intercept, không gửi lead thật. Lighthouse dùng build production local, mobile simulated throttling Chromium 131; điểm có thể khác khi triển khai hoặc thay nội dung.
+
+### QA giai đoạn 7
+- Lint PASS: 0 lỗi, 7 cảnh báo có sẵn (ảnh `<img>` và dependency useMemo legacy). Build production PASS.
+- Kiểm chứng công thức PASS: 12 gói độc lập, 34 tỉnh, cập nhật giá, ranh giới hóa đơn, đầu vào không hợp lệ, trả góp. Nhãn cuối biểu đồ lấy dòng tiền năm cuối, cả khi chưa hoàn vốn trong thời hạn mô phỏng.
+- Browser PASS: 360/768/1280px không tràn ngang; axe WCAG AA 0 vi phạm, kể cả dark mode; tab bàn phím, bộ lọc, tra tỉnh, tiền/kWh, slider 24 tháng, 4 biểu đồ của hai gói hoạt động. Các trang frontend cũ trả 200, 0 lỗi runtime/hydration.
+- Form POST được mock và đối chiếu toàn bộ field + `source: home-bottom` với template-8. LeadForm byte-identical; fetch cũ của RoiCalculator byte-identical. Không gọi API mới từ component solar.
+- Backend/API/env/next.config được đối chiếu byte/hash; không thay đổi. ICO đủ 16/32/48; PNG đúng kích thước; manifest đúng brand/theme. Không push, nhánh template-8/template-10 không sửa.
+
+### Checklist hoàn thành
+- [x] Diff không có backend/API/env/schema/server config.
+- [x] Không API mới; cách gọi API và logic gửi form cũ giữ nguyên.
+- [x] Build/lint pass; responsive 360/768/1280, bằng chứng ảnh trong thư mục QA.
+- [x] Component mới lấy dữ liệu qua adapter, không viết cứng giá/sản lượng/hoàn vốn.
+- [x] Từng gói có biểu đồ hoàn vốn độc lập và cập nhật theo giá.
+- [x] Token thay màu cũ trong frontend; hero, section, thẻ, font và hành trình khác template-8/template-10.
+- [x] Danh sách dữ liệu chưa xác minh, Chờ backend và hướng dẫn đổi thương hiệu đầy đủ.
+- [x] Mỗi giai đoạn có commit riêng sau build/lint; chưa push remote.
+- [x] Lighthouse mobile production local: **Performance 95 / Accessibility 100 / SEO 100**, vượt mục tiêu 85/95. Báo cáo chi tiết `docs/qa-template-11/lighthouse-mobile.json` và tóm tắt `lighthouse-scores.json`; không có run warning.

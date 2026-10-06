@@ -1,0 +1,16 @@
+{
+  "scores": {
+    "performance": 95,
+    "accessibility": 100,
+    "seo": 100
+  },
+  "environment": "Local production Next.js build, Chromium 131, Lighthouse default mobile simulated throttling",
+  "metrics": {
+    "first-contentful-paint": "1.2 s",
+    "largest-contentful-paint": "2.8 s",
+    "total-blocking-time": "60 ms",
+    "cumulative-layout-shift": "0",
+    "speed-index": "1.2 s"
+  },
+  "warnings": []
+}

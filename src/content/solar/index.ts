@@ -1,5 +1,15 @@
-import { PRODUCTS } from "../../data/solar";
-import { assumptions, brand, copy, legal, pricing, projects, pvout, segments, testimonials } from "./data";
+import * as legacy from "../../data/solar";
+import {
+  assumptions,
+  brand,
+  copy,
+  legal,
+  pricing,
+  projects,
+  pvout,
+  segments,
+  testimonials,
+} from "./data";
 export type * from "./types";
 // TODO(backend): thay bằng API. Giữ tên hàm và kiểu dữ liệu; không import data trực tiếp trong component.
 // Snapshot đồng bộ là hợp đồng hiện tại. Khi nối API, hydrate/cache snapshot tại lớp adapter/provider,
@@ -15,4 +25,5 @@ export const getSegments = () => segments;
 export const getCopy = () => copy;
 
 // TODO(backend): adapter tương thích danh mục thiết bị hiện có, không thay dữ liệu/payload.
-export const getCatalog = () => PRODUCTS;
+export const getCatalog = () => legacy.PRODUCTS;
+export const getLegacyContent = () => legacy;

@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PRODUCTS } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import { formatMoney, makeMetadata } from "@/utils/solar";
 import ProductQuoteButton from "@/components/ProductQuoteButton";
+const { PRODUCTS } = getLegacyContent();
 
 export async function generateStaticParams() { return PRODUCTS.map((p) => ({ slug:p.slug })); }
 

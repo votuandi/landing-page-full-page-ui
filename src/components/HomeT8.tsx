@@ -2,13 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { CheckCircleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { delay } from "@/utils/reveal";
-import { FAQS, POLICY_SUMMARY, PRODUCTS, PROJECTS, TESTIMONIALS } from "@/data/solar";
+import { getLegacyContent } from "@/content/solar";
 import HeroT8 from "@/components/HeroT8";
 import SavingsBySegment from "@/components/SavingsBySegment";
 import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
 import RoiCalculator from "@/components/RoiCalculator";
 import SectionReveal from "@/components/SectionReveal";
 import LeadForm from "@/components/LeadForm";
+const { FAQS, POLICY_SUMMARY, PRODUCTS, PROJECTS, TESTIMONIALS } = getLegacyContent();
 
 const processSteps = [
   ["01","Khảo sát","Phụ tải, hóa đơn, mái, trạm điện và điều kiện thi công.","Biên bản khảo sát + dữ liệu đầu vào"],
