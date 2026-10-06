@@ -1,0 +1,78 @@
+{
+  "responsive": [
+    {
+      "width": 360,
+      "heroImages": 3,
+      "overflow": false,
+      "fixedControls": 5,
+      "formPassed": true
+    },
+    {
+      "width": 768,
+      "heroImages": 3,
+      "overflow": false,
+      "fixedControls": 5,
+      "formPassed": true
+    },
+    {
+      "width": 1280,
+      "heroImages": 3,
+      "overflow": false,
+      "fixedControls": 5,
+      "formPassed": true
+    },
+    {
+      "width": 1920,
+      "heroImages": 3,
+      "overflow": false,
+      "fixedControls": 5,
+      "formPassed": true
+    }
+  ],
+  "flows": [
+    "chat topic guidance and switch to form",
+    "inline lead form manual handoff",
+    "Escape dismisses native dialog",
+    "floating form preselects current segment",
+    "Messenger without configured page offers real Zalo and phone",
+    "household hero CTA updates segment and calculator",
+    "factory hero CTA opens preselected contact",
+    "reduced motion disables hero reveal"
+  ],
+  "a11y": [
+    {
+      "view": "chat mobile",
+      "violations": []
+    },
+    {
+      "route": "/",
+      "violations": []
+    },
+    {
+      "route": "/contact-us",
+      "violations": []
+    },
+    {
+      "route": "/giai-phap/nha-may",
+      "violations": []
+    },
+    {
+      "route": "/product",
+      "violations": []
+    }
+  ],
+  "consoleErrors": [],
+  "images": [
+    "docs/screenshots/benefit-home-360.webp",
+    "docs/screenshots/benefit-retail-360.webp",
+    "docs/screenshots/benefit-factory-360.webp",
+    "docs/screenshots/benefit-home-1280.webp",
+    "docs/screenshots/benefit-retail-1280.webp",
+    "docs/screenshots/benefit-factory-1280.webp"
+  ],
+  "palette": {
+    "primary": "#0d3b78",
+    "green": "#087a55",
+    "light": "#b8efcc"
+  }
+}

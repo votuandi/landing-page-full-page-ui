@@ -17,6 +17,7 @@ import {
   contactUrl,
   useSegment,
 } from "./template10/SegmentContext";
+import FloatingContact from "./FloatingContact";
 import Modal from "./template10/Modal";
 type RfqContextValue = {
   items: string[];
@@ -223,6 +224,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <FloatingContact />
       <div className="mobile-contact">
         <a
           className="t5-mobile-cta"
@@ -240,7 +242,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         </a>
         <Link
           href={contactUrl(segment)}
-          className="t5-mobile-cta !bg-amber-300 !text-blue-950"
+          className="t5-mobile-cta !bg-emerald-300 !text-blue-950"
         >
           {COPY.shell.survey}
         </Link>

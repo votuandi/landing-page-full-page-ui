@@ -137,7 +137,7 @@ export function Counters() {
                 <span className="sr-only">
                   {c.value.toLocaleString("vi-VN")}
                 </span>
-                <span className="mt-2 block text-sm font-bold text-amber-200">
+                <span className="mt-2 block text-sm font-bold text-emerald-200">
                   {c.unit}
                 </span>
               </p>

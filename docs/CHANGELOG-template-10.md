@@ -59,3 +59,11 @@ Cần bên mua hoàn thiện trước khi dùng thật: thông tin công ty/nh�
 - Chốt bộ ảnh AI đã tạo trong phiên làm bộ ảnh minh họa sử dụng; cập nhật credits và hướng dẫn, giữ nhãn demo cho dự án và lời nhận xét hư cấu.
 - Khi chưa có webhook, form tạo nội dung đã kiểm tra để người dùng sao chép và gửi qua Zalo; không thông báo đã gửi, không lưu lead, không đưa dữ liệu cá nhân vào URL. Clipboard bị chặn có thể sao chép thủ công.
 - Tiếp tục hỗ trợ webhook HTTPS phía server khi được cung cấp endpoint/token. Không tự tạo địa chỉ dịch vụ nhận lead.
+
+## Cập nhật chuyển đổi và bảng màu — 06/10/2026
+
+- Thêm cụm liên hệ cố định toàn site: chat hướng dẫn nhanh, form khảo sát trong dialog, gọi điện, Zalo và Messenger. Mobile thu gọn và nằm trên thanh CTA, có safe area; desktop mở sẵn và có thể thu gọn.
+- Chưa được cung cấp trang Messenger thật: nút có lựa chọn liên hệ Zalo/hotline, hỗ trợ `contact.messenger` để bật link m.me sau này. Chat hướng dẫn không giả lập nhân viên trực tuyến; mọi nội dung câu hỏi/đáp nằm trong data.
+- Đổi bảng màu đồng bộ từ xanh dương/vàng/be sang xanh dương/xanh lá/xanh lá nhạt: hero, CTA, badge, counter, dashboard, logo và favicon. Giữ khung kính mờ, bo góc, typography và tech stack.
+- Thêm ba hero lợi ích trên trang chủ theo thứ tự gia đình → cửa hàng → nhà máy, tham khảo ảnh lớn/thẻ kính/section toàn màn hình của template-8. Desktop tối thiểu 100svh; mobile chiều cao tự nhiên để không cắt nội dung. Ảnh local lazy-load, CTA theo tệp và reveal tôn trọng reduced motion.
+- Dialog dùng ID riêng để không trùng aria-labelledby giữa form/chat và yêu cầu báo giá thiết bị.

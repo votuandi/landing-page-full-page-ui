@@ -175,7 +175,7 @@ export default function Calculator({ fixed }: { fixed?: Segment }) {
                 </dl>
                 <Link
                   href={contactUrl(current, q)}
-                  className="t5-button mt-8 w-full bg-amber-300 text-blue-950"
+                  className="t5-button mt-8 w-full bg-emerald-300 text-blue-950"
                 >
                   {t.quote} <span aria-hidden="true">↗</span>
                 </Link>

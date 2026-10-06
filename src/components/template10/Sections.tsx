@@ -372,7 +372,7 @@ export function Monitoring() {
     <section className="t5-section bg-[var(--t8-ink)] text-white">
       <div className="t5-container grid items-center gap-10 lg:grid-cols-[.8fr_1.2fr]">
         <div>
-          <p className="t5-eyebrow !bg-amber-100 !text-amber-950">
+          <p className="t5-eyebrow !bg-emerald-100 !text-emerald-950">
             {DASHBOARD.eyebrow}
           </p>
           <h2 className="mt-6 text-4xl font-black leading-tight tracking-tight">
@@ -419,7 +419,7 @@ export function Monitoring() {
             <polyline
               points={points(DASHBOARD.production)}
               fill="none"
-              stroke="#ffd666"
+              stroke="#b8efcc"
               strokeWidth="4"
             />
             <g fill="#dbe9ff" fontSize="12">
@@ -435,7 +435,7 @@ export function Monitoring() {
             </g>
           </svg>
           <div className="flex gap-5 text-xs">
-            <span className="text-amber-200">
+            <span className="text-emerald-200">
               ● {DASHBOARD.productionLabel}
             </span>
             <span className="text-blue-200">

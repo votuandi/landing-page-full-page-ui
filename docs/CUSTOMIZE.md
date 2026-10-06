@@ -94,3 +94,11 @@ SEO tự sinh title, description, Open Graph, canonical, sitemap, LocalBusiness 
 ## Thông tin và ảnh đã xác nhận ngày 06/10/2026
 
 Dùng thương hiệu **Minwy Solar**, điện thoại **0708699808** (hiển thị 0708 699 808), Zalo cùng số. Email giữ theo cấu hình trước đây. Không suy đoán địa chỉ hay loại hình pháp lý. Bộ 8 ảnh công trình/thiết bị và 3 avatar tạo trong phiên này được giữ làm ảnh minh họa chính thức của template theo yêu cầu chủ template, không bắt buộc thay bằng ảnh chụp thật. Vẫn ghi rõ ảnh do AI tạo và không dùng làm bằng chứng dự án/khách hàng có thật. Các case study, counter và testimonial tiếp tục có `isDemo: true` cho đến khi có số liệu xác minh.
+
+## Cụm liên hệ cố định và section lợi ích
+
+- `CONVERSION_COPY`: nhãn 5 nút, tiêu đề form, câu hỏi/đáp hướng dẫn nhanh và nội dung chuyển kênh. Chat hướng dẫn dùng nội dung có sẵn; chat trực tiếp dùng Zalo/Messenger.
+- `SITE_CONFIG.contact.messenger`: điền URL thật dạng `https://m.me/ten-trang`. Khi để trống, nút Messenger mở thông báo kênh chưa sẵn sàng kèm Zalo/hotline; không trỏ đến một trang Facebook bất kỳ. Zalo và gọi điện đọc từ số đã cấu hình.
+- `BENEFIT_HEROES`: thứ tự, headline, mô tả, ảnh và CTA phụ của ba section hộ gia đình/cửa hàng/nhà máy. Lợi ích chi tiết và CTA chính đọc từ `SEGMENTS`.
+- Màu toàn site tại biến CSS đầu `src/app/globals.css`: xanh dương `--t5-primary`, xanh lá `--solar-green`, xanh lá nhạt `--solar-light` và các alias `--t8-*` để giữ tương thích design system. Logo/favicon cũng đã đổi điểm nhấn xanh lá nhạt.
+- Desktop mở cụm liên hệ; mobile thu gọn mặc định. Có thể mở/thu gọn, đóng dialog bằng Escape. Form trong dialog tự chọn tệp hiện tại; nhận yêu cầu theo webhook hoặc luồng Zalo đã mô tả ở trên.

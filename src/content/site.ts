@@ -21,7 +21,8 @@ export const SITE_CONFIG = {
     address: "", // Chưa được cung cấp; không hiển thị địa chỉ mẫu.
     taxCode: "",
     license: "",
-    facebook: "https://facebook.com/",
+    facebook: "",
+    messenger: "", // Điền https://m.me/<tên-trang> khi chủ template cung cấp trang thật.
     linkedin: "https://linkedin.com/",
   },
   capabilities: {
@@ -53,11 +54,11 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const THEME_PRESETS = {
-  solar: { label: "Xanh nắng", primary: "#0d3b78", accent: "#f7b928" },
-  navy: { label: "Navy kỹ thuật", primary: "#071b33", accent: "#f5b927" },
-  graphite: { label: "Than chì", primary: "#17202b", accent: "#ffb703" },
-  forest: { label: "Xanh rừng", primary: "#12372a", accent: "#f4c95d" },
-  royal: { label: "Xanh hoàng gia", primary: "#172554", accent: "#facc15" },
+  solar: { label: "Xanh năng lượng", primary: "#0d3b78", accent: "#b8efcc" },
+  navy: { label: "Navy kỹ thuật", primary: "#071b33", accent: "#b8efcc" },
+  graphite: { label: "Than chì", primary: "#17202b", accent: "#b8efcc" },
+  forest: { label: "Xanh rừng", primary: "#12372a", accent: "#b8efcc" },
+  royal: { label: "Xanh hoàng gia", primary: "#172554", accent: "#b8efcc" },
 } as const;
 export type ProductCategory = "panel" | "inverter" | "battery" | "accessory";
 export type Product = {
@@ -1304,4 +1305,84 @@ export const ASSET_COPY = {
   zalo: "Zalo",
   hourLabels: ["00:00", "12:00", "23:00"],
   profile: "Về chúng tôi",
+};
+
+// Các section lợi ích nổi bật: ảnh và lợi ích chi tiết đọc lại từ SEGMENTS.
+export const BENEFIT_HEROES = [
+  {
+    segment: "home",
+    eyebrow: "Điện mặt trời cho hộ gia đình",
+    title: "Mái nhà đón nắng. Cả nhà an tâm dùng điện.",
+    intro:
+      "Biến khoảng mái thành nguồn điện cho sinh hoạt: giảm hóa đơn, theo dõi qua ứng dụng và chủ động dự phòng cho thiết bị thiết yếu.",
+    image: IMAGES.home,
+    tag: "Sống xanh từ chính mái nhà",
+    detailCta: "Khám phá giải pháp gia đình",
+  },
+  {
+    segment: "retail",
+    eyebrow: "Điện mặt trời cho cửa hàng",
+    title: "Giờ có nắng cũng là giờ cửa hàng kinh doanh.",
+    intro:
+      "Để điện mặt trời cùng vận hành điều hòa, tủ mát và quầy hàng. Một giải pháp đồng bộ giúp kiểm soát điện năng tại từng điểm bán và toàn chuỗi.",
+    image: IMAGES.coffee,
+    tag: "Kinh doanh hiệu quả · thương hiệu xanh",
+    detailCta: "Khám phá giải pháp cửa hàng",
+  },
+  {
+    segment: "factory",
+    eyebrow: "Điện mặt trời cho nhà máy, xưởng sản xuất",
+    title: "Mái xưởng tạo điện. Chi phí vận hành nhẹ hơn.",
+    intro:
+      "Tận dụng mái nhà máy, kho lạnh và trang trại để tối ưu tải ban ngày, xây dựng phương án tài chính và theo dõi hiệu quả bằng dữ liệu.",
+    image: IMAGES.factory,
+    tag: "Tối ưu năng lượng cho sản xuất",
+    detailCta: "Khám phá giải pháp nhà máy",
+  },
+] satisfies Array<{
+  segment: Segment;
+  eyebrow: string;
+  title: string;
+  intro: string;
+  image: { src: string; alt: string };
+  tag: string;
+  detailCta: string;
+}>;
+
+export const CONVERSION_COPY = {
+  label: "Liên hệ nhanh với Minwy Solar",
+  toggle: "Tư vấn nhanh",
+  collapse: "Thu gọn liên hệ",
+  chat: "Chat tư vấn",
+  form: "Điền form khảo sát",
+  call: "Gọi điện",
+  zalo: "Chat Zalo",
+  messenger: "Messenger",
+  chatTitle: "Bạn cần tư vấn điều gì?",
+  chatIntro:
+    "Chọn nhu cầu để xem hướng dẫn nhanh. Để trao đổi trực tiếp với Minwy Solar, hãy chọn Zalo hoặc gọi điện.",
+  questionLabel: "Chủ đề tư vấn",
+  questions: [
+    {
+      question: "Tôi muốn biết tiết kiệm được bao nhiêu",
+      answer:
+        "Bạn có thể nhập hóa đơn điện hoặc diện tích mái tại máy tính tiết kiệm. Kết quả là ước tính; khảo sát thực tế sẽ giúp chọn công suất phù hợp.",
+    },
+    {
+      question: "Tôi cần dự phòng khi mất điện",
+      answer:
+        "Hãy chia sẻ các thiết bị cần duy trì và thời gian dự phòng. Hệ hybrid có pin lưu trữ cần được thiết kế theo phụ tải thiết yếu và cấu hình chuyển nguồn.",
+    },
+    {
+      question: "Tôi muốn khảo sát mái công trình",
+      answer:
+        "Điền form với loại khách hàng, vị trí công trình, hóa đơn điện và diện tích mái. Minwy Solar sẽ có thông tin để trao đổi về nhu cầu khảo sát.",
+    },
+  ],
+  formTitle: "Đăng ký tư vấn & khảo sát",
+  messengerTitle: "Liên hệ Minwy Solar",
+  messengerUnavailable:
+    "Kênh Messenger hiện chưa sẵn sàng. Bạn có thể trao đổi trực tiếp qua Zalo hoặc gọi hotline bên dưới.",
+  calculator: "Mở máy tính tiết kiệm",
+  answerLabel: "Hướng dẫn nhanh",
 };

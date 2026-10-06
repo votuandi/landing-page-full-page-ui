@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useId } from "react";
 import { COPY } from "@/content/site";
 export default function Modal({
   open,
@@ -12,6 +12,7 @@ export default function Modal({
   title: string;
   children: React.ReactNode;
 }) {
+  const titleId = useId();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -27,10 +28,10 @@ export default function Modal({
         if (e.target === ref.current) onClose();
       }}
       className="w-[calc(100%-2rem)] max-w-lg rounded-[28px] border-0 bg-white p-6 text-slate-900 shadow-2xl backdrop:bg-slate-950/60"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
     >
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 id="modal-title" className="text-2xl font-black">
+        <h2 id={titleId} className="text-2xl font-black">
           {title}
         </h2>
         <button

@@ -84,3 +84,13 @@ Không có ảnh công trình hoặc khách hàng thật trong bản giao; tám 
 - Không lỗi console; axe WCAG 2 A/AA và 2.1 AA không có vi phạm trên form sau khi tạo nội dung.
 - Kết quả chi tiết: `docs/qa/minwy-handoff.json`. Lighthouse bên trên thuộc bản kiểm tra ban đầu; không chạy lại vì cập nhật chỉ ảnh hưởng thông tin công ty và luồng form.
 - Chưa kiểm tra nhận yêu cầu qua webhook thực tế vì chủ template chưa cung cấp endpoint/token. Chưa gửi tin nhắn Zalo cho người khác; khách tự bấm gửi.
+
+## Kiểm tra cụm liên hệ, hero lợi ích và bảng màu — 06/10/2026
+
+- Build 31 trang, lint, typecheck, 70 trường hợp máy tính và diff whitespace đều đạt. Trang chủ first-load JS 128 kB; không thêm dependency.
+- Responsive 360/768/1280/1920: ba section ảnh tải đúng, không tràn ngang; đủ 5 hành động cố định, vị trí mobile nằm trên thanh CTA, form gửi theo luồng Zalo đạt.
+- 8 luồng đã kiểm tra: chat hướng dẫn → form, form manual, Escape, tự chọn tệp, Messenger thiếu link có Zalo/hotline, CTA gia đình đồng bộ máy tính, CTA nhà máy đồng bộ form, reduced motion.
+- Không lỗi console. Axe WCAG 2 A/AA và 2.1 AA: 0 vi phạm ở chat mobile, trang chủ, liên hệ, nhà máy và sản phẩm.
+- Lighthouse mobile trang chủ sau cập nhật: **Performance 92 / Accessibility 100 / SEO 100**, không run warning. Tóm tắt thông số đo ở `docs/qa/lighthouse-conversion-home.json`; kết quả luồng ở `docs/qa/conversion-upgrade.json`.
+- 6 ảnh chụp ở `docs/screenshots/benefit-{home,retail,factory}-{360,1280}.webp`; ảnh 360 là viewport, ảnh 1280 là toàn section.
+- Chưa có trang Messenger thật nên chưa kiểm tra gửi qua Facebook. Nút chuyển kênh tạm thời; Zalo/hotline đã kiểm tra đường dẫn, không tự gửi tin nhắn trong QA.

@@ -1,4 +1,5 @@
 import { COPY } from "@/content/site";
+import BenefitHeroes from "@/components/template10/BenefitHeroes";
 import Hero from "@/components/template10/Hero";
 import {
   Solutions,
@@ -24,6 +25,7 @@ export default function Page() {
     <main>
       <Hero />
       <Solutions />
+      <BenefitHeroes />
       <ClientWall />
       <Counters />
       <CaseStudies />

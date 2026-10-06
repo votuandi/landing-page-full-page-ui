@@ -100,7 +100,7 @@ export default function Hero({ fixed }: { fixed?: Segment }) {
               </div>
               <span
                 aria-hidden="true"
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-amber-200 text-2xl"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-emerald-200 text-2xl"
               >
                 ☀
               </span>

@@ -1,0 +1,53 @@
+{
+  "lighthouseVersion": "13.5.0",
+  "fetchTime": "2026-10-06T09:21:17.359Z",
+  "requestedUrl": "http://127.0.0.1:3033/",
+  "configSettings": {
+    "formFactor": "mobile",
+    "throttlingMethod": "simulate",
+    "throttling": {
+      "rttMs": 150,
+      "throughputKbps": 1638.4,
+      "requestLatencyMs": 562.5,
+      "downloadThroughputKbps": 1474.5600000000002,
+      "uploadThroughputKbps": 675,
+      "cpuSlowdownMultiplier": 4
+    },
+    "screenEmulation": {
+      "mobile": true,
+      "width": 412,
+      "height": 823,
+      "deviceScaleFactor": 1.75,
+      "disabled": false
+    }
+  },
+  "scores": {
+    "performance": 92,
+    "accessibility": 100,
+    "seo": 100
+  },
+  "runWarnings": [],
+  "metrics": {
+    "first-contentful-paint": {
+      "value": 1367.913,
+      "displayValue": "1.4 s"
+    },
+    "largest-contentful-paint": {
+      "value": 3242.913,
+      "displayValue": "3.2 s"
+    },
+    "speed-index": {
+      "value": 1367.913,
+      "displayValue": "1.4 s"
+    },
+    "total-blocking-time": {
+      "value": 34.5,
+      "displayValue": "30 ms"
+    },
+    "cumulative-layout-shift": {
+      "value": 0,
+      "displayValue": "0"
+    }
+  },
+  "failedAccessibilityOrSeoAudits": []
+}
