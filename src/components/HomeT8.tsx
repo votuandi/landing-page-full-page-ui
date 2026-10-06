@@ -1,5 +1,8 @@
 import { delay } from "@/utils/reveal";
-import { PRODUCTS, TESTIMONIALS } from "@/data/solar";
+import { TESTIMONIALS } from "@/data/solar";
+import { productBrands } from "@/data/products";
+import { catalogEnabled } from "@/config/site";
+import ProductStrip from "@/components/ProductStrip";
 import { SegmentProvider } from "@/lib/segment";
 import { StoryPlayerProvider } from "@/lib/storyPlayer";
 import VideoStories from "@/components/VideoStories";
@@ -17,7 +20,7 @@ import FaqSection from "@/components/FaqSection";
  * SegmentProvider giữ phân khúc đang chọn để các section bên dưới lọc / điền sẵn.
  */
 export default function HomeT8() {
-  const partnerBrands = Array.from(new Set(PRODUCTS.map((p) => p.brand)));
+  const partnerBrands = productBrands();
   return (
     <main>
       <SectionReveal />
@@ -32,6 +35,8 @@ export default function HomeT8() {
         <SolarEstimator />
 
         <ProjectsGallery />
+
+        {catalogEnabled && <ProductStrip />}
 
         <EnergyMonitoringSection />
 

@@ -1,26 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Bars3Icon, ClockIcon, PhoneIcon, ShoppingBagIcon, SwatchIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, catalogEnabled, telHref } from "@/config/site";
-import { PRODUCTS } from "@/data/solar";
+import { QuoteCartProvider, useQuoteCart } from "@/lib/quoteCartContext";
 import BrandLogo from "@/components/BrandLogo";
 import ContactDock from "@/components/ContactDock";
 
-type RfqContextValue = {
-  items: string[];
-  add: (slug: string) => void;
-  remove: (slug: string) => void;
-  open: () => void;
-};
-
-const RfqContext = createContext<RfqContextValue | null>(null);
-
-export function useRFQ() {
-  const value = useContext(RfqContext);
-  if (!value) throw new Error("useRFQ must be used inside SiteShell");
-  return value;
+/** Icon "Giỏ báo giá" trên header, badge = tổng số lượng. */
+function CartButton() {
+  const cart = useQuoteCart();
+  return (
+    <button type="button" onClick={cart.open} className="t5-icon-button" aria-label={`Giỏ báo giá (${cart.count} sản phẩm)`}>
+      <ShoppingBagIcon className="h-5 w-5" />
+      {cart.count > 0 && <span className="t5-count" aria-hidden>{cart.count > 99 ? "99+" : cart.count}</span>}
+    </button>
+  );
 }
 
 /** Topbar hotline theo mục đích (desktop). */
@@ -49,27 +45,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
   const [menuOpen, setMenuOpen] = useState(false);
   const [demoVisible, setDemoVisible] = useState(SITE_CONFIG.demo.enabled);
   const [themeOpen, setThemeOpen] = useState(false);
-  const [rfqOpen, setRfqOpen] = useState(false);
-  const [items, setItems] = useState<string[]>([]);
   const [brandName, setBrandName] = useState<string>(SITE_CONFIG.brand.name);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("minwy-rfq");
-      if (saved) setItems(JSON.parse(saved));
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try { localStorage.setItem("minwy-rfq", JSON.stringify(items)); } catch {}
-  }, [items]);
-
-  const ctx = useMemo<RfqContextValue>(() => ({
-    items,
-    add: (slug) => setItems((current) => current.includes(slug) ? current : [...current, slug]),
-    remove: (slug) => setItems((current) => current.filter((item) => item !== slug)),
-    open: () => setRfqOpen(true),
-  }), [items]);
 
   const applyTheme = (primary: string, accent: string) => {
     document.documentElement.style.setProperty("--c-primary", primary);
@@ -81,10 +57,8 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
     document.documentElement.style.removeProperty("--c-accent");
   };
 
-  const selectedProducts = PRODUCTS.filter((p) => items.includes(p.slug));
-
   return (
-    <RfqContext.Provider value={ctx}>
+    <QuoteCartProvider>
       {demoVisible && (
         <div className="t5-demo-bar">
           <div className="t5-container flex min-h-11 items-center justify-between gap-3 py-2 text-xs sm:text-sm">
@@ -111,12 +85,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
           </nav>
 
           <div className="flex items-center gap-2">
-            {catalogEnabled && (
-              <button type="button" onClick={() => setRfqOpen(true)} className="t5-icon-button" aria-label={`Giỏ báo giá (${items.length} sản phẩm)`}>
-                <ShoppingBagIcon className="h-5 w-5" />
-                {items.length > 0 && <span className="t5-count" aria-hidden>{items.length}</span>}
-              </button>
-            )}
+            {catalogEnabled && <CartButton />}
             <Link href="/lien-he" className="t5-button t5-button-accent hidden sm:inline-flex">Nhận tư vấn</Link>
             <button type="button" onClick={() => setMenuOpen((v) => !v)} className="t5-icon-button lg:hidden" aria-expanded={menuOpen} aria-controls="mobile-nav" aria-label={menuOpen ? "Đóng menu" : "Mở menu"}>
               {menuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
@@ -154,16 +123,6 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
 
       <ContactDock />
 
-      {catalogEnabled && rfqOpen && (
-        <div className="fixed inset-0 z-[70] flex justify-end bg-scrim/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ báo giá">
-          <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
-          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-bg-elevated/95 p-6 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-between"><h2 className="text-2xl font-black text-fg">Giỏ báo giá</h2><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button" aria-label="Đóng"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-line/12 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-danger">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-fg-muted">Chưa có sản phẩm nào.</p>}
-            <Link href={items.length ? `/lien-he?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem sản phẩm"}</Link>
-          </aside>
-        </div>
-      )}
-    </RfqContext.Provider>
+    </QuoteCartProvider>
   );
 }

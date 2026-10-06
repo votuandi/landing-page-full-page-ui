@@ -1,5 +1,4 @@
 import { PhoneIcon } from "@heroicons/react/24/outline";
-import { PRODUCTS } from "@/data/solar";
 import LeadForm from "@/components/LeadForm";
 import { SITE_CONFIG, telHref } from "@/config/site";
 import { makeMetadata } from "@/utils/solar";
@@ -10,10 +9,7 @@ export const metadata = makeMetadata(
   "/lien-he"
 );
 
-export default async function ContactPage({ searchParams }: { searchParams: Promise<{ rfq?: string }> }) {
-  const { rfq } = await searchParams;
-  const selected = rfq ? PRODUCTS.filter((p) => rfq.split(",").includes(p.slug)) : [];
-  const message = selected.length ? `Yêu cầu báo giá: ${selected.map((p) => `${p.brand} ${p.name}`).join("; ")}` : "";
+export default function ContactPage() {
   return <main>
     <section className="t5-page-hero">
       <div className="t5-container">
@@ -38,9 +34,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </ul>
           {SITE_CONFIG.contact.email && <a href={`mailto:${SITE_CONFIG.contact.email}`} className="mt-6 block font-bold text-fg">{SITE_CONFIG.contact.email}</a>}
           <p className="mt-3 text-sm leading-7 text-fg-muted">{SITE_CONFIG.contact.address}<br />{SITE_CONFIG.contact.workingHours}</p>
-          {selected.length > 0 && <div className="mt-7 border-t border-line/12 pt-5"><div className="text-sm font-black">Sản phẩm đang chọn ({selected.length})</div><ul className="mt-3 space-y-2 text-sm text-fg-muted">{selected.map((p) => <li key={p.slug}>• {p.brand} {p.name}</li>)}</ul></div>}
         </aside>
-        <div className="t8-card p-6 sm:p-8"><LeadForm source="contact" fields={{ zalo: true, address: true, message: true }} messageLabel="Nhu cầu" defaultMessage={message} submitLabel="Gửi yêu cầu tư vấn" /></div>
+        <div className="t8-card p-6 sm:p-8"><LeadForm source="contact" fields={{ zalo: true, address: true, message: true }} messageLabel="Nhu cầu" submitLabel="Gửi yêu cầu tư vấn" /></div>
       </div>
     </section>
   </main>;

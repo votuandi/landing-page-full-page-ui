@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
 import { SITE_CONFIG } from "@/config/site";
-import { PRODUCTS } from "@/data/solar";
+import { PRODUCTS } from "@/data/products";
+import { catalogEnabled } from "@/config/site";
 import { PROJECTS } from "@/data/projects";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = ["", "/product", "/ve-chung-toi", "/lien-he"];
+  const paths = ["", ...(catalogEnabled ? ["/san-pham"] : []), "/ve-chung-toi", "/lien-he"];
   const dynamic = [
-    ...PRODUCTS.map((p) => `/product/${p.slug}`),
+    ...(catalogEnabled ? PRODUCTS.map((p) => `/san-pham/${p.sku}`) : []),
     ...PROJECTS.map((p) => `/cong-trinh/${p.slug}`),
   ];
   return [...paths, ...dynamic].map((path) => ({

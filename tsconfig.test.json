@@ -17,6 +17,7 @@
     "src/lib/format.ts",
     "src/lib/phone.ts",
     "src/lib/price.ts",
+    "src/lib/quoteCart.ts",
     "src/lib/__tests__/*.ts",
     "src/config/solar.ts",
     "src/config/segments.ts"
