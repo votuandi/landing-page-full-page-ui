@@ -4,6 +4,8 @@ import { SegmentProvider } from "@/lib/segment";
 import { StoryPlayerProvider } from "@/lib/storyPlayer";
 import VideoStories from "@/components/VideoStories";
 import ProjectsGallery from "@/components/ProjectsGallery";
+import PackagesSection from "@/components/PackagesSection";
+import SolarEstimator from "@/components/SolarEstimator";
 import HeroT8 from "@/components/HeroT8";
 import SegmentGrid from "@/components/SegmentGrid";
 import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
@@ -25,6 +27,9 @@ export default function HomeT8() {
         <SegmentGrid />
 
         <VideoStories />
+
+        <PackagesSection />
+        <SolarEstimator />
 
         <ProjectsGallery />
 

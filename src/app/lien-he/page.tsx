@@ -40,7 +40,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           <p className="mt-3 text-sm leading-7 text-fg-muted">{SITE_CONFIG.contact.address}<br />{SITE_CONFIG.contact.workingHours}</p>
           {selected.length > 0 && <div className="mt-7 border-t border-line/12 pt-5"><div className="text-sm font-black">Sản phẩm đang chọn ({selected.length})</div><ul className="mt-3 space-y-2 text-sm text-fg-muted">{selected.map((p) => <li key={p.slug}>• {p.brand} {p.name}</li>)}</ul></div>}
         </aside>
-        <div className="t8-card p-6 sm:p-8"><LeadForm source={selected.length ? "rfq" : "contact"} defaultMessage={message} /></div>
+        <div className="t8-card p-6 sm:p-8"><LeadForm source="contact" fields={{ zalo: true, address: true, message: true }} messageLabel="Nhu cầu" defaultMessage={message} submitLabel="Gửi yêu cầu tư vấn" /></div>
       </div>
     </section>
   </main>;

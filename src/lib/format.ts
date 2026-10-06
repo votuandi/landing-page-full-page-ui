@@ -9,7 +9,8 @@ export const parseNumber = (text: string) => Number(text.replace(/[^\d]/g, "")) 
 
 /** 1.234.000.000 → "1,23 tỷ"; 3.450.000 → "3,5 triệu"; 930.710 → "931 nghìn" */
 export function formatMoneyShort(value: number) {
-  const fmt = (n: number, digits: number) => n.toFixed(digits).replace(/\.?0+$/, "").replace(".", ",");
+  // bỏ số 0 thừa ở phần thập phân (3,50 → 3,5; 2,00 → 2) nhưng KHÔNG đụng phần nguyên (180 giữ nguyên)
+  const fmt = (n: number, digits: number) => n.toFixed(digits).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "").replace(".", ",");
   if (value >= 1e9) return `${fmt(value / 1e9, 2)} tỷ`;
   if (value >= 1e6) return `${fmt(value / 1e6, value >= 1e8 ? 0 : 1)} triệu`;
   if (value >= 1e3) return `${formatNumber(value / 1e3)} nghìn`;
