@@ -6,7 +6,7 @@ import { FAQS, POLICY_SUMMARY, PRODUCTS, PROJECTS, TESTIMONIALS } from "@/data/s
 import HeroT8 from "@/components/HeroT8";
 import SavingsBySegment from "@/components/SavingsBySegment";
 import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
-import RoiCalculator from "@/components/RoiCalculator";
+import SolarEstimator from "@/components/SolarEstimator";
 import SectionReveal from "@/components/SectionReveal";
 import LeadForm from "@/components/LeadForm";
 
@@ -38,9 +38,9 @@ export default function HomeT8() {
       <SectionReveal />
       <HeroT8 />
 
-      <SavingsBySegment />
+      <SolarEstimator />
 
-      <RoiCalculator />
+      <SavingsBySegment />
 
       <EnergyMonitoringSection />
 

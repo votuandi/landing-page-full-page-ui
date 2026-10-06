@@ -54,14 +54,6 @@ export const SITE_CONFIG = {
   /** Số liệu nổi bật. "Năm kinh nghiệm" tự tính từ brand.foundedYear. */
   capabilities: { mwp: 38.6, customers: 1250, technicians: 36, projects: 286, provinces: 18 },
 
-  // Tham số calculator cũ của template-8 (sẽ chuyển sang config/solar.ts)
-  calculator: {
-    electricityRates: { household: 3050, business: 3150, manufacturing: 2850 },
-    systemCostPerKwp: { household: 15500000, business: 13700000, manufacturing: 12800000 },
-    sunHours: { north: 3.4, central: 4.2, south: 4.7 },
-    degradationPerYear: 0.005, annualElectricityInflation: 0.03, years: 25,
-  },
-
   demo: {
     enabled: process.env.NEXT_PUBLIC_DEMO_MODE !== "false",
     templateCtaUrl: process.env.NEXT_PUBLIC_TEMPLATE_CTA_URL || "/lien-he",

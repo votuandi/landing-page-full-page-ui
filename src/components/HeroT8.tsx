@@ -43,7 +43,7 @@ export default function HeroT8() {
             Thiết kế hệ solar theo đúng phụ tải, theo dõi điện năng 24/7 trên điện thoại và tối ưu hóa đơn từ tháng đầu tiên vận hành.
           </p>
           <div data-reveal="up" style={delay(0.34)} className="mt-9 flex flex-wrap gap-3">
-            <a href="#roi" className="t5-button bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(var(--c-accent)/.7)] hover:brightness-110">Tính tiết kiệm <ArrowRightIcon className="h-4 w-4" /></a>
+            <a href="#du-toan" className="t5-button bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(var(--c-accent)/.7)] hover:brightness-110">Dự toán chi phí <ArrowRightIcon className="h-4 w-4" /></a>
             <Link href="/lien-he" className="t5-button border border-line/20 bg-glass text-fg backdrop-blur hover:bg-glass-tint/10">Đặt lịch khảo sát</Link>
           </div>
           <dl data-reveal-stagger="up" data-reveal-step="0.12" className="mt-12 grid max-w-lg grid-cols-3 gap-4 sm:mt-16">

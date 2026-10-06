@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": ".test-dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src/lib/solarCalculator.ts", "src/lib/phone.ts", "src/lib/__tests__/*.ts", "src/config/solar.ts"]
+}
