@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PRODUCTS } from "@/data/solar";
-import { formatMoney, productBrands } from "@/utils/solar";
+import { productBrands } from "@/utils/solar";
+import PriceTag from "@/components/PriceTag";
 import { useRFQ } from "@/components/SiteShell";
 
 const categories = [
@@ -58,11 +59,11 @@ export default function ProductCatalog() {
           <aside className="hidden border-r border-line/12 pr-6 lg:block"><Filters /></aside>
           <div>
             <div className="mb-5 text-sm text-fg-muted"><strong className="text-fg">{list.length}</strong> thiết bị phù hợp</div>
-            {list.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{list.map((p) => <article key={p.slug} className="group flex h-full flex-col border border-line/12 bg-bg-elevated">
+            {list.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{list.map((p) => <article key={p.slug} className="t8-card group flex h-full flex-col overflow-hidden">
               <Link href={`/san-pham/${p.slug}`} className="relative block aspect-[4/3] overflow-hidden bg-bg-elevated"><Image src={p.image} alt={`${p.brand} ${p.name}`} fill className="object-cover transition duration-500 group-hover:scale-[1.03]" /></Link>
               <div className="flex flex-1 flex-col p-5"><div className="text-xs font-black uppercase tracking-[.16em] text-fg-subtle">{p.brand}</div><Link href={`/san-pham/${p.slug}`}><h3 className="mt-2 text-lg font-black leading-snug text-primary">{p.name}</h3></Link>
               <dl className="mt-4 grid gap-2 text-sm">{Object.entries(p.specs).slice(0,3).map(([k,v]) => <div key={k} className="flex justify-between gap-4 border-b border-line/12 pb-2"><dt className="text-fg-muted">{k}</dt><dd className="text-right font-bold text-fg">{v}</dd></div>)}</dl>
-              <div className="mt-auto pt-5"><div className="text-lg font-black text-primary">{p.quoteOnly || !p.price ? "Liên hệ báo giá" : formatMoney(p.price)}</div><div className="mt-3 grid grid-cols-2 gap-2"><Link href={`/san-pham/${p.slug}`} className="t5-button t5-button-secondary justify-center">Chi tiết</Link><button type="button" onClick={() => { rfq.add(p.slug); rfq.open(); }} className="t5-button t5-button-primary justify-center">Thêm RFQ</button></div></div>
+              <div className="mt-auto pt-5"><PriceTag price={p.price} salePrice={p.salePrice} quoteOnly={p.quoteOnly} /><div className="mt-3 grid grid-cols-2 gap-2"><Link href={`/san-pham/${p.slug}`} className="t5-button t5-button-secondary justify-center">Chi tiết</Link><button type="button" onClick={() => { rfq.add(p.slug); rfq.open(); }} className="t5-button t5-button-primary justify-center">Thêm RFQ</button></div></div>
               </div>
             </article>)}</div> : <div className="border border-dashed border-line/20 bg-bg-elevated p-12 text-center"><div className="text-xl font-black text-primary">Không có kết quả</div><p className="mt-2 text-fg-muted">Hãy nới công suất, khoảng giá hoặc chọn lại hãng.</p><button type="button" onClick={() => router.replace(pathname)} className="mt-5 t5-button t5-button-primary">Xóa bộ lọc</button></div>}
           </div>

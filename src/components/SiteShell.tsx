@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Bars3Icon, XMarkIcon, PhoneIcon, SwatchIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, SwatchIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, isDistributor } from "@/config/site";
 import { PRODUCTS } from "@/data/solar";
 import BrandLogo from "@/components/BrandLogo";
+import ContactDock from "@/components/ContactDock";
 
 type RfqContextValue = {
   items: string[];
@@ -151,7 +152,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
       </footer>
 
       {SITE_CONFIG.demo.enabled && (
-        <div className="fixed right-4 top-[45%] z-50 hidden lg:block">
+        <div className="fixed right-4 top-[30%] z-50 hidden lg:block">
           <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện" aria-expanded={themeOpen}><SwatchIcon className="h-5 w-5" /></button>
           {themeOpen && (
             <div className="absolute right-14 top-0 w-72 rounded-3xl border border-glass-border bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl">
@@ -167,10 +168,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-2 gap-2 rounded-full border border-glass-border bg-bg-elevated/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
-        <a className="flex min-h-11 items-center justify-center gap-1 rounded-full bg-primary px-2 text-xs font-black text-on-primary" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
-        <a className="flex min-h-11 items-center justify-center gap-1 rounded-full bg-accent px-2 text-xs font-black text-on-accent" href={SITE_CONFIG.contact.zalo}>Zalo</a>
-      </div>
+      <ContactDock />
 
       {isDistributor && rfqOpen && (
         <div className="fixed inset-0 z-[70] flex justify-end bg-scrim/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">

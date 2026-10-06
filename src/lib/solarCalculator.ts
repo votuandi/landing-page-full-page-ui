@@ -131,6 +131,19 @@ export function calculateSolar(input: CalculatorInput, options: CalculatorOption
   };
 }
 
+/**
+ * Tiết kiệm ước tính/tháng của một hệ có sẵn công suất (dùng cho thẻ gói giải pháp).
+ * Giả định toàn bộ sản lượng được dùng trực tiếp; hộ gia đình tính theo giá bậc cao nhất bị cắt giảm.
+ */
+export function estimateSavingForKwp(segment: Segment, kwp: number, province: string, options: CalculatorOptions = {}) {
+  const tariff = (options.tariffs ?? TARIFFS)[segment];
+  const vat = options.vatRate ?? VAT_RATE;
+  const pr = options.performanceRatio ?? SYSTEM.performanceRatio;
+  const production = kwp * PEAK_SUN_HOURS[regionOf(province)] * 30 * pr;
+  const rate = tariff.kind === "flat" ? tariff.solarOffsetRate : tariff.tiers[tariff.tiers.length - 1].price;
+  return production * rate * (1 + vat);
+}
+
 export const defaultDaytimeRatio = (segment: Segment) => SEGMENTS[segment].defaultDaytimeRatio;
 
 /** 1000000 → "1.000.000" */

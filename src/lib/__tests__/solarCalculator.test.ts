@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { billFromKwh, calculateSolar, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
+import { billFromKwh, calculateSolar, estimateSavingForKwp, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
 import { TARIFFS } from "../../config/solar";
 import { isVnMobile, normalizeVnPhone } from "../phone";
 
@@ -76,4 +76,9 @@ test("số di động Việt Nam", () => {
   for (const ok of ["0901234567", "090 123 4567", "+84 912 345 678", "0389.123.456", "0868123456"]) assert.ok(isVnMobile(ok), ok);
   for (const bad of ["0281234567", "12345", "09012345678", "0101234567", ""]) assert.ok(!isVnMobile(bad), bad);
   assert.equal(normalizeVnPhone("+84 912-345-678"), "0912345678");
+});
+
+test("tiết kiệm của gói 5 kWp hộ gia đình tại TP HCM", () => {
+  // 5 × 4,6 × 30 × 0,8 = 552 kWh × 3.460 đ × 1,08
+  close(estimateSavingForKwp("household", 5, "TP Hồ Chí Minh"), 552 * 3460 * 1.08, 1);
 });

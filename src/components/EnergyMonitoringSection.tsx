@@ -26,7 +26,7 @@ function toPath(values: number[], close: boolean) {
 
 function PhoneDashboard() {
   return (
-    <div className="absolute left-[60px] top-[10px] h-[540px] w-[260px] rounded-[44px] bg-device p-[9px] shadow-[0_50px_100px_-30px_rgb(var(--c-shadow)/)]">
+    <div className="absolute left-[60px] top-[10px] h-[540px] w-[260px] rounded-[44px] bg-device p-[9px] shadow-[0_50px_100px_-30px_rgb(var(--c-shadow)/.6)]">
       <div className="relative h-full w-full overflow-hidden rounded-[36px] bg-gradient-to-b from-bg-elevated to-bg-tint text-fg">
         <div className="absolute left-1/2 top-2 h-5 w-20 -translate-x-1/2 rounded-full bg-device" />
         <div className="flex items-center justify-between px-5 pt-2.5 text-[10px] font-bold"><span>9:41</span><span className="tracking-tighter">●●● ▮</span></div>
@@ -114,9 +114,9 @@ function HandHoldingPhone() {
 
 export default function EnergyMonitoringSection() {
   return (
-    <section id="theo-doi-24-7" className="t8-screen relative isolate overflow-hidden bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep py-16 text-fg md:py-24">
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/),transparent_65%)]" />
+    <section id="theo-doi-24-7" className="t12-invert t8-screen relative isolate overflow-hidden bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep py-16 text-fg md:py-24">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.35),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/.18),transparent_65%)]" />
       <div aria-hidden className="absolute inset-0 -z-10 opacity-[.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="t5-container grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
@@ -145,7 +145,7 @@ export default function EnergyMonitoringSection() {
         <div className="flex justify-center">
         <div className="relative -mb-24 w-[380px] shrink-0 origin-top scale-[.84] sm:mb-0 sm:scale-100">
           <div aria-hidden className="absolute left-1/2 top-[42%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/15" />
-          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/),transparent_68%)]" />
+          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.3),transparent_68%)]" />
           <div data-reveal="up" style={delay(0.15)}><HandHoldingPhone /></div>
           <div data-reveal="left" style={delay(0.55)} className="t8-glass t8-float absolute -left-24 top-[34%] hidden rounded-2xl px-4 py-3 text-fg sm:block lg:-left-32">
             <div className="text-[10px] font-bold uppercase tracking-[.12em] text-fg-muted">Tiết kiệm tháng này</div>

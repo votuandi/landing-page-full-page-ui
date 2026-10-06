@@ -106,6 +106,8 @@ a, button, input, select, textarea { outline-offset: 3px; }
 button, a { -webkit-tap-highlight-color: transparent; }
 img { max-width: 100%; }
 [id] { scroll-margin-top: 5.5rem; }
+/* Phần tử reveal ở trạng thái ẩn bị dịch ±80px — cắt để không gây cuộn ngang trên mobile */
+main, footer { overflow-x: clip; }
 
 @layer components {
   .t5-container { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8; }
