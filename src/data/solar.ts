@@ -24,31 +24,6 @@ export const PROJECTS = [
   { slug:"trang-trai-dong-nai", title:"Trang trại công nghệ cao Đồng Nai", type:"Nông nghiệp", location:"Đồng Nai", capacity:"320 kWp + 215 kWh", image:"/images/illustrations/farm-hybrid-solar.webp", saving:"~510 triệu đồng/năm", selfUse:"88%", detail:"Giải pháp hybrid ưu tiên cấp điện cho tải điều khiển, bơm và khu vận hành quan trọng khi điện lưới gián đoạn.", metrics:[["Solar","320 kWp"],["Lưu trữ","215 kWh"],["Tải ưu tiên","Có"],["Giám sát","24/7"]] }
 ] as const;
 
-export const SERVICES = [
-  { slug:"solar-nha-xuong", title:"Solar nhà xưởng", audience:"Nhà máy • Kho lạnh • Logistics", problem:"Chi phí điện ban ngày lớn, cần ROI rõ và không làm gián đoạn sản xuất.", solution:"Khảo sát phụ tải 15 phút, mô phỏng sản lượng, thiết kế string/inverter theo mái và thi công theo khu vực.", image:"/images/solar-installation-hero.jpg", price:"Từ 12,8 triệu đồng/kWp*", packages:[["Khảo sát","Miễn phí với dự án đủ điều kiện"],["EPC tiêu chuẩn","Theo công suất và hiện trạng mái"],["O&M năm đầu","Có thể tích hợp"]] },
-  { slug:"solar-gia-dinh", title:"Solar hộ gia đình", audience:"Biệt thự • Nhà phố tiêu thụ cao", problem:"Hóa đơn cao, tải điều hòa/bơm nhiệt/xe điện tăng và cần hệ thống thẩm mỹ.", solution:"Thiết kế hòa lưới hoặc hybrid theo biểu đồ tải, ưu tiên thiết bị gọn và theo dõi trên ứng dụng.", image:"/images/solar-panels-hero.jpg", price:"Từ 14,8 triệu đồng/kWp*", packages:[["5 kWp","Từ 74 triệu đồng*"],["10 kWp","Từ 145 triệu đồng*"],["Hybrid","Báo giá theo tải backup"]] },
-  { slug:"hybrid-luu-tru", title:"Hybrid & lưu trữ", audience:"Tải quan trọng • Khu vực điện không ổn định", problem:"Mất điện gây gián đoạn, máy phát tốn nhiên liệu hoặc cần tối ưu tự dùng.", solution:"Phân nhóm tải backup, tính dung lượng pin theo thời gian dự phòng và cấu hình inverter hybrid phù hợp.", image:"/images/solar-battery-hero.jpg", price:"Theo tải và thời gian backup", packages:[["Backup cơ bản","Router, chiếu sáng, thiết bị thiết yếu"],["SME","Tải văn phòng / cửa hàng"],["C&I","Thiết kế riêng theo tải"]] },
-  { slug:"om-ve-sinh", title:"O&M & vệ sinh", audience:"Hệ thống đang vận hành", problem:"Sản lượng giảm khó phát hiện, bụi bẩn, connector nóng hoặc lỗi string kéo dài.", solution:"Kiểm tra dữ liệu, đo điện, kiểm tra nhiệt điểm nghi ngờ, vệ sinh và lập biên bản hiệu suất.", image:"/images/product-2.jpg", price:"Từ 1.200.000 đồng/lần*", packages:[["Kiểm tra cơ bản","Visual + sản lượng"],["Bảo trì kỹ thuật","Đo kiểm + vệ sinh"],["O&M định kỳ","Theo quý / 6 tháng"]] }
-] as const;
-
-export const FAQS = [
-  ["Điện mặt trời thường hoàn vốn bao lâu?","Thời gian hoàn vốn phụ thuộc tỷ lệ tự dùng, biểu giá điện, suất đầu tư và bức xạ tại khu vực. Calculator trên website sử dụng cùng bộ tham số cấu hình để ước tính nhất quán."],
-  ["Mái tôn có lắp được không?","Có. Cần khảo sát kết cấu, tuổi mái, vị trí xà gồ và chọn phương án liên kết phù hợp trước khi thi công."],
-  ["Lắp solar có làm dột mái không?","Rủi ro được kiểm soát bằng khảo sát, phương án liên kết đúng loại mái và quy trình nghiệm thu chống dột. Phạm vi bảo hành thi công phải ghi rõ trong hợp đồng."],
-  ["Hệ thống chịu bão như thế nào?","Thiết kế khung và liên kết phải dựa trên hiện trạng công trình, vùng gió và yêu cầu kỹ thuật. Với dự án C&I nên có kiểm tra kết cấu khi cần."],
-  ["Bao lâu nên vệ sinh tấm pin?","Tùy môi trường bụi, mưa và góc nghiêng. Nên dựa trên dữ liệu sản lượng và kiểm tra thực tế thay vì cố định một lịch cho mọi dự án."],
-  ["Mùa mưa có tạo ra điện không?","Có, nhưng sản lượng giảm theo bức xạ. Ước tính năm phải tính theo dữ liệu khí hậu vùng, không dựa vào ngày nắng đẹp nhất."],
-  ["Mất điện lưới thì solar có chạy không?","Hệ hòa lưới thông thường sẽ ngắt để bảo đảm an toàn. Muốn duy trì tải khi mất điện cần thiết kế hybrid/backup phù hợp."],
-  ["Có cần thủ tục với điện lực hoặc cơ quan quản lý không?","Tùy mô hình, công suất, mục đích sử dụng và quy định đang có hiệu lực. Nội dung pháp lý trên website chỉ mang tính tóm tắt; hồ sơ thực tế cần được đối chiếu tại thời điểm triển khai. [CẦN XÁC MINH]"]
-] as const;
-
-export const POLICY_SUMMARY = [
-  "Ưu tiên thiết kế hệ thống phục vụ nhu cầu tự dùng tại công trình.",
-  "Yêu cầu đấu nối, đo đếm, an toàn điện/PCCC và hồ sơ có thể thay đổi theo loại dự án. [CẦN XÁC MINH]",
-  "Cơ chế mua bán điện dư, nếu có áp dụng, cần kiểm tra văn bản đang hiệu lực tại thời điểm ký hợp đồng. [CẦN XÁC MINH]",
-  "Dự án nhà xưởng cần rà soát tải mái, kết cấu, quyền sử dụng mái và yêu cầu bảo hiểm của chủ tài sản."
-] as const;
-
 export const TEAM = [
   { name:"Nguyễn Khải Minh", role:"Giám đốc kỹ thuật [DỮ LIỆU MẪU]", image:"/images/solar-installation-hero.jpg" },
   { name:"Trần Hoàng Phúc", role:"Trưởng nhóm thiết kế [DỮ LIỆU MẪU]", image:"/images/solar-inverter-hero.jpg" },

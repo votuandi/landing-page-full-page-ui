@@ -138,7 +138,7 @@ export default function EnergyMonitoringSection() {
             {features.map(([Icon, text]) => <li key={text} className="flex items-center gap-3 text-sm font-semibold text-on-media/80"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-bg-elevated/10"><Icon className="h-4 w-4 text-highlight" /></span>{text}</li>)}
           </ul>
 
-          <Link data-reveal="up" style={delay(0.2)} href="/contact-us" className="t5-button mt-10 bg-sun text-fg hover:brightness-105">Xem demo ứng dụng <ArrowRightIcon className="h-4 w-4" /></Link>
+          <Link data-reveal="up" style={delay(0.2)} href="/lien-he" className="t5-button mt-10 bg-sun text-fg hover:brightness-105">Xem demo ứng dụng <ArrowRightIcon className="h-4 w-4" /></Link>
         </div>
 
         <div className="flex justify-center">
