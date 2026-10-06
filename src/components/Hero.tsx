@@ -6,7 +6,7 @@ import { STATISTICS } from "@/utils/constants";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-[#f5ead7] py-20 md:py-28">
+    <section className="relative overflow-hidden bg-[var(--solar-surface)] py-20 md:py-28">
       <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-amber-300/30 blur-3xl" />
       <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-orange-300/25 blur-3xl" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
@@ -16,7 +16,7 @@ export default function Hero() {
               Năng lượng sạch • hiệu quả dài hạn
             </span>
             <h1 className="mt-6 text-4xl font-black leading-[1.06] tracking-tight text-stone-900 md:text-6xl">
-              Một hệ thống solar tốt bắt đầu từ <span className="text-orange-600">thiết kế đúng</span>
+              Một hệ thống solar tốt bắt đầu từ <span className="text-[var(--solar-primary-dark)]">thiết kế đúng</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-600 md:text-xl">
               Minwy Solar tư vấn, cung cấp thiết bị và thi công điện mặt trời theo nhu cầu thực tế của từng công trình, với trọng tâm là hiệu suất, an toàn và khả năng vận hành lâu dài.
@@ -31,7 +31,7 @@ export default function Hero() {
           <StaggeredScrollAnimation animation="fade-in-up" staggerDelay={100} className="mt-12 grid grid-cols-3 gap-3">
             {STATISTICS.map((item) => (
               <div key={item.label} className="rounded-3xl border border-orange-100 bg-white/80 p-4 text-center shadow-sm">
-                <div className="text-2xl font-black text-orange-600 md:text-3xl">{item.value}</div>
+                <div className="text-2xl font-black text-[var(--solar-primary-dark)] md:text-3xl">{item.value}</div>
                 <div className="mt-1 text-xs font-semibold text-stone-500 md:text-sm">{item.label}</div>
               </div>
             ))}
@@ -45,7 +45,7 @@ export default function Hero() {
                 <Image src="/images/solar-installation-hero.jpg" alt="Minwy Solar thi công hệ thống điện mặt trời" fill priority sizes="(max-width: 1024px) 100vw, 52vw" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-7 text-white">
-                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-amber-300">Khảo sát • Thiết kế • Thi công • Bảo hành</p>
+                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-[var(--solar-primary-dark)]">Khảo sát • Thiết kế • Thi công • Bảo hành</p>
                   <h2 className="mt-2 text-2xl font-bold">Một đội ngũ chịu trách nhiệm xuyên suốt</h2>
                 </div>
               </div>

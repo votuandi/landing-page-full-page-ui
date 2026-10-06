@@ -38,8 +38,8 @@ const strengths = [
 
 export default function SolarExpertiseSection() {
   return (
-    <section className="relative overflow-hidden bg-[#2f241a] py-20 text-white md:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.22),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(234,88,12,0.18),transparent_32%)]" />
+    <section className="relative overflow-hidden bg-[var(--solar-primary-dark)] py-20 text-white md:py-28">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in srgb,var(--solar-accent) 22%,transparent),transparent_36%),radial-gradient(circle_at_bottom_left,color-mix(in srgb,var(--solar-accent) 18%,transparent),transparent_32%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-14 lg:grid-cols-2">
           <ScrollAnimationWrapper animation="slide-in-left" duration={900}>
@@ -55,8 +55,8 @@ export default function SolarExpertiseSection() {
                   />
                 </div>
               </div>
-              <div className="absolute -bottom-6 -right-2 max-w-xs rounded-3xl bg-[#f5ead7] p-6 text-stone-900 shadow-2xl md:-right-6">
-                <div className="text-3xl font-black text-orange-600">Bền bỉ từ thiết kế</div>
+              <div className="absolute -bottom-6 -right-2 max-w-xs rounded-3xl bg-[var(--solar-surface)] p-6 text-stone-900 shadow-2xl md:-right-6">
+                <div className="text-3xl font-black text-[var(--solar-primary-dark)]">Bền bỉ từ thiết kế</div>
                 <p className="mt-2 text-sm leading-6 text-stone-600">
                   Chọn thiết bị đúng, lắp đặt chuẩn và bảo hành rõ ràng là nền tảng
                   để hệ thống solar hoạt động ổn định lâu dài.
@@ -67,7 +67,7 @@ export default function SolarExpertiseSection() {
 
           <div>
             <ScrollAnimationWrapper animation="fade-in-up" duration={800}>
-              <span className="inline-flex rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
+              <span className="inline-flex rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--solar-primary-dark)]">
                 Chuyên môn & cam kết
               </span>
               <h2 className="mt-5 text-4xl font-bold leading-tight md:text-5xl">
@@ -91,7 +91,7 @@ export default function SolarExpertiseSection() {
                     className="h-full"
                   >
                     <div className="h-full rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-sm transition hover:-translate-y-1 hover:border-amber-300/40 hover:bg-white/[0.09]">
-                      <Icon className="h-8 w-8 text-amber-300" />
+                      <Icon className="h-8 w-8 text-[var(--solar-primary-dark)]" />
                       <h3 className="mt-5 text-xl font-bold">{item.title}</h3>
                       <p className="mt-3 leading-7 text-stone-300">{item.description}</p>
                     </div>

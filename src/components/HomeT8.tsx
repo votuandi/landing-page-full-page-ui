@@ -52,7 +52,7 @@ export default function HomeT8() {
           {PROJECTS.map((project) => <Link key={project.slug} href={`/project/${project.slug}`} className="group flex flex-col bg-[var(--t8-ink)]">
             <div className="relative aspect-[4/3] overflow-hidden">
               <Image src={project.image} alt={project.title} fill className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:1024px) 100vw, 34vw" />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[rgb(11_31_58_/_.7)] to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[color-mix(in_srgb,var(--solar-primary-dark)_70%,transparent)] to-transparent" />
               <span className="t8-glass absolute left-5 top-5 rounded-full px-3 py-1.5 text-xs font-black text-[var(--t5-primary)]">{project.capacity}</span>
               <span className="absolute bottom-4 left-5 text-xs font-black uppercase tracking-[.15em] text-white/85">{project.type} • {project.location}</span>
             </div>
@@ -64,15 +64,15 @@ export default function HomeT8() {
         </div>
       </section>
 
-      <section className="t8-screen relative overflow-hidden bg-gradient-to-br from-[var(--t5-primary)] to-[#1d5bb8] text-white">
-        <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(247_185_40_/_.3),transparent_65%)]" />
+      <section className="t8-screen relative overflow-hidden bg-gradient-to-br from-[var(--t5-primary)] to-[var(--solar-primary)] text-white">
+        <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--solar-accent)_30%,transparent),transparent_65%)]" />
         <div className="t5-container relative py-14 md:py-16">
           <span data-reveal="down" className="t5-eyebrow !border-white/20 !bg-white/10 !text-[var(--t5-accent)]">Quy trình triển khai</span>
           <h2 data-reveal="left" className="mt-4 max-w-3xl text-4xl font-black tracking-[-.04em] sm:text-5xl">Mỗi bước đều có đầu ra để chủ đầu tư kiểm soát.</h2>
         </div>
         <div data-reveal-stagger="up" data-reveal-step="0.12" className="relative grid flex-1 border-t border-white/15 sm:grid-cols-2 lg:grid-cols-5">
           {processSteps.map(([no,title,desc,output]) => <article key={no} className="group relative flex flex-col border-b border-white/15 bg-white/[.04] p-6 backdrop-blur transition hover:bg-white/[.12] sm:border-r lg:min-h-[420px] lg:border-b-0 lg:p-8 xl:p-10">
-            <div className="text-7xl font-black leading-none text-white/10 transition group-hover:text-[rgb(247_185_40_/_.35)]">{no}</div>
+            <div className="text-7xl font-black leading-none text-white/10 transition group-hover:text-[color-mix(in_srgb,var(--solar-accent)_35%,transparent)]">{no}</div>
             <h3 className="mt-6 text-2xl font-black">{title}</h3>
             <p className="mt-3 text-sm leading-6 text-white/65">{desc}</p>
             <div className="mt-auto pt-8"><div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-xs font-bold leading-5 text-white/90"><span className="mb-1 block text-[10px] uppercase tracking-[.16em] text-[var(--t8-sun)]">Đầu ra</span>{output}</div></div>
@@ -83,7 +83,7 @@ export default function HomeT8() {
       <section className="t8-screen t5-section bg-gradient-to-b from-white to-[var(--t8-beige)]">
         <div className="t5-container">
           <span data-reveal="down" className="t5-eyebrow">Mô hình đầu tư</span><h2 data-reveal="left" className="t5-heading">Chọn cấu trúc tài chính phù hợp dòng tiền.</h2>
-          <div data-reveal="up" style={delay(0.15)} className="t8-card mt-10 overflow-x-auto"><table className="min-w-[760px] w-full text-left text-sm"><thead className="bg-[rgb(219_233_255_/_.60)] text-[var(--t5-primary)]"><tr>{["Mô hình","Sở hữu","CAPEX ban đầu","Lợi ích chính","Phù hợp"].map((h) => <th key={h} className="p-4 font-black">{h}</th>)}</tr></thead><tbody>{investmentModels.map((row) => <tr key={row[0]} className="border-t border-slate-200">{row.map((cell,index) => <td key={cell} className={`p-4 ${index===0?"font-black text-[var(--t5-primary)]":"text-slate-600"}`}>{cell}</td>)}</tr>)}</tbody></table></div>
+          <div data-reveal="up" style={delay(0.15)} className="t8-card mt-10 overflow-x-auto"><table className="min-w-[760px] w-full text-left text-sm"><thead className="bg-[color-mix(in_srgb,var(--solar-primary-light)_60%,transparent)] text-[var(--t5-primary)]"><tr>{["Mô hình","Sở hữu","CAPEX ban đầu","Lợi ích chính","Phù hợp"].map((h) => <th key={h} className="p-4 font-black">{h}</th>)}</tr></thead><tbody>{investmentModels.map((row) => <tr key={row[0]} className="border-t border-slate-200">{row.map((cell,index) => <td key={cell} className={`p-4 ${index===0?"font-black text-[var(--t5-primary)]":"text-slate-600"}`}>{cell}</td>)}</tr>)}</tbody></table></div>
           <p className="mt-3 text-xs text-slate-500">PPA/thuê mái phụ thuộc đối tác tài chính, pháp lý và điều kiện dự án. [CẦN XÁC MINH]</p>
         </div>
       </section>
@@ -102,10 +102,10 @@ export default function HomeT8() {
         </div>
       </section>
 
-      <section className="t8-screen t5-section bg-gradient-to-b from-white to-[rgb(219_233_255_/_.40)]">
+      <section className="t8-screen t5-section bg-gradient-to-b from-white to-[color-mix(in_srgb,var(--solar-primary-light)_40%,transparent)]">
         <div className="t5-container">
           <span data-reveal="down" className="t5-eyebrow">Khách hàng nói gì</span><h2 data-reveal="up" style={delay(0.1)} className="t5-heading">Niềm tin đến từ cách dự án được triển khai.</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">{TESTIMONIALS.map((item, index) => <blockquote key={item.company} data-reveal={index % 2 ? "right" : "left"} style={delay(0.2 + index * 0.1)} className="t8-card p-7"><div className="text-sm font-black text-amber-600">{item.rating}</div><p className="mt-6 text-xl font-bold leading-8 text-[var(--t5-primary)]">“{item.text}”</p><footer className="mt-6 border-t border-slate-200 pt-4 text-sm"><strong>{item.person}</strong><div className="text-slate-500">{item.company}</div></footer></blockquote>)}</div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">{TESTIMONIALS.map((item, index) => <blockquote key={item.company} data-reveal={index % 2 ? "right" : "left"} style={delay(0.2 + index * 0.1)} className="t8-card p-7"><div className="text-sm font-black text-[var(--solar-primary-dark)]">{item.rating}</div><p className="mt-6 text-xl font-bold leading-8 text-[var(--t5-primary)]">“{item.text}”</p><footer className="mt-6 border-t border-slate-200 pt-4 text-sm"><strong>{item.person}</strong><div className="text-slate-500">{item.company}</div></footer></blockquote>)}</div>
           <div data-reveal="up" className="mt-16 text-center text-xs font-black uppercase tracking-[.2em] text-slate-400">Thiết bị có trong catalog demo</div>
           <div data-reveal-stagger="zoom" data-reveal-step="0.06" className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">{partnerBrands.map((brand) => <Link href={`/product?brand=${encodeURIComponent(brand)}`} key={brand} className="rounded-full border border-white bg-white/70 px-5 py-2 text-lg font-black tracking-tight text-slate-500 shadow-sm backdrop-blur hover:text-[var(--t5-primary)]">{brand}</Link>)}</div>
         </div>
@@ -118,11 +118,11 @@ export default function HomeT8() {
         </div>
       </section>
 
-      <section className="t8-screen relative bg-gradient-to-br from-[var(--t8-ink)] via-[var(--t5-primary)] to-[#1d5bb8] text-white">
+      <section className="t8-screen relative bg-gradient-to-br from-[var(--t8-ink)] via-[var(--t5-primary)] to-[var(--solar-primary)] text-white">
         <div className="grid flex-1 lg:grid-cols-2">
           <div data-reveal="left" className="relative min-h-[48vh] overflow-hidden lg:min-h-0">
             <Image src="/images/solar-installation-hero.jpg" alt="Hệ thống điện mặt trời dưới bầu trời nắng" fill className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.9)] via-[rgb(11_31_58_/_.3)] to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[rgb(11_31_58_/_.15)] lg:to-[rgb(11_31_58_/_.7)]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--solar-primary-dark)_90%,transparent)] via-[color-mix(in_srgb,var(--solar-primary-dark)_30%,transparent)] to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[color-mix(in_srgb,var(--solar-primary-dark)_15%,transparent)] lg:to-[color-mix(in_srgb,var(--solar-primary-dark)_70%,transparent)]" />
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 xl:p-16">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--t5-accent)] text-[var(--t5-primary)]"><ShieldCheckIcon className="h-7 w-7" /></div>
               <h2 className="mt-6 max-w-lg text-4xl font-black tracking-[-.04em] sm:text-5xl">Nhận phương án sơ bộ cho công trình của bạn.</h2>

@@ -3,19 +3,31 @@
 @tailwind utilities;
 
 :root {
-  --t5-primary: #0d3b78;
-  --t5-accent: #f7b928;
-  --t5-bg: #ffffff;
-  --t5-text: #0f172a;
-  --t5-muted: #64748b;
-  --t5-border: #e2e8f0;
-  --t5-radius: 14px;
-  --t8-blue: #2f6fe4;
-  --t8-sky: #dbe9ff;
-  --t8-sun: #ffd666;
-  --t8-beige: #f8f2e7;
-  --t8-sand: #efe3cc;
-  --t8-ink: #0b1f3a;
+  --solar-primary:#15803D; --solar-primary-dark:#14532D; --solar-primary-light:#DCFCE7;
+  --solar-accent:#FACC15; --solar-accent-dark:#CA8A04; --solar-accent-light:#FEF9C3;
+  --solar-background:#FFFFFF; --solar-surface:#F7FBF4; --solar-text:#1A2E1F;
+  --solar-muted:#5B6B60; --solar-border:#E2EBE0; --solar-white:#FFFFFF;
+  --solar-inverse:#FFFFFF; --solar-on-primary:#FFFFFF; --solar-error:#9F1239;
+  --solar-rgb-primary: 21 128 61;
+  --solar-rgb-primary-dark: 20 83 45;
+  --solar-rgb-primary-light: 220 252 231;
+  --solar-rgb-accent: 250 204 21;
+  --solar-rgb-accent-dark: 202 138 4;
+  --solar-rgb-accent-light: 254 249 195;
+  --solar-rgb-background: 255 255 255;
+  --solar-rgb-surface: 247 251 244;
+  --solar-rgb-text: 26 46 31;
+  --solar-rgb-muted: 91 107 96;
+  --solar-rgb-border: 226 235 224;
+  --solar-rgb-white: 255 255 255;
+  --solar-rgb-inverse: 255 255 255;
+  --solar-rgb-on-primary: 255 255 255;
+  --solar-rgb-error: 159 18 57;
+  --solar-shadow:0 12px 36px color-mix(in srgb,var(--solar-primary-dark) 8%,transparent);
+  --t5-primary:var(--solar-primary); --t5-accent:var(--solar-accent); --t5-bg:var(--solar-background);
+  --t5-text:var(--solar-text); --t5-muted:var(--solar-muted); --t5-border:var(--solar-border); --t5-radius:8px;
+  --t8-blue:var(--solar-primary); --t8-sky:var(--solar-primary-light); --t8-sun:var(--solar-accent);
+  --t8-beige:var(--solar-surface); --t8-sand:var(--solar-accent-light); --t8-ink:var(--solar-primary-dark);
 }
 
 * { box-sizing: border-box; }
@@ -30,12 +42,23 @@ a, button, input, select, textarea { outline-offset: 3px; }
 button, a { -webkit-tap-highlight-color: transparent; }
 img { max-width: 100%; }
 
-.t5-dark { --t5-bg:#0b1220; --t5-text:#e5edf8; --t5-muted:#9fb0c4; --t5-border:#26364a; }
-.t5-dark body { background:var(--t5-bg); color:var(--t5-text); }
-.t5-dark .bg-white { background-color:#111c2c !important; }
-.t5-dark .bg-slate-50, .t5-dark .bg-slate-100 { background-color:#0f1a29 !important; }
-.t5-dark .text-slate-500, .t5-dark .text-slate-600, .t5-dark .text-slate-700 { color:#a8b7c8 !important; }
-.t5-dark .border-slate-200, .t5-dark .border-slate-100 { border-color:#29394d !important; }
+.t5-dark {
+  --solar-primary:#4ADE80; --solar-background:#0C1E14; --solar-surface:#132C1B;
+  --solar-text:#F3FBF1; --solar-muted:#BED2BE; --solar-border:#31563A; --solar-on-primary:#0C1E14;
+  --solar-rgb-primary: 74 222 128;
+  --solar-rgb-background: 12 30 20;
+  --solar-rgb-surface: 19 44 27;
+  --solar-rgb-text: 243 251 241;
+  --solar-rgb-muted: 190 210 190;
+  --solar-rgb-border: 49 86 58;
+  --solar-rgb-on-primary: 12 30 20;
+
+}
+.t5-dark .bg-white { background-color:var(--solar-background) !important; }
+.t5-dark .bg-slate-50, .t5-dark .bg-slate-100 { background-color:var(--solar-surface) !important; }
+.t5-dark .text-slate-500, .t5-dark .text-slate-600, .t5-dark .text-slate-700 { color:var(--solar-muted) !important; }
+.t5-dark .border-slate-200, .t5-dark .border-slate-100 { border-color:var(--solar-border) !important; }
+.t5-dark .solar-hero { background:linear-gradient(125deg,var(--solar-background),var(--solar-surface)); }
 
 @layer components {
   .t5-container { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8; }
@@ -44,32 +67,32 @@ img { max-width: 100%; }
   .t5-subheading { @apply mt-5 max-w-3xl text-base leading-8 text-slate-600; }
   .t5-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-amber-300/60 bg-amber-100/60 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-amber-800 backdrop-blur; }
   .t5-button { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; }
-  .t5-button-primary { background:var(--t5-primary); color:#fff; }
-  .t5-button-primary:hover { filter:brightness(1.1); box-shadow:0 12px 30px -12px rgb(13 59 120 / .55); }
+  .t5-button-primary { background:var(--t5-primary); color:var(--solar-on-primary); }
+  .t5-button-primary:hover { filter:brightness(1.1); box-shadow:0 12px 30px -12px color-mix(in srgb,var(--solar-primary-dark) 55%,transparent); }
   .t5-button-secondary { @apply border border-slate-300 bg-white; color:var(--t5-primary); }
   .t5-button-secondary:hover { @apply bg-slate-50; }
   .t5-input { @apply mt-2 block w-full border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2; border-radius:var(--t5-radius); }
-  .t5-input:focus { border-color:var(--t5-primary); --tw-ring-color:rgb(7 27 51 / .1); }
+  .t5-input:focus { border-color:var(--t5-primary); --tw-ring-color:color-mix(in srgb,var(--solar-primary-dark) 10%,transparent); }
   .t5-label { @apply block text-sm font-bold text-slate-700; }
   .t5-filter-title { @apply text-xs font-black uppercase tracking-[.16em] text-slate-400; }
   .t5-filter-option { @apply w-full px-3 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-slate-100; border-radius:var(--t5-radius); }
-  .t5-filter-option.is-active { background:var(--t5-primary); color:#fff; }
+  .t5-filter-option.is-active { background:var(--t5-primary); color:var(--solar-on-primary); }
   .t5-header { @apply sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur-xl; }
   .t5-nav-link { @apply text-sm font-bold text-slate-700 transition; }
   .t5-nav-link:hover { color:var(--t5-primary); }
   .t5-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/80 hover:bg-white; color:var(--t5-primary); }
   .t5-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-black; background:var(--t5-accent); color:var(--t5-primary); }
   .t5-demo-bar { @apply relative z-[60]; background:var(--t5-accent); color:var(--t5-primary); }
-  .t5-demo-link { @apply items-center border-b font-black; border-color:rgb(7 27 51 / .5); }
+  .t5-demo-link { @apply items-center border-b font-black; border-color:color-mix(in srgb,var(--solar-primary-dark) 50%,transparent); }
   .t5-footer-title { @apply text-xs font-black uppercase tracking-[.18em]; color:var(--t5-accent); }
   .t5-theme-trigger { @apply grid h-11 w-11 place-items-center rounded-full shadow-xl; background:var(--t5-accent); color:var(--t5-primary); }
   .t5-mobile-cta { @apply flex min-h-11 items-center justify-center gap-1 px-2 text-xs font-black text-white; background:var(--t5-primary); border-radius:9999px; }
-  .t5-page-hero { @apply py-16 text-white md:py-24; background:radial-gradient(circle at 85% 20%, rgb(247 185 40 / .22), transparent 40%), linear-gradient(135deg, var(--t5-primary), #1d5bb8); }
+  .t5-page-hero { @apply py-16 text-white md:py-24; background:radial-gradient(circle at 85% 20%, color-mix(in srgb,var(--solar-accent) 22%,transparent), transparent 40%), linear-gradient(135deg, var(--t5-primary), var(--solar-primary)); }
   .t5-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.05] tracking-[-.05em] text-white sm:text-5xl lg:text-6xl; }
   .t5-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-white/70 sm:text-lg; }
-  .t8-glass { @apply border border-white/70 bg-white/60 shadow-[0_18px_50px_-20px_rgb(13_59_120_/_.35)] backdrop-blur-xl; }
+  .t8-glass { @apply border border-white/70 bg-white/60 shadow-[0_18px_50px_-20px_color-mix(in_srgb,var(--solar-primary-dark)_35%,transparent)] backdrop-blur-xl; }
   .t8-glass-dark { @apply border border-white/15 bg-white/10 backdrop-blur-xl; }
-  .t8-card { @apply rounded-[28px] border border-slate-200/70 bg-white/80 shadow-[0_20px_60px_-30px_rgb(11_31_58_/_.25)] backdrop-blur; }
+  .t8-card { @apply rounded-[28px] border border-slate-200/70 bg-white/80 shadow-[0_20px_60px_-30px_color-mix(in_srgb,var(--solar-primary-dark)_25%,transparent)] backdrop-blur; }
 }
 
 @keyframes t8-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
@@ -110,12 +133,7 @@ img { max-width: 100%; }
 @media (max-width:359px) { .t5-container { padding-left:14px; padding-right:14px; } }
 
 /* Template 11: editorial rhythm, compact cards, calculation first. */
-:root {
-  --solar-primary:var(--t5-primary); --solar-primary-dark:var(--t8-ink); --solar-primary-light:var(--t8-sky);
-  --solar-accent:var(--t5-accent); --solar-accent-dark:var(--t5-primary); --solar-accent-light:var(--t8-beige);
-  --solar-background:var(--t5-bg); --solar-surface:var(--t8-beige); --solar-text:var(--t5-text);
-  --solar-muted:var(--t5-muted); --solar-border:var(--t5-border); --solar-shadow:0 12px 36px color-mix(in srgb,var(--solar-primary-dark) 8%,transparent);
-}
+
 .solar-home { color:var(--solar-text); line-height:1.7; }
 .solar-container { max-width:1240px; margin-inline:auto; padding-inline:28px; }
 .solar-section { padding-block:84px; scroll-margin-top:100px; }
@@ -149,7 +167,7 @@ img { max-width: 100%; }
 .solar-button { display:inline-flex; justify-content:center; align-items:center; gap:12px; min-height:48px; border:1px solid var(--solar-border); border-radius:6px; padding:12px 18px; background:var(--solar-background); color:var(--solar-text); font-size:13px; font-weight:700; cursor:pointer; text-align:center; }
 .solar-button svg { width:18px; height:18px; flex-shrink:0; }
 .solar-button:hover { filter:brightness(.96); }
-.solar-button-primary { background:var(--solar-primary); color:var(--solar-background); border-color:var(--solar-primary); }
+.solar-button-primary { background:var(--solar-primary); color:var(--solar-on-primary); border-color:var(--solar-primary); }
 .solar-button-accent { background:var(--solar-accent); border-color:var(--solar-accent); color:var(--solar-primary-dark); }
 .solar-hero-tool > .solar-button { width:100%; }
 .solar-note { font-size:11px !important; color:var(--solar-muted); line-height:1.8; margin-top:14px; }
@@ -177,7 +195,7 @@ img { max-width: 100%; }
 .solar-home :focus-visible { outline:2px solid var(--solar-primary); outline-offset:4px; }
 @media (max-width:1000px) { .solar-hero-grid { gap:32px; } .solar-faq-grid,.solar-contact-grid { gap:32px; } }
 @media (max-width:767px) { .solar-container { padding-inline:20px; } .solar-section { padding-block:56px; } .solar-hero { padding-block:36px 44px; } .solar-hero-grid,.solar-three-grid,.solar-problem-grid,.solar-faq-grid,.solar-contact-grid { grid-template-columns:1fr; gap:24px; } .solar-hero-tool { padding:22px; } .solar-hero h1 { font-size:40px; } .solar-section-heading { margin-bottom:24px; } .solar-contact-form { padding:20px; } }
-@media (prefers-reduced-motion:no-preference) { .solar-hero-message { animation:solar-entry .55s ease-out both; } .solar-hero-tool { animation:solar-entry .7s ease-out both; } @keyframes solar-entry { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } } }
+@media (prefers-reduced-motion:no-preference) { .solar-hero-message { animation:solar-entry .55s ease-out both; } .solar-hero-tool { animation:solar-entry .7s ease-out both; } @keyframes solar-entry { from { transform:translateY(16px); } to { transform:translateY(0); } } }
 .solar-calculator-inputs { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
 .solar-calculator-inputs .solar-label { margin-top:0; }
 .solar-calc-summary { display:flex; align-items:center; gap:16px; padding-block:24px 8px; font-size:14px; }
@@ -230,7 +248,7 @@ img { max-width: 100%; }
 @media (max-width:767px) { .solar-calculator-inputs,.solar-package-grid,.solar-after-calculation { grid-template-columns:1fr; } .solar-package-power { font-size:32px; } .solar-metrics dd { font-size:13px; } .solar-quote { padding:20px; } .solar-quote-actions > * { width:100%; } }
 .solar-segment-tabs,.solar-project-filters { display:flex; flex-wrap:wrap; gap:8px; margin-block:24px; }
 .solar-segment-tabs button,.solar-project-filters button { border:1px solid var(--solar-border); border-radius:6px; min-height:44px; padding:10px 16px; background:var(--solar-background); font-size:12px; font-weight:700; cursor:pointer; }
-.solar-segment-tabs [aria-selected=true],.solar-project-filters [aria-pressed=true] { background:var(--solar-primary); border-color:var(--solar-primary); color:var(--solar-background); }
+.solar-segment-tabs [aria-selected=true],.solar-project-filters [aria-pressed=true] { background:var(--solar-primary); border-color:var(--solar-primary); color:var(--solar-on-primary); }
 .solar-comparison-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:26px; align-items:start; }
 .solar-day-chart { margin-bottom:0; }
 .solar-chart-legend { display:flex; gap:24px; font-size:11px; margin-block:12px; }
@@ -272,7 +290,7 @@ img { max-width: 100%; }
 .solar-legal-grid { display:grid; grid-template-columns:.7fr 1.3fr; gap:56px; margin-top:30px; }
 .solar-dev-note { display:block; }
 @media (max-width:767px) { .solar-comparison-grid,.solar-project-grid,.solar-testimonial-grid,.solar-license-grid,.solar-legal-grid { grid-template-columns:1fr; gap:20px; } .solar-segment-tabs { gap:6px; } .solar-segment-tabs button { flex:1; padding-inline:10px; } .solar-project-stats dd { font-size:14px; } .solar-project-total { padding:12px; } }
-.solar-announcement { background:var(--solar-primary-dark); color:var(--solar-background); font-size:10px; line-height:1.8; padding:9px 20px; text-align:center; }
+.solar-announcement { background:var(--solar-primary-dark); color:var(--solar-inverse); font-size:10px; line-height:1.8; padding:9px 20px; text-align:center; }
 .solar-site-header { position:sticky; top:0; z-index:40; background:var(--solar-background); border-bottom:1px solid var(--solar-border); }
 .solar-header-row { display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:80px; }
 .solar-shell-logo { width:176px; height:auto; max-width:100%; }
@@ -286,7 +304,7 @@ img { max-width: 100%; }
 .solar-menu-button { display:none; }
 .solar-mobile-menu { display:grid; padding:12px 20px; background:var(--solar-background); border-top:1px solid var(--solar-border); }
 .solar-mobile-menu a { padding:12px 0; font-size:13px; font-weight:700; border-bottom:1px solid var(--solar-border); }
-.solar-site-footer { background:var(--solar-primary-dark); color:var(--solar-background); padding-top:48px; }
+.solar-site-footer { background:var(--solar-primary-dark); color:var(--solar-inverse); padding-top:48px; }
 .solar-footer-grid { display:grid; grid-template-columns:1.1fr .7fr 1.2fr; gap:50px; padding-bottom:40px; }
 .solar-footer-grid h2 { color:var(--solar-accent-light); font-size:13px; font-weight:700; margin:0 0 18px; }
 .solar-footer-grid a,.solar-footer-grid p { display:block; margin-top:12px; font-size:12px; line-height:1.8; }
@@ -307,3 +325,7 @@ img { max-width: 100%; }
 @media (max-width:1100px) { .solar-desktop-nav { gap:14px; font-size:11px; } }
 @media (max-width:1000px) { .solar-desktop-nav { display:none; } .solar-menu-button { display:inline-flex; } }
 @media (max-width:767px) { .solar-header-row { gap:8px; min-height:70px; } .solar-shell-logo { width:154px; } .solar-header-actions { gap:4px; } .solar-header-actions .solar-shell-icon:first-child { display:none; } .solar-footer-grid { grid-template-columns:1fr; gap:30px; } .solar-site-footer { padding-bottom:90px; } .solar-sticky-contact { position:fixed; inset:auto 0 0; z-index:50; display:grid; grid-template-columns:.7fr 1fr 1.3fr; border-top:1px solid var(--solar-border); background:var(--solar-background); padding:8px 12px calc(8px + env(safe-area-inset-bottom)); box-shadow:var(--solar-shadow); gap:6px; } .solar-sticky-contact a { display:flex; align-items:center; justify-content:center; gap:5px; min-height:48px; font-size:9px; font-weight:700; color:var(--solar-primary-dark); background:var(--solar-primary-light); border-radius:6px; } .solar-sticky-contact a:last-child { background:var(--solar-accent); } .solar-sticky-contact svg { width:16px; height:16px; flex-shrink:0; } }
+/* Light badges retain a dark foreground in both themes. */
+.solar-status,.solar-kicker > span,.solar-select-package[aria-pressed=true] { color:var(--solar-primary-dark); }
+.solar-project-image .solar-status { background:var(--solar-white); }
+.t5-dark .t5-page-hero { background:var(--solar-primary-dark); }

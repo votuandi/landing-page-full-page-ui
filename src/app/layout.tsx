@@ -9,7 +9,7 @@ import { getBusinessSchema, getSeoContent, serializeSchema } from "@/lib/solar-s
 const bodyFont = localFont({ src: [{ path: "./fonts/be-400.woff2", weight: "400" }, { path: "./fonts/be-700.woff2", weight: "700" }], variable: "--font-body", display: "swap" });
 const headingFont = localFont({ src: "./fonts/manrope-700.woff2", weight: "700", variable: "--font-heading", display: "swap", preload: false });
 
-export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#0d3b78" };
+export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#15803D" };
 
 const brand = getBrand(), seo = getSeoContent();
 export const metadata: Metadata = {

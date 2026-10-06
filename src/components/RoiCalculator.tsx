@@ -66,7 +66,7 @@ export default function RoiCalculator() {
               </label>
             </div>
           </div>
-          <div data-reveal="right" style={delay(0.3)} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[#1d5bb8] p-6 text-white shadow-[0_40px_80px_-40px_rgb(13_59_120_/_.7)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(247_185_40_/_.35),transparent_65%)]" />
+          <div data-reveal="right" style={delay(0.3)} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[var(--solar-primary)] p-6 text-white shadow-[0_40px_80px_-40px_color-mix(in_srgb,var(--solar-primary-dark)_70%,transparent)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--solar-accent)_35%,transparent),transparent_65%)]" />
             <div className="relative grid gap-3 sm:grid-cols-2">
               {[
                 ["Công suất đề xuất", `${result.kwp.toFixed(1)} kWp`],
@@ -78,10 +78,10 @@ export default function RoiCalculator() {
             <div className="mt-7">
               <div className="mb-3 flex items-center justify-between"><strong>Tiết kiệm lũy kế 25 năm</strong><span className="text-xs text-white/55">ước tính</span></div>
               <svg viewBox="0 0 600 210" className="w-full" role="img" aria-label="Biểu đồ tiết kiệm lũy kế 25 năm">
-                <line x1="20" y1="190" x2="580" y2="190" stroke="rgba(255,255,255,.25)" />
+                <line x1="20" y1="190" x2="580" y2="190" stroke="color-mix(in srgb,var(--solar-white) 25%,transparent)" />
                 <polyline points={points} fill="none" stroke="var(--t5-accent)" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-                <text x="20" y="206" fill="rgba(255,255,255,.6)" fontSize="11">Năm 1</text>
-                <text x="535" y="206" fill="rgba(255,255,255,.6)" fontSize="11">Năm 25</text>
+                <text x="20" y="206" fill="color-mix(in srgb,var(--solar-white) 60%,transparent)" fontSize="11">Năm 1</text>
+                <text x="535" y="206" fill="color-mix(in srgb,var(--solar-white) 60%,transparent)" fontSize="11">Năm 25</text>
               </svg>
             </div>
             <div className="mt-6 border-t border-white/15 pt-6">

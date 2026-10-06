@@ -38,7 +38,7 @@ const benefits = [
 
 export default function SolarBenefitsSection() {
   return (
-    <section className="relative overflow-hidden bg-[#fffaf0] py-20 md:py-28">
+    <section className="relative overflow-hidden bg-[var(--solar-white)] py-20 md:py-28">
       <div className="absolute -right-24 top-0 h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
       <div className="absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-orange-200/30 blur-3xl" />
 
@@ -68,7 +68,7 @@ export default function SolarBenefitsSection() {
                       duration={700}
                       className="h-full"
                     >
-                      <div className="h-full rounded-3xl border border-orange-100 bg-white p-6 shadow-[0_18px_50px_rgba(120,75,20,0.08)] transition duration-300 hover:-translate-y-1 hover:border-orange-200">
+                      <div className="h-full rounded-3xl border border-orange-100 bg-white p-6 shadow-[0_18px_50px_color-mix(in srgb,var(--solar-primary-dark) 8%,transparent)] transition duration-300 hover:-translate-y-1 hover:border-orange-200">
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg shadow-orange-200">
                           <Icon className="h-6 w-6" />
                         </div>

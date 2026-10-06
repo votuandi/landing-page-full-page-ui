@@ -270,7 +270,7 @@ export default function BestSellerSection() {
                               key={i}
                               className={`w-3 h-3 ${
                                 i < Math.floor(product.rating)
-                                  ? "text-yellow-400"
+                                  ? "text-[var(--solar-primary-dark)]"
                                   : "text-gray-300"
                               }`}
                             />

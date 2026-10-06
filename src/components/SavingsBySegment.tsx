@@ -70,8 +70,8 @@ export default function SavingsBySegment() {
   return (
     <>
       <section id="tiet-kiem" className="t8-screen t5-section relative overflow-hidden bg-[var(--t8-beige)]">
-        <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.4),transparent_65%)]" />
-        <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(47_111_228_/_.16),transparent_65%)]" />
+        <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--solar-accent-light)_40%,transparent),transparent_65%)]" />
+        <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--solar-primary)_16%,transparent),transparent_65%)]" />
         <div className="t5-container relative">
           <div className="mx-auto max-w-3xl text-center">
             <span data-reveal="down" className="t5-eyebrow">Lợi ích theo từng công trình</span>
@@ -80,10 +80,10 @@ export default function SavingsBySegment() {
           </div>
           <div data-reveal-stagger="up" data-reveal-step="0.15" className="mt-12 grid gap-5 md:grid-cols-3">
             {segments.map(({ id, no, tag, Icon, image, alt, metrics }) => (
-              <a key={id} href={`#${id}`} className="group relative block overflow-hidden rounded-[32px] border-[5px] border-white/80 shadow-[0_30px_60px_-35px_rgb(11_31_58_/_.55)] transition hover:-translate-y-1.5">
+              <a key={id} href={`#${id}`} className="group relative block overflow-hidden rounded-[32px] border-[5px] border-white/80 shadow-[0_30px_60px_-35px_color-mix(in_srgb,var(--solar-primary-dark)_55%,transparent)] transition hover:-translate-y-1.5">
                 <div className="relative aspect-[4/5] md:aspect-[3/4] lg:aspect-[10/9]">
                   <Image src={image} alt={alt} fill className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:768px) 100vw, 33vw" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgb(11_31_58_/_.85)] via-[rgb(11_31_58_/_.15)] to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--solar-primary-dark)_85%,transparent)] via-[color-mix(in_srgb,var(--solar-primary-dark)_15%,transparent)] to-transparent" />
                 </div>
                 <span className="t8-glass absolute left-4 top-4 grid h-11 w-11 place-items-center rounded-2xl text-[var(--t5-primary)]"><Icon className="h-5 w-5" /></span>
                 <span className="absolute right-5 top-5 text-sm font-black text-white/80">{no}</span>
@@ -105,13 +105,13 @@ export default function SavingsBySegment() {
         const imageSide = flip ? "right" : "left";
         const textSide = flip ? "left" : "right";
         return (
-          <section key={s.id} id={s.id} className={`t8-screen relative ${flip ? "bg-gradient-to-br from-white via-[#f3f7ff] to-[var(--t8-sky)]" : "bg-gradient-to-br from-[var(--t8-beige)] via-white to-[var(--t8-beige)]"}`}>
+          <section key={s.id} id={s.id} className={`t8-screen relative ${flip ? "bg-gradient-to-br from-white via-[var(--solar-white)] to-[var(--t8-sky)]" : "bg-gradient-to-br from-[var(--t8-beige)] via-white to-[var(--t8-beige)]"}`}>
             <div className="grid flex-1 lg:grid-cols-2">
               {/* Full-bleed illustration half */}
               <div data-reveal={imageSide} className={`relative min-h-[52vh] overflow-hidden lg:min-h-0 ${flip ? "lg:order-2" : ""}`}>
                 <Image src={s.cover} alt={s.alt} fill className="object-cover object-bottom transition duration-700 hover:scale-[1.03]" sizes="(max-width:1024px) 100vw, 50vw" />
-                <div className={`absolute inset-0 ${flip ? "bg-gradient-to-l" : "bg-gradient-to-r"} from-transparent via-transparent to-[rgb(248_242_231_/_.35)]`} />
-                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[rgb(11_31_58_/_.45)] to-transparent" />
+                <div className={`absolute inset-0 ${flip ? "bg-gradient-to-l" : "bg-gradient-to-r"} from-transparent via-transparent to-[color-mix(in_srgb,var(--solar-surface)_35%,transparent)]`} />
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[color-mix(in_srgb,var(--solar-primary-dark)_45%,transparent)] to-transparent" />
                 <div data-reveal="down" style={delay(0.35)} className={`t8-glass t8-float absolute top-6 flex items-center gap-3 rounded-2xl px-4 py-3 sm:top-10 ${flip ? "left-4 sm:left-10" : "right-4 sm:right-10"}`}>
                   <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--t5-accent)] text-[var(--t8-ink)]"><s.Icon className="h-5 w-5" /></span>
                   <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">Tiết kiệm đến</div><div className="text-xl font-black text-[var(--t5-primary)]">{s.metrics[0][0]}</div></div>
@@ -124,7 +124,7 @@ export default function SavingsBySegment() {
 
               {/* Copy half */}
               <div className={`relative flex items-center px-4 py-16 sm:px-10 lg:py-20 xl:px-20 ${flip ? "lg:justify-end" : ""}`}>
-                <div aria-hidden className={`pointer-events-none absolute top-1/4 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgb(255_214_102_/_.3),transparent_65%)] ${flip ? "-left-20" : "-right-20"}`} />
+                <div aria-hidden className={`pointer-events-none absolute top-1/4 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--solar-accent-light)_30%,transparent),transparent_65%)] ${flip ? "-left-20" : "-right-20"}`} />
                 <div className="relative w-full max-w-[600px]">
                   <div data-reveal="down" className="flex items-center gap-3 text-sm font-black text-[var(--t5-primary)]"><span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 text-xs shadow-sm">{s.no}</span>{s.tag}</div>
                   <h3 data-reveal={textSide} style={delay(0.1)} className="mt-5 text-3xl font-black leading-tight tracking-[-.035em] text-[var(--t8-ink)] sm:text-4xl">{s.title}</h3>

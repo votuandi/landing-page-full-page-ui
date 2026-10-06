@@ -54,3 +54,6 @@ Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. Ba 
 
 ### QA giai đoạn 5
 Lint PASS (7 cảnh báo cũ), build PASS. Meta sinh từ min giá và min hoàn vốn tại tỉnh mặc định, ghi rõ mô phỏng. FAQPage lấy đúng FAQ hiển thị, LocalBusiness lấy brand; không đưa địa chỉ placeholder vào schema. Escape ký tự `<` trong JSON-LD. Mobile có Gọi/Zalo Gia đình/Zalo Doanh nghiệp, safe-area và chừa khoảng cuối trang. Header/footer lấy thông tin qua adapter; RFQ và tham số rfq cũ giữ nguyên. Đường dẫn anchor nội dung chính/tính toán mỗi vị trí chỉ dùng một CTA; các link liên hệ tel/Zalo là lối tắt thiết yếu.
+
+### QA giai đoạn 6
+Lint PASS (7 cảnh báo cũ), build PASS. Token xanh lá/vàng/trắng đúng yêu cầu tại globals.css; Tailwind dùng các RGB token tương ứng để hỗ trợ opacity. Toàn bộ literal màu cũ trong JSX/TS frontend đã chuyển sang token, kể cả component legacy không dùng trên home. Mã màu literal chỉ còn ở định nghĩa token và metadata theme-color. Dark mode có token riêng và badge nền sáng giữ chữ xanh đậm. Không sửa logic/API của component legacy. Kiểm tra 360/768/1280 không tràn ngang; axe WCAG AA không có lỗi tương phản sau sửa. Bảng tổng mobile đã thêm tabIndex để cuộn bằng bàn phím. Kiểm tra đầy đủ và Lighthouse sau logo/favicon ở giai đoạn 7.

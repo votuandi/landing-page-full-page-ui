@@ -81,7 +81,7 @@ export default function SliderBanner() {
           <div className="absolute inset-0 bg-black/25" />
           <div className="container relative mx-auto flex min-h-[calc(100vh-7.5rem)] items-center px-4 py-20">
             <div className="max-w-3xl text-white">
-              <p className="mb-4 font-semibold tracking-[0.2em] text-yellow-300">{slide.title}</p>
+              <p className="mb-4 font-semibold tracking-[0.2em] text-[var(--solar-primary-dark)]">{slide.title}</p>
               <h2 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">{slide.subtitle}</h2>
               <p className="mb-8 max-w-2xl text-lg text-green-50 md:text-xl">{slide.description}</p>
               <div className="flex flex-wrap gap-4">

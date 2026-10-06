@@ -35,9 +35,9 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const THEME_PRESETS = {
-  solar: { label: "Xanh nắng", primary: "#0d3b78", accent: "#f7b928" },
-  navy: { label: "Navy kỹ thuật", primary: "#071b33", accent: "#f5b927" },
-  graphite: { label: "Than chì", primary: "#17202b", accent: "#ffb703" },
-  forest: { label: "Xanh rừng", primary: "#12372a", accent: "#f4c95d" },
-  royal: { label: "Xanh hoàng gia", primary: "#172554", accent: "#facc15" }
+  solar: { label: "Xanh nắng", primary: "var(--solar-primary-dark)", accent: "var(--solar-accent)" },
+  navy: { label: "Navy kỹ thuật", primary: "var(--solar-primary-dark)", accent: "var(--solar-accent)" },
+  graphite: { label: "Than chì", primary: "var(--solar-primary-dark)", accent: "var(--solar-accent)" },
+  forest: { label: "Xanh rừng", primary: "var(--solar-primary-dark)", accent: "var(--solar-accent)" },
+  royal: { label: "Xanh hoàng gia", primary: "var(--solar-primary-dark)", accent: "var(--solar-accent)" }
 } as const;
