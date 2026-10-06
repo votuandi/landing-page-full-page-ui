@@ -70,7 +70,10 @@ export default function PackageCalculator({
   }
   return (
     <div className="solar-calculator">
-      <div className="solar-calculator-inputs solar-card">
+      <div
+        className="solar-calculator-inputs solar-card"
+        data-solar-reveal="up"
+      >
         <div>
           <label className="solar-label" htmlFor="bill-range">
             Chọn nhanh dải hóa đơn
@@ -193,7 +196,7 @@ export default function PackageCalculator({
         kiệm theo tiềm năng tự dùng giả định, chưa giới hạn theo hóa đơn hay phụ
         tải thực tế.
       </p>
-      <div className="solar-package-grid">
+      <div className="solar-package-grid" data-solar-stagger="up">
         {packages.map((pkg) => {
           const r = estimate(pkg, province, a);
           return (
@@ -266,7 +269,7 @@ export default function PackageCalculator({
         })}
       </div>
       {selected && result && loan && (
-        <div className="solar-after-calculation">
+        <div className="solar-after-calculation" data-solar-stagger="up">
           <div className="solar-card solar-installment">
             <div className="solar-kicker">Cân đối dòng tiền</div>
             <h3>Trả góp cần bù thêm bao nhiêu mỗi tháng?</h3>
@@ -362,7 +365,7 @@ export default function PackageCalculator({
               </div>
             </details>
           </div>
-          <div className="solar-quote">
+          <div className="solar-quote" data-solar-reveal="up">
             <div>
               <strong>Tiếp tục từ phương án bạn vừa chọn.</strong>
               <p>

@@ -114,3 +114,9 @@ QA bên ngoài cần playwright-core và @axe-core/playwright, không thêm vào
 - [x] Danh sách dữ liệu chưa xác minh, Chờ backend và hướng dẫn đổi thương hiệu đầy đủ.
 - [x] Mỗi giai đoạn có commit riêng sau build/lint; chưa push remote.
 - [x] Lighthouse mobile production local: **Performance 95 / Accessibility 100 / SEO 100**, vượt mục tiêu 85/95. Báo cáo chi tiết `docs/qa-template-11/lighthouse-mobile.json` và tóm tắt `lighthouse-scores.json`; không có run warning.
+
+## Cập nhật: animation khi cuộn
+- `SolarScrollReveal` quản lý IntersectionObserver riêng cho home mới. Tiêu đề, thẻ vấn đề, calculator, giải pháp, dự án, đánh giá, pháp lý, FAQ và liên hệ xuất hiện nhẹ từ dưới lên; các thẻ trễ lần lượt 80ms (giới hạn 240ms). Thời gian 600ms, chạy một lần cho mỗi khối.
+- Nội dung SSR/no-JS luôn hiện; chỉ kích hoạt trạng thái chờ sau khi observer sẵn sàng. Nội dung trong viewport ban đầu giữ hiển thị để không trì hoãn hero/LCP. Thẻ được mount lại khi lọc vẫn được đăng ký. `prefers-reduced-motion` được tôn trọng cả khi đổi trong phiên; bàn phím focus vẫn làm khối hiển thị.
+- Build/lint PASS (7 cảnh báo legacy như trước). `check-solar-scroll.cjs` PASS trên 360/768/1280: cuộn thực tế, duration, trạng thái cuối, lọc, giảm chuyển động, no-JS, không tràn ngang và không lỗi runtime. Chạy lại `check-template-11.cjs` và `check-solar-calc.cjs`: PASS, form/API/backend bất biến.
+- Lệnh QA: dùng cùng QA_NODE_MODULES/QA_CHROMIUM_PATH như phần trên với `node scripts/check-solar-scroll.cjs`.

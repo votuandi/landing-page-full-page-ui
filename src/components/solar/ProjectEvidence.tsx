@@ -68,7 +68,7 @@ export default function ProjectEvidence() {
             </button>
           ))}
         </div>
-        <div className="solar-project-grid">
+        <div className="solar-project-grid" data-solar-stagger="up">
           {rows.map(({ project, pkg, result }) => (
             <article className="solar-project" key={project.id}>
               <div className="solar-project-image">
@@ -147,6 +147,7 @@ export default function ProjectEvidence() {
         </div>
         <div
           className="solar-table-scroll solar-project-total"
+          data-solar-reveal="up"
           tabIndex={0}
           role="region"
           aria-label="Bảng tổng theo bộ lọc"
@@ -185,7 +186,7 @@ export default function ProjectEvidence() {
             Nội dung minh họa góc nhìn người dùng, không phải đánh giá thực.
             Thay bằng đánh giá được khách hàng cho phép sử dụng.
           </p>
-          <div className="solar-testimonial-grid">
+          <div className="solar-testimonial-grid" data-solar-stagger="up">
             {getTestimonials().map((t) => (
               <figure className="solar-card" key={t.id}>
                 <blockquote>{t.quote}</blockquote>

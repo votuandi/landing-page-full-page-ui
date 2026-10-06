@@ -58,6 +58,7 @@ export default function SegmentComparison() {
           id={`${id}-panel`}
           aria-labelledby={`${id}-tab-${index}`}
           className="solar-comparison-grid"
+          data-solar-stagger="up"
         >
           <div className="solar-card">
             <h3>{selected.title}</h3>

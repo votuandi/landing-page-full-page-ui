@@ -7,6 +7,7 @@ import TrustLegal from "./TrustLegal";
 import BillHero from "./BillHero";
 import PackageCalculator from "./PackageCalculator";
 import SectionHeading from "./SectionHeading";
+import SolarScrollReveal from "./SolarScrollReveal";
 import LeadForm from "@/components/LeadForm";
 export default function SolarHome() {
   const [bill, setBill] = useState(String(getAssumptions().defaultBill));
@@ -14,6 +15,7 @@ export default function SolarHome() {
     brand = getBrand();
   return (
     <main id="noi-dung" className="solar-home">
+      <SolarScrollReveal />
       <BillHero bill={bill} setBill={setBill} />
       <section className="solar-section">
         <div className="solar-container">
@@ -23,7 +25,7 @@ export default function SolarHome() {
             title="Tiền điện đang lấy đi cơ hội nào?"
             answer="Chi phí điện đều đặn làm thu hẹp ngân sách cho những việc khác. Đầu tư hiệu quả bắt đầu từ việc hiểu phụ tải của chính bạn."
           />
-          <div className="solar-problem-grid">
+          <div className="solar-problem-grid" data-solar-stagger="up">
             {copy.problems.map((p, i) => (
               <article key={p.title}>
                 <span className="solar-index">0{i + 1}</span>
@@ -49,7 +51,7 @@ export default function SolarHome() {
       <ProjectEvidence />
       <TrustLegal />
       <section className="solar-section solar-surface">
-        <div className="solar-container solar-faq-grid">
+        <div className="solar-container solar-faq-grid" data-solar-stagger="up">
           <SectionHeading
             step="06"
             label="Gỡ vướng mắc"
@@ -67,7 +69,10 @@ export default function SolarHome() {
         </div>
       </section>
       <section id="lien-he" className="solar-section">
-        <div className="solar-container solar-contact-grid">
+        <div
+          className="solar-container solar-contact-grid"
+          data-solar-stagger="up"
+        >
           <div>
             <SectionHeading
               step="07"

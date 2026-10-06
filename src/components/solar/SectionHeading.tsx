@@ -10,7 +10,7 @@ export default function SectionHeading({
   answer: string;
 }) {
   return (
-    <div className="solar-section-heading">
+    <div className="solar-section-heading" data-solar-reveal="up">
       <div className="solar-kicker">
         <span>{step}</span>
         {label}

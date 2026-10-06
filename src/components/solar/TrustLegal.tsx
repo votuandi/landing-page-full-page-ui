@@ -19,7 +19,7 @@ export default function TrustLegal() {
           answer="Cần đối chiếu pháp nhân, phạm vi công việc, thiết bị, bảo hành và yêu cầu pháp lý của công trình. Thông tin chưa xác nhận không nên được coi là cam kết."
         />
         {licenses.length > 0 ? (
-          <div className="solar-license-grid">
+          <div className="solar-license-grid" data-solar-stagger="up">
             {licenses.map((l) => (
               <a
                 className="solar-card solar-license"
@@ -51,7 +51,7 @@ export default function TrustLegal() {
             cung cấp hồ sơ thực trước khi xuất bản.
           </p>
         )}
-        <div className="solar-legal-grid">
+        <div className="solar-legal-grid" data-solar-stagger="up">
           <div>
             <h3>Pháp lý cần biết</h3>
             <p className="solar-note">
