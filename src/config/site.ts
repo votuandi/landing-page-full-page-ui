@@ -1,5 +1,7 @@
 export const SITE_CONFIG = {
   brand: { name: "Minwy Solar", legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]", tagline: "Giảm chi phí điện. Tăng hiệu quả vận hành.", logoText: "MW" },
+  /** Màu thanh trình duyệt trên mobile — nên trùng --bg trong globals.css */
+  themeColor: "#FBF7F1",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-5.minwysoft.com",
   contact: {
     phone: "0901 234 567", phoneRaw: "0901234567", zalo: "https://zalo.me/0901234567",
@@ -32,10 +34,13 @@ export const NAV_ITEMS = [
   { label: "Về chúng tôi", href: "/about-us" }, { label: "Liên hệ", href: "/contact-us" }
 ] as const;
 
+/**
+ * Bộ màu thử nhanh trong bảng demo. Giá trị là kênh "R G B" ghi đè token --c-primary / --c-accent.
+ * Muốn đổi màu cố định cho khách: sửa :root trong src/app/globals.css.
+ */
 export const THEME_PRESETS = {
-  solar: { label: "Xanh nắng", primary: "#0d3b78", accent: "#f7b928" },
-  navy: { label: "Navy kỹ thuật", primary: "#071b33", accent: "#f5b927" },
-  graphite: { label: "Than chì", primary: "#17202b", accent: "#ffb703" },
-  forest: { label: "Xanh rừng", primary: "#12372a", accent: "#f4c95d" },
-  royal: { label: "Xanh hoàng gia", primary: "#172554", accent: "#facc15" }
+  sand: { label: "Warm Sand", primary: "194 65 12", accent: "15 118 110" },
+  brick: { label: "Gạch nung", primary: "185 28 28", accent: "21 94 117" },
+  amber: { label: "Hổ phách", primary: "180 83 9", accent: "22 101 52" },
+  plum: { label: "Mận chín", primary: "134 25 143", accent: "15 118 110" },
 } as const;

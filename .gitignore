@@ -48,3 +48,5 @@ next-env.d.ts
 
 # docs
 /docs
+# unit test build output
+/.test-dist/

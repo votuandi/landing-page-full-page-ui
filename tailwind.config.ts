@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+/** Màu lấy từ CSS variable dạng kênh "R G B" trong globals.css → hỗ trợ bg-primary/20 … */
+const token = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,53 +10,43 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    // Thay HẲN bảng màu mặc định của Tailwind: chỉ còn màu từ design tokens,
+    // nên không thể vô tình dùng bg-white, text-slate-500… trong component.
+    colors: {
+      transparent: "transparent",
+      current: "currentColor",
+      inherit: "inherit",
+      bg: { DEFAULT: token("bg"), elevated: token("bg-elevated"), tint: token("bg-tint"), deep: token("bg-deep") },
+      glass: { DEFAULT: "var(--glass)", border: "var(--glass-border)", strong: "var(--glass-strong)", "strong-border": "var(--glass-strong-border)" },
+      primary: { DEFAULT: token("primary"), strong: token("primary-strong"), deep: token("primary-deep") },
+      accent: token("accent"),
+      "on-primary": token("on-primary"),
+      "on-accent": token("on-accent"),
+      "on-media": token("on-media"),
+      fg: { DEFAULT: token("fg"), muted: token("fg-muted"), subtle: token("fg-subtle") },
+      line: token("line"),
+      sun: token("sun"),
+      highlight: token("highlight"),
+      scrim: token("scrim"),
+      shadow: token("shadow"),
+      success: token("success"),
+      danger: token("danger"),
+      chart: { a: token("chart-a"), b: token("chart-b") },
+      skin: { DEFAULT: token("skin"), shade: token("skin-shade"), light: token("skin-light") },
+      device: token("device"),
+    },
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: {
-          50: "#f1f7f3",
-          100: "#deeee3",
-          500: "#2f7a5a",
-          600: "#1B5E45",
-          700: "#12372A",
-        },
-        solar: {
-          orange: "#F4C95D",
-          blue: "#1B5E45",
-          green: "#12372A",
-          yellow: "#C9E265",
-          beige: "#eef4ef",
-          cream: "#f7f9f6",
-        },
-      },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
-      animation: {
-        "fade-in-up": "fade-in-up 0.8s ease-out forwards",
-        "slide-in-left": "slide-in-left 0.6s ease-out forwards",
-        "slide-in-right": "slide-in-right 0.6s ease-out forwards",
-        "float-up": "float-up 3s ease-in-out infinite",
-        "float-down": "float-down 3s ease-in-out infinite",
-        "gradient-x": "gradient-x 3s ease infinite",
-        "spin-slow": "spin-slow 8s linear infinite",
-        wave: "wave 6s ease-in-out infinite",
-        "count-up": "count-up 0.6s ease-out 0.8s forwards",
+      opacity: { 6: "0.06", 8: "0.08", 12: "0.12", 15: "0.15" },
+      // Cùng offset/blur/spread/alpha với shadow mặc định của Tailwind (template-8), chỉ đổi màu đen → --c-shadow
+      boxShadow: {
+        sm: "0 1px 2px 0 rgb(var(--c-shadow) / .05)",
+        lg: "0 10px 15px -3px rgb(var(--c-shadow) / .1), 0 4px 6px -4px rgb(var(--c-shadow) / .1)",
+        xl: "0 20px 25px -5px rgb(var(--c-shadow) / .1), 0 8px 10px -6px rgb(var(--c-shadow) / .1)",
+        "2xl": "0 25px 50px -12px rgb(var(--c-shadow) / .25)",
       },
-      keyframes: {
-        "fade-in-up": { "0%": { opacity: "0", transform: "translateY(30px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
-        "slide-in-left": { "0%": { opacity: "0", transform: "translateX(-50px)" }, "100%": { opacity: "1", transform: "translateX(0)" } },
-        "slide-in-right": { "0%": { opacity: "0", transform: "translateX(50px)" }, "100%": { opacity: "1", transform: "translateX(0)" } },
-        "float-up": { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
-        "float-down": { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(10px)" } },
-        "gradient-x": { "0%, 100%": { "background-size": "200% 200%", "background-position": "left center" }, "50%": { "background-size": "200% 200%", "background-position": "right center" } },
-        "spin-slow": { "0%": { transform: "rotate(0deg)" }, "100%": { transform: "rotate(360deg)" } },
-        wave: { "0%, 100%": { transform: "translateX(0) translateY(0) scaleX(1)" }, "50%": { transform: "translateX(0) translateY(-3px) scaleX(1)" } },
-        "count-up": { "0%": { opacity: "0", transform: "scale(0.5)" }, "100%": { opacity: "1", transform: "scale(1)" } },
-      },
-      boxShadow: { "3xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)" },
-      transitionDuration: { "600": "600ms", "800": "800ms", "900": "900ms", "1200": "1200ms" },
     },
   },
   plugins: [],

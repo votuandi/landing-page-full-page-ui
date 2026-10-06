@@ -49,11 +49,14 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   }), [items]);
 
   const applyTheme = (primary: string, accent: string) => {
-    document.documentElement.style.setProperty("--t5-primary", primary);
-    document.documentElement.style.setProperty("--t5-accent", accent);
+    document.documentElement.style.setProperty("--c-primary", primary);
+    document.documentElement.style.setProperty("--c-accent", accent);
   };
 
-  const toggleDark = () => document.documentElement.classList.toggle("t5-dark");
+  const resetTheme = () => {
+    document.documentElement.style.removeProperty("--c-primary");
+    document.documentElement.style.removeProperty("--c-accent");
+  };
 
   const selectedProducts = PRODUCTS.filter((p) => items.includes(p.slug));
 
@@ -95,8 +98,8 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         {menuOpen && (
-          <nav className="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
-            {NAV_ITEMS.map((item) => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block border-b border-slate-100 py-3 font-bold text-slate-700">{item.label}</Link>)}
+          <nav className="border-t border-line/12 bg-bg-elevated px-4 py-4 lg:hidden">
+            {NAV_ITEMS.map((item) => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block border-b border-line/12 py-3 font-bold text-fg">{item.label}</Link>)}
             <button type="button" onClick={() => { setRfqOpen(true); setMenuOpen(false); }} className="mt-4 w-full t5-button t5-button-secondary">Yêu cầu báo giá ({items.length})</button>
           </nav>
         )}
@@ -104,72 +107,72 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
       {children}
 
-      <footer className="bg-gradient-to-br from-[var(--t8-ink)] to-[var(--t5-primary)] text-white">
+      <footer className="bg-gradient-to-br from-bg-deep to-primary-deep text-on-media">
         <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="inline-flex rounded-2xl bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
-            <p className="mt-5 text-sm leading-7 text-white/70">{SITE_CONFIG.brand.tagline}</p>
-            <p className="mt-5 text-xs leading-6 text-white/55">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
+            <div className="inline-flex rounded-2xl bg-bg-elevated px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
+            <p className="mt-5 text-sm leading-7 text-on-media/70">{SITE_CONFIG.brand.tagline}</p>
+            <p className="mt-5 text-xs leading-6 text-on-media/55">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
           </div>
           <div>
             <h2 className="t5-footer-title">Giải pháp</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Solar nhà xưởng</Link>
-              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Solar hộ gia đình</Link>
-              <Link className="block hover:text-white" href="/service/hybrid-luu-tru">Hybrid lưu trữ</Link>
-              <Link className="block hover:text-white" href="/service/om-ve-sinh">O&M & vệ sinh</Link>
+            <div className="mt-5 space-y-3 text-sm text-on-media/70">
+              <Link className="block hover:text-on-media" href="/service/solar-nha-xuong">Solar nhà xưởng</Link>
+              <Link className="block hover:text-on-media" href="/service/solar-gia-dinh">Solar hộ gia đình</Link>
+              <Link className="block hover:text-on-media" href="/service/hybrid-luu-tru">Hybrid lưu trữ</Link>
+              <Link className="block hover:text-on-media" href="/service/om-ve-sinh">O&M & vệ sinh</Link>
             </div>
           </div>
           <div>
             <h2 className="t5-footer-title">Công ty</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/about-us">Về chúng tôi</Link>
-              <Link className="block hover:text-white" href="/product">Thiết bị</Link>
-              <Link className="block hover:text-white" href="/contact-us">Liên hệ</Link>
+            <div className="mt-5 space-y-3 text-sm text-on-media/70">
+              <Link className="block hover:text-on-media" href="/about-us">Về chúng tôi</Link>
+              <Link className="block hover:text-on-media" href="/product">Thiết bị</Link>
+              <Link className="block hover:text-on-media" href="/contact-us">Liên hệ</Link>
               <span className="block">{SITE_CONFIG.legal.ministryNoticeLogo}</span>
             </div>
           </div>
           <div>
             <h2 className="t5-footer-title">Liên hệ dự án</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <a className="block text-lg font-black text-white" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}>{SITE_CONFIG.contact.phone}</a>
-              <a className="block hover:text-white" href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>
+            <div className="mt-5 space-y-3 text-sm text-on-media/70">
+              <a className="block text-lg font-black text-on-media" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}>{SITE_CONFIG.contact.phone}</a>
+              <a className="block hover:text-on-media" href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>
               <p>{SITE_CONFIG.contact.address}</p>
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
+        <div className="border-t border-on-media/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-on-media/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
       </footer>
 
       {SITE_CONFIG.demo.enabled && (
         <div className="fixed right-4 top-[45%] z-50 hidden lg:block">
           <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện"><SwatchIcon className="h-5 w-5" /></button>
           {themeOpen && (
-            <div className="absolute right-14 top-0 w-72 rounded-3xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl">
-              <div className="text-sm font-black text-slate-900">Thử nhận diện thương hiệu</div>
-              <label className="mt-4 block text-xs font-bold text-slate-500">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
-              <div className="mt-4 text-xs font-bold text-slate-500">Màu chủ đạo</div>
+            <div className="absolute right-14 top-0 w-72 rounded-3xl border border-on-media/70 bg-bg-elevated/85 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="text-sm font-black text-fg">Thử nhận diện thương hiệu</div>
+              <label className="mt-4 block text-xs font-bold text-fg-muted">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
+              <div className="mt-4 text-xs font-bold text-fg-muted">Màu chủ đạo</div>
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
+                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-xl border border-line/12 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: `rgb(${theme.primary})` }} />{theme.label}</button>)}
               </div>
-              <button type="button" onClick={toggleDark} className="mt-4 w-full t5-button t5-button-secondary">Bật / tắt nền tối</button>
+              <button type="button" onClick={resetTheme} className="mt-4 w-full t5-button t5-button-secondary">Về màu mặc định</button>
             </div>
           )}
         </div>
       )}
 
-      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-full border border-white/70 bg-white/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-full border border-on-media/70 bg-bg-elevated/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
         <a className="t5-mobile-cta" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
         <a className="t5-mobile-cta" href={SITE_CONFIG.contact.zalo}>Zalo</a>
         <button type="button" className="t5-mobile-cta" onClick={() => setRfqOpen(true)}>Báo giá {items.length ? `(${items.length})` : ""}</button>
       </div>
 
       {rfqOpen && (
-        <div className="fixed inset-0 z-[70] flex justify-end bg-slate-950/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
+        <div className="fixed inset-0 z-[70] flex justify-end bg-scrim/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
           <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
-          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-white/95 p-6 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">RFQ</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
+          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-bg-elevated/95 p-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-fg-subtle">RFQ</div><h2 className="mt-1 text-2xl font-black text-primary">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
+            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-line/12 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-danger">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-fg-muted">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
             <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem catalog thiết bị"}</Link>
           </aside>
         </div>
