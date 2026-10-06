@@ -51,3 +51,6 @@ Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. B�
 
 ### QA giai đoạn 4
 Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. Ba tab phân khúc có bàn phím mũi tên/Home/End, SVG 24h kèm bảng và kiểu nét. Case study theo khung công suất/MWh/tiết kiệm/thiết bị/CO₂/doanh nghiệp, bộ lọc và tổng cộng đều tính từ adapter. Video chỉ mount sau khi bấm, preload none; chưa có video thật trong dữ liệu mẫu. Ảnh lazy-load. Hồ sơ không có lookupUrl được ẩn; demo không giả lập giấy phép. Cờ verified:false của legal chỉ có ghi chú nhỏ ở dev; nội dung [CẦN XÁC MINH] vẫn giữ để tránh tuyên bố pháp lý chưa kiểm chứng. Đánh giá hỗ trợ photo/sourceUrl nếu có; mẫu hiện không giả mạo người thật.
+
+### QA giai đoạn 5
+Lint PASS (7 cảnh báo cũ), build PASS. Meta sinh từ min giá và min hoàn vốn tại tỉnh mặc định, ghi rõ mô phỏng. FAQPage lấy đúng FAQ hiển thị, LocalBusiness lấy brand; không đưa địa chỉ placeholder vào schema. Escape ký tự `<` trong JSON-LD. Mobile có Gọi/Zalo Gia đình/Zalo Doanh nghiệp, safe-area và chừa khoảng cuối trang. Header/footer lấy thông tin qua adapter; RFQ và tham số rfq cũ giữ nguyên. Đường dẫn anchor nội dung chính/tính toán mỗi vị trí chỉ dùng một CTA; các link liên hệ tel/Zalo là lối tắt thiết yếu.

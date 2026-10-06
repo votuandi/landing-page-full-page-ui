@@ -1,3 +1,4 @@
+import { PRODUCTS } from "../../data/solar";
 import { assumptions, brand, copy, legal, pricing, projects, pvout, segments, testimonials } from "./data";
 export type * from "./types";
 // TODO(backend): thay bằng API. Giữ tên hàm và kiểu dữ liệu; không import data trực tiếp trong component.
@@ -12,3 +13,6 @@ export const getProjects = () => projects;
 export const getTestimonials = () => testimonials;
 export const getSegments = () => segments;
 export const getCopy = () => copy;
+
+// TODO(backend): adapter tương thích danh mục thiết bị hiện có, không thay dữ liệu/payload.
+export const getCatalog = () => PRODUCTS;

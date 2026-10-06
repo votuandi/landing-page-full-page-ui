@@ -1,9 +1,11 @@
+import { getBrand } from "@/content/solar";
+const brand=getBrand();
 export const SITE_CONFIG = {
-  brand: { name: "Minwy Solar", legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]", tagline: "Giảm chi phí điện. Tăng hiệu quả vận hành.", logoText: "MW" },
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-5.minwysoft.com",
+  brand: { name: brand.name, legalName: `${brand.name} [DỮ LIỆU MẪU]`, tagline: brand.slogan, logoText: "MW" },
+  url: process.env.NEXT_PUBLIC_SITE_URL || brand.url,
   contact: {
-    phone: "0901 234 567", phoneRaw: "0901234567", zalo: "https://zalo.me/0901234567",
-    email: "duan@minwysolar.example", address: "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",
+    phone: brand.hotlines[0].phone, phoneRaw: brand.hotlines[0].phone, zalo: brand.zalo.home,
+    email: brand.email, address: brand.address,
     taxCode: "0312XXXXXX [DỮ LIỆU MẪU]", license: "Giấy phép/đăng ký ngành nghề: [CẦN XÁC MINH]",
     facebook: "https://facebook.com/", linkedin: "https://linkedin.com/"
   },
