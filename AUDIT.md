@@ -188,4 +188,37 @@ template có thêm lựa chọn — không phải giao diện mặc định.
 
 ## 6. Đối chiếu sau khi đổi màu
 
-(Điền ở bước tokens — xem cuối file.)
+Tokens nằm ở `src/app/globals.css` (`:root` = bảng A, `[data-theme="light"]` = bảng B).
+`tailwind.config.ts` **thay hẳn** bảng màu mặc định của Tailwind bằng token → `bg-white`, `text-slate-500`… không còn sinh CSS.
+Kiểm tra: `grep` hex / `rgb(` số / class màu Tailwind trong `src/components` và `src/app/**/*.tsx` → 0 kết quả
+(ngoại lệ có chủ đích: `themeColor` trong `config/site.ts` vì meta tag cần chuỗi màu).
+
+| Giá trị | template-8 | template-12 | Kết quả |
+|---|---|---|---|
+| Radius nút / input / card / thẻ phân khúc / glass | full / 14px / 28px / 32px / 24px | giữ nguyên class | ✅ giữ |
+| Vòm hero, điện thoại, drawer | 36px+full / 44-36px / 32px | giữ | ✅ |
+| Blur glass, header, mobile bar, drawer | 24px | 24px | ✅ |
+| Blur card, eyebrow | 8px | 8px | ✅ |
+| Blur overlay modal | 4px | 4px | ✅ |
+| `.t8-glass` nền / viền | white .60 / .70 | `--glass` .06 / `--glass-border` .12 | ⚠️ đổi theo bảng A (có chủ đích, mục 5) |
+| `.t8-glass-dark` | .10 / .15 | `--glass-strong` .10 / .15 | ✅ |
+| Gradient phủ ảnh | .85/.15/.55/.7/.9/.3 | cùng alpha trên `--c-scrim` | ✅ |
+| Glow radial | .16–.55, tắt ở 65–70% | cùng alpha/điểm dừng, màu token | ✅ |
+| Shadow (offset/blur/spread/α) | mục 4.4 | giữ, màu `--c-shadow` | ✅ |
+| Reveal .9s cubic-bezier(.16,1,.3,1), 64/80px, scale .86 | | không đổi | ✅ |
+| Float 6/7/9s, pulse 2s, dash 1.6s | | không đổi | ✅ |
+| Hover ảnh 1.05/700ms, thẻ -6px | | không đổi | ✅ |
+| prefers-reduced-motion | | giữ + carousel/video tôn trọng | ✅ |
+
+Độ tương phản (WCAG, tính theo công thức relative luminance):
+| Cặp | Tỷ lệ | AA |
+|---|---|---|
+| `--text` #E8F3EF / `--bg` | 15.4 | ✅ |
+| `--text-muted` #9FB8B1 / `--bg` | 8.1 | ✅ |
+| `--text-muted` / glass trên `--bg-elevated` (~#1C3531) | 6.2 | ✅ |
+| `fg-subtle` #8AA59E / glass | 4.9 | ✅ |
+| `--primary` #10B981 / `--bg` | 6.8 | ✅ |
+| chữ `on-primary` #041C15 / `--primary` | 7.0 | ✅ |
+| chữ `on-accent` #0B1F1C / `--accent` #F5B83D | 9.6 | ✅ |
+| `--text-muted` / `primary-deep` #064E3B (section thương hiệu) | 4.6 | ✅ |
+| Trắng trên `--primary` | 2.5 | ❌ → **không dùng**, thay bằng `on-primary` |

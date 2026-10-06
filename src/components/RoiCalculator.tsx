@@ -34,7 +34,7 @@ export default function RoiCalculator() {
   }
 
   return (
-    <section id="roi" className="t8-screen t5-section bg-gradient-to-b from-white to-[var(--t8-beige)]">
+    <section id="roi" className="t8-screen t5-section bg-gradient-to-b from-bg to-bg-elevated">
       <div className="t5-container">
         <div data-reveal="down" className="max-w-3xl">
           <span className="t5-eyebrow">Ước tính đầu tư</span>
@@ -62,32 +62,32 @@ export default function RoiCalculator() {
                 </select>
               </label>
               <label className="t5-label">Tỷ lệ dùng điện ban ngày: <strong>{daytimeUse}%</strong>
-                <input type="range" min={35} max={98} value={daytimeUse} onChange={(e) => setDaytimeUse(Number(e.target.value))} className="mt-3 w-full accent-[var(--t5-accent)]" />
+                <input type="range" min={35} max={98} value={daytimeUse} onChange={(e) => setDaytimeUse(Number(e.target.value))} className="mt-3 w-full accent-accent" />
               </label>
             </div>
           </div>
-          <div data-reveal="right" style={delay(0.3)} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[var(--t5-primary)] to-[#1d5bb8] p-6 text-white shadow-[0_40px_80px_-40px_rgb(13_59_120_/_.7)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(247_185_40_/_.35),transparent_65%)]" />
+          <div data-reveal="right" style={delay(0.3)} className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-bg-deep to-primary-deep p-6 text-fg shadow-[0_40px_80px_-40px_rgb(var(--c-shadow)/)] md:p-8"><div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/),transparent_65%)]" />
             <div className="relative grid gap-3 sm:grid-cols-2">
               {[
                 ["Công suất đề xuất", `${result.kwp.toFixed(1)} kWp`],
                 ["Vốn đầu tư ước tính", formatMoney(result.investment)],
                 ["Tiết kiệm tháng đầu", formatMoney(result.monthlySaving)],
                 ["Hoàn vốn ước tính", `${result.paybackYears.toFixed(1).replace(".", ",")} năm`],
-              ].map(([label,value]) => <div key={label} className="t8-glass-dark rounded-2xl p-5"><div className="text-xs font-bold uppercase tracking-[.14em] text-white/55">{label}</div><div className="mt-2 text-2xl font-black text-[var(--t5-accent)]">{value}</div></div>)}
+              ].map(([label,value]) => <div key={label} className="t8-glass-dark rounded-2xl p-5"><div className="text-xs font-bold uppercase tracking-[.14em] text-fg-muted">{label}</div><div className="mt-2 text-2xl font-black text-accent">{value}</div></div>)}
             </div>
             <div className="mt-7">
-              <div className="mb-3 flex items-center justify-between"><strong>Tiết kiệm lũy kế 25 năm</strong><span className="text-xs text-white/55">ước tính</span></div>
+              <div className="mb-3 flex items-center justify-between"><strong>Tiết kiệm lũy kế 25 năm</strong><span className="text-xs text-fg-muted">ước tính</span></div>
               <svg viewBox="0 0 600 210" className="w-full" role="img" aria-label="Biểu đồ tiết kiệm lũy kế 25 năm">
-                <line x1="20" y1="190" x2="580" y2="190" stroke="rgba(255,255,255,.25)" />
-                <polyline points={points} fill="none" stroke="var(--t5-accent)" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-                <text x="20" y="206" fill="rgba(255,255,255,.6)" fontSize="11">Năm 1</text>
-                <text x="535" y="206" fill="rgba(255,255,255,.6)" fontSize="11">Năm 25</text>
+                <line x1="20" y1="190" x2="580" y2="190" stroke="rgb(var(--c-line) / .25)" />
+                <polyline points={points} fill="none" stroke="rgb(var(--c-accent))" strokeWidth="4" vectorEffect="non-scaling-stroke" />
+                <text x="20" y="206" fill="rgb(var(--c-fg-muted))" fontSize="11">Năm 1</text>
+                <text x="535" y="206" fill="rgb(var(--c-fg-muted))" fontSize="11">Năm 25</text>
               </svg>
             </div>
-            <div className="mt-6 border-t border-white/15 pt-6">
+            <div className="mt-6 border-t border-line/15 pt-6">
               <label className="text-sm font-bold">Nhận bản tính chi tiết qua Zalo</label>
-              <div className="mt-2 flex gap-2"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="min-w-0 flex-1 rounded-full bg-white/95 px-5 py-3 text-sm text-slate-900 outline-none" placeholder="Số điện thoại" /><button type="button" onClick={requestDetail} className="rounded-full bg-[var(--t5-accent)] px-5 py-3 text-sm font-black text-[var(--t5-primary)]">Nhận bản tính</button></div>
-              {sent && <p className="mt-2 text-sm font-bold text-emerald-300">Đã ghi nhận yêu cầu của bạn.</p>}
+              <div className="mt-2 flex gap-2"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="min-w-0 flex-1 rounded-full bg-bg-elevated/95 px-5 py-3 text-sm text-fg outline-none" placeholder="Số điện thoại" /><button type="button" onClick={requestDetail} className="rounded-full bg-accent px-5 py-3 text-sm font-black text-primary">Nhận bản tính</button></div>
+              {sent && <p className="mt-2 text-sm font-bold text-success">Đã ghi nhận yêu cầu của bạn.</p>}
             </div>
           </div>
         </div>

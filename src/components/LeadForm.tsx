@@ -19,7 +19,7 @@ export default function LeadForm({ source = "website", compact = false, defaultM
   }
 
   if (status === "success") {
-    return <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6"><div className="text-lg font-black text-emerald-900">Đã nhận thông tin của bạn.</div><p className="mt-2 text-sm leading-6 text-emerald-800">Bộ phận dự án sẽ liên hệ theo thông tin bạn đã cung cấp.</p></div>;
+    return <div className="rounded-3xl border border-success/40 bg-success/10 p-6"><div className="text-lg font-black text-fg">Đã nhận thông tin của bạn.</div><p className="mt-2 text-sm leading-6 text-fg-muted">Bộ phận dự án sẽ liên hệ theo thông tin bạn đã cung cấp.</p></div>;
   }
 
   return (
@@ -32,7 +32,7 @@ export default function LeadForm({ source = "website", compact = false, defaultM
       <button disabled={status === "sending"} className={compact ? "t5-button t5-button-primary" : "t5-button t5-button-primary md:col-span-2"}>
         {status === "sending" ? "Đang gửi..." : "Nhận tư vấn & báo giá"}
       </button>
-      {status === "error" && <p className="text-sm font-bold text-red-600 md:col-span-2">Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi hotline.</p>}
+      {status === "error" && <p className="text-sm font-bold text-danger md:col-span-2">Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi hotline.</p>}
     </form>
   );
 }

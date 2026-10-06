@@ -3,6 +3,15 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
+  async redirects() {
+    // Đường dẫn cũ của template-8 → slug tiếng Việt của template-12
+    return [
+      ["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"],
+      ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],
+      ["/project/:slug", "/cong-trinh/:slug"],
+      ["/product", "/san-pham"], ["/product/:slug", "/san-pham/:slug"],
+    ].map(([source, destination]) => ({ source, destination, permanent: true }));
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

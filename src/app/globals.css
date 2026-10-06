@@ -2,74 +2,145 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   DESIGN TOKENS — đổi màu toàn site chỉ cần sửa khối này.
+   Mỗi màu khai báo 2 dạng:
+     --<tên>      : giá trị hoàn chỉnh (dùng trực tiếp trong CSS)
+     --c-<tên>    : kênh "R G B" để Tailwind tạo được độ trong suốt (bg-primary/20 …)
+   Component KHÔNG được dùng hex/rgb cứng, chỉ dùng class Tailwind sinh từ token
+   (xem tailwind.config.ts) hoặc rgb(var(--c-…)).
+   ========================================================================== */
+
+/* Bảng A — "Emerald Dusk" (mặc định, nền tối) */
 :root {
-  --t5-primary: #0d3b78;
-  --t5-accent: #f7b928;
-  --t5-bg: #ffffff;
-  --t5-text: #0f172a;
-  --t5-muted: #64748b;
-  --t5-border: #e2e8f0;
+  --c-bg: 11 31 28;              --bg: #0B1F1C;
+  --c-bg-elevated: 16 42 38;     --bg-elevated: #102A26;
+  --c-bg-deep: 7 22 19;          /* section tối nhất (thay "ink" của template-8) */
+  --c-bg-tint: 13 50 43;         /* nền xen kẽ có sắc xanh (thay sky/beige) */
+
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-strong: rgba(255,255,255,0.10);        /* = .t8-glass-dark của template-8 */
+  --glass-strong-border: rgba(255,255,255,0.15);
+  --c-glass-tint: 255 255 255;   /* màu pha cho lớp kính, hover, viền mảnh */
+
+  --c-primary: 16 185 129;       --primary: #10B981;
+  --c-primary-strong: 5 150 105; --primary-strong: #059669;
+  --c-primary-deep: 6 78 59;     /* điểm cuối gradient section thương hiệu */
+  --c-on-primary: 4 28 21;       /* chữ trên nền primary (đạt AA 6.7:1) */
+
+  --c-accent: 245 184 61;        --accent: #F5B83D;   /* vàng nắng – CTA chính */
+  --c-accent-soft: 249 210 122;  /* số liệu nổi bật trên nền tối (thay --t8-sun) */
+  --c-on-accent: 11 31 28;       /* chữ trên nút accent (đạt AA 9.6:1) */
+
+  --c-fg: 232 243 239;           --text: #E8F3EF;
+  --c-fg-muted: 159 184 177;     --text-muted: #9FB8B1;
+  --c-fg-subtle: 138 165 158;    /* chữ phụ cấp 3 (≥ 4.5:1 trên glass) */
+  --c-line: 255 255 255;         /* viền dùng với alpha: border-line/12 */
+
+  --c-on-media: 255 255 255;     /* chữ trên ảnh (luôn sáng, mọi theme) */
+  --c-scrim: 4 14 12;            /* lớp phủ tối lên ảnh (luôn tối, mọi theme) */
+  --c-shadow: 1 8 6;
+  --c-success: 52 211 153;
+  --c-danger: 248 113 113;
+
+  --c-chart-a: 245 184 61;       /* sản xuất */
+  --c-chart-b: 16 185 129;       /* tiêu thụ */
+  --c-skin: 241 199 163;         /* minh họa bàn tay cầm điện thoại */
+  --c-skin-shade: 223 169 130;
+  --c-skin-light: 248 220 196;
+  --c-device: 30 41 59;          /* khung điện thoại */
+
   --t5-radius: 14px;
-  --t8-blue: #2f6fe4;
-  --t8-sky: #dbe9ff;
-  --t8-sun: #ffd666;
-  --t8-beige: #f8f2e7;
-  --t8-sand: #efe3cc;
-  --t8-ink: #0b1f3a;
+  color-scheme: dark;
+}
+
+/* Bảng B — "Sky & Sun" (tùy chọn): <html data-theme="light"> */
+[data-theme="light"] {
+  --c-bg: 244 248 251;           --bg: #F4F8FB;
+  --c-bg-elevated: 255 255 255;  --bg-elevated: #FFFFFF;
+  --c-bg-deep: 12 44 56;
+  --c-bg-tint: 230 241 246;
+  --glass: rgba(255,255,255,0.65);
+  --glass-border: rgba(14,116,144,0.15);
+  --glass-strong: rgba(255,255,255,0.10);
+  --glass-strong-border: rgba(255,255,255,0.15);
+  --c-glass-tint: 255 255 255;
+  --c-primary: 14 116 144;       --primary: #0E7490;
+  --c-primary-strong: 21 94 117; --primary-strong: #155E75;
+  --c-primary-deep: 21 94 117;
+  --c-on-primary: 255 255 255;
+  --c-accent: 245 158 11;        --accent: #F59E0B;
+  --c-accent-soft: 180 83 9;
+  --c-on-accent: 15 23 42;
+  --c-fg: 15 23 42;              --text: #0F172A;
+  --c-fg-muted: 71 85 105;       --text-muted: #475569;
+  --c-fg-subtle: 87 100 120;
+  --c-line: 14 116 144;
+  --c-shadow: 15 52 70;
+  --c-success: 4 120 87;
+  --c-danger: 185 28 28;
+  --c-chart-b: 14 116 144;
+  color-scheme: light;
+}
+/* Vùng luôn tối (section thương hiệu, footer…) dùng lại giá trị tối khi đang ở theme sáng */
+[data-theme="light"] .t12-invert {
+  --c-fg: 232 243 239; --c-fg-muted: 190 210 218; --c-fg-subtle: 170 192 201;
+  --c-line: 255 255 255;
+  --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.12);
+  --c-accent-soft: 252 211 77; --c-primary: 94 234 212; --c-on-primary: 4 28 21;
+  --c-success: 52 211 153; --c-danger: 248 113 113;
+  color: rgb(var(--c-fg));
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  background: var(--t5-bg);
-  color: var(--t5-text);
+  background: rgb(var(--c-bg));
+  color: rgb(var(--c-fg));
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 a, button, input, select, textarea { outline-offset: 3px; }
+:focus-visible { outline: 2px solid rgb(var(--c-accent)); }
 button, a { -webkit-tap-highlight-color: transparent; }
 img { max-width: 100%; }
-
-.t5-dark { --t5-bg:#0b1220; --t5-text:#e5edf8; --t5-muted:#9fb0c4; --t5-border:#26364a; }
-.t5-dark body { background:var(--t5-bg); color:var(--t5-text); }
-.t5-dark .bg-white { background-color:#111c2c !important; }
-.t5-dark .bg-slate-50, .t5-dark .bg-slate-100 { background-color:#0f1a29 !important; }
-.t5-dark .text-slate-500, .t5-dark .text-slate-600, .t5-dark .text-slate-700 { color:#a8b7c8 !important; }
-.t5-dark .border-slate-200, .t5-dark .border-slate-100 { border-color:#29394d !important; }
+[id] { scroll-margin-top: 5.5rem; }
 
 @layer components {
   .t5-container { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8; }
   .t5-section { @apply py-16 md:py-24; }
-  .t5-heading { @apply mt-4 max-w-4xl text-4xl font-black tracking-[-0.045em] sm:text-5xl; color:var(--t8-ink); }
-  .t5-subheading { @apply mt-5 max-w-3xl text-base leading-8 text-slate-600; }
-  .t5-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-amber-300/60 bg-amber-100/60 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-amber-800 backdrop-blur; }
+  .t5-heading { @apply mt-4 max-w-4xl text-4xl font-black tracking-[-0.045em] text-fg sm:text-5xl; }
+  .t5-subheading { @apply mt-5 max-w-3xl text-base leading-8 text-fg-muted; }
+  .t5-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-accent-soft backdrop-blur; }
   .t5-button { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; }
-  .t5-button-primary { background:var(--t5-primary); color:#fff; }
-  .t5-button-primary:hover { filter:brightness(1.1); box-shadow:0 12px 30px -12px rgb(13 59 120 / .55); }
-  .t5-button-secondary { @apply border border-slate-300 bg-white; color:var(--t5-primary); }
-  .t5-button-secondary:hover { @apply bg-slate-50; }
-  .t5-input { @apply mt-2 block w-full border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2; border-radius:var(--t5-radius); }
-  .t5-input:focus { border-color:var(--t5-primary); --tw-ring-color:rgb(7 27 51 / .1); }
-  .t5-label { @apply block text-sm font-bold text-slate-700; }
-  .t5-filter-title { @apply text-xs font-black uppercase tracking-[.16em] text-slate-400; }
-  .t5-filter-option { @apply w-full px-3 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-slate-100; border-radius:var(--t5-radius); }
-  .t5-filter-option.is-active { background:var(--t5-primary); color:#fff; }
-  .t5-header { @apply sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur-xl; }
-  .t5-nav-link { @apply text-sm font-bold text-slate-700 transition; }
-  .t5-nav-link:hover { color:var(--t5-primary); }
-  .t5-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/80 hover:bg-white; color:var(--t5-primary); }
-  .t5-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-black; background:var(--t5-accent); color:var(--t5-primary); }
-  .t5-demo-bar { @apply relative z-[60]; background:var(--t5-accent); color:var(--t5-primary); }
-  .t5-demo-link { @apply items-center border-b font-black; border-color:rgb(7 27 51 / .5); }
-  .t5-footer-title { @apply text-xs font-black uppercase tracking-[.18em]; color:var(--t5-accent); }
-  .t5-theme-trigger { @apply grid h-11 w-11 place-items-center rounded-full shadow-xl; background:var(--t5-accent); color:var(--t5-primary); }
-  .t5-mobile-cta { @apply flex min-h-11 items-center justify-center gap-1 px-2 text-xs font-black text-white; background:var(--t5-primary); border-radius:9999px; }
-  .t5-page-hero { @apply py-16 text-white md:py-24; background:radial-gradient(circle at 85% 20%, rgb(247 185 40 / .22), transparent 40%), linear-gradient(135deg, var(--t5-primary), #1d5bb8); }
-  .t5-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.05] tracking-[-.05em] text-white sm:text-5xl lg:text-6xl; }
-  .t5-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-white/70 sm:text-lg; }
-  .t8-glass { @apply border border-white/70 bg-white/60 shadow-[0_18px_50px_-20px_rgb(13_59_120_/_.35)] backdrop-blur-xl; }
-  .t8-glass-dark { @apply border border-white/15 bg-white/10 backdrop-blur-xl; }
-  .t8-card { @apply rounded-[28px] border border-slate-200/70 bg-white/80 shadow-[0_20px_60px_-30px_rgb(11_31_58_/_.25)] backdrop-blur; }
+  .t5-button-primary { @apply bg-accent text-on-accent; }
+  .t5-button-primary:hover { filter:brightness(1.1); box-shadow:0 12px 30px -12px rgb(var(--c-accent) / .55); }
+  .t5-button-secondary { @apply border border-line/20 bg-glass text-fg backdrop-blur; }
+  .t5-button-secondary:hover { @apply bg-glass-tint/10; }
+  .t5-input { @apply mt-2 block w-full border border-line/20 bg-bg-deep/60 px-4 py-3 text-base font-medium text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 sm:text-sm; border-radius:var(--t5-radius); }
+  .t5-input:focus { border-color:rgb(var(--c-primary)); --tw-ring-color:rgb(var(--c-primary) / .2); }
+  .t5-label { @apply block text-sm font-bold text-fg; }
+  .t5-filter-title { @apply text-xs font-black uppercase tracking-[.16em] text-fg-subtle; }
+  .t5-filter-option { @apply w-full px-3 py-2.5 text-left text-sm font-bold text-fg-muted transition hover:bg-glass-tint/10; border-radius:var(--t5-radius); }
+  .t5-filter-option.is-active { @apply bg-primary text-on-primary; }
+  .t5-header { @apply sticky top-0 z-50 border-b border-line/12 bg-bg/70 backdrop-blur-xl; }
+  .t5-nav-link { @apply text-sm font-bold text-fg-muted transition; }
+  .t5-nav-link:hover { @apply text-primary; }
+  .t5-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/15 bg-glass text-fg hover:bg-glass-tint/10; }
+  .t5-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-black text-on-accent; }
+  .t5-demo-bar { @apply relative z-[60] bg-accent text-on-accent; }
+  .t5-demo-link { @apply items-center border-b border-on-accent/50 font-black; }
+  .t5-footer-title { @apply text-xs font-black uppercase tracking-[.18em] text-accent; }
+  .t5-theme-trigger { @apply grid h-11 w-11 place-items-center rounded-full bg-accent text-on-accent shadow-xl; }
+  .t5-page-hero { @apply py-16 md:py-24; background:radial-gradient(circle at 85% 20%, rgb(var(--c-accent) / .22), transparent 40%), linear-gradient(135deg, rgb(var(--c-bg-deep)), rgb(var(--c-primary-deep))); }
+  .t5-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.05] tracking-[-.05em] text-fg sm:text-5xl lg:text-6xl; }
+  .t5-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-fg-muted sm:text-lg; }
+  .t8-glass { @apply border border-glass-border bg-glass shadow-[0_18px_50px_-20px_rgb(var(--c-shadow)/.35)] backdrop-blur-xl; }
+  .t8-glass-dark { @apply border border-glass-strong-border bg-glass-strong backdrop-blur-xl; }
+  .t8-card { @apply rounded-[28px] border border-glass-border bg-bg-elevated/80 shadow-[0_20px_60px_-30px_rgb(var(--c-shadow)/.25)] backdrop-blur; }
+  .t12-chip { @apply inline-flex min-h-11 items-center gap-2 rounded-full border border-line/15 bg-glass px-4 text-sm font-bold text-fg-muted backdrop-blur transition hover:text-fg; }
+  .t12-chip[aria-selected="true"], .t12-chip[aria-pressed="true"] { @apply border-primary bg-primary text-on-primary; }
 }
 
 @keyframes t8-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
@@ -78,13 +149,17 @@ img { max-width: 100%; }
 .t8-float { animation:t8-float 6s ease-in-out infinite; }
 .t8-float-delay { animation:t8-float 7s ease-in-out 1.2s infinite; }
 .t8-float-slow { animation:t8-float 9s ease-in-out .6s infinite; }
-.t8-hotspot { @apply relative block h-3.5 w-3.5 rounded-full border-2 border-white shadow-lg; background:var(--t5-accent); }
-.t8-hotspot::after { content:""; @apply absolute inset-0 rounded-full; background:var(--t5-accent); animation:t8-pulse-ring 2s ease-out infinite; }
+.t8-hotspot { @apply relative block h-3.5 w-3.5 rounded-full border-2 border-on-media bg-accent shadow-lg; }
+.t8-hotspot::after { content:""; @apply absolute inset-0 rounded-full bg-accent; animation:t8-pulse-ring 2s ease-out infinite; }
 .t8-dash { stroke-dasharray:4 4; animation:t8-dash 1.6s linear infinite; }
 
 /* Full-screen homepage sections */
 .t8-screen { display:flex; min-height:100vh; min-height:100svh; flex-direction:column; justify-content:center; overflow-x:clip; }
 .t8-screen > .t5-container { width:100%; }
+
+/* Ẩn thanh cuộn nhưng vẫn cuộn được (carousel) */
+.t12-no-scrollbar { scrollbar-width:none; }
+.t12-no-scrollbar::-webkit-scrollbar { display:none; }
 
 /* Scroll reveal: data-reveal="up|down|left|right|zoom" or data-reveal-stagger on a parent.
    Uses the individual translate/scale properties so it never fights transform-based hovers or floats. */

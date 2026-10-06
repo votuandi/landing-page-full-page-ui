@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Bars3Icon, XMarkIcon, PhoneIcon, SwatchIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
-import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS } from "@/config/site";
+import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, isDistributor } from "@/config/site";
 import { PRODUCTS } from "@/data/solar";
+import BrandLogo from "@/components/BrandLogo";
 
 type RfqContextValue = {
   items: string[];
@@ -31,14 +31,14 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   const [brandName, setBrandName] = useState<string>(SITE_CONFIG.brand.name);
 
   useEffect(() => {
-    const saved = localStorage.getItem("minwy-rfq");
-    if (saved) {
-      try { setItems(JSON.parse(saved)); } catch {}
-    }
+    try {
+      const saved = localStorage.getItem("minwy-rfq");
+      if (saved) setItems(JSON.parse(saved));
+    } catch {}
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("minwy-rfq", JSON.stringify(items));
+    try { localStorage.setItem("minwy-rfq", JSON.stringify(items)); } catch {}
   }, [items]);
 
   const ctx = useMemo<RfqContextValue>(() => ({
@@ -49,11 +49,17 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   }), [items]);
 
   const applyTheme = (primary: string, accent: string) => {
-    document.documentElement.style.setProperty("--t5-primary", primary);
-    document.documentElement.style.setProperty("--t5-accent", accent);
+    document.documentElement.style.setProperty("--c-primary", primary);
+    document.documentElement.style.setProperty("--c-accent", accent);
   };
 
-  const toggleDark = () => document.documentElement.classList.toggle("t5-dark");
+  const toggleLight = () => {
+    const root = document.documentElement;
+    root.style.removeProperty("--c-primary");
+    root.style.removeProperty("--c-accent");
+    if (root.dataset.theme === "light") delete root.dataset.theme;
+    else root.dataset.theme = "light";
+  };
 
   const selectedProducts = PRODUCTS.filter((p) => items.includes(p.slug));
 
@@ -66,7 +72,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               <a href={SITE_CONFIG.demo.templateCtaUrl} className="t5-demo-link">Dùng mẫu này cho công ty tôi</a>
               <a href={SITE_CONFIG.demo.pricingUrl} className="hidden t5-demo-link sm:inline-flex">Xem bảng giá</a>
-              <button type="button" onClick={() => setDemoVisible(false)} aria-label="Ẩn thanh website mẫu"><XMarkIcon className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setDemoVisible(false)} aria-label="Ẩn thanh website mẫu" className="grid h-8 w-8 place-items-center"><XMarkIcon className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
@@ -74,8 +80,8 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
       <header className="t5-header">
         <div className="t5-container flex h-20 items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-3" aria-label={brandName}>
-            <Image src="/logo.svg" alt={brandName} width={184} height={48} className="h-11 w-auto" priority />
+          <Link href="/" className="flex items-center gap-3" aria-label={`${brandName} – Trang chủ`}>
+            <BrandLogo name={brandName} />
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Điều hướng chính">
@@ -83,94 +89,96 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="hidden items-center gap-2 lg:flex">
-            <button type="button" onClick={() => setRfqOpen(true)} className="t5-icon-button" aria-label="Mở yêu cầu báo giá">
-              <ShoppingBagIcon className="h-5 w-5" />
-              {items.length > 0 && <span className="t5-count">{items.length}</span>}
-            </button>
-            <a href="/contact-us" className="t5-button t5-button-primary">Đặt lịch khảo sát</a>
+            {isDistributor && (
+              <button type="button" onClick={() => setRfqOpen(true)} className="t5-icon-button" aria-label="Mở yêu cầu báo giá thiết bị">
+                <ShoppingBagIcon className="h-5 w-5" />
+                {items.length > 0 && <span className="t5-count">{items.length}</span>}
+              </button>
+            )}
+            <Link href="/#du-toan" className="t5-button t5-button-primary">Nhận báo giá</Link>
           </div>
 
-          <button type="button" onClick={() => setMenuOpen((v) => !v)} className="t5-icon-button lg:hidden" aria-expanded={menuOpen} aria-label="Mở menu">
+          <button type="button" onClick={() => setMenuOpen((v) => !v)} className="t5-icon-button lg:hidden" aria-expanded={menuOpen} aria-label={menuOpen ? "Đóng menu" : "Mở menu"}>
             {menuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
           </button>
         </div>
         {menuOpen && (
-          <nav className="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
-            {NAV_ITEMS.map((item) => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block border-b border-slate-100 py-3 font-bold text-slate-700">{item.label}</Link>)}
-            <button type="button" onClick={() => { setRfqOpen(true); setMenuOpen(false); }} className="mt-4 w-full t5-button t5-button-secondary">Yêu cầu báo giá ({items.length})</button>
+          <nav className="border-t border-line/12 bg-bg-elevated px-4 py-4 lg:hidden" aria-label="Điều hướng di động">
+            {NAV_ITEMS.map((item) => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block border-b border-line/12 py-3 font-bold text-fg">{item.label}</Link>)}
+            {isDistributor && <button type="button" onClick={() => { setRfqOpen(true); setMenuOpen(false); }} className="mt-4 w-full t5-button t5-button-secondary">Yêu cầu báo giá thiết bị ({items.length})</button>}
           </nav>
         )}
       </header>
 
       {children}
 
-      <footer className="bg-gradient-to-br from-[var(--t8-ink)] to-[var(--t5-primary)] text-white">
+      <footer className="t12-invert bg-gradient-to-br from-bg-deep to-primary-deep text-fg">
         <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="inline-flex rounded-2xl bg-white px-3 py-2"><Image src="/logo.svg" alt={brandName} width={172} height={45} className="h-10 w-auto" /></div>
-            <p className="mt-5 text-sm leading-7 text-white/70">{SITE_CONFIG.brand.tagline}</p>
-            <p className="mt-5 text-xs leading-6 text-white/55">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
+            <BrandLogo name={brandName} />
+            <p className="mt-5 text-sm leading-7 text-fg-muted">{SITE_CONFIG.brand.tagline}</p>
+            <p className="mt-5 text-xs leading-6 text-fg-muted">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
           </div>
           <div>
             <h2 className="t5-footer-title">Giải pháp</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/service/solar-nha-xuong">Solar nhà xưởng</Link>
-              <Link className="block hover:text-white" href="/service/solar-gia-dinh">Solar hộ gia đình</Link>
-              <Link className="block hover:text-white" href="/service/hybrid-luu-tru">Hybrid lưu trữ</Link>
-              <Link className="block hover:text-white" href="/service/om-ve-sinh">O&M & vệ sinh</Link>
+            <div className="mt-5 space-y-3 text-sm text-fg-muted">
+              <Link className="block hover:text-fg" href="/giai-phap/solar-gia-dinh">Solar hộ gia đình</Link>
+              <Link className="block hover:text-fg" href="/giai-phap/hybrid-luu-tru">Solar cửa hàng & hybrid</Link>
+              <Link className="block hover:text-fg" href="/giai-phap/solar-nha-xuong">Solar nhà xưởng, trang trại</Link>
+              <Link className="block hover:text-fg" href="/giai-phap/om-ve-sinh">Bảo trì & vệ sinh</Link>
             </div>
           </div>
           <div>
             <h2 className="t5-footer-title">Công ty</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <Link className="block hover:text-white" href="/about-us">Về chúng tôi</Link>
-              <Link className="block hover:text-white" href="/product">Thiết bị</Link>
-              <Link className="block hover:text-white" href="/contact-us">Liên hệ</Link>
+            <div className="mt-5 space-y-3 text-sm text-fg-muted">
+              <Link className="block hover:text-fg" href="/ve-chung-toi">Về chúng tôi</Link>
+              {isDistributor && <Link className="block hover:text-fg" href="/san-pham">Sản phẩm</Link>}
+              <Link className="block hover:text-fg" href="/lien-he">Liên hệ</Link>
               <span className="block">{SITE_CONFIG.legal.ministryNoticeLogo}</span>
             </div>
           </div>
           <div>
-            <h2 className="t5-footer-title">Liên hệ dự án</h2>
-            <div className="mt-5 space-y-3 text-sm text-white/70">
-              <a className="block text-lg font-black text-white" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}>{SITE_CONFIG.contact.phone}</a>
-              <a className="block hover:text-white" href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>
+            <h2 className="t5-footer-title">Liên hệ</h2>
+            <div className="mt-5 space-y-3 text-sm text-fg-muted">
+              {SITE_CONFIG.contact.phoneRaw && <a className="block text-lg font-black text-fg" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}>{SITE_CONFIG.contact.phone}</a>}
+              {SITE_CONFIG.contact.email && <a className="block hover:text-fg" href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>}
               <p>{SITE_CONFIG.contact.address}</p>
+              <p>{SITE_CONFIG.contact.workingHours}</p>
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10"><div className="t5-container flex flex-col gap-2 py-5 text-xs text-white/50 md:flex-row md:justify-between"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
+        <div className="border-t border-line/12"><div className="t5-container flex flex-col gap-2 py-5 pb-24 text-xs text-fg-muted md:flex-row md:justify-between lg:pb-5"><span>© {new Date().getFullYear()} {brandName}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
       </footer>
 
       {SITE_CONFIG.demo.enabled && (
         <div className="fixed right-4 top-[45%] z-50 hidden lg:block">
-          <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện"><SwatchIcon className="h-5 w-5" /></button>
+          <button type="button" onClick={() => setThemeOpen((v) => !v)} className="t5-theme-trigger" aria-label="Mở tùy chỉnh giao diện" aria-expanded={themeOpen}><SwatchIcon className="h-5 w-5" /></button>
           {themeOpen && (
-            <div className="absolute right-14 top-0 w-72 rounded-3xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl">
-              <div className="text-sm font-black text-slate-900">Thử nhận diện thương hiệu</div>
-              <label className="mt-4 block text-xs font-bold text-slate-500">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
-              <div className="mt-4 text-xs font-bold text-slate-500">Màu chủ đạo</div>
+            <div className="absolute right-14 top-0 w-72 rounded-3xl border border-glass-border bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="text-sm font-black text-fg">Thử nhận diện thương hiệu</div>
+              <label className="mt-4 block text-xs font-bold text-fg-muted">Tên công ty<input value={brandName} onChange={(e) => setBrandName(e.target.value)} className="t5-input mt-2" /></label>
+              <div className="mt-4 text-xs font-bold text-fg-muted">Màu chủ đạo</div>
               <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2 text-left text-xs font-bold"><span className="h-5 w-5 rounded-full" style={{ background: theme.primary }} />{theme.label}</button>)}
+                {Object.values(THEME_PRESETS).map((theme) => <button key={theme.label} type="button" onClick={() => applyTheme(theme.primary, theme.accent)} className="flex items-center gap-2 rounded-xl border border-line/12 p-2 text-left text-xs font-bold text-fg"><span className="h-5 w-5 rounded-full" style={{ background: `rgb(${theme.primary})` }} />{theme.label}</button>)}
               </div>
-              <button type="button" onClick={toggleDark} className="mt-4 w-full t5-button t5-button-secondary">Bật / tắt nền tối</button>
+              <button type="button" onClick={toggleLight} className="mt-4 w-full t5-button t5-button-secondary">Đổi nền sáng / tối</button>
             </div>
           )}
         </div>
       )}
 
-      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 gap-2 rounded-full border border-white/70 bg-white/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
-        <a className="t5-mobile-cta" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
-        <a className="t5-mobile-cta" href={SITE_CONFIG.contact.zalo}>Zalo</a>
-        <button type="button" className="t5-mobile-cta" onClick={() => setRfqOpen(true)}>Báo giá {items.length ? `(${items.length})` : ""}</button>
+      <div className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-2 gap-2 rounded-full border border-glass-border bg-bg-elevated/75 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
+        <a className="flex min-h-11 items-center justify-center gap-1 rounded-full bg-primary px-2 text-xs font-black text-on-primary" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}><PhoneIcon className="h-4 w-4" /> Gọi</a>
+        <a className="flex min-h-11 items-center justify-center gap-1 rounded-full bg-accent px-2 text-xs font-black text-on-accent" href={SITE_CONFIG.contact.zalo}>Zalo</a>
       </div>
 
-      {rfqOpen && (
-        <div className="fixed inset-0 z-[70] flex justify-end bg-slate-950/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
+      {isDistributor && rfqOpen && (
+        <div className="fixed inset-0 z-[70] flex justify-end bg-scrim/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Giỏ yêu cầu báo giá">
           <button type="button" className="absolute inset-0" onClick={() => setRfqOpen(false)} aria-label="Đóng" />
-          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-white/95 p-6 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-slate-400">RFQ</div><h2 className="mt-1 text-2xl font-black text-[var(--t5-primary)]">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button"><XMarkIcon className="h-5 w-5" /></button></div>
-            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-slate-200 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-red-600">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-slate-500">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
-            <Link href={items.length ? `/contact-us?rfq=${encodeURIComponent(items.join(","))}` : "/product"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem catalog thiết bị"}</Link>
+          <aside className="relative h-full w-full max-w-md overflow-y-auto rounded-l-[32px] bg-bg-elevated/95 p-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.18em] text-fg-subtle">RFQ</div><h2 className="mt-1 text-2xl font-black text-primary">Yêu cầu báo giá thiết bị</h2></div><button type="button" onClick={() => setRfqOpen(false)} className="t5-icon-button" aria-label="Đóng"><XMarkIcon className="h-5 w-5" /></button></div>
+            {selectedProducts.length ? <div className="mt-6 space-y-3">{selectedProducts.map((product) => <div key={product.slug} className="rounded-2xl border border-line/12 p-4"><div className="font-black">{product.brand} {product.name}</div><button type="button" onClick={() => ctx.remove(product.slug)} className="mt-2 text-xs font-bold text-danger">Bỏ khỏi yêu cầu</button></div>)}</div> : <p className="mt-8 text-sm leading-7 text-fg-muted">Chưa có thiết bị. Hãy chọn nhiều sản phẩm trong catalog để gửi một yêu cầu báo giá chung.</p>}
+            <Link href={items.length ? `/lien-he?rfq=${encodeURIComponent(items.join(","))}` : "/san-pham"} onClick={() => setRfqOpen(false)} className="mt-6 block text-center t5-button t5-button-primary">{items.length ? "Tiếp tục gửi yêu cầu" : "Xem catalog thiết bị"}</Link>
           </aside>
         </div>
       )}

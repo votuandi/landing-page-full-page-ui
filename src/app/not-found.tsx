@@ -1,23 +1,18 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-blue-100">
-      <div className="text-center px-4">
-        <h1 className="text-9xl font-bold text-sky-600 mb-4">404</h1>
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4">
-          Không tìm thấy trang
-        </h2>
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
-        </p>
-        <Link
-          href="/"
-          className="inline-block bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-sky-700 transition-colors duration-300"
-        >
-          Về trang chủ
-        </Link>
+    <main className="t8-screen relative isolate overflow-hidden bg-gradient-to-br from-bg via-bg-elevated to-bg-tint">
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.25),transparent_65%)]" />
+      <div className="t5-container py-20 text-center">
+        <div className="text-8xl font-black tracking-[-.05em] text-primary sm:text-9xl">404</div>
+        <h1 className="mt-4 text-3xl font-black text-fg">Không tìm thấy trang</h1>
+        <p className="mx-auto mt-4 max-w-md text-fg-muted">Trang bạn tìm không tồn tại hoặc đã được di chuyển.</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link href="/" className="t5-button t5-button-secondary">Về trang chủ</Link>
+          <Link href="/#du-toan" className="t5-button t5-button-primary">Dự toán chi phí lắp đặt</Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

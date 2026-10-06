@@ -6,12 +6,12 @@ import { SITE_CONFIG } from "@/config/site";
 
 const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
 
-export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#0d3b78" };
+export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:SITE_CONFIG.themeColor };
 
 export const metadata: Metadata = {
   metadataBase:new URL(SITE_CONFIG.url),
-  title:{ default:"Minwy Solar | Solar cho doanh nghiệp", template:"%s | Minwy Solar" },
-  description:"Giải pháp điện mặt trời nhà xưởng, hybrid và O&M tập trung vào ROI và hiệu quả vận hành.",
+  title:{ default:`${SITE_CONFIG.brand.name} | Điện mặt trời cho gia đình, cửa hàng & nhà xưởng`, template:`%s | ${SITE_CONFIG.brand.name}` },
+  description:SITE_CONFIG.brand.tagline,
   icons:{ icon:"/favicon.svg" },
   robots:{ index:true, follow:true },
 };
