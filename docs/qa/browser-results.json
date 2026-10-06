@@ -1,0 +1,484 @@
+{
+  "responsive": [
+    {
+      "width": 360,
+      "route": "/",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/giai-phap/nha-may",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/giai-phap/chuoi-cua-hang",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/giai-phap/ho-gia-dinh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/service",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/about-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/product",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/product/bien-tan-hybrid-10kw",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/project/phan-bon-dong-xanh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/project/ca-phe-drinking",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/project/khu-dan-cu-vuon-sen",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/news",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/news/2",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 360,
+      "route": "/contact-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/giai-phap/nha-may",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/giai-phap/chuoi-cua-hang",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/giai-phap/ho-gia-dinh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/service",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/about-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/product",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/product/bien-tan-hybrid-10kw",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/project/phan-bon-dong-xanh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/project/ca-phe-drinking",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/project/khu-dan-cu-vuon-sen",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/news",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/news/2",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 768,
+      "route": "/contact-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/giai-phap/nha-may",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/giai-phap/chuoi-cua-hang",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/giai-phap/ho-gia-dinh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/service",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/about-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/product",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/product/bien-tan-hybrid-10kw",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/project/phan-bon-dong-xanh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/project/ca-phe-drinking",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/project/khu-dan-cu-vuon-sen",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/news",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/news/2",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1280,
+      "route": "/contact-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/giai-phap/nha-may",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/giai-phap/chuoi-cua-hang",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/giai-phap/ho-gia-dinh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/service",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/about-us",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/product",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/product/bien-tan-hybrid-10kw",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/project/phan-bon-dong-xanh",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/project/ca-phe-drinking",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/project/khu-dan-cu-vuon-sen",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/news",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/news/2",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "width": 1920,
+      "route": "/contact-us",
+      "overflow": false,
+      "h1": 1
+    }
+  ],
+  "flows": [
+    "query factory",
+    "query retail",
+    "query home",
+    "hero selection persists on reload",
+    "bill result prefills contact",
+    "contact segment remains editable",
+    "lead demo reports no storage",
+    "roof result prefills 100 kWp",
+    "marquee industry filter and pause",
+    "filtered carousel navigates",
+    "RFQ dialog escape, focus and prefill",
+    "lead API invalid payload rejects"
+  ],
+  "consoleErrors": [],
+  "failedRequests": [],
+  "a11y": [
+    {
+      "route": "/",
+      "violations": []
+    },
+    {
+      "route": "/giai-phap/nha-may",
+      "violations": []
+    },
+    {
+      "route": "/giai-phap/chuoi-cua-hang",
+      "violations": []
+    },
+    {
+      "route": "/giai-phap/ho-gia-dinh",
+      "violations": []
+    },
+    {
+      "route": "/contact-us",
+      "violations": []
+    },
+    {
+      "route": "/product",
+      "violations": []
+    }
+  ],
+  "lighthouse": {
+    "home": {
+      "scores": {
+        "performance": 92,
+        "accessibility": 100,
+        "seo": 100
+      },
+      "errors": [],
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1367.094
+        },
+        "largest-contentful-paint": {
+          "value": 3242.094
+        },
+        "speed-index": {
+          "value": 1367.094
+        },
+        "total-blocking-time": {
+          "value": 26.5
+        },
+        "cumulative-layout-shift": {
+          "value": 0
+        }
+      }
+    },
+    "factory": {
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "seo": 100
+      },
+      "errors": [],
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1367.71575
+        },
+        "largest-contentful-paint": {
+          "value": 3167.7157500000003
+        },
+        "speed-index": {
+          "value": 1367.71575
+        },
+        "total-blocking-time": {
+          "value": 56
+        },
+        "cumulative-layout-shift": {
+          "value": 0
+        }
+      }
+    },
+    "retail": {
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "seo": 100
+      },
+      "errors": [],
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1364.8069500000001
+        },
+        "largest-contentful-paint": {
+          "value": 3164.8069499999997
+        },
+        "speed-index": {
+          "value": 1364.8069500000001
+        },
+        "total-blocking-time": {
+          "value": 51.49999999999977
+        },
+        "cumulative-layout-shift": {
+          "value": 0
+        }
+      }
+    },
+    "family": {
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "seo": 100
+      },
+      "errors": [],
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1362.25995
+        },
+        "largest-contentful-paint": {
+          "value": 3162.25995
+        },
+        "speed-index": {
+          "value": 1362.25995
+        },
+        "total-blocking-time": {
+          "value": 27
+        },
+        "cumulative-layout-shift": {
+          "value": 0
+        }
+      }
+    }
+  }
+}

@@ -1,3 +1,16 @@
+# Template-10 — Điện mặt trời Việt Nam
+
+Nhánh này được nâng cấp từ `template-8`, giữ Next.js / React / TypeScript / Tailwind.
+
+- [Hướng dẫn tùy chỉnh](docs/CUSTOMIZE.md): nội dung tập trung tại `src/content/site.ts`, ảnh, máy tính, URL theo tệp và webhook.
+- [Audit nguồn](docs/AUDIT-template-8.md) · [Changelog](docs/CHANGELOG-template-10.md) · [Kết quả kiểm tra](docs/QA-template-10.md) · [Nguồn ảnh](docs/IMAGE-CREDITS.md).
+- Dữ liệu khách hàng, số liệu, nhận xét và ảnh đều là demo/minh họa. Form chưa lưu hoặc chuyển yêu cầu nếu chưa có webhook.
+- `npm run build`, `npm run typecheck`, `npm run lint`, `npm test`. Không thêm thư viện runtime mới.
+
+---
+
+## Tài liệu gốc của repository
+
 # Trọng Tín Solar - Landing Page
 
 A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.

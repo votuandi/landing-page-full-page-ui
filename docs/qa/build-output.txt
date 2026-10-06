@@ -1,0 +1,59 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> landing-page-full-page-ui@0.1.0 build
+> next build
+
+   ▲ Next.js 15.4.10
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 2000ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/31) ...
+   Generating static pages (7/31) 
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+ ✓ Generating static pages (31/31)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      202 B         126 kB
+├ ○ /_not-found                            136 B        99.8 kB
+├ ○ /about-us                              191 B         123 kB
+├ ƒ /api/lead                              136 B        99.8 kB
+├ ƒ /contact-us                          1.37 kB         112 kB
+├ ● /giai-phap/[slug]                      203 B         126 kB
+├   ├ /giai-phap/nha-may
+├   ├ /giai-phap/chuoi-cua-hang
+├   └ /giai-phap/ho-gia-dinh
+├ ○ /news                                  177 B         108 kB
+├ ● /news/[slug]                           177 B         108 kB
+├   ├ /news/1
+├   ├ /news/2
+├   └ /news/3
+├ ○ /product                             4.27 kB         124 kB
+├ ● /product/[slug]                      2.85 kB         122 kB
+├   ├ /product/tam-pin-585w
+├   ├ /product/tam-pin-580w
+├   ├ /product/bien-tan-125kw
+├   └ [+4 more paths]
+├ ● /project/[slug]                      1.39 kB         121 kB
+├   ├ /project/phan-bon-dong-xanh
+├   ├ /project/trang-trai-phu-an
+├   ├ /project/bach-hoa-cam
+├   └ [+3 more paths]
+├ ○ /robots.txt                            136 B        99.8 kB
+├ ○ /service                             1.39 kB         121 kB
+├ ƒ /service/[slug]                        136 B        99.8 kB
+└ ○ /sitemap.xml                           136 B        99.8 kB
++ First Load JS shared by all            99.7 kB
+  ├ chunks/4bd1b696-cf72ae8a39fa05aa.js  54.1 kB
+  ├ chunks/964-b440f7af22c41ca5.js       43.6 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
