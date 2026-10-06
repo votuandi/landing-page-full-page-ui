@@ -18,12 +18,6 @@ export const PRODUCTS: Product[] = [
   { slug:"mc4-dc-kit", category:"accessory", brand:"Staubli", name:"Bộ đầu nối MC4 DC", image:"/images/product-4.jpg", powerKw:0, price:390000, warranty:"Theo lô hàng", datasheet:"#", specs:{"Chuẩn":"MC4","Ứng dụng":"Chuỗi DC","Yêu cầu":"Bấm cos đúng dụng cụ","Phân loại":"Phụ kiện","Lắp đặt":"Kỹ thuật viên"}, compatible:[] }
 ];
 
-export const PROJECTS = [
-  { slug:"nha-may-thuc-pham-long-an", title:"Nhà máy thực phẩm Long An", type:"Nhà xưởng sản xuất", location:"Long An", capacity:"998 kWp", image:"/images/solar-panels-hero.jpg", saving:"~1,42 tỷ đồng/năm", selfUse:"91%", detail:"Hệ thống áp mái cho nhà máy vận hành tải lạnh và dây chuyền sản xuất chủ yếu ban ngày. Thiết kế ưu tiên tỷ lệ tự dùng cao và khả năng cô lập từng khu vực khi bảo trì.", metrics:[["Công suất","998 kWp"],["Tự dùng","91%"],["CO₂ ước tính","~840 tấn/năm"],["Thời gian thi công","8 tuần"]] },
-  { slug:"kho-lanh-binh-duong", title:"Kho lạnh Bình Dương", type:"Kho lạnh", location:"Bình Dương", capacity:"620 kWp", image:"/images/illustrations/cold-storage-solar.webp", saving:"~930 triệu đồng/năm", selfUse:"95%", detail:"Tải lạnh ổn định giúp hệ thống solar bám sát nhu cầu điện ban ngày. Bố trí string theo vùng mái để thuận tiện kiểm tra và vệ sinh.", metrics:[["Công suất","620 kWp"],["Tự dùng","95%"],["Giảm mua điện lưới","~38%"],["Theo dõi","Theo string"]] },
-  { slug:"trang-trai-dong-nai", title:"Trang trại công nghệ cao Đồng Nai", type:"Nông nghiệp", location:"Đồng Nai", capacity:"320 kWp + 215 kWh", image:"/images/illustrations/farm-hybrid-solar.webp", saving:"~510 triệu đồng/năm", selfUse:"88%", detail:"Giải pháp hybrid ưu tiên cấp điện cho tải điều khiển, bơm và khu vận hành quan trọng khi điện lưới gián đoạn.", metrics:[["Solar","320 kWp"],["Lưu trữ","215 kWh"],["Tải ưu tiên","Có"],["Giám sát","24/7"]] }
-] as const;
-
 export const TEAM = [
   { name:"Nguyễn Khải Minh", role:"Giám đốc kỹ thuật [DỮ LIỆU MẪU]", image:"/images/solar-installation-hero.jpg" },
   { name:"Trần Hoàng Phúc", role:"Trưởng nhóm thiết kế [DỮ LIỆU MẪU]", image:"/images/solar-inverter-hero.jpg" },

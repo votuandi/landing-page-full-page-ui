@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     return [
       ["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"],
       ["/service", "/#goi-giai-phap"], ["/service/:slug", "/#goi-giai-phap"],
+      ["/project/:slug", "/cong-trinh/:slug"],
       ["/news", "/tin-tuc"], ["/news/:slug", "/tin-tuc"],
     ].map(([source, destination]) => ({ source, destination, permanent: true }));
   },

@@ -1,8 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
 import { delay } from "@/utils/reveal";
-import { PRODUCTS, PROJECTS, TESTIMONIALS } from "@/data/solar";
+import { PRODUCTS, TESTIMONIALS } from "@/data/solar";
 import { SegmentProvider } from "@/lib/segment";
+import { StoryPlayerProvider } from "@/lib/storyPlayer";
+import VideoStories from "@/components/VideoStories";
+import ProjectsGallery from "@/components/ProjectsGallery";
 import HeroT8 from "@/components/HeroT8";
 import SegmentGrid from "@/components/SegmentGrid";
 import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
@@ -19,23 +20,13 @@ export default function HomeT8() {
     <main>
       <SectionReveal />
       <SegmentProvider>
+      <StoryPlayerProvider>
         <HeroT8 />
         <SegmentGrid />
 
+        <VideoStories />
 
-        <section className="t13-invert relative bg-bg-deep pb-10">
-          <div className="t5-container py-14 md:py-16">
-            <div data-reveal="down"><h2 className="max-w-3xl text-4xl font-black tracking-[-.045em] sm:text-5xl">Công trình đã thực hiện</h2></div>
-          </div>
-          <div data-reveal-stagger="up" data-reveal-step="0.15" className="grid gap-px bg-on-media/10 lg:grid-cols-3">
-            {PROJECTS.map((project) => <Link key={project.slug} href={`/project/${project.slug}`} className="group flex flex-col bg-bg-deep">
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image src={project.image} alt={project.title} fill className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:1024px) 100vw, 34vw" />
-              </div>
-              <div className="p-6 sm:px-8"><h3 className="text-xl font-black">{project.title}</h3><div className="mt-1 text-sm text-fg-muted">Tiết kiệm <strong className="text-highlight">{project.saving}</strong></div></div>
-            </Link>)}
-          </div>
-        </section>
+        <ProjectsGallery />
 
         <EnergyMonitoringSection />
 
@@ -48,6 +39,7 @@ export default function HomeT8() {
         </section>
 
         <FaqSection />
+      </StoryPlayerProvider>
       </SegmentProvider>
     </main>
   );

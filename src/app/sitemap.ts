@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
 import { SITE_CONFIG } from "@/config/site";
-import { PRODUCTS, PROJECTS } from "@/data/solar";
+import { PRODUCTS } from "@/data/solar";
+import { PROJECTS } from "@/data/projects";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = ["", "/product", "/ve-chung-toi", "/lien-he"];
   const dynamic = [
     ...PRODUCTS.map((p) => `/product/${p.slug}`),
-    ...PROJECTS.map((p) => `/project/${p.slug}`),
+    ...PROJECTS.map((p) => `/cong-trinh/${p.slug}`),
   ];
   return [...paths, ...dynamic].map((path) => ({
     url: `${SITE_CONFIG.url}${path}`,
