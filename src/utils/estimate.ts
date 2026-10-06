@@ -13,6 +13,12 @@ export type EstimateInput = {
 };
 export function estimateSolar(input: EstimateInput) {
   const c = CALCULATOR;
+  if (
+    !Object.prototype.hasOwnProperty.call(c.segments, input.segment) ||
+    !Object.prototype.hasOwnProperty.call(c.regions, input.region) ||
+    !Object.prototype.hasOwnProperty.call(c.limits, input.mode)
+  )
+    return null;
   const s = c.segments[input.segment],
     r = c.regions[input.region],
     limit = c.limits[input.mode];

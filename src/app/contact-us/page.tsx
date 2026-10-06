@@ -28,7 +28,7 @@ export default async function Page({
   if (
     segment &&
     typeof q.region === "string" &&
-    q.region in CALCULATOR.regions &&
+    Object.keys(CALCULATOR.regions).includes(q.region) &&
     (q.mode === "bill" || q.mode === "roof") &&
     typeof q.value === "string"
   )
