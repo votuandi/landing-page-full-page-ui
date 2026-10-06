@@ -1,5 +1,5 @@
 import { FAQS } from "@/data/solar";
-import HomeT8 from "@/components/HomeT8";
+import SolarHome from "@/components/solar/SolarHome";
 import { makeMetadata } from "@/utils/solar";
 
 export const metadata = makeMetadata(
@@ -20,6 +20,6 @@ const faqSchema = {
 export default function Page() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html:JSON.stringify(faqSchema) }} />
-    <HomeT8 />
+    <SolarHome />
   </>;
 }

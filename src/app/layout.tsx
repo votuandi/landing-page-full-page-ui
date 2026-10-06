@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
 import { SITE_CONFIG } from "@/config/site";
 
-const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
+const bodyFont = localFont({ src: [{ path: "./fonts/be-400.woff2", weight: "400" }, { path: "./fonts/be-700.woff2", weight: "700" }], variable: "--font-body", display: "swap" });
+const headingFont = localFont({ src: "./fonts/manrope-700.woff2", weight: "700", variable: "--font-heading", display: "swap", preload: false });
 
 export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:"#0d3b78" };
 
@@ -29,5 +30,5 @@ const organizationSchema = {
 };
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang="vi" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell>{children}</SiteShell></body></html>;
+  return <html lang="vi" className={`${bodyFont.variable} ${headingFont.variable}`}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell>{children}</SiteShell></body></html>;
 }

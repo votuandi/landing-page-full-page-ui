@@ -42,3 +42,6 @@ npm run lint: PASS (7 cảnh báo img có sẵn, 0 lỗi). npm run build: PASS. 
 
 ### QA giai đoạn 1
 Lint PASS (7 cảnh báo cũ), build PASS. `node scripts/check-solar-calc.cjs` PASS: 12 gói, 34 tỉnh, thay giá, ranh giới dải hóa đơn và đầu vào không hợp lệ. Biểu đồ 12 tháng dùng hệ số mùa mẫu có tổng 12; mỗi tháng quy ước 30 ngày. PR là hệ số điều chỉnh demo; khi dùng PVOUT đã bao gồm tổn hao của nguồn thực cần kiểm tra để tránh tính tổn hao hai lần. Hoàn vốn đơn giản không gồm O&M, suy giảm, lãi vay, thu nhập điện dư. Trả góp mặc định không lãi chỉ là phép chia mô phỏng, không phải sản phẩm tín dụng.
+
+### QA giai đoạn 2
+Lint PASS (7 cảnh báo cũ), build PASS. Hero chia đôi + mini-calculator tính từ adapter, tiêu đề section đánh số, góc thẻ 6–12px, khoảng cách theo nội dung thay section 100vh. Bộ icon Heroicons outline thống nhất. Font Be Vietnam Pro 400/700 cho nội dung, Manrope 700 cho tiêu đề, tự host WOFF2 ~80KB tổng; có giấy phép OFL và kiểm tra cmap tiếng Việt. Font tiêu đề không preload, display swap. Header/footer sẽ đồng bộ màu và thương hiệu ở giai đoạn 5–7.
