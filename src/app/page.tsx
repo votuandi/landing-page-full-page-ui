@@ -1,25 +1,41 @@
-import { FAQS } from "@/data/solar";
-import HomeT8 from "@/components/HomeT8";
+import { COPY } from "@/content/site";
+import Hero from "@/components/template10/Hero";
+import {
+  Solutions,
+  CaseStudies,
+  Finance,
+  Process,
+  Partners,
+  FAQ,
+  Trust,
+  Monitoring,
+} from "@/components/template10/Sections";
+import { ClientWall, Counters, Reviews } from "@/components/template10/Proof";
+import Calculator from "@/components/template10/Calculator";
+import ContactSection from "@/components/template10/ContactSection";
 import { makeMetadata } from "@/utils/solar";
-
 export const metadata = makeMetadata(
-  "Minwy Solar | Điện mặt trời cho nhà máy, cửa hàng & gia đình",
-  "Giải pháp điện mặt trời tiết kiệm điện cho nhà máy, cửa hàng và hộ gia đình, kèm ứng dụng theo dõi điện năng 24/7.",
-  "/"
+  COPY.seo.homeTitle,
+  COPY.seo.homeDescription,
+  "/",
 );
-
-const faqSchema = {
-  "@context":"https://schema.org",
-  "@type":"FAQPage",
-  mainEntity: FAQS.map(([question,answer]) => ({
-    "@type":"Question", name:question,
-    acceptedAnswer:{ "@type":"Answer", text:answer }
-  }))
-};
-
 export default function Page() {
-  return <>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html:JSON.stringify(faqSchema) }} />
-    <HomeT8 />
-  </>;
+  return (
+    <main>
+      <Hero />
+      <Solutions />
+      <ClientWall />
+      <Counters />
+      <CaseStudies />
+      <Partners />
+      <Calculator />
+      <Finance />
+      <Monitoring />
+      <Process />
+      <Reviews />
+      <Trust />
+      <FAQ />
+      <ContactSection />
+    </main>
+  );
 }

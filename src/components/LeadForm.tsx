@@ -1,38 +1,156 @@
 "use client";
-
-import { FormEvent, useState } from "react";
-
-export default function LeadForm({ source = "website", compact = false, defaultMessage = "" }: { source?: string; compact?: boolean; defaultMessage?: string }) {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+import { useEffect, useState } from "react";
+import { COPY, SEGMENTS, SEGMENT_IDS, type Segment } from "@/content/site";
+import { useSegment } from "./template10/SegmentContext";
+export default function LeadForm({
+  defaultMessage = "",
+  defaultSegment = null,
+}: {
+  defaultMessage?: string;
+  defaultSegment?: Segment | null;
+}) {
+  const { segment, select } = useSegment();
+  const [customer, setCustomer] = useState<Segment | "">(defaultSegment ?? ""),
+    [message, setMessage] = useState(defaultMessage);
+  const [status, setStatus] = useState<
+    "idle" | "sending" | "success" | "demo" | "error"
+  >("idle");
+  const t = COPY.contact;
+  useEffect(
+    () => setCustomer(segment ?? defaultSegment ?? ""),
+    [defaultSegment, segment],
+  );
+  useEffect(() => setMessage(defaultMessage), [defaultMessage]);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const values = Object.fromEntries(new FormData(form));
     setStatus("sending");
-    const form = new FormData(event.currentTarget);
-    const payload = Object.fromEntries(form.entries());
-    const response = await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, source }),
-    });
-    setStatus(response.ok ? "success" : "error");
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, segment: customer, consent: true }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error();
+      setStatus(data.mode === "demo" ? "demo" : "success");
+    } catch {
+      setStatus("error");
+    }
   }
-
-  if (status === "success") {
-    return <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6"><div className="text-lg font-black text-emerald-900">Đã nhận thông tin của bạn.</div><p className="mt-2 text-sm leading-6 text-emerald-800">Bộ phận dự án sẽ liên hệ theo thông tin bạn đã cung cấp.</p></div>;
-  }
-
   return (
-    <form onSubmit={submit} className={compact ? "grid gap-3" : "grid gap-4 md:grid-cols-2"}>
-      <label className="t5-label">Họ và tên<input name="name" required className="t5-input" placeholder="Nguyễn Văn A" /></label>
-      <label className="t5-label">Số điện thoại<input name="phone" required inputMode="tel" className="t5-input" placeholder="09xx xxx xxx" /></label>
-      {!compact && <label className="t5-label">Email<input name="email" type="email" className="t5-input" placeholder="name@company.vn" /></label>}
-      {!compact && <label className="t5-label">Doanh nghiệp / công trình<input name="company" className="t5-input" placeholder="Tên công ty hoặc loại công trình" /></label>}
-      <label className={compact ? "t5-label" : "t5-label md:col-span-2"}>Nhu cầu<textarea name="message" defaultValue={defaultMessage} rows={compact ? 3 : 4} className="t5-input resize-none" placeholder="Tiền điện/tháng, diện tích mái, nhu cầu backup..." /></label>
-      <button disabled={status === "sending"} className={compact ? "t5-button t5-button-primary" : "t5-button t5-button-primary md:col-span-2"}>
-        {status === "sending" ? "Đang gửi..." : "Nhận tư vấn & báo giá"}
+    <form onSubmit={submit} className="t8-card p-6 sm:p-9">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <label className="t5-label">
+          {t.name}
+          <input
+            className="t5-input"
+            name="name"
+            autoComplete="name"
+            required
+            minLength={2}
+            maxLength={120}
+            placeholder={t.namePlaceholder}
+          />
+        </label>
+        <label className="t5-label">
+          {t.phone}
+          <input
+            className="t5-input"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            required
+            pattern="[+0-9() .\-]{9,20}"
+            maxLength={20}
+            placeholder={t.phonePlaceholder}
+          />
+        </label>
+        <label className="t5-label">
+          {t.email}
+          <input
+            className="t5-input"
+            name="email"
+            type="email"
+            autoComplete="email"
+            maxLength={200}
+            placeholder={t.emailPlaceholder}
+          />
+        </label>
+        <label className="t5-label">
+          {t.company}
+          <input
+            className="t5-input"
+            name="company"
+            autoComplete="organization"
+            maxLength={200}
+            placeholder={t.companyPlaceholder}
+          />
+        </label>
+      </div>
+      <label className="t5-label mt-5">
+        {t.segment}
+        <select
+          className="t5-input"
+          name="segment"
+          value={customer}
+          onChange={(e) => {
+            const s = e.target.value as Segment | "";
+            setCustomer(s);
+            select(s || null);
+          }}
+        >
+          <option value="">{t.general}</option>
+          {SEGMENT_IDS.map((s) => (
+            <option key={s} value={s}>
+              {SEGMENTS[s].fullLabel}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="t5-label mt-5">
+        {t.message}
+        <textarea
+          className="t5-input min-h-36"
+          name="message"
+          maxLength={4000}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={t.messagePlaceholder}
+        />
+      </label>
+      <label className="mt-5 flex items-start gap-3 text-sm leading-6 text-slate-600">
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          className="mt-1 h-5 w-5 shrink-0 accent-blue-900"
+        />
+        {t.consent}
+      </label>
+      <button
+        className="t5-button t5-button-primary mt-6 w-full"
+        disabled={status === "sending"}
+      >
+        {status === "sending" ? t.sending : t.submit}
       </button>
-      {status === "error" && <p className="text-sm font-bold text-red-600 md:col-span-2">Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi hotline.</p>}
+      <p className="mt-4 text-xs leading-6 text-slate-600">{t.demoNotice}</p>
+      <div role="status" aria-live="polite">
+        {status === "error" && (
+          <p className="mt-5 font-bold text-red-800">{t.error}</p>
+        )}
+        {(status === "demo" || status === "success") && (
+          <div className="mt-5 rounded-2xl bg-blue-50 p-5">
+            <p className="font-bold text-blue-900">
+              {status === "demo" ? t.demoSuccess : t.success}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-slate-600">
+              {status === "demo" ? t.demoSuccessText : t.successText}
+            </p>
+          </div>
+        )}
+      </div>
     </form>
   );
 }

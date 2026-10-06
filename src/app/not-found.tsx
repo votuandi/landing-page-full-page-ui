@@ -1,23 +1,16 @@
-import Link from 'next/link';
-
-export default function NotFound() {
+import Link from "next/link";
+import { COPY } from "@/content/site";
+export default function Page() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-blue-100">
-      <div className="text-center px-4">
-        <h1 className="text-9xl font-bold text-sky-600 mb-4">404</h1>
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4">
-          Không tìm thấy trang
-        </h2>
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
-        </p>
-        <Link
-          href="/"
-          className="inline-block bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-sky-700 transition-colors duration-300"
-        >
-          Về trang chủ
+    <main className="t5-section solar-hero">
+      <div className="t5-container">
+        <p className="text-6xl font-black text-blue-900">404</p>
+        <h1 className="t5-heading">{COPY.notFound.title}</h1>
+        <p className="t5-subheading">{COPY.notFound.description}</p>
+        <Link href="/" className="t5-button t5-button-primary mt-8">
+          {COPY.notFound.cta}
         </Link>
       </div>
-    </div>
+    </main>
   );
 }
