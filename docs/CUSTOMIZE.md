@@ -6,7 +6,7 @@ Sửa **`src/content/site.ts`**. Tất cả trang đang hoạt động đọc th
 
 | Nhóm dữ liệu | Cần thay |
 |---|---|
-| `SITE_CONFIG` | Tên pháp lý, tên thương hiệu, logo, favicon, URL, hotline, Zalo, email, địa chỉ. Thông tin mặc định là demo. |
+| `SITE_CONFIG` | Tên pháp lý, tên thương hiệu, logo, favicon, URL, hotline, Zalo, email, địa chỉ. Tên Minwy Solar và hotline 0708699808 đã được chủ template xác nhận. Địa chỉ, mã số thuế và giấy phép để trống cho đến khi được cung cấp. |
 | `NAV_ITEMS`, `COPY`, `CATALOG_COPY`, `ASSET_COPY` | Menu, nhãn trường, thông báo, các tiêu đề section và câu chữ dùng chung. |
 | `HOME_COPY` | Thông điệp chung, ba lợi ích và CTA của hero khi chưa chọn tệp. |
 | `SEGMENTS` | Nội dung, ba lợi ích trên hero, CTA, nỗi đau, giải pháp, con số, FAQ và meta riêng cho từng tệp. |
@@ -60,7 +60,7 @@ Chạy `npm test` sau khi đổi hệ số để kiểm tra các bất biến v�
 
 ## Kết nối nhận yêu cầu
 
-Không cần dịch vụ ngoài để chạy bản demo. Khi chưa có `LEAD_WEBHOOK_URL`, `/api/lead` trả `mode: demo`, không lưu thông tin, không gửi email. Giao diện báo đúng trạng thái này.
+Không cần dịch vụ ngoài để chạy bản demo. Khi chưa có `LEAD_WEBHOOK_URL`, `/api/lead` trả `mode: manual` và nội dung đã kiểm tra. Người dùng bấm **Sao chép nội dung**, mở Zalo Minwy Solar 0708699808, dán và tự bấm gửi. Không lưu dữ liệu, không gửi tự động, không đưa thông tin cá nhân vào URL Zalo. Trình duyệt không cho sao chép thì có thể chọn nội dung và sao chép thủ công.
 
 Thiết lập phía server qua `.env.local` hoặc môi trường hosting:
 
@@ -71,7 +71,7 @@ LEAD_WEBHOOK_URL=https://dich-vu-cua-ban.vn/nhan-yeu-cau
 LEAD_WEBHOOK_TOKEN=token-bi-mat-phia-server
 ```
 
-Webhook nhận POST JSON gồm `name`, `phone`, `email`, `company`, `segment`, `message`, `consent`, `submittedAt`; xác thực Bearer nếu có token. Chỉ dùng HTTPS. Server kiểm tra tên, số điện thoại, email, consent, tệp hợp lệ và giới hạn độ dài; timeout 10 giây. Lỗi gửi được thông báo và người dùng có thể thử lại. Không log nội dung cá nhân hoặc token. Tắt thông báo demo sau khi thay dữ liệu và xác minh quy trình thật; cập nhật `COPY.contact.demoNotice` cho đúng môi trường.
+Webhook nhận POST JSON gồm `name`, `phone`, `email`, `company`, `segment`, `message`, `consent`, `submittedAt`; xác thực Bearer nếu có token. Chỉ dùng HTTPS. Server kiểm tra tên, số điện thoại, email, consent, tệp hợp lệ và giới hạn độ dài; timeout 10 giây. Lỗi gửi được thông báo và người dùng có thể thử lại. Không log nội dung cá nhân hoặc token. Tắt thông báo demo sau khi thay dữ liệu và xác minh quy trình thật; cập nhật `COPY.contact.demoNotice` cho đúng môi trường. Chủ template chưa cung cấp endpoint webhook; URL trống có chủ ý, không giả lập gửi thành công.
 
 ## Giao diện, chạy và xuất bản
 
@@ -90,3 +90,7 @@ npm run start -- --hostname 127.0.0.1
 Repo gốc dùng `yarn.lock`; không thêm thư viện runtime mới. Có thể dùng `yarn install --frozen-lockfile`, `yarn build` theo quy trình hiện tại. Để triển khai hosting, chọn nhánh `template-10`, build Next.js tiêu chuẩn; nhiệm vụ này chỉ push nhánh, không tự triển khai website công khai.
 
 SEO tự sinh title, description, Open Graph, canonical, sitemap, LocalBusiness và FAQPage từ dữ liệu. Thay URL, tên pháp lý, địa chỉ và các meta riêng trước khi public. Không thêm đánh giá sao hoặc số liệu năng lực vào schema khi chưa có cơ sở.
+
+## Thông tin và ảnh đã xác nhận ngày 06/10/2026
+
+Dùng thương hiệu **Minwy Solar**, điện thoại **0708699808** (hiển thị 0708 699 808), Zalo cùng số. Email giữ theo cấu hình trước đây. Không suy đoán địa chỉ hay loại hình pháp lý. Bộ 8 ảnh công trình/thiết bị và 3 avatar tạo trong phiên này được giữ làm ảnh minh họa chính thức của template theo yêu cầu chủ template, không bắt buộc thay bằng ảnh chụp thật. Vẫn ghi rõ ảnh do AI tạo và không dùng làm bằng chứng dự án/khách hàng có thật. Các case study, counter và testimonial tiếp tục có `isDemo: true` cho đến khi có số liệu xác minh.

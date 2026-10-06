@@ -73,3 +73,14 @@ Chạy từ thư mục repo, sau build. Cần port 3010 và 9222 trống. `QA_CH
 ## Cần hoàn thiện cho doanh nghiệp thật
 
 Không có ảnh công trình hoặc khách hàng thật trong bản giao; tám ảnh công trình/thiết bị và ba avatar hiện là ảnh tạo mới minh họa. Logo khách hàng hư cấu, tám logo đối tác là placeholder; số liệu, testimonial, chứng nhận và điều kiện tài chính chưa được xác minh. Webhook cần cấu hình để nhận lead thật. Dashboard là mock tĩnh, chưa nối thiết bị thật. Xem `CUSTOMIZE.md` và `IMAGE-CREDITS.md`.
+
+## Kiểm tra cập nhật Minwy Solar — 06/10/2026
+
+- Build 31 trang, lint, typecheck và 70 trường hợp máy tính đều đạt.
+- Form nhận yêu cầu khi webhook trống: tạo nội dung để khách tự gửi Zalo; sao chép thành công ở 360/768/1280/1920 px, không tràn ngang.
+- Clipboard bị chặn có hướng dẫn chọn và sao chép thủ công; link Zalo chỉ chứa số 0708699808, không chứa thông tin khách.
+- API trả nội dung đã kiểm tra với `Cache-Control: no-store`; từ chối thiếu consent. Không lưu hoặc tự gửi dữ liệu ở chế độ manual.
+- Schema ghi đúng Minwy Solar và hotline; không xuất địa chỉ giả. Ảnh hero dùng bộ ảnh đã tạo và lưu trong repo.
+- Không lỗi console; axe WCAG 2 A/AA và 2.1 AA không có vi phạm trên form sau khi tạo nội dung.
+- Kết quả chi tiết: `docs/qa/minwy-handoff.json`. Lighthouse bên trên thuộc bản kiểm tra ban đầu; không chạy lại vì cập nhật chỉ ảnh hưởng thông tin công ty và luồng form.
+- Chưa kiểm tra nhận yêu cầu qua webhook thực tế vì chủ template chưa cung cấp endpoint/token. Chưa gửi tin nhắn Zalo cho người khác; khách tự bấm gửi.

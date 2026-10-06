@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { COPY, SEGMENTS, SEGMENT_IDS, type Segment } from "@/content/site";
+import {
+  COPY,
+  SITE_CONFIG,
+  SEGMENTS,
+  SEGMENT_IDS,
+  type Segment,
+} from "@/content/site";
 import { useSegment } from "./template10/SegmentContext";
 export default function LeadForm({
   defaultMessage = "",
@@ -13,8 +19,12 @@ export default function LeadForm({
   const [customer, setCustomer] = useState<Segment | "">(defaultSegment ?? ""),
     [message, setMessage] = useState(defaultMessage);
   const [status, setStatus] = useState<
-    "idle" | "sending" | "success" | "demo" | "error"
+    "idle" | "sending" | "success" | "manual" | "error"
   >("idle");
+  const [draft, setDraft] = useState("");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
   const t = COPY.contact;
   useEffect(
     () => setCustomer(segment ?? defaultSegment ?? ""),
@@ -26,6 +36,8 @@ export default function LeadForm({
     const form = e.currentTarget;
     const values = Object.fromEntries(new FormData(form));
     setStatus("sending");
+    setDraft("");
+    setCopyStatus("idle");
     try {
       const res = await fetch("/api/lead", {
         method: "POST",
@@ -34,9 +46,24 @@ export default function LeadForm({
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error();
-      setStatus(data.mode === "demo" ? "demo" : "success");
+      if (data.mode === "manual" && typeof data.draft === "string") {
+        setDraft(data.draft);
+        setStatus("manual");
+      } else if (data.mode === "webhook") {
+        setStatus("success");
+      } else {
+        throw new Error();
+      }
     } catch {
       setStatus("error");
+    }
+  }
+  async function copyDraft() {
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
     }
   }
   return (
@@ -140,14 +167,49 @@ export default function LeadForm({
         {status === "error" && (
           <p className="mt-5 font-bold text-red-800">{t.error}</p>
         )}
-        {(status === "demo" || status === "success") && (
+        {(status === "manual" || status === "success") && (
           <div className="mt-5 rounded-2xl bg-blue-50 p-5">
             <p className="font-bold text-blue-900">
-              {status === "demo" ? t.demoSuccess : t.success}
+              {status === "manual" ? t.manualTitle : t.success}
             </p>
             <p className="mt-2 text-sm leading-7 text-slate-600">
-              {status === "demo" ? t.demoSuccessText : t.successText}
+              {status === "manual" ? t.manualText : t.successText}
             </p>
+            {status === "manual" && (
+              <div className="mt-4">
+                <label className="t5-label">
+                  {t.draftLabel}
+                  <textarea
+                    className="t5-input min-h-48"
+                    readOnly
+                    value={draft}
+                    onFocus={(e) => e.currentTarget.select()}
+                  />
+                </label>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    className="t5-button t5-button-primary"
+                    onClick={copyDraft}
+                  >
+                    {t.copy}
+                  </button>
+                  <a
+                    className="t5-button t5-button-outline"
+                    href={SITE_CONFIG.contact.zalo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t.openZalo}
+                  </a>
+                </div>
+                {copyStatus !== "idle" && (
+                  <p className="mt-3 text-sm">
+                    {copyStatus === "copied" ? t.copied : t.copyError}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,10 +3,10 @@
  * Thay nội dung/ảnh/hệ số ở file này trước khi dùng cho một doanh nghiệp thật.
  */
 export const SITE_CONFIG = {
-  isDemo: true, // Dữ liệu demo: thay toàn bộ thông tin công ty và số liệu trước khi bán.
+  isDemo: true, // Thương hiệu/hotline đã xác nhận; dự án, số liệu và nhận xét vẫn là demo.
   brand: {
     name: "Minwy Solar",
-    legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
+    legalName: "Minwy Solar", // Không suy đoán loại hình pháp lý.
     tagline: "Giảm chi phí điện. Tăng hiệu quả vận hành.",
     logoText: "MW",
     logo: "/brand-mark.svg",
@@ -18,9 +18,9 @@ export const SITE_CONFIG = {
     phoneRaw: "0708699808",
     zalo: "https://zalo.me/0708699808",
     email: "divt.it97@gmail.com",
-    address: "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",
-    taxCode: "0312XXXXXX [DỮ LIỆU MẪU]",
-    license: "Giấy phép/đăng ký ngành nghề: [CẦN XÁC MINH]",
+    address: "", // Chưa được cung cấp; không hiển thị địa chỉ mẫu.
+    taxCode: "",
+    license: "",
     facebook: "https://facebook.com/",
     linkedin: "https://linkedin.com/",
   },
@@ -1177,17 +1177,23 @@ export const COPY = {
     sending: "Đang gửi...",
     success: "Đã gửi thông tin thành công.",
     successText: "Đội dự án sẽ liên hệ theo thông tin bạn đã cung cấp.",
-    demoSuccess: "Đã chạy thử form demo.",
-    demoSuccessText:
-      "Thông tin chưa được lưu hoặc chuyển đến doanh nghiệp. Kết nối dịch vụ nhận yêu cầu trước khi sử dụng thực tế.",
+    manualTitle: "Nội dung tư vấn đã sẵn sàng.",
+    manualText:
+      "Sao chép nội dung bên dưới, mở Zalo Minwy Solar rồi dán và bấm gửi. Yêu cầu chưa được gửi tự động.",
+    draftLabel: "Nội dung gửi Minwy Solar",
+    draftHeading: "Yêu cầu tư vấn điện mặt trời",
+    copy: "Sao chép nội dung",
+    copied: "Đã sao chép. Mở Zalo để dán và gửi.",
+    copyError: "Hãy chọn nội dung bên dưới và sao chép thủ công.",
+    openZalo: "Mở Zalo Minwy Solar",
     error: "Chưa gửi được thông tin. Vui lòng thử lại hoặc gọi hotline.",
     invalid: "Vui lòng kiểm tra tên và số điện thoại.",
     consent: "Tôi đồng ý để doanh nghiệp liên hệ về yêu cầu khảo sát này.",
     demoNotice:
-      "Form demo: chưa lưu dữ liệu nếu chưa kết nối dịch vụ nhận yêu cầu.",
+      "Khi chưa kết nối dịch vụ nhận yêu cầu, bạn có thể sao chép nội dung và gửi trực tiếp qua Zalo Minwy Solar.",
   },
   shell: {
-    demoBanner: "Website mẫu • số liệu demo • nội dung có thể tùy chỉnh",
+    demoBanner: "Minwy Solar • dự án, số liệu và nhận xét minh họa",
     hideDemo: "Ẩn thông báo demo",
     navigation: "Điều hướng chính",
     openMenu: "Mở menu",
@@ -1198,7 +1204,7 @@ export const COPY = {
     contact: "Liên hệ",
     copyright: "Bản mẫu điện mặt trời",
     footerNote:
-      "Thông tin minh họa cần thay và xác minh trước khi sử dụng thực tế.",
+      "Ảnh do AI tạo. Dự án, số liệu và nhận xét là minh họa; hiệu quả thực tế cần khảo sát.",
     skip: "Đến nội dung chính",
     equipment: "Thiết bị",
     news: "Góc tư vấn",

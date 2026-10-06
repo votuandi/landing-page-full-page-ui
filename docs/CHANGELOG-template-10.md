@@ -52,3 +52,10 @@ Nguồn: nhánh `template-8` tại `aae653519a74e172675bd1c3cdcb2a92b77828e2`. T
 Xem kết quả cuối, giới hạn phép đo và ảnh responsive trong `QA-template-10.md`. Có `npm test` cho máy tính và `npm run logos` để tạo logo từ data. Hướng dẫn nội dung, ảnh, hệ số, query, webhook, SEO và chạy/build trong `CUSTOMIZE.md`.
 
 Cần bên mua hoàn thiện trước khi dùng thật: thông tin công ty/nhận diện/liên hệ, dữ liệu công trình và năng lực, ảnh có quyền dùng, lời nhận xét có xác nhận, hồ sơ chứng nhận/bảo hiểm, thiết bị/tài liệu, điều kiện tài chính và dịch vụ webhook. Dashboard vẫn là mock tĩnh theo yêu cầu; chưa tích hợp thiết bị thật. Nhiệm vụ push code, không bao gồm deploy hosting hoặc kết nối tài khoản dịch vụ của bên mua.
+
+## Cập nhật Minwy Solar ngày 06/10/2026
+
+- Xác nhận tên thương hiệu Minwy Solar, hotline 0708699808 và Zalo cùng số; bỏ tên pháp lý, địa chỉ, mã số thuế và giấy phép mẫu chưa được cung cấp. Schema không xuất địa chỉ khi trống.
+- Chốt bộ ảnh AI đã tạo trong phiên làm bộ ảnh minh họa sử dụng; cập nhật credits và hướng dẫn, giữ nhãn demo cho dự án và lời nhận xét hư cấu.
+- Khi chưa có webhook, form tạo nội dung đã kiểm tra để người dùng sao chép và gửi qua Zalo; không thông báo đã gửi, không lưu lead, không đưa dữ liệu cá nhân vào URL. Clipboard bị chặn có thể sao chép thủ công.
+- Tiếp tục hỗ trợ webhook HTTPS phía server khi được cung cấp endpoint/token. Không tự tạo địa chỉ dịch vụ nhận lead.

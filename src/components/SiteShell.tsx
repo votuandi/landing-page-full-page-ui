@@ -210,9 +210,11 @@ function Shell({ children }: { children: React.ReactNode }) {
               >
                 {SITE_CONFIG.contact.email}
               </a>
-              <p className="text-sm leading-7 text-blue-100">
-                {SITE_CONFIG.contact.address}
-              </p>
+              {SITE_CONFIG.contact.address && (
+                <p className="text-sm leading-7 text-blue-100">
+                  {SITE_CONFIG.contact.address}
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-9 border-t border-white/15 pt-6 text-xs text-blue-100">

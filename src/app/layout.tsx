@@ -31,11 +31,15 @@ const schema = {
   url: SITE_CONFIG.url,
   telephone: SITE_CONFIG.contact.phoneRaw,
   email: SITE_CONFIG.contact.email,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: SITE_CONFIG.contact.address,
-    addressCountry: "VN",
-  },
+  ...(SITE_CONFIG.contact.address
+    ? {
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: SITE_CONFIG.contact.address,
+          addressCountry: "VN",
+        },
+      }
+    : {}),
   areaServed: COPY.seo.areaServed,
 };
 export default function RootLayout({

@@ -6,14 +6,14 @@ Tất cả ảnh đang hiển thị được tạo mới bằng OpenAI imagegen 
 
 | File tại `public/images/template-10/` | Nguồn | Điều kiện | Vai trò |
 |---|---|---|---|
-| factory.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| farm.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| retail.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| coffee.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| home.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| neighborhood.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| technicians.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
-| storage.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Minh họa, cần thay bằng ảnh có quyền dùng của doanh nghiệp |
+| factory.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| farm.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| retail.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| coffee.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| home.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| neighborhood.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| technicians.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
+| storage.webp | OpenAI imagegen, 06/10/2026 | Đầu ra theo điều khoản OpenAI ở trên | Ảnh minh họa AI được chủ template chọn sử dụng |
 | avatar-factory.webp / avatar-retail.webp / avatar-home.webp | Cắt từ một ảnh chân dung hư cấu do imagegen tạo | Đầu ra theo điều khoản OpenAI ở trên | Không phải khách hàng thật |
 
 Các ảnh công trình/thiết bị được chuyển WebP (quality 79), cạnh dài không vượt 1600 px; avatar 240 × 240 px. Toàn bộ file nằm trong repo. `next/image` tạo các kích thước responsive, lazy-load mọi ảnh dưới màn hình đầu; ảnh hero được ưu tiên tải. Alt tiếng Việt nằm trong `src/content/site.ts`.
@@ -41,3 +41,7 @@ Các ảnh công trình/thiết bị được chuyển WebP (quality 79), cạnh
 9. **avatars**: Three separate equally spaced head and shoulders portrait photographs in a single horizontal strip of fictional Vietnamese solar customers: middle aged man in work shirt, woman retail operations manager, man home owner in casual polo. Neutral backgrounds, friendly natural expressions. Not real people or celebrities. No lettering or branding. Each occupies exactly one third of the strip, suitable for cutting three avatars.
 
 
+
+## Lựa chọn sử dụng của chủ template
+
+Ngày 06/10/2026, chủ template yêu cầu dùng bộ ảnh tạo trong phiên này cho Minwy Solar. Các ảnh trên đã được liên kết tại `src/content/site.ts`, được lưu local và là bộ ảnh sử dụng của template; không cần tạo lại hoặc tải từ nguồn khác. Có thể tiếp tục dùng làm minh họa. Avatar không xác nhận người thật và case study vẫn là dữ liệu demo.

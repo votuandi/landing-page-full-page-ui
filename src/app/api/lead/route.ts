@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SEGMENT_IDS } from "@/content/site";
+import { COPY, SEGMENTS, SEGMENT_IDS, type Segment } from "@/content/site";
 export async function POST(request: Request) {
   try {
     const raw = await request.text();
@@ -32,7 +32,25 @@ export async function POST(request: Request) {
       submittedAt: new Date().toISOString(),
     };
     const webhook = process.env.LEAD_WEBHOOK_URL;
-    if (!webhook) return NextResponse.json({ ok: true, mode: "demo" });
+    if (!webhook) {
+      const t = COPY.contact;
+      const draft = [
+        t.draftHeading,
+        `${t.name}: ${payload.name}`,
+        `${t.phone}: ${payload.phone}`,
+        ...(email ? [`${t.email}: ${email}`] : []),
+        ...(payload.company ? [`${t.company}: ${payload.company}`] : []),
+        `${t.segment}: ${segment ? SEGMENTS[segment as Segment].fullLabel : t.general}`,
+        ...(payload.message ? [`${t.message}: ${payload.message}`] : []),
+      ].join("\n");
+      // Không lưu, không gửi hoặc đưa thông tin cá nhân vào URL bên ngoài.
+      return NextResponse.json(
+        { ok: true, mode: "manual", draft },
+        {
+          headers: { "Cache-Control": "no-store" },
+        },
+      );
+    }
     const url = new URL(webhook);
     if (url.protocol !== "https:")
       return NextResponse.json({ ok: false }, { status: 503 });

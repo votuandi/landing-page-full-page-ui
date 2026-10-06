@@ -1,0 +1,38 @@
+{
+  "responsive": [
+    {
+      "width": 360,
+      "overflow": false,
+      "copy": true
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "copy": true
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "copy": true
+    },
+    {
+      "width": 1920,
+      "overflow": false,
+      "copy": true
+    }
+  ],
+  "flows": [
+    "clipboard blocked: manual selection available",
+    "manual API returns sanitized draft, no-store",
+    "consent missing rejected",
+    "schema brand and phone verified, no invented address",
+    "hero uses generated local asset"
+  ],
+  "consoleErrors": [],
+  "a11y": [
+    {
+      "route": "/contact-us",
+      "violations": 0
+    }
+  ]
+}

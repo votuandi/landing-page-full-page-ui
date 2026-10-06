@@ -196,8 +196,10 @@ const base = "http://127.0.0.1:3010",
     await page
       .getByRole("button", { name: "Nhận tư vấn & khảo sát", exact: true })
       .click();
-    await page.getByText("Đã chạy thử form demo.", { exact: true }).waitFor();
-    results.flows.push("lead demo reports no storage");
+    await page
+      .getByText("Nội dung tư vấn đã sẵn sàng.", { exact: true })
+      .waitFor();
+    results.flows.push("lead manual handoff reports not sent");
     await page.goto(base + "/?segment=factory", { waitUntil: "networkidle" });
     await page.waitForFunction(() =>
       document.querySelector("h1").textContent.includes("nhà xưởng"),

@@ -58,9 +58,11 @@ export default async function Page({
             >
               {SITE_CONFIG.contact.phone}
             </a>
-            <p className="mt-5 text-sm leading-7 text-slate-600">
-              {SITE_CONFIG.contact.address}
-            </p>
+            {SITE_CONFIG.contact.address && (
+              <p className="mt-5 text-sm leading-7 text-slate-600">
+                {SITE_CONFIG.contact.address}
+              </p>
+            )}
           </div>
           <LeadForm defaultSegment={segment} defaultMessage={message.trim()} />
         </div>
