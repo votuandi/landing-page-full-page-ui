@@ -26,7 +26,7 @@ const tiers = [
   { id: "farm", name: "Trang trại", minBill: 50000000, maxBill: null, kwp: 100, gridPrice: 1100000000, hybridPrice: 1650000000, storage: 120, phases: 3, roof: 600 },
 ];
 export const pricing: Package[] = tiers.flatMap(t => (["hoa-luoi", "hybrid"] as const).map(type => ({
-  id: `${t.id}-${type}`, name: `${t.name} · ${type === "hybrid" ? "Hybrid" : "Hòa lưới"}`, type,
+  id: `${t.id}-${type}`, name: `${t.name} · ${type === "hybrid" ? "Hybrid" : "Hòa lưới"}`, type, contactSegment: t.kwp <= 5 ? "home" : "business",
   minBill: t.minBill, maxBill: t.maxBill, kwp: t.kwp, storageKwh: type === "hybrid" ? t.storage : 0,
   price: type === "hybrid" ? t.hybridPrice : t.gridPrice, phases: t.phases, roofM2: t.roof,
   equipment: ["Tấm pin đơn tinh thể", type === "hybrid" ? "Inverter hybrid + pin lưu trữ LFP" : "Inverter hòa lưới", "Khung đỡ, tủ bảo vệ, giám sát sản lượng"],

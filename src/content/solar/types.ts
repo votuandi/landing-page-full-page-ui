@@ -7,7 +7,7 @@ export interface Brand {
   licenses: { id: string; title: string; lookupUrl?: string; image?: string }[];
 }
 export interface Package {
-  id: string; name: string; type: SystemType; minBill: number; maxBill: number | null;
+  id: string; name: string; type: SystemType; contactSegment: "home" | "business"; minBill: number; maxBill: number | null;
   kwp: number; storageKwh: number; price: number; equipment: string[];
   warranty: string; phases: number; roofM2: number;
 }

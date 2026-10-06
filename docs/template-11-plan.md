@@ -45,3 +45,6 @@ Lint PASS (7 cảnh báo cũ), build PASS. `node scripts/check-solar-calc.cjs` P
 
 ### QA giai đoạn 2
 Lint PASS (7 cảnh báo cũ), build PASS. Hero chia đôi + mini-calculator tính từ adapter, tiêu đề section đánh số, góc thẻ 6–12px, khoảng cách theo nội dung thay section 100vh. Bộ icon Heroicons outline thống nhất. Font Be Vietnam Pro 400/700 cho nội dung, Manrope 700 cho tiêu đề, tự host WOFF2 ~80KB tổng; có giấy phép OFL và kiểm tra cmap tiếng Việt. Font tiêu đề không preload, display swap. Header/footer sẽ đồng bộ màu và thương hiệu ở giai đoạn 5–7.
+
+### QA giai đoạn 3
+Lint PASS (7 cảnh báo cũ), build PASS, kiểm chứng công thức PASS. Bộ tính chọn dải hóa đơn/nhập tiền/kWh, tra 34 tỉnh, so sánh hòa lưới/hybrid, chi tiết mở bằng details, biểu đồ 12 tháng/hoàn vốn và bảng số liệu riêng từng gói. Tỉnh và gói chọn cập nhật trả góp 6–24 tháng. CTA Zalo là URL tĩnh theo contactSegment trong dữ liệu, không POST. Clipboard chỉ chạy khi bấm, có nội dung sao chép thủ công nếu quyền clipboard không khả dụng. State mới chỉ ở React, không localStorage hay analytics.
