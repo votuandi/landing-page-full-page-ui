@@ -222,3 +222,24 @@ Kiểm tra: `grep` hex / `rgb(` số / class màu Tailwind trong `src/components
 | chữ `on-accent` #0B1F1C / `--accent` #F5B83D | 9.6 | ✅ |
 | `--text-muted` / `primary-deep` #064E3B (section thương hiệu) | 4.6 | ✅ |
 | Trắng trên `--primary` | 2.5 | ❌ → **không dùng**, thay bằng `on-primary` |
+
+---
+
+## 7. Kết quả sau template-12 (cập nhật cuối)
+
+Thứ tự trang chủ: Hero → **Dự toán + Nhận báo giá** → Lợi ích theo công trình → **Gói giải pháp** → **Hình thức đầu tư**
+→ **Công trình đã thực hiện** → **Video công trình** → **Số liệu nổi bật** → Theo dõi 24/7 → Quy trình → Bảo hành
+→ Khách hàng nói gì (+ dải thương hiệu khi `installer_distributor`) → FAQ → Form cuối trang. Thanh liên hệ cố định toàn site.
+
+Thay đổi so với giá trị ghi ở mục 4 (có chủ đích):
+- Hero: chữ và ảnh vòm dùng keyframe CSS (cùng hướng, khoảng dịch 64/80px, .9s `cubic-bezier(.16,1,.3,1)`) thay cho
+  reveal bằng JS, để phần tử LCP không phải chờ hydrate. Chip/thẻ nổi vẫn dùng reveal JS như cũ.
+- `main`, `footer`: `overflow-x: clip` (template-8 chỉ clip trong `.t8-screen`) — tránh cuộn ngang do phần tử reveal đang ẩn.
+- Section dưới màn hình đầu: `content-visibility: auto` (không ảnh hưởng hiển thị).
+
+Lighthouse mobile (localhost, `next start`, Lighthouse 12, Windows):
+| Lần đo | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Mô phỏng (mặc định) #1 | 88 | 100 | 100 | 100 | 2,3 s | 3,3 s | 120 ms | 0,003 |
+| Mô phỏng (mặc định) #2 | 89 | 100 | 100 | 100 | 2,3 s | 3,2 s | 130 ms | 0,003 |
+| Throttling thật (devtools) | 80 | — | — | — | 2,6 s | 2,6 s | 520 ms | 0,004 |
