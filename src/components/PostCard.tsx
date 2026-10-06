@@ -1,0 +1,26 @@
+import Link from "next/link";
+import { ArrowRightIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { SEGMENTS } from "@/config/segments";
+import type { Post } from "@/data/posts";
+import ProductImage from "@/components/ProductImage";
+
+export default function PostCard({ post }: { post: Post }) {
+  return (
+    <article className="t8-card group relative flex h-full flex-col overflow-hidden transition hover:-translate-y-1.5">
+      <div className="relative aspect-[16/10] overflow-hidden bg-bg-tint">
+        <ProductImage src={post.cover} alt="" fill loading="lazy" sizes="(max-width:768px) 100vw, 400px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
+        {post.segment && <span className="absolute left-3 top-3 rounded-full bg-bg-elevated/90 px-2.5 py-1 text-[11px] font-bold text-fg">{SEGMENTS[post.segment].short}</span>}
+      </div>
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="text-lg font-black leading-snug text-fg">
+          <Link href={`/tin-tuc/${post.slug}`} className="after:absolute after:inset-0 after:content-['']">{post.title}</Link>
+        </h3>
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-fg-muted">{post.excerpt}</p>
+        <div className="mt-auto flex items-center justify-between pt-4 text-xs font-bold text-fg-muted">
+          <span className="flex items-center gap-1"><ClockIcon className="h-4 w-4" />{post.readMinutes} phút đọc</span>
+          <ArrowRightIcon className="h-5 w-5 text-primary transition group-hover:translate-x-1" />
+        </div>
+      </div>
+    </article>
+  );
+}

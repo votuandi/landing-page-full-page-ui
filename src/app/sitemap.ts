@@ -3,12 +3,14 @@ import { SITE_CONFIG } from "@/config/site";
 import { PRODUCTS } from "@/data/products";
 import { catalogEnabled } from "@/config/site";
 import { PROJECTS } from "@/data/projects";
+import { POSTS } from "@/data/posts";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = ["", ...(catalogEnabled ? ["/san-pham"] : []), "/ve-chung-toi", "/lien-he"];
+  const paths = ["", ...(catalogEnabled ? ["/san-pham"] : []), "/tin-tuc", "/ve-chung-toi", "/lien-he"];
   const dynamic = [
     ...(catalogEnabled ? PRODUCTS.map((p) => `/san-pham/${p.sku}`) : []),
     ...PROJECTS.map((p) => `/cong-trinh/${p.slug}`),
+    ...POSTS.map((p) => `/tin-tuc/${p.slug}`),
   ];
   return [...paths, ...dynamic].map((path) => ({
     url: `${SITE_CONFIG.url}${path}`,

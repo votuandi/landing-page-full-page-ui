@@ -7,6 +7,7 @@ import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, catalogEnabled, telHref } from "
 import { QuoteCartProvider, useQuoteCart } from "@/lib/quoteCartContext";
 import BrandLogo from "@/components/BrandLogo";
 import ContactDock from "@/components/ContactDock";
+import ConsultPopup, { openConsult } from "@/components/ConsultPopup";
 
 /** Icon "Giỏ báo giá" trên header, badge = tổng số lượng. */
 function CartButton() {
@@ -86,7 +87,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
 
           <div className="flex items-center gap-2">
             {catalogEnabled && <CartButton />}
-            <Link href="/lien-he" className="t5-button t5-button-accent hidden sm:inline-flex">Nhận tư vấn</Link>
+            <button type="button" onClick={openConsult} className="t5-button t5-button-accent hidden sm:inline-flex">Nhận tư vấn</button>
             <button type="button" onClick={() => setMenuOpen((v) => !v)} className="t5-icon-button lg:hidden" aria-expanded={menuOpen} aria-controls="mobile-nav" aria-label={menuOpen ? "Đóng menu" : "Mở menu"}>
               {menuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
@@ -95,7 +96,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
         {menuOpen && (
           <nav id="mobile-nav" className="border-t border-line/12 bg-bg-elevated px-4 py-4 lg:hidden" aria-label="Điều hướng di động">
             {NAV_ITEMS.map((item) => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block border-b border-line/12 py-3 font-bold text-fg">{item.label}</Link>)}
-            <Link href="/lien-he" onClick={() => setMenuOpen(false)} className="t5-button t5-button-accent mt-4 w-full">Nhận tư vấn</Link>
+            <button type="button" onClick={() => { setMenuOpen(false); openConsult(); }} className="t5-button t5-button-accent mt-4 w-full">Nhận tư vấn</button>
           </nav>
         )}
       </header>
@@ -122,6 +123,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
       )}
 
       <ContactDock />
+      <ConsultPopup />
 
     </QuoteCartProvider>
   );

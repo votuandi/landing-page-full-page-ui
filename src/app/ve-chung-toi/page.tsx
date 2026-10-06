@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SITE_CONFIG, yearsOfExperience } from "@/config/site";
-import { TEAM } from "@/data/solar";
+import { TEAM } from "@/data/team";
 import { makeMetadata } from "@/utils/solar";
 
 export const metadata = makeMetadata(

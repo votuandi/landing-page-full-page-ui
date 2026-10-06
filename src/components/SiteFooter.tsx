@@ -3,6 +3,7 @@ import { PhoneIcon } from "@heroicons/react/24/outline";
 import { SITE_CONFIG, catalogEnabled, telHref } from "@/config/site";
 import { FacebookIcon, TikTokIcon, YouTubeIcon } from "@/components/BrandIcons";
 import BrandLogo from "@/components/BrandLogo";
+import CommitmentsStrip from "@/components/CommitmentsStrip";
 
 const SOCIALS = [
   SITE_CONFIG.socials.tiktok?.url && { label: "TikTok", href: SITE_CONFIG.socials.tiktok.url, Icon: TikTokIcon },
@@ -13,6 +14,8 @@ const SOCIALS = [
 export default function SiteFooter() {
   const { contact, brand, hotlines } = SITE_CONFIG;
   return (
+    <>
+    <CommitmentsStrip />
     <footer className="t13-invert bg-gradient-to-br from-bg-deep to-primary-deep pb-24 lg:pb-0">
       <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-[1.2fr_.8fr_.8fr_1.2fr]">
         <div>
@@ -72,5 +75,6 @@ export default function SiteFooter() {
         </div>
       </div>
     </footer>
+    </>
   );
 }
