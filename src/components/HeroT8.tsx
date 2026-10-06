@@ -62,7 +62,7 @@ export default function HeroT8() {
 
           {/* Arch photo */}
           <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[12%] h-[90%] w-[60%] overflow-hidden rounded-b-[36px] rounded-t-full border-[6px] border-on-media/70 bg-bg-tint shadow-[0_40px_80px_-30px_rgb(var(--c-shadow)/.55)]">
-            <Image src="/images/services/service_1772895565903.webp" alt="Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" fill priority fetchPriority="high" className="object-cover object-[72%_center]" sizes="(max-width:1024px) 60vw, 360px" />
+            <Image src="/images/services/service_1772895565903.webp" alt="Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" fill loading="lazy" quality={60} className="object-cover object-[72%_center]" sizes="(max-width:1024px) 60vw, 360px" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/55 via-transparent to-on-media/10" />
           </div>
 

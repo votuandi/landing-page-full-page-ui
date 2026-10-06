@@ -34,28 +34,28 @@ export default function ProjectsGallery() {
           </div>
         </div>
 
-        <div data-reveal-stagger="up" data-reveal-step="0.08" className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div data-reveal-stagger="up" data-reveal-step="0.08" className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {list.map((p) => (
             <article key={p.slug} className="t8-card group relative flex flex-col overflow-hidden transition hover:-translate-y-1.5">
               <div className="relative aspect-[4/3] overflow-hidden bg-bg-tint">
-                <Image src={p.image} alt={p.title} fill loading="lazy" sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
-                <span className="t8-glass absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-black text-primary-strong">{formatNumber(p.kwp)} kWp</span>
+                <Image src={p.image} alt={p.title} fill loading="lazy" sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
+                <span className="t8-glass absolute left-2 top-2 rounded-full px-2.5 py-1 text-[11px] sm:left-3 sm:top-3 sm:text-xs font-black text-primary-strong">{formatNumber(p.kwp)} kWp</span>
                 {p.storyId && STORIES.some((s) => s.id === p.storyId) && (
                   <button type="button" onClick={(e) => player.open(STORIES, p.storyId!, e.currentTarget)} aria-label={`Xem video công trình ${p.title}`}
-                    className="absolute bottom-3 right-3 z-10 grid h-12 w-12 place-items-center rounded-full bg-accent text-on-accent shadow-xl ring-4 ring-on-media/40 transition motion-safe:hover:scale-110">
+                    className="absolute bottom-2 right-2 z-10 grid h-11 w-11 sm:bottom-3 sm:right-3 sm:h-12 sm:w-12 place-items-center rounded-full bg-accent text-on-accent shadow-xl ring-4 ring-on-media/40 transition motion-safe:hover:scale-110">
                     <PlayIcon className="ml-0.5 h-5 w-5" />
                   </button>
                 )}
               </div>
-              <div className="flex flex-1 flex-col p-5">
+              <div className="flex flex-1 flex-col p-3 sm:p-5">
                 <div className="text-xs font-bold uppercase tracking-[.14em] text-fg-subtle">{SEGMENTS[p.segment].short}</div>
-                <h3 className="mt-1.5 text-lg font-black leading-snug text-fg">
+                <h3 className="mt-1.5 text-sm font-black leading-snug text-fg sm:text-lg">
                   <Link href={`/cong-trinh/${p.slug}`} className="after:absolute after:inset-0 after:content-['']">{p.title}</Link>
                 </h3>
-                <div className="mt-1 flex items-center gap-1 text-sm text-fg-muted"><MapPinIcon className="h-4 w-4" />{p.location}</div>
+                <div className="mt-1 flex items-center gap-1 text-xs text-fg-muted sm:text-sm"><MapPinIcon className="h-4 w-4 shrink-0" />{p.location}</div>
                 <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-                  <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-fg-subtle">Tiết kiệm</div><div className="text-lg font-black text-primary">~{formatMoneyShort(p.savingPerMonth)}<span className="text-xs font-bold text-fg-muted">/tháng</span></div></div>
-                  <ArrowRightIcon className="h-5 w-5 text-primary transition group-hover:translate-x-1" />
+                  <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-fg-subtle">Tiết kiệm</div><div className="text-base font-black text-primary sm:text-lg">~{formatMoneyShort(p.savingPerMonth)}<span className="text-xs font-bold text-fg-muted">/tháng</span></div></div>
+                  <ArrowRightIcon className="hidden h-5 w-5 text-primary transition group-hover:translate-x-1 sm:block" />
                 </div>
               </div>
             </article>

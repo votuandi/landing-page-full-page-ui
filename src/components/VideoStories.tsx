@@ -84,10 +84,10 @@ export default function VideoStories() {
           <div ref={trackRef} onScroll={onScroll} className="t13-no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0" aria-label="Danh sách video công trình">
             {list.map((story) => (
               <button key={story.id} type="button" onClick={(e) => player.open(list, story.id, e.currentTarget)}
-                aria-label={`Phát video: ${story.shortTitle}, ${story.location}, ${story.kwp} kWp`}
                 className={`group relative aspect-[9/16] shrink-0 snap-start overflow-hidden rounded-3xl border border-glass-border bg-bg-tint text-left shadow-[0_20px_60px_-30px_rgb(var(--c-shadow)/.25)] transition duration-500 motion-safe:hover:-translate-y-1.5 ${CARD_W}`}>
                 <Image src={story.poster} alt="" fill loading="lazy" sizes="(max-width:640px) 55vw, (max-width:1024px) 28vw, 220px" className="object-cover transition duration-700 motion-safe:group-hover:scale-[1.05]" />
                 <span className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-scrim/95 via-scrim/70 to-transparent" />
+                <span className="sr-only">Phát video: </span>
                 <span className="absolute left-2.5 top-2.5 flex flex-col items-start gap-1.5">
                   <PlatformBadge story={story} />
                   <span className="rounded-full bg-bg-elevated/90 px-2 py-1 text-[10px] font-black text-fg">{STORY_TYPE_LABELS[story.type]}</span>

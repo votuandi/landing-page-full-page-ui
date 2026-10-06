@@ -15,10 +15,11 @@ export default function AddToQuoteButton({ sku, name, className = "", compact = 
   }, [added]);
 
   return (
-    <button type="button" onClick={() => { cart.add(sku); setAdded(true); }} aria-label={`Thêm ${name} vào yêu cầu báo giá`}
+    <button type="button" onClick={() => { cart.add(sku); setAdded(true); }}
       className={`t5-button ${added ? "t5-button-accent" : "t5-button-primary"} ${compact ? "!px-4" : ""} ${className}`}>
       {added ? <CheckIcon className="h-4 w-4" strokeWidth={2.5} /> : <PlusIcon className="h-4 w-4" strokeWidth={2.5} />}
       <span aria-live="polite">{added ? "Đã thêm" : compact ? "Báo giá" : "Thêm vào yêu cầu báo giá"}</span>
+      <span className="sr-only">{compact && !added ? ": thêm" : ":"} {name}{compact && !added ? " vào yêu cầu báo giá" : ""}</span>
     </button>
   );
 }

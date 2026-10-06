@@ -4,8 +4,8 @@
   "description": "Thiết bị, tư vấn, thiết kế và thi công hệ thống điện mặt trời.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fffaf0",
-  "theme_color": "#ea580c",
+  "background_color": "#FBF7F1",
+  "theme_color": "#FBF7F1",
   "icons": [
     {"src":"/favicon.svg","sizes":"any","type":"image/svg+xml"},
     {"src":"/images/logo.png","sizes":"any","type":"image/png","purpose":"any maskable"}

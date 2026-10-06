@@ -18,7 +18,7 @@ export default function BlogPage() {
     </section>
     <section className="t5-section">
       <div className="t5-container grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {POSTS.map((p) => <PostCard key={p.slug} post={p} />)}
+        {POSTS.map((p, i) => <PostCard key={p.slug} post={p} headingLevel={2} priority={i === 0} />)}
       </div>
     </section>
   </main>;

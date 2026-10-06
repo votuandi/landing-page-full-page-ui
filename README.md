@@ -1,325 +1,187 @@
-# Trọng Tín Solar - Landing Page
+# Template 13 — "Uy tín & trải nghiệm"
 
-A modern, responsive landing page for a solar energy distribution company built with Next.js, TypeScript, and TailwindCSS.
+Website cho công ty **vừa lắp đặt hệ thống điện mặt trời, vừa bán thiết bị/đèn năng lượng mặt trời**, hướng tới 4 nhóm khách:
+**hộ gia đình · cửa hàng & chuỗi cửa hàng · nhà xưởng/xí nghiệp · trang trại**.
 
-## Features
+Điểm nhấn: video công trình dạng Shorts phát ngay trên trang, khối uy tín dày (chứng chỉ, báo chí, đánh giá), điều hướng theo
+phân khúc, công cụ dự toán chi phí và giỏ yêu cầu báo giá (không thanh toán).
 
-- ✅ **Modern Stack**: Next.js 15, TypeScript, TailwindCSS
-- ✅ **State Management**: Redux Toolkit for centralized state
-- ✅ **SEO Optimized**: Meta tags, structured data, sitemap
-- ✅ **Responsive Design**: Mobile-first approach
-- ✅ **Component-Based**: Modular, reusable components
-- ✅ **Performance**: Optimized images, fonts, and loading
-- ✅ **Accessibility**: WCAG compliant
+- Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 3 — không thêm thư viện UI/animation (giữ stack template-8).
+- Nội dung tiếng Việt. Mọi thông tin công ty, sản phẩm, video, giá, hệ số tính toán nằm trong `src/config/` và `src/data/`.
+- Bảng màu **Warm Sand** (nền sáng, đất nung + xanh ngọc). Lý do chọn và hiện trạng template-8: xem `AUDIT.md`.
 
-## Components
-
-### Layout Components
-
-- `Header` - Navigation with mobile menu and search
-- `Footer` - Contact info, links, and social media
-- `Hero` - Main banner with call-to-action
-
-### Content Components
-
-- `ProductSection` - Product categories showcase
-- `ProductCard` - Individual product display
-- `NewsSection` - Latest news and articles
-- `NewsCard` - News article preview
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ (for local development)
-- Docker and Docker Compose (for containerized setup)
-- npm or yarn
-
-### Installation
-
-#### Option 1: Docker Setup (Recommended)
-
-1. **Create environment file**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edit `.env` and configure your database settings if needed.
-
-2. **Start services with Docker**
-
-   ```bash
-   docker-compose up -d
-   ```
-
-   This will start:
-   - PostgreSQL database on port 5432
-   - Next.js application on port 3000
-
-3. **Run database migrations**
-
-   ```bash
-   docker-compose exec nextjs npm run db:push
-   ```
-
-   Or generate Prisma client:
-   ```bash
-   docker-compose exec nextjs npm run db:generate
-   ```
-
-4. **Seed database with sample data** (Optional)
-
-   ```bash
-   docker-compose exec nextjs npm run db:seed
-   ```
-
-5. **Open browser**
-   ```
-   http://localhost:3000
-   ```
-
-#### Option 2: Local Development
-
-1. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-2. **Setup environment**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Update `DATABASE_URL` in `.env` to point to your PostgreSQL database.
-
-3. **Setup database**
-
-   ```bash
-   npm run db:generate
-   npm run db:push
-   ```
-
-4. **Seed database with sample data** (Optional)
-
-   ```bash
-   npm run db:seed
-   ```
-
-   This will populate your database with:
-   - 6 sample projects
-   - 10 news articles
-   - 8 services (household, business, maintenance, consultation)
-
-5. **Run development server**
-
-   ```bash
-   npm run dev
-   ```
-
-6. **Open browser**
-   ```
-   http://localhost:3000
-   ```
-
-### Database Scripts
-
-- Generate Prisma client: `npm run db:generate`
-- Push schema to database: `npm run db:push`
-- Run migrations: `npm run db:migrate`
-- Reset database (with safety checks): `npm run db:reset` ⚠️ See [DATABASE_SAFETY.md](./DATABASE_SAFETY.md)
-- Open Prisma Studio: `npm run db:studio`
-- Seed database: `npm run db:seed`
-
-### Docker Commands
-
-- Start services: `npm run docker:up` or `docker-compose up -d`
-- Stop services: `npm run docker:down` or `docker-compose down`
-- View logs: `npm run docker:logs` or `docker-compose logs -f`
-- Rebuild containers: `npm run docker:build` or `docker-compose build`
-- Access database: `docker-compose exec postgres psql -U postgres -d landing_page_db`
-
-### Build for Production
+## Chạy dự án
 
 ```bash
-npm run build
-npm start
+yarn install
+cp .env.example .env.local   # điền biến môi trường nếu cần
+yarn dev                     # http://localhost:3000
+yarn test                    # unit test: dự toán, giỏ báo giá, quy tắc giá, số điện thoại
+yarn typecheck && yarn lint && yarn build
 ```
 
-### Linting
+## Trang chủ (theo thứ tự)
 
-```bash
-npm run lint
+| # | Section | File |
+| --- | --- | --- |
+| 3.1 | Topbar hotline theo mục đích (desktop) | `SiteShell.tsx` |
+| 3.2 | Header ≤ 6 mục menu, icon "Giỏ báo giá" có badge, nút "Nhận tư vấn" | `SiteShell.tsx` |
+| 3.3 | Hero: tiêu đề lợi ích, "Dự toán chi phí" / "Xem công trình thực tế", 3 con số đếm | `HeroT8.tsx`, `HeroStats.tsx` |
+| 3.4 | Lưới 4 phân khúc → ghi vào state chung, các section dưới tự lọc/điền sẵn | `SegmentGrid.tsx`, `lib/segment.tsx` |
+| 3.5 | Video Shorts công trình + trình phát trong trang | `VideoStories.tsx`, `StoryPlayer.tsx` |
+| 3.6 | Gói giải pháp + Dự toán chi phí | `PackagesSection.tsx`, `SolarEstimator.tsx` |
+| 3.7 | Công trình đã thực hiện (icon play mở đúng video) | `ProjectsGallery.tsx` |
+| 3.8 | Dải "Thiết bị & sản phẩm năng lượng mặt trời" (≤ 8 sản phẩm) | `ProductStrip.tsx` |
+| — | Theo dõi điện năng 24/7 (giữ từ template-8) | `EnergyMonitoringSection.tsx` |
+| 3.9 | Khối uy tín: chứng chỉ, báo chí, đánh giá, thương hiệu thiết bị | `TrustSection.tsx` |
+| 3.10 | Blog theo tình huống (3 bài mới nhất) + FAQ | `BlogSection.tsx`, `FaqSection.tsx` |
+| 3.11 | Dải cam kết dịch vụ (trên footer, mọi trang) | `CommitmentsStrip.tsx` |
+| 3.12 | Liên hệ: thanh đáy mobile / nút nổi desktop + popup "Tư vấn sản phẩm" | `ContactDock.tsx`, `ConsultPopup.tsx` |
+
+Trang phụ: `/san-pham`, `/san-pham/[sku]`, `/cong-trinh/[slug]`, `/tin-tuc`, `/tin-tuc/[slug]`, `/ve-chung-toi`, `/lien-he`.
+Đường dẫn cũ của template-8 (`/product`, `/about-us`, `/contact-us`, `/project/...`, `/service`, `/news`) chuyển hướng 308.
+
+## Đổi thông tin công ty, hotline, mạng xã hội — `src/config/site.ts`
+
+| Mục | Ý nghĩa |
+| --- | --- |
+| `brand.name`, `legalName`, `tagline`, `foundedYear` | Tên hiển thị, tên pháp lý, khẩu hiệu. "Số năm kinh nghiệm" tự tính từ `foundedYear` |
+| `brand.logo` | Ảnh logo trong `/public`. Để `""` → logo vẽ sẵn theo màu template + tên công ty |
+| `brand.logoText` | Chữ viết tắt trên avatar kênh (thẻ "Xem thêm" của video) |
+| `hotlines` | Danh sách `{ label, phone }` — hiện ở topbar, footer, trang liên hệ. **Số đầu tiên** dùng cho nút "Gọi" trên mobile |
+| `contact.zalo`, `contact.messenger`, `email`, `address`, `workingHours` | Link/thông tin liên hệ. **Link để trống thì nút tương ứng tự ẩn** |
+| `socials.tiktok / youtube / facebook` | `{ url, handle }`. Kênh không có `url` → không hiện nút. `handle` hiện ở dòng "từ kênh @…" |
+| `capabilities.mwp`, `capabilities.customers` | Con số ở hero và tiêu đề gallery |
+| `reviews.google / trustpilot` | Link + điểm đánh giá ở khối uy tín. `url: ""` để ẩn |
+| `commitments` | 4 cam kết trên footer |
+| `callbackHours` | "Chúng tôi sẽ gọi lại trong X giờ" sau khi gửi form/giỏ |
+| `popup` | `enabled`, `delayMs` (mặc định 30 000), `scrollRatio` (mặc định 0,6) — tối đa 1 lần/phiên |
+| `themeColor` | Màu thanh trình duyệt mobile (nên trùng `--bg`) |
+
+Menu chính `NAV_ITEMS` ở cuối file (tối đa 6 mục; "Sản phẩm" chỉ có khi bật catalog). Tên 4 phân khúc và tỷ lệ dùng điện
+ban ngày mặc định ở `src/config/segments.ts`.
+
+## Đổi màu — `src/app/globals.css`
+
+Mọi màu là **design token** trong `:root`. Tailwind đã bỏ hẳn bảng màu mặc định (`tailwind.config.ts`), component chỉ dùng
+class sinh từ token (`bg-primary`, `text-fg-muted`, `bg-accent/10`…) → đổi màu toàn site chỉ sửa một chỗ.
+
+Mỗi màu có 2 dạng: `--primary: #C2410C` (để đọc) và `--c-primary: 194 65 12` (kênh R G B — **dạng này mới được dùng**). Sửa cả hai.
+
+| Token | Vai trò |
+| --- | --- |
+| `--c-bg`, `--c-bg-elevated`, `--c-bg-tint`, `--c-bg-deep` | Nền trang, nền thẻ, nền xen kẽ, section tối |
+| `--glass`, `--glass-border` | Kính mờ trên nền sáng (trắng 70%) |
+| `--c-primary`, `--c-primary-strong`, `--c-primary-deep` | Thương hiệu / nút chính; `primary-strong` cho chữ màu trên nền tint |
+| `--c-accent` | CTA phụ ("Nhận tư vấn", nút play, Zalo) |
+| `--c-fg`, `--c-fg-muted`, `--c-fg-subtle` | Chữ chính / phụ / cấp 3 |
+| `--c-sun`, `--c-highlight` | Vàng nắng (chỉ trang trí) / số liệu nổi bật trên nền tối |
+| `--c-scrim`, `--c-on-media` | Lớp phủ và chữ trên ảnh/video |
+
+- Section nền tối dùng class `t13-invert` (tự đảo chữ, viền, kính sang tông sáng).
+- Sau khi đổi màu, kiểm tra tương phản chữ ≥ 4.5:1 (WCAG AA), nhất là `fg-muted` trên nền kính và chữ trắng trên `primary`/`accent`.
+  Bảng tỉ lệ của palette hiện tại: `AUDIT.md` mục 5.4.
+- Thanh demo (`NEXT_PUBLIC_DEMO_MODE=true`) có bảng thử vài bộ màu (`THEME_PRESETS` trong `site.ts`).
+- Font Inter tự host trong `public/fonts/` (2 subset latin + vietnamese, giấy phép SIL OFL) khai báo ở đầu `globals.css`.
+
+## Thêm video — `src/data/stories.ts`
+
+```ts
+{ id, shortTitle, location, kwp, segment: "household" | "shop" | "factory" | "farm",
+  type: "progress" | "done" | "customer", poster: "/images/…webp",
+  source: { provider: "youtube" | "tiktok" | "file" | "bunny", idOrSrc, originalUrl? } }
 ```
 
-## Project Structure
+| provider | `idOrSrc` | Phát bằng |
+| --- | --- | --- |
+| `youtube` | ID video (vd. `dQw4w9WgXcQ`) | `youtube-nocookie.com` (IFrame API) |
+| `tiktok` | ID số của video | Player chính thức `tiktok.com/player/v1` |
+| `file` | Đường dẫn `.mp4` trong `/public` | Thẻ `<video>` |
+| `bunny` | URL `.mp4` trên Bunny Stream/CDN | Thẻ `<video>` |
 
-```
-src/
-├── app/                 # Next.js App Router
-│   ├── api/             # API routes
-│   │   └── banners/     # Banner CRUD API
-│   ├── globals.css      # Global styles
-│   ├── layout.tsx       # Root layout with SEO
-│   ├── page.tsx         # Home page
-│   └── sitemap.ts       # Dynamic sitemap
-├── components/          # React components
-│   ├── Header.tsx       # Main navigation
-│   ├── Hero.tsx         # Hero section
-│   ├── ProductSection.tsx
-│   ├── ProductCard.tsx
-│   ├── NewsSection.tsx
-│   ├── NewsCard.tsx
-│   └── Footer.tsx
-├── lib/                 # Utility libraries
-│   ├── store.ts         # Redux store configuration
-│   ├── hooks.ts         # Typed Redux hooks
-│   ├── StoreProvider.tsx # Redux Provider wrapper
-│   ├── prisma.ts        # Prisma client instance
-│   └── features/        # Redux slices
-│       ├── banners/     # Banner state management
-│       ├── introduction/ # Introduction state
-│       └── database/    # Database status state
-└── prisma/              # Database schema
-    └── schema.prisma    # Prisma schema
+- `originalUrl` → nút phụ "Xem trên TikTok/YouTube" (tab mới). Nút chính luôn là "Nhận báo giá công trình tương tự".
+- Poster nên là ảnh 9:16 (khoảng 360×640, WebP). Ban đầu chỉ tải poster; iframe/video chỉ tạo khi mở trình phát.
+- Gắn video vào công trình: đặt `storyId` trong `src/data/projects.ts` bằng `id` của video.
+- `TOTAL_CHANNEL_VIDEOS` = con số "Hơn X video công trình" ở thẻ cuối.
+- Tiến trình/tự chuyển với YouTube, TikTok dựa vào postMessage API của nền tảng — kiểm tra lại với video thật.
+
+**Nguồn video demo:** 8 video và poster trong `public/videos/shorts/`, `public/images/shorts/` được tạo bằng
+`scripts/make-demo-shorts.sh` (ffmpeg, hiệu ứng lia/zoom) từ ảnh minh họa của chính template trong `public/images/illustrations/`
+— không dùng nội dung của bên thứ ba. Thay bằng video công trình thật trước khi xuất bản.
+
+## Thêm sản phẩm, bật/tắt catalog — `src/data/products.ts`
+
+```ts
+{ sku, category: "panel" | "inverter" | "battery" | "light" | "accessory", brand, name,
+  images: ["/images/…"], price?, salePrice?, unit?, warranty, specs: { "Thông số": "Giá trị" }, featured? }
 ```
 
-## Key Features
+- **Giá:** `salePrice` chỉ hiện khi nhỏ hơn `price` (giá gốc gạch ngang). Nhãn "Giảm Y%" chỉ hiện khi Y ≥ 5
+  (`MIN_BADGE_DISCOUNT` trong `src/lib/price.ts`). Bỏ trống `price` → "Liên hệ".
+- `featured: true` → xuất hiện ở dải sản phẩm trang chủ (tối đa 8, mỗi sản phẩm một lần).
+- Danh mục và khoảng giá của bộ lọc `/san-pham`: `CATEGORIES`, `PRICE_RANGES` cùng file.
+- Ảnh demo (SVG, không logo hãng) tạo bằng `node scripts/make-catalog-images.js`; ảnh thật có thể là jpg/webp/png.
+- **Bật/tắt catalog:** `catalog.enabled` trong `site.ts` hoặc biến `NEXT_PUBLIC_CATALOG_ENABLED=false`
+  → ẩn `/san-pham`, dải sản phẩm, icon giỏ và mục menu "Sản phẩm".
+- Giỏ yêu cầu báo giá lưu trong `localStorage` (có fallback bộ nhớ khi trình duyệt chặn). Logic ở `src/lib/quoteCart.ts`.
 
-### SEO Optimization
+## Nội dung khác — `src/data/`
 
-- Comprehensive meta tags
-- Open Graph and Twitter Card support
-- Structured data for search engines
-- Automatic sitemap generation
-- Robots.txt configuration
+| File | Nội dung |
+| --- | --- |
+| `packages.ts` | Gói giải pháp (≤ 4 gói/phân khúc); "Giảm ~X/tháng" tự tính theo `PACKAGE_REFERENCE_PROVINCE` |
+| `projects.ts` | Công trình (gallery + `/cong-trinh/[slug]`) |
+| `trust.ts` | `CERTIFICATES` (`logo` + `image` ảnh lớn), `PRESS` (mảng rỗng → ẩn khối báo chí), `TESTIMONIALS` |
+| `posts.ts` | Bài blog (bài mới nhất đặt đầu mảng; không ghi năm cố định) |
+| `faq.ts`, `team.ts` | Hỏi đáp (kèm FAQPage schema), đội ngũ |
 
-### Performance
+Ảnh chứng chỉ/logo báo demo là **hư cấu, có chữ "MẪU"** (`scripts/make-trust-images.js`). Thay bằng bản scan/logo thật.
 
-- Next.js Image optimization
-- Font optimization with Google Fonts
-- TailwindCSS for efficient styling
-- Component code splitting
+## Chỉnh giá điện, đơn giá, giờ nắng — `src/config/solar.ts`
 
-### Responsive Design
+| Hằng số | Nội dung |
+| --- | --- |
+| `TARIFFS` | Biểu giá EVN: hộ gia đình = bậc thang (`tiers`); cửa hàng / nhà xưởng / trang trại = giá bình quân `averageRate` (quy đổi hóa đơn → kWh) và `solarOffsetRate` (giá của kWh điện mặt trời thay thế) |
+| `VAT_RATE` | Thuế GTGT trong hóa đơn |
+| `PRICE_PER_KWP` | Đơn giá trọn gói đ/kWp theo phân khúc |
+| `SYSTEM` | PR 0,8 · 5,5 m²/kWp · tấm 580 W · bước làm tròn 0,5 kWp · mái tối thiểu 16 m² |
+| `PEAK_SUN_HOURS` | Giờ nắng: Bắc Bộ 3,5 · Bắc Trung Bộ 4,0 · Nam Trung Bộ 4,8 · Tây Nguyên 4,8 · Nam Bộ 4,6 |
+| `PROVINCES` | 34 tỉnh/thành sau sắp xếp 2025 và vùng tương ứng |
+| `BILL_INPUT`, `ROOF_INPUT` | Khoảng & giá trị mặc định của ô nhập |
 
-- Mobile-first approach
-- Flexible grid layouts
-- Touch-friendly interactions
-- Optimized for all screen sizes
+Cách tính (hàm thuần `src/lib/solarCalculator.ts`, có unit test): bỏ VAT, tính ngược biểu giá → kWh/tháng → kWh ban ngày →
+kWp = kWh ban ngày ÷ (30 × giờ nắng × PR) → giới hạn theo mái (diện tích ÷ 5,5, làm tròn xuống 0,5) → số tấm →
+chi phí = kWp × đơn giá → tiết kiệm/tháng (chỉ phần thay thế được điện dùng ban ngày) → số năm hoàn vốn.
 
-## Customization
+## Cấu hình gửi lead (webhook)
 
-### Colors
+Calculator, giỏ báo giá, popup và trang liên hệ cùng gọi `POST /api/lead` → kiểm tra họ tên, **số di động Việt Nam**,
+ô ẩn chống spam (honeypot) → gửi tới các adapter trong `src/lib/leads/`. Không cấu hình adapter nào = **chế độ demo**
+(form báo thành công nhưng không gửi đi đâu).
 
-The color scheme is defined in `tailwind.config.ts`:
+| Adapter | Biến môi trường |
+| --- | --- |
+| Webhook chung (Zapier, Make, n8n, CRM) | `LEAD_WEBHOOK_URL`, `LEAD_WEBHOOK_TOKEN` (tùy chọn, gửi `Authorization: Bearer`) |
+| Google Sheet (Apps Script) | `GOOGLE_SHEETS_WEBAPP_URL`, `GOOGLE_SHEETS_SECRET` — script mẫu + hướng dẫn: `scripts/lead-google-apps-script.gs` |
+| Telegram bot | `TELEGRAM_BOT_TOKEN` (tạo qua @BotFather), `TELEGRAM_CHAT_ID` |
 
-- Primary: Blue theme for professionalism
-- Solar colors: Orange, blue, green, yellow
-- Semantic colors for different states
+- Mặc định gửi tới **mọi** adapter đủ biến; chọn cụ thể: `LEAD_ADAPTERS=webhook,telegram`.
+- Payload: `name, phone, zalo, address, message, segment, estimate, items, page, submittedAt` và
+  **`source`** = `"calculator" | "quote-cart" | "popup" | "story-cta" | "contact"`
+  (`story-cta` = khách bấm "Nhận báo giá công trình tương tự" trong video rồi gửi form dự toán).
+- `estimate`: toàn bộ thông số dự toán; giỏ báo giá gửi kèm khi khách tick "Đính kèm kết quả dự toán". `items`: sản phẩm × số lượng.
 
-### Content
+## Chất lượng
 
-- Update company information in components
-- Modify product data in `ProductSection.tsx`
-- Update news articles in `NewsSection.tsx`
-- Customize contact details in `Footer.tsx`
+- Lighthouse mobile (Lighthouse 12, cấu hình mobile mặc định, bản build production): trang chủ Performance 92–94,
+  Accessibility / Best practices / SEO 100; các trang phụ Performance 92–98. Chi tiết: `AUDIT.md` mục 6.
+- Responsive từ 360 px (không tràn ngang ở 360 / 768 / 1280 px).
+- `prefers-reduced-motion`: tắt hiệu ứng reveal/hover, tắt tự chuyển video.
 
-### Styling
+## Cần xác minh trước khi xuất bản
 
-- Global styles in `src/app/globals.css`
-- Component-specific styling using TailwindCSS
-- Custom utilities for solar-themed effects
-
-## Deployment
-
-This project is ready for deployment on:
-
-- Vercel (recommended for Next.js)
-- Netlify
-- AWS Amplify
-- Any Node.js hosting service
-
-## API Endpoints
-
-### Banners API
-
-- `GET /api/banners` - Get all banners (optional query params: `?isActive=true&orderBy=order`)
-- `GET /api/banners/[id]` - Get a single banner by ID
-- `POST /api/banners` - Create a new banner
-- `PUT /api/banners/[id]` - Update a banner
-- `DELETE /api/banners/[id]` - Delete a banner
-
-#### Example: Create Banner
-
-```bash
-curl -X POST http://localhost:3000/api/banners \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Summer Sale",
-    "description": "Get 20% off on all solar panels",
-    "imageUrl": "/images/banner.jpg",
-    "linkUrl": "/products",
-    "isActive": true,
-    "order": 1
-  }'
-```
-
-## Database
-
-The project uses PostgreSQL with Prisma ORM. The database schema includes:
-
-- **Product** - Product information
-- **News** - News articles
-- **Banner** - Banner/slider content
-
-### Database Commands
-
-- Generate Prisma Client: `npm run db:generate`
-- Push schema changes: `npm run db:push`
-- Create migration: `npm run db:migrate`
-- Open Prisma Studio: `npm run db:studio`
-
-## Technologies Used
-
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety and better DX
-- **TailwindCSS** - Utility-first CSS framework
-- **React 19** - Latest React features
-- **Redux Toolkit** - State management with RTK
-- **React-Redux** - Official React bindings for Redux
-- **Prisma** - Modern ORM for database access
-- **PostgreSQL** - Relational database
-- **Docker** - Containerization
-- **ESLint** - Code linting and formatting
-
-## State Management
-
-This project uses **Redux Toolkit** for centralized state management. See [REDUX_SETUP.md](./REDUX_SETUP.md) for detailed documentation on:
-
-- Redux store configuration
-- Feature slices (banners, introduction, database)
-- Typed hooks usage
-- Best practices and patterns
-- Integration with Next.js App Router
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers
-
-## License
-
-This project is proprietary software for Trọng Tín Solar.
-
-## Support
-
-For technical support or questions:
-
-- Email: info@phanphoisolar.com
-- Phone: 0909 019 234
+- `TARIFFS`, `VAT_RATE` — đánh dấu `TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH`.
+- `PRICE_PER_KWP`, giá trong `packages.ts` và `products.ts` — giá mẫu.
+- `PEAK_SUN_HOURS` — giá trị ước tính theo vùng.
+- Chứng chỉ, báo chí, đánh giá, công trình, video, đội ngũ — dữ liệu mẫu (`[DỮ LIỆU MẪU]`, "(mẫu)", "MẪU").
+- Tên pháp lý, MST, giấy phép, nội dung FAQ về thủ tục đấu nối (`[CẦN XÁC MINH]`).

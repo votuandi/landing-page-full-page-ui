@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { catalogEnabled } from "@/config/site";
 import ProductCatalog from "@/components/ProductCatalog";
@@ -20,6 +19,6 @@ export default function ProductsPage() {
         <p className="t5-page-desc">Chọn sản phẩm cần mua, thêm vào giỏ yêu cầu báo giá — không cần thanh toán online, chúng tôi gọi lại báo giá và tư vấn lắp đặt.</p>
       </div>
     </section>
-    <Suspense fallback={<div className="t5-container py-20 text-fg-muted">Đang tải sản phẩm…</div>}><ProductCatalog /></Suspense>
+    <ProductCatalog />
   </main>;
 }

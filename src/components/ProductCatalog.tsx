@@ -1,27 +1,36 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES, PRICE_RANGES, PRODUCTS, type Product, type ProductCategory } from "@/data/products";
 import { resolvePrice } from "@/lib/price";
 import ProductCard from "@/components/ProductCard";
 
 const ProductQuickView = dynamic(() => import("@/components/ProductQuickView"), { ssr: false });
 
-/** Danh sách sản phẩm /san-pham: lọc theo danh mục và khoảng giá (lưu trên URL để chia sẻ được). */
+/**
+ * Danh sách sản phẩm /san-pham: lọc theo danh mục và khoảng giá. Trang render tĩnh với đủ sản phẩm (SEO, không nhảy
+ * layout); link có sẵn bộ lọc (?danh-muc=…&gia=…) được áp dụng sau khi tải, mọi thay đổi được ghi lại lên URL.
+ */
 export default function ProductCatalog() {
   const router = useRouter();
   const pathname = usePathname();
-  const search = useSearchParams();
   const [quick, setQuick] = useState<Product | null>(null);
+  const [filters, setFilters] = useState({ "danh-muc": "", gia: "" });
 
-  const category = (search.get("danh-muc") || "") as ProductCategory | "";
-  const range = PRICE_RANGES.find((r) => r.value === search.get("gia"));
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("danh-muc") || q.has("gia")) setFilters({ "danh-muc": q.get("danh-muc") ?? "", gia: q.get("gia") ?? "" });
+  }, []);
 
-  const setQuery = (key: string, value: string) => {
-    const next = new URLSearchParams(search.toString());
-    if (value) next.set(key, value); else next.delete(key);
+  const category = (CATEGORIES.some((c) => c.value === filters["danh-muc"]) ? filters["danh-muc"] : "") as ProductCategory | "";
+  const range = PRICE_RANGES.find((r) => r.value === filters.gia);
+
+  const setQuery = (key: "danh-muc" | "gia", value: string) => {
+    const nextFilters = { ...filters, [key]: value };
+    setFilters(nextFilters);
+    const next = new URLSearchParams(Object.entries(nextFilters).filter(([, v]) => v));
     router.replace(next.toString() ? `${pathname}?${next}` : pathname, { scroll: false });
   };
 
@@ -62,7 +71,7 @@ export default function ProductCatalog() {
           <div className="t8-card mt-5 p-10 text-center">
             <div className="text-xl font-black text-fg">Không có sản phẩm phù hợp</div>
             <p className="mt-2 text-fg-muted">Thử chọn khoảng giá khác hoặc xem tất cả danh mục.</p>
-            <button type="button" onClick={() => router.replace(pathname, { scroll: false })} className="t5-button t5-button-primary mt-5">Xóa bộ lọc</button>
+            <button type="button" onClick={() => { setFilters({ "danh-muc": "", gia: "" }); router.replace(pathname, { scroll: false }); }} className="t5-button t5-button-primary mt-5">Xóa bộ lọc</button>
           </div>
         )}
       </div>

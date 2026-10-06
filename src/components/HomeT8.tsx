@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { catalogEnabled } from "@/config/site";
 import { SegmentProvider } from "@/lib/segment";
 import { StoryPlayerProvider } from "@/lib/storyPlayer";
@@ -19,7 +20,10 @@ import FaqSection from "@/components/FaqSection";
  * Hero → Phân khúc → Video công trình → Gói giải pháp + Dự toán → Công trình → Sản phẩm (nếu bật catalog)
  * → Theo dõi 24/7 → Uy tín → Blog → FAQ. Dải cam kết (3.11) nằm trong SiteFooter; topbar/header/liên hệ trong SiteShell.
  * SegmentProvider giữ phân khúc đang chọn để video, gói, dự toán và công trình lọc / điền sẵn.
+ * Mỗi section client nằm trong <Suspense> riêng → React hydrate từng phần (selective hydration),
+ * nhường main-thread giữa các phần thay vì một tác vụ dài → giảm Total Blocking Time.
  */
+const Lazy = ({ children }: { children: React.ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
 export default function HomeT8() {
   return (
     <main>
@@ -27,14 +31,14 @@ export default function HomeT8() {
       <SegmentProvider>
         <StoryPlayerProvider>
           <HeroT8 />
-          <SegmentGrid />
-          <VideoStories />
-          <PackagesSection />
-          <SolarEstimator />
-          <ProjectsGallery />
-          {catalogEnabled && <ProductStrip />}
+          <Lazy><SegmentGrid /></Lazy>
+          <Lazy><VideoStories /></Lazy>
+          <Lazy><PackagesSection /></Lazy>
+          <Lazy><SolarEstimator /></Lazy>
+          <Lazy><ProjectsGallery /></Lazy>
+          {catalogEnabled && <Lazy><ProductStrip /></Lazy>}
           <EnergyMonitoringSection />
-          <TrustSection />
+          <Lazy><TrustSection /></Lazy>
           <BlogSection limit={3} />
           <FaqSection />
         </StoryPlayerProvider>

@@ -221,6 +221,50 @@ tương phản tốt hơn. `.t8-card` (80%), `.t8-glass-dark` (10%), header (70%
 | Trắng 75% / 60% (chữ phụ) trên `--bg-deep` | 9,9:1 / 6,7:1 |
 | Trắng trên ảnh — scrim 55% / 70% / 80% (ảnh nền trắng, trường hợp xấu nhất) | 3,9 / 6,5 / 9,2:1 → **chữ trên ảnh phải nằm ở vùng scrim ≥ 70%** |
 
-### 5.5 Đối chiếu sau khi đổi màu
-Mục này được kiểm lại sau commit đổi màu: bo góc, blur, shadow (chỉ đổi màu, giữ offset/blur/spread/alpha),
-thời lượng/easing animation ở mục 3 **không thay đổi**; ngoại lệ duy nhất là nền glass 60% → 70% (mục 5.3).
+### 5.5 Đối chiếu sau khi đổi màu (đã kiểm tra trên bản build)
+
+| Hạng mục | template-8 | template-13 | Kết quả |
+| --- | --- | --- | --- |
+| Bo góc nút / input / card / khối lớn | full / 14px / 28px / 32px | như cũ | Giữ |
+| Blur `.t8-glass` / `.t8-card` / header | 24px / 8px / 24px | như cũ | Giữ |
+| Nền kính `.t8-glass` | trắng 60% | trắng 70% (`--glass` của palette D) | Đổi có chủ đích (mục 5.3) |
+| `.t8-card` / `.t8-glass-dark` / header / thanh đáy | 80% / 10% / 70% / 75% | như cũ | Giữ |
+| Shadow (offset/blur/spread/alpha) | xem mục 3.3 | như cũ, chỉ đổi màu sang `--c-shadow` | Giữ |
+| Reveal | .9s `cubic-bezier(.16,1,.3,1)`, 64/80px, scale .86 | như cũ; hero dùng keyframe CSS cùng thông số | Giữ |
+| Float / pulse / dash | 6s·7s·9s / 2s / 1.6s | như cũ | Giữ |
+| Hover ảnh / thẻ | scale 1.05 700ms / −6px | như cũ (video: chỉ khi không bật giảm chuyển động) | Giữ |
+| Font | Inter (next/font, 3 file 145 KB) | Inter tự host, 2 subset latin + vietnamese (58 KB) | Cùng font, nhẹ hơn |
+
+Không còn mã màu cứng trong component: `grep` hex/`rgb(` trong `src/**/*.ts(x)` chỉ còn `themeColor` trong `config/site.ts`
+(bắt buộc cho thẻ `<meta name="theme-color">`). Màu trong file ảnh minh họa SVG demo là màu của hình, không phải màu giao diện.
+
+---
+
+## 6. Kết quả
+
+### 6.1 Section so với template-8
+- **Giữ:** Theo dõi điện năng 24/7.
+- **Cải tiến:** Hero, lưới phân khúc (3 → 4 ô, state chung), case study → gallery công trình, bảo hành → cam kết + trang
+  Về chúng tôi, testimonial + dải thương hiệu → khối uy tín, FAQ (6 câu B2C), header/footer/thanh liên hệ, drawer RFQ → giỏ báo giá,
+  trang sản phẩm/công trình/giới thiệu/liên hệ.
+- **Bỏ:** 3 màn chi tiết phân khúc, ROI calculator cũ (thay bằng dự toán mới), quy trình 5 bước, bảng mô hình đầu tư,
+  chính sách mái nhà, form cuối trang, `/service`, `/news`, 27 component chết.
+- **Thêm:** topbar hotline, video Shorts + trình phát, gói giải pháp, dự toán chi phí, dải sản phẩm + `/san-pham` + giỏ báo giá,
+  chứng chỉ/báo chí, blog `/tin-tuc`, dải cam kết, popup tư vấn, adapter lead (webhook / Google Sheet / Telegram).
+
+### 6.2 Lighthouse mobile
+Lighthouse 12, cấu hình mobile mặc định (mô phỏng 4G chậm, CPU ×4), `next start` trên máy cục bộ.
+
+| Trang | Performance | Accessibility | Best practices | SEO |
+| --- | --- | --- | --- | --- |
+| `/` | 92–94 | 100 | 100 | 100 |
+| `/san-pham` | 96 | 100 | 100 | 100 |
+| `/san-pham/[sku]` | 98 | 100 | 100 | 100 |
+| `/cong-trinh/[slug]` | 98 | 100 | 100 | 100 |
+| `/tin-tuc` | 97 | 100 | 100 | 100 |
+| `/tin-tuc/[slug]` | 96 | 100 | 100 | 100 |
+| `/ve-chung-toi` | 92 | 100 | 100 | 100 |
+| `/lien-he` | 97 | 100 | 100 | 100 |
+
+Tối ưu chính: `content-visibility` cho section dưới màn hình đầu, font chỉ 2 subset không preload, ảnh hero lazy + nén,
+trình phát/drawer/xem nhanh/popup tải khi mở, mỗi section client có `<Suspense>` riêng.

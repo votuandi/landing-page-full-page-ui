@@ -1,11 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
 import SiteFooter from "@/components/SiteFooter";
 import { SITE_CONFIG, primaryHotline } from "@/config/site";
-
-const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
 
 export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:SITE_CONFIG.themeColor };
 
@@ -31,5 +28,5 @@ const organizationSchema = {
 };
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang="vi" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang="vi"><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
 }
