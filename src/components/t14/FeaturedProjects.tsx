@@ -50,7 +50,7 @@ export default function FeaturedProjects() {
       <div className="t5-container relative">
         <SectionHead id="du-an-title" eyebrow={tr("Dự án tiêu biểu", "Featured projects")} title={tr("Khách hàng thật, số liệu vận hành thật.", "Real clients, real operating data.")} />
 
-        <div role="tablist" aria-label={tr("Chọn khách hàng", "Choose a client")} className="t12-no-scrollbar -mx-4 mt-8 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <div role="tablist" aria-label={tr("Chọn khách hàng", "Choose a client")} className="t12-no-scrollbar -mx-4 mt-8 flex gap-3 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 pb-1 sm:mx-0 sm:px-0">
           {items.map((it, i) => (
             <button key={it.id} ref={(el) => { tabs.current[i] = el; }} type="button" role="tab" id={`da-tab-${it.id}`} aria-controls="da-panel"
               aria-selected={i === active} tabIndex={i === active ? 0 : -1} onClick={() => setActive(i)} onKeyDown={(e) => onKey(e, i)}

@@ -6,6 +6,7 @@ import { XMarkIcon, SwatchIcon } from "@heroicons/react/24/outline";
 import { SITE_CONFIG, THEME_PRESETS, isDistributor } from "@/config/site";
 import { PRODUCTS } from "@/data/solar";
 import ContactDock from "@/components/ContactDock";
+import DragScroll from "@/components/DragScroll";
 import { LangProvider } from "@/i18n/LangProvider";
 import TopBar from "@/components/t14/TopBar";
 import SiteHeader from "@/components/t14/SiteHeader";
@@ -107,6 +108,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
         </div>
       )}
 
+      <DragScroll />
       <ContactDock />
       <MobileBottomNav menuOpen={menuOpen} onMenu={() => setMenuOpen((v) => !v)} />
 

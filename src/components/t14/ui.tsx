@@ -17,7 +17,7 @@ export function SectionHead({ id, eyebrow, title, desc, action, center = false }
         <h2 id={id} className={`t5-heading ${center ? "mx-auto" : ""}`}>{title}</h2>
         {desc && <p className={`t5-subheading ${center ? "mx-auto" : ""}`}>{desc}</p>}
       </div>
-      {action && <div data-reveal="up">{action}</div>}
+      {action && <div data-reveal="up" className="min-w-0 lg:max-w-[55%]">{action}</div>}
     </div>
   );
 }

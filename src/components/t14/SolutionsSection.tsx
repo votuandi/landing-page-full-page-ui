@@ -28,7 +28,7 @@ export default function SolutionsSection() {
         <SectionHead id="giai-phap-title" eyebrow={tr("Giải pháp theo phân khúc", "Solutions by segment")}
           title={tr("Một đơn vị — từ thiết bị đến công trình hoàn chỉnh.", "One partner — from equipment to a finished system.")} />
 
-        <div role="tablist" aria-label={tr("Phân khúc", "Segment")} className="t12-no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div role="tablist" aria-label={tr("Phân khúc", "Segment")} className="t12-no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 sm:mx-0 sm:px-0">
           {segments.map((s, i) => (
             <button key={s.id} type="button" role="tab" id={`gp-tab-${s.id}`} aria-controls="gp-panel" aria-selected={i === active} onClick={() => setActive(i)} className="t12-chip shrink-0">{tr(s.label)}</button>
           ))}

@@ -67,7 +67,7 @@ export default function BranchMap() {
           </div>
 
           <div className="grid gap-4">
-            <div className="t12-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={tr("Chọn chi nhánh", "Choose a branch")}>
+            <div className="t12-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label={tr("Chọn chi nhánh", "Choose a branch")}>
               {branches.map((br) => <button key={br.id} type="button" aria-pressed={br.id === activeId} onClick={() => setActiveId(br.id)} className="t12-chip shrink-0">{br.name}</button>)}
             </div>
 
