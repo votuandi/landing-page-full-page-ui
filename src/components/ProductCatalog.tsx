@@ -48,14 +48,14 @@ export default function ProductCatalog() {
         <div className="grid gap-4 border-b border-line/12 pb-6">
           <div>
             <div className="t5-filter-title" id="f-cat">Danh mục</div>
-            <div className="t13-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-labelledby="f-cat">
+            <div className="t13-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-cat">
               <button type="button" aria-pressed={!category} onClick={() => setQuery("danh-muc", "")} className="t13-chip shrink-0">Tất cả</button>
               {CATEGORIES.map((c) => <button key={c.value} type="button" aria-pressed={category === c.value} onClick={() => setQuery("danh-muc", c.value)} className="t13-chip shrink-0">{c.label}</button>)}
             </div>
           </div>
           <div>
             <div className="t5-filter-title" id="f-price">Khoảng giá</div>
-            <div className="t13-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-labelledby="f-price">
+            <div className="t13-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-price">
               <button type="button" aria-pressed={!range} onClick={() => setQuery("gia", "")} className="t13-chip shrink-0">Mọi mức giá</button>
               {PRICE_RANGES.map((r) => <button key={r.value} type="button" aria-pressed={range?.value === r.value} onClick={() => setQuery("gia", r.value)} className="t13-chip shrink-0">{r.label}</button>)}
             </div>

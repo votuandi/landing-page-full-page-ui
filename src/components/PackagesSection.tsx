@@ -24,7 +24,7 @@ export default function PackagesSection() {
             <span className="t5-eyebrow"><SparklesIcon className="h-4 w-4" />Gói giải pháp</span>
             <h2 id="goi-title" className="t5-heading">Chọn gói theo công trình, biết ngay tiền điện giảm bao nhiêu.</h2>
           </div>
-          <div className="t13-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label="Phân khúc gói giải pháp">
+          <div className="t13-no-scrollbar -mx-4 flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 sm:mx-0 sm:px-0 lg:max-w-[55%] lg:justify-end" role="group" aria-label="Phân khúc gói giải pháp">
             {SEGMENT_ORDER.map((s) => (
               <button key={s} type="button" aria-pressed={current === s} onClick={() => setSegment(s)} className="t13-chip shrink-0"><SegmentIcon segment={s} className="h-4 w-4" />{SEGMENTS[s].short}</button>
             ))}

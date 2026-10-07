@@ -153,6 +153,13 @@ main > section:not(:first-child) { content-visibility: auto; contain-intrinsic-s
 /* Ẩn thanh cuộn nhưng vẫn cuộn được (carousel) */
 .t13-no-scrollbar { scrollbar-width:none; }
 .t13-no-scrollbar::-webkit-scrollbar { display:none; }
+/* Kéo bằng chuột (components/DragScroll.tsx) */
+@media (hover:hover) and (pointer:fine) {
+  .t13-no-scrollbar.can-drag { cursor:grab; }
+  .t13-no-scrollbar img { -webkit-user-drag:none; user-select:none; }
+}
+.t13-no-scrollbar.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
+.t13-no-scrollbar.is-dragging * { pointer-events:none; }
 
 /* Scroll reveal: data-reveal="up|down|left|right|zoom" or data-reveal-stagger on a parent.
    Uses the individual translate/scale properties so it never fights transform-based hovers or floats. */

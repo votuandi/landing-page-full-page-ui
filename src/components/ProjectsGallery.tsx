@@ -26,7 +26,7 @@ export default function ProjectsGallery() {
             <span className="t5-eyebrow">Công trình đã thực hiện</span>
             <h2 id="cong-trinh-title" className="t5-heading">Hơn {formatNumber(SITE_CONFIG.capabilities.customers)} khách hàng đã dùng điện từ nắng.</h2>
           </div>
-          <div className="t13-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label="Lọc công trình theo phân khúc">
+          <div className="t13-no-scrollbar -mx-4 flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 sm:mx-0 sm:px-0 lg:max-w-[55%] lg:justify-end" role="group" aria-label="Lọc công trình theo phân khúc">
             <button type="button" aria-pressed={!segment} onClick={() => setSegment(null)} className="t13-chip shrink-0">Tất cả</button>
             {SEGMENT_ORDER.map((s) => (
               <button key={s} type="button" aria-pressed={segment === s} onClick={() => setSegment(s)} className="t13-chip shrink-0">{SEGMENTS[s].short}</button>

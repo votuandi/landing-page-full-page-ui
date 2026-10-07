@@ -7,6 +7,7 @@ import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, catalogEnabled, telHref } from "
 import { QuoteCartProvider, useQuoteCart } from "@/lib/quoteCartContext";
 import BrandLogo from "@/components/BrandLogo";
 import ContactDock from "@/components/ContactDock";
+import DragScroll from "@/components/DragScroll";
 import ConsultPopup, { openConsult } from "@/components/ConsultPopup";
 
 /** Icon "Giỏ báo giá" trên header, badge = tổng số lượng. */
@@ -122,6 +123,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
         </div>
       )}
 
+      <DragScroll />
       <ContactDock />
       <ConsultPopup />
 
