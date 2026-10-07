@@ -5,7 +5,8 @@ Website một trang chính (kèm các trang phụ) cho đơn vị lắp đặt �
 
 - Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 3 — không thêm thư viện UI/animation.
 - Toàn bộ nội dung tiếng Việt; mọi thông tin công ty, giá, hệ số tính toán nằm trong file config/data.
-- Bảng màu mặc định **Emerald Dusk** (nền tối, vàng nắng cho CTA), có sẵn bảng **Sky & Sun** (nền sáng).
+- **Mặc định là theme sáng "Sky & Sun"** (`data-theme="light"` trên thẻ `<html>` trong `src/app/layout.tsx`). Xóa thuộc tính đó để dùng bảng tối "Emerald Dusk".
+- Ở theme sáng, section có class `t12-invert` (quy trình, dự án, footer…) dùng nền pastel cùng sắc độ và thẻ kính trắng; chữ/số `text-accent` tự đổi sang màu đậm để đủ tương phản (trừ chữ trên ảnh).
 
 ## Chạy dự án
 
@@ -69,7 +70,8 @@ Khi đổi màu, sửa **cả hai**.
 | `--c-fg`, `--c-fg-muted`, `--c-fg-subtle` | Chữ chính / phụ / phụ cấp 3 |
 | `--c-scrim`, `--c-on-media` | Lớp phủ tối và chữ trên ảnh (cố định cho mọi theme) |
 
-- Dùng bảng sáng **Sky & Sun**: thêm `data-theme="light"` vào thẻ `<html>` trong `src/app/layout.tsx`.
+- **Mặc định là theme sáng "Sky & Sun"** (`data-theme="light"` trên thẻ `<html>` trong `src/app/layout.tsx`). Xóa thuộc tính đó để dùng bảng tối "Emerald Dusk".
+- Ở theme sáng, section có class `t12-invert` (quy trình, dự án, footer…) dùng nền pastel cùng sắc độ và thẻ kính trắng; chữ/số `text-accent` tự đổi sang màu đậm để đủ tương phản (trừ chữ trên ảnh).
 - Section luôn tối (footer, quy trình…) có class `t12-invert` để giữ chữ sáng khi dùng theme sáng.
 - Sau khi đổi màu, kiểm tra lại độ tương phản chữ (WCAG AA ≥ 4.5:1), đặc biệt `fg-muted` trên nền glass.
 - Thanh demo (bật bằng `NEXT_PUBLIC_DEMO_MODE`) cho phép thử nhanh vài bộ màu và nền sáng/tối.

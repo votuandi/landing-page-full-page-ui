@@ -22,7 +22,7 @@ export default function HeroT8() {
     <section className="t8-screen relative isolate overflow-hidden !min-h-[calc(100svh-5rem)] bg-gradient-to-br from-bg via-bg-elevated to-bg-tint">
       {/* Soft solar glows */}
       <div aria-hidden className="pointer-events-none absolute -right-40 top-10 -z-10 h-[680px] w-[680px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.32),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute right-[18%] -top-24 -z-10 h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.55),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute right-[18%] -top-24 -z-10 h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.22),transparent_65%)]" />
       <div aria-hidden className="pointer-events-none absolute -left-32 bottom-0 -z-10 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/.9),transparent_70%)]" />
 
       <div className="t5-container grid items-center gap-10 pb-14 pt-12 lg:grid-cols-[1fr_1.02fr] lg:gap-6 lg:py-10">
@@ -63,7 +63,7 @@ export default function HeroT8() {
           <div aria-hidden className="absolute left-1/2 top-[54%] h-[92%] w-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15" />
           <div aria-hidden className="absolute left-1/2 top-[54%] h-[66%] w-[66%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.22),transparent_70%)]" />
           {[["left-[8%] top-[18%]", "h-2 w-2"], ["right-[10%] top-[8%]", "h-1.5 w-1.5"], ["left-[14%] bottom-[16%]", "h-2.5 w-2.5"], ["right-[22%] bottom-[6%]", "h-1.5 w-1.5"]].map(([pos, size]) => (
-            <span key={pos} aria-hidden className={`absolute ${pos} ${size} rounded-full bg-accent-soft shadow-[0_0_14px_4px_rgb(var(--c-accent-soft)/.9)]`} />
+            <span key={pos} aria-hidden className={`absolute ${pos} ${size} rounded-full bg-accent shadow-[0_0_14px_4px_rgb(var(--c-accent)/.9)]`} />
           ))}
 
           {/* Arch photo */}
@@ -96,7 +96,7 @@ export default function HeroT8() {
             <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[.14em] text-fg-muted">Sản lượng hôm nay <span className="flex items-center gap-1 text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />Live</span></div>
             <div className="mt-2 text-2xl font-black text-fg">1.248 <span className="text-sm font-bold text-fg-subtle">kWh</span></div>
             <div className="mt-3 flex h-10 items-end gap-1">
-              {[22, 35, 48, 66, 82, 100, 92, 74, 55, 34].map((h, i) => <span key={i} className="flex-1 rounded-full bg-gradient-to-t from-primary to-accent-soft" style={{ height: `${h}%`, opacity: 0.45 + h / 200 }} />)}
+              {[22, 35, 48, 66, 82, 100, 92, 74, 55, 34].map((h, i) => <span key={i} className="flex-1 rounded-full bg-gradient-to-t from-primary to-accent" style={{ height: `${h}%`, opacity: 0.45 + h / 200 }} />)}
             </div>
           </div>
 

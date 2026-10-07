@@ -28,7 +28,7 @@ export const SITE_CONFIG = {
   siteMode: (envMode === "installer" || envMode === "installer_distributor" ? envMode : "installer_distributor") as SiteMode,
 
   /** Màu thanh trình duyệt trên mobile — nên trùng --bg trong globals.css */
-  themeColor: "#0B1F1C",
+  themeColor: "#F4F8FB",
 
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-12.minwysoft.com",
 

@@ -30,5 +30,5 @@ const organizationSchema = {
 };
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang="vi" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang="vi" data-theme="light" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organizationSchema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
 }
