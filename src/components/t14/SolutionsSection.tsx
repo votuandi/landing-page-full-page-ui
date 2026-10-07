@@ -23,7 +23,7 @@ export default function SolutionsSection() {
 
   return (
     <section id="giai-phap" className="t5-section relative overflow-hidden bg-bg" aria-labelledby="giai-phap-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.14),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.14),transparent_65%)]" />
       <div className="t5-container relative">
         <SectionHead id="giai-phap-title" eyebrow={tr("Giải pháp theo phân khúc", "Solutions by segment")}
           title={tr("Một đơn vị — từ thiết bị đến công trình hoàn chỉnh.", "One partner — from equipment to a finished system.")} />

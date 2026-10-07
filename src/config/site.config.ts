@@ -75,7 +75,7 @@ export const siteConfig = {
     /** Ảnh chia sẻ mạng xã hội (Open Graph) 1200×630 */
     ogImage: "/images/solar-installation-hero.jpg",
     /** Màu thanh trình duyệt trên mobile — nên trùng --bg trong globals.css */
-    themeColor: "#0B1F1C",
+    themeColor: "#F4F8FB",
     email: "lienhe@lumivolt.example",
   },
 

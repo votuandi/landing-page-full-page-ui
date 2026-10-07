@@ -78,5 +78,5 @@ const schema = {
 };
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang={siteConfig.i18n.defaultLang} className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang={siteConfig.i18n.defaultLang} data-theme="light" className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
 }

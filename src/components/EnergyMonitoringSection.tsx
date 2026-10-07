@@ -40,7 +40,7 @@ function PhoneDashboard() {
           <div className="mt-3 rounded-2xl bg-gradient-to-br from-bg-deep to-primary-strong p-3 text-fg">
             <div className="flex items-start justify-between">
               <div><div className="text-[9px] font-semibold uppercase tracking-wider text-fg-muted">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-[10px] font-semibold text-fg-muted">kWh</span></div><div className="text-[9px] font-bold text-accent-soft">▲ 12% so với hôm qua</div></div>
-              <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-glass-tint) / .2)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-accent-soft))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
+              <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-glass-tint) / .2)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-accent))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
             </div>
           </div>
 
@@ -121,7 +121,7 @@ export default function EnergyMonitoringSection() {
 
       <div className="t5-container grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
         <div>
-          <span data-reveal="down" className="inline-flex items-center gap-2 rounded-full border border-line/15 bg-glass-strong px-3 py-1.5 text-xs font-black uppercase tracking-[.18em] text-accent-soft backdrop-blur"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-soft" />Theo dõi điện năng 24/7</span>
+          <span data-reveal="down" className="inline-flex items-center gap-2 rounded-full border border-line/15 bg-glass-strong px-3 py-1.5 text-xs font-black uppercase tracking-[.18em] text-accent-soft backdrop-blur"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />Theo dõi điện năng 24/7</span>
           <h2 data-reveal="left" style={delay(0.1)} className="mt-5 max-w-2xl text-4xl font-black leading-[1.08] tracking-[-.04em] sm:text-5xl">Toàn bộ dòng điện của bạn, gọn trong lòng bàn tay.</h2>
           <p data-reveal="left" style={delay(0.2)} className="mt-5 max-w-xl leading-8 text-fg-muted">Mỗi hệ thống được bàn giao kèm ứng dụng giám sát. Xem điện năng sinh ra, tiêu thụ và lưu trữ theo thời gian thực — biết chính xác mình đang tiết kiệm bao nhiêu, ở bất cứ đâu.</p>
 
@@ -145,7 +145,7 @@ export default function EnergyMonitoringSection() {
         <div className="flex justify-center">
         <div className="relative -mb-24 w-[380px] shrink-0 origin-top scale-[.84] sm:mb-0 sm:scale-100">
           <div aria-hidden className="absolute left-1/2 top-[42%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/15" />
-          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.3),transparent_68%)]" />
+          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.3),transparent_68%)]" />
           <div data-reveal="up" style={delay(0.15)}><HandHoldingPhone /></div>
           <div data-reveal="left" style={delay(0.55)} className="t8-glass t8-float absolute -left-24 top-[34%] hidden rounded-2xl px-4 py-3 text-fg sm:block lg:-left-32">
             <div className="text-[10px] font-bold uppercase tracking-[.12em] text-fg-muted">Tiết kiệm tháng này</div>

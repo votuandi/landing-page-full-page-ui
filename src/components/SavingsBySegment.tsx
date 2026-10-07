@@ -14,7 +14,7 @@ const segments: { id: Segment; no: string; Icon: typeof HomeModernIcon; tag: str
 export default function SavingsBySegment() {
   return (
     <section id="tiet-kiem" className="t5-section relative overflow-hidden bg-bg">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.4),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.4),transparent_65%)]" />
       <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.16),transparent_65%)]" />
       <div className="t5-container relative">
         <div className="mx-auto max-w-3xl text-center">

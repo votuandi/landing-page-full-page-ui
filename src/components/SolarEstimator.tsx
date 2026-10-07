@@ -83,7 +83,7 @@ export default function SolarEstimator() {
 
   return (
     <section id={CALCULATOR_ID} className="t5-section relative overflow-hidden bg-gradient-to-b from-bg-tint to-bg" aria-labelledby="du-toan-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.18),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.18),transparent_65%)]" />
       <div className="t5-container relative">
         <div data-reveal="down" className="max-w-3xl">
           <span className="t5-eyebrow"><CalculatorIcon className="h-4 w-4" />Dự toán miễn phí</span>

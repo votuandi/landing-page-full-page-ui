@@ -55,23 +55,23 @@
   color-scheme: dark;
 }
 
-/* Bảng B — "Sky & Sun" (tùy chọn): <html data-theme="light"> */
+/* Bảng B — "Sky & Sun" — MẶC ĐỊNH (<html data-theme="light"> trong layout.tsx). Xóa thuộc tính đó để dùng Bảng A tối. */
 [data-theme="light"] {
   --c-bg: 244 248 251;           --bg: #F4F8FB;
   --c-bg-elevated: 255 255 255;  --bg-elevated: #FFFFFF;
   --c-bg-deep: 12 44 56;
   --c-bg-tint: 230 241 246;
-  --glass: rgba(255,255,255,0.65);
+  --glass: rgba(255,255,255,0.72);
   --glass-border: rgba(14,116,144,0.15);
-  --glass-strong: rgba(255,255,255,0.10);
-  --glass-strong-border: rgba(255,255,255,0.15);
-  --c-glass-tint: 255 255 255;
+  --glass-strong: rgba(255,255,255,0.14);
+  --glass-strong-border: rgba(255,255,255,0.24);
+  --c-glass-tint: 14 116 144;    /* hover nhẹ: bg-glass-tint/10 = xanh ngọc rất nhạt */
   --c-primary: 14 116 144;       --primary: #0E7490;
   --c-primary-strong: 21 94 117; --primary-strong: #155E75;
   --c-primary-deep: 21 94 117;
   --c-on-primary: 255 255 255;
   --c-accent: 245 158 11;        --accent: #F59E0B;
-  --c-accent-soft: 180 83 9;
+  --c-accent-soft: 180 83 9;     /* chữ màu hổ phách trên nền sáng (AA) */
   --c-on-accent: 15 23 42;
   --c-fg: 15 23 42;              --text: #0F172A;
   --c-fg-muted: 71 85 105;       --text-muted: #475569;
@@ -83,15 +83,21 @@
   --c-chart-b: 14 116 144;
   color-scheme: light;
 }
-/* Vùng luôn tối (section thương hiệu, footer…) dùng lại giá trị tối khi đang ở theme sáng */
+/* Section "nhấn" (dự án, số liệu, đại lý, footer, hero trang phụ…) ở theme sáng: nền pastel cùng sắc độ
+   (thay cho gradient tối → sáng → tối), thẻ kính trắng, số liệu màu xanh ngọc. Chữ giữ màu tối của theme sáng. */
 [data-theme="light"] .t12-invert {
-  --c-fg: 232 243 239; --c-fg-muted: 190 210 218; --c-fg-subtle: 170 192 201;
-  --c-line: 255 255 255;
-  --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.12);
-  --c-accent-soft: 252 211 77; --c-primary: 94 234 212; --c-on-primary: 4 28 21;
-  --c-success: 52 211 153; --c-danger: 248 113 113;
+  --c-bg-deep: 226 239 245;
+  --c-bg-tint: 236 245 249;
+  --c-primary-deep: 220 238 242;
+  --glass-strong: rgba(255,255,255,0.8);
+  --glass-strong-border: rgba(14,116,144,0.14);
+  --c-accent-soft: 14 116 144;
   color: rgb(var(--c-fg));
 }
+/* Chữ/số màu accent trên nền sáng: vàng hổ phách thuần chỉ đạt 2:1 → dùng accent-soft (hổ phách đậm / xanh ngọc trong section nhấn) */
+[data-theme="light"] .text-accent { color: rgb(var(--c-accent-soft)); }
+[data-theme="light"] .t5-input { background-color: rgb(var(--c-bg-elevated)); }
+[data-theme="light"] .t12-invert .t5-input { background-color: rgb(255 255 255 / .85); }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
