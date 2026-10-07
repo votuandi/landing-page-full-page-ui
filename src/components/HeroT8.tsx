@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, Battery100Icon, BoltIcon, CpuChipIcon, SunIcon } from "@heroicons/react/24/outline";
-import { SITE_CONFIG, yearsOfExperience } from "@/config/site";
+import { yearsOfExperience } from "@/config/site";
+import { siteConfig } from "@/config/site.config";
 import { delay } from "@/utils/reveal";
+import { Tr } from "@/i18n/LangProvider";
 
 const stats = [
-  [yearsOfExperience() + "+", "năm", "kinh nghiệm"],
-  [String(SITE_CONFIG.capabilities.mwp).replace(".", ",") + "", "MWp", "đã lắp đặt"],
-  [SITE_CONFIG.capabilities.projects + "+", "dự án", "đang vận hành"],
+  [yearsOfExperience() + "+", ["năm", "yrs"], ["kinh nghiệm", "experience"]],
+  [String(siteConfig.stats.mwp).replace(".", ","), ["MWp", "MWp"], ["đã cung cấp & lắp đặt", "supplied & installed"]],
+  [siteConfig.stats.dealers + "+", ["đại lý", "dealers"], ["trên toàn quốc", "nationwide"]],
 ] as const;
 
 // Floating chips on the right of the arch, positioned like the reference layout.
@@ -29,29 +31,29 @@ export default function HeroT8() {
         <div className="relative z-10">
           <div data-hero="down" className="inline-flex items-center gap-2 rounded-full border border-glass-border bg-glass py-1.5 pl-1.5 pr-4 text-xs font-bold text-fg-muted shadow-sm backdrop-blur">
             <span className="grid h-6 w-6 place-items-center rounded-full bg-accent text-on-accent"><SunIcon className="h-4 w-4" /></span>
-            Điện mặt trời cho nhà máy • cửa hàng • gia đình
+            <Tr vi="Nhà phân phối thiết bị • Tổng thầu EPC" en="Equipment distributor • EPC contractor" />
           </div>
           <h1 data-hero="left" style={delay(0.1)} className="mt-6 max-w-2xl text-[2.6rem] font-black leading-[1.05] tracking-[-.045em] text-fg sm:text-6xl lg:text-[3.8rem]">
-            Cùng biến nắng thành{" "}
+            <Tr vi="Thiết bị chính hãng," en="Genuine equipment," />{" "}
             <span className="relative whitespace-nowrap text-primary">
-              dòng tiền
+              <Tr vi="công trình trọn gói" en="turnkey systems" />
               <svg aria-hidden viewBox="0 0 200 14" preserveAspectRatio="none" className="absolute -bottom-1 left-0 h-2.5 w-full text-accent"><path d="M2 10 C 50 2, 150 2, 198 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" /></svg>
             </span>{" "}
-            cho công trình của bạn
+            <Tr vi="cho mọi mái nhà" en="for every rooftop" />
           </h1>
           <p data-hero="left" style={delay(0.22)} className="mt-7 max-w-xl text-base leading-8 text-fg-muted sm:text-lg">
-            Thiết kế hệ solar theo đúng phụ tải, theo dõi điện năng 24/7 trên điện thoại và tối ưu hóa đơn từ tháng đầu tiên vận hành.
+            <Tr vi="Phân phối tấm pin, inverter, pin lithium, BESS đủ chứng từ CO/CQ — và tổng thầu EPC từ hộ gia đình đến nhà xưởng hàng MWp." en="We distribute panels, inverters, lithium batteries and BESS with full CO/CQ — and deliver EPC from homes to multi-MWp factories." />
           </p>
           <div data-hero="up" style={delay(0.34)} className="mt-9 flex flex-wrap gap-3">
-            <a href="#du-toan" className="t5-button bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(var(--c-accent)/.7)] hover:brightness-110">Dự toán chi phí <ArrowRightIcon className="h-4 w-4" /></a>
-            <Link href="/lien-he" className="t5-button border border-line/20 bg-glass text-fg backdrop-blur hover:bg-glass-tint/10">Đặt lịch khảo sát</Link>
+            <a href="#du-toan" className="t5-button bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(var(--c-accent)/.7)] hover:brightness-110"><Tr vi="Dự toán chi phí" en="Estimate cost" /> <ArrowRightIcon className="h-4 w-4" /></a>
+            <Link href="/#dai-ly" className="t5-button border border-line/20 bg-glass text-fg backdrop-blur hover:bg-glass-tint/10"><Tr vi="Trở thành đại lý" en="Become a dealer" /></Link>
           </div>
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-4 sm:mt-16">
             {stats.map(([value, unit, label], i) => (
-              <div key={label} data-hero="up" style={delay(0.46 + i * 0.12)}>
-                <dt className="sr-only">{label}</dt>
-                <dd className="text-2xl font-black tracking-tight text-fg sm:text-4xl">{value}<span className="ml-1 text-xs font-bold text-fg-subtle sm:text-base">{unit}</span></dd>
-                <dd className="mt-1 text-xs font-semibold text-fg-muted sm:text-sm">{label}</dd>
+              <div key={label[0]} data-hero="up" style={delay(0.46 + i * 0.12)}>
+                <dt className="sr-only"><Tr vi={label[0]} en={label[1]} /></dt>
+                <dd className="text-2xl font-black tracking-tight text-fg sm:text-4xl">{value}<span className="ml-1 text-xs font-bold text-fg-subtle sm:text-base"><Tr vi={unit[0]} en={unit[1]} /></span></dd>
+                <dd className="mt-1 text-xs font-semibold text-fg-muted sm:text-sm"><Tr vi={label[0]} en={label[1]} /></dd>
               </div>
             ))}
           </dl>

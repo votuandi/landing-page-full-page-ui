@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeftIcon, ArrowRightIcon, BuildingOffice2Icon, BuildingStorefrontIcon, CalculatorIcon, ExclamationTriangleIcon, HomeModernIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, ArrowRightIcon, BuildingOffice2Icon, TagIcon, XMarkIcon, BuildingStorefrontIcon, CalculatorIcon, ExclamationTriangleIcon, HomeModernIcon } from "@heroicons/react/24/outline";
 import { BILL_INPUT, DEFAULT_PROVINCE, PROVINCES, REGION_LABELS, ROOF_INPUT, SEGMENTS, SEGMENT_ORDER, SYSTEM, type Segment } from "@/config/solar";
 import { calculateSolar, defaultDaytimeRatio, formatMoneyShort, formatNumber, parseNumber } from "@/lib/solarCalculator";
-import { CALCULATOR_ID, onOpenCalculator } from "@/lib/calculatorBus";
+import { CALCULATOR_ID, onOpenCalculator, prefillFromUrl, type CalculatorPrefill } from "@/lib/calculatorBus";
 import { useCountUp } from "@/lib/useCountUp";
 import { delay } from "@/utils/reveal";
 import LeadForm from "@/components/LeadForm";
@@ -26,6 +26,7 @@ export default function SolarEstimator() {
   const [roofText, setRoofText] = useState(String(ROOF_INPUT.household.default));
   const [province, setProvince] = useState(DEFAULT_PROVINCE);
   const [ratio, setRatio] = useState(defaultDaytimeRatio("household"));
+  const [topic, setTopic] = useState("");
   const resultRef = useRef<HTMLDivElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
 
@@ -37,11 +38,17 @@ export default function SolarEstimator() {
     setRatio(defaultDaytimeRatio(next));
   };
 
-  // Điền sẵn phân khúc khi bấm CTA ở gói giải pháp / video / ?phan-khuc=
+  // Điền sẵn khi bấm chip bảng giá (mega menu) / gói / video, hoặc từ URL ?phan-khuc=&hoa-don=&nhu-cau=
   useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("phan-khuc") as Segment | null;
-    if (fromUrl && fromUrl in SEGMENTS) { chooseSegment(fromUrl); setStep(1); }
-    return onOpenCalculator((s) => { if (s) { chooseSegment(s); setStep(1); } });
+    const apply = ({ segment: s, bill: b, topic: t }: CalculatorPrefill) => {
+      if (!s && !b && !t) return;
+      if (s && s in SEGMENTS) chooseSegment(s);
+      if (b) setBill(b);
+      setTopic(t || "");
+      setStep(1);
+    };
+    apply(prefillFromUrl());
+    return onOpenCalculator(apply);
   }, []);
 
   const roofValid = roof >= SYSTEM.minRoofArea;
@@ -71,6 +78,7 @@ export default function SolarEstimator() {
     "Tiết kiệm/tháng (đ)": formatNumber(result.monthlySavings),
     "Hoàn vốn (năm)": Number(result.paybackYears.toFixed(1)),
     "Giới hạn bởi mái": result.limitedByRoof,
+    ...(topic ? { "Nhu cầu": topic } : {}),
   };
 
   return (
@@ -188,6 +196,12 @@ export default function SolarEstimator() {
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.35),transparent_65%)]" />
             <div className="relative">
               <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-black">Kết quả sơ bộ</h3><span className="rounded-full bg-glass-strong px-3 py-1 text-xs font-bold text-fg-muted">{SEGMENTS[segment].short} • {province}</span></div>
+              {topic && (
+                <p className="mt-3 flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm font-bold text-fg">
+                  <TagIcon className="h-4 w-4 shrink-0 text-accent" /><span className="flex-1">Đang hỏi giá: {topic}</span>
+                  <button type="button" onClick={() => setTopic("")} aria-label="Bỏ nhu cầu đã chọn" className="grid h-8 w-8 place-items-center rounded-full hover:bg-glass-tint/10"><XMarkIcon className="h-4 w-4" /></button>
+                </p>
+              )}
               <div aria-live="polite" className="mt-5 grid grid-cols-2 gap-3">
                 {[
                   ["Công suất đề xuất", <><CountUp value={result.kwp} format={(v) => v.toFixed(1).replace(".", ",")} /> <span className="text-base">kWp</span></>],

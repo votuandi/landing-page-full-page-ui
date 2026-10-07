@@ -161,6 +161,20 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 .t8-screen { display:flex; min-height:100vh; min-height:100svh; flex-direction:column; justify-content:center; overflow-x:clip; }
 .t8-screen > .t5-container { width:100%; }
 
+/* Top bar marquee (template-14): 2 bản sao nội dung, dịch -50% → lặp liền mạch. Dừng khi hover/focus. */
+@keyframes t14-marquee { to { transform:translateX(-50%); } }
+.t14-marquee { overflow:hidden; mask-image:linear-gradient(90deg, transparent, rgb(0 0 0) 4%, rgb(0 0 0) 96%, transparent); }
+.t14-marquee-track { animation:t14-marquee 38s linear infinite; }
+.t14-marquee:hover .t14-marquee-track, .t14-marquee:focus-within .t14-marquee-track { animation-play-state:paused; }
+@media (prefers-reduced-motion:reduce) {
+  .t14-marquee { overflow-x:auto; mask-image:none; }
+  .t14-marquee-track { animation:none !important; }
+  .t14-marquee-dup { display:none; }
+}
+/* Ghim bản đồ chi nhánh */
+@keyframes t14-ping { 0% { transform:scale(.6); opacity:.8; } 100% { transform:scale(2.2); opacity:0; } }
+.t14-ping { animation:t14-ping 2.2s ease-out infinite; }
+
 /* Ẩn thanh cuộn nhưng vẫn cuộn được (carousel) */
 .t12-no-scrollbar { scrollbar-width:none; }
 .t12-no-scrollbar::-webkit-scrollbar { display:none; }

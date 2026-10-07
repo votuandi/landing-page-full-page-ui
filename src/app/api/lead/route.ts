@@ -33,6 +33,8 @@ export async function POST(request: Request) {
     message: str(body.message, 2000) || undefined,
     source: str(body.source, 60) || "website",
     segment: str(body.segment, 60) || undefined,
+    province: str(body.province, 60) || undefined,
+    businessType: str(body.businessType, 80) || undefined,
     estimate,
     submittedAt: new Date().toISOString(),
   };

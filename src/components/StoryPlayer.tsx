@@ -169,7 +169,7 @@ export default function StoryPlayer({ stories, startIndex, onClose }: Props) {
         {/* Overlay đáy */}
         <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-scrim/90 via-scrim/50 to-transparent p-4 pt-16 text-on-media" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
           <div className="text-lg font-black leading-snug">{story.shortTitle}</div>
-          <div className="mt-1 text-sm text-on-media/80">📍 {story.location} · {story.kwp} kWp</div>
+          <div className="mt-1 text-sm text-on-media/80">{story.kwp > 0 ? `📍 ${story.location} · ${story.kwp} kWp` : story.location}</div>
           <button type="button" onClick={() => { onClose(); setTimeout(() => openCalculator(story.segment), 50); }} className="t5-button t5-button-primary mt-4 min-h-12 w-full text-base">Nhận báo giá công trình tương tự</button>
           {original && (
             <a href={original} target="_blank" rel="noopener noreferrer" className="mx-auto mt-3 flex w-fit items-center gap-1.5 text-xs font-bold text-on-media/85 underline-offset-4 hover:underline">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRightIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { delay } from "@/utils/reveal";
 import { isDistributor } from "@/config/site";
+import { siteConfig } from "@/config/site.config";
 import { FAQS, PRODUCTS, TESTIMONIALS } from "@/data/solar";
 import HeroT8 from "@/components/HeroT8";
 import SolarEstimator from "@/components/SolarEstimator";
@@ -15,6 +16,20 @@ import StatsSection from "@/components/StatsSection";
 import EnergyMonitoringSection from "@/components/EnergyMonitoringSection";
 import SectionReveal from "@/components/SectionReveal";
 import LeadForm from "@/components/LeadForm";
+import CertificatesSection from "@/components/t14/CertificatesSection";
+import BrandsSection from "@/components/t14/BrandsSection";
+import FeaturedProjects from "@/components/t14/FeaturedProjects";
+import SolutionsSection from "@/components/t14/SolutionsSection";
+import PressSection from "@/components/t14/PressSection";
+import TikTokSection from "@/components/t14/TikTokSection";
+import DealerSection from "@/components/t14/DealerSection";
+import BranchMap from "@/components/t14/BranchMap";
+import EngineerBanner from "@/components/t14/EngineerBanner";
+import SocialSection from "@/components/t14/SocialSection";
+import { Tr } from "@/i18n/LangProvider";
+
+const c = siteConfig;
+const legacy = c.legacy;
 
 const processSteps = [
   ["01","Khảo sát","Phụ tải, hóa đơn, mái, trạm điện và điều kiện thi công.","Biên bản khảo sát + dữ liệu đầu vào"],
@@ -31,22 +46,32 @@ const warranties = [
   ["Thi công & mái","Theo hợp đồng","Tách bạch phạm vi chống dột"],
 ];
 
-export default function HomeT8() {
+/** Trang chủ template-14 — thứ tự section cố định, bật/tắt từng section trong src/config/site.config.ts. */
+export default function HomeT14() {
   const partnerBrands = Array.from(new Set(PRODUCTS.map((p) => p.brand)));
   return (
     <main>
       <SectionReveal />
-      <HeroT8 />
-      <SolarEstimator />
-      <SavingsBySegment />
-      <PackagesSection />
-      <InvestmentModels />
-      <ProjectsGallery />
-      <VideoStories />
-      <StatsSection />
-      <EnergyMonitoringSection />
+      {c.hero.enabled && <HeroT8 />}
+      {c.calculator.enabled && <SolarEstimator />}
+      {c.certificates.enabled && <CertificatesSection />}
+      {c.brands.enabled && <BrandsSection />}
+      {legacy.savingsBySegment.enabled && <SavingsBySegment />}
+      {c.packages.enabled && <PackagesSection />}
+      {legacy.investmentModels.enabled && <InvestmentModels />}
+      {c.projects.enabled && <FeaturedProjects />}
+      {legacy.projectsGallery.enabled && <ProjectsGallery />}
+      {c.solutions.enabled && <SolutionsSection />}
+      {c.stats.enabled && <StatsSection />}
+      {c.press.enabled && <PressSection />}
+      {c.tiktok.enabled && <TikTokSection />}
+      {legacy.videoStories.enabled && <VideoStories />}
+      {c.dealer.enabled && <DealerSection />}
+      {c.branchMap.enabled && <BranchMap />}
+      {c.engineerBanner.enabled && <EngineerBanner />}
+      {legacy.energyMonitoring.enabled && <EnergyMonitoringSection />}
 
-      <section className="t12-invert t8-screen relative overflow-hidden bg-gradient-to-br from-bg-deep to-primary-deep text-fg">
+      {legacy.process.enabled && <section className="t12-invert t8-screen relative overflow-hidden bg-gradient-to-br from-bg-deep to-primary-deep text-fg">
         <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.3),transparent_65%)]" />
         <div className="t5-container relative py-14 md:py-16">
           <span data-reveal="down" className="t5-eyebrow">Quy trình triển khai</span>
@@ -60,16 +85,16 @@ export default function HomeT8() {
             <div className="mt-auto pt-8"><div className="rounded-2xl border border-line/15 bg-glass-strong p-4 text-xs font-bold leading-5 text-fg"><span className="mb-1 block text-[10px] uppercase tracking-[.16em] text-accent-soft">Đầu ra</span>{output}</div></div>
           </article>)}
         </div>
-      </section>
+      </section>}
 
-      <section className="t5-section">
+      {legacy.warranty.enabled && <section className="t5-section">
         <div className="t5-container grid items-center gap-12 lg:grid-cols-2">
           <div data-reveal="left"><span className="t5-eyebrow">Bảo hành tách bạch</span><h2 className="t5-heading">Biết rõ ai chịu trách nhiệm cho từng phần.</h2><p className="t5-subheading">Không gộp “bảo hành 25 năm” thành một câu quảng cáo. Mỗi hạng mục có thời hạn, điều kiện và đơn vị chịu trách nhiệm khác nhau.</p></div>
           <div data-reveal="right" style={delay(0.15)} className="t8-card overflow-hidden">{warranties.map(([item,period,note]) => <div key={item} className="grid grid-cols-[1fr_1fr] gap-4 border-b border-line/12 p-5 last:border-0"><div><div className="font-black text-primary">{item}</div><div className="mt-1 text-xs text-fg-muted">{note}</div></div><div className="text-right text-sm font-bold">{period}</div></div>)}</div>
         </div>
-      </section>
+      </section>}
 
-      <section className="t5-section bg-gradient-to-b from-bg to-bg-tint/40">
+      {legacy.testimonials.enabled && <section className="t5-section bg-gradient-to-b from-bg to-bg-tint/40">
         <div className="t5-container">
           <span data-reveal="down" className="t5-eyebrow">Khách hàng nói gì</span><h2 data-reveal="up" style={delay(0.1)} className="t5-heading">Niềm tin đến từ những hóa đơn điện thật.</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-3">{TESTIMONIALS.map((item, index) => <blockquote key={item.company} data-reveal={index % 2 ? "right" : "left"} style={delay(0.2 + index * 0.1)} className="t8-card flex flex-col p-7"><div className="text-sm font-black text-accent">{item.rating}</div><p className="mt-6 text-lg font-bold leading-8 text-fg">“{item.text}”</p><footer className="mt-auto border-t border-line/12 pt-4 text-sm"><strong>{item.person}</strong><div className="text-fg-muted">{item.company}</div></footer></blockquote>)}</div>
@@ -81,23 +106,25 @@ export default function HomeT8() {
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
-      <section className="t5-section">
+      {c.social.enabled && <SocialSection />}
+
+      {c.faq.enabled && <section id="hoi-dap" className="t5-section bg-bg-elevated">
         <div className="t5-container grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
-          <div data-reveal="left"><span className="t5-eyebrow">Câu hỏi thường gặp</span><h2 className="t5-heading">Những điều nên rõ trước khi lắp đặt.</h2></div>
+          <div data-reveal="left"><span className="t5-eyebrow"><Tr vi="Câu hỏi thường gặp" en="FAQ" /></span><h2 className="t5-heading"><Tr vi="Những điều nên rõ trước khi lắp đặt." en="What to know before you install." /></h2></div>
           <div data-reveal-stagger="right" data-reveal-step="0.08" className="grid gap-3">{FAQS.map(([q,a]) => <details key={q} className="t8-card group px-6 py-5"><summary className="cursor-pointer list-none pr-8 font-black text-fg">{q}<span aria-hidden className="float-right grid h-7 w-7 place-items-center rounded-full bg-bg-tint text-primary transition group-open:rotate-45">+</span></summary><p className="mt-3 max-w-3xl text-sm leading-7 text-fg-muted">{a}</p></details>)}</div>
         </div>
-      </section>
+      </section>}
 
-      <section className="t12-invert t8-screen relative bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep text-fg">
+      {c.contactForm.enabled && <section id="nhan-bao-gia" className="t12-invert t8-screen relative bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep text-fg">
         <div className="grid flex-1 lg:grid-cols-2">
           <div data-reveal="left" className="relative min-h-[48vh] overflow-hidden lg:min-h-0">
             <Image src="/images/solar-installation-hero.jpg" alt="Hệ thống điện mặt trời dưới bầu trời nắng" fill loading="lazy" className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/90 via-scrim/30 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-scrim/15 lg:to-scrim/70" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-on-media sm:p-10 xl:p-16">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-on-accent"><ShieldCheckIcon className="h-7 w-7" /></div>
-              <h2 className="mt-6 max-w-lg text-4xl font-black tracking-[-.04em] sm:text-5xl">Khảo sát miễn phí, báo giá trong 24 giờ.</h2>
+              <h2 className="mt-6 max-w-lg text-4xl font-black tracking-[-.04em] sm:text-5xl"><Tr vi="Nhận báo giá — khảo sát miễn phí trong 48 giờ." en="Get a quote — free site survey within 48 hours." /></h2>
               <p className="mt-5 max-w-md text-on-media/85">Để lại thông tin, kỹ sư sẽ gọi lại hẹn lịch khảo sát mái và tư vấn gói phù hợp.</p>
             </div>
           </div>
@@ -105,7 +132,7 @@ export default function HomeT8() {
             <div data-reveal="right" style={delay(0.15)} className="w-full max-w-[620px] rounded-[32px] border border-glass-border bg-bg-elevated/95 p-6 text-fg shadow-2xl backdrop-blur md:p-8"><LeadForm source="home-bottom" withMessage /></div>
           </div>
         </div>
-      </section>
+      </section>}
     </main>
   );
 }

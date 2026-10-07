@@ -1,6 +1,8 @@
 "use client";
 
-import { SITE_CONFIG, yearsOfExperience } from "@/config/site";
+import { yearsOfExperience } from "@/config/site";
+import { siteConfig } from "@/config/site.config";
+import { useLang } from "@/i18n/LangProvider";
 import { useCountUp, useInViewOnce } from "@/lib/useCountUp";
 import { formatNumber } from "@/lib/solarCalculator";
 
@@ -17,16 +19,17 @@ function Stat({ value, decimals = 0, suffix, label, start }: { value: number; de
 
 export default function StatsSection() {
   const [ref, seen] = useInViewOnce<HTMLDListElement>(0.3);
-  const c = SITE_CONFIG.capabilities;
+  const c = siteConfig.stats;
+  const { tr } = useLang();
   return (
     <section className="t12-invert relative overflow-hidden bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep py-16 text-fg md:py-20" aria-label="Số liệu nổi bật">
       <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.3),transparent_65%)]" />
       <div className="t5-container relative">
         <dl ref={ref} data-reveal-stagger="zoom" data-reveal-step="0.1" className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          <Stat start={seen} value={yearsOfExperience()} suffix="+" label="Năm kinh nghiệm" />
-          <Stat start={seen} value={c.mwp} decimals={1} suffix=" MWp" label="Đã lắp đặt" />
-          <Stat start={seen} value={c.customers} suffix="+" label="Khách hàng" />
-          <Stat start={seen} value={c.technicians} suffix="" label="Kỹ thuật viên" />
+          <Stat start={seen} value={yearsOfExperience()} suffix="+" label={tr("Năm kinh nghiệm", "Years of experience")} />
+          <Stat start={seen} value={c.mwp} decimals={1} suffix=" MWp" label={tr("Đã cung cấp & lắp đặt", "Supplied & installed")} />
+          <Stat start={seen} value={c.projects} suffix="+" label={tr("Công trình", "Projects")} />
+          <Stat start={seen} value={c.engineers} suffix="+" label={tr("Kỹ sư & kỹ thuật viên", "Engineers & technicians")} />
         </dl>
       </div>
     </section>

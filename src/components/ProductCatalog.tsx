@@ -5,14 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { PRODUCTS } from "@/data/solar";
+import { PRODUCTS, PRODUCT_CATEGORY_LABELS, PRODUCT_SEGMENT_LABELS, type ProductSegment } from "@/data/solar";
 import { productBrands } from "@/utils/solar";
 import PriceTag from "@/components/PriceTag";
 import { useRFQ } from "@/components/SiteShell";
 
-const categories = [
-  ["","Tất cả"],["panel","Tấm pin"],["inverter","Inverter"],["battery","Pin lưu trữ"],["accessory","Phụ kiện"]
-] as const;
+const categories: [string, string][] = [["", "Tất cả"], ...Object.entries(PRODUCT_CATEGORY_LABELS)];
+const allTech = Array.from(new Set(PRODUCTS.flatMap((p) => p.tech))).sort();
 
 export default function ProductCatalog() {
   const router = useRouter();
@@ -24,6 +23,9 @@ export default function ProductCatalog() {
   const category = search.get("category") || "";
   const brand = search.get("brand") || "";
   const minPower = Number(search.get("minPower") || 0);
+  const maxPower = Number(search.get("maxPower") || 0);
+  const tech = search.get("tech") || "";
+  const segment = (search.get("segment") || "") as ProductSegment | "";
   const maxPrice = Number(search.get("maxPrice") || 0);
   const sort = search.get("sort") || "featured";
 
@@ -34,16 +36,20 @@ export default function ProductCatalog() {
   };
 
   const list = useMemo(() => {
-    let items = PRODUCTS.filter((p) => (!category || p.category === category) && (!brand || p.brand === brand) && (!minPower || p.powerKw >= minPower) && (!maxPrice || (p.price || Number.MAX_SAFE_INTEGER) <= maxPrice));
+    let items = PRODUCTS.filter((p) => (!category || p.category === category) && (!brand || p.brand === brand) && (!minPower || p.powerKw >= minPower) && (!maxPower || p.powerKw <= maxPower)
+      && (!tech || p.tech.includes(tech)) && (!segment || p.segment.includes(segment)) && (!maxPrice || (p.price || Number.MAX_SAFE_INTEGER) <= maxPrice));
     if (sort === "price-asc") items = [...items].sort((a,b) => (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER));
     if (sort === "power-desc") items = [...items].sort((a,b) => b.powerKw - a.powerKw);
     return items;
-  }, [category,brand,minPower,maxPrice,sort]);
+  }, [category,brand,minPower,maxPower,tech,segment,maxPrice,sort]);
 
   const Filters = () => <div className="grid gap-5">
     <div><div className="t5-filter-title">Loại thiết bị</div><div className="mt-3 grid gap-1">{categories.map(([value,label]) => <button key={label} onClick={() => setQuery("category",value)} className={`t5-filter-option ${category === value ? "is-active" : ""}`}>{label}</button>)}</div></div>
     <label className="t5-label">Hãng<select value={brand} onChange={(e) => setQuery("brand",e.target.value)} className="t5-input"><option value="">Tất cả hãng</option>{productBrands().map((item) => <option key={item}>{item}</option>)}</select></label>
-    <label className="t5-label">Công suất tối thiểu<select value={String(minPower || "")} onChange={(e) => setQuery("minPower",e.target.value)} className="t5-input"><option value="">Không giới hạn</option><option value="1">≥ 1 kW</option><option value="10">≥ 10 kW</option><option value="50">≥ 50 kW</option><option value="100">≥ 100 kW</option></select></label>
+    <label className="t5-label">Công nghệ<select value={tech} onChange={(e) => setQuery("tech",e.target.value)} className="t5-input"><option value="">Tất cả công nghệ</option>{allTech.map((t) => <option key={t}>{t}</option>)}</select></label>
+    <label className="t5-label">Phân khúc<select value={segment} onChange={(e) => setQuery("segment",e.target.value)} className="t5-input"><option value="">Tất cả phân khúc</option>{Object.entries(PRODUCT_SEGMENT_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+    <label className="t5-label">Công suất / dung lượng tối thiểu<select value={String(minPower || "")} onChange={(e) => setQuery("minPower",e.target.value)} className="t5-input"><option value="">Không giới hạn</option>{!["0.6","1","5","10","50","100","200",""].includes(String(minPower || "")) && <option value={String(minPower)}>≥ {minPower}</option>}<option value="0.6">≥ 600 W (tấm pin)</option><option value="1">≥ 1 kW</option><option value="5">≥ 5 kW</option><option value="10">≥ 10 kW / kWh</option><option value="50">≥ 50 kW</option><option value="100">≥ 100 kW</option><option value="200">≥ 200 kWh</option></select></label>
+    {maxPower > 0 && <button type="button" onClick={() => setQuery("maxPower","")} className="t12-chip justify-between" aria-label="Bỏ giới hạn công suất tối đa">Tối đa {maxPower} kW <XMarkIcon className="h-4 w-4" /></button>}
     <label className="t5-label">Khoảng giá<select value={String(maxPrice || "")} onChange={(e) => setQuery("maxPrice",e.target.value)} className="t5-input"><option value="">Không giới hạn</option><option value="5000000">Dưới 5 triệu</option><option value="50000000">Dưới 50 triệu</option><option value="100000000">Dưới 100 triệu</option></select></label>
   </div>;
 

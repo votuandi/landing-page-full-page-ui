@@ -8,6 +8,9 @@ export type Lead = {
   /** Nơi gửi form: "calculator", "home-bottom", "contact", "rfq"… */
   source: string;
   segment?: string;
+  /** Form đăng ký đại lý */
+  province?: string;
+  businessType?: string;
   /** Toàn bộ thông số dự toán (nếu gửi từ công cụ dự toán). */
   estimate?: Record<string, string | number | boolean>;
   submittedAt: string;
@@ -30,6 +33,8 @@ export function leadToText(lead: Lead) {
     lead.email && `Email: ${lead.email}`,
     lead.address && `Địa chỉ: ${lead.address}`,
     lead.segment && `Phân khúc: ${lead.segment}`,
+    lead.province && `Tỉnh/thành: ${lead.province}`,
+    lead.businessType && `Loại hình kinh doanh: ${lead.businessType}`,
     lead.message && `Ghi chú: ${lead.message}`,
   ];
   if (lead.estimate) lines.push("— Dự toán —", ...Object.entries(lead.estimate).map(([k, v]) => `${k}: ${v}`));

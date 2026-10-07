@@ -1,86 +1,80 @@
 /**
- * THÔNG TIN CÔNG TY — sửa file này để đổi thương hiệu.
- * Mọi tên, số điện thoại, Zalo, mạng xã hội, số liệu năng lực trên website đều đọc từ đây.
- * Để trống (chuỗi "") hoặc xóa một link → nút tương ứng tự ẩn, không render link rỗng.
+ * Lớp dẫn xuất từ src/config/site.config.ts — KHÔNG chứa dữ liệu công ty.
+ * Muốn đổi tên, hotline, địa chỉ… hãy sửa site.config.ts.
  */
 
+import { siteConfig, type Branch, type GeoPoint } from "@/config/site.config";
+
+export { siteConfig };
 export type SiteMode = "installer" | "installer_distributor";
 
 const envMode = process.env.NEXT_PUBLIC_SITE_MODE;
+const siteMode: SiteMode = envMode === "installer" || envMode === "installer_distributor" ? envMode : siteConfig.siteMode;
 
+/* ---------- Số điện thoại, Zalo, bản đồ ---------- */
+
+export const phoneDigits = (phone: string) => phone.replace(/\D/g, "");
+export const telHref = (phone: string) => `tel:${phoneDigits(phone)}`;
+export const zaloHref = (phone: string) => `https://zalo.me/${phoneDigits(phone)}`;
+export const mapsUrl = (p: GeoPoint) => `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+export const directionsUrl = (p: GeoPoint) => `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+
+export const primaryBranch: Branch = siteConfig.branches.find((b) => b.primary) || siteConfig.branches[0];
+const viText = (t: string | { vi: string }) => (typeof t === "string" ? t : t.vi);
+
+/** Cấu trúc tương thích template-12 — các trang phụ (liên hệ, về chúng tôi…) vẫn đọc từ đây. */
 export const SITE_CONFIG = {
   brand: {
-    name: "Minwy Solar",
-    legalName: "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
-    tagline: "Giảm tiền điện cho gia đình, cửa hàng và nhà xưởng.",
-    /** Ảnh logo (đường dẫn trong /public). Để "" để dùng logo chữ tự sinh theo màu template. */
-    logo: "",
-    /** Chữ viết tắt hiển thị trong biểu tượng logo tự sinh. */
-    logoText: "MW",
-    foundedYear: 2015,
+    name: siteConfig.brand.name,
+    legalName: siteConfig.brand.legalName,
+    tagline: viText(siteConfig.brand.tagline),
+    logo: siteConfig.brand.logo,
+    logoText: siteConfig.brand.logoText,
+    foundedYear: siteConfig.brand.foundedYear,
   },
-
-  /**
-   * "installer"             : chỉ lắp đặt — không có trang /san-pham, menu không có "Sản phẩm".
-   * "installer_distributor" : lắp đặt + phân phối thiết bị — bật trang /san-pham và dải logo hãng.
-   * Có thể ghi đè bằng biến môi trường NEXT_PUBLIC_SITE_MODE.
-   */
-  siteMode: (envMode === "installer" || envMode === "installer_distributor" ? envMode : "installer_distributor") as SiteMode,
-
-  /** Màu thanh trình duyệt trên mobile — nên trùng --bg trong globals.css */
-  themeColor: "#0B1F1C",
-
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-12.minwysoft.com",
-
+  siteMode,
+  themeColor: siteConfig.brand.themeColor,
+  url: siteConfig.brand.url,
   contact: {
-    phone: "0901 234 567",
-    phoneRaw: "0901234567",
-    zalo: "https://zalo.me/0901234567",
-    messenger: "https://m.me/minwysolar",
-    email: "lienhe@minwysolar.example",
-    address: "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",
-    workingHours: "Thứ 2 – Thứ 7: 08:00 – 17:30",
-    taxCode: "0312XXXXXX [DỮ LIỆU MẪU]",
-    license: "Giấy phép/đăng ký ngành nghề: [CẦN XÁC MINH]",
+    phone: primaryBranch.hotline.main,
+    phoneRaw: phoneDigits(primaryBranch.hotline.main),
+    zalo: zaloHref(siteConfig.zalo.household.phone),
+    messenger: siteConfig.messenger,
+    email: siteConfig.brand.email,
+    address: primaryBranch.office.address,
+    workingHours: siteConfig.workingHours,
+    taxCode: siteConfig.legal.businessRegistration.number,
+    license: siteConfig.legal.licenses[0] || "",
   },
-
-  /** Nút nào không có url sẽ không hiển thị. */
-  socials: {
-    tiktok: { url: "https://www.tiktok.com/@minwysolar", handle: "minwysolar" },
-    youtube: { url: "https://www.youtube.com/@minwysolar", handle: "minwysolar" },
-    facebook: { url: "https://www.facebook.com/minwysolar" },
-  } as Socials,
-
-  /** Số liệu nổi bật. "Năm kinh nghiệm" tự tính từ brand.foundedYear. */
-  capabilities: { mwp: 38.6, customers: 1250, technicians: 36, projects: 286, provinces: 18 },
-
-  demo: {
-    enabled: process.env.NEXT_PUBLIC_DEMO_MODE !== "false",
-    templateCtaUrl: process.env.NEXT_PUBLIC_TEMPLATE_CTA_URL || "/lien-he",
-    pricingUrl: process.env.NEXT_PUBLIC_PRICING_URL || "/lien-he",
+  socials: Object.fromEntries(siteConfig.socials.filter((s) => s.id !== "zalo").map((s) => [s.id, { url: s.url, handle: s.handle.replace(/^@/, "") }])) as Socials,
+  capabilities: {
+    mwp: siteConfig.stats.mwp,
+    customers: siteConfig.stats.customers,
+    technicians: siteConfig.stats.engineers,
+    projects: siteConfig.stats.projects,
+    provinces: siteConfig.stats.provinces,
   },
-  legal: {
-    ministryNoticeLogo: "[PLACEHOLDER LOGO THÔNG BÁO BỘ CÔNG THƯƠNG]",
-  },
+  demo: siteConfig.demo,
+  legal: { ministryNoticeLogo: "" },
 };
 
 export type Socials = {
   tiktok?: { url: string; handle: string };
   youtube?: { url: string; handle: string };
-  facebook?: { url: string };
+  facebook?: { url: string; handle?: string };
 };
 
-export const isDistributor = SITE_CONFIG.siteMode === "installer_distributor";
+export const isDistributor = siteMode === "installer_distributor";
 
 /** Số năm kinh nghiệm luôn tính theo năm hiện tại. */
-export const yearsOfExperience = () => new Date().getFullYear() - SITE_CONFIG.brand.foundedYear;
+export const yearsOfExperience = () => new Date().getFullYear() - siteConfig.brand.foundedYear;
 
-/** Menu chính — tối đa 6 mục. "Sản phẩm" chỉ có ở chế độ installer_distributor. */
+/** Link điều hướng phẳng (menu di động, trang phụ). Mega menu đọc trực tiếp từ site.config.ts. */
 export const NAV_ITEMS: { label: string; href: string }[] = [
   { label: "Dự toán chi phí", href: "/#du-toan" },
-  { label: "Gói giải pháp", href: "/#goi-giai-phap" },
-  { label: "Công trình", href: "/#cong-trinh" },
-  ...(isDistributor ? [{ label: "Sản phẩm", href: "/san-pham" }] : []),
+  { label: "Dự án", href: "/#du-an" },
+  ...(isDistributor ? [{ label: "Thiết bị", href: "/san-pham" }] : []),
+  { label: "Đại lý", href: "/#dai-ly" },
   { label: "Về chúng tôi", href: "/ve-chung-toi" },
   { label: "Liên hệ", href: "/lien-he" },
 ].slice(0, 6);

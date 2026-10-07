@@ -1,46 +1,104 @@
 import Link from "next/link";
-import { SITE_CONFIG, isDistributor } from "@/config/site";
+import { CheckBadgeIcon, ExclamationCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { siteConfig } from "@/config/site.config";
+import { isDistributor, telHref, zaloHref } from "@/config/site";
+import { Tr } from "@/i18n/LangProvider";
 import BrandLogo from "@/components/BrandLogo";
+import { ZaloIcon } from "@/components/BrandIcons";
 
-/** Footer render phía server (không cần hydrate). */
+const { brand, legal, branches, complaintHotline, workingHours } = siteConfig;
+
+/** Badge "Đã thông báo Bộ Công Thương" — PLACEHOLDER (không dùng logo thật). Có URL xác nhận thì thành link. */
+function MoitBadge() {
+  if (!legal.moitBadge.enabled) return null;
+  const body = (
+    <span className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-dashed border-line/25 bg-glass px-3 py-2">
+      <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-primary"><CheckBadgeIcon className="h-6 w-6" /></span>
+      <span className="text-[11px] font-black uppercase leading-tight tracking-wide text-fg">
+        <Tr vi="Đã thông báo" en="Notified to" /><br /><Tr vi="Bộ Công Thương" en="Ministry of Industry & Trade" />
+        <span className="block text-[9px] font-bold normal-case tracking-normal text-fg-subtle">(placeholder)</span>
+      </span>
+    </span>
+  );
+  return legal.moitBadge.url ? <a href={legal.moitBadge.url} target="_blank" rel="noopener noreferrer">{body}</a> : body;
+}
+
+/** Footer render phía server; chữ song ngữ dùng <Tr>. */
 export default function SiteFooter() {
   return (
     <footer className="t12-invert bg-gradient-to-br from-bg-deep to-primary-deep text-fg">
-      <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-4">
+      <div className="t5-container grid gap-10 py-16 lg:grid-cols-[1.1fr_2fr_.9fr]">
+        {/* Pháp lý */}
         <div>
-          <BrandLogo name={SITE_CONFIG.brand.name} />
-          <p className="mt-5 text-sm leading-7 text-fg-muted">{SITE_CONFIG.brand.tagline}</p>
-          <p className="mt-5 text-xs leading-6 text-fg-muted">{SITE_CONFIG.brand.legalName}<br />MST: {SITE_CONFIG.contact.taxCode}<br />{SITE_CONFIG.contact.license}</p>
+          <BrandLogo name={brand.name} />
+          <p className="mt-5 text-sm leading-7 text-fg-muted"><Tr text={brand.tagline} /></p>
+          <div className="mt-5 space-y-2 text-xs leading-6 text-fg-muted">
+            <p className="font-black text-fg">{brand.legalName}</p>
+            <p><Tr vi="Giấy CN ĐKKD số" en="Business reg. no." /> {legal.businessRegistration.number} — <Tr vi="cấp ngày" en="issued" /> {legal.businessRegistration.issuedDate}, {legal.businessRegistration.issuedBy}</p>
+            {legal.licenses.map((l) => <p key={l}>{l}</p>)}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {legal.iso.map((iso) => <span key={iso} className="rounded-full border border-line/20 bg-glass px-3 py-1 text-[11px] font-black text-fg">{iso}</span>)}
+          </div>
+          <a href={telHref(complaintHotline)} className="mt-6 flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4">
+            <ExclamationCircleIcon className="h-6 w-6 shrink-0 text-accent" />
+            <span><span className="block text-xs font-bold text-fg-muted"><Tr vi="Hotline khiếu nại – góp ý" en="Complaints hotline" /></span><span className="text-lg font-black tabular-nums text-fg">{complaintHotline}</span></span>
+          </a>
         </div>
+
+        {/* Cửa hàng theo chi nhánh */}
         <div>
-          <h2 className="t5-footer-title">Giải pháp</h2>
-          <div className="mt-5 space-y-3 text-sm text-fg-muted">
-            <Link className="block hover:text-fg" href="/giai-phap/solar-gia-dinh">Solar hộ gia đình</Link>
-            <Link className="block hover:text-fg" href="/giai-phap/hybrid-luu-tru">Solar cửa hàng & hybrid</Link>
-            <Link className="block hover:text-fg" href="/giai-phap/solar-nha-xuong">Solar nhà xưởng, trang trại</Link>
-            <Link className="block hover:text-fg" href="/giai-phap/om-ve-sinh">Bảo trì & vệ sinh</Link>
+          <h2 className="t5-footer-title"><Tr vi="Hệ thống cửa hàng" en="Stores" /></h2>
+          <div className="mt-5 grid gap-6 sm:grid-cols-2">
+            {branches.map((b) => (
+              <div key={b.id}>
+                <div className="flex items-center gap-1.5 text-sm font-black text-fg"><MapPinIcon className="h-4 w-4 text-primary" />{b.name}</div>
+                <ul className="mt-2 space-y-3">
+                  {[{ name: "Tổng đài chi nhánh", address: "", phone: b.hotline.main }, ...b.stores].map((s) => (
+                    <li key={s.name + s.phone} className="text-xs leading-5 text-fg-muted">
+                      <div className="font-bold text-fg">{s.name}</div>
+                      {s.address && <div>{s.address}</div>}
+                      <div className="mt-1 flex items-center gap-2">
+                        <a href={telHref(s.phone)} className="font-black tabular-nums text-fg hover:text-accent">{s.phone}</a>
+                        <a href={zaloHref(s.phone)} target="_blank" rel="noopener noreferrer" aria-label={`Zalo ${s.phone}`} className="inline-flex min-h-8 items-center gap-1 rounded-full bg-primary/20 px-2.5 text-[11px] font-black text-fg hover:bg-primary hover:text-on-primary">
+                          <ZaloIcon className="h-3.5 w-3.5" />Zalo
+                        </a>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
-        <div>
-          <h2 className="t5-footer-title">Công ty</h2>
-          <div className="mt-5 space-y-3 text-sm text-fg-muted">
-            <Link className="block hover:text-fg" href="/ve-chung-toi">Về chúng tôi</Link>
-            {isDistributor && <Link className="block hover:text-fg" href="/san-pham">Sản phẩm</Link>}
-            <Link className="block hover:text-fg" href="/lien-he">Liên hệ</Link>
-            <span className="block">{SITE_CONFIG.legal.ministryNoticeLogo}</span>
+
+        {/* Liên kết */}
+        <div className="grid content-start gap-8 sm:grid-cols-2 lg:grid-cols-1">
+          <div>
+            <h2 className="t5-footer-title"><Tr vi="Chính sách" en="Policies" /></h2>
+            <ul className="mt-5 space-y-3 text-sm text-fg-muted">
+              {legal.policies.map((p) => <li key={p.slug}><Link className="hover:text-fg" href={`/chinh-sach/${p.slug}`}>{p.title}</Link></li>)}
+            </ul>
           </div>
-        </div>
-        <div>
-          <h2 className="t5-footer-title">Liên hệ</h2>
-          <div className="mt-5 space-y-3 text-sm text-fg-muted">
-            {SITE_CONFIG.contact.phoneRaw && <a className="block text-lg font-black text-fg" href={`tel:${SITE_CONFIG.contact.phoneRaw}`}>{SITE_CONFIG.contact.phone}</a>}
-            {SITE_CONFIG.contact.email && <a className="block hover:text-fg" href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>}
-            <p>{SITE_CONFIG.contact.address}</p>
-            <p>{SITE_CONFIG.contact.workingHours}</p>
+          <div>
+            <h2 className="t5-footer-title"><Tr vi="Công ty" en="Company" /></h2>
+            <ul className="mt-5 space-y-3 text-sm text-fg-muted">
+              <li><Link className="hover:text-fg" href="/ve-chung-toi"><Tr vi="Về chúng tôi" en="About us" /></Link></li>
+              {isDistributor && <li><Link className="hover:text-fg" href="/san-pham"><Tr vi="Thiết bị" en="Equipment" /></Link></li>}
+              <li><Link className="hover:text-fg" href="/cam-nang"><Tr vi="Cẩm nang" en="Guides" /></Link></li>
+              <li><Link className="hover:text-fg" href="/lien-he"><Tr vi="Liên hệ" en="Contact" /></Link></li>
+            </ul>
+            <p className="mt-5 text-xs text-fg-muted">{workingHours}<br />{brand.email}</p>
           </div>
+          <MoitBadge />
         </div>
       </div>
-      <div className="border-t border-line/12"><div className="t5-container flex flex-col gap-2 py-5 pb-24 text-xs text-fg-muted md:flex-row md:justify-between lg:pb-5"><span>© {new Date().getFullYear()} {SITE_CONFIG.brand.name}. Website demo.</span><span>Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.</span></div></div>
+      <div className="border-t border-line/12">
+        <div className="t5-container flex flex-col gap-2 py-5 pb-28 text-xs text-fg-muted md:flex-row md:justify-between lg:pb-5">
+          <span>© {new Date().getFullYear()} {brand.name}. <Tr vi="Website demo — dữ liệu hư cấu." en="Demo website — fictional data." /></span>
+          <span><Tr vi="Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản." en="Names, figures, addresses, brands and licences are samples." /></span>
+        </div>
+      </div>
     </footer>
   );
 }

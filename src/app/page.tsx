@@ -1,18 +1,22 @@
 import { FAQS } from "@/data/solar";
-import HomeT8 from "@/components/HomeT8";
+import HomeT14 from "@/components/HomeT14";
 import { makeMetadata } from "@/utils/solar";
-import { SITE_CONFIG } from "@/config/site";
+import { siteConfig } from "@/config/site.config";
 
 export const metadata = makeMetadata(
-  `${SITE_CONFIG.brand.name} | Điện mặt trời cho gia đình, cửa hàng & nhà xưởng`,
-  "Dự toán chi phí lắp điện mặt trời miễn phí trong 30 giây. Gói giải pháp cho hộ gia đình, cửa hàng và nhà xưởng, trả góp hoặc lắp đặt 0 đồng.",
+  `${siteConfig.brand.name} | Phân phối thiết bị & tổng thầu EPC điện mặt trời`,
+  "Nhà phân phối tấm pin, inverter, pin lithium, BESS chính hãng đủ CO/CQ và tổng thầu EPC điện mặt trời. Bảng giá lắp đặt theo tiền điện, dự toán miễn phí trong 30 giây.",
   "/"
 );
 
 const faqSchema = {
   "@context":"https://schema.org",
   "@type":"FAQPage",
-  mainEntity: FAQS.map(([question,answer]) => ({
+  // Chỉ gồm các câu hỏi đang hiển thị trên trang (FAQ chung + hỏi đáp đại lý)
+  mainEntity: [
+    ...(siteConfig.faq.enabled ? FAQS : []),
+    ...(siteConfig.dealer.enabled ? siteConfig.dealer.faqs : []),
+  ].map(([question,answer]) => ({
     "@type":"Question", name:question,
     acceptedAnswer:{ "@type":"Answer", text:answer }
   }))
@@ -20,7 +24,7 @@ const faqSchema = {
 
 export default function Page() {
   return <>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html:JSON.stringify(faqSchema) }} />
-    <HomeT8 />
+    {faqSchema.mainEntity.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html:JSON.stringify(faqSchema) }} />}
+    <HomeT14 />
   </>;
 }
