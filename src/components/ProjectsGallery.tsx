@@ -28,7 +28,7 @@ export default function ProjectsGallery() {
         <SectionHead id="cong-trinh-title" eyebrow={tr("Công trình đã thực hiện", "Completed projects")}
           title={tr(`Hơn ${formatNumber(SITE_CONFIG.capabilities.customers)} khách hàng đã dùng điện từ nắng.`, `${formatNumber(SITE_CONFIG.capabilities.customers)}+ clients already run on sunshine.`)}
           action={
-            <div className="t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0 lg:justify-end" role="group" aria-label={tr("Lọc công trình theo phân khúc", "Filter projects by segment")}>
+            <div className="t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 lg:justify-end" role="group" aria-label={tr("Lọc công trình theo phân khúc", "Filter projects by segment")}>
               <button type="button" aria-pressed={!segment} onClick={() => setSegment(null)} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>
               {SEGMENT_ORDER.map((s) => (
                 <button key={s} type="button" aria-pressed={segment === s} onClick={() => setSegment(s)} className="t15-chip shrink-0">{tr(SEGMENTS[s].short, SEGMENTS[s].en.short)}</button>

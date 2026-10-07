@@ -36,7 +36,7 @@ export default function PackagesSection() {
             <span className="t15-eyebrow"><SparklesIcon className="h-4 w-4" />{tr("Gói giải pháp", "Solution packages")}</span>
             <h2 id="goi-title" className="t15-heading">{tr("Chọn gói theo công trình, biết ngay tiền điện giảm bao nhiêu.", "Pick a package and see your monthly savings instantly.")}</h2>
           </div>
-          <div data-reveal="up" className="t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label={tr("Phân khúc gói giải pháp", "Package segment")}>
+          <div data-reveal="up" className="lg:max-w-[46%] t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 lg:justify-end" role="group" aria-label={tr("Phân khúc gói giải pháp", "Package segment")}>
             {SEGMENT_ORDER.map((s) => (
               <button key={s} type="button" aria-pressed={current === s} onClick={() => setSegment(s)} className="t15-chip shrink-0"><SegmentIcon segment={s} className="h-4 w-4" />{tr(SEGMENTS[s].short, SEGMENTS[s].en.short)}</button>
             ))}

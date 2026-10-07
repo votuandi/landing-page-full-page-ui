@@ -102,7 +102,7 @@ export default function ProductCatalog() {
         <div className="grid gap-4 border-b border-line/10 pb-6">
           <div>
             <div className="t15-filter-title" id="f-cat">{tr("Danh mục", "Category")}</div>
-            <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-labelledby="f-cat">
+            <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-cat">
               <button type="button" aria-pressed={!category} onClick={() => setQuery("category", "")} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>
               {CATEGORIES.map((c) => <button key={c.value} type="button" aria-pressed={category === c.value} onClick={() => setQuery("category", c.value)} className="t15-chip shrink-0">{tr(c.label, c.en)}</button>)}
             </div>
@@ -110,7 +110,7 @@ export default function ProductCatalog() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="t15-filter-title" id="f-price">{tr("Khoảng giá", "Price range")}</div>
-              <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-labelledby="f-price">
+              <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-price">
                 <button type="button" aria-pressed={!range} onClick={() => setQuery("gia", "")} className="t15-chip shrink-0">{tr("Mọi mức giá", "Any price")}</button>
                 {PRICE_RANGES.map((r) => <button key={r.value} type="button" aria-pressed={range?.value === r.value} onClick={() => setQuery("gia", r.value)} className="t15-chip shrink-0">{r.label}</button>)}
               </div>

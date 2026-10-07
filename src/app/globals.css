@@ -238,6 +238,13 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 /* Ẩn thanh cuộn nhưng vẫn cuộn được (carousel) */
 .t15-no-scrollbar { scrollbar-width:none; }
 .t15-no-scrollbar::-webkit-scrollbar { display:none; }
+/* Kéo bằng chuột (components/DragScroll.tsx) */
+@media (hover:hover) and (pointer:fine) {
+  .t15-no-scrollbar.can-drag { cursor:grab; }
+  .t15-no-scrollbar img { -webkit-user-drag:none; user-select:none; }
+}
+.t15-no-scrollbar.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; user-select:none; }
+.t15-no-scrollbar.is-dragging * { pointer-events:none; }
 
 /* Scroll reveal: data-reveal="up|down|left|right|zoom" hoặc data-reveal-stagger trên phần tử cha.
    Dùng thuộc tính translate/scale riêng nên không xung đột với hover/float dùng transform. */

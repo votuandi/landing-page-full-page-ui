@@ -8,6 +8,7 @@ import { LangProvider } from "@/i18n/LangProvider";
 import ContactDock from "@/components/ContactDock";
 import ConsultPopup from "@/components/ConsultPopup";
 import CommitmentsStrip from "@/components/CommitmentsStrip";
+import DragScroll from "@/components/DragScroll";
 import TopBar from "@/components/layout/TopBar";
 import SiteHeader from "@/components/layout/SiteHeader";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -31,6 +32,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
     <LangProvider>
     <QuoteCartProvider>
       <div aria-hidden className="t15-scroll-progress" />
+      <DragScroll />
       {demoVisible && (
         <div className="t15-demo-bar">
           <div className="t15-container flex min-h-11 items-center justify-between gap-3 py-2 text-xs sm:text-sm">
