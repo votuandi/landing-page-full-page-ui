@@ -24,7 +24,7 @@ export default function SegmentTabs<T extends Segment | "all">({ value, onChange
   };
 
   return (
-    <div role="tablist" aria-label={label} className="t12-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <div role="tablist" aria-label={label} className="t12-no-scrollbar -mx-4 flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 sm:mx-0 sm:px-0">
       {options.map((option, i) => (
         <button
           key={option}

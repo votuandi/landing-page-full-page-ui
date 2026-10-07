@@ -80,7 +80,7 @@ export default function VideoStories() {
           )}
         </div>
 
-        <div className="t12-no-scrollbar -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label="Lọc video theo phân khúc">
+        <div className="t12-no-scrollbar -mx-4 mt-6 flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible px-4 sm:mx-0 sm:px-0" role="group" aria-label="Lọc video theo phân khúc">
           {(["all", ...SEGMENT_ORDER] as const).map((s) => (
             <button key={s} type="button" aria-pressed={filter === s} onClick={() => setFilter(s)} className="t12-chip shrink-0">{s === "all" ? "Tất cả" : SEGMENTS[s].short}</button>
           ))}

@@ -7,6 +7,7 @@ import { NAV_ITEMS, SITE_CONFIG, THEME_PRESETS, isDistributor } from "@/config/s
 import { PRODUCTS } from "@/data/solar";
 import BrandLogo from "@/components/BrandLogo";
 import ContactDock from "@/components/ContactDock";
+import DragScroll from "@/components/DragScroll";
 
 type RfqContextValue = {
   items: string[];
@@ -132,6 +133,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
         </div>
       )}
 
+      <DragScroll />
       <ContactDock />
 
       {isDistributor && rfqOpen && (
