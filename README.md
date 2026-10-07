@@ -1,15 +1,14 @@
-# Template 14 — Nhà phân phối thiết bị + tổng thầu EPC điện mặt trời
+# Template 15 — Năng lượng xanh: phân phối thiết bị + lắp đặt trọn gói
 
-Nhánh từ template-12: **giữ nguyên** design system (bo tròn, glassmorphism, animation reveal), công cụ dự toán chi phí
-và form "Nhận báo giá". Nội dung demo là một công ty **hư cấu** — *Lumivolt Energy* — vừa phân phối thiết bị
-(tấm pin, inverter, lithium, all-in-one, BESS, phụ kiện) vừa làm tổng thầu EPC.
+Gộp **toàn bộ trang, section trang chủ và tính năng** của template-13 (catalog có giỏ báo giá, 4 phân khúc dùng chung,
+video Shorts, blog, đánh giá, popup tư vấn) và template-14 (một file cấu hình, song ngữ VI/EN, mega menu, chứng chỉ,
+thương hiệu, dự án, đại lý, bản đồ chi nhánh, cẩm nang, chính sách) — với design system mới **"Fresh Energy"**:
+nền sáng, xanh lá – xanh dương – vàng nắng, font Be Vietnam Pro, giữ hiệu ứng reveal khi cuộn.
 
-> ⚠️ Toàn bộ tên công ty, thương hiệu, tên báo, số điện thoại, địa chỉ, số giấy phép và số liệu là **dữ liệu mẫu hư cấu**.
-> Logo thương hiệu/báo là chữ tự sinh (wordmark), badge Bộ Công Thương là placeholder — không dùng logo thật.
+> ⚠️ Tên công ty (*Lumivolt Energy*), thương hiệu, báo chí, số điện thoại, địa chỉ, giấy phép, số liệu là **dữ liệu mẫu hư cấu**.
 
 - Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 3 — không thêm thư viện UI/animation.
-- Song ngữ VI/EN cho phần khung (top bar, header, mega menu, thanh đáy, footer, tiêu đề các section mới).
-  Công cụ dự toán, trang phụ và dữ liệu nội dung (mô tả dự án, bài báo…) vẫn là tiếng Việt.
+- Song ngữ VI/EN cho khung trang và các section; dữ liệu nội dung (bài viết, mô tả dự án…) là tiếng Việt.
 
 ## Chạy dự án
 
@@ -17,183 +16,116 @@ và form "Nhận báo giá". Nội dung demo là một công ty **hư cấu** �
 yarn install
 cp .env.example .env.local   # điền biến môi trường nếu cần
 yarn dev                     # http://localhost:3000
-yarn test                    # unit test công cụ dự toán, số điện thoại, quy tắc giá
+yarn test                    # unit test: dự toán, giỏ báo giá, quy tắc giá, số điện thoại
 yarn typecheck && yarn lint && yarn build
 ```
 
-## Một file cấu hình — `src/config/site.config.ts`
+## Trang chủ (theo thứ tự — bật/tắt từng section trong `src/config/site.config.ts`)
 
-Mọi thông tin công ty nằm trong `siteConfig`. `src/config/site.ts` chỉ là lớp dẫn xuất (helper `telHref`, `zaloHref`,
-`mapsUrl`, `SITE_CONFIG` tương thích template-12 cho các trang phụ) — **không sửa dữ liệu ở đó**.
+| # | Section | Nguồn | File |
+| --- | --- | --- | --- |
+| — | Thanh demo · Top bar cam kết (marquee) · Header + mega menu Bảng giá / Thiết bị / Cẩm nang, Hotline theo chi nhánh, VI/EN, giỏ báo giá, nút "Báo giá" | 13 + 14 | `SiteShell.tsx`, `layout/*` |
+| 1 | Hero: chữ gradient, CTA dự toán / video, điểm Google, 3 số đếm, ảnh vòm + mặt trời + thẻ dữ liệu | 13 + 14 | `Hero.tsx`, `HeroStats.tsx` |
+| 2 | Lưới 4 phân khúc (gia đình, cửa hàng, nhà xưởng, trang trại) → lọc video, gói, công trình, điền dự toán | 13 | `SegmentGrid.tsx`, `lib/segment.tsx` |
+| 3 | Video Shorts công trình + trình phát trong trang | 13 | `VideoStories.tsx`, `StoryPlayer.tsx` |
+| 4 | Gói giải pháp (theo phân khúc chung, nhãn "Giảm Y%") | 13 + 14 | `PackagesSection.tsx` |
+| 5 | Dự toán chi phí + form "Nhận báo giá chi tiết" | 13 + 14 | `SolarEstimator.tsx` |
+| 6 | Chứng chỉ & giấy phép (carousel + lightbox, ảnh scan mẫu) | 14 (+ ảnh 13) | `sections/CertificatesSection.tsx` |
+| 7 | Thương hiệu phân phối + video lễ ký kết | 14 | `sections/BrandsSection.tsx` |
+| 8 | Dự án tiêu biểu (tab khách hàng, chỉ số đếm, video) | 14 | `sections/FeaturedProjects.tsx` |
+| 9 | Gallery công trình (lọc phân khúc, nút play mở đúng video) | 13 | `ProjectsGallery.tsx` |
+| 10 | Giải pháp theo phân khúc + slider video | 14 | `sections/SolutionsSection.tsx` |
+| 11 | Dải sản phẩm nổi bật (xem nhanh, thêm vào giỏ) | 13 | `ProductStrip.tsx` |
+| 12 | Số liệu nổi bật | 14 | `StatsSection.tsx` |
+| 13 | Báo chí & truyền hình | 14 | `sections/PressSection.tsx` |
+| 14 | Theo dõi điện năng 24/7 | 13 + 14 | `EnergyMonitoringSection.tsx` |
+| 15 | Đánh giá khách hàng + điểm Google/Trustpilot | 13 | `TestimonialsSection.tsx` |
+| 16 | TikTok (video dọc) | 14 | `sections/TikTokSection.tsx` |
+| 17 | Trở thành đại lý (chính sách, hỏi đáp, sự kiện, form riêng) | 14 | `sections/DealerSection.tsx` |
+| 18 | Bản đồ chi nhánh (có Q.Đ. Hoàng Sa, Trường Sa) | 14 | `sections/BranchMap.tsx` |
+| 19 | Banner đội ngũ kỹ sư | 14 | `sections/EngineerBanner.tsx` |
+| 20 | Quy trình 5 bước | 14 | `ProcessSection.tsx` |
+| 21 | Blog theo tình huống (3–6 bài) | 13 | `BlogSection.tsx` |
+| 22 | Mạng xã hội | 14 | `sections/SocialSection.tsx` |
+| 23 | FAQ (+ FAQPage schema) | 13 + 14 | `FaqSection.tsx`, `data/faq.ts` |
+| 24 | Form "Nhận báo giá" cuối trang | 14 | `ContactSection.tsx` |
+| — | Dải cam kết dịch vụ (mọi trang) · Footer · Liên hệ nhanh · Thanh đáy mobile · Popup tư vấn | 13 + 14 | `CommitmentsStrip.tsx`, `SiteFooter.tsx`, `ContactDock.tsx`, `ConsultPopup.tsx` |
+
+Section kế thừa tắt sẵn: `legacy.investmentModels`, `legacy.warranty` (bảng bảo hành nằm ở `/ve-chung-toi`).
+
+**Trang phụ:** `/san-pham`, `/san-pham/[slug]`, `/cong-trinh/[slug]`, `/giai-phap`, `/giai-phap/[slug]`, `/tin-tuc`,
+`/tin-tuc/[slug]`, `/cam-nang`, `/chinh-sach/[slug]`, `/ve-chung-toi`, `/lien-he`. Đường dẫn cũ của template-8
+(`/product`, `/service`, `/news`, `/about-us`, `/contact-us`, `/project/...`) chuyển hướng 308.
+
+## Luồng dữ liệu giữa các section
+
+- **Phân khúc dùng chung** (`lib/segment.tsx`): lưới phân khúc, bộ lọc video/công trình, tab gói giải pháp và dự toán
+  đọc/ghi cùng một state; hỗ trợ `?phan-khuc=trang-trai` trên URL.
+- **Mở dự toán** (`lib/calculatorBus.ts` → `openCalculator({ segment, bill, topic, source })`): chip mega menu "Bảng giá lắp đặt",
+  nút gói, dự án, video ("Nhận báo giá công trình tương tự" → lead `source: "story-cta"`). Từ trang khác:
+  `/?phan-khuc=household&hoa-don=4000000&nhu-cau=…#du-toan`.
+- **Giỏ yêu cầu báo giá** (`lib/quoteCart.ts`, `lib/quoteCartContext.tsx`): số lượng, lưu localStorage (fallback bộ nhớ),
+  drawer gửi lead `source: "quote-cart"` kèm `items`; tick "Đính kèm kết quả dự toán" để gửi luôn kết quả dự toán gần nhất.
+
+## Cấu hình — `src/config/site.config.ts` (một file duy nhất)
 
 | Khóa | Nội dung |
 | --- | --- |
-| `brand` | Tên, pháp danh, tagline, logo (`""` = logo tự vẽ), năm thành lập, URL, ảnh OG, email |
-| `i18n` | `enabled` bật/tắt switch VI/EN; `defaultLang` |
-| `zalo` | Zalo **Gia đình** và Zalo **Nhà xưởng** (thanh đáy mobile, CTA) |
-| `branches[]` | Mỗi chi nhánh: văn phòng + kho (địa chỉ, **lat/lng**), hotline `main` / `household` / `project`, cửa hàng (footer), giờ mở cửa |
-| `complaintHotline`, `workingHours` | Hotline khiếu nại (footer), giờ làm việc |
-| `legal` | Số ĐKKD, giấy phép, ISO, badge Bộ Công Thương (placeholder, điền `url` khi có), danh sách chính sách → `/chinh-sach/[slug]` |
-| `socials[]` | Facebook / YouTube / TikTok / Zalo OA + số follower (section mạng xã hội, `sameAs` trong schema) |
-| `stats` | MWp, công trình, đại lý, tỉnh, kỹ sư, khách hàng |
-| `topBar.items` | Các cam kết chạy marquee |
-| `pricing.categories` | Mega menu **Bảng giá lắp đặt**: loại công trình → nhóm → chip (`bill` = tiền điện điền sẵn, `popular` = badge "Phổ biến") |
-| `equipment.groups` | Mega menu **Thiết bị**: nhóm + chip lọc (`query` → tham số `/san-pham?category=&brand=&tech=&segment=&minPower=&maxPower=`) |
-| `guide` | Mega menu **Cẩm nang** + nội dung trang `/cam-nang` (thuật ngữ, văn bản pháp luật) |
-| `certificates`, `brands`, `projects`, `solutions`, `press`, `tiktok`, `dealer`… | Dữ liệu từng section (xem dưới) |
-| `legacy` | Bật lại các section cũ của template-12 (gallery công trình, video shorts, quy trình…) |
+| `brand`, `legal`, `branches[]`, `zalo`, `socials`, `stats` | Thông tin công ty, pháp lý, chi nhánh (lat/lng), hotline, mạng xã hội, số liệu |
+| `siteMode`, `catalog.enabled` | `installer` ẩn catalog/menu Thiết bị/giỏ; `catalog.enabled=false` (hoặc `NEXT_PUBLIC_CATALOG_ENABLED=false`) chỉ tắt catalog |
+| `reviews`, `commitments`, `popup`, `callbackHours` | Điểm Google, 4 cam kết trên footer, popup tư vấn (`delayMs`, `scrollRatio`, 1 lần/phiên), số giờ gọi lại |
+| `topBar`, `pricing`, `equipment`, `guide` | Marquee, mega menu (chip `bill` điền sẵn tiền điện; `query` lọc `/san-pham`), cẩm nang (`href` tùy chọn) |
+| `certificates`, `brands`, `projects`, `solutions`, `press`, `tiktok`, `dealer` | Dữ liệu từng section |
+| `<section>.enabled`, `legacy` | Bật/tắt section |
 
-**Mỗi section có `enabled: true/false`.** Tắt section → không render; FAQ/schema tự bỏ phần tương ứng.
+`src/config/site.ts` chỉ là lớp dẫn xuất (helper `telHref`, `zaloHref`, `mapsUrl`, `catalogEnabled`, bộ màu demo) — không sửa dữ liệu ở đó.
+Phân khúc & tỷ lệ dùng điện ban ngày: `src/config/segments.ts`. Biểu giá, đơn giá, giờ nắng: `src/config/solar.ts`.
 
-Video: `{ provider: "youtube", id: "<ID>" }` (phát qua youtube-nocookie, iframe chỉ tạo khi mở modal) hoặc
-`{ provider: "file", src: "/videos/x.mp4" }`. Bản demo dùng file mp4 cục bộ để không phụ thuộc video YouTube thật.
-Ảnh để `""` → khung placeholder theo màu template.
-
-## Các section trang chủ (theo thứ tự)
-
-0. **Top bar marquee** (CSS animation, dừng khi hover/focus, đứng yên với `prefers-reduced-motion`) · **Header**: mega menu
-   Bảng giá lắp đặt / Thiết bị / Cẩm nang, dropdown **Hotline** theo chi nhánh (số chính + Hộ gia đình + Dự án + Google Maps
-   văn phòng/kho), switch VI/EN, nút **Báo giá** · **Thanh đáy mobile**: Trang chủ · Danh mục · Gọi · Zalo Gia đình · Zalo Nhà xưởng
-1. Hero
-2. **Dự toán chi phí + Nhận báo giá** — bấm chip ở mega menu bảng giá → cuộn tới đây, điền sẵn phân khúc + tiền điện,
-   hiện "Đang hỏi giá: …" và gửi kèm lead (`Nhu cầu`). Từ trang khác: `/?phan-khuc=household&hoa-don=4000000&nhu-cau=…#du-toan`
-3. Chứng chỉ & giấy phép — carousel, bấm mở lightbox (ảnh, cơ quan cấp, số hiệu, hiệu lực, phạm vi)
-4. Thương hiệu phân phối — thẻ video "Lễ ký kết" + lưới logo (link sang catalog đã lọc)
-5. Gói giải pháp (template-12)
-6. Dự án tiêu biểu — tab theo logo khách hàng, 4 chỉ số đếm số, modal video
-7. Giải pháp theo phân khúc + slider video công trình (đếm "01 / N")
-8. Số liệu nổi bật
-9. Báo chí & truyền hình — lưới logo báo + carousel bài viết (link ngoài)
-10. TikTok — carousel video dọc 9:16, hiển thị @creator (trình phát StoryPlayer của template-12)
-11. Trở thành đại lý — 3 số liệu, tab Chính sách / Hỏi đáp, gallery sự kiện, **form đăng ký riêng** (tên, SĐT, tỉnh, loại hình) → lead `source: "dealer"`
-12. Bản đồ chi nhánh — SVG Việt Nam (có Q.Đ. Hoàng Sa, Q.Đ. Trường Sa), ghim tự đặt theo lat/lng trong config
-13. Banner đội ngũ kỹ sư + CTA Zalo/hotline + nhắc gửi khu vực, công suất, hóa đơn điện
-14. Quy trình (template-12) · Mạng xã hội · FAQ · Form Nhận báo giá cuối trang
-15. Footer: pháp lý (ĐKKD, giấy phép, ISO), hotline khiếu nại, cửa hàng theo chi nhánh (mỗi số có nút Zalo), chính sách, badge Bộ Công Thương
-
-Trang mới: `/cam-nang` (Thuật ngữ, Biểu giá điện — đọc từ `config/solar.ts`, Văn bản pháp luật, Hỏi đáp, Tin tức) và `/chinh-sach/[slug]`.
-
-## SEO
-
-- `@graph` JSON-LD trong `layout.tsx`: **Organization** (contactPoint theo chi nhánh, sameAs, ISO) + **LocalBusiness** cho từng
-  chi nhánh (địa chỉ, geo, giờ mở cửa, hasMap, parentOrganization).
-- **FAQPage** ở trang chủ = FAQ chung + hỏi đáp đại lý (chỉ phần đang hiển thị).
-- Open Graph đầy đủ (title, description, url, siteName, locale `vi_VN` + `en_US`, ảnh 1200×630 có alt) và Twitter card.
-
-## Hiệu năng
-
-- Video (YouTube iframe / mp4) chỉ được tạo khi mở modal; modal tải bằng `next/dynamic`. Ảnh dùng `next/image` lazy.
-- Marquee và hiệu ứng là CSS; mọi animation/scroll mượt tôn trọng `prefers-reduced-motion`.
-
-## Đổi màu — `src/app/globals.css`
-
-Mọi màu là **design token** khai báo trong `:root`. Component không dùng mã màu cứng; Tailwind chỉ sinh class từ token
-(`bg-primary`, `text-fg-muted`, `bg-accent/20`…), nên đổi màu toàn site chỉ cần sửa một chỗ.
-
-Mỗi màu có 2 dạng: `--primary: #10B981` (để đọc) và `--c-primary: 16 185 129` (kênh R G B — **dạng này mới được dùng**).
-Khi đổi màu, sửa **cả hai**.
-
-| Token | Vai trò |
-| --- | --- |
-| `--c-bg`, `--c-bg-elevated`, `--c-bg-deep`, `--c-bg-tint` | Nền trang, nền thẻ, section tối nhất, nền xen kẽ |
-| `--glass`, `--glass-border` | Nền / viền kính mờ |
-| `--c-primary`, `--c-primary-strong`, `--c-primary-deep` | Màu thương hiệu; `primary-deep` là điểm cuối gradient section lớn |
-| `--c-accent` | **CTA chính** (vàng nắng) |
-| `--c-on-primary`, `--c-on-accent` | Màu chữ đặt trên nền primary / accent (giữ tương phản ≥ 4.5:1) |
-| `--c-fg`, `--c-fg-muted`, `--c-fg-subtle` | Chữ chính / phụ / phụ cấp 3 |
-| `--c-scrim`, `--c-on-media` | Lớp phủ tối và chữ trên ảnh (cố định cho mọi theme) |
-
-- Dùng bảng sáng **Sky & Sun**: thêm `data-theme="light"` vào thẻ `<html>` trong `src/app/layout.tsx`.
-- Section luôn tối (footer, quy trình, dự án, đại lý…) có class `t12-invert` để giữ chữ sáng khi dùng theme sáng.
-- Sau khi đổi màu, kiểm tra lại độ tương phản chữ (WCAG AA ≥ 4.5:1), đặc biệt `fg-muted` trên nền glass.
-- Thanh demo (bật bằng `NEXT_PUBLIC_DEMO_MODE`) cho phép thử nhanh vài bộ màu và nền sáng/tối.
-
-## Chỉnh giá điện, đơn giá, giờ nắng — `src/config/solar.ts`
-
-Công cụ dự toán đọc **toàn bộ** số liệu từ file này:
-
-| Hằng số | Nội dung |
-| --- | --- |
-| `TARIFFS` | Biểu giá EVN: hộ gia đình = bậc thang (`tiers`), cửa hàng / nhà xưởng = giá bình quân `averageRate` (quy đổi hóa đơn → kWh) và `solarOffsetRate` (giá của kWh điện mặt trời thay thế) |
-| `VAT_RATE` | Thuế GTGT trong hóa đơn |
-| `PRICE_PER_KWP` | Đơn giá trọn gói đ/kWp theo phân khúc |
-| `SYSTEM` | PR (0,8), m² mỗi kWp (5,5), công suất tấm pin (580 W), bước làm tròn (0,5 kWp), mái tối thiểu (16 m²) |
-| `PEAK_SUN_HOURS` | Giờ nắng đỉnh theo 5 vùng |
-| `PROVINCES` | 34 tỉnh/thành (sau sắp xếp 2025) và vùng tương ứng |
-| `BILL_INPUT`, `ROOF_INPUT` | Khoảng & giá trị mặc định của thanh trượt |
-
-Cách tính (hàm thuần `src/lib/solarCalculator.ts`, có unit test):
-
-1. Bỏ VAT, tính ngược biểu giá → kWh/tháng.
-2. kWh ban ngày = kWh/tháng × tỷ lệ ban ngày.
-3. kWp cần = kWh ban ngày ÷ (30 × giờ nắng đỉnh × PR), làm tròn 0,5.
-4. kWp tối đa theo mái = diện tích ÷ m²/kWp (làm tròn **xuống** 0,5). Lấy giá trị nhỏ hơn.
-5. Số tấm = ⌈kWp × 1000 ÷ công suất tấm⌉. Chi phí = kWp × đơn giá.
-6. Tiết kiệm chỉ tính phần sản lượng thay thế được điện dùng ban ngày (hộ gia đình: phần cắt khỏi bậc cao nhất). Hoàn vốn = chi phí ÷ tiết kiệm năm.
-
-## Dữ liệu nội dung — `src/data/`
+## Dữ liệu — `src/data/`
 
 | File | Nội dung |
 | --- | --- |
-| `packages.ts` | Gói giải pháp. `price`/`salePrice` (VNĐ) — **salePrice chỉ hiển thị khi nhỏ hơn price**. Mỗi phân khúc hiện tối đa 4 gói; "Giảm ~X/tháng" tự tính từ config theo `PACKAGE_REFERENCE_PROVINCE` |
-| `projects.ts` | Công trình đã thực hiện (gallery + trang `/cong-trinh/[slug]`) |
-| `stories.ts` | Video Shorts (xem dưới) |
-| `solar.ts` | Sản phẩm (hãng/model hư cấu; `category`: panel · inverter · battery · allinone · bess · accessory; `tech`, `segment` cho chip lọc mega menu), giải pháp, FAQ, đội ngũ, đánh giá |
+| `products.ts` | Catalog gộp: tấm pin, inverter, pin lưu trữ, All-in-one, BESS, **đèn năng lượng mặt trời**, phụ kiện. `price`/`salePrice` (giảm chỉ khi `salePrice < price`, nhãn "Giảm Y%" khi Y ≥ 5, không giá → "Liên hệ"), `powerKw`, `tech`, `segment` (lọc mega menu), `featured`, `compatible` |
+| `packages.ts` | Gói giải pháp (≤ 4 gói/phân khúc) |
+| `projects.ts`, `stories.ts` | Công trình (`storyId` gắn video), video Shorts (`provider`: youtube · tiktok · file · bunny) |
+| `posts.ts`, `faq.ts`, `testimonials.ts` | Blog, hỏi đáp, đánh giá |
+| `solar.ts` | Dịch vụ `/giai-phap`, đội ngũ |
 
-### Video Shorts — `src/data/stories.ts`
+Ảnh minh họa demo (không logo thật, có chữ "MẪU"): `node scripts/make-catalog-images.js` (sản phẩm),
+`node scripts/make-trust-images.js` (chứng chỉ); video Shorts demo: `scripts/make-demo-shorts.sh`.
 
-```ts
-{ id, shortTitle, location, kwp, segment: "household" | "shop" | "factory",
-  type: "progress" | "done" | "customer", poster,
-  source: { provider: "youtube" | "tiktok" | "file" | "bunny", id_or_src, originalUrl } }
-```
+## Đổi màu — `src/app/globals.css`
 
-- `youtube`: `id_or_src` = ID video (phát qua `youtube-nocookie.com`).
-- `tiktok`: `id_or_src` = ID số của video (player chính thức `tiktok.com/player/v1`).
-- `file` / `bunny`: `id_or_src` = đường dẫn/URL file `.mp4`.
-- `originalUrl` dùng cho nút phụ "Xem trên TikTok/YouTube" (mở tab mới). Nút chính luôn là "Nhận báo giá công trình tương tự".
-- Ban đầu chỉ tải poster; iframe/video chỉ được tạo khi mở trình phát và hủy khi chuyển/đóng.
-- Tiến trình & tự chuyển video với YouTube/TikTok dựa trên postMessage API của từng nền tảng — cần kiểm tra lại với video thật.
+Mọi màu là token trong `:root` (dạng `--c-<tên>: R G B`); Tailwind chỉ sinh class từ token nên không có mã màu cứng.
 
-**Nguồn video demo:** 8 video và poster trong `public/videos/stories/` và `public/images/stories/` được tự dựng
-(hiệu ứng lia máy, ffmpeg) từ các ảnh minh họa của chính template trong `public/images/illustrations/`
-— không dùng video của bên thứ ba. Thay bằng video công trình thật trước khi xuất bản.
+| Token | Vai trò |
+| --- | --- |
+| `--c-bg`, `bg-elevated`, `bg-tint`, `bg-sky`, `bg-sun` | Nền trang, thẻ, nền xen kẽ bạc hà / trời / nắng |
+| `--c-primary` (xanh lá), `--c-secondary` (xanh dương) | Chữ, icon, nút (gradient lá → dương); đều đạt AA trên nền trắng |
+| `--c-leaf`, `--c-sky` | Xanh tươi — chỉ trang trí |
+| `--c-accent` (vàng nắng), `--c-accent-ink` | Nền CTA/badge; `accent-ink` là chữ màu vàng đạt AA |
+| `--c-fg`, `fg-muted`, `fg-subtle` | Chữ chính / phụ / cấp 3 |
 
-## Cấu hình gửi lead
+- Section tối "Ocean Forest" (xanh rừng → xanh biển): class `t15-invert t15-ocean`. Thẻ sáng nằm trong section tối: thêm `t15-light`.
+- Thanh demo (`NEXT_PUBLIC_DEMO_MODE`) có bảng thử bộ màu (`THEME_PRESETS` trong `site.ts`).
+- Hiệu ứng: reveal khi cuộn (`data-reveal="up|down|left|right|zoom"`, `data-reveal-stagger`), hero chạy bằng CSS (`data-hero`),
+  thanh tiến trình cuộn trang, mặt trời xoay, dòng năng lượng — tất cả tắt với `prefers-reduced-motion`.
 
-Form gọi `POST /api/lead` → kiểm tra họ tên, **số di động Việt Nam**, ô ẩn chống spam (honeypot) → gửi tới các adapter
-trong `src/lib/leads/`. Không cấu hình adapter nào thì chạy **chế độ demo** (form báo thành công nhưng không gửi đi đâu).
+## Gửi lead
+
+Mọi form gọi `POST /api/lead` (kiểm tra họ tên, số di động VN, honeypot) → adapter trong `src/lib/leads/`.
+Không cấu hình adapter = **chế độ demo**. `source`: `calculator`, `story-cta`, `quote-cart`, `popup`, `contact`, `home-bottom`,
+`dealer`, `service-<slug>`; payload có thể kèm `estimate`, `items`, `province`, `businessType`, `page`.
 
 | Adapter | Biến môi trường |
 | --- | --- |
-| Webhook chung (Zapier, Make, n8n, CRM) | `LEAD_WEBHOOK_URL`, `LEAD_WEBHOOK_TOKEN` (tùy chọn, gửi dạng `Authorization: Bearer`) |
-| Google Sheet (Apps Script) | `GOOGLE_SHEETS_WEBAPP_URL`, `GOOGLE_SHEETS_SECRET` — script mẫu: `scripts/lead-google-apps-script.gs` (hướng dẫn trong file) |
-| Telegram bot | `TELEGRAM_BOT_TOKEN` (tạo qua @BotFather), `TELEGRAM_CHAT_ID` |
+| Webhook (Zapier, Make, n8n, CRM) | `LEAD_WEBHOOK_URL`, `LEAD_WEBHOOK_TOKEN` |
+| Google Sheet (Apps Script) | `GOOGLE_SHEETS_WEBAPP_URL`, `GOOGLE_SHEETS_SECRET` — `scripts/lead-google-apps-script.gs` |
+| Telegram | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
 
-- Mặc định gửi tới **mọi** adapter đã đủ biến. Muốn chọn cụ thể: `LEAD_ADAPTERS=webhook,telegram`.
-- Lead từ công cụ dự toán kèm toàn bộ thông số trong trường `estimate` (đối tượng, hóa đơn, mái, tỉnh, kWp, số tấm, chi phí, tiết kiệm, hoàn vốn…).
-- Thêm adapter mới: tạo file theo kiểu `LeadAdapter` trong `src/lib/leads/` và thêm vào mảng `ALL` ở `index.ts`.
-
-## Cấu trúc thư mục
-
-```text
-src/
-  app/                 # trang: / , /san-pham, /giai-phap, /cong-trinh/[slug], /ve-chung-toi, /lien-he, /api/lead
-  components/          # section & UI (HeroT8, SolarEstimator, PackagesSection, VideoStories, StoryPlayer…)
-  config/site.config.ts  # TOÀN BỘ thông tin công ty + cờ enabled từng section
-  config/site.ts         # lớp dẫn xuất (helper, tương thích template-12)
-  components/t14/        # header, mega menu, thanh đáy, các section mới của template-14
-  i18n/                  # switch VI/EN (LangProvider, Tr, pickText)
-  config/solar.ts      # biểu giá, đơn giá, giờ nắng, tỉnh/thành
-  data/                # gói, công trình, video, sản phẩm, FAQ
-  lib/                 # solarCalculator, phone, price, leads/*, calculatorBus
-```
-
-Đường dẫn cũ (`/product`, `/service`, `/about-us`, `/contact-us`, `/project/...`) được chuyển hướng 308 sang slug tiếng Việt.
+Chọn adapter cụ thể: `LEAD_ADAPTERS=webhook,telegram`.
 
 ## Cần xác minh trước khi xuất bản
 
-- `TARIFFS` (biểu giá EVN sinh hoạt bậc thang, kinh doanh, sản xuất) và `VAT_RATE` — đánh dấu `TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH`.
-- `PRICE_PER_KWP` và giá trong `data/packages.ts` — giá mẫu.
-- `PEAK_SUN_HOURS` — giá trị ước tính theo vùng.
-- Mọi mục `[DỮ LIỆU MẪU]` / `[CẦN XÁC MINH]`: tên pháp lý, MST, giấy phép, đánh giá khách hàng, công trình, điều kiện trả góp/ESCO.
+- `TARIFFS`, `VAT_RATE`, `PRICE_PER_KWP`, `PEAK_SUN_HOURS` (`config/solar.ts`); giá trong `packages.ts`, `products.ts`.
+- Mọi mục `[DỮ LIỆU MẪU]`, `[HƯ CẤU]`, `[CẦN XÁC MINH]`, "(mẫu)", "MẪU": pháp lý, giấy phép, chứng chỉ, báo chí, đánh giá, công trình, video.

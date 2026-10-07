@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 1188" width="840" height="1188">
+<rect width="840" height="1188" fill="#FBFEFC"/>
+<rect x="36" y="36" width="768" height="1116" fill="none" stroke="#1E3A8A" stroke-width="10"/>
+<rect x="58" y="58" width="724" height="1072" fill="none" stroke="#1E3A8A" stroke-width="2"/>
+<text x="420" y="190" font-family="Arial,Helvetica,sans-serif" font-size="54" font-weight="900" fill="#1E3A8A" text-anchor="middle">GIẤY CHỨNG NHẬN</text>
+<text x="420" y="250" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#44403C" text-anchor="middle">HỆ THỐNG QUẢN LÝ CHẤT LƯỢNG</text>
+<text x="420" y="390" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#57534E" text-anchor="middle">Chứng nhận đơn vị</text>
+<text x="420" y="450" font-family="Arial,Helvetica,sans-serif" font-size="40" font-weight="900" fill="#1C1917" text-anchor="middle">CTCP NĂNG LƯỢNG LUMIVOLT</text>
+<text x="420" y="510" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#57534E" text-anchor="middle">đáp ứng các yêu cầu của tiêu chuẩn / chương trình nêu trên</text>
+<g transform="translate(300 600)">
+<circle cx="120" cy="120" r="112" fill="#fff" stroke="#1E3A8A" stroke-width="8"/>
+<circle cx="120" cy="120" r="92" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-dasharray="4 6"/>
+<text x="120" y="122" font-family="Arial,Helvetica,sans-serif" font-size="56" font-weight="900" fill="#1E3A8A" text-anchor="middle">ISO</text>
+<text x="120" y="156" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" fill="#44403C" text-anchor="middle">9001:2015</text>
+<text x="120" y="190" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#A8A29E" text-anchor="middle">MẪU</text>
+</g>
+<text x="200" y="1010" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#57534E" text-anchor="middle">Số: XXXX/MẪU</text>
+<text x="640" y="1010" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#57534E" text-anchor="middle">Đơn vị cấp: [CẦN XÁC MINH]</text>
+<text x="420" y="700" font-family="Arial,Helvetica,sans-serif" font-size="170" font-weight="900" fill="#B91C1C" opacity=".12" text-anchor="middle" transform="rotate(-24 420 700)">MẪU</text>
+</svg>

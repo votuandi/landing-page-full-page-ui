@@ -1,19 +1,20 @@
 "use client";
 
-import type { Segment } from "@/config/solar";
+import { segmentFromParam, type Segment } from "@/config/segments";
 
 export const CALCULATOR_ID = "du-toan";
 export const PACKAGES_ID = "goi-giai-phap";
-const EVENT = "t12:open-calculator";
-const TAB_EVENT = "t12:select-package-tab";
+const EVENT = "t15:open-calculator";
 
-/** Giá trị điền sẵn vào công cụ dự toán (từ mega menu bảng giá, gói, video…). */
+/** Giá trị điền sẵn vào công cụ dự toán (từ mega menu bảng giá, gói, video, dự án…). */
 export type CalculatorPrefill = {
   segment?: Segment;
   /** Tiền điện/tháng (VNĐ) */
   bill?: number;
   /** Nhu cầu cụ thể, vd. "Hộ gia đình · Có lưu trữ · 3 – 5 triệu" — gửi kèm form báo giá */
   topic?: string;
+  /** Nguồn lead khi khách gửi form dự toán, vd. "story-cta" (bấm từ video công trình) */
+  source?: string;
 };
 
 const scrollBehavior = (): ScrollBehavior =>
@@ -31,6 +32,7 @@ export function openCalculator(input?: Segment | CalculatorPrefill) {
     if (prefill.segment) q.set("phan-khuc", prefill.segment);
     if (prefill.bill) q.set("hoa-don", String(prefill.bill));
     if (prefill.topic) q.set("nhu-cau", prefill.topic);
+    if (prefill.source) q.set("nguon", prefill.source);
     window.location.href = `/${q.toString() ? `?${q}` : ""}#${CALCULATOR_ID}`;
     return;
   }
@@ -44,25 +46,14 @@ export function onOpenCalculator(handler: (prefill: CalculatorPrefill) => void) 
   return () => window.removeEventListener(EVENT, listener);
 }
 
-/** Đọc giá trị điền sẵn từ URL (?phan-khuc=&hoa-don=&nhu-cau=) khi đến từ trang khác. */
+/** Đọc giá trị điền sẵn từ URL (?phan-khuc=&hoa-don=&nhu-cau=&nguon=) khi đến từ trang khác. */
 export function prefillFromUrl(): CalculatorPrefill {
   const q = new URLSearchParams(window.location.search);
   const bill = Number(q.get("hoa-don"));
   return {
-    segment: (q.get("phan-khuc") as Segment | null) || undefined,
+    segment: segmentFromParam(q.get("phan-khuc")) ?? undefined,
     bill: Number.isFinite(bill) && bill > 0 ? bill : undefined,
     topic: q.get("nhu-cau") || undefined,
+    source: q.get("nguon") || undefined,
   };
-}
-
-/** Cuộn tới section gói giải pháp và mở tab phân khúc tương ứng. */
-export function openPackages(segment: Segment) {
-  window.dispatchEvent(new CustomEvent<Segment>(TAB_EVENT, { detail: segment }));
-  document.getElementById(PACKAGES_ID)?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
-}
-
-export function onOpenPackages(handler: (segment: Segment) => void) {
-  const listener = (e: Event) => handler((e as CustomEvent<Segment>).detail);
-  window.addEventListener(TAB_EVENT, listener);
-  return () => window.removeEventListener(TAB_EVENT, listener);
 }

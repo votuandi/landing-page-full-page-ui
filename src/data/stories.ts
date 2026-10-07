@@ -1,13 +1,17 @@
-import type { Segment } from "@/config/solar";
+import type { Segment } from "@/config/segments";
 
 /**
- * VIDEO SHORTS CÔNG TRÌNH.
- * provider:
- *  - "youtube": id_or_src = ID video Shorts (vd. "dQw4w9WgXcQ"), originalUrl = link gốc
- *  - "tiktok" : id_or_src = ID số của video TikTok, originalUrl = link gốc
- *  - "file"   : id_or_src = đường dẫn .mp4 trong /public
- *  - "bunny"  : id_or_src = URL .mp4/HLS từ Bunny Stream CDN
- * Bản demo dùng 8 video "file" tự dựng từ ảnh minh họa của chính template (xem README – Nguồn video).
+ * VIDEO SHORTS CÔNG TRÌNH (section "Video công trình thực tế").
+ *
+ * source.provider:
+ *  - "youtube": idOrSrc = ID video (vd. "dQw4w9WgXcQ"), phát qua youtube-nocookie.com
+ *  - "tiktok" : idOrSrc = ID số của video TikTok, phát qua player chính thức tiktok.com/player/v1
+ *  - "file"   : idOrSrc = đường dẫn .mp4 trong /public
+ *  - "bunny"  : idOrSrc = URL .mp4 từ Bunny Stream / CDN
+ * source.originalUrl (tùy chọn): link bài gốc → nút phụ "Xem trên TikTok/YouTube" (mở tab mới).
+ *
+ * Bản demo: 8 video "file" tự dựng bằng scripts/make-demo-shorts.sh từ ảnh minh họa của chính template
+ * (không dùng nội dung bên thứ ba) — xem README "Nguồn video demo". Thay bằng video thật khi bàn giao.
  */
 export type StoryProvider = "youtube" | "tiktok" | "file" | "bunny";
 export type StoryType = "progress" | "done" | "customer";
@@ -20,7 +24,7 @@ export type Story = {
   segment: Segment;
   type: StoryType;
   poster: string;
-  source: { provider: StoryProvider; id_or_src: string; originalUrl?: string };
+  source: { provider: StoryProvider; idOrSrc: string; originalUrl?: string };
 };
 
 export const STORY_TYPE_LABELS: Record<StoryType, string> = {
@@ -29,18 +33,25 @@ export const STORY_TYPE_LABELS: Record<StoryType, string> = {
   customer: "Khách hàng chia sẻ",
 };
 
-/** Tổng số video trên kênh, hiển thị ở thẻ "Xem thêm". */
-export const TOTAL_CHANNEL_VIDEOS = 120;
+/** Tổng số video trên kênh — hiển thị ở thẻ "Xem thêm". */
+export const TOTAL_CHANNEL_VIDEOS = 150;
 
-const file = (name: string) => ({ provider: "file" as const, id_or_src: `/videos/stories/${name}.mp4` });
+const file = (name: string, originalUrl?: string) => ({ provider: "file" as const, idOrSrc: `/videos/shorts/${name}.mp4`, originalUrl });
+const poster = (name: string) => `/images/shorts/${name}.webp`;
+
+// Demo: video đăng song song trên kênh → originalUrl trỏ về trang kênh (thay bằng link video thật).
+const TIKTOK = "https://www.tiktok.com/@lumivolt.demo";
+const YOUTUBE = "https://www.youtube.com/@lumivolt.demo/shorts";
 
 export const STORIES: Story[] = [
-  { id: "s1", shortTitle: "Nhà phố 6 kWp lắp xong trong 1 ngày", location: "TP HCM", kwp: 6, segment: "household", type: "done", poster: "/images/stories/ho-gia-dinh-1.webp", source: file("ho-gia-dinh-1") },
-  { id: "s2", shortTitle: "Siêu thị mini giảm 40% tiền điện", location: "Cần Thơ", kwp: 15, segment: "shop", type: "customer", poster: "/images/stories/cua-hang-1.webp", source: file("cua-hang-1") },
-  { id: "s3", shortTitle: "Thi công mái nhà máy phân bón", location: "Đồng Nai", kwp: 998, segment: "factory", type: "progress", poster: "/images/stories/nha-xuong-1.webp", source: file("nha-xuong-1") },
-  { id: "s4", shortTitle: "Biệt thự hybrid có điện khi mất lưới", location: "Lâm Đồng", kwp: 10, segment: "household", type: "customer", poster: "/images/stories/ho-gia-dinh-2.webp", source: file("ho-gia-dinh-2") },
-  { id: "s5", shortTitle: "Nhà hàng chạy bếp lạnh bằng nắng", location: "Đà Nẵng", kwp: 25, segment: "shop", type: "done", poster: "/images/stories/cua-hang-2.webp", source: file("cua-hang-2") },
-  { id: "s6", shortTitle: "Trại gà 320 kWp + pin lưu trữ", location: "Tây Ninh", kwp: 320, segment: "factory", type: "done", poster: "/images/stories/nha-xuong-2.webp", source: file("nha-xuong-2") },
-  { id: "s7", shortTitle: "Lắp đồng loạt 12 hộ khu dân cư", location: "Bắc Ninh", kwp: 60, segment: "household", type: "progress", poster: "/images/stories/ho-gia-dinh-3.webp", source: file("ho-gia-dinh-3") },
-  { id: "s8", shortTitle: "Showroom mái tôn 18 kWp", location: "Hà Nội", kwp: 18, segment: "shop", type: "progress", poster: "/images/stories/cua-hang-3.webp", source: file("cua-hang-3") },
+  { id: "nha-pho-binh-thanh", shortTitle: "Nhà phố 6 kWp lắp xong trong 1 ngày", location: "TP Hồ Chí Minh", kwp: 6, segment: "household", type: "done", poster: poster("ho-gia-dinh-1"), source: file("ho-gia-dinh-1", TIKTOK) },
+  { id: "tiem-tap-hoa-can-tho", shortTitle: "Siêu thị mini giảm 40% tiền điện mỗi tháng", location: "Cần Thơ", kwp: 15, segment: "shop", type: "customer", poster: poster("cua-hang-1"), source: file("cua-hang-1", YOUTUBE) },
+  { id: "xuong-co-khi-dong-nai", shortTitle: "Thi công mái xưởng cơ khí không dừng máy", location: "Đồng Nai", kwp: 250, segment: "factory", type: "progress", poster: poster("nha-xuong-1"), source: file("nha-xuong-1", TIKTOK) },
+  { id: "trai-ga-tay-ninh", shortTitle: "Trại gà 120 kWp chạy quạt hút bằng nắng", location: "Tây Ninh", kwp: 120, segment: "farm", type: "done", poster: poster("trang-trai-1"), source: file("trang-trai-1", TIKTOK) },
+  { id: "biet-thu-da-lat", shortTitle: "Biệt thự hybrid vẫn có điện khi cúp điện", location: "Lâm Đồng", kwp: 10, segment: "household", type: "customer", poster: poster("ho-gia-dinh-2"), source: file("ho-gia-dinh-2", YOUTUBE) },
+  { id: "chuoi-cafe-da-nang", shortTitle: "Chuỗi cà phê lắp đồng loạt 3 chi nhánh", location: "Đà Nẵng", kwp: 30, segment: "shop", type: "progress", poster: poster("cua-hang-2"), source: file("cua-hang-2") },
+  { id: "kho-lanh-long-an", shortTitle: "Kho lạnh 500 kWp bàn giao sau 6 tuần", location: "Tây Ninh", kwp: 500, segment: "factory", type: "done", poster: poster("nha-xuong-2"), source: file("nha-xuong-2", YOUTUBE) },
+  { id: "trai-heo-dong-thap", shortTitle: "Chủ trại heo kể chuyện tiền điện giảm một nửa", location: "Đồng Tháp", kwp: 80, segment: "farm", type: "customer", poster: poster("trang-trai-2"), source: file("trang-trai-2", TIKTOK) },
 ];
+
+export const storyById = (id: string) => STORIES.find((s) => s.id === id);

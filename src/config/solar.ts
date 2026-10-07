@@ -5,16 +5,10 @@
  * ⚠️ Các giá trị dưới đây là GIÁ TRỊ MẪU để demo. Chủ dự án phải xác minh trước khi xuất bản.
  */
 
-export type Segment = "household" | "shop" | "factory";
+import type { Segment } from "./segments";
+
+export type { Segment } from "./segments";
 export type Region = "bac-bo" | "bac-trung-bo" | "nam-trung-bo" | "tay-nguyen" | "nam-bo";
-
-export const SEGMENTS: Record<Segment, { label: string; short: string; defaultDaytimeRatio: number }> = {
-  household: { label: "Hộ gia đình", short: "Hộ gia đình", defaultDaytimeRatio: 40 },
-  shop: { label: "Cửa hàng", short: "Cửa hàng", defaultDaytimeRatio: 70 },
-  factory: { label: "Nhà xưởng / Trang trại", short: "Nhà xưởng", defaultDaytimeRatio: 80 },
-};
-
-export const SEGMENT_ORDER: Segment[] = ["household", "shop", "factory"];
 
 /** Bậc thang: `upTo` = kWh cộng dồn tối đa của bậc (null = không giới hạn), `price` = đ/kWh chưa VAT. */
 export type Tier = { upTo: number | null; price: number };
@@ -43,6 +37,8 @@ export const TARIFFS: Record<Segment, Tariff> = {
   shop: { kind: "flat", averageRate: 3300, solarOffsetRate: 3150 },
   // TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH — giá sản xuất, cấp điện áp 6–22 kV.
   factory: { kind: "flat", averageRate: 2050, solarOffsetRate: 1900 },
+  // TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH — trang trại thường áp giá sản xuất, cấp điện áp dưới 6 kV.
+  farm: { kind: "flat", averageRate: 2250, solarOffsetRate: 2100 },
 };
 
 /** Thuế GTGT cộng vào hóa đơn. TODO: XÁC MINH mức VAT hiện hành (8% hay 10%). */
@@ -53,6 +49,7 @@ export const PRICE_PER_KWP: Record<Segment, number> = {
   household: 12_000_000,
   shop: 11_000_000,
   factory: 9_500_000,
+  farm: 10_000_000,
 };
 
 export const SYSTEM = {
@@ -104,12 +101,14 @@ export const BILL_INPUT: Record<Segment, { min: number; max: number; step: numbe
   household: { min: 500_000, max: 20_000_000, step: 100_000, default: 2_000_000 },
   shop: { min: 1_000_000, max: 100_000_000, step: 500_000, default: 8_000_000 },
   factory: { min: 10_000_000, max: 2_000_000_000, step: 5_000_000, default: 80_000_000 },
+  farm: { min: 3_000_000, max: 500_000_000, step: 1_000_000, default: 25_000_000 },
 };
 
 export const ROOF_INPUT: Record<Segment, { default: number; max: number }> = {
   household: { default: 50, max: 500 },
   shop: { default: 120, max: 2_000 },
   factory: { default: 2_000, max: 50_000 },
+  farm: { default: 1_200, max: 30_000 },
 };
 
 export const DEFAULT_PROVINCE = "TP Hồ Chí Minh";

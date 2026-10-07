@@ -12,7 +12,7 @@ export const googleSheetsAdapter: LeadAdapter = {
       method: "POST",
       // Apps Script không xử lý preflight → gửi text/plain, script tự JSON.parse
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ secret: process.env.GOOGLE_SHEETS_SECRET || "", ...lead, estimate: lead.estimate ? JSON.stringify(lead.estimate) : "" }),
+      body: JSON.stringify({ secret: process.env.GOOGLE_SHEETS_SECRET || "", ...lead, estimate: lead.estimate ? JSON.stringify(lead.estimate) : "", items: lead.items?.map((i) => `${i.name} × ${i.qty}`).join("; ") || "" }),
       redirect: "follow",
       cache: "no-store",
     });

@@ -1,10 +1,13 @@
 import { siteConfig } from "@/config/site.config";
 import { TARIFFS, VAT_RATE } from "@/config/solar";
-import { FAQS } from "@/data/solar";
+import Link from "next/link";
+import { FAQS } from "@/data/faq";
+import { POSTS } from "@/data/posts";
 import { makeMetadata } from "@/utils/solar";
-import { formatNumber } from "@/lib/solarCalculator";
+import { formatNumber } from "@/lib/format";
 import { Tr } from "@/i18n/LangProvider";
-import { ArticleCard } from "@/components/t14/PressSection";
+import { ArticleCard } from "@/components/sections/PressSection";
+import PostCard from "@/components/PostCard";
 
 export const metadata = makeMetadata(
   "Cẩm nang điện mặt trời",
@@ -14,6 +17,11 @@ export const metadata = makeMetadata(
 
 const { guide, press } = siteConfig;
 const label = (id: string) => guide.items.find((i) => i.id === id)?.label || id;
+const FLAT: { seg: "shop" | "factory" | "farm"; title: string }[] = [
+  { seg: "shop", title: "Kinh doanh (dưới 6 kV)" },
+  { seg: "factory", title: "Sản xuất (6–22 kV)" },
+  { seg: "farm", title: "Trang trại (giá sản xuất, dưới 6 kV)" },
+];
 
 function Block({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -30,28 +38,28 @@ export default function GuidePage() {
 
   return (
     <main>
-      <section className="t5-page-hero t12-invert">
-        <div className="t5-container">
-          <span className="t5-eyebrow"><Tr vi="Cẩm nang" en="Guides" /></span>
-          <h1 className="t5-page-title"><Tr vi="Hiểu đúng trước khi đầu tư điện mặt trời." en="Understand solar before you invest." /></h1>
+      <section className="t15-page-hero">
+        <div className="t15-container">
+          <span className="t15-eyebrow"><Tr vi="Cẩm nang" en="Guides" /></span>
+          <h1 className="t15-page-title"><Tr vi="Hiểu đúng trước khi đầu tư điện mặt trời." en="Understand solar before you invest." /></h1>
           <nav aria-label="Mục lục" className="mt-8 flex flex-wrap gap-2">
-            {guide.items.map((i) => <a key={i.id} href={`#${i.id}`} className="t12-chip"><Tr text={i.label} /></a>)}
+            {guide.items.map((i) => <a key={i.id} href={i.href || `#${i.id}`} className="t15-chip"><Tr text={i.label} /></a>)}
           </nav>
         </div>
       </section>
 
-      <div className="t5-container">
+      <div className="t15-container">
         <Block id="thuat-ngu">
           <dl className="grid gap-4 md:grid-cols-2">
             {guide.glossary.map(([term, def]) => (
-              <div key={term} className="t8-card p-5"><dt className="font-black text-primary">{term}</dt><dd className="mt-2 text-sm leading-6 text-fg-muted">{def}</dd></div>
+              <div key={term} className="t15-card p-5"><dt className="font-black text-primary">{term}</dt><dd className="mt-2 text-sm leading-6 text-fg-muted">{def}</dd></div>
             ))}
           </dl>
         </Block>
 
         <Block id="bieu-gia">
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="t8-card overflow-x-auto p-5">
+            <div className="t15-card overflow-x-auto p-5">
               <h3 className="font-black text-fg">Sinh hoạt — bậc thang (đ/kWh, chưa VAT)</h3>
               <table className="mt-4 w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-[.12em] text-fg-subtle"><tr><th className="py-2">Bậc</th><th>Mức sử dụng</th><th className="text-right">Đơn giá</th></tr></thead>
@@ -65,12 +73,12 @@ export default function GuidePage() {
               </table>
             </div>
             <div className="grid content-start gap-4">
-              {(["shop", "factory"] as const).map((seg) => {
+              {FLAT.map(({ seg, title }) => {
                 const t = TARIFFS[seg];
                 if (t.kind !== "flat") return null;
                 return (
-                  <div key={seg} className="t8-card p-5">
-                    <h3 className="font-black text-fg">{seg === "shop" ? "Kinh doanh (dưới 6 kV)" : "Sản xuất (6–22 kV)"}</h3>
+                  <div key={seg} className="t15-card p-5">
+                    <h3 className="font-black text-fg">{title}</h3>
                     <p className="mt-2 text-sm text-fg-muted">Giá bình quân dùng để quy đổi: <strong className="text-fg">{formatNumber(t.averageRate)} đ/kWh</strong></p>
                   </div>
                 );
@@ -83,7 +91,7 @@ export default function GuidePage() {
         <Block id="van-ban">
           <ul className="grid gap-3">
             {guide.regulations.map((r) => (
-              <li key={r.title} className="t8-card p-5"><div className="font-black text-fg">{r.title}</div><p className="mt-1 text-sm text-fg-muted">{r.note}</p></li>
+              <li key={r.title} className="t15-card p-5"><div className="font-black text-fg">{r.title}</div><p className="mt-1 text-sm text-fg-muted">{r.note}</p></li>
             ))}
           </ul>
           <p className="mt-4 text-xs text-fg-subtle">Danh mục tóm tắt để tham khảo, không thay thế tư vấn pháp lý. Đối chiếu văn bản gốc tại thời điểm triển khai.</p>
@@ -92,7 +100,7 @@ export default function GuidePage() {
         <Block id="hoi-dap">
           <div className="grid gap-3">
             {FAQS.map(([q, a]) => (
-              <details key={q} className="t8-card group px-6 py-5">
+              <details key={q} className="t15-card group px-6 py-5">
                 <summary className="cursor-pointer list-none pr-8 font-black text-fg">{q}<span aria-hidden className="float-right -mr-8 grid h-7 w-7 place-items-center rounded-full bg-bg-tint text-primary transition group-open:rotate-45">+</span></summary>
                 <p className="mt-3 text-sm leading-7 text-fg-muted">{a}</p>
               </details>
@@ -104,6 +112,13 @@ export default function GuidePage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {press.articles.map((a) => <ArticleCard key={a.url} a={a} />)}
           </div>
+        </Block>
+
+        <Block id="kinh-nghiem">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {POSTS.slice(0, 3).map((p) => <PostCard key={p.slug} post={p} />)}
+          </div>
+          <Link href="/tin-tuc" className="t15-button t15-button-secondary mt-8">Tất cả bài viết →</Link>
         </Block>
       </div>
     </main>

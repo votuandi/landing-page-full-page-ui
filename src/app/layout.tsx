@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
 import SiteFooter from "@/components/SiteFooter";
@@ -7,7 +7,8 @@ import { siteConfig } from "@/config/site.config";
 import { phoneDigits } from "@/config/site";
 import { pickText } from "@/i18n/text";
 
-const inter = Inter({ subsets:["latin","vietnamese"], variable:"--font-inter", display:"swap" });
+// Be Vietnam Pro: hỗ trợ đầy đủ dấu tiếng Việt; chỉ tải 3 độ đậm để nhẹ trang (font-black = 800, xem tailwind.config.ts)
+const sans = Be_Vietnam_Pro({ subsets:["latin","vietnamese"], weight:["400","600","800"], variable:"--font-sans", display:"swap" });
 const { brand, branches, socials, legal } = siteConfig;
 const tagline = pickText(brand.tagline, "vi");
 const defaultTitle = `${brand.name} | Phân phối thiết bị & tổng thầu EPC điện mặt trời`;
@@ -78,5 +79,5 @@ const schema = {
 };
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang={siteConfig.i18n.defaultLang} className={inter.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang={siteConfig.i18n.defaultLang} className={sans.variable}><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
 }

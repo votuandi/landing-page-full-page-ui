@@ -7,7 +7,7 @@
  * 4. Copy URL ".../exec" vào biến GOOGLE_SHEETS_WEBAPP_URL.
  */
 var SECRET = "doi-chuoi-bi-mat-nay";
-var COLUMNS = ["submittedAt", "source", "segment", "name", "phone", "zalo", "email", "address", "province", "businessType", "message", "estimate"];
+var COLUMNS = ["submittedAt", "source", "segment", "name", "phone", "zalo", "email", "address", "province", "businessType", "message", "items", "estimate", "page"];
 
 function doPost(e) {
   var data = JSON.parse((e.postData && e.postData.contents) || "{}");

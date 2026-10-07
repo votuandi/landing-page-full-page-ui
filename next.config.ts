@@ -4,12 +4,13 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   async redirects() {
-    // Đường dẫn cũ của template-8 → slug tiếng Việt của template-12
+    // Đường dẫn cũ của template-8 → slug tiếng Việt
     return [
       ["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"],
       ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],
       ["/project/:slug", "/cong-trinh/:slug"],
       ["/product", "/san-pham"], ["/product/:slug", "/san-pham/:slug"],
+      ["/news", "/tin-tuc"], ["/news/:slug", "/tin-tuc/:slug"],
     ].map(([source, destination]) => ({ source, destination, permanent: true }));
   },
   images: {

@@ -5,7 +5,7 @@ import { siteConfig, type Text } from "@/config/site.config";
 import { pickText, type Lang } from "@/i18n/text";
 
 export type { Lang };
-const STORAGE_KEY = "t14-lang";
+const STORAGE_KEY = "t15-lang";
 
 type LangContextValue = {
   lang: Lang;

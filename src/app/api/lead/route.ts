@@ -4,6 +4,25 @@ import { isVnMobile, normalizeVnPhone } from "@/lib/phone";
 
 const str = (value: unknown, max = 300) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
+function cleanEstimate(value: unknown): Lead["estimate"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([, v]) => ["string", "number", "boolean"].includes(typeof v))
+    .slice(0, 30)
+    .map(([k, v]) => [k.slice(0, 60), typeof v === "string" ? v.slice(0, 200) : v]);
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
+function cleanItems(value: unknown): Lead["items"] {
+  if (!Array.isArray(value)) return undefined;
+  const items = value
+    .filter((i): i is Record<string, unknown> => !!i && typeof i === "object")
+    .slice(0, 50)
+    .map((i) => ({ sku: str(i.sku, 80), name: str(i.name, 160), qty: Math.min(999, Math.max(1, Math.floor(Number(i.qty) || 1))) }))
+    .filter((i) => i.sku && i.name);
+  return items.length ? items : undefined;
+}
+
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, message: "Dữ liệu không hợp lệ" }, { status: 400 }); }
@@ -16,26 +35,19 @@ export async function POST(request: Request) {
   if (!name) return NextResponse.json({ ok: false, message: "Vui lòng nhập họ tên" }, { status: 400 });
   if (!isVnMobile(phone)) return NextResponse.json({ ok: false, message: "Số điện thoại di động không hợp lệ" }, { status: 400 });
 
-  const estimate = body.estimate && typeof body.estimate === "object"
-    ? Object.fromEntries(
-        Object.entries(body.estimate as Record<string, unknown>)
-          .filter(([, v]) => ["string", "number", "boolean"].includes(typeof v))
-          .slice(0, 30)
-          .map(([k, v]) => [k.slice(0, 60), typeof v === "string" ? v.slice(0, 200) : v]),
-      ) as Lead["estimate"]
-    : undefined;
-
   const lead: Lead = {
     name, phone,
     zalo: str(body.zalo, 30) || undefined,
     address: str(body.address) || undefined,
     email: str(body.email, 120) || undefined,
     message: str(body.message, 2000) || undefined,
-    source: str(body.source, 60) || "website",
+    source: str(body.source, 60).replace(/[^\w-]/g, "") || "website",
     segment: str(body.segment, 60) || undefined,
     province: str(body.province, 60) || undefined,
     businessType: str(body.businessType, 80) || undefined,
-    estimate,
+    estimate: cleanEstimate(body.estimate),
+    items: cleanItems(body.items),
+    page: str(body.page, 200) || undefined,
     submittedAt: new Date().toISOString(),
   };
 

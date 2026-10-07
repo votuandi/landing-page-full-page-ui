@@ -8,7 +8,18 @@
     "skipLibCheck": true,
     "outDir": ".test-dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/lib/solarCalculator.ts", "src/lib/phone.ts", "src/lib/price.ts", "src/lib/__tests__/*.ts", "src/config/solar.ts"]
+  "include": [
+    "src/lib/solarCalculator.ts",
+    "src/lib/format.ts",
+    "src/lib/phone.ts",
+    "src/lib/price.ts",
+    "src/lib/quoteCart.ts",
+    "src/lib/__tests__/*.ts",
+    "src/config/solar.ts",
+    "src/config/segments.ts"
+  ]
 }

@@ -22,7 +22,10 @@ export const directionsUrl = (p: GeoPoint) => `https://www.google.com/maps/dir/?
 export const primaryBranch: Branch = siteConfig.branches.find((b) => b.primary) || siteConfig.branches[0];
 const viText = (t: string | { vi: string }) => (typeof t === "string" ? t : t.vi);
 
-/** Cấu trúc tương thích template-12 — các trang phụ (liên hệ, về chúng tôi…) vẫn đọc từ đây. */
+/** Hotline chính — dùng cho nút "Gọi", lỗi gửi form và schema SEO. */
+export const primaryHotline = { label: "Tổng đài", phone: primaryBranch.hotline.main };
+
+/** Cấu trúc gọn cho các trang phụ (liên hệ, về chúng tôi…) — đọc từ site.config.ts. */
 export const SITE_CONFIG = {
   brand: {
     name: siteConfig.brand.name,
@@ -35,6 +38,7 @@ export const SITE_CONFIG = {
   siteMode,
   themeColor: siteConfig.brand.themeColor,
   url: siteConfig.brand.url,
+  callbackHours: siteConfig.callbackHours,
   contact: {
     phone: primaryBranch.hotline.main,
     phoneRaw: phoneDigits(primaryBranch.hotline.main),
@@ -55,7 +59,6 @@ export const SITE_CONFIG = {
     provinces: siteConfig.stats.provinces,
   },
   demo: siteConfig.demo,
-  legal: { ministryNoticeLogo: "" },
 };
 
 export type Socials = {
@@ -65,27 +68,19 @@ export type Socials = {
 };
 
 export const isDistributor = siteMode === "installer_distributor";
+/** Catalog + giỏ yêu cầu báo giá: cần chế độ nhà phân phối VÀ catalog.enabled. */
+export const catalogEnabled = isDistributor && siteConfig.catalog.enabled;
 
 /** Số năm kinh nghiệm luôn tính theo năm hiện tại. */
 export const yearsOfExperience = () => new Date().getFullYear() - siteConfig.brand.foundedYear;
 
-/** Link điều hướng phẳng (menu di động, trang phụ). Mega menu đọc trực tiếp từ site.config.ts. */
-export const NAV_ITEMS: { label: string; href: string }[] = [
-  { label: "Dự toán chi phí", href: "/#du-toan" },
-  { label: "Dự án", href: "/#du-an" },
-  ...(isDistributor ? [{ label: "Thiết bị", href: "/san-pham" }] : []),
-  { label: "Đại lý", href: "/#dai-ly" },
-  { label: "Về chúng tôi", href: "/ve-chung-toi" },
-  { label: "Liên hệ", href: "/lien-he" },
-].slice(0, 6);
-
 /**
- * Bộ màu thử nhanh trong thanh demo. Giá trị là kênh "R G B" ghi đè token --c-primary / --c-accent.
+ * Bộ màu thử nhanh trong thanh demo. Giá trị là kênh "R G B" ghi đè token --c-primary / --c-secondary / --c-accent.
  * Muốn đổi màu cố định cho khách: sửa :root trong src/app/globals.css.
  */
 export const THEME_PRESETS = {
-  emerald: { label: "Emerald Dusk", primary: "16 185 129", accent: "245 184 61" },
-  teal: { label: "Ngọc lam", primary: "45 212 191", accent: "251 191 36" },
-  lime: { label: "Lá non", primary: "132 204 22", accent: "250 204 21" },
-  sky: { label: "Trời xanh", primary: "56 189 248", accent: "245 184 61" },
+  fresh: { label: "Fresh Energy", primary: "21 128 61", secondary: "3 105 161", accent: "250 204 21" },
+  forest: { label: "Rừng xanh", primary: "22 101 52", secondary: "15 118 110", accent: "234 179 8" },
+  ocean: { label: "Biển xanh", primary: "15 118 110", secondary: "29 78 216", accent: "250 204 21" },
+  lime: { label: "Lá non", primary: "77 124 15", secondary: "2 132 199", accent: "253 224 71" },
 } as const;

@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { billFromKwh, calculateSolar, estimateSavingForKwp, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
+import { billFromKwh, calculateSolar, estimateSavingForKwp, formatMoneyShort, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
 import { TARIFFS } from "../../config/solar";
 import { isVnMobile, normalizeVnPhone } from "../phone";
-import { resolvePrice } from "../price";
+import { discountPercent, priceView, resolvePrice } from "../price";
 
 const close = (actual: number, expected: number, tolerance = 0.01) =>
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} ≉ ${expected}`);
@@ -49,6 +49,19 @@ test("nhà xưởng – Đồng Nai – 80 triệu/tháng, mái lớn", () => {
   assert.ok(r.paybackYears > 3 && r.paybackYears < 4);
 });
 
+test("trang trại – Đồng Tháp – 25 triệu/tháng", () => {
+  const r = calculateSolar({ segment: "farm", monthlyBill: 25_000_000, roofArea: 1_200, province: "Đồng Tháp", daytimeRatio: 70 });
+  close(r.monthlyKwh, 10_288.07, 0.01);  // 25.000.000 / 1,08 / 2.250
+  assert.equal(r.region, "nam-bo");
+  close(r.kwpNeeded, 65.24, 0.01);       // 7.201,65 / (30 × 4,6 × 0,8)
+  assert.equal(r.kwp, 65);
+  assert.equal(r.limitedByRoof, false);  // mái 1.200 m² đủ cho 218 kWp
+  assert.equal(r.panels, 113);           // ceil(65.000 / 580)
+  assert.equal(r.cost, 650_000_000);
+  close(r.monthlySavings, 65 * 4.6 * 30 * 0.8 * 2100 * 1.08, 1);
+  assert.ok(r.paybackYears > 3 && r.paybackYears < 4);
+});
+
 test("bị giới hạn bởi diện tích mái", () => {
   const r = calculateSolar({ segment: "factory", monthlyBill: 80_000_000, roofArea: 800, province: "Đồng Nai", daytimeRatio: 80 });
   assert.equal(r.kwpRoofMax, 145);       // 800 / 5,5 = 145,45 → làm tròn xuống 145
@@ -71,6 +84,12 @@ test("bậc thang: tính xuôi và tính ngược khớp nhau", () => {
 test("định dạng số tiền", () => {
   assert.equal(formatNumber(1_000_000), "1.000.000");
   assert.equal(parseNumber("1.000.000"), 1_000_000);
+  assert.equal(formatMoneyShort(180_000_000), "180 triệu");
+  assert.equal(formatMoneyShort(100_000_000), "100 triệu");
+  assert.equal(formatMoneyShort(3_450_000), "3,5 triệu");
+  assert.equal(formatMoneyShort(2_000_000), "2 triệu");
+  assert.equal(formatMoneyShort(1_200_000_000), "1,2 tỷ");
+  assert.equal(formatMoneyShort(2_000_000_000), "2 tỷ");
 });
 
 test("số di động Việt Nam", () => {
@@ -90,4 +109,17 @@ test("salePrice chỉ hiển thị khi nhỏ hơn price", () => {
   assert.deepEqual(resolvePrice(100, 100), { current: 100, original: undefined });
   assert.deepEqual(resolvePrice(100), { current: 100, original: undefined });
   assert.deepEqual(resolvePrice(undefined, 50), { current: undefined, original: undefined });
+});
+
+test("nhãn 'Giảm Y%' chỉ hiện khi Y ≥ 5; không có giá → Liên hệ", () => {
+  assert.equal(discountPercent(1_000_000, 900_000), 10);
+  assert.deepEqual(priceView(1_000_000, 900_000), { kind: "price", current: 900_000, original: 1_000_000, badge: 10 });
+  // giảm 3%: vẫn hiện giá giảm + giá gạch ngang nhưng KHÔNG gắn nhãn
+  assert.deepEqual(priceView(1_000_000, 970_000), { kind: "price", current: 970_000, original: 1_000_000, badge: undefined });
+  // đúng ngưỡng 5%
+  assert.deepEqual(priceView(1_000_000, 950_000), { kind: "price", current: 950_000, original: 1_000_000, badge: 5 });
+  // salePrice ≥ price: bỏ qua giá giảm
+  assert.deepEqual(priceView(1_000_000, 1_200_000), { kind: "price", current: 1_000_000, original: undefined, badge: undefined });
+  assert.deepEqual(priceView(undefined), { kind: "contact" });
+  assert.deepEqual(priceView(0, 0), { kind: "contact" });
 });

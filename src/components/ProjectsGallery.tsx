@@ -2,47 +2,67 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { MapPinIcon } from "@heroicons/react/24/outline";
-import type { Segment } from "@/config/solar";
+import { ArrowRightIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { PlayIcon } from "@heroicons/react/24/solid";
+import { SITE_CONFIG } from "@/config/site";
+import { SEGMENTS, SEGMENT_ORDER } from "@/config/segments";
 import { PROJECTS } from "@/data/projects";
-import { formatMoneyShort, formatNumber } from "@/lib/solarCalculator";
-import { openCalculator } from "@/lib/calculatorBus";
-import SegmentTabs from "@/components/SegmentTabs";
+import { STORIES } from "@/data/stories";
+import { formatMoneyShort, formatNumber } from "@/lib/format";
+import { SECTION_IDS, useSegment } from "@/lib/segment";
+import { useStoryPlayer } from "@/lib/storyPlayer";
+import { useLang } from "@/i18n/LangProvider";
+import { SectionHead } from "@/components/ui/ui";
 
+/** Gallery công trình lọc theo phân khúc chung. Công trình có video → nút play mở trình phát đúng video. */
 export default function ProjectsGallery() {
-  const [filter, setFilter] = useState<Segment | "all">("all");
-  const list = PROJECTS.filter((p) => filter === "all" || p.segment === filter);
+  const { tr } = useLang();
+  const { segment, setSegment } = useSegment();
+  const player = useStoryPlayer();
+  const list = PROJECTS.filter((p) => !segment || p.segment === segment);
 
   return (
-    <section id="cong-trinh" className="t12-invert relative bg-bg-deep pb-10 text-fg" aria-labelledby="cong-trinh-title">
-      <div className="t5-container py-14 md:py-16">
-        <div data-reveal="down" className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="t5-eyebrow">Công trình đã thực hiện</span>
-            <h2 id="cong-trinh-title" className="mt-4 max-w-3xl text-4xl font-black tracking-[-.045em] sm:text-5xl">Số liệu thật từ mái nhà thật.</h2>
-          </div>
-          <SegmentTabs value={filter} onChange={setFilter} idPrefix="ct" withAll label="Lọc công trình theo phân khúc" />
+    <section id={SECTION_IDS.projects} className="t15-section relative overflow-hidden bg-bg-tint" aria-labelledby="cong-trinh-title">
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-0 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-sky)/.2),transparent_65%)]" />
+      <div className="t15-container relative">
+        <SectionHead id="cong-trinh-title" eyebrow={tr("Công trình đã thực hiện", "Completed projects")}
+          title={tr(`Hơn ${formatNumber(SITE_CONFIG.capabilities.customers)} khách hàng đã dùng điện từ nắng.`, `${formatNumber(SITE_CONFIG.capabilities.customers)}+ clients already run on sunshine.`)}
+          action={
+            <div className="t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0 lg:justify-end" role="group" aria-label={tr("Lọc công trình theo phân khúc", "Filter projects by segment")}>
+              <button type="button" aria-pressed={!segment} onClick={() => setSegment(null)} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>
+              {SEGMENT_ORDER.map((s) => (
+                <button key={s} type="button" aria-pressed={segment === s} onClick={() => setSegment(s)} className="t15-chip shrink-0">{tr(SEGMENTS[s].short, SEGMENTS[s].en.short)}</button>
+              ))}
+            </div>
+          } />
+
+        <div data-reveal-stagger="up" data-reveal-step="0.08" className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          {list.map((p) => (
+            <article key={p.slug} className="t15-card t15-card-hover group relative flex flex-col overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden bg-bg-tint">
+                <Image src={p.image} alt={p.title} fill loading="lazy" sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
+                <span className="absolute left-2 top-2 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-[11px] font-black text-primary shadow sm:left-3 sm:top-3 sm:text-xs">{formatNumber(p.kwp)} kWp</span>
+                {p.storyId && STORIES.some((s) => s.id === p.storyId) && (
+                  <button type="button" onClick={(e) => player.open(STORIES, p.storyId!, e.currentTarget)} aria-label={`${tr("Xem video công trình", "Watch project video")} ${p.title}`}
+                    className="absolute bottom-2 right-2 z-10 grid h-11 w-11 place-items-center rounded-full bg-accent text-on-accent shadow-xl ring-4 ring-on-media/40 transition motion-safe:hover:scale-110 sm:bottom-3 sm:right-3 sm:h-12 sm:w-12">
+                    <PlayIcon className="ml-0.5 h-5 w-5" />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col p-3 sm:p-5">
+                <div className="text-xs font-bold uppercase tracking-[.14em] text-secondary">{tr(SEGMENTS[p.segment].short, SEGMENTS[p.segment].en.short)}</div>
+                <h3 className="mt-1.5 text-sm font-black leading-snug text-fg sm:text-lg">
+                  <Link href={`/cong-trinh/${p.slug}`} className="after:absolute after:inset-0 after:content-['']">{p.title}</Link>
+                </h3>
+                <div className="mt-1 flex items-center gap-1 text-xs text-fg-muted sm:text-sm"><MapPinIcon className="h-4 w-4 shrink-0" />{p.location}</div>
+                <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+                  <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-fg-subtle">{tr("Tiết kiệm", "Savings")}</div><div className="text-base font-black text-primary sm:text-lg">~{formatMoneyShort(p.savingPerMonth)}<span className="text-xs font-bold text-fg-muted">/{tr("tháng", "mo")}</span></div></div>
+                  <ArrowRightIcon className="hidden h-5 w-5 text-primary transition group-hover:translate-x-1 sm:block" />
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
-      </div>
-      <div id="ct-panel" role="tabpanel" aria-labelledby={`ct-tab-${filter}`} data-reveal-stagger="up" data-reveal-step="0.1" className="grid gap-px bg-line/12 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((p) => (
-          <Link key={p.slug} href={`/cong-trinh/${p.slug}`} className="group flex flex-col bg-bg-deep">
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <Image src={p.image} alt={p.title} fill loading="lazy" className="object-cover transition duration-700 group-hover:scale-[1.05]" sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 34vw" />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-scrim/70 to-transparent" />
-              <span className="t8-glass absolute left-5 top-5 rounded-full px-3 py-1.5 text-xs font-black text-on-media">{formatNumber(p.kwp)} kWp</span>
-              <span className="absolute bottom-4 left-5 flex items-center gap-1 text-xs font-black uppercase tracking-[.15em] text-on-media/90"><MapPinIcon className="h-4 w-4" />{p.type} • {p.location}</span>
-            </div>
-            <div className="flex flex-1 items-center justify-between gap-4 p-6 transition group-hover:bg-glass-tint/[.06] sm:px-8">
-              <div><h3 className="text-xl font-black">{p.title}</h3><div className="mt-1 text-sm text-fg-muted">Tiết kiệm <strong className="text-accent-soft">~{formatMoneyShort(p.savingPerMonth)}/tháng</strong></div></div>
-              <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-glass-strong text-fg transition group-hover:translate-x-1 group-hover:bg-accent group-hover:text-on-accent">→</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-      <div className="t5-container pt-8 text-center">
-        <button type="button" onClick={() => openCalculator(filter === "all" ? undefined : filter)} className="t5-button t5-button-primary">Dự toán công trình của tôi</button>
       </div>
     </section>
   );

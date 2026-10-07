@@ -3,9 +3,12 @@
  * Dùng import tương đối (không dùng alias "@/") để chạy được trực tiếp bằng Node.
  */
 import {
-  PEAK_SUN_HOURS, PRICE_PER_KWP, PROVINCES, SEGMENTS, SYSTEM, TARIFFS, VAT_RATE,
+  PEAK_SUN_HOURS, PRICE_PER_KWP, PROVINCES, SYSTEM, TARIFFS, VAT_RATE,
   type Region, type Segment, type Tariff,
 } from "../config/solar";
+import { SEGMENTS } from "../config/segments";
+
+export { formatMoneyShort, formatNumber, parseNumber } from "./format";
 
 export type CalculatorInput = {
   segment: Segment;
@@ -145,18 +148,3 @@ export function estimateSavingForKwp(segment: Segment, kwp: number, province: st
 }
 
 export const defaultDaytimeRatio = (segment: Segment) => SEGMENTS[segment].defaultDaytimeRatio;
-
-/** 1000000 → "1.000.000" */
-export const formatNumber = (value: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(value));
-
-/** Chuỗi nhập "1.000.000" / "1,000,000" / "1000000" → 1000000 */
-export const parseNumber = (text: string) => Number(text.replace(/[^\d]/g, "")) || 0;
-
-/** Rút gọn tiền: 1.234.000.000 → "1,23 tỷ", 3.450.000 → "3,5 triệu", 930.710 → "931 nghìn" */
-export function formatMoneyShort(value: number) {
-  const fmt = (n: number, digits: number) => n.toFixed(digits).replace(/\.?0+$/, "").replace(".", ",");
-  if (value >= 1e9) return `${fmt(value / 1e9, 2)} tỷ`;
-  if (value >= 1e6) return `${fmt(value / 1e6, value >= 1e8 ? 0 : 1)} triệu`;
-  if (value >= 1e3) return `${formatNumber(value / 1e3)} nghìn`;
-  return `${formatNumber(value)} đ`;
-}

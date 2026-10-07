@@ -17,7 +17,7 @@
  * ============================================================================
  */
 
-import type { Segment } from "@/config/solar";
+import type { Segment } from "@/config/segments";
 
 export type Text = string | { vi: string; en: string };
 export type VideoSource = { provider: "youtube"; id: string } | { provider: "file"; src: string };
@@ -71,16 +71,39 @@ export const siteConfig = {
     logo: "",
     logoText: "LV",
     foundedYear: 2012,
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-14.minwysoft.com",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://template-15.minwysoft.com",
     /** Ảnh chia sẻ mạng xã hội (Open Graph) 1200×630 */
     ogImage: "/images/solar-installation-hero.jpg",
     /** Màu thanh trình duyệt trên mobile — nên trùng --bg trong globals.css */
-    themeColor: "#0B1F1C",
+    themeColor: "#F5FAF6",
     email: "lienhe@lumivolt.example",
   },
 
   /** "installer" = chỉ lắp đặt; "installer_distributor" = có trang /san-pham và menu Thiết bị. */
   siteMode: "installer_distributor" as "installer" | "installer_distributor",
+
+  /** Catalog sản phẩm + giỏ yêu cầu báo giá (chỉ khi siteMode có phân phối). false → ẩn /san-pham, dải sản phẩm, giỏ. */
+  catalog: { enabled: process.env.NEXT_PUBLIC_CATALOG_ENABLED !== "false" },
+
+  /** Sau khi gửi form/giỏ: "Chúng tôi sẽ gọi lại trong X giờ". */
+  callbackHours: 2,
+
+  /** Link đánh giá bên ngoài (hero, khối đánh giá khách hàng). url "" → ẩn. */
+  reviews: {
+    google: { url: "https://www.google.com/maps", rating: 4.9, count: 312 },
+    trustpilot: { url: "", rating: 0, count: 0 },
+  },
+
+  /** Dải cam kết dịch vụ ngay trên footer (mọi trang) — 4 mục hiển thị đẹp nhất. */
+  commitments: [
+    { title: { vi: "Khảo sát miễn phí", en: "Free site survey" }, desc: { vi: "Kỹ sư đến tận nơi đo mái, đọc hóa đơn", en: "Engineers measure your roof and read your bill" } },
+    { title: { vi: "Bảo hành dài hạn", en: "Long warranty" }, desc: { vi: "Tấm pin tới 30 năm hiệu suất, thi công 5 năm", en: "Up to 30-year panel output, 5-year workmanship" } },
+    { title: { vi: "Hỗ trợ thủ tục đấu nối EVN", en: "Grid paperwork handled" }, desc: { vi: "Chuẩn bị hồ sơ, làm việc với điện lực", en: "We prepare documents and liaise with EVN" } },
+    { title: { vi: "Bảo trì & vệ sinh định kỳ", en: "Scheduled O&M" }, desc: { vi: "Kiểm tra, vệ sinh tấm pin theo lịch", en: "Inspection and panel cleaning on schedule" } },
+  ] as { title: Text; desc: Text }[],
+
+  /** Popup "Tư vấn sản phẩm": hiện sau delayMs HOẶC khi cuộn qua scrollRatio trang, tối đa 1 lần/phiên. */
+  popup: { enabled: true, delayMs: 30_000, scrollRatio: 0.6 },
 
   i18n: { enabled: true, defaultLang: "vi" as "vi" | "en" },
 
@@ -220,7 +243,7 @@ export const siteConfig = {
         ] }],
       },
       {
-        id: "bom-nuoc", label: { vi: "Bơm nước", en: "Water pumps" }, hint: { vi: "Theo công suất bơm (HP)", en: "By pump power (HP)" }, segment: "household",
+        id: "bom-nuoc", label: { vi: "Bơm nước", en: "Water pumps" }, hint: { vi: "Theo công suất bơm (HP)", en: "By pump power (HP)" }, segment: "farm",
         groups: [{ chips: [
           { label: "1 HP", bill: 500_000 },
           { label: "2 HP", bill: 1_000_000 },
@@ -305,8 +328,9 @@ export const siteConfig = {
       { id: "bieu-gia", label: { vi: "Biểu giá điện", en: "Electricity tariffs" }, desc: { vi: "Bậc thang sinh hoạt, kinh doanh, sản xuất", en: "Residential, commercial and industrial rates" } },
       { id: "van-ban", label: { vi: "Văn bản pháp luật", en: "Regulations" }, desc: { vi: "Quy định về điện mặt trời mái nhà", en: "Rooftop solar regulations" } },
       { id: "hoi-dap", label: { vi: "Hỏi đáp", en: "FAQ" }, desc: { vi: "Câu hỏi thường gặp trước khi lắp", en: "Common questions before installing" } },
-      { id: "tin-tuc", label: { vi: "Tin tức", en: "News" }, desc: { vi: "Báo chí nói về chúng tôi", en: "Press coverage" } },
-    ] as { id: string; label: Text; desc: Text }[],
+      { id: "tin-tuc", label: { vi: "Báo chí", en: "Press" }, desc: { vi: "Báo chí nói về chúng tôi", en: "Press coverage" } },
+      { id: "kinh-nghiem", label: { vi: "Kinh nghiệm lắp đặt", en: "Blog" }, desc: { vi: "Bài viết theo tình huống thực tế", en: "Real-life use cases" }, href: "/tin-tuc" },
+    ] as { id: string; label: Text; desc: Text; href?: string }[],
     glossary: [
       ["kWp", "Kilowatt-peak — công suất danh định của hệ pin ở điều kiện chuẩn (1000 W/m², 25 °C)."],
       ["kWh", "Đơn vị điện năng. 1 kWh = 1 'số điện' trên hóa đơn."],
@@ -338,13 +362,17 @@ export const siteConfig = {
 
   certificates: {
     enabled: true,
+    /** image: ảnh scan giấy chứng nhận (bản demo: SVG có chữ "MẪU" tạo bằng scripts/make-trust-images.js). "" → khung minh họa. */
     items: [
-      { id: "iso9001", title: "ISO 9001:2015", subtitle: { vi: "Hệ thống quản lý chất lượng", en: "Quality management" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-9001", validUntil: "12/2027", scope: "Phân phối thiết bị điện mặt trời; tư vấn thiết kế, thi công lắp đặt hệ thống điện mặt trời.", image: "" },
-      { id: "iso14001", title: "ISO 14001:2015", subtitle: { vi: "Quản lý môi trường", en: "Environmental management" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-14001", validUntil: "12/2027", scope: "Hoạt động kho bãi, thi công và thu hồi vật tư tại các chi nhánh.", image: "" },
-      { id: "iso45001", title: "ISO 45001:2018", subtitle: { vi: "An toàn sức khỏe nghề nghiệp", en: "Occupational health & safety" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-45001", validUntil: "06/2028", scope: "Thi công trên mái, làm việc trên cao và đấu nối điện.", image: "" },
-      { id: "xd-hang-2", title: { vi: "Chứng chỉ năng lực XD hạng II", en: "Construction capability – Class II" } as Text, subtitle: { vi: "Thi công công trình năng lượng", en: "Energy construction works" } as Text, issuer: "Sở Xây dựng (mẫu)", number: "MẪU-0001", validUntil: "03/2030", scope: "Thi công lắp đặt thiết bị công trình năng lượng; tư vấn giám sát.", image: "" },
-      { id: "gp-dien-luc", title: { vi: "Giấy phép hoạt động điện lực", en: "Electricity operation licence" } as Text, subtitle: { vi: "Tư vấn thiết kế", en: "Design consulting" } as Text, issuer: "Cơ quan cấp phép (mẫu)", number: "MẪU-0002", validUntil: "09/2029", scope: "Tư vấn thiết kế công trình đường dây và trạm biến áp đến 35 kV.", image: "" },
-      { id: "dai-ly-helionyx", title: { vi: "Nhà phân phối ủy quyền", en: "Authorised distributor" } as Text, subtitle: "Helionyx · Voltaris · Litheon", issuer: "Các hãng thiết bị (hư cấu)", number: "AUTH-2026-VN", validUntil: "12/2026", scope: "Phân phối chính hãng tại Việt Nam, bảo hành trực tiếp qua Lumivolt.", image: "" },
+      { id: "iso9001", title: "ISO 9001:2015", subtitle: { vi: "Hệ thống quản lý chất lượng", en: "Quality management" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-9001", validUntil: "12/2027", scope: "Phân phối thiết bị điện mặt trời; tư vấn thiết kế, thi công lắp đặt hệ thống điện mặt trời.", image: "/images/trust/cert-iso-9001-full.svg" },
+      { id: "iso14001", title: "ISO 14001:2015", subtitle: { vi: "Quản lý môi trường", en: "Environmental management" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-14001", validUntil: "12/2027", scope: "Hoạt động kho bãi, thi công và thu hồi vật tư tại các chi nhánh.", image: "/images/trust/cert-iso-14001-full.svg" },
+      { id: "iso45001", title: "ISO 45001:2018", subtitle: { vi: "An toàn sức khỏe nghề nghiệp", en: "Occupational health & safety" } as Text, issuer: "Tổ chức chứng nhận Mẫu QA (hư cấu)", number: "QA-MẪU-45001", validUntil: "06/2028", scope: "Thi công trên mái, làm việc trên cao và đấu nối điện.", image: "/images/trust/cert-iso-45001-full.svg" },
+      { id: "xd-hang-2", title: { vi: "Chứng chỉ năng lực XD hạng II", en: "Construction capability – Class II" } as Text, subtitle: { vi: "Thi công công trình năng lượng", en: "Energy construction works" } as Text, issuer: "Sở Xây dựng (mẫu)", number: "MẪU-0001", validUntil: "03/2030", scope: "Thi công lắp đặt thiết bị công trình năng lượng; tư vấn giám sát.", image: "/images/trust/cert-xd-hang-2-full.svg" },
+      { id: "gp-dien-luc", title: { vi: "Giấy phép hoạt động điện lực", en: "Electricity operation licence" } as Text, subtitle: { vi: "Tư vấn thiết kế", en: "Design consulting" } as Text, issuer: "Cơ quan cấp phép (mẫu)", number: "MẪU-0002", validUntil: "09/2029", scope: "Tư vấn thiết kế công trình đường dây và trạm biến áp đến 35 kV.", image: "/images/trust/cert-gp-dien-luc-full.svg" },
+      { id: "phan-phoi", title: { vi: "Nhà phân phối ủy quyền", en: "Authorised distributor" } as Text, subtitle: "Helionyx · Voltaris · Litheon", issuer: "Các hãng thiết bị (hư cấu)", number: "AUTH-2026-VN", validUntil: "12/2026", scope: "Phân phối chính hãng tại Việt Nam, bảo hành trực tiếp qua Lumivolt.", image: "/images/trust/cert-phan-phoi-full.svg" },
+      { id: "lap-dat", title: { vi: "Đối tác lắp đặt được chứng nhận", en: "Certified installer" } as Text, subtitle: { vi: "Inverter & pin lưu trữ", en: "Inverters & storage" } as Text, issuer: "Các hãng thiết bị (hư cấu)", number: "PV-MẪU-0315", validUntil: "06/2027", scope: "Lắp đặt, cấu hình và bảo hành inverter hybrid, pin lưu trữ.", image: "/images/trust/cert-lap-dat-full.svg" },
+      { id: "an-toan-dien", title: { vi: "Chứng chỉ an toàn điện", en: "Electrical safety" } as Text, subtitle: { vi: "Cho kỹ thuật viên", en: "For technicians" } as Text, issuer: "[CẦN XÁC MINH]", number: "ATĐ-MẪU-2026", validUntil: "12/2026", scope: "Toàn bộ kỹ thuật viên thi công và bảo trì.", image: "/images/trust/cert-an-toan-dien-full.svg" },
+      { id: "pccc", title: { vi: "Đủ điều kiện thi công PCCC", en: "Fire-safety works" } as Text, subtitle: { vi: "Hệ PV và BESS", en: "PV and BESS systems" } as Text, issuer: "[CẦN XÁC MINH]", number: "PCCC-MẪU-07", validUntil: "08/2028", scope: "Thiết kế, thi công giải pháp PCCC cho hệ điện mặt trời và lưu trữ.", image: "/images/trust/cert-pccc-full.svg" },
     ] as { id: string; title: Text; subtitle: Text; issuer: string; number: string; validUntil: string; scope: string; image: string }[],
   },
 
@@ -388,7 +416,7 @@ export const siteConfig = {
         description: "Khu nghỉ dưỡng 120 phòng. Hệ hybrid 250 kWp + lưu trữ 215 kWh giữ điện cho bơm nhiệt, hồ bơi và chiếu sáng khi mất lưới.",
         kwp: 250, kwhPerYear: 290_000, savingPerYear: 820_000_000, co2PerYear: 195,
         video: { provider: "file", src: "/videos/hero_video.mp4" } as VideoSource },
-      { id: "nong-trai-xanh", segment: "factory" as Segment, client: "Trang trại Xanh Tây Nguyên (hư cấu)", logoText: "XT", industry: "Nông nghiệp", location: "Đắk Lắk", image: "/images/illustrations/farm-hybrid-solar.webp",
+      { id: "nong-trai-xanh", segment: "farm" as Segment, client: "Trang trại Xanh Tây Nguyên (hư cấu)", logoText: "XT", industry: "Nông nghiệp", location: "Đắk Lắk", image: "/images/illustrations/farm-hybrid-solar.webp",
         description: "Tưới cà phê bằng bơm năng lượng mặt trời và hệ 320 kWp áp mái kho sấy, giảm chi phí dầu diesel cho máy phát.",
         kwp: 320, kwhPerYear: 470_000, savingPerYear: 960_000_000, co2PerYear: 315,
         video: { provider: "file", src: "/videos/hero_video.mp4" } as VideoSource },
@@ -406,7 +434,7 @@ export const siteConfig = {
       { id: "factory", label: { vi: "Nhà xưởng", en: "Factories" } as Text, image: "/images/illustrations/factory-solar-tall.webp",
         points: ["EPC trọn gói từ hồ sơ tới đấu nối", "BESS cắt đỉnh, dự phòng tải", "Mô hình ESCO 0 đồng (mẫu)"], calcSegment: "factory" as Segment },
       { id: "farm", label: { vi: "Nông nghiệp", en: "Agriculture" } as Text, image: "/images/illustrations/farm-hybrid-solar.webp",
-        points: ["Bơm nước năng lượng mặt trời", "Khung chống ăn mòn chuồng trại", "Thay thế máy phát diesel"], calcSegment: "factory" as Segment },
+        points: ["Bơm nước năng lượng mặt trời", "Khung chống ăn mòn chuồng trại", "Thay thế máy phát diesel"], calcSegment: "farm" as Segment },
     ],
     videos: [
       { title: "Thi công 1,2 MWp nhà máy dệt", location: "TP. HCM", poster: "/images/illustrations/factory-solar.webp", video: { provider: "file", src: "/videos/hero_video.mp4" } as VideoSource },
@@ -440,14 +468,14 @@ export const siteConfig = {
 
   tiktok: {
     enabled: true,
-    /** provider "tiktok" cần ID số của video; bản demo dùng file mp4 cục bộ. */
+    /** provider "tiktok" cần ID số của video (idOrSrc); bản demo dùng file mp4 cục bộ trong /public/videos/shorts. */
     videos: [
-      { id: "tt1", creator: "@lumivolt.demo", title: "Lắp 10 kWp trong 1 ngày", segment: "household" as Segment, poster: "/images/stories/ho-gia-dinh-1.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/ho-gia-dinh-1.mp4" } },
-      { id: "tt2", creator: "@kysu.nang", title: "Kiểm tra string bằng camera nhiệt", segment: "factory" as Segment, poster: "/images/stories/nha-xuong-1.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/nha-xuong-1.mp4" } },
-      { id: "tt3", creator: "@lumivolt.demo", title: "Cửa hàng giảm 40% tiền điện", segment: "shop" as Segment, poster: "/images/stories/cua-hang-1.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/cua-hang-1.mp4" } },
-      { id: "tt4", creator: "@daily.mientay", title: "Đại lý Cần Thơ nhận lô hàng mới", segment: "shop" as Segment, poster: "/images/stories/cua-hang-2.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/cua-hang-2.mp4" } },
-      { id: "tt5", creator: "@lumivolt.demo", title: "Hybrid có điện khi mất lưới", segment: "household" as Segment, poster: "/images/stories/ho-gia-dinh-2.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/ho-gia-dinh-2.mp4" } },
-      { id: "tt6", creator: "@kysu.nang", title: "Trại gà 320 kWp + lưu trữ", segment: "factory" as Segment, poster: "/images/stories/nha-xuong-2.webp", source: { provider: "file" as const, id_or_src: "/videos/stories/nha-xuong-2.mp4" } },
+      { id: "tt1", creator: "@lumivolt.demo", title: "Lắp 6 kWp nhà phố trong 1 ngày", segment: "household" as Segment, poster: "/images/shorts/ho-gia-dinh-1.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/ho-gia-dinh-1.mp4" } },
+      { id: "tt2", creator: "@kysu.nang", title: "Kiểm tra string bằng camera nhiệt", segment: "factory" as Segment, poster: "/images/shorts/nha-xuong-1.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/nha-xuong-1.mp4" } },
+      { id: "tt3", creator: "@lumivolt.demo", title: "Cửa hàng giảm 40% tiền điện", segment: "shop" as Segment, poster: "/images/shorts/cua-hang-1.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/cua-hang-1.mp4" } },
+      { id: "tt4", creator: "@daily.mientay", title: "Trại gà chạy quạt hút bằng nắng", segment: "farm" as Segment, poster: "/images/shorts/trang-trai-1.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/trang-trai-1.mp4" } },
+      { id: "tt5", creator: "@lumivolt.demo", title: "Hybrid có điện khi mất lưới", segment: "household" as Segment, poster: "/images/shorts/ho-gia-dinh-2.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/ho-gia-dinh-2.mp4" } },
+      { id: "tt6", creator: "@kysu.nang", title: "Kho lạnh 500 kWp bàn giao", segment: "factory" as Segment, poster: "/images/shorts/nha-xuong-2.webp", source: { provider: "file" as const, idOrSrc: "/videos/shorts/nha-xuong-2.mp4" } },
     ],
   },
 
@@ -488,21 +516,24 @@ export const siteConfig = {
     image: "/images/services/service_1772898001151.webp",
   },
 
+  // Các section gộp từ template-13 và kế thừa — bật/tắt từng cái.
+  segmentGrid: { enabled: true },       // lưới 4 phân khúc → lọc video, gói, công trình, điền sẵn dự toán
+  videoStories: { enabled: true },      // video Shorts công trình + trình phát trong trang
+  projectsGallery: { enabled: true },   // gallery công trình (nút play mở đúng video)
+  productStrip: { enabled: true },      // dải sản phẩm nổi bật (cần catalog)
+  energyMonitoring: { enabled: true },  // theo dõi điện năng 24/7
+  testimonials: { enabled: true },      // đánh giá khách hàng + điểm Google
+  process: { enabled: true },           // quy trình 5 bước
+  blog: { enabled: true, limit: 3 as 3 | 4 | 5 | 6 }, // bài viết mới nhất (src/data/posts.ts)
   social: { enabled: true },
   faq: { enabled: true },
   contactForm: { enabled: true },
   mobileBottomNav: { enabled: true },
 
-  /** Section kế thừa từ template-12 — bật lại nếu cần. */
+  /** Section kế thừa từ template-12 — tắt sẵn, bật lại nếu cần. */
   legacy: {
-    savingsBySegment: { enabled: false },
     investmentModels: { enabled: false },
-    projectsGallery: { enabled: false },
-    videoStories: { enabled: false },
-    energyMonitoring: { enabled: false },
-    process: { enabled: true },
     warranty: { enabled: false },
-    testimonials: { enabled: false },
   },
 
   demo: {
