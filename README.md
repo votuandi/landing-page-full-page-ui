@@ -5,8 +5,7 @@ Website một trang chính (kèm các trang phụ) cho đơn vị lắp đặt �
 
 - Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 3 — không thêm thư viện UI/animation.
 - Toàn bộ nội dung tiếng Việt; mọi thông tin công ty, giá, hệ số tính toán nằm trong file config/data.
-- **Mặc định là theme sáng "Sky & Sun"** (`data-theme="light"` trên thẻ `<html>` trong `src/app/layout.tsx`). Xóa thuộc tính đó để dùng bảng tối "Emerald Dusk".
-- Ở theme sáng, section có class `t12-invert` (quy trình, dự án, footer…) dùng nền pastel cùng sắc độ và thẻ kính trắng; chữ/số `text-accent` tự đổi sang màu đậm để đủ tương phản (trừ chữ trên ảnh).
+- Bảng màu mặc định **Sky & Sun** (nền sáng, xanh ngọc + vàng hổ phách), có sẵn bảng tối **Emerald Dusk** — xem mục Đổi màu.
 
 ## Chạy dự án
 
