@@ -101,7 +101,7 @@ export default function VideoStories() {
             ))}
 
             {/* Thẻ "Xem thêm" */}
-            <div className={`relative flex aspect-[9/16] shrink-0 snap-start flex-col items-center justify-center gap-3 overflow-hidden rounded-[28px] bg-gradient-to-br from-primary to-secondary p-4 text-center text-on-primary ${CARD_W}`}>
+            <div className={`relative flex aspect-[9/16] shrink-0 snap-start flex-col items-center justify-center gap-3 overflow-hidden rounded-[28px] bg-primary p-4 text-center text-on-primary ${CARD_W}`}>
               <span className="grid h-16 w-16 place-items-center rounded-full border-4 border-accent bg-bg-elevated text-xl font-black text-primary">{SITE_CONFIG.brand.logoText}</span>
               <div className="text-sm font-black">{tr(`Hơn ${TOTAL_CHANNEL_VIDEOS} video công trình`, `${TOTAL_CHANNEL_VIDEOS}+ project videos`)}</div>
               {socials.tiktok?.url && <a href={socials.tiktok.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 text-xs font-black text-on-accent"><TikTokIcon className="h-4 w-4" />{tr("Theo dõi TikTok", "Follow on TikTok")}</a>}

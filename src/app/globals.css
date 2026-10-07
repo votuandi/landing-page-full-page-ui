@@ -10,18 +10,18 @@
    Component KHÔNG dùng mã màu cứng, chỉ dùng class Tailwind sinh từ token (tailwind.config.ts) hoặc rgb(var(--c-…)).
    ========================================================================== */
 
-/* Bảng sáng (mặc định) — cũng dùng cho thẻ sáng nằm trong section tối: class="t15-light" */
-:root, .t15-light {
+/* ===== LIGHT MODE (mặc định) — <html data-theme="light"> ===== */
+:root, [data-theme="light"] {
   --c-bg: 245 250 246;           --bg: #F5FAF6;          /* nền trang: trắng ánh bạc hà */
   --c-bg-elevated: 255 255 255;  --bg-elevated: #FFFFFF; /* thẻ, form */
   --c-bg-tint: 233 247 239;      --bg-tint: #E9F7EF;     /* nền xen kẽ xanh lá nhạt */
   --c-bg-sky: 231 243 252;       --bg-sky: #E7F3FC;      /* nền xen kẽ xanh trời nhạt */
   --c-bg-sun: 255 248 220;       --bg-sun: #FFF8DC;      /* nền xen kẽ vàng nắng nhạt */
-  --c-bg-deep: 6 47 46;          --bg-deep: #062F2E;     /* section tối (thanh trên cùng, khối nhấn) */
+  --c-bg-deep: 6 47 46;          --bg-deep: #062F2E;     /* màu tối nhất (ít dùng: khung, chữ trên vàng) */
 
   --glass: rgba(255,255,255,0.78);
   --glass-border: rgba(21,128,61,0.14);
-  --glass-strong: rgba(255,255,255,0.14);        /* kính trên ảnh / nền tối */
+  --glass-strong: rgba(255,255,255,0.14);        /* kính trên ảnh */
   --glass-strong-border: rgba(255,255,255,0.24);
   --c-glass-tint: 21 128 61;     /* màu pha cho hover nhẹ: bg-glass-tint/10 */
 
@@ -29,7 +29,7 @@
   --c-primary-strong: 22 101 52; --primary-strong: #166534;
   --c-primary-deep: 6 78 59;     --primary-deep: #064E3B;
   --c-leaf: 34 197 94;           --leaf: #22C55E;        /* xanh lá tươi — CHỈ trang trí (glow, biểu đồ, viền) */
-  --c-secondary: 3 105 161;      --secondary: #0369A1;   /* xanh dương — chữ, nút, điểm cuối gradient */
+  --c-secondary: 3 105 161;      --secondary: #0369A1;   /* xanh dương — chữ, link, điểm nhấn thứ hai */
   --c-secondary-deep: 12 74 110; --secondary-deep: #0C4A6E;
   --c-sky: 56 189 248;           --sky: #38BDF8;         /* xanh trời tươi — CHỈ trang trí */
   --c-on-primary: 255 255 255;
@@ -62,38 +62,53 @@
   color-scheme: light;
 }
 
-.t15-light { color: rgb(var(--c-fg)); color-scheme: light; }
-
-/* Section tối "Ocean Forest": xanh rừng → xanh biển, chữ sáng, số liệu vàng nắng */
-.t15-invert {
-  --c-bg: 6 47 46;
-  --c-bg-elevated: 10 64 60;
-  --c-bg-tint: 9 78 76;
-  --c-bg-sky: 8 62 92;
-  --c-bg-sun: 64 58 18;
-  --c-bg-deep: 4 31 33;
-  --glass: rgba(255,255,255,0.08);
-  --glass-border: rgba(255,255,255,0.16);
-  --glass-strong: rgba(255,255,255,0.12);
-  --glass-strong-border: rgba(255,255,255,0.2);
+/* ===== DARK MODE (tùy chọn, công tắc Sáng/Tối trên header) — <html data-theme="dark"> ===== */
+[data-theme="dark"] {
+  --c-bg: 7 30 28;               --bg: #071E1C;
+  --c-bg-elevated: 14 44 41;     --bg-elevated: #0E2C29;
+  --c-bg-tint: 11 52 47;         --bg-tint: #0B342F;
+  --c-bg-sky: 10 42 60;          --bg-sky: #0A2A3C;
+  --c-bg-sun: 44 40 14;          --bg-sun: #2C280E;
+  --c-bg-deep: 4 20 19;          --bg-deep: #041413;
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-strong: rgba(255,255,255,0.10);
+  --glass-strong-border: rgba(255,255,255,0.18);
   --c-glass-tint: 255 255 255;
-  --c-primary: 74 222 128;
+  --c-primary: 74 222 128;       --primary: #4ADE80;
   --c-primary-strong: 134 239 172;
-  --c-primary-deep: 7 89 133;
+  --c-primary-deep: 6 78 59;
+  --c-secondary: 125 211 252;    --secondary: #7DD3FC;
+  --c-secondary-deep: 12 74 110;
   --c-on-primary: 5 46 22;
-  --c-secondary: 125 211 252;
   --c-on-secondary: 8 47 73;
-  --c-accent-ink: 253 224 71;
-  --c-fg: 240 253 244;
-  --c-fg-muted: 190 224 210;
-  --c-fg-subtle: 162 204 189;
+  --c-accent-ink: 253 224 71;    --accent-ink: #FDE047;
+  --c-fg: 236 253 245;           --text: #ECFDF5;
+  --c-fg-muted: 178 214 200;     --text-muted: #B2D6C8;
+  --c-fg-subtle: 150 190 175;
   --c-line: 255 255 255;
+  --c-scrim: 2 12 10;
+  --c-shadow: 0 0 0;
   --c-success: 74 222 128;
   --c-danger: 252 165 165;
-  --c-shadow: 0 12 10;
+  --c-chart-a: 250 204 21;
   --c-chart-b: 125 211 252;
-  color: rgb(var(--c-fg));
+  --c-device: 30 41 59;
   color-scheme: dark;
+}
+
+/* Section "nhấn" (dự án, số liệu, đại lý, theo dõi 24/7, footer…): light mode = nền pastel sáng, thẻ kính trắng,
+   số liệu màu xanh lá; dark mode = nền tối sâu hơn một bậc. */
+.t15-invert {
+  --glass-strong: rgba(255,255,255,0.78);
+  --glass-strong-border: rgba(21,128,61,0.14);
+  --c-accent-ink: 21 128 61;
+  color: rgb(var(--c-fg));
+}
+[data-theme="dark"] .t15-invert {
+  --glass-strong: rgba(255,255,255,0.08);
+  --glass-strong-border: rgba(255,255,255,0.16);
+  --c-accent-ink: 253 224 71;
 }
 
 * { box-sizing: border-box; }
@@ -109,10 +124,9 @@ h1, h2, h3 { text-wrap: balance; }
 ::selection { background: rgb(var(--c-accent) / .55); color: rgb(var(--c-on-accent)); }
 a, button, input, select, textarea { outline-offset: 3px; }
 :focus-visible { outline: 2px solid rgb(var(--c-secondary)); }
-.t15-invert :focus-visible { outline-color: rgb(var(--c-accent)); }
 button, a { -webkit-tap-highlight-color: transparent; }
 img { max-width: 100%; }
-select option { color: #0F261E; background: #FFFFFF; }
+select option { color: rgb(var(--c-fg)); background: rgb(var(--c-bg-elevated)); }
 [id] { scroll-margin-top: 5.5rem; }
 /* Phần tử reveal ở trạng thái ẩn bị dịch ±80px — cắt để không gây cuộn ngang trên mobile */
 main, footer { overflow-x: clip; }
@@ -128,22 +142,19 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-eyebrow::before { content: ""; @apply h-2.5 w-2.5 shrink-0 rounded-full; background: radial-gradient(circle at 35% 35%, rgb(var(--c-accent-soft)), rgb(var(--c-accent)) 60%); box-shadow: 0 0 0 3px rgb(var(--c-accent) / .28); }
   .t15-eyebrow:has(> svg)::before { display: none; }
   .t15-eyebrow > svg { @apply text-accent-ink; }
-  .t15-gradient-text { @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent; }
+  .t15-gradient-text { @apply text-primary; } /* chữ nhấn: một màu xanh lá (không trộn gradient) */
   .t15-marker { background-image: linear-gradient(transparent 62%, rgb(var(--c-accent) / .6) 62%, rgb(var(--c-accent) / .6) 92%, transparent 92%); }
 
   .t15-button { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed; }
-  .t15-button-primary { @apply text-on-primary; background-image: linear-gradient(120deg, rgb(var(--c-primary)), rgb(var(--c-secondary))); box-shadow: 0 12px 28px -14px rgb(var(--c-primary) / .75); }
-  .t15-button-primary:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.06) saturate(1.05); box-shadow: 0 18px 34px -14px rgb(var(--c-secondary) / .7); }
+  .t15-button-primary { @apply bg-primary text-on-primary; box-shadow: 0 12px 28px -14px rgb(var(--c-primary) / .7); }
+  .t15-button-primary:not(:disabled):hover { @apply bg-primary-strong; transform: translateY(-1px); box-shadow: 0 18px 34px -14px rgb(var(--c-primary) / .7); }
   .t15-button-accent { @apply bg-accent text-on-accent; box-shadow: 0 12px 28px -14px rgb(var(--c-accent-ink) / .8); }
   .t15-button-accent:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 18px 34px -14px rgb(var(--c-accent-ink) / .8); }
   .t15-button-secondary { @apply border border-primary/25 bg-bg-elevated text-fg; }
   .t15-button-secondary:not(:disabled):hover { @apply border-primary text-primary; }
-  .t15-invert .t15-button-secondary { @apply border-line/25 bg-glass text-fg backdrop-blur; }
-  .t15-invert .t15-button-secondary:not(:disabled):hover { @apply border-accent text-accent-ink; }
 
   .t15-input { @apply mt-2 block w-full border border-line/15 bg-bg-elevated px-4 py-3 text-base font-medium text-fg transition placeholder:text-fg-subtle focus:outline-none focus:ring-4 sm:text-sm; border-radius: var(--t15-radius); }
   .t15-input:focus { border-color: rgb(var(--c-primary)); --tw-ring-color: rgb(var(--c-primary) / .15); }
-  .t15-invert .t15-input { @apply border-line/20 bg-glass; }
   .t15-label { @apply block text-sm font-bold text-fg; }
   .t15-filter-title { @apply text-xs font-black uppercase tracking-[.16em] text-fg-subtle; }
   .t15-filter-option { @apply w-full px-3 py-2.5 text-left text-sm font-bold text-fg-muted transition hover:bg-primary/[.08] hover:text-primary; border-radius: var(--t15-radius); }
@@ -154,31 +165,30 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-glass { @apply border border-glass-border bg-glass shadow-[0_18px_50px_-24px_rgb(var(--c-shadow)/.35)] backdrop-blur-xl; }
   .t15-glass-dark { @apply border border-glass-strong-border bg-glass-strong backdrop-blur-xl; }
   .t15-chip { @apply inline-flex min-h-11 items-center gap-2 rounded-full border border-line/15 bg-bg-elevated px-4 text-sm font-bold text-fg-muted transition hover:border-primary/40 hover:text-primary; }
-  .t15-invert .t15-chip { @apply border-line/20 bg-glass hover:text-fg; }
-  .t15-chip[aria-selected="true"], .t15-chip[aria-pressed="true"] { @apply border-transparent text-on-primary; background-image: linear-gradient(120deg, rgb(var(--c-primary)), rgb(var(--c-secondary))); }
-  .t15-invert .t15-chip[aria-selected="true"], .t15-invert .t15-chip[aria-pressed="true"] { @apply bg-accent text-on-accent; background-image: none; }
+  .t15-chip[aria-selected="true"], .t15-chip[aria-pressed="true"] { @apply border-primary bg-primary text-on-primary hover:text-on-primary; }
 
   .t15-header { @apply sticky top-0 z-50 border-b border-line/10 bg-bg-elevated/85 backdrop-blur-xl; }
-  .t15-nav-link { @apply relative text-sm font-bold text-fg-muted transition hover:text-primary; }
+  .t15-nav-link { @apply relative whitespace-nowrap text-sm font-bold text-fg-muted transition hover:text-primary; }
   .t15-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/12 bg-bg-elevated text-fg transition hover:border-primary/40 hover:text-primary; }
-  .t15-invert .t15-icon-button { @apply bg-glass; }
   .t15-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-black text-on-accent ring-2 ring-bg-elevated; }
-  .t15-demo-bar { @apply relative z-[60] text-on-primary; background-image: linear-gradient(90deg, rgb(var(--c-primary-deep)), rgb(var(--c-secondary-deep))); }
+  .t15-demo-bar { @apply relative z-[60] bg-primary-deep text-on-media; }
   .t15-demo-link { @apply items-center border-b border-accent/70 font-black text-accent; }
   .t15-footer-title { @apply text-xs font-black uppercase tracking-[.18em] text-accent-ink; }
   .t15-theme-trigger { @apply grid h-11 w-11 place-items-center rounded-full bg-accent text-on-accent shadow-xl; }
 
-  /* Hero trang phụ: nền sáng gradient bạc hà → trời, mặt trời góc phải */
-  .t15-page-hero { @apply relative isolate overflow-hidden py-16 md:py-24; background: radial-gradient(circle at 88% 12%, rgb(var(--c-accent) / .45), transparent 26%), radial-gradient(circle at 6% 100%, rgb(var(--c-leaf) / .18), transparent 40%), linear-gradient(135deg, rgb(var(--c-bg-tint)), rgb(var(--c-bg-sky))); }
+  /* Hero trang phụ: nền bạc hà nhạt một màu + mặt trời nhỏ góc phải (không trộn xanh/vàng) */
+  .t15-page-hero { @apply relative isolate overflow-hidden border-b border-line/[.06] bg-bg-tint py-16 md:py-24; }
+  .t15-page-hero::before { content: ""; @apply pointer-events-none absolute -right-24 -top-24 -z-10 h-80 w-80 rounded-full; background: radial-gradient(circle, rgb(var(--c-accent) / .55), rgb(var(--c-accent) / 0) 68%); }
   .t15-page-hero::after { content: ""; @apply pointer-events-none absolute inset-0 -z-10 opacity-60; background-image: radial-gradient(rgb(var(--c-primary) / .12) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(90deg, transparent, rgb(0 0 0) 60%); }
   .t15-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.08] tracking-[-.04em] text-fg sm:text-5xl lg:text-6xl; }
   .t15-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-fg-muted sm:text-lg; }
 
-  /* Nền section tối "Ocean Forest" */
-  .t15-ocean { background: radial-gradient(circle at 90% 0%, rgb(var(--c-accent) / .18), transparent 32%), linear-gradient(135deg, rgb(var(--c-bg-deep)), rgb(var(--c-bg-tint)) 55%, rgb(var(--c-primary-deep))); }
+  /* Nền section "nhấn": light = bạc hà → trắng (cùng một sắc độ), dark = tối sâu */
+  .t15-ocean { background: linear-gradient(180deg, rgb(var(--c-bg-tint)), rgb(var(--c-bg))); }
+  [data-theme="dark"] .t15-ocean { background: linear-gradient(180deg, rgb(var(--c-bg-deep)), rgb(var(--c-bg))); }
   /* Lưới chấm trang trí */
   .t15-dots { background-image: radial-gradient(rgb(var(--c-primary) / .14) 1px, transparent 1px); background-size: 22px 22px; }
-  .t15-invert .t15-dots, .t15-invert.t15-dots { background-image: radial-gradient(rgb(255 255 255 / .1) 1px, transparent 1px); }
+  [data-theme="dark"] .t15-dots { background-image: radial-gradient(rgb(255 255 255 / .08) 1px, transparent 1px); }
 }
 
 /* ---------- Chuyển động trang trí ---------- */
@@ -197,7 +207,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 .t15-dash { stroke-dasharray:4 4; animation:t15-dash 1.6s linear infinite; }
 .t15-ping { animation:t15-ping 2.2s ease-out infinite; }
 /* Dòng năng lượng chạy dọc thanh (đường kẻ gradient) */
-.t15-energy-line { background-image: linear-gradient(90deg, rgb(var(--c-leaf)), rgb(var(--c-sky)), rgb(var(--c-accent)), rgb(var(--c-leaf))); background-size: 200% 100%; animation: t15-flow 6s linear infinite; }
+.t15-energy-line { background-image: linear-gradient(90deg, rgb(var(--c-primary)) 0 33%, rgb(var(--c-accent)) 33% 66%, rgb(var(--c-secondary)) 66% 100%); }
 
 /* Thanh tiến trình cuộn trang (CSS scroll-driven animation; trình duyệt chưa hỗ trợ → ẩn) */
 .t15-scroll-progress { display:none; }
@@ -205,7 +215,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   @media (prefers-reduced-motion:no-preference) {
     @keyframes t15-grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
     .t15-scroll-progress { display:block; position:fixed; inset:0 0 auto 0; z-index:95; height:3px; transform-origin:0 50%; pointer-events:none;
-      background-image: linear-gradient(90deg, rgb(var(--c-leaf)), rgb(var(--c-sky)), rgb(var(--c-accent)));
+      background: rgb(var(--c-primary));
       animation:t15-grow linear both; animation-timeline:scroll(root); }
   }
 }

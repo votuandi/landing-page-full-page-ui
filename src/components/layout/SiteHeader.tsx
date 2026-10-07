@@ -16,6 +16,7 @@ import { pickText, type Lang } from "@/i18n/text";
 import BrandLogo from "@/components/BrandLogo";
 import { Wordmark } from "@/components/ui/Media";
 import { ZaloIcon } from "@/components/BrandIcons";
+import ThemeSwitch from "@/components/layout/ThemeSwitch";
 
 type MenuId = "pricing" | "equipment" | "guide" | "hotline";
 
@@ -279,24 +280,24 @@ export default function SiteHeader({ brandName, drawerOpen, setDrawerOpen }: Pro
             <BrandLogo name={brandName} />
           </Link>
 
-          <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label={tr("Điều hướng chính", "Main navigation")}>
+          <nav className="hidden items-center gap-5 xl:flex 2xl:gap-7" aria-label={tr("Điều hướng chính", "Main navigation")}>
             {panels.pricing && trigger("pricing", tr("Bảng giá lắp đặt", "Pricing"))}
             {panels.equipment && trigger("equipment", tr("Thiết bị", "Equipment"))}
             {siteConfig.projects.enabled && <Link href="/#du-an" className="t15-nav-link" onPointerEnter={hoverClose}>{tr("Dự án", "Projects")}</Link>}
             {dealer.enabled && <Link href="/#dai-ly" className="t15-nav-link" onPointerEnter={hoverClose}>{tr("Đại lý", "Dealers")}</Link>}
-            <Link href="/tin-tuc" className="t15-nav-link hidden xl:inline" onPointerEnter={hoverClose}>{tr("Tin tức", "News")}</Link>
+            <Link href="/tin-tuc" className="t15-nav-link hidden 2xl:inline" onPointerEnter={hoverClose}>{tr("Tin tức", "News")}</Link>
             {panels.guide && trigger("guide", tr("Cẩm nang", "Guides"))}
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="relative hidden lg:block">
+            <div className="relative hidden xl:block">
               <button
                 ref={(el) => { triggers.current.hotline = el; }}
                 type="button" aria-expanded={open === "hotline"} aria-controls="menu-hotline"
                 onClick={() => setOpen((v) => (v === "hotline" ? null : "hotline"))}
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line/12 bg-bg-elevated px-3 text-sm font-black text-fg transition hover:border-primary/40 hover:text-primary"
               >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-on-accent"><PhoneIcon className="h-4 w-4" /></span><span className="hidden xl:inline">Hotline</span><ChevronDownIcon aria-hidden className={`h-4 w-4 transition ${open === "hotline" ? "rotate-180" : ""}`} />
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-on-accent"><PhoneIcon className="h-4 w-4" /></span><span className="hidden 2xl:inline">Hotline</span><ChevronDownIcon aria-hidden className={`h-4 w-4 transition ${open === "hotline" ? "rotate-180" : ""}`} />
               </button>
               {open === "hotline" && (
                 <div id="menu-hotline" className="absolute right-0 top-[calc(100%+12px)] max-h-[calc(100svh-8rem)] w-[420px] overflow-y-auto rounded-[28px] border border-line/10 bg-bg-elevated p-4 shadow-2xl">
@@ -306,16 +307,17 @@ export default function SiteHeader({ brandName, drawerOpen, setDrawerOpen }: Pro
               )}
             </div>
             <LangSwitch className="hidden sm:flex" />
+            <ThemeSwitch className="hidden sm:inline-flex" />
             {catalogEnabled && <CartButton className="hidden sm:inline-flex" />}
             <button type="button" onClick={() => { close(); openCalculator(); }} className="t15-button t15-button-accent whitespace-nowrap !px-4 sm:!px-6">{tr("Báo giá", "Get a quote")}</button>
-            <button type="button" onClick={() => setDrawerOpen(!drawerOpen)} className="t15-icon-button lg:hidden" aria-expanded={drawerOpen} aria-controls="mobile-drawer" aria-label={drawerOpen ? tr("Đóng menu", "Close menu") : tr("Mở menu", "Open menu")}>
+            <button type="button" onClick={() => setDrawerOpen(!drawerOpen)} className="t15-icon-button xl:hidden" aria-expanded={drawerOpen} aria-controls="mobile-drawer" aria-label={drawerOpen ? tr("Đóng menu", "Close menu") : tr("Mở menu", "Open menu")}>
               {drawerOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
         {open && open !== "hotline" && panels[open] && (
-          <div id={`menu-${open}`} className="absolute inset-x-0 top-full hidden lg:block">
+          <div id={`menu-${open}`} className="absolute inset-x-0 top-full hidden xl:block">
             <div className="t15-container pt-3">
               <div className="max-h-[calc(100svh-7rem)] overflow-y-auto rounded-[32px] border border-line/10 bg-bg-elevated p-6 shadow-2xl xl:p-8">{panels[open]}</div>
             </div>
@@ -354,11 +356,11 @@ function MobileDrawer({ onClose }: { onClose: () => void }) {
   );
 
   return (
-    <div id="mobile-drawer" role="dialog" aria-modal="true" aria-label={tr("Danh mục", "Menu")} className="fixed inset-0 z-[75] flex justify-end bg-scrim/60 backdrop-blur-sm lg:hidden">
+    <div id="mobile-drawer" role="dialog" aria-modal="true" aria-label={tr("Danh mục", "Menu")} className="fixed inset-0 z-[75] flex justify-end bg-scrim/60 backdrop-blur-sm xl:hidden">
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label={tr("Đóng menu", "Close menu")} tabIndex={-1} />
       <aside className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-[28px] bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
         <div className="flex items-center justify-between gap-3">
-          <LangSwitch />
+          <div className="flex items-center gap-2"><LangSwitch /><ThemeSwitch /></div>
           <button ref={closeRef} type="button" onClick={onClose} className="t15-icon-button" aria-label={tr("Đóng menu", "Close menu")}><XMarkIcon className="h-6 w-6" /></button>
         </div>
         <nav className="mt-4" aria-label={tr("Điều hướng di động", "Mobile navigation")}>

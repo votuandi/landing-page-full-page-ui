@@ -115,8 +115,8 @@ export default function SolarEstimator() {
   const edit = <T,>(setter: (v: T) => void) => (v: T) => { setTouched(true); setter(v); };
 
   return (
-    <section id={CALCULATOR_ID} className="t15-section relative overflow-hidden bg-gradient-to-b from-bg-sun/70 via-bg to-bg-tint" aria-labelledby="du-toan-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.28),transparent_65%)]" />
+    <section id={CALCULATOR_ID} className="t15-section relative overflow-hidden bg-gradient-to-b from-bg-sun/70 to-bg" aria-labelledby="du-toan-title">
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.22),transparent_65%)]" />
       <div className="t15-container relative">
         <div data-reveal="down" className="max-w-3xl">
           <span className="t15-eyebrow"><CalculatorIcon className="h-4 w-4" />{tr("Dự toán miễn phí", "Free estimate")}</span>
@@ -193,7 +193,7 @@ export default function SolarEstimator() {
           </div>
 
           {/* ===== Kết quả + form báo giá chi tiết ===== */}
-          <div data-reveal="right" style={delay(0.2)} className="t15-invert t15-ocean relative scroll-mt-24 overflow-hidden rounded-[32px] p-5 shadow-[0_40px_80px_-40px_rgb(var(--c-shadow)/.7)] sm:p-8">
+          <div data-reveal="right" style={delay(0.2)} className="t15-invert t15-card relative scroll-mt-24 overflow-hidden !border-primary/20 bg-bg-tint p-5 sm:p-8">
             <div aria-hidden className="t15-energy-line absolute inset-x-0 top-0 h-1.5" />
             <div className="relative">
               <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-black">{tr("Kết quả sơ bộ", "Preliminary result")}</h3><span className="rounded-full bg-glass px-3 py-1 text-xs font-bold text-fg-muted">{tr(SEGMENTS[segment].short, SEGMENTS[segment].en.short)} • {province}</span></div>

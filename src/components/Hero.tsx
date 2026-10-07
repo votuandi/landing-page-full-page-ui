@@ -27,15 +27,14 @@ const chips = [
 export default function Hero() {
   const google = siteConfig.reviews.google;
   return (
-    <section className="t15-screen relative isolate overflow-hidden !min-h-[calc(100svh-7.5rem)] bg-gradient-to-br from-bg-tint via-bg to-bg-sky">
+    <section className="t15-screen relative isolate overflow-hidden !min-h-[calc(100svh-7.5rem)] bg-gradient-to-b from-bg-tint to-bg">
       <div aria-hidden className="t15-dots pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_30%_40%,rgb(0_0_0),transparent_70%)]" />
       <div aria-hidden className="pointer-events-none absolute -left-40 -top-40 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-leaf)/.22),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-48 right-[20%] -z-10 h-[560px] w-[560px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-sky)/.25),transparent_65%)]" />
-
+      
       <div className="t15-container grid items-center gap-12 pb-16 pt-10 lg:grid-cols-[1.02fr_1fr] lg:gap-8 lg:py-12">
         <div className="relative z-10">
           <div data-hero="down" className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-bg-elevated/80 py-1.5 pl-1.5 pr-4 text-[11px] font-bold text-fg-muted shadow-sm backdrop-blur sm:text-xs">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary to-secondary text-on-primary"><BoltIcon className="h-4 w-4" /></span>
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-on-primary"><BoltIcon className="h-4 w-4" /></span>
             <Tr vi="Năng lượng xanh • Phân phối thiết bị • Tổng thầu EPC" en="Green energy • Equipment • EPC contractor" />
           </div>
           <h1 data-hero="left" style={delay(0.1)} className="mt-6 max-w-2xl text-[2.55rem] font-black leading-[1.06] tracking-[-.045em] text-fg sm:text-6xl lg:text-[3.9rem]">
@@ -78,7 +77,7 @@ export default function Hero() {
           {/* Ảnh vòm */}
           <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[10%] h-[88%] w-[62%] overflow-hidden rounded-b-[40px] rounded-t-full border-[6px] border-bg-elevated bg-bg-tint shadow-[0_40px_80px_-30px_rgb(var(--c-shadow)/.5)]">
             <Image src="/images/services/service_1772895565903.webp" alt="Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" fill priority quality={70} className="object-cover object-[72%_center]" sizes="(max-width:1024px) 62vw, 370px" />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-scrim/45 to-transparent" />
           </div>
 
           {/* Điểm phân tích + đường nối */}
@@ -105,7 +104,7 @@ export default function Hero() {
             <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[.12em] text-fg-muted"><Tr vi="Sản lượng hôm nay" en="Today's output" /><span className="flex items-center gap-1 text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />Live</span></div>
             <div className="mt-2 text-2xl font-black text-fg">1.248 <span className="text-sm font-bold text-fg-subtle">kWh</span></div>
             <div className="mt-3 flex h-10 items-end gap-1">
-              {[22, 35, 48, 66, 82, 100, 92, 74, 55, 34].map((h, i) => <span key={i} className="flex-1 rounded-full bg-gradient-to-t from-leaf to-accent" style={{ height: `${h}%` }} />)}
+              {[22, 35, 48, 66, 82, 100, 92, 74, 55, 34].map((h, i) => <span key={i} className={`flex-1 rounded-full ${h > 80 ? "bg-accent" : "bg-leaf"}`} style={{ height: `${h}%` }} />)}
             </div>
           </div>
 
@@ -116,7 +115,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div data-reveal="up" style={delay(0.85)} className="t15-float-delay absolute bottom-[1%] right-[0%] hidden rounded-2xl bg-gradient-to-br from-primary to-secondary px-4 py-3 text-on-primary shadow-xl sm:block">
+          <div data-reveal="up" style={delay(0.85)} className="t15-float-delay absolute bottom-[1%] right-[0%] hidden rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-xl sm:block">
             <div className="text-[11px] font-semibold text-on-primary/85"><Tr vi="CO₂ giảm mỗi năm" en="CO₂ avoided / year" /></div>
             <div className="text-lg font-black">~840 <Tr vi="tấn" en="tonnes" /></div>
           </div>

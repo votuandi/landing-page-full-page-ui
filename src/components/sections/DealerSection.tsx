@@ -21,7 +21,7 @@ export default function DealerSection() {
 
   return (
     <section id="dai-ly" className="t15-invert t15-section relative overflow-hidden t15-ocean text-fg" aria-labelledby="dai-ly-title">
-      <div aria-hidden className="pointer-events-none absolute -left-32 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.22),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -left-32 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.18),transparent_65%)]" />
       <div className="t15-container relative">
         <SectionHead id="dai-ly-title" eyebrow={tr("Trở thành đại lý", "Become a dealer")}
           title={tr("Cùng phân phối điện mặt trời tại địa phương của bạn.", "Distribute solar in your own region.")}
@@ -86,7 +86,7 @@ export default function DealerSection() {
           </div>
         </div>
 
-        <div data-reveal="up" className="mt-8 grid gap-6 rounded-[32px] border border-glass-border bg-bg-deep/70 p-6 text-fg shadow-2xl backdrop-blur md:p-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+        <div data-reveal="up" className="mt-8 grid gap-6 rounded-[32px] border border-glass-border bg-bg-elevated p-6 text-fg shadow-xl md:p-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
           <div>
             <h3 className="text-2xl font-black sm:text-3xl">{tr("Đăng ký làm đại lý", "Apply now")}</h3>
             <p className="mt-2 text-sm leading-6 text-fg-muted">{tr("Để lại thông tin — phòng kinh doanh khu vực gửi chính sách chi tiết và bảng giá đại lý.", "Leave your details — our regional team will send the full policy and dealer price list.")}</p>

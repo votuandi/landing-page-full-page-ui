@@ -9,11 +9,11 @@ import SegmentIcon from "@/components/SegmentIcon";
 import { SectionHead } from "@/components/ui/ui";
 
 /** Ảnh minh họa + mức giảm hóa đơn tham khảo cho từng phân khúc. [CẦN XÁC MINH] theo công trình thực tế. */
-const CARD: Record<Segment, { image: string; saving: string; tone: string }> = {
-  household: { image: "/images/illustrations/home-solar.webp", saving: "50–90%", tone: "from-leaf/25" },
-  shop: { image: "/images/illustrations/shop-solar.webp", saving: "30–50%", tone: "from-sky/25" },
-  factory: { image: "/images/illustrations/factory-solar.webp", saving: "25–40%", tone: "from-secondary/20" },
-  farm: { image: "/images/illustrations/farm-hybrid-solar.webp", saving: "30–60%", tone: "from-accent/35" },
+const CARD: Record<Segment, { image: string; saving: string }> = {
+  household: { image: "/images/illustrations/home-solar.webp", saving: "50–90%" },
+  shop: { image: "/images/illustrations/shop-solar.webp", saving: "30–50%" },
+  factory: { image: "/images/illustrations/factory-solar.webp", saving: "25–40%" },
+  farm: { image: "/images/illustrations/farm-hybrid-solar.webp", saving: "30–60%" },
 };
 
 /**
@@ -39,7 +39,7 @@ export default function SegmentGrid() {
             return (
               <button key={s} type="button" aria-pressed={active} onClick={() => focusSegment(s, SECTION_IDS.video)}
                 className={`t15-card t15-card-hover group relative flex flex-col overflow-hidden text-left ${active ? "!border-primary ring-4 ring-primary/15" : ""}`}>
-                <span className={`relative block aspect-[4/3] overflow-hidden bg-gradient-to-br ${card.tone} to-bg-tint`}>
+                <span className={`relative block aspect-[4/3] overflow-hidden bg-bg-tint`}>
                   <Image src={card.image} alt="" fill loading="lazy" sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.06]" />
                   <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-scrim/60 to-transparent" />
                   <span className="absolute bottom-3 left-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-black text-on-accent shadow">{tr("Giảm đến", "Save up to")} {card.saving}</span>

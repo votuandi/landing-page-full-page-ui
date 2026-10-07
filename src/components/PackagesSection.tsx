@@ -46,7 +46,7 @@ export default function PackagesSection() {
         <div className="mt-10 grid gap-5 lg:grid-cols-[.8fr_2.2fr]">
           <div data-reveal="left" className="relative hidden min-h-[440px] overflow-hidden rounded-[32px] border-4 border-bg-elevated shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.5)] lg:block">
             <Image key={cover.src} src={cover.src} alt="" fill className="object-cover" sizes="25vw" />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/90 via-primary-deep/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-scrim/10 to-transparent" />
             <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-on-media/25 bg-on-media/15 p-5 text-on-media backdrop-blur-xl">
               <div className="flex items-center gap-2 text-lg font-black"><SegmentIcon segment={current} className="h-5 w-5" />{tr(SEGMENTS[current].label, SEGMENTS[current].en.label)}</div>
               <p className="mt-2 text-sm leading-6 text-on-media/90">{tr(cover.pitch[0], cover.pitch[1])}</p>
@@ -58,7 +58,7 @@ export default function PackagesSection() {
               const saving = estimateSavingForKwp(pkg.segment, pkg.kwp, PACKAGE_REFERENCE_PROVINCE);
               return (
                 <article key={pkg.id} className={`t15-card t15-card-hover relative flex flex-col overflow-hidden p-6 ${pkg.popular ? "!border-primary/50 ring-4 ring-primary/10" : ""}`}>
-                  <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${pkg.popular ? "t15-energy-line" : "bg-gradient-to-r from-leaf/60 to-sky/60"}`} />
+                  <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${pkg.popular ? "bg-accent" : "bg-primary/20"}`} />
                   {pkg.popular && <span className="absolute right-5 top-5 rounded-full bg-accent px-3 py-1 text-[11px] font-black text-on-accent">{tr("Chọn nhiều", "Popular")}</span>}
                   <h3 className="text-sm font-bold text-fg-muted">{pkg.name}</h3>
                   <div className="mt-1 text-3xl font-black tracking-tight text-fg">{formatNumber(pkg.kwp, 1)}<span className="ml-1 text-base text-fg-subtle">kWp</span></div>

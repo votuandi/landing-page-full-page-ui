@@ -107,6 +107,9 @@ export const siteConfig = {
 
   i18n: { enabled: true, defaultLang: "vi" as "vi" | "en" },
 
+  /** Giao diện: mặc định Sáng (light). switcher = hiện công tắc Sáng/Tối trên header (lựa chọn lưu trên trình duyệt). */
+  theme: { default: "light" as "light" | "dark", switcher: true },
+
   /** Zalo dùng cho thanh điều hướng đáy (mobile) và CTA */
   zalo: {
     household: { label: { vi: "Zalo Gia đình", en: "Zalo Home" } as Text, phone: "0901 234 501" },

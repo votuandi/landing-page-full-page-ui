@@ -101,12 +101,15 @@ Mọi màu là token trong `:root` (dạng `--c-<tên>: R G B`); Tailwind chỉ 
 | Token | Vai trò |
 | --- | --- |
 | `--c-bg`, `bg-elevated`, `bg-tint`, `bg-sky`, `bg-sun` | Nền trang, thẻ, nền xen kẽ bạc hà / trời / nắng |
-| `--c-primary` (xanh lá), `--c-secondary` (xanh dương) | Chữ, icon, nút (gradient lá → dương); đều đạt AA trên nền trắng |
+| `--c-primary` (xanh lá), `--c-secondary` (xanh dương) | Chữ, icon, nút (xanh lá), link/điểm nhấn thứ hai (xanh dương); đều đạt AA trên nền trắng |
 | `--c-leaf`, `--c-sky` | Xanh tươi — chỉ trang trí |
 | `--c-accent` (vàng nắng), `--c-accent-ink` | Nền CTA/badge; `accent-ink` là chữ màu vàng đạt AA |
 | `--c-fg`, `fg-muted`, `fg-subtle` | Chữ chính / phụ / cấp 3 |
 
-- Section tối "Ocean Forest" (xanh rừng → xanh biển): class `t15-invert t15-ocean`. Thẻ sáng nằm trong section tối: thêm `t15-light`.
+- **Light mode là mặc định** (`theme.default` trong `site.config.ts`). Công tắc Sáng/Tối trên header (`theme.switcher`),
+  lựa chọn lưu trên trình duyệt và được áp trước khi vẽ trang (không nhấp nháy). Bảng màu tối: khối `[data-theme="dark"]` trong `globals.css`.
+- Nguyên tắc màu: nút, chip, chữ nhấn dùng **một màu** (xanh lá / vàng nắng); gradient chỉ trong cùng một sắc độ (vd. bạc hà → trắng).
+- Section "nhấn" (dự án, số liệu, đại lý, footer…): class `t15-invert t15-ocean` — light mode là nền bạc hà nhạt + thẻ kính trắng, dark mode là nền tối sâu.
 - Thanh demo (`NEXT_PUBLIC_DEMO_MODE`) có bảng thử bộ màu (`THEME_PRESETS` trong `site.ts`).
 - Hiệu ứng: reveal khi cuộn (`data-reveal="up|down|left|right|zoom"`, `data-reveal-stagger`), hero chạy bằng CSS (`data-hero`),
   thanh tiến trình cuộn trang, mặt trời xoay, dòng năng lượng — tất cả tắt với `prefers-reduced-motion`.

@@ -37,10 +37,10 @@ function PhoneDashboard() {
             <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-[9px] font-bold text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />Trực tuyến</span>
           </div>
 
-          <div className="mt-3 rounded-2xl bg-gradient-to-br from-bg-deep to-primary-strong p-3 text-fg">
+          <div className="mt-3 rounded-2xl bg-primary p-3 text-on-primary">
             <div className="flex items-start justify-between">
-              <div><div className="text-[9px] font-semibold uppercase tracking-wider text-fg-muted">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-[10px] font-semibold text-fg-muted">kWh</span></div><div className="text-[9px] font-bold text-accent-ink">▲ 12% so với hôm qua</div></div>
-              <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-glass-tint) / .2)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-accent-soft))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
+              <div><div className="text-[9px] font-semibold uppercase tracking-wider text-on-primary/75">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-[10px] font-semibold text-on-primary/75">kWh</span></div><div className="text-[9px] font-bold text-accent">▲ 12% so với hôm qua</div></div>
+              <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-on-primary) / .25)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-accent))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ function PhoneDashboard() {
 
           <div className="mt-2.5 rounded-2xl bg-bg-elevated/95 p-2.5 shadow-sm">
             <div className="flex items-center justify-between text-[9px] font-bold"><span>Pin lưu trữ • đang sạc</span><span className="text-success">86%</span></div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bg-elevated"><div className="h-full w-[86%] rounded-full bg-gradient-to-r from-primary to-primary-strong" /></div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bg-elevated"><div className="h-full w-[86%] rounded-full bg-primary" /></div>
             <div className="mt-1.5 text-[8px] font-semibold text-fg-muted">Dự phòng ước tính 5 giờ 20 phút</div>
           </div>
         </div>
@@ -115,7 +115,7 @@ function HandHoldingPhone() {
 export default function EnergyMonitoringSection() {
   return (
     <section id="theo-doi-24-7" className="t15-invert t15-screen relative isolate overflow-hidden t15-ocean py-16 text-fg md:py-24">
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.35),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.25),transparent_65%)]" />
       <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/.18),transparent_65%)]" />
       <div aria-hidden className="absolute inset-0 -z-10 opacity-[.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]" />
 
