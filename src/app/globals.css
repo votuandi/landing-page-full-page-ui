@@ -95,7 +95,7 @@
   color: rgb(var(--c-fg));
 }
 /* Chữ/số màu accent trên nền sáng: vàng hổ phách thuần chỉ đạt 2:1 → dùng accent-soft (hổ phách đậm / xanh ngọc trong section nhấn) */
-[data-theme="light"] .text-accent { color: rgb(var(--c-accent-soft)); }
+[data-theme="light"] .text-accent:not(:where(.text-on-media, .text-on-media *)) { color: rgb(var(--c-accent-soft)); }
 [data-theme="light"] .t5-input { background-color: rgb(var(--c-bg-elevated)); }
 [data-theme="light"] .t12-invert .t5-input { background-color: rgb(255 255 255 / .85); }
 
