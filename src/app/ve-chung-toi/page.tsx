@@ -76,12 +76,12 @@ export default function AboutPage() {
       </div>
     </section>
 
-    <section className="t13-invert t5-section bg-bg-deep">
+    <section className="t13-invert t5-section bg-bg-tint">
       <div className="t5-container">
         <span className="t5-eyebrow !border-on-media/20 !bg-on-media/10 !text-highlight">Hành trình</span>
-        <div className="mt-8 grid gap-px bg-on-media/15 md:grid-cols-4">
+        <div className="mt-8 grid gap-4 md:grid-cols-4">
           {timeline.map(([year, title, desc]) => (
-            <article key={title} className="bg-bg-deep p-6">
+            <article key={title} className="t8-card p-6">
               <div className="text-2xl font-black text-highlight">{year}</div>
               <h3 className="mt-7 text-xl font-black">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-fg-muted">{desc}</p>

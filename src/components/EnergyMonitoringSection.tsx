@@ -37,7 +37,7 @@ function PhoneDashboard() {
             <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-[9px] font-bold text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />Trực tuyến</span>
           </div>
 
-          <div className="mt-3 rounded-2xl bg-gradient-to-br from-primary to-primary-deep p-3 text-on-media">
+          <div className="mt-3 rounded-2xl bg-primary p-3 text-on-media">
             <div className="flex items-start justify-between">
               <div><div className="text-[9px] font-semibold uppercase tracking-wider text-on-media/70">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-[10px] font-semibold text-on-media/70">kWh</span></div><div className="text-[9px] font-bold text-highlight">▲ 12% so với hôm qua</div></div>
               <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-on-media) / .2)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-highlight))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
@@ -113,29 +113,29 @@ function HandHoldingPhone() {
 
 export default function EnergyMonitoringSection() {
   return (
-    <section id="theo-doi-24-7" className="t8-screen relative isolate overflow-hidden bg-gradient-to-br from-bg-deep via-primary-deep to-bg-deep py-16 text-on-media md:py-24">
+    <section id="theo-doi-24-7" className="t13-invert t8-screen relative isolate overflow-hidden bg-gradient-to-b from-bg-tint to-bg py-16 text-fg md:py-24">
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-sun)/.35),transparent_65%)]" />
       <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/.18),transparent_65%)]" />
-      <div aria-hidden className="absolute inset-0 -z-10 opacity-[.07] [background-image:radial-gradient(rgb(var(--c-on-media))_1px,transparent_1px)] [background-size:22px_22px]" />
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-[.07] [background-image:radial-gradient(rgb(var(--c-primary))_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="t5-container grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
         <div>
-          <span data-reveal="down" className="inline-flex items-center gap-2 rounded-full border border-on-media/20 bg-bg-elevated/10 px-3 py-1.5 text-xs font-black uppercase tracking-[.18em] text-highlight backdrop-blur"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-highlight" />Theo dõi điện năng 24/7</span>
+          <span data-reveal="down" className="inline-flex items-center gap-2 rounded-full border border-line/15 bg-bg-elevated px-3 py-1.5 text-xs font-black uppercase tracking-[.18em] text-highlight backdrop-blur"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-highlight" />Theo dõi điện năng 24/7</span>
           <h2 data-reveal="left" style={delay(0.1)} className="mt-5 max-w-2xl text-4xl font-black leading-[1.08] tracking-[-.04em] sm:text-5xl">Toàn bộ dòng điện của bạn, gọn trong lòng bàn tay.</h2>
-          <p data-reveal="left" style={delay(0.2)} className="mt-5 max-w-xl leading-8 text-on-media/70">Mỗi hệ thống được bàn giao kèm ứng dụng giám sát. Xem điện năng sinh ra, tiêu thụ và lưu trữ theo thời gian thực — biết chính xác mình đang tiết kiệm bao nhiêu, ở bất cứ đâu.</p>
+          <p data-reveal="left" style={delay(0.2)} className="mt-5 max-w-xl leading-8 text-fg-muted">Mỗi hệ thống được bàn giao kèm ứng dụng giám sát. Xem điện năng sinh ra, tiêu thụ và lưu trữ theo thời gian thực — biết chính xác mình đang tiết kiệm bao nhiêu, ở bất cứ đâu.</p>
 
           <div data-reveal-stagger="up" data-reveal-step="0.12" className="mt-8 grid gap-3 sm:grid-cols-3">
             {flows.map(({ label, desc, value, Icon, tone }) => (
-              <div key={label} className="t8-glass-dark rounded-3xl p-5 transition hover:bg-bg-elevated/15">
-                <div className="flex items-center justify-between"><span className={`grid h-10 w-10 place-items-center rounded-2xl ${tone}`}><Icon className="h-5 w-5" /></span><span className="text-sm font-black text-on-media/90">{value}</span></div>
+              <div key={label} className="t8-glass-dark rounded-3xl p-5 transition hover:bg-bg-elevated">
+                <div className="flex items-center justify-between"><span className={`grid h-10 w-10 place-items-center rounded-2xl ${tone}`}><Icon className="h-5 w-5" /></span><span className="text-sm font-black text-fg">{value}</span></div>
                 <div className="mt-4 font-black">{label}</div>
-                <p className="mt-1 text-xs leading-5 text-on-media/60">{desc}</p>
+                <p className="mt-1 text-xs leading-5 text-fg-muted">{desc}</p>
               </div>
             ))}
           </div>
 
           <ul data-reveal-stagger="left" data-reveal-step="0.08" className="mt-8 grid gap-3 sm:grid-cols-2">
-            {features.map(([Icon, text]) => <li key={text} className="flex items-center gap-3 text-sm font-semibold text-on-media/80"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-bg-elevated/10"><Icon className="h-4 w-4 text-highlight" /></span>{text}</li>)}
+            {features.map(([Icon, text]) => <li key={text} className="flex items-center gap-3 text-sm font-semibold text-fg"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-bg-elevated"><Icon className="h-4 w-4 text-highlight" /></span>{text}</li>)}
           </ul>
 
           <Link data-reveal="up" style={delay(0.2)} href="/lien-he" className="t5-button mt-10 bg-sun text-fg hover:brightness-105">Xem demo ứng dụng <ArrowRightIcon className="h-4 w-4" /></Link>
@@ -143,7 +143,7 @@ export default function EnergyMonitoringSection() {
 
         <div className="flex justify-center">
         <div className="relative -mb-24 w-[380px] shrink-0 origin-top scale-[.84] sm:mb-0 sm:scale-100">
-          <div aria-hidden className="absolute left-1/2 top-[42%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-on-media/10" />
+          <div aria-hidden className="absolute left-1/2 top-[42%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/10" />
           <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-sun)/.3),transparent_68%)]" />
           <div data-reveal="up" style={delay(0.15)}><HandHoldingPhone /></div>
           <div data-reveal="left" style={delay(0.55)} className="t8-glass t8-float absolute -left-24 top-[34%] hidden rounded-2xl px-4 py-3 text-fg sm:block lg:-left-32">

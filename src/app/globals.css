@@ -71,17 +71,12 @@
   color-scheme: light;
 }
 
-/* Section luôn tối (nền bg-deep / primary-deep): đảo màu chữ, viền và kính sang tông sáng */
+/* Khối "nhấn" (kết quả dự toán, theo dõi 24/7, hero trang phụ, footer…): nền kem sáng cùng tông đất nung,
+   thẻ kính trắng, số liệu màu đất nung đậm. Chữ giữ màu tối của bảng sáng (không còn gradient nâu đậm → đất nung). */
 .t13-invert, .t5-page-hero {
-  --c-fg: 255 247 237;
-  --c-fg-muted: 231 216 204;
-  --c-fg-subtle: 200 182 168;
-  --c-line: 255 255 255;
-  --glass: rgba(255,255,255,0.10);
-  --glass-border: rgba(255,255,255,0.15);
-  --c-success: 94 234 212;
-  --c-danger: 252 165 165;
-  color: rgb(var(--c-fg));
+  --glass-strong: rgba(255,255,255,0.78);
+  --glass-strong-border: rgba(194,65,12,0.14);
+  --c-highlight: 154 52 18;      /* = primary-strong, AA trên nền kem */
 }
 
 * { box-sizing: border-box; }
@@ -117,7 +112,6 @@ main > section:not(:first-child) { content-visibility: auto; contain-intrinsic-s
   .t5-button-secondary { @apply border border-line/20 bg-glass text-fg backdrop-blur; }
   .t5-button-secondary:hover { @apply bg-bg-elevated; }
   .t5-input { @apply mt-2 block w-full border border-line/20 bg-bg-elevated px-4 py-3 text-base font-medium text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 sm:text-sm; border-radius:var(--t5-radius); }
-  .t13-invert .t5-input { @apply border-line/20 bg-on-media/10; }
   .t5-input:focus { border-color:rgb(var(--c-primary)); --tw-ring-color:rgb(var(--c-primary) / .15); }
   .t5-label { @apply block text-sm font-bold text-fg; }
   .t5-filter-title { @apply text-xs font-black uppercase tracking-[.16em] text-fg-subtle; }
@@ -132,7 +126,7 @@ main > section:not(:first-child) { content-visibility: auto; contain-intrinsic-s
   .t5-demo-link { @apply items-center border-b border-on-media/50 font-black; }
   .t5-footer-title { @apply text-xs font-black uppercase tracking-[.18em] text-highlight; }
   .t5-theme-trigger { @apply grid h-11 w-11 place-items-center rounded-full bg-primary text-on-primary shadow-xl; }
-  .t5-page-hero { @apply py-16 md:py-24; background:radial-gradient(circle at 85% 20%, rgb(var(--c-sun) / .22), transparent 40%), linear-gradient(135deg, rgb(var(--c-bg-deep)), rgb(var(--c-primary-deep))); }
+  .t5-page-hero { @apply border-b border-line/10 py-16 md:py-24; background:radial-gradient(circle at 88% 15%, rgb(var(--c-sun) / .28), transparent 32%), rgb(var(--c-bg-tint)); }
   .t5-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.05] tracking-[-.05em] text-fg sm:text-5xl lg:text-6xl; }
   .t5-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-fg-muted sm:text-lg; }
   .t8-glass { @apply border border-on-media/70 bg-glass shadow-[0_18px_50px_-20px_rgb(var(--c-shadow)/.35)] backdrop-blur-xl; }

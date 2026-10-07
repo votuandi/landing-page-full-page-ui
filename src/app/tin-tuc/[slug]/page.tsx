@@ -37,7 +37,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             ? <h2 key={i} className="pt-4 text-2xl font-black tracking-[-.02em] text-fg">{block.slice(3)}</h2>
             : <p key={i}>{block}</p>)}
         </div>
-        <div className="t13-invert mt-12 rounded-[28px] bg-gradient-to-br from-bg-deep to-primary-deep p-6 sm:p-8">
+        <div className="t13-invert mt-12 rounded-[28px] border border-line/10 bg-bg-tint p-6 sm:p-8">
           <h2 className="text-2xl font-black">Tính thử cho công trình của bạn</h2>
           <p className="mt-2 text-fg-muted">Nhập tiền điện và diện tích mái để biết công suất, chi phí và thời gian hoàn vốn.</p>
           <Link href={cta} className="t5-button t5-button-primary mt-5">Dự toán chi phí</Link>

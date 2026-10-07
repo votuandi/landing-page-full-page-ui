@@ -78,7 +78,7 @@ Mỗi màu có 2 dạng: `--primary: #C2410C` (để đọc) và `--c-primary: 1
 | `--c-sun`, `--c-highlight` | Vàng nắng (chỉ trang trí) / số liệu nổi bật trên nền tối |
 | `--c-scrim`, `--c-on-media` | Lớp phủ và chữ trên ảnh/video |
 
-- Section nền tối dùng class `t13-invert` (tự đảo chữ, viền, kính sang tông sáng).
+- Toàn site dùng nền sáng (light mode). Khối "nhấn" (kết quả dự toán, theo dõi 24/7, hero trang phụ, footer) có class `t13-invert`: nền kem `bg-tint` cùng tông đất nung, thẻ kính trắng, số liệu màu `primary-strong` — không dùng gradient nâu đậm.
 - Sau khi đổi màu, kiểm tra tương phản chữ ≥ 4.5:1 (WCAG AA), nhất là `fg-muted` trên nền kính và chữ trắng trên `primary`/`accent`.
   Bảng tỉ lệ của palette hiện tại: `AUDIT.md` mục 5.4.
 - Thanh demo (`NEXT_PUBLIC_DEMO_MODE=true`) có bảng thử vài bộ màu (`THEME_PRESETS` trong `site.ts`).

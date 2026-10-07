@@ -162,7 +162,7 @@ export default function SolarEstimator() {
           </div>
 
           {/* ===== Kết quả + form báo giá chi tiết ===== */}
-          <div data-reveal="right" style={delay(0.2)} className="t13-invert relative overflow-hidden rounded-[32px] bg-gradient-to-br from-bg-deep via-bg-deep to-primary-deep p-5 shadow-[0_40px_80px_-40px_rgb(var(--c-shadow)/.7)] sm:p-8">
+          <div data-reveal="right" style={delay(0.2)} className="t13-invert relative overflow-hidden rounded-[32px] border border-line/10 bg-bg-tint p-5 shadow-[0_30px_70px_-45px_rgb(var(--c-shadow)/.45)] sm:p-8">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgb(var(--c-sun)/.3),transparent_65%)]" />
             <div className="relative">
               <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-black">Kết quả sơ bộ</h3><span className="rounded-full bg-glass px-3 py-1 text-xs font-bold text-fg-muted">{SEGMENTS[segment].short} • {province}</span></div>

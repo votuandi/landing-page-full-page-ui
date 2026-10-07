@@ -16,7 +16,7 @@ export default function SiteFooter() {
   return (
     <>
     <CommitmentsStrip />
-    <footer className="t13-invert bg-gradient-to-br from-bg-deep to-primary-deep pb-24 lg:pb-0">
+    <footer className="t13-invert border-t border-line/10 bg-bg-tint pb-24 lg:pb-0">
       <div className="t5-container grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-[1.2fr_.8fr_.8fr_1.2fr]">
         <div>
           <BrandLogo />

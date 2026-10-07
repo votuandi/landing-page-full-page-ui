@@ -25,7 +25,7 @@ function HotlineBar() {
   const hotlines = SITE_CONFIG.hotlines.filter((h) => h.phone);
   if (!hotlines.length) return null;
   return (
-    <div className="t13-invert hidden bg-bg-deep text-xs lg:block">
+    <div className="t13-invert hidden border-b border-line/10 bg-bg-tint text-xs lg:block">
       <div className="t5-container flex h-9 items-center justify-between gap-6">
         <span className="flex items-center gap-1.5 text-fg-muted"><ClockIcon className="h-4 w-4" />{SITE_CONFIG.contact.workingHours}</span>
         <ul className="flex items-center gap-5" aria-label="Hotline">
