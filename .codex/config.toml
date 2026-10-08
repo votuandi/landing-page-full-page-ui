@@ -1,0 +1,20 @@
+# Cấu hình Codex cấp dự án — chỉ được nạp khi dự án đã "trusted" trong ~/.codex/config.toml.
+# Giữ đồng bộ danh sách MCP với .mcp.json (Claude Code).
+
+[mcp_servers.next-devtools]
+command = "npx"
+args = ["-y", "next-devtools-mcp@latest"]
+startup_timeout_sec = 30
+env = { SystemRoot = "C:\\Windows", PROGRAMFILES = "C:\\Program Files" }
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@latest"]
+startup_timeout_sec = 30
+env = { SystemRoot = "C:\\Windows", PROGRAMFILES = "C:\\Program Files" }
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
+startup_timeout_sec = 60
+env = { SystemRoot = "C:\\Windows", PROGRAMFILES = "C:\\Program Files" }

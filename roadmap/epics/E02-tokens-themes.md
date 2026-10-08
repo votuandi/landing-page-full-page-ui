@@ -1,0 +1,93 @@
+# E2 — Design tokens & theme engine
+
+**Mục tiêu**: "chất" riêng của mỗi template trở thành dữ liệu (theme), đổi được lúc chạy theo tenant mà không build lại.
+**Target epic**: cùng một section render đúng ở mọi theme; đổi theme của một site = đổi 1 trường trong DB, có hiệu lực sau
+revalidate; 0 vi phạm `lint:tokens`.
+**Phụ thuộc**: E1-S01, E1-S06.
+
+---
+
+### E2-S01 · Schema `ThemeTokens`
+**Là** dev, **tôi muốn** một kiểu dữ liệu duy nhất mô tả theme, **để** mọi theme có cùng bộ biến và section tin cậy được biến đó tồn tại.
+- **Chi tiết**: `packages/tokens/src/schema.ts` (zod) gồm:
+  - `colors` (light, `dark?`): bộ token của t15 — `bg, bg-elevated, bg-deep, bg-tint, bg-sky, bg-sun, primary, primary-strong,
+    primary-deep, secondary, secondary-deep, leaf, sky, accent, accent-soft, accent-ink, on-primary, on-secondary, on-accent,
+    on-media, fg, fg-muted, fg-subtle, line, scrim, shadow, success, danger, chart-a, chart-b, skin*, device, glass-tint`
+    dạng `"R G B"`; `glass`, `glass-border`, `glass-strong`, `glass-strong-border` dạng rgba.
+  - `font`: `sans`, `display`, `weights[]`, nguồn (`google` | `local`).
+  - `radius`: `card`, `pill`, `media`, `input`, `button`.
+  - `shadow`: `strength` (0–1), `tint`.
+  - `glass`: `blur` (px), `enabled`.
+  - `motion`: `durationFast|Base|Slow`, `easing`, `revealDistance`, `revealEnabled`.
+  - `density`: `sectionY` (sm|md|lg), `container` (px).
+  - `meta`: `id`, `name`, `group` (`classic|pro|signature`), `supportsDark`, `preview` (ảnh).
+- **Target**: t15 hiện tại biểu diễn được 100% bằng schema mà không mất biến nào.
+- **AC**:
+  - [ ] `parseTheme()` báo lỗi rõ trường thiếu/sai định dạng.
+  - [ ] Unit test: theme t15 parse thành công; theme thiếu `primary` bị từ chối.
+- Agent: Claude · Cỡ: M
+
+### E2-S02 · Sinh CSS variables theo theme lúc render
+**Là** tenant, **tôi muốn** site của tôi khoác đúng theme ngay từ byte đầu, **để** không nhấp nháy màu.
+- **Chi tiết**: `themeToCss(theme, overrides) → string` sinh `:root{…}` + `[data-theme="dark"]{…}` +
+  `@media (prefers-color-scheme: dark)` nếu `supportsDark`. `apps/web` inline vào `<head>` qua `<style>` (CSP tĩnh cho phép style inline, không dùng nonce — D13, để trang vẫn cache tĩnh).
+  Script chống nhấp nháy dark mode giữ cách t15 đang làm.
+- **Target**: CSS theme ≤ 4 KB/tenant; không thêm request.
+- **AC**:
+  - [ ] Ảnh chụp t15 sau khi chuyển sang CSS sinh động khớp baseline (≤ 0,5%).
+  - [ ] Override `primary` của tenant thắng giá trị theme.
+  - [ ] Không có biến CSS nào của theme khác lẫn vào HTML.
+- Phụ thuộc: S01 · Agent: Codex · Cỡ: M
+
+### E2-S03 · Tailwind preset từ token
+**Là** dev, **tôi muốn** Tailwind chỉ sinh class từ token, **để** không thể vô tình dùng màu cứng.
+- **Chi tiết**: `packages/tokens/tailwind-preset.ts` thay hẳn `theme.colors`, thêm `borderRadius` (`card`, `pill`, `media`,
+  `input`, `button`), `boxShadow` dựa `--c-shadow` + `--shadow-strength`, `backdropBlur.glass`, `transitionDuration.motion*`,
+  `spacing.section`, `fontFamily.sans|display`. Mọi app/package dùng preset này (content glob gồm `packages/sections`, `packages/ui`).
+- **AC**:
+  - [ ] `bg-white`, `text-slate-500`, `rounded-3xl` (nếu bị cấm) không sinh CSS.
+  - [ ] Class `/opacity` hoạt động với token (`bg-primary/20`).
+- Phụ thuộc: S01 · Agent: Codex · Cỡ: S
+
+### E2-S04 · `lint:tokens` — chặn hard-code
+**Là** chủ dự án, **tôi muốn** CI từ chối mọi màu/font/bo góc viết cứng, **để** section luôn trộn được giữa các theme.
+- **Chi tiết**: ESLint rule tùy biến (`@solar/eslint-plugin/no-hardcoded-style`) kiểm chuỗi className và style object:
+  cấm `#[0-9a-f]{3,8}`, `rgb(`/`hsl(` (trừ `rgb(var(--c-…))`), class arbitrary `bg-[`, `text-[`, `from-[`, `to-[`,
+  `via-[`, `border-[`, `rounded-[`, `shadow-[`, `font-[`, và `fill`/`stroke` hex trong SVG. Allowlist theo đường dẫn
+  (`packages/themes/**`, `packages/ui/brand-icons/**`) và theo comment `// token-exempt: <lý do>`.
+- **Target**: 0 vi phạm ở `packages/sections`, `packages/ui`, `apps/*`.
+- **AC**:
+  - [ ] Rule có test (ca đúng/ca sai).
+  - [ ] `pnpm lint:tokens` chạy trong CI; PR thêm `bg-[#0E7C3A]` bị fail với thông báo gợi ý token thay thế.
+- Phụ thuộc: E1-S01 · Agent: Codex · Cỡ: M
+
+### E2-S05 · Kiểm tra tương phản tự động
+**Là** khách hàng, **tôi muốn** chữ luôn đọc được dù đổi màu thương hiệu, **để** site không xấu và đạt tiêu chuẩn truy cập.
+- **Chi tiết**: `check-contrast` duyệt các cặp bắt buộc (`fg*` trên `bg*`, `on-primary` trên `primary`, `on-accent`
+  trên `accent`, `accent-ink` trên `bg`, `on-media` trên `scrim/60` …) cho light và dark. Dùng cả khi khách override màu
+  trong CMS: báo lỗi và gợi ý màu gần nhất đạt chuẩn.
+- **Target**: mọi theme gốc đạt WCAG AA cho chữ thường (4.5:1).
+- **AC**:
+  - [ ] Chạy trong CI cho mọi theme.
+  - [ ] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
+- Phụ thuộc: S01 · Agent: Codex · Cỡ: S
+
+### E2-S06 · Font theo theme
+**Là** tenant, **tôi muốn** font đúng của theme mà site không tải font thừa, **để** trang nhanh.
+- **Chi tiết**: `next/font` yêu cầu khai báo tĩnh → `packages/themes/fonts.ts` khai báo trước toàn bộ font được phép
+  (Inter, Be Vietnam Pro, Manrope, + ≤ 5 font cho override), mỗi font gắn biến CSS riêng; layout chỉ gắn `className`
+  của font theme đang dùng → Next chỉ preload font đó.
+- **Target**: mỗi trang tải ≤ 2 họ font, ≤ 4 file woff2.
+- **AC**:
+  - [ ] Trang tenant theme t11 chỉ preload Manrope + Be Vietnam Pro.
+  - [ ] Font có subset `vietnamese`.
+- Phụ thuộc: S02 · Agent: Claude · Cỡ: S
+
+### E2-S07 · Theme t15 làm theme chuẩn + trang `/lab/themes`
+**Là** dev/designer, **tôi muốn** xem mọi token của một theme trên một trang, **để** kiểm nhanh theme mới.
+- **Chi tiết**: chuyển `globals.css :root` của t15 thành `packages/themes/t15/theme.ts`; trang dev-only `/lab/themes/[id]`
+  hiển thị bảng màu, typography, bo góc, kính, bóng, motion, và lưới tất cả section đã port với theme đó; bộ chọn theme để so sánh.
+- **AC**:
+  - [ ] `apps/web` không còn khối `:root` màu cứng trong `globals.css`.
+  - [ ] `/lab` bị chặn ở production (404) trừ khi `LAB_ENABLED=true`.
+- Phụ thuộc: S02, S03 · Agent: Claude · Cỡ: M
