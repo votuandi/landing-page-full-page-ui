@@ -52,3 +52,7 @@ next-env.d.ts
 # unit test build
 /.test-dist/
 
+
+# agent playbook runs (logs, reports, reviews)
+/.agent-runs/
+HANDOFF.md

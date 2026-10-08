@@ -85,16 +85,23 @@ section variant / theme theo skill `solar-section-variant` và `solar-theme-port
 
 ## 6. Phối hợp Claude Code ↔ Codex
 
-| Việc | Agent chính | Agent rà soát |
-|---|---|---|
-| Kiến trúc, ADR, chia story, thiết kế schema/token | Claude Code | Codex (`codex review`, adversarial) |
-| Triển khai story đã có AC rõ, port section/theme cơ học, viết test | Codex (`codex exec` / Codex cloud) | Claude Code (`/code-review`) |
-| UI/UX, chất lượng giao diện (skill `frontend-design`, `ui-ux-pro-max`, `web-design-guidelines`) | Claude Code | Codex |
-| Debug Next.js chạy thật (MCP `next-devtools`, `playwright`) | Agent đang làm story | — |
+Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code (skill `.claude/skills/run-story`):
 
-- Mỗi story một branch `feat/<STORY-ID>-<slug>` (vd. `feat/E3-S02-hero-schema`), tách khỏi `mono-repo-multi-tenent`.
-  Hai agent làm song song thì dùng git worktree riêng, không sửa chung một branch.
-- **Người viết không tự duyệt**: code do Codex viết thì Claude review và ngược lại. Chi tiết: skill `solar-agent-collab`.
+1. **Claude lên plan** → `roadmap/plans/<ID>.md` (luôn là Claude).
+2. **Thực thi**: story UI/UX/giao diện (danh sách `ui` trong `scripts/agents/routing.json`) → Claude Code làm;
+   story còn lại → Codex làm qua `codex exec` theo skill `solar-story-exec`. Sandbox Codex khóa ghi `.git`, nên Claude
+   tạo branch (tên trong plan) và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
+3. Claude chạy lại kiểm tra, push, tạo PR (`.github/pull_request_template.md`).
+4. **Review theo chẵn/lẻ số story**: S01, S03… → Codex review; S02, S04… → Claude review (skill `pr-review`, định dạng
+   `solar-pr-review`). Khi người viết trùng reviewer, review chạy ở phiên/subagent độc lập và PR ghi cảnh báo
+   (đổi sang luôn-review-chéo bằng `"selfReview": "swap"` trong `routing.json`).
+5. Finding P0/P1 → người viết sửa, review lại, tối đa 2 vòng. **Không agent nào tự merge.**
+
+Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.
+
+- Branch: `<type>/<STORY-ID>-<slug>` (vd. `feat/E3-S02-kieu-du-lieu-nen`), tách khỏi `mono-repo-multi-tenent`.
+  Playbook chạy tuần tự trong cây làm việc chính; chạy song song thì dùng git worktree riêng.
+- Debug Next.js chạy thật: MCP `next-devtools`, `playwright` — agent nào đang làm story thì dùng.
 - Commit theo Conventional Commits có scope là package hoặc story: `feat(sections): … [E3-S02]`.
 - Khi xong story: tick AC trong file epic tương ứng ở `roadmap/epics/` và ghi link PR.
 
@@ -103,5 +110,5 @@ section variant / theme theo skill `solar-section-variant` và `solar-theme-port
 1. Mọi AC của story đạt, có bằng chứng (test, ảnh chụp, log).
 2. `typecheck`, `lint`, `test`, `build` qua; không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
 3. Có test cho logic mới (unit với `node:test`/vitest; e2e Playwright cho luồng người dùng).
-4. Đã được agent còn lại review, mọi góp ý mức "correctness" đã xử lý.
+4. Đã được review theo quy tắc chẵn/lẻ (§6), mọi finding P0/P1 đã xử lý.
 5. Tài liệu (README package, roadmap) cập nhật nếu hành vi thay đổi.

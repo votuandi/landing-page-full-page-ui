@@ -1,0 +1,21 @@
+{
+  "$comment": "Cấu hình phân việc cho playbook /run-story. Story trong 'ui' do Claude Code làm, còn lại Codex làm. Reviewer theo chẵn/lẻ của số story. selfReview: 'allow' = giữ đúng chẵn/lẻ kể cả khi người viết trùng người review (review chạy ở phiên mới, PR ghi cảnh báo); 'swap' = luôn đổi sang agent còn lại.",
+  "base": "mono-repo-multi-tenent",
+  "reviewerByParity": { "odd": "codex", "even": "claude" },
+  "selfReview": "allow",
+  "branchType": { "E0": "chore", "E1": "refactor", "E14": "test" },
+  "ui": [
+    "E2-S06", "E2-S07",
+    "E3-S04", "E3-S05", "E3-S06", "E3-S07",
+    "E4-S01", "E4-S02", "E4-S03", "E4-S04", "E4-S05", "E4-S06", "E4-S07", "E4-S08", "E4-S09", "E4-S10",
+    "E6-S04",
+    "E7-S02", "E7-S03", "E7-S04", "E7-S05", "E7-S06", "E7-S08", "E7-S09",
+    "E8-S05",
+    "E9-S01",
+    "E11-S03", "E11-S04",
+    "E12-S02", "E12-S03", "E12-S04", "E12-S07",
+    "E13-S01", "E13-S03", "E13-S04", "E13-S05",
+    "E14-S06"
+  ],
+  "authorOverride": {}
+}

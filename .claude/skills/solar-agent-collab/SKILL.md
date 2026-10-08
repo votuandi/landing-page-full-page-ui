@@ -5,7 +5,9 @@ description: How Claude Code and Codex split, hand off and cross-review work in 
 
 # Phối hợp Claude Code ↔ Codex
 
-Nguyên tắc: **một story — một branch — một agent viết — agent còn lại review.** Bảng phân vai ở `AGENTS.md` §6.
+Nguyên tắc: **một story — một branch — một PR.** Cách chạy chuẩn là playbook `/run-story <ID>` (Claude plan → Codex
+hoặc Claude thực thi → PR → review theo chẵn/lẻ: lẻ = Codex, chẵn = Claude). Quy tắc ở `AGENTS.md` §6, phân việc ở
+`scripts/agents/routing.json`. Phần dưới đây dùng khi cần thao tác tay ngoài playbook.
 
 ## Giao việc
 

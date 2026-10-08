@@ -1,6 +1,12 @@
 # Cấu hình Codex cấp dự án — chỉ được nạp khi dự án đã "trusted" trong ~/.codex/config.toml.
 # Giữ đồng bộ danh sách MCP với .mcp.json (Claude Code).
 
+# Sandbox Windows chạy lệnh bằng tài khoản khác → git báo "dubious ownership" ngay cả với lệnh chỉ đọc
+# (git diff, git show origin/template-NN:…). Đánh dấu safe.directory cho các lệnh do Codex chạy.
+# Lưu ý: sandbox vẫn khóa ghi .git — Codex không tạo branch/commit được; Claude làm việc đó (playbook /run-story).
+[shell_environment_policy]
+set = { GIT_CONFIG_COUNT = "1", GIT_CONFIG_KEY_0 = "safe.directory", GIT_CONFIG_VALUE_0 = "*" }
+
 [mcp_servers.next-devtools]
 command = "npx"
 args = ["-y", "next-devtools-mcp@latest"]
