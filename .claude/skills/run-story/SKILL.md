@@ -1,6 +1,6 @@
 ---
 name: run-story
-description: Playbook chạy trọn một story của roadmap, chia tải cân bằng giữa Claude và Codex — Codex khảo sát/viết nháp plan, Claude chốt plan và tạo branch, Codex hoặc Claude thực thi (story UI chia Codex dựng + Claude design pass), script kiểm tra/commit/PR, review theo reviewPolicy (mặc định Codex review, Claude review story kiến trúc). Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
+description: Playbook chạy trọn một story của roadmap, chia tải cân bằng giữa Claude và Codex — Codex khảo sát/viết nháp plan, Claude chốt plan và tạo branch, Codex hoặc Claude thực thi (story UI chia Codex dựng + Claude design pass), script kiểm tra/commit/PR, rồi Codex review PR ở local (issue + case chưa cover AC/yêu cầu, không đăng lên PR) và sửa lặp lại cho tới khi PR merge được — báo người dùng tự merge. Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
 argument-hint: "<STORY-ID|next> [--agent claude|codex] [--confirm] [--no-pr] [--force]"
 ---
 
@@ -29,7 +29,9 @@ Tham số: `$ARGUMENTS`
 2. Dừng và báo nếu: `S.done`; `!S.ready` và không `--force` (liệt kê `S.depStatus` chưa xong); `git status --porcelain`
    không rỗng (không tự stash).
 3. `git fetch origin`, `git switch <S.base>`, `git pull --ff-only` (nếu base có trên origin).
-4. Branch `S.branch` đã tồn tại → lần chạy trước dở: đọc `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
+4. Branch `S.branch` đã tồn tại → lần chạy trước dở. Đã có PR mở cho branch (GitHub MCP `list_pull_requests` với
+   `head: <owner>:<S.branch>`) → nhảy thẳng tới **Bước 6** (bỏ qua điều kiện working tree của base). Chưa có PR → đọc
+   `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
 5. `mkdir -p <S.runDir>`.
 
 Mẫu lệnh Codex (thay `<EFFORT>`, `<OUT>`, `<LOG>`, `<PROMPT>`):
@@ -110,14 +112,28 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 2. `git push -u origin <S.branch>` (không `--force`; lỗi → báo nguyên văn, dừng).
 3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó:
    GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải) → hoặc `gh pr create --body-file` →
-   hoặc in link `compare` cho người dùng tự tạo và dừng. Ghi `<S.runDir>/pr.json`.
+   hoặc in link `compare` + đường dẫn `bodyFile` cho người dùng tự tạo, dừng và dặn: tạo xong chạy lại
+   `/run-story <ID>` (Bước 0.4 sẽ nhảy tới Bước 6). Ghi `<S.runDir>/pr.json`.
 
-## Bước 6 — Review
+## Bước 6 — Codex review và sửa tới khi merge được
 
-Gọi skill `pr-review` với số PR.
+Gọi skill `pr-review` với số PR (reviewer Codex theo `reviewPolicy: "codex"`). Vòng lặp trong skill đó:
+1. **Codex review** toàn bộ PR (`solar-pr-review`): liệt kê mọi issue (Finding P0/P1/P2) và mọi case **chưa cover** AC,
+   "Chi tiết"/"Target" của story, plan, DoD. Review **ở local** (`<S.runDir>/review-r<n>.md`), không đăng lên PR;
+   báo người dùng danh sách issue + case chưa cover.
+2. **Codex sửa** mọi finding P0/P1 + mọi mục chưa cover (trừ `[ngoài agent]`) + lỗi CI; Claude commit
+   (`run.mjs commit`), `verify`, push.
+3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh, không
+   conflict với base. Mục `[ngoài agent]` cần CI (vd. AC "chạy trên Windows/Ubuntu") → CI xanh thì Claude tick AC.
+4. Dừng sớm, hỏi người dùng khi: finding lặp lại 2 vòng không sửa được, cần quyết định phạm vi/dependency/AC, hoặc quá
+   5 vòng sửa.
+
+Claude chỉ điều phối (chạy lệnh, commit, đọc dòng `VERDICT` + mục tiêu đề của review) — không tự đọc diff, trừ khi
+Codex và review bất đồng.
 
 ## Bước 7 — Kết thúc
 
-Báo ngắn: link PR, ai làm gì (plan / dựng / design pass / review), kết luận review, số vòng sửa, việc người dùng cần làm
-(merge thủ công). **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
+Khi PR merge được (không comment gì lên PR), báo người dùng: link PR, ai làm gì (plan / dựng /
+design pass / review), số vòng review–sửa, issue và case chưa cover đã sửa, CI, finding P2 còn lại, và câu chốt
+**"PR #<số> sẵn sàng merge — bạn tự merge."** **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
 `S.epicFile`, commit `docs(roadmap): <ID> done`, hỏi trước khi push.

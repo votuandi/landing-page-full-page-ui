@@ -104,7 +104,9 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    chẵn → Claude). Skill `pr-review`, định dạng `solar-pr-review`.
    **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,
    `codex-saver` khi Codex sắp hết. Xem tỷ lệ: `node scripts/agents/story.mjs load`.
-5. Finding P0/P1 → người viết sửa, review lại, tối đa 2 vòng. **Không agent nào tự merge.**
+5. Review liệt kê issue + case chưa cover AC/yêu cầu của story. Finding P0/P1 và case chưa cover → người viết sửa,
+   review lại, lặp tới khi PR merge được (APPROVE, CI xanh, không conflict; chặn an toàn 5 vòng) rồi báo người dùng.
+   **Không agent nào tự merge.**
 
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.
 
