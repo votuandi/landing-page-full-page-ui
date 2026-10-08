@@ -14,6 +14,14 @@ Bạn là reviewer độc lập. Chỉ đọc, **không sửa file, không commi
 3. Vòng > 1: đọc review vòng trước, kiểm tra từng finding P0/P1 đã sửa đúng chưa; không mở thêm finding mới trừ khi do
    chính bản sửa gây ra hoặc là P0.
 
+## Khi review code do chính bạn (cùng loại agent) viết
+
+Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người viết. Làm thêm:
+- Đọc **AC và plan trước, diff sau**; tự viết ra (trong đầu) cách bạn sẽ hiện thực từng AC, rồi so với diff.
+- Giả định có lỗi: với mỗi file, tìm ít nhất một kịch bản làm nó sai (input rỗng/lớn, tenant khác, lỗi mạng, chạy đồng thời).
+- Không tin báo cáo của người viết; tự chạy test liên quan nếu sandbox cho phép, ghi lệnh và kết quả.
+- Kiểm lại những gì test **không** phủ.
+
 ## Kiểm tra
 
 - **AC**: từng AC có được hiện thực và có bằng chứng (test chạy được, không phải chỉ được tick)?

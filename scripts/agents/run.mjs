@@ -145,8 +145,8 @@ function prBody(id) {
 
 - ID: [${id}] — ${S.title}
 - Story: \`${S.epicFile}\` · Plan: \`${S.planFile}\`
-- Người viết: ${who} · Reviewer (chẵn/lẻ): ${S.reviewer}
-${S.selfReviewConflict ? "\n> ⚠️ Reviewer trùng người viết theo quy tắc chẵn/lẻ — review chạy ở phiên độc lập.\n" : ""}
+- Người viết: ${who} · Reviewer: ${S.reviewer}
+${S.selfReviewConflict ? "\n> ⚠️ Reviewer cùng loại agent với người viết — tự review ở phiên độc lập, chế độ kiểm kỹ.\n" : ""}
 ## AC → bằng chứng
 
 ${section("AC → bằng chứng")}

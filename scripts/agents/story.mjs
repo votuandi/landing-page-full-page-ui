@@ -104,7 +104,13 @@ function describe(story, stories) {
   // split: Codex viết phần lớn code → tính là người viết; Claude làm design pass.
   const author = mode === "claude" ? "claude" : "codex";
   const parity = storyNum(story.id) % 2 === 1 ? "odd" : "even";
-  let reviewer = routing.reviewerByParity[parity];
+  // reviewPolicy: "parity" (lẻ → codex, chẵn → claude) | "codex" (Codex review tất cả)
+  //             | "codex-except-architecture" (Codex review tất cả, trừ story kiến trúc do Claude review)
+  const policy = routing.reviewPolicy ?? "parity";
+  let reviewer =
+    policy === "codex" ? "codex"
+    : policy === "codex-except-architecture" ? (architecture ? "claude" : "codex")
+    : routing.reviewerByParity[parity];
   const selfReviewConflict = reviewer === author;
   if (selfReviewConflict && routing.selfReview === "swap") reviewer = other(author);
   const branchType = routing.branchType[story.epic] ?? "feat";

@@ -2,7 +2,7 @@
 
 - ID: [E?-S??] — <tiêu đề>
 - Story: `roadmap/epics/<file>.md` · Plan: `roadmap/plans/<ID>.md`
-- Người viết: codex | claude · Reviewer (chẵn/lẻ): codex | claude
+- Người viết: codex | claude · Reviewer: codex | claude
 
 ## Thay đổi chính
 

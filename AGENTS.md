@@ -96,9 +96,11 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    - còn lại: Codex làm toàn bộ (skill `solar-story-exec`).
    Sandbox Codex khóa ghi `.git`, nên Claude tạo branch và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
 3. Việc cơ học chạy bằng `scripts/agents/run.mjs` (`verify`, `commit`, `pr-body`), Claude chỉ đọc tóm tắt; rồi push, tạo PR.
-4. **Review theo chẵn/lẻ số story**: S01, S03… → Codex review (effort high); S02, S04… → Claude review bằng subagent
-   (model `claudeReviewModel`, mặc định Sonnet). Skill `pr-review`, định dạng `solar-pr-review`. Người viết trùng reviewer
-   → PR ghi cảnh báo (đổi sang luôn-review-chéo bằng `"selfReview": "swap"`).
+4. **Review** theo `"reviewPolicy"` trong `routing.json`. Mặc định `codex-except-architecture`: Codex review mọi story
+   (effort high); 15 story `architecture` (dữ liệu tenant, cache, RLS, upload, tên miền…) do Claude review bằng subagent
+   (model `claudeReviewModel`, mặc định Sonnet). Khi Codex review code Codex viết, skill `solar-pr-review` chạy chế độ
+   "Tự review" (kiểm kỹ hơn) và PR ghi cảnh báo. Lựa chọn khác: `codex` (Codex review tất cả), `parity` (lẻ → Codex,
+   chẵn → Claude). Skill `pr-review`, định dạng `solar-pr-review`.
    **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,
    `codex-saver` khi Codex sắp hết. Xem tỷ lệ: `node scripts/agents/story.mjs load`.
 5. Finding P0/P1 → người viết sửa, review lại, tối đa 2 vòng. **Không agent nào tự merge.**
@@ -116,5 +118,5 @@ Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, ng�
 1. Mọi AC của story đạt, có bằng chứng (test, ảnh chụp, log).
 2. `typecheck`, `lint`, `test`, `build` qua; không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
 3. Có test cho logic mới (unit với `node:test`/vitest; e2e Playwright cho luồng người dùng).
-4. Đã được review theo quy tắc chẵn/lẻ (§6), mọi finding P0/P1 đã xử lý.
+4. Đã được review theo `reviewPolicy` (§6), mọi finding P0/P1 đã xử lý.
 5. Tài liệu (README package, roadmap) cập nhật nếu hành vi thay đổi.
