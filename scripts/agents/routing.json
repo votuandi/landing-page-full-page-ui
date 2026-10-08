@@ -1,21 +1,52 @@
 {
-  "$comment": "Cấu hình phân việc cho playbook /run-story. Story trong 'ui' do Claude Code làm, còn lại Codex làm. Reviewer theo chẵn/lẻ của số story. selfReview: 'allow' = giữ đúng chẵn/lẻ kể cả khi người viết trùng người review (review chạy ở phiên mới, PR ghi cảnh báo); 'swap' = luôn đổi sang agent còn lại.",
+  "$comment": "Phân việc cho playbook /run-story. Xem AGENTS.md §6. Sửa file này để cân lại tải giữa Claude và Codex.",
   "base": "mono-repo-multi-tenent",
+
+  "budget": "balanced",
+  "$budget": "balanced = mặc định | claude-saver = Claude sắp hết quota: Codex viết nháp plan cho mọi story trừ 'architecture', story UI 'claudeFull' chuyển thành 'split' | codex-saver = ngược lại: Claude tự viết plan và tự làm story UI split",
+
   "reviewerByParity": { "odd": "codex", "even": "claude" },
   "selfReview": "allow",
-  "branchType": { "E0": "chore", "E1": "refactor", "E14": "test" },
-  "ui": [
-    "E2-S06", "E2-S07",
+  "claudeReviewModel": "sonnet",
+
+  "$modes": "claudeFull: Claude viết toàn bộ (thiết kế UX mới). split: Codex dựng code, Claude làm 'design pass' (chỉnh giao diện, chụp ảnh). Còn lại: Codex viết toàn bộ.",
+  "claudeFull": [
+    "E2-S07",
+    "E7-S02", "E7-S04", "E7-S05", "E7-S08",
+    "E9-S01",
+    "E11-S04",
+    "E12-S02", "E12-S03", "E12-S04",
+    "E13-S03", "E13-S05"
+  ],
+  "split": [
+    "E2-S06",
     "E3-S04", "E3-S05", "E3-S06", "E3-S07",
     "E4-S01", "E4-S02", "E4-S03", "E4-S04", "E4-S05", "E4-S06", "E4-S07", "E4-S08", "E4-S09", "E4-S10",
     "E6-S04",
-    "E7-S02", "E7-S03", "E7-S04", "E7-S05", "E7-S06", "E7-S08", "E7-S09",
+    "E7-S03", "E7-S06", "E7-S09",
     "E8-S05",
-    "E9-S01",
-    "E11-S03", "E11-S04",
-    "E12-S02", "E12-S03", "E12-S04", "E12-S07",
-    "E13-S01", "E13-S03", "E13-S04", "E13-S05",
+    "E11-S03",
+    "E12-S07",
+    "E13-S01", "E13-S04",
     "E14-S06"
   ],
+
+  "$architecture": "Story quyết định kiến trúc/bảo mật: Claude luôn tự viết plan (dựa trên brief khảo sát của Codex). Story logic khác: Codex viết nháp plan, Claude chỉ duyệt và sửa.",
+  "architecture": [
+    "E1-S03",
+    "E2-S01",
+    "E3-S01", "E3-S03",
+    "E5-S01", "E5-S03", "E5-S05", "E5-S07", "E5-S09",
+    "E6-S01",
+    "E8-S02",
+    "E9-S02",
+    "E10-S03",
+    "E11-S01",
+    "E12-S01"
+  ],
+
+  "codexEffort": { "S": "medium", "M": "high", "L": "high", "plan": "high", "review": "high" },
+
+  "branchType": { "E0": "chore", "E1": "refactor", "E14": "test" },
   "authorOverride": {}
 }

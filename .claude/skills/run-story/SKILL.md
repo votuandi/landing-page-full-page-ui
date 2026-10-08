@@ -1,131 +1,123 @@
 ---
 name: run-story
-description: Playbook chạy trọn một story của roadmap — Claude lên plan và tạo branch, Codex (story logic) hoặc Claude (story UI/UX) thực thi, Claude kiểm tra, commit, push, tạo PR, rồi review chéo theo chẵn/lẻ số story. Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
-argument-hint: "<STORY-ID|next> [--agent claude|codex] [--confirm] [--no-pr]"
+description: Playbook chạy trọn một story của roadmap, chia tải cân bằng giữa Claude và Codex — Codex khảo sát/viết nháp plan, Claude chốt plan và tạo branch, Codex hoặc Claude thực thi (story UI chia Codex dựng + Claude design pass), script kiểm tra/commit/PR, review chéo theo chẵn/lẻ số story. Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
+argument-hint: "<STORY-ID|next> [--agent claude|codex] [--confirm] [--no-pr] [--force]"
 ---
 
 # /run-story — playbook một story
 
 Tham số: `$ARGUMENTS`
-- `<STORY-ID>` (vd. `E1-S01`) hoặc `next` (story chưa xong đầu tiên đã đủ phụ thuộc).
-- `--agent claude|codex`: ép người thực thi (bỏ qua `scripts/agents/routing.json`).
-- `--confirm`: dừng sau bước plan để người dùng duyệt.
-- `--no-pr`: dừng sau commit (không push, không PR, không review).
-- `--force`: chạy dù phụ thuộc chưa xong.
+- `<STORY-ID>` (vd. `E1-S01`) hoặc `next`.
+- `--agent claude|codex`: ép người thực thi toàn bộ (bỏ qua mode trong `routing.json`).
+- `--confirm`: dừng sau bước plan để người dùng duyệt. `--no-pr`: dừng sau commit. `--force`: chạy dù thiếu phụ thuộc.
 
-Mọi file tạm của lần chạy nằm trong `.agent-runs/<ID>/` (đã `.gitignore`). Báo tiến độ cho người dùng bằng một câu ngắn
-ở đầu mỗi bước ("Bước 3/7: Codex đang thực thi plan…").
+## Nguyên tắc tiết kiệm token của Claude
+
+- **Việc đọc nhiều → Codex** (khảo sát code, đọc branch template, viết nháp, dựng code). **Việc cơ học → script**
+  (`scripts/agents/run.mjs`). Claude chỉ: chốt plan, design pass giao diện, phán đoán khi có lỗi, review story chẵn.
+- Không đọc log dài: chỉ đọc output tóm tắt của script; mở `checks.log` / `codex-exec.log` khi script báo FAIL, và chỉ
+  đọc phần đuôi.
+- Không đọc lại toàn bộ file Codex đã sửa; dùng `git diff --stat` và chỉ mở file khi cần phán đoán.
+- Lệnh `codex exec` luôn chạy nền (`run_in_background: true`) và chờ thông báo — không poll.
+- Báo tiến độ bằng một câu ngắn mỗi bước.
 
 ## Bước 0 — Chuẩn bị
 
-1. `node scripts/agents/story.mjs info <ID>` (hoặc `next`) → lưu JSON (gọi là `S`). Từ đây dùng `S.author`, `S.reviewer`,
-   `S.branch`, `S.base`, `S.planFile`, `S.runDir`, `S.checks`, `S.epicFile`, `S.selfReviewConflict`.
-   `--agent` ghi đè `S.author`; khi đó tính lại reviewer: `S.parity == "odd" ? "codex" : "claude"`.
-2. Dừng và báo người dùng nếu:
-   - `S.done` là true (story đã xong).
-   - `S.ready` là false và không có `--force` → liệt kê phụ thuộc chưa xong từ `S.depStatus`.
-   - `git status --porcelain` không rỗng (cây làm việc bẩn) → yêu cầu commit/stash trước. Không tự stash.
-3. `git fetch origin` rồi `git switch <S.base>` và `git pull --ff-only` (nếu base đã có trên origin).
-4. Nếu branch `S.branch` đã tồn tại (local hoặc origin) → lần chạy trước còn dở: đọc `.agent-runs/<ID>/` và `HANDOFF.md`
-   nếu có, hỏi người dùng tiếp tục hay làm lại. Không xóa branch khi chưa được đồng ý.
+1. `node scripts/agents/story.mjs info <ID>` (hoặc `next`) → JSON `S`. Dùng `S.mode` (`claude` | `split` | `codex`),
+   `S.planMode` (`claude` | `codex-draft`), `S.author`, `S.reviewer`, `S.branch`, `S.base`, `S.planFile`, `S.runDir`,
+   `S.codexEffort`, `S.claudeReviewModel`. `--agent` → `S.mode = <agent>` (codex) hoặc `claude`.
+2. Dừng và báo nếu: `S.done`; `!S.ready` và không `--force` (liệt kê `S.depStatus` chưa xong); `git status --porcelain`
+   không rỗng (không tự stash).
+3. `git fetch origin`, `git switch <S.base>`, `git pull --ff-only` (nếu base có trên origin).
+4. Branch `S.branch` đã tồn tại → lần chạy trước dở: đọc `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
 5. `mkdir -p <S.runDir>`.
 
-## Bước 1 — Claude lên plan (luôn do Claude làm)
+Mẫu lệnh Codex (thay `<EFFORT>`, `<OUT>`, `<LOG>`, `<PROMPT>`):
+```bash
+codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=<EFFORT> \
+  -c sandbox_workspace_write.network_access=true -o "<OUT>" "<PROMPT>" > "<LOG>" 2>&1
+```
 
-1. Đọc story trong `S.epicFile` (toàn bộ block: Chi tiết, Target, AC), phần đầu epic, `AGENTS.md`, các ADR liên quan trong
-   `roadmap/02-decisions.md`, và code hiện có mà story sẽ chạm (Grep/Read). Story port template thì đọc file nguồn bằng
-   `git show origin/template-NN:<path>`. Nếu cần tài liệu thư viện: MCP `context7`.
-2. Viết `S.planFile` theo khung ở `roadmap/plans/README.md`. Yêu cầu:
-   - Mỗi AC ánh xạ tới bước cụ thể và **bằng chứng** sẽ thu (lệnh test, output, ảnh chụp).
-   - Liệt kê file sẽ tạo/sửa/xóa; "Ngoài phạm vi" ghi rõ thứ không được đụng.
-   - Lệnh kiểm tra cuối = `S.checks` + lệnh riêng của story.
-   - Plan đủ để một agent không có ngữ cảnh làm theo được; không viết code hoàn chỉnh trong plan (chỉ chữ ký hàm/kiểu
-     khi cần chốt giao diện).
-3. "Câu hỏi mở" có mục chặn (cần quyết định kinh doanh, chọn giữa hai phương án kiến trúc ngang nhau) → hỏi người dùng
-   bằng AskUserQuestion, ghi câu trả lời vào plan. Câu hỏi có mặc định hợp lý → tự chọn, ghi lý do.
-4. `--confirm` → hiển thị tóm tắt plan (mục tiêu, file, rủi ro) và chờ người dùng duyệt.
+## Bước 1 — Plan (Claude chốt, Codex làm phần đọc)
 
-## Bước 2 — Thực thi
+**`S.planMode == "codex-draft"`** (story logic thường):
+1. Codex viết nháp: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
+   `Dùng skill solar-story-plan, mode draft. Story <ID> (<S.epicFile>). Output: <S.planFile>.`
+2. Claude duyệt nháp: kiểm AC nào cũng có bằng chứng, phạm vi đúng, không mâu thuẫn ADR/AGENTS.md, câu hỏi `[chặn]`.
+   Sửa trực tiếp chỗ sai (không viết lại cả plan), xóa dòng "Nháp do Codex viết".
 
-### 2a. `S.author == "codex"` (story logic)
+**`S.planMode == "claude"`** (story kiến trúc hoặc UI):
+1. Codex khảo sát: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
+   `Dùng skill solar-story-plan, mode brief. Story <ID> (<S.epicFile>). Output: <S.runDir>/brief.md.`
+2. Claude viết `S.planFile` theo `roadmap/plans/README.md`, dựa trên brief; chỉ mở file code khi brief không đủ.
+   Story `split`: thêm mục **"Design pass"** — Claude sẽ tự làm phần nào (bố cục, khoảng cách, hiệu ứng, tương phản,
+   responsive), Codex dựng phần nào (schema, fixture, cấu trúc component, đổi màu sang token, logic).
 
-Sandbox của Codex trên Windows khóa ghi `.git` (đã kiểm chứng: `git switch`, `git add`, `git commit` đều bị từ chối, kể cả
-với `--add-dir .git`). Vì vậy **Claude tạo branch và commit**, Codex chỉ sửa file và đề xuất cách chia commit.
+Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu trả lời vào plan. `--confirm` → tóm tắt plan, chờ duyệt.
 
-1. `git switch -c <S.branch>`; commit plan: `docs(plan): <ID> plan`.
-2. Ghi prompt vào `<S.runDir>/codex-exec-prompt.md`:
+## Bước 2 — Branch
+
+`git switch -c <S.branch>`; `git add <S.planFile>`; commit `docs(plan): <ID> plan`.
+(Sandbox Codex khóa ghi `.git` — Claude luôn tạo branch và commit.)
+
+## Bước 3 — Thực thi theo `S.mode`
+
+**`codex`** và **`split`** — Codex dựng:
+1. Ghi `<S.runDir>/codex-exec-prompt.md`:
    ```
    Dùng skill solar-story-exec.
-   Story: <ID> — <S.title> (<S.epicFile>)
-   Plan: <S.planFile> · Branch (đã tạo, đang checkout): <S.branch> · Base: <S.base>
-   Lệnh kiểm tra bắt buộc: <S.checks + lệnh riêng trong plan>
+   Story: <ID> — <S.title> (<S.epicFile>) · Plan: <S.planFile>
+   Branch (đã checkout): <S.branch> · Base: <S.base> · Mode: <S.mode>
+   Lệnh kiểm tra: <S.checks + lệnh riêng trong plan>
    Báo cáo: <S.runDir>/codex-report.md
    ```
-3. Chạy nền (Bash `run_in_background: true`), chờ thông báo hoàn tất — không poll:
-   ```bash
-   codex exec -C "$(pwd)" -s workspace-write -c sandbox_workspace_write.network_access=true \
-     -o "<S.runDir>/codex-exec-last.md" "$(cat <S.runDir>/codex-exec-prompt.md)" \
-     > "<S.runDir>/codex-exec.log" 2>&1
-   ```
-4. Đọc `<S.runDir>/codex-report.md` (và `codex-exec-last.md` nếu thiếu report).
-5. Commit theo mục "Commit đề xuất": với từng mục, `git add -- <các file>` rồi `git commit` với đúng message, thêm dòng
-   cuối `Co-Authored-By: Codex <noreply@openai.com>`. File thay đổi không nằm trong mục nào → xem xét: thuộc story thì đưa
-   vào commit hợp lý nhất và ghi chú trong PR; không thuộc (rác, file tạm) → không commit, báo người dùng.
-   Không commit `.agent-runs/`, `HANDOFF.md`, `.env*`.
+2. Chạy nền: sandbox `workspace-write`, effort `S.codexEffort.exec`, output `<S.runDir>/codex-exec-last.md`,
+   log `<S.runDir>/codex-exec.log`, prompt = nội dung file trên.
+3. Đọc phần "Trạng thái", "Lệch so với plan", "Việc còn lại" của `codex-report.md` (không cần đọc cả file).
+   `BLOCKED` → giải quyết câu hỏi (hỏi người dùng nếu cần) rồi chạy lại với "Tiếp tục".
+4. `node scripts/agents/run.mjs commit <S.runDir>/codex-report.md` → commit theo "Commit đề xuất". Exit 2 (file lạc) →
+   xem file đó: thuộc story thì commit kèm message phù hợp `[<ID>]`; không thì để nguyên và báo người dùng.
 
-### 2b. `S.author == "claude"` (story UI/UX)
+**`split`** — thêm Claude design pass sau khi Codex dựng xong:
+1. Chạy dev server, dùng MCP `playwright` chụp các trang/section của story ở 390px và 1440px (light/dark nếu theme có,
+   ≥ 3 theme với section variant). Story port template: so với branch gốc (`git show`/ảnh chụp branch gốc).
+2. Dùng skill `frontend-design`, `ui-ux-pro-max`, `web-design-guidelines`: chỉ sửa phần trình bày (bố cục, khoảng cách,
+   typography, hiệu ứng, tương phản, responsive, a11y) — không viết lại logic/schema của Codex. Lỗi logic → ghi lại để
+   Codex sửa (vòng "Tiếp tục").
+3. Commit `style(<scope>): design pass … [<ID>]` + `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+   Ảnh chụp lưu `<S.runDir>/screenshots/`. Ghi ngắn vào `<S.runDir>/design-pass.md` những gì đã chỉnh.
 
-1. `git switch -c <S.branch>`; commit plan: `docs(plan): <ID> plan`.
-2. Tự thực thi theo plan, dùng skill: `frontend-design`, `ui-ux-pro-max`, `solar-section-variant`, `solar-theme-port`,
-   `vercel-react-best-practices`, `vercel-composition-patterns` (tùy story). Không làm ngoài phạm vi plan.
-3. Kiểm tra trực quan bằng MCP `playwright` (hoặc skill `webapp-testing`): 390px và 1440px, light/dark nếu theme có dark,
-   ít nhất 3 theme khi là section variant. Lưu ảnh vào `<S.runDir>/screenshots/`. Chạy `web-design-guidelines` trên file đã sửa.
-4. Commit theo từng bước logic: `<S.commitType>(<scope>): <mô tả> [<ID>]`, cuối message có dòng
-   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
-5. Ghi `<S.runDir>/claude-report.md` cùng khung với báo cáo Codex (AC → bằng chứng).
+**`claude`** — Claude làm toàn bộ (story thiết kế UX mới):
+1. Thực thi theo plan với các skill giao diện ở trên + `vercel-react-best-practices`, `vercel-composition-patterns`.
+2. Kiểm trực quan như design pass; commit theo bước `<type>(<scope>): … [<ID>]` + dòng Co-Authored-By của Claude.
+3. Ghi `<S.runDir>/claude-report.md` cùng khung báo cáo của Codex (AC → bằng chứng, Lệnh kiểm tra, Lệch so với plan).
 
-## Bước 3 — Claude kiểm chứng (không tin báo cáo, tự chạy lại)
+## Bước 4 — Kiểm chứng (script)
 
-1. `git branch --show-current` phải là `S.branch`; `git log <S.base>..HEAD --oneline` có commit; mọi commit có `[<ID>]`.
-2. Chạy lại từng lệnh trong `S.checks` + lệnh riêng của plan. Lưu output vào `<S.runDir>/checks.log`.
-3. `git diff --stat <S.base>...HEAD`: file nằm ngoài danh sách của plan → xem có hợp lý không.
-4. Đối chiếu từng AC với bằng chứng. AC chưa đạt hoặc check lỗi:
-   - Author Codex: chạy lại 2a bước 3–5 với prompt `Dùng skill solar-story-exec. Tiếp tục story <ID> trên branch
-     <S.branch>. Sửa các lỗi sau: <tóm tắt + đường dẫn checks.log>`. Tối đa **2 vòng**.
-   - Author Claude: tự sửa, tối đa 2 vòng.
-   - Hết vòng vẫn lỗi → ghi `HANDOFF.md` (không commit), dừng, báo người dùng lỗi cụ thể.
-5. Đảm bảo AC đã tick `[x]` trong `S.epicFile` (chỉ AC có bằng chứng) và heading story **chưa** gắn ✅ (gắn ✅ khi merge).
-   Thiếu thì commit `docs(roadmap): tick AC [<ID>]`.
+`node scripts/agents/run.mjs verify <ID>` → đọc vài dòng tóm tắt.
+- PASS → bước 5.
+- FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại bước 3 (Codex) với prompt
+  `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log)`, rồi `run.mjs commit`.
+  Lỗi trình bày/design → Claude sửa. Tối đa **2 vòng**; hết vòng → ghi `HANDOFF.md`, dừng, báo người dùng.
+- "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.
+- AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]`.
 
-`--no-pr` → dừng ở đây, báo kết quả.
+`--no-pr` → dừng, báo kết quả.
 
-## Bước 4 — Push
+## Bước 5 — Push & PR
 
-1. Base phải có trên origin: `git ls-remote --exit-code --heads origin <S.base>`; nếu chưa có → `git push -u origin <S.base>`
-   (báo người dùng một dòng).
-2. `git push -u origin <S.branch>`. Push lỗi (xác thực, bị từ chối) → dừng, báo nguyên văn lỗi. Không dùng `--force`.
+1. `git ls-remote --exit-code --heads origin <S.base>` không có → `git push -u origin <S.base>` (báo một dòng).
+2. `git push -u origin <S.branch>` (không `--force`; lỗi → báo nguyên văn, dừng).
+3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó:
+   GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải) → hoặc `gh pr create --body-file` →
+   hoặc in link `compare` cho người dùng tự tạo và dừng. Ghi `<S.runDir>/pr.json`.
 
-## Bước 5 — Tạo PR
+## Bước 6 — Review
 
-- Tiêu đề: `<S.commitType>(<scope>): <S.title> [<ID>]` (≤ 72 ký tự, cắt tiêu đề nếu dài).
-- Nội dung: theo `.github/pull_request_template.md`, điền: link story, link plan, người viết (`S.author`), reviewer
-  (`S.reviewer`), cảnh báo tự review nếu `S.selfReviewConflict`, bảng AC → bằng chứng, output check tóm tắt, ảnh chụp
-  (story UI: liệt kê đường dẫn trong `.agent-runs`, hoặc tải lên nếu công cụ cho phép). Dòng cuối:
-  `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
-- Công cụ, theo thứ tự ưu tiên:
-  1. GitHub MCP connector: `create_pull_request` (owner/repo lấy từ `git remote get-url origin`), `base = S.base`.
-     Tải công cụ bằng ToolSearch `+github pull request` nếu chưa có.
-  2. `gh pr create --base <S.base> --head <S.branch> --title … --body-file <S.runDir>/pr-body.md`.
-  3. Không có cả hai → in link `https://github.com/<owner>/<repo>/compare/<S.base>...<S.branch>?expand=1` và nội dung PR
-     cho người dùng tự tạo; dừng playbook ở đây (bước review cần số PR).
-- Ghi số PR vào `<S.runDir>/pr.json`.
-
-## Bước 6 — Review chéo
-
-Gọi skill `pr-review` với số PR (nó tự chọn reviewer theo chẵn/lẻ và xử lý vòng sửa lỗi).
+Gọi skill `pr-review` với số PR.
 
 ## Bước 7 — Kết thúc
 
-Báo người dùng (ngắn): link PR, người viết → reviewer, kết quả review cuối (APPROVE / còn vấn đề), số vòng sửa, việc người
-dùng cần làm (merge thủ công; sau khi merge chạy `/run-story next`). **Không tự merge.**
-Sau khi PR được merge (người dùng báo), commit trên base: gắn ✅ vào heading story + link PR trong `S.epicFile`.
+Báo ngắn: link PR, ai làm gì (plan / dựng / design pass / review), kết luận review, số vòng sửa, việc người dùng cần làm
+(merge thủ công). **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
+`S.epicFile`, commit `docs(roadmap): <ID> done`, hỏi trước khi push.

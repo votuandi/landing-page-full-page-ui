@@ -87,14 +87,20 @@ section variant / theme theo skill `solar-section-variant` và `solar-theme-port
 
 Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code (skill `.claude/skills/run-story`):
 
-1. **Claude lên plan** → `roadmap/plans/<ID>.md` (luôn là Claude).
-2. **Thực thi**: story UI/UX/giao diện (danh sách `ui` trong `scripts/agents/routing.json`) → Claude Code làm;
-   story còn lại → Codex làm qua `codex exec` theo skill `solar-story-exec`. Sandbox Codex khóa ghi `.git`, nên Claude
-   tạo branch (tên trong plan) và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
-3. Claude chạy lại kiểm tra, push, tạo PR (`.github/pull_request_template.md`).
-4. **Review theo chẵn/lẻ số story**: S01, S03… → Codex review; S02, S04… → Claude review (skill `pr-review`, định dạng
-   `solar-pr-review`). Khi người viết trùng reviewer, review chạy ở phiên/subagent độc lập và PR ghi cảnh báo
-   (đổi sang luôn-review-chéo bằng `"selfReview": "swap"` trong `routing.json`).
+1. **Plan** → `roadmap/plans/<ID>.md`, Claude chốt. Story logic thường: Codex viết nháp, Claude duyệt. Story kiến trúc
+   (`architecture` trong `scripts/agents/routing.json`) và story UI: Codex khảo sát (brief), Claude viết plan.
+   (skill `solar-story-plan`)
+2. **Thực thi** theo mode trong `routing.json`:
+   - `claudeFull` (thiết kế UX mới): Claude làm toàn bộ.
+   - `split` (port template, section variant, màn hình CMS theo mẫu): Codex dựng, Claude làm design pass.
+   - còn lại: Codex làm toàn bộ (skill `solar-story-exec`).
+   Sandbox Codex khóa ghi `.git`, nên Claude tạo branch và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
+3. Việc cơ học chạy bằng `scripts/agents/run.mjs` (`verify`, `commit`, `pr-body`), Claude chỉ đọc tóm tắt; rồi push, tạo PR.
+4. **Review theo chẵn/lẻ số story**: S01, S03… → Codex review (effort high); S02, S04… → Claude review bằng subagent
+   (model `claudeReviewModel`, mặc định Sonnet). Skill `pr-review`, định dạng `solar-pr-review`. Người viết trùng reviewer
+   → PR ghi cảnh báo (đổi sang luôn-review-chéo bằng `"selfReview": "swap"`).
+   **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,
+   `codex-saver` khi Codex sắp hết. Xem tỷ lệ: `node scripts/agents/story.mjs load`.
 5. Finding P0/P1 → người viết sửa, review lại, tối đa 2 vòng. **Không agent nào tự merge.**
 
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.

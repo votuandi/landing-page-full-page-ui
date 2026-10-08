@@ -34,6 +34,15 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   Không đưa `.agent-runs/`, `HANDOFF.md`, file `.env*` vào commit nào.
 - Không tạo PR, không sửa file của story khác.
 
+## Mode `split` (story giao diện: bạn dựng, Claude làm design pass sau)
+
+- Làm phần trong plan giao cho Codex: schema + fixture, cấu trúc component, dữ liệu, logic, đổi mọi màu/bo góc/font cứng
+  sang token (skill `solar-section-variant`, `solar-theme-port`), test. Port template: giữ đúng bố cục và hiệu ứng của
+  bản gốc, không tự "làm đẹp" khác đi.
+- Không tinh chỉnh thẩm mỹ ngoài bản gốc (khoảng cách, typography, hiệu ứng mới) — để Claude làm ở design pass.
+- Báo cáo thêm mục `## Ghi chú cho design pass`: chỗ chưa khớp bản gốc, chỗ cần mắt người (tương phản, ảnh, responsive),
+  route/trang để xem.
+
 ## Trước khi kết thúc
 
 1. Chạy mọi lệnh kiểm tra trong prompt và plan. Lỗi → sửa rồi chạy lại. Không bỏ qua hoặc vô hiệu test để cho qua.

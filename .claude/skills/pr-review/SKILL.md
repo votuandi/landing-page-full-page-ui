@@ -24,7 +24,7 @@ Tham số: `$ARGUMENTS`.
 ### Reviewer = codex
 Chạy nền, chờ thông báo:
 ```bash
-codex exec -C "$(pwd)" -s read-only -o "<S.runDir>/review-r<n>.md" \
+codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<S.codexEffort.review> -o "<S.runDir>/review-r<n>.md" \
   "Dùng skill solar-pr-review. Review PR #<số> — story <ID> (<S.epicFile>), plan <S.planFile>. \
 Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu n>1: Kiểm tra các finding của vòng trước trong <S.runDir>/review-r<n-1>.md đã được sửa chưa.>" \
   > "<S.runDir>/review-r<n>.log" 2>&1
@@ -32,12 +32,12 @@ Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu n>1: Kiểm t
 Không sửa, không rút gọn kết luận của Codex.
 
 ### Reviewer = claude
-- Người viết là Codex → Claude tự review trong phiên này theo skill `solar-pr-review` (có thể dùng thêm skill
-  `code-review` cho phần correctness, `web-design-guidelines` cho file UI).
-- Người viết là Claude (tự review do quy tắc chẵn/lẻ) → **không** review trong ngữ cảnh đã viết code: gọi Agent tool
-  (`subagent_type: general-purpose`) với prompt chỉ gồm: skill `solar-pr-review`, số PR, branch, base, đường dẫn story và
-  plan, vòng `n`, và yêu cầu ghi kết quả vào `<S.runDir>/review-r<n>.md`. Không đưa tóm tắt "đã làm gì" của người viết.
-Ghi kết quả vào `<S.runDir>/review-r<n>.md`.
+Luôn review bằng subagent (ngữ cảnh riêng, không làm phình phiên chính, và độc lập với người viết): gọi Agent tool
+`subagent_type: general-purpose`, `model: <S.claudeReviewModel>` (mặc định `sonnet` — rẻ hơn, đủ cho review theo AC;
+đổi trong `routing.json`), `run_in_background: false`. Prompt chỉ gồm: dùng skill `solar-pr-review`, số PR, branch,
+base, đường dẫn story và plan, vòng `n`, file review vòng trước (nếu có), file UI thì áp thêm `web-design-guidelines`,
+và yêu cầu ghi kết quả vào `<S.runDir>/review-r<n>.md` rồi chỉ trả về dòng `VERDICT` + số finding P0/P1/P2.
+Không đưa tóm tắt "đã làm gì" của người viết. Phiên chính chỉ đọc kết quả trả về, không đọc lại diff.
 
 ## 3. Đăng review lên PR
 
@@ -52,18 +52,21 @@ Ghi kết quả vào `<S.runDir>/review-r<n>.md`.
 - `VERDICT: APPROVE` (không còn finding P0/P1) → comment PR: `✅ Sẵn sàng merge — chờ chủ dự án.` Kết thúc.
   Finding P2 không chặn: liệt kê trong báo cáo cuối, không bắt sửa.
 - `VERDICT: CHANGES_REQUESTED` → người viết sửa **chỉ** các finding P0/P1:
-  - Người viết Codex (chạy nền, Codex không ghi được `.git` nên Claude commit theo "Commit đề xuất" như bước 2a.5 của
+  - Người viết Codex (chạy nền, Codex không ghi được `.git` nên Claude commit bằng `node scripts/agents/run.mjs commit <S.runDir>/fix-r<n>-report.md` — xem
     `run-story`):
     ```bash
     git switch <branch>
     codex exec -C "$(pwd)" -s workspace-write -c sandbox_workspace_write.network_access=true \
+      -c model_reasoning_effort=<S.codexEffort.exec> \
       -o "<S.runDir>/fix-r<n>.md" "Dùng skill solar-story-exec. Sửa các finding P0/P1 trong <S.runDir>/review-r<n>.md \
     cho story <ID> trên branch <branch>. Không làm thêm việc khác. Chạy lại lệnh kiểm tra trong <S.planFile>. \
     Báo cáo: <S.runDir>/fix-r<n>-report.md" \
       > "<S.runDir>/fix-r<n>.log" 2>&1
     ```
   - Người viết Claude: tự sửa trên branch.
-  - Claude chạy lại `S.checks`, `git push`, comment PR liệt kê finding đã sửa (kèm SHA commit).
+  - Story `split`: finding về trình bày (bố cục, tương phản, responsive, hiệu ứng) → Claude sửa; finding về logic/schema/
+    test → Codex sửa như trên.
+  - `node scripts/agents/run.mjs verify <ID>` (chỉ đọc tóm tắt), `git push`, comment PR liệt kê finding đã sửa (kèm SHA commit).
   - Quay lại bước 1 với vòng `n+1`. Sau 2 vòng sửa mà vẫn `CHANGES_REQUESTED` → dừng, báo người dùng các finding còn lại
     và ý kiến của Claude (đồng ý / cho rằng finding sai và vì sao).
 - Reviewer báo finding mà người viết cho là sai → không tự bỏ qua: ghi phản biện vào comment PR, để reviewer xét ở vòng

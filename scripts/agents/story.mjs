@@ -3,6 +3,7 @@
 //   node scripts/agents/story.mjs info E1-S01   → JSON: người làm, reviewer, branch, phụ thuộc, lệnh kiểm tra
 //   node scripts/agents/story.mjs next          → story chưa xong đầu tiên có đủ phụ thuộc
 //   node scripts/agents/story.mjs list [--todo] → bảng trạng thái mọi story
+//   node scripts/agents/story.mjs load          → ước lượng tỷ lệ tải Claude/Codex theo routing.json
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
 const epicsDir = join(root, "roadmap", "epics");
-const routing = JSON.parse(readFileSync(join(here, "routing.json"), "utf8"));
+const routing = JSON.parse(readFileSync(process.env.ROUTING_FILE ?? join(here, "routing.json"), "utf8"));
 
 const storyNum = (id) => Number(id.split("-S")[1]);
 const epicOf = (id) => id.split("-")[0];
@@ -78,10 +79,30 @@ function depStatus(story, stories) {
   });
 }
 
+/**
+ * mode: "claude" (Claude viết toàn bộ) | "split" (Codex dựng, Claude design pass) | "codex".
+ * planMode: "claude" (Codex khảo sát → Claude viết plan) | "codex-draft" (Codex viết nháp → Claude duyệt).
+ */
+function routeStory(id) {
+  const budget = routing.budget ?? "balanced";
+  let mode = routing.claudeFull.includes(id) ? "claude" : routing.split.includes(id) ? "split" : "codex";
+  if (budget === "claude-saver" && mode === "claude") mode = "split";
+  if (budget === "codex-saver" && mode === "split") mode = "claude";
+  const override = routing.authorOverride[id];
+  if (override) mode = override === "claude" ? "claude" : "codex";
+  const architecture = routing.architecture.includes(id);
+  let planMode = architecture || mode !== "codex" ? "claude" : "codex-draft";
+  if (budget === "claude-saver" && !architecture) planMode = "codex-draft";
+  if (budget === "codex-saver") planMode = "claude";
+  return { mode, planMode, architecture };
+}
+
 function describe(story, stories) {
   const other = (agent) => (agent === "claude" ? "codex" : "claude");
-  const kind = routing.ui.includes(story.id) ? "ui" : "logic";
-  const author = routing.authorOverride[story.id] ?? (kind === "ui" ? "claude" : "codex");
+  const { mode, planMode, architecture } = routeStory(story.id);
+  const kind = mode === "codex" ? "logic" : "ui";
+  // split: Codex viết phần lớn code → tính là người viết; Claude làm design pass.
+  const author = mode === "claude" ? "claude" : "codex";
   const parity = storyNum(story.id) % 2 === 1 ? "odd" : "even";
   let reviewer = routing.reviewerByParity[parity];
   const selfReviewConflict = reviewer === author;
@@ -92,7 +113,17 @@ function describe(story, stories) {
   return {
     ...story,
     kind,
+    mode,
+    planMode,
+    architecture,
     author,
+    designPass: mode === "split" ? "claude" : null,
+    codexEffort: {
+      exec: routing.codexEffort[story.size] ?? "high",
+      plan: routing.codexEffort.plan,
+      review: routing.codexEffort.review,
+    },
+    claudeReviewModel: routing.claudeReviewModel,
     parity,
     reviewer,
     selfReviewConflict,
@@ -132,9 +163,27 @@ if (cmd === "info") {
     const d = describe(s, stories);
     if (todoOnly && d.done) continue;
     const status = d.done ? "xong" : d.ready ? "sẵn sàng" : "chờ";
-    console.log(`${d.id.padEnd(7)} ${status.padEnd(8)} ${d.author.padEnd(6)} → review ${d.reviewer.padEnd(6)} ${d.size || "-"}  ${d.title}`);
+    const who = d.mode === "split" ? "codex+design" : d.author;
+    console.log(`${d.id.padEnd(7)} ${status.padEnd(8)} plan:${d.planMode.padEnd(11)} ${who.padEnd(12)} → review ${d.reviewer.padEnd(6)} ${d.size || "-"}  ${d.title}`);
   }
+} else if (cmd === "load") {
+  // Ước lượng tải theo điểm: S=1, M=2, L=4. Plan: Claude viết = 1 điểm Claude; Codex nháp = 0,3 điểm Claude (duyệt).
+  const pts = { S: 1, M: 2, L: 4 };
+  const load = { claude: 0, codex: 0 };
+  for (const s of stories.values()) {
+    const d = describe(s, stories);
+    if (d.done) continue;
+    const p = pts[d.size] ?? 2;
+    if (d.planMode === "claude") { load.claude += 1; load.codex += 0.3; } else { load.codex += 1; load.claude += 0.3; }
+    if (d.mode === "claude") load.claude += p;
+    else if (d.mode === "split") { load.codex += p * 0.7; load.claude += p * 0.3; }
+    else load.codex += p;
+    // Review ~ 0,5 điểm/story cho reviewer.
+    load[d.reviewer] += 0.5;
+  }
+  const total = load.claude + load.codex;
+  console.log(`budget=${routing.budget}  Claude ${load.claude.toFixed(0)} điểm (${((load.claude / total) * 100).toFixed(0)}%)  ·  Codex ${load.codex.toFixed(0)} điểm (${((load.codex / total) * 100).toFixed(0)}%)`);
 } else {
-  console.error("Dùng: node scripts/agents/story.mjs info <ID> | next | list [--todo]");
+  console.error("Dùng: node scripts/agents/story.mjs info <ID> | next | list [--todo] | load");
   process.exit(1);
 }
