@@ -9,6 +9,9 @@
   "$reviewPolicy": "codex-except-architecture = Codex review mọi story, trừ story trong 'architecture' do Claude (subagent) review | codex = Codex review tất cả | parity = lẻ → reviewerByParity.odd, chẵn → reviewerByParity.even",
   "reviewerByParity": { "odd": "codex", "even": "claude" },
   "selfReview": "allow",
+
+  "buildPolicy": "epic-last",
+  "$buildPolicy": "epic-last = chỉ story cuối của mỗi epic chạy build trong checks (tiết kiệm thời gian), các story khác chạy typecheck/lint/test | always = mọi story đều build",
   "claudeReviewModel": "sonnet",
 
   "$modes": "claudeFull: Claude viết toàn bộ (thiết kế UX mới). split: Codex dựng code, Claude làm 'design pass' (chỉnh giao diện, chụp ảnh). Còn lại: Codex viết toàn bộ.",

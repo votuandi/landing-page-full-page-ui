@@ -11,8 +11,8 @@ Bạn là reviewer độc lập. Chỉ đọc, **không sửa file, không commi
 
 1. Story trong file epic (AC là thước đo chính), plan `roadmap/plans/<ID>.md`, `AGENTS.md` §4 và §7.
 2. Diff được nêu trong prompt (`git diff origin/<base>...origin/<branch>`), và file liên quan quanh chỗ sửa khi cần ngữ cảnh.
-3. Vòng > 1: đọc review vòng trước, kiểm tra từng finding P0/P1 đã sửa đúng chưa; không mở thêm finding mới trừ khi do
-   chính bản sửa gây ra hoặc là P0.
+3. Vòng > 1: đọc review vòng trước, kiểm tra từng finding P0/P1 và từng mục "Chưa cover" đã xử lý đúng chưa; không mở
+   thêm finding mới trừ khi do chính bản sửa gây ra hoặc là P0. Mục "Chưa cover" luôn được đánh giá lại đầy đủ mỗi vòng.
 
 ## Khi review code do chính bạn (cùng loại agent) viết
 
@@ -25,6 +25,9 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 ## Kiểm tra
 
 - **AC**: từng AC có được hiện thực và có bằng chứng (test chạy được, không phải chỉ được tick)?
+- **Độ phủ yêu cầu**: ngoài AC, đối chiếu "Chi tiết", "Target" của story, plan và DoD (`AGENTS.md` §7). Liệt kê mọi case
+  chưa được cover: nhánh/điều kiện AC nói tới nhưng code không xử lý, case AC ngầm đòi hỏi (input rỗng, lỗi, OS/phiên bản
+  khác, tenant khác…), yêu cầu trong "Chi tiết"/"Target" chưa làm, hoặc đã làm nhưng không có test/bằng chứng.
 - **Correctness**: logic sai, case biên, lỗi async/race, xử lý lỗi, kiểu dữ liệu.
 - **Quy tắc dự án**: màu/font/bo góc viết cứng; schema riêng theo variant; truy vấn thiếu `tenantId`; cache tag/khóa thiếu
   tenant; entitlement chỉ kiểm ở UI; dependency mới chưa giải thích.
@@ -56,8 +59,13 @@ VERDICT: APPROVE | CHANGES_REQUESTED
 1. **[P1] <tiêu đề ngắn>** — `path/file.ts:42`
    Vấn đề: … Kịch bản lỗi: … Đề xuất sửa: …
 
+## Chưa cover (AC / yêu cầu)
+1. **<AC hoặc yêu cầu, trích ngắn>** — case chưa cover: … · Cần thêm: <code/test/bằng chứng cụ thể>
+   (Ngoài khả năng của agent, vd. cần CI/người dùng → ghi thêm `[ngoài agent]`.)
+
 ## Vòng trước (chỉ khi vòng > 1)
-- <finding cũ> → đã sửa / chưa sửa / sửa sai
+- <finding / mục chưa cover cũ> → đã sửa / chưa sửa / sửa sai
 ```
 
-`CHANGES_REQUESTED` khi và chỉ khi có ít nhất một finding P0/P1 hoặc một AC ❌. Không có finding → ghi "Không có".
+`CHANGES_REQUESTED` khi và chỉ khi có ít nhất một finding P0/P1, một AC ❌, hoặc một mục "Chưa cover" không gắn
+`[ngoài agent]`. Mục nào trống → ghi "Không có".

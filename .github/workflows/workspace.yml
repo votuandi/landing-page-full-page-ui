@@ -1,0 +1,41 @@
+name: Workspace
+
+on:
+  push:
+    branches: [mono-repo-multi-tenent]
+  pull_request:
+    branches: [mono-repo-multi-tenent]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: node --version
+      - run: pnpm --version
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck and lint (populate cache)
+        run: pnpm turbo run typecheck lint
+      - name: Typecheck and lint (verify FULL TURBO)
+        shell: pwsh
+        run: |
+          $output = pnpm turbo run typecheck lint 2>&1
+          $exitCode = $LASTEXITCODE
+          $output | Write-Output
+          if ($exitCode -ne 0) { exit $exitCode }
+          if (($output -join "`n") -notmatch 'FULL TURBO') {
+            throw 'The second run must hit the cache for every task.'
+          }
+      - run: pnpm turbo run test build

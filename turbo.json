@@ -1,0 +1,79 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "agentGuidance": false,
+  "globalDependencies": [
+    "packages/config/package.json",
+    "packages/config/tsconfig.base.json",
+    "packages/config/eslint.config.mjs",
+    "packages/config/tailwind.preset.mjs"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_SITE_MODE",
+        "NEXT_PUBLIC_CATALOG_ENABLED",
+        "NEXT_PUBLIC_DEMO_MODE",
+        "NEXT_PUBLIC_TEMPLATE_CTA_URL",
+        "NEXT_PUBLIC_PRICING_URL"
+      ],
+      "passThroughEnv": [
+        "LEAD_ADAPTERS",
+        "LEAD_WEBHOOK_URL",
+        "LEAD_WEBHOOK_TOKEN",
+        "GOOGLE_SHEETS_WEBAPP_URL",
+        "GOOGLE_SHEETS_SECRET",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"]
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*"]
+    },
+    "lint": { "dependsOn": ["^lint"], "outputs": [] },
+    "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
+    "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"] },
+    "lint:tokens": { "outputs": [] },
+    "//#build": {
+      "dependsOn": ["@solar/config#typecheck", "@solar/config#lint"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_SITE_MODE",
+        "NEXT_PUBLIC_CATALOG_ENABLED",
+        "NEXT_PUBLIC_DEMO_MODE",
+        "NEXT_PUBLIC_TEMPLATE_CTA_URL",
+        "NEXT_PUBLIC_PRICING_URL"
+      ],
+      "passThroughEnv": [
+        "LEAD_ADAPTERS",
+        "LEAD_WEBHOOK_URL",
+        "LEAD_WEBHOOK_TOKEN",
+        "GOOGLE_SHEETS_WEBAPP_URL",
+        "GOOGLE_SHEETS_SECRET",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"]
+    },
+    "//#dev": {
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*"]
+    },
+    "//#lint": { "dependsOn": ["@solar/config#lint"], "outputs": [] },
+    "//#typecheck": {
+      "dependsOn": ["@solar/config#typecheck"],
+      "outputs": ["*.tsbuildinfo"]
+    },
+    "//#test": {
+      "dependsOn": ["@solar/config#typecheck"],
+      "outputs": [".test-dist/**"]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review PR của một story theo reviewPolicy trong scripts/agents/routing.json (mặc định Codex review mọi story, Claude review các story kiến trúc/bảo mật); đăng review lên PR, giao người viết sửa lỗi blocking, review lại tối đa 2 vòng. Dùng khi /run-story tới bước review, hoặc người dùng gõ /pr-review <số PR|STORY-ID>.
+description: Review PR của một story theo reviewPolicy trong scripts/agents/routing.json (hiện tại Codex review mọi story); review ở local (không đăng lên PR), liệt kê issue và case chưa cover AC/yêu cầu, giao người viết (Codex) sửa rồi review lại cho tới khi PR merge được (CI xanh, không conflict), sau đó báo người dùng tự merge. Dùng khi /run-story tới bước review, hoặc người dùng gõ /pr-review <số PR|STORY-ID>.
 argument-hint: "<số PR | STORY-ID> [--reviewer claude|codex]"
 ---
 
@@ -14,7 +14,8 @@ Tham số: `$ARGUMENTS`.
    Có số PR → đọc PR, lấy STORY-ID từ tiêu đề `[E\d+-S\d+]`.
 2. `node scripts/agents/story.mjs info <ID>` → `S`. Reviewer = `S.reviewer` (tính theo `reviewPolicy` trong
    `scripts/agents/routing.json`); `--reviewer` ghi đè. Người viết = `S.author` (hoặc "Người viết" trong mô tả PR nếu khác).
-3. Vòng review `n` = số file `<S.runDir>/review-r*.md` hiện có + 1. `n > 3` → dừng, báo người dùng (đã quá 2 vòng sửa).
+3. Vòng review `n` = số file `<S.runDir>/review-r*.md` hiện có + 1. Vòng lặp review → sửa chạy cho tới khi PR merge được
+   (mục 4); chặn an toàn: `n > 6` (đã 5 vòng sửa) → dừng, báo người dùng.
 4. Lấy code: `git fetch origin <branch>`; review trên `origin/<S.base>...origin/<branch>`.
 
 ## 2. Thực hiện review
@@ -26,9 +27,11 @@ Chạy nền, chờ thông báo:
 ```bash
 codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<S.codexEffort.review> -o "<S.runDir>/review-r<n>.md" \
   "Dùng skill solar-pr-review. Review PR #<số> — story <ID> (<S.epicFile>), plan <S.planFile>. \
-Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.>\
-<nếu n>1: Kiểm tra các finding của vòng trước trong <S.runDir>/review-r<n-1>.md đã được sửa chưa.>" \
-  > "<S.runDir>/review-r<n>.log" 2>&1
+Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.> \
+Liệt kê mọi issue (Finding) và mọi case chưa cover hết AC + yêu cầu của story (mục 'Chưa cover').\
+<nếu CI đỏ: CI đang lỗi: <tên job + đuôi log>.>\
+<nếu n>1: Kiểm tra các finding và mục chưa cover của vòng trước trong <S.runDir>/review-r<n-1>.md đã được xử lý chưa.>" \
+  < /dev/null > "<S.runDir>/review-r<n>.log" 2>&1
 ```
 Không sửa, không rút gọn kết luận của Codex.
 
@@ -40,39 +43,52 @@ base, đường dẫn story và plan, vòng `n`, file review vòng trước (n�
 và yêu cầu ghi kết quả vào `<S.runDir>/review-r<n>.md` rồi chỉ trả về dòng `VERDICT` + số finding P0/P1/P2.
 Không đưa tóm tắt "đã làm gì" của người viết. Phiên chính chỉ đọc kết quả trả về, không đọc lại diff.
 
-## 3. Đăng review lên PR
+## 3. Review ở local — không đăng lên PR
 
-- Nội dung: `### 🤖 <Codex|Claude Code> review — vòng <n>` + (nếu reviewer trùng người viết)
-  `> ⚠️ Reviewer cùng loại agent với người viết (tự review, phiên độc lập, chế độ kiểm kỹ).` + nguyên văn file review.
-- Công cụ: GitHub MCP `pull_request_review_write` (`method: create`, `event: COMMENT` — PR do chính tài khoản này tạo nên
-  GitHub không cho APPROVE/REQUEST_CHANGES) hoặc `gh pr review <số> --comment --body-file …`.
-  Không có công cụ → in nội dung để người dùng dán.
+Kết quả review chỉ nằm ở `<S.runDir>/review-r<n>.md`. **Không** đăng review hay comment lên PR (kể cả comment "đã sửa"
+hay "sẵn sàng merge"). Báo người dùng trong phiên: dòng `VERDICT`, danh sách tiêu đề issue (P0/P1/P2) và các case chưa
+cover.
 
 ## 4. Xử lý kết luận
 
-- `VERDICT: APPROVE` (không còn finding P0/P1) → comment PR: `✅ Sẵn sàng merge — chờ chủ dự án.` Kết thúc.
-  Finding P2 không chặn: liệt kê trong báo cáo cuối, không bắt sửa.
-- `VERDICT: CHANGES_REQUESTED` → người viết sửa **chỉ** các finding P0/P1:
+**PR merge được** khi đủ cả 4 điều kiện:
+1. `VERDICT: APPROVE` — không còn finding P0/P1, không AC ❌, mục "Chưa cover" trống (hoặc chỉ còn mục `[ngoài agent]`
+   đã có bằng chứng, vd. CI).
+2. CI xanh trên commit cuối của PR: GitHub MCP `pull_request_read` (`method: get_check_runs` / `get_status`) hoặc
+   `gh pr checks <số> --watch`. CI đang chạy → chờ (`gh … --watch`, hoặc ScheduleWakeup/Monitor ~5 phút/lần), không
+   poll dày. Mục `[ngoài agent]` cần CI làm bằng chứng → CI xanh thì tick AC đó trong `S.epicFile`, commit
+   `docs(roadmap): tick AC [<ID>]`, push.
+3. Không conflict với base (`pull_request_read` `method: get` → `mergeable`/`mergeable_state`). Conflict → rebase/merge base
+   vào branch (Claude làm, Codex sửa nếu có lỗi), chạy lại `verify`.
+4. `node scripts/agents/run.mjs verify <ID>` chỉ còn cảnh báo đã được ghi chú trong PR.
+
+- Đủ 4 điều kiện → báo người dùng (PushNotification nếu có) kèm finding P2 còn lại, và kết thúc. **Không tự merge.** Finding P2 không chặn: liệt kê, không bắt sửa.
+- Chưa đủ (`VERDICT: CHANGES_REQUESTED`, CI đỏ hoặc conflict) → người viết sửa các finding P0/P1, mọi mục "Chưa cover"
+  không gắn `[ngoài agent]`, và lỗi CI:
   - Người viết Codex (chạy nền, Codex không ghi được `.git` nên Claude commit bằng `node scripts/agents/run.mjs commit <S.runDir>/fix-r<n>-report.md` — xem
     `run-story`):
     ```bash
     git switch <branch>
     codex exec -C "$(pwd)" -s workspace-write -c sandbox_workspace_write.network_access=true \
       -c model_reasoning_effort=<S.codexEffort.exec> \
-      -o "<S.runDir>/fix-r<n>.md" "Dùng skill solar-story-exec. Sửa các finding P0/P1 trong <S.runDir>/review-r<n>.md \
-    cho story <ID> trên branch <branch>. Không làm thêm việc khác. Chạy lại lệnh kiểm tra trong <S.planFile>. \
-    Báo cáo: <S.runDir>/fix-r<n>-report.md" \
-      > "<S.runDir>/fix-r<n>.log" 2>&1
+      -o "<S.runDir>/fix-r<n>.md" "Dùng skill solar-story-exec. Sửa các finding P0/P1 và mọi mục 'Chưa cover' \
+    (trừ [ngoài agent]) trong <S.runDir>/review-r<n>.md cho story <ID> trên branch <branch>; mỗi case chưa cover phải \
+    có code + test/bằng chứng.<nếu CI đỏ: Sửa lỗi CI: <tên job + đuôi log>.> Không làm thêm việc khác. \
+    Chạy lại lệnh kiểm tra trong <S.planFile>. Báo cáo: <S.runDir>/fix-r<n>-report.md" \
+      < /dev/null > "<S.runDir>/fix-r<n>.log" 2>&1
     ```
   - Người viết Claude: tự sửa trên branch.
   - Story `split`: finding về trình bày (bố cục, tương phản, responsive, hiệu ứng) → Claude sửa; finding về logic/schema/
     test → Codex sửa như trên.
-  - `node scripts/agents/run.mjs verify <ID>` (chỉ đọc tóm tắt), `git push`, comment PR liệt kê finding đã sửa (kèm SHA commit).
-  - Quay lại bước 1 với vòng `n+1`. Sau 2 vòng sửa mà vẫn `CHANGES_REQUESTED` → dừng, báo người dùng các finding còn lại
-    và ý kiến của Claude (đồng ý / cho rằng finding sai và vì sao).
-- Reviewer báo finding mà người viết cho là sai → không tự bỏ qua: ghi phản biện vào comment PR, để reviewer xét ở vòng
-  sau; vẫn bất đồng → để người dùng quyết.
+  - `node scripts/agents/run.mjs verify <ID>` (chỉ đọc tóm tắt), `git push` (ghi SHA commit sửa cho báo cáo cuối).
+  - Chờ CI của commit mới, rồi quay lại bước 1 với vòng `n+1` (Codex review lại toàn bộ PR).
+  - Dừng sớm và báo người dùng (kèm ý kiến của Claude: đồng ý / cho rằng finding sai và vì sao) khi: cùng một finding
+    "chưa sửa" ở 2 vòng liền; finding cần quyết định của người dùng (phạm vi, dependency, đổi AC); hoặc chạm chặn an toàn
+    ở mục 1.3.
+- Reviewer báo finding mà người viết cho là sai → không tự bỏ qua: ghi phản biện vào `<S.runDir>/review-r<n>-rebuttal.md`
+  và đưa vào prompt review vòng sau; vẫn bất đồng → để người dùng quyết.
 
 ## 5. Báo cáo
 
-Một đoạn ngắn: PR, reviewer, số vòng, kết luận cuối, finding còn lại (nếu có), link PR.
+Một đoạn ngắn: PR, reviewer, số vòng, issue và case chưa cover đã sửa qua các vòng, trạng thái CI, finding P2 còn lại
+(nếu có), link PR, và câu chốt **"PR #<số> sẵn sàng merge — bạn tự merge"** (hoặc lý do dừng).

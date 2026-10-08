@@ -41,7 +41,8 @@ roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi l
 
 Trước E1 (repo một app, yarn): `yarn dev` · `yarn typecheck` · `yarn lint` · `yarn test` · `yarn build`.
 Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck lint test build`.
-Chỉ báo "xong" khi typecheck + lint + test + build đều qua trên phần bị ảnh hưởng.
+Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng. `build` chỉ bắt buộc ở story cuối
+của mỗi epic (`"buildPolicy": "epic-last"` trong `scripts/agents/routing.json`; CI vẫn build mọi PR).
 
 ## 4. Quy tắc bắt buộc
 
@@ -103,7 +104,9 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    chẵn → Claude). Skill `pr-review`, định dạng `solar-pr-review`.
    **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,
    `codex-saver` khi Codex sắp hết. Xem tỷ lệ: `node scripts/agents/story.mjs load`.
-5. Finding P0/P1 → người viết sửa, review lại, tối đa 2 vòng. **Không agent nào tự merge.**
+5. Review liệt kê issue + case chưa cover AC/yêu cầu của story. Finding P0/P1 và case chưa cover → người viết sửa,
+   review lại, lặp tới khi PR merge được (APPROVE, CI xanh, không conflict; chặn an toàn 5 vòng) rồi báo người dùng.
+   **Không agent nào tự merge.**
 
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.
 
@@ -116,7 +119,7 @@ Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, ng�
 ## 7. Định nghĩa hoàn thành (DoD) cho mọi story
 
 1. Mọi AC của story đạt, có bằng chứng (test, ảnh chụp, log).
-2. `typecheck`, `lint`, `test`, `build` qua; không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
+2. `typecheck`, `lint`, `test` qua (`build` ở story cuối epic, xem §3); không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
 3. Có test cho logic mới (unit với `node:test`/vitest; e2e Playwright cho luồng người dùng).
 4. Đã được review theo `reviewPolicy` (§6), mọi finding P0/P1 đã xử lý.
 5. Tài liệu (README package, roadmap) cập nhật nếu hành vi thay đổi.
