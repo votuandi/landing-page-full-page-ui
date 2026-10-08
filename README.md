@@ -12,13 +12,47 @@ nền sáng, xanh lá – xanh dương – vàng nắng, font Be Vietnam Pro, gi
 
 ## Chạy dự án
 
+Dùng **Node 22 LTS** (`.nvmrc`) và **pnpm 10.34.6** (`packageManager`).
+Bật pnpm qua Corepack: `corepack enable`, `corepack prepare pnpm@10.34.6 --activate`.
+
 ```bash
-yarn install
+pnpm install --frozen-lockfile
 cp .env.example .env.local   # điền biến môi trường nếu cần
-yarn dev                     # http://localhost:3000
-yarn test                    # unit test: dự toán, giỏ báo giá, quy tắc giá, số điện thoại
-yarn typecheck && yarn lint && yarn build
+pnpm dev                     # http://localhost:3000
+pnpm turbo run typecheck lint test
+pnpm turbo run typecheck lint # chạy lần nữa để kiểm FULL TURBO
+pnpm turbo run build          # CI luôn build; local bắt buộc ở cuối epic
 ```
+
+Các script root `dev`, `build`, `lint`, `typecheck`, `test` vẫn gọi trực tiếp công cụ của app.
+Turbo đăng ký root tasks chuyển tiếp để kiểm cả app lẫn `@solar/config`; không gọi Turbo đệ quy từ script cùng tên.
+`pnpm test` chạy unit test dự toán, giỏ báo giá, quy tắc giá và số điện thoại.
+
+## Workspace hiện tại (E1-S01)
+
+```text
+src/, public/       app template-15 còn tại root
+packages/config/    TypeScript base, ESLint flat config và Tailwind preset dùng chung
+pnpm-workspace.yaml apps/* và packages/*
+turbo.json          task graph và cache local .turbo/
+```
+
+`pnpm --filter @solar/config typecheck` và `pnpm --filter @solar/config lint` kiểm cấu hình thực.
+Preset giữ bảng màu token của t15; không thêm màu mặc định Tailwind.
+Task `lint:tokens` đã đăng ký trong Turbo nhưng **chưa có checker/script**; E1-S06/E2 sẽ triển khai.
+
+## Cấu trúc đích
+
+`apps/web` chứa site công khai, `apps/admin` chứa CMS. Các package chia sẻ: `config`, `tokens`,
+`themes`, `ui`, `sections`, `presets`, `core`, `db`, `storage`, `leads`, `plans`.
+Xem [roadmap](roadmap/README.md) để biết lộ trình.
+
+**Đến E1-S02** mới chuyển app sang `apps/web`, bỏ root tasks chuyển tiếp và thêm wrapper Turbo ở root.
+Lệnh `pnpm --filter web dev` / `pnpm dev --filter web` chưa dùng được trong E1-S01.
+
+Workflow `workspace.yml` kiểm Node 22 trên Windows/Ubuntu: frozen install, typecheck/lint hai lượt
+(lượt hai phải FULL TURBO), test và build. Workflow Yarn cũ giữ riêng cho các branch template.
+Turbo pin 2.11.7 phục vụ điều phối/cache; không thêm dependency runtime của app.
 
 ## Trang chủ (theo thứ tự — bật/tắt từng section trong `src/config/site.config.ts`)
 

@@ -19,8 +19,8 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 - **Target**: `pnpm install` sạch ≤ 60 s trên máy dev.
 - **AC**:
   - [ ] `pnpm install --frozen-lockfile` thành công trên Windows và Ubuntu (CI).
-  - [ ] `pnpm turbo run typecheck lint` chạy trên mọi package, lần 2 trúng cache (`FULL TURBO`).
-  - [ ] README gốc mô tả cấu trúc và lệnh mới.
+  - [x] `pnpm turbo run typecheck lint` chạy trên mọi package, lần 2 trúng cache (`FULL TURBO`).
+  - [x] README gốc mô tả cấu trúc và lệnh mới.
 - Agent: Codex · Cỡ: M
 
 ### E1-S02 · Di chuyển template-15 vào `apps/web`
