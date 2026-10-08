@@ -116,6 +116,10 @@ function describe(story, stories) {
   const branchType = routing.branchType[story.epic] ?? "feat";
   const pnpm = existsSync(join(root, "pnpm-workspace.yaml"));
   const deps = depStatus(story, stories);
+  // buildPolicy "epic-last": chỉ story cuối của epic chạy build; story khác bỏ build để tiết kiệm thời gian.
+  const epicIds = [...stories.values()].filter((s) => s.epic === story.epic).map((s) => s.id);
+  const epicLast = epicIds[epicIds.length - 1] === story.id;
+  const build = (routing.buildPolicy ?? "always") === "always" || epicLast;
   return {
     ...story,
     kind,
@@ -138,9 +142,10 @@ function describe(story, stories) {
     commitType: branchType,
     planFile: `roadmap/plans/${story.id}.md`,
     runDir: `.agent-runs/${story.id}`,
+    epicLast,
     checks: pnpm
-      ? ["pnpm turbo run typecheck lint test build"]
-      : ["yarn typecheck", "yarn lint", "yarn test", "yarn build"],
+      ? [`pnpm turbo run typecheck lint test${build ? " build" : ""}`]
+      : ["yarn typecheck", "yarn lint", "yarn test", ...(build ? ["yarn build"] : [])],
     depStatus: deps,
     ready: deps.every((d) => d.done),
   };
