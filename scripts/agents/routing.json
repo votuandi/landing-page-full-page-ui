@@ -2,10 +2,10 @@
   "$comment": "Phân việc cho playbook /run-story. Xem AGENTS.md §6. Sửa file này để cân lại tải giữa Claude và Codex.",
   "base": "mono-repo-multi-tenent",
 
-  "budget": "balanced",
+  "budget": "claude-saver",
   "$budget": "balanced = mặc định | claude-saver = Claude sắp hết quota: Codex viết nháp plan cho mọi story trừ 'architecture', story UI 'claudeFull' chuyển thành 'split' | codex-saver = ngược lại: Claude tự viết plan và tự làm story UI split",
 
-  "reviewPolicy": "codex-except-architecture",
+  "reviewPolicy": "codex",
   "$reviewPolicy": "codex-except-architecture = Codex review mọi story, trừ story trong 'architecture' do Claude (subagent) review | codex = Codex review tất cả | parity = lẻ → reviewerByParity.odd, chẵn → reviewerByParity.even",
   "reviewerByParity": { "odd": "codex", "even": "claude" },
   "selfReview": "allow",
