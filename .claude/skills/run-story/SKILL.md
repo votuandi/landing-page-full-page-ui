@@ -35,7 +35,7 @@ Tham số: `$ARGUMENTS`
 Mẫu lệnh Codex (thay `<EFFORT>`, `<OUT>`, `<LOG>`, `<PROMPT>`):
 ```bash
 codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=<EFFORT> \
-  -c sandbox_workspace_write.network_access=true -o "<OUT>" "<PROMPT>" > "<LOG>" 2>&1
+  -c sandbox_workspace_write.network_access=true -o "<OUT>" "<PROMPT>" < /dev/null > "<LOG>" 2>&1
 ```
 
 ## Bước 1 — Plan (Claude chốt, Codex làm phần đọc)

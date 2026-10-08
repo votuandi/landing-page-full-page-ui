@@ -28,7 +28,7 @@ codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<S.codexEffort.rev
   "Dùng skill solar-pr-review. Review PR #<số> — story <ID> (<S.epicFile>), plan <S.planFile>. \
 Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.>\
 <nếu n>1: Kiểm tra các finding của vòng trước trong <S.runDir>/review-r<n-1>.md đã được sửa chưa.>" \
-  > "<S.runDir>/review-r<n>.log" 2>&1
+  < /dev/null > "<S.runDir>/review-r<n>.log" 2>&1
 ```
 Không sửa, không rút gọn kết luận của Codex.
 
