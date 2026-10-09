@@ -15,7 +15,9 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "@solar/core": "workspace:*",
-    "@solar/ui": "workspace:*"
+    "@solar/ui": "workspace:*",
+    "@solar/themes": "workspace:*",
+    "@solar/tokens": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20",
