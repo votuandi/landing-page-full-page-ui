@@ -16,11 +16,19 @@ export function SectionReveal() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined";
     const seen = new WeakSet<Element>();
 
+    // Stagger delays live in a separate <style> (`:nth-child` rules) instead of each child's `style`:
+    // this effect can run before lazy sections hydrate, and touching their attributes causes hydration mismatches.
+    const sheet = document.head.appendChild(document.createElement("style"));
+    const rules = new Set<string>();
     const applyStagger = (group: HTMLElement) => {
-      const step = Number(group.dataset.revealStep || 0.1);
-      Array.from(group.children).forEach((child, index) => {
-        (child as HTMLElement).style.setProperty("--rd", `${(index * step).toFixed(2)}s`);
-      });
+      const step = group.dataset.revealStep;
+      const selector = step ? `[data-reveal-stagger][data-reveal-step="${CSS.escape(step)}"]` : "[data-reveal-stagger]:not([data-reveal-step])";
+      for (let index = 0; index < group.children.length; index++) {
+        const rule = `${selector} > :nth-child(${index + 1}) { --rd: ${(index * Number(step || 0.1)).toFixed(2)}s; }`;
+        if (rules.has(rule)) continue;
+        rules.add(rule);
+        sheet.sheet?.insertRule(rule, sheet.sheet.cssRules.length);
+      }
     };
 
     const observer = reduced ? null : new IntersectionObserver((entries) => {
@@ -49,7 +57,7 @@ export function SectionReveal() {
     });
     mutations.observe(document.body, { childList: true, subtree: true });
 
-    return () => { observer?.disconnect(); mutations.disconnect(); };
+    return () => { observer?.disconnect(); mutations.disconnect(); sheet.remove(); };
   }, []);
 
   return null;

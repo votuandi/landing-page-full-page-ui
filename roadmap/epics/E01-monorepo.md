@@ -7,7 +7,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 
 ---
 
-### E1-S01 · Khởi tạo workspace pnpm + Turborepo
+### E1-S01 · Khởi tạo workspace pnpm + Turborepo ✅ · PR [#3](https://github.com/votuandi/landing-page-full-page-ui/pull/3)
 **Là** dev, **tôi muốn** một workspace với app và package tách bạch, **để** chia sẻ code giữa site công khai và admin.
 - **Chi tiết**:
   - `pnpm-workspace.yaml` (`apps/*`, `packages/*`), `turbo.json` (task `build`, `dev`, `lint`, `typecheck`, `test`,
@@ -24,7 +24,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   - [x] README gốc mô tả cấu trúc và lệnh mới.
 - Agent: Codex · Cỡ: M
 
-### E1-S02 · Di chuyển template-15 vào `apps/web`
+### E1-S02 · Di chuyển template-15 vào `apps/web` ✅ · PR [#4](https://github.com/votuandi/landing-page-full-page-ui/pull/4)
 **Là** dev, **tôi muốn** app hiện tại chạy trong `apps/web` không đổi hành vi, **để** có baseline cho mọi bước tách sau.
 - **Chi tiết**: `git mv src public next.config.ts tailwind.config.ts postcss.config.mjs → apps/web/`; alias `@/*` giữ
   nguyên; script test `node:test` chạy trong `apps/web`. Chưa tách package.
@@ -45,9 +45,11 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   redirects 308); dùng skill `next-dev-loop` + MCP `next-devtools` để quét lỗi. Chưa bật `cacheComponents` (E5-S06).
 - **Target**: build không cảnh báo deprecation.
 - **AC**:
-  - [ ] `next build` thành công, không có route lỗi trong MCP `get_errors`.
-  - [ ] Ảnh chụp baseline vẫn khớp; Lighthouse trang chủ không giảm quá 3 điểm.
-  - [ ] Ghi kết quả vào `02-decisions.md` D2 (giữ hay hoãn).
+  - [x] `next build` thành công, không có route lỗi trong MCP `get_errors`.
+    Next 16.3.8 (Turbopack), không cảnh báo deprecation; `get_compilation_issues` rỗng, `get_errors` sạch trên 12 route.
+  - [x] Ảnh chụp baseline vẫn khớp; Lighthouse trang chủ không giảm quá 3 điểm.
+    `pnpm visual:test` 48/48 PASS; Lighthouse mobile (trung vị 3 lần) Perf 84 → 85, A11y/BP/SEO giữ 94/100/100.
+  - [x] Ghi kết quả vào `02-decisions.md` D2 (giữ hay hoãn). Giữ Next 16.
 - Phụ thuộc: S02, S04 · Agent: Claude (review: Codex) · Cỡ: M
 
 ### E1-S04 · Ảnh chụp hồi quy trực quan (baseline) ✅ · PR [#6](https://github.com/votuandi/landing-page-full-page-ui/pull/6)
