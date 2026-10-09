@@ -50,7 +50,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   - [ ] Ghi kết quả vào `02-decisions.md` D2 (giữ hay hoãn).
 - Phụ thuộc: S02, S04 · Agent: Claude (review: Codex) · Cỡ: M
 
-### E1-S04 · Ảnh chụp hồi quy trực quan (baseline)
+### E1-S04 · Ảnh chụp hồi quy trực quan (baseline) ✅ · PR [#6](https://github.com/votuandi/landing-page-full-page-ui/pull/6)
 **Là** dev, **tôi muốn** bộ ảnh chụp tự động của site trước khi refactor, **để** phát hiện mọi thay đổi giao diện ngoài ý muốn.
 - **Chi tiết**: `@playwright/test` trong `tooling/visual`; 11 route của t15 × 2 viewport (390, 1440) × light/dark;
   tắt animation (`prefers-reduced-motion`), che vùng động (marquee, đếm số). Lưu baseline trong git LFS hoặc artifact CI.
