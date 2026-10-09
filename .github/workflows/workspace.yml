@@ -39,3 +39,5 @@ jobs:
             throw 'The second run must hit the cache for every task.'
           }
       - run: pnpm turbo run test build
+      - name: Core coverage (at least 85% of source lines)
+        run: pnpm --filter @solar/core test:coverage
