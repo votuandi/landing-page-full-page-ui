@@ -64,7 +64,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   - [x] Chạy trong CI ở PR chạm `apps/web` hoặc `packages/{ui,sections,themes,tokens}`. (PR [#6](https://github.com/votuandi/landing-page-full-page-ui/pull/6): job [`compare`](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/37893001051/job/113697905515) xanh, nhánh fallback, ~5 phút)
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
-### E1-S05 · Tách `packages/core` (logic nghiệp vụ)
+### E1-S05 · Tách `packages/core` (logic nghiệp vụ) ✅ · PR [#7](https://github.com/votuandi/landing-page-full-page-ui/pull/7)
 **Là** dev, **tôi muốn** logic tính toán/giá/SĐT/giỏ báo giá nằm ở package thuần TS, **để** section và API dùng chung, test độc lập.
 - **Chi tiết**: chuyển `solarCalculator`, `price`, `phone`, `quoteCart`, `format`, `segment` (phần không phải React),
   `calculatorBus` → `packages/core`; test chuyển theo (giữ `node:test` hoặc chuyển vitest — chọn một, ghi ADR).
