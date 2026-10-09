@@ -82,5 +82,5 @@ const schema = {
 const themeScript = `(function(){try{var t=localStorage.getItem("t15-theme");if(${siteConfig.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t=${JSON.stringify(siteConfig.theme.default)};document.documentElement.dataset.theme=t;}catch(e){}})();`;
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
-  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} className={sans.variable} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} className={sans.variable} data-scroll-behavior="smooth" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
 }

@@ -1,9 +1,5 @@
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const configDirectory = dirname(fileURLToPath(import.meta.url));
+import nextVitals from "eslint-config-next/core-web-vitals";
 
 export const ignores = [
   "**/node_modules/**",
@@ -19,17 +15,20 @@ export const ignores = [
 
 /** @param {string} appDirectory */
 export function nextConfig(appDirectory) {
-  const compat = new FlatCompat({
-    baseDirectory: configDirectory,
-    resolvePluginsRelativeTo: configDirectory,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-  });
   return [
     { ignores },
     { files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"] },
-    ...compat.extends("next/core-web-vitals"),
+    ...nextVitals,
     { settings: { next: { rootDir: appDirectory } } },
+    // Luật React Compiler mới của react-hooks v7 (đi kèm eslint-config-next 16): code hiện có còn vi phạm,
+    // để ở mức warn tới khi sửa riêng — xem D2 trong roadmap/02-decisions.md.
+    {
+      rules: {
+        "react-hooks/refs": "warn",
+        "react-hooks/set-state-in-effect": "warn",
+        "react-hooks/immutability": "warn",
+      },
+    },
   ];
 }
 
