@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review PR của một story theo reviewPolicy trong scripts/agents/routing.json (hiện tại Codex review mọi story); review ở local (không đăng lên PR), liệt kê issue và case chưa cover AC/yêu cầu, giao người viết (Codex) sửa rồi review lại cho tới khi PR merge được (CI xanh, không conflict), sau đó báo người dùng tự merge. Dùng khi /run-story tới bước review, hoặc người dùng gõ /pr-review <số PR|STORY-ID>.
+description: Review PR của một story theo S.reviewer từ scripts/agents/story.mjs; review ở local (không đăng lên PR), liệt kê issue và case chưa cover AC/yêu cầu, giao người viết S.author sửa rồi reviewer review lại cho tới khi PR merge được (CI xanh, không conflict), sau đó báo người dùng tự merge. Dùng khi /run-story tới bước review, hoặc người dùng gõ /pr-review <số PR|STORY-ID>.
 argument-hint: "<số PR | STORY-ID> [--reviewer claude|codex]"
 ---
 
@@ -81,15 +81,17 @@ cover.
   - Story `split`: finding về trình bày (bố cục, tương phản, responsive, hiệu ứng) → Claude sửa; finding về logic/schema/
     test → Codex sửa như trên.
   - `node scripts/agents/run.mjs verify <ID>` (chỉ đọc tóm tắt), `git push` (ghi SHA commit sửa cho báo cáo cuối).
-  - Chờ CI của commit mới, rồi quay lại bước 1 với vòng `n+1` (Codex review lại toàn bộ PR).
-  - **Ngoại lệ — vòng sửa nhỏ, Claude tự kết luận (không chạy lại Codex review toàn PR)** khi đủ cả:
+  - Chờ CI của commit mới, rồi quay lại bước 1 với vòng `n+1` (reviewer theo `S.reviewer` review lại toàn bộ PR).
+  - **Ngoại lệ — vòng sửa nhỏ, Claude tự kết luận** khi đủ cả:
+    - `S.author = codex` và reviewer là Claude (`S.reviewer = claude`, không bị `--reviewer` ghi đè sang Codex);
     - diff của vòng sửa (`git diff <SHA trước sửa>..HEAD`) chỉ đụng tài liệu (`roadmap/`, `*.md`), cấu hình nhỏ
       (`package.json`, `tsconfig*`, `turbo.json`, eslint/CI config) hoặc lockfile — lockfile không tính vào giới hạn dòng;
     - tổng ≤ ~20 dòng thay đổi (không tính lockfile), không đổi logic/source, không thêm dependency runtime;
     - CI xanh trên commit cuối, không conflict.
     Claude tự đọc diff vòng sửa, đối chiếu từng finding / mục "Chưa cover" của `review-r<n>.md`, ghi kết luận vào
     `<S.runDir>/review-r<n+1>.md` theo định dạng `solar-pr-review` (dòng đầu `VERDICT: …`, ghi "Claude kiểm vòng sửa nhỏ").
-    Có điểm nghi ngờ (thay đổi lan rộng, finding chưa rõ đã sửa) → quay về review đầy đủ bằng Codex.
+    Có điểm nghi ngờ (thay đổi lan rộng, finding chưa rõ đã sửa) → quay về review đầy đủ theo `S.reviewer`.
+    Khi `S.author = claude`, không dùng ngoại lệ này; Codex phải review lại theo routing review chéo.
   - Dừng sớm và báo người dùng (kèm ý kiến của Claude: đồng ý / cho rằng finding sai và vì sao) khi: cùng một finding
     "chưa sửa" ở 2 vòng liền; finding cần quyết định của người dùng (phạm vi, dependency, đổi AC); hoặc chạm chặn an toàn
     ở mục 1.3.
