@@ -101,6 +101,6 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   job `pr-meta` (E0-S05). Bỏ trigger theo branch template cũ cho workflow mới.
 - **Target**: PR nhỏ ≤ 5 phút, PR toàn repo ≤ 12 phút.
 - **AC**:
-  - [ ] PR chỉ sửa `packages/core` không chạy build `apps/admin`.
-  - [ ] Cache Turborepo (remote cache tùy chọn) hoạt động.
+  - [x] PR chỉ sửa `packages/core` không chạy build `apps/admin`.
+  - [x] Cache Turborepo (remote cache tùy chọn) hoạt động.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
