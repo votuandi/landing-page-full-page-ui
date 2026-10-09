@@ -1,15 +1,13 @@
 "use client";
 
+import { TikTokIcon, MediaImage, CarouselNav, SectionHead, useSnapCarousel } from "@solar/ui";
+
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
 import type { Story } from "@/data/stories";
-import { TikTokIcon } from "@/components/BrandIcons";
-import { MediaImage } from "@/components/ui/Media";
-import { CarouselNav, SectionHead } from "@/components/ui/ui";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
 // Trình phát (StoryPlayer của template-12: hỗ trợ TikTok / YouTube / mp4) chỉ tải khi mở video
 const StoryPlayer = dynamic(() => import("@/components/StoryPlayer"), { ssr: false });
@@ -32,7 +30,7 @@ export default function TikTokSection() {
           desc={channel ? `${tr("Theo dõi kênh", "Follow")} ${channel.handle}` : undefined}
           action={<div className="flex items-center gap-3">
             {channel && <a href={channel.url} target="_blank" rel="noopener noreferrer" className="t15-chip"><TikTokIcon className="h-4 w-4" />{tr("Theo dõi", "Follow")}</a>}
-            <CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden sm:flex" />
+            <CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden sm:flex" />
           </div>} />
 
         <div ref={c.ref} className="t15-no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0" aria-label={tr("Video TikTok", "TikTok videos")}>

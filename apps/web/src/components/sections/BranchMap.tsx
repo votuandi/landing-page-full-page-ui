@@ -1,12 +1,13 @@
 "use client";
 
+import { ZaloIcon, SectionHead } from "@solar/ui";
+
 import { useState } from "react";
 import { ArrowTopRightOnSquareIcon, BuildingOffice2Icon, ClockIcon, MapPinIcon, PhoneIcon, TruckIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { directionsUrl, mapsUrl, telHref, zaloHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
-import { ZaloIcon } from "@/components/BrandIcons";
-import { SectionHead } from "@/components/ui/ui";
+
 import { ARCHIPELAGOS, ISLAND_PATHS, MAINLAND_PATH, MAP_H, MAP_W, SEA_LABEL, SMALL_ISLANDS, project } from "@/components/sections/vietnamMap";
 
 const { branches } = siteConfig;

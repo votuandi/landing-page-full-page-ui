@@ -1,11 +1,13 @@
 "use client";
 
+import { PriceTag } from "@solar/ui";
+
 import Link from "next/link";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { CATEGORY_LABEL, type Product } from "@/data/products";
 import { useLang } from "@/i18n/LangProvider";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
-import PriceTag from "@/components/PriceTag";
+
 import ProductImage from "@/components/ProductImage";
 
 /** Thẻ sản phẩm: ảnh, hãng, tên, 2 thông số, giá (theo quy tắc chung), "Xem nhanh" và "Thêm vào yêu cầu báo giá". */

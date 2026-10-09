@@ -1,3 +1,4 @@
+import { PriceTag } from "@solar/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_CONFIG, catalogEnabled } from "@/config/site";
@@ -5,7 +6,7 @@ import { CATEGORY_LABEL, PRODUCTS, productBySlug } from "@/data/products";
 import { resolvePrice } from "@solar/core";
 import { makeMetadata } from "@/utils/solar";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
-import PriceTag from "@/components/PriceTag";
+
 import ProductImage from "@/components/ProductImage";
 
 export async function generateStaticParams() { return catalogEnabled ? PRODUCTS.map((p) => ({ slug: p.slug })) : []; }

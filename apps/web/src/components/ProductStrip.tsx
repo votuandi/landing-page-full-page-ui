@@ -1,5 +1,7 @@
 "use client";
 
+import { CarouselNav, SectionHead, useSnapCarousel } from "@solar/ui";
+
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
@@ -8,8 +10,6 @@ import { featuredProducts, type Product } from "@/data/products";
 import { SECTION_IDS } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import ProductCard from "@/components/ProductCard";
-import { CarouselNav, SectionHead } from "@/components/ui/ui";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
 const ProductQuickView = dynamic(() => import("@/components/ProductQuickView"), { ssr: false });
 const ITEMS = featuredProducts(8);
@@ -28,7 +28,7 @@ export default function ProductStrip() {
           title={tr("Thiết bị & sản phẩm năng lượng mặt trời chính hãng.", "Genuine solar equipment & products.")}
           desc={tr("Thêm vào giỏ yêu cầu báo giá — không thanh toán online, chúng tôi gọi lại báo giá và tư vấn lắp đặt.", "Add to the quote cart — no online payment, we call back with prices and installation advice.")}
           action={<div className="flex items-center gap-2">
-            <CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden lg:flex" />
+            <CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden lg:flex" />
             <Link href="/san-pham" className="t15-button t15-button-secondary">{tr("Xem tất cả", "View all")} <ArrowRightIcon className="h-4 w-4" /></Link>
           </div>} />
         <div ref={c.ref} className="t15-no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0" aria-label={tr("Sản phẩm nổi bật", "Featured products")}>

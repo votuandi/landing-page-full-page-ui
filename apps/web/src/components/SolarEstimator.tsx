@@ -1,5 +1,7 @@
 "use client";
 
+import { useCountUp, delay } from "@solar/ui";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BanknotesIcon, CalculatorIcon, ClipboardDocumentCheckIcon, ExclamationTriangleIcon, MapPinIcon, TagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { SEGMENTS, defaultDaytimeRatio } from "@/config/segments";
@@ -7,9 +9,9 @@ import { SEGMENT_ORDER, type Segment, type Region, calculateSolar, formatMoneySh
 import { CALCULATOR_PARAMS, BILL_INPUT, DEFAULT_PROVINCE, PROVINCES, REGION_LABELS, ROOF_INPUT, SYSTEM } from "@/config/solar";
 import { useSegment } from "@/lib/segment";
 import { STORAGE_KEYS, writeJson } from "@/lib/storage";
-import { useCountUp } from "@/lib/useCountUp";
+
 import { useLang } from "@/i18n/LangProvider";
-import { delay } from "@/utils/reveal";
+
 import LeadForm from "@/components/LeadForm";
 import SegmentIcon from "@/components/SegmentIcon";
 

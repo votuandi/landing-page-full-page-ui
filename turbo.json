@@ -12,6 +12,7 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
+        "LAB_ENABLED",
         "NEXT_PUBLIC_SITE_URL",
         "NEXT_PUBLIC_SITE_MODE",
         "NEXT_PUBLIC_CATALOG_ENABLED",
@@ -38,6 +39,7 @@
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"] },
+    "@solar/ui#test": { "dependsOn": ["^build"], "outputs": [] },
     "lint:tokens": { "outputs": [] },
     "//#lint:root": { "dependsOn": ["@solar/config#lint"], "outputs": [] }
   }

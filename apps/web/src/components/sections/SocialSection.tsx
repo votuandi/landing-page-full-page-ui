@@ -1,10 +1,9 @@
 "use client";
 
+import { useInViewOnce, FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon, CountUp } from "@solar/ui";
+
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { useInViewOnce } from "@/lib/useCountUp";
-import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@/components/BrandIcons";
-import { CountUp } from "@/components/ui/ui";
 
 const ICONS = { facebook: FacebookIcon, youtube: YouTubeIcon, tiktok: TikTokIcon, zalo: ZaloIcon } as const;
 const compact = (n: number, lang: "vi" | "en") =>

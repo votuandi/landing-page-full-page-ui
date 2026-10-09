@@ -26,6 +26,9 @@ importers:
       '@solar/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@solar/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       next:
         specifier: 15.4.10
         version: 15.4.10(@playwright/test@1.58.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -105,6 +108,37 @@ importers:
         version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.9.3
+        version: 5.9.3
+
+  packages/ui:
+    dependencies:
+      '@solar/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.0.0)
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^20
+        version: 20.19.37
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
+      next:
+        specifier: 15.4.10
+        version: 15.4.10(@playwright/test@1.58.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      typescript:
+        specifier: ^5
         version: 5.9.3
 
   tooling/visual:

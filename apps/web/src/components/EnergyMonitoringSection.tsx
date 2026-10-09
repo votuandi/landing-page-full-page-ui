@@ -1,5 +1,6 @@
+import { delay } from "@solar/ui";
 import Link from "next/link";
-import { delay } from "@/utils/reveal";
+
 import { ArrowRightIcon, Battery50Icon, BellAlertIcon, BoltIcon, ChartBarIcon, DevicePhoneMobileIcon, HomeIcon, SunIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
 const flows = [

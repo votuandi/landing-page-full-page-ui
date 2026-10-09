@@ -1,5 +1,7 @@
 "use client";
 
+import { PriceTag } from "@solar/ui";
+
 import Image from "next/image";
 import { ArrowRightIcon, CheckIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { SEGMENTS } from "@/config/segments";
@@ -8,7 +10,7 @@ import { PACKAGE_REFERENCE_PROVINCE, packagesFor } from "@/data/packages";
 import { CALCULATOR_PARAMS } from "@/config/solar";
 import { useSegment } from "@/lib/segment";
 import { useLang } from "@/i18n/LangProvider";
-import PriceTag from "@/components/PriceTag";
+
 import SegmentIcon from "@/components/SegmentIcon";
 
 const COVERS: Record<Segment, { src: string; pitch: [string, string] }> = {

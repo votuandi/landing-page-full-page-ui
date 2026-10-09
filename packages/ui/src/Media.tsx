@@ -13,7 +13,7 @@ export function MediaImage({ src, alt, sizes, className = "", priority = false, 
   }
   return (
     <div role="img" aria-label={alt} className={`absolute inset-0 grid place-items-center bg-bg-tint ${className}`}>
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgb(var(--c-accent)/.22),transparent_45%)]" />
+      <div aria-hidden className="absolute inset-0 bg-media-glow" />
       <div className="relative flex flex-col items-center gap-2 p-4 text-center text-fg-muted">
         <PhotoIcon aria-hidden className="h-8 w-8 opacity-70" />
         {label && <span className="text-xs font-bold">{label}</span>}
@@ -34,7 +34,7 @@ export function Wordmark({ name, short, src, size = "md", className = "" }: {
   const mark = (short || name.replace(/[^A-Za-zÀ-ỹ0-9 ]/g, "").split(/\s+/).map((w) => w[0]).join("").slice(0, 3)).toUpperCase();
   return (
     <span className={`inline-flex ${h} items-center gap-2 ${className}`} aria-label={name} role="img">
-      <span aria-hidden className={`grid aspect-square ${h} place-items-center rounded-xl bg-primary text-[11px] font-black tracking-tight text-on-media`}>{mark}</span>
+      <span aria-hidden className={`grid aspect-square ${h} place-items-center rounded-xl bg-primary text-2xs font-black tracking-tight text-on-media`}>{mark}</span>
       <span aria-hidden className={`${size === "sm" ? "text-sm" : "text-base"} font-black leading-none tracking-[-.02em] text-fg`}>{name}</span>
     </span>
   );

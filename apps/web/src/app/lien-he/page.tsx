@@ -1,9 +1,9 @@
+import { ZaloIcon } from "@solar/ui";
 import { ArrowTopRightOnSquareIcon, ClockIcon, EnvelopeIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import LeadForm from "@/components/LeadForm";
 import { SITE_CONFIG, mapsUrl, primaryBranch, telHref, zaloHref } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
 import { makeMetadata } from "@/utils/solar";
-import { ZaloIcon } from "@/components/BrandIcons";
 
 export const metadata = makeMetadata(
   "Liên hệ khảo sát & báo giá",

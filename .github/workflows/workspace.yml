@@ -38,6 +38,7 @@ jobs:
           if (($output -join "`n") -notmatch 'FULL TURBO') {
             throw 'The second run must hit the cache for every task.'
           }
+      - run: pnpm turbo run lint:tokens
       - run: pnpm turbo run test build
       - name: Core coverage (at least 85% of source lines)
         run: pnpm --filter @solar/core test:coverage

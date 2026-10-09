@@ -1,5 +1,7 @@
 "use client";
 
+import { useDialog, PriceTag } from "@solar/ui";
+
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircleIcon, MinusIcon, PlusIcon, ShoppingBagIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -7,11 +9,11 @@ import { SITE_CONFIG } from "@/config/site";
 import { productBySlug } from "@/data/products";
 import { useQuoteCart } from "@/lib/quoteCartContext";
 import { STORAGE_KEYS, readJson } from "@/lib/storage";
-import { useDialog } from "@/lib/useDialog";
+
 import { MAX_QTY } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import LeadForm from "@/components/LeadForm";
-import PriceTag from "@/components/PriceTag";
+
 import ProductImage from "@/components/ProductImage";
 
 type SavedEstimate = { savedAt: number; segment: string; estimate: Record<string, string | number | boolean> };

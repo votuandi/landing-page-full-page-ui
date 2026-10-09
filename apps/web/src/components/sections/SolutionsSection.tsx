@@ -1,5 +1,7 @@
 "use client";
 
+import { MediaImage, CarouselNav, SectionHead, pad2, useSnapCarousel } from "@solar/ui";
+
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ArrowRightIcon, CheckIcon, MapPinIcon } from "@heroicons/react/24/outline";
@@ -7,11 +9,8 @@ import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
 import { openCalculator } from "@solar/core";
-import { MediaImage } from "@/components/ui/Media";
-import { CarouselNav, SectionHead } from "@/components/ui/ui";
-import { pad2, useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
-const VideoModal = dynamic(() => import("@/components/ui/VideoModal"), { ssr: false });
+const VideoModal = dynamic(() => import("@solar/ui").then((mod) => mod.VideoModal), { ssr: false });
 const { segments, videos } = siteConfig.solutions;
 
 export default function SolutionsSection() {
@@ -55,7 +54,7 @@ export default function SolutionsSection() {
                 <div className="text-lg font-black text-fg">{tr("Video công trình thực tế", "On-site project videos")}</div>
                 <div className="text-sm font-black tabular-nums text-fg-muted" aria-live="polite"><span className="text-accent-ink">{pad2(c.index + 1)}</span> / {pad2(c.count || videos.length)}</div>
               </div>
-              <CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
+              <CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
             </div>
             <div ref={c.ref} className="t15-no-scrollbar mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto" aria-label={tr("Danh sách video", "Video list")}>
               {videos.map((v, i) => (
@@ -77,7 +76,7 @@ export default function SolutionsSection() {
           </div>
         </div>
       </div>
-      {playing !== null && <VideoModal video={videos[playing].video} title={videos[playing].title} onClose={() => setPlaying(null)} />}
+      {playing !== null && <VideoModal closeLabel={tr("Đóng video", "Close video")} video={videos[playing].video} title={videos[playing].title} onClose={() => setPlaying(null)} />}
     </section>
   );
 }

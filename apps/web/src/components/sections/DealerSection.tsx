@@ -1,13 +1,12 @@
 "use client";
 
+import { useInViewOnce, MediaImage, CarouselNav, CountUp, SectionHead, pad2, useSnapCarousel } from "@solar/ui";
+
 import { useState } from "react";
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { useInViewOnce } from "@/lib/useCountUp";
-import { MediaImage } from "@/components/ui/Media";
-import { CarouselNav, CountUp, SectionHead } from "@/components/ui/ui";
-import { pad2, useSnapCarousel } from "@/components/ui/useSnapCarousel";
+
 import DealerForm from "@/components/sections/DealerForm";
 
 const { stats, policies, faqs, gallery } = siteConfig.dealer;
@@ -72,7 +71,7 @@ export default function DealerSection() {
                 <div className="text-lg font-black">{tr("Hoạt động & sự kiện", "Events")}</div>
                 <div className="text-sm font-black tabular-nums text-fg-muted" aria-hidden><span className="text-accent-ink">{pad2(c.index + 1)}</span> / {pad2(c.count || gallery.length)}</div>
               </div>
-              <CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
+              <CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
             </div>
             <div ref={c.ref} className="t15-no-scrollbar mt-4 flex flex-1 snap-x snap-mandatory gap-3 overflow-x-auto" aria-label={tr("Thư viện sự kiện", "Event gallery")}>
               {gallery.map((g) => (

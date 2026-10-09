@@ -1,11 +1,13 @@
 "use client";
 
+import { useDialog, MessengerIcon, ZaloIcon } from "@solar/ui";
+
 import { useRef, useState } from "react";
 import { ChatBubbleLeftRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { SITE_CONFIG } from "@/config/site";
-import { useDialog } from "@/lib/useDialog";
+
 import { useLang } from "@/i18n/LangProvider";
-import { MessengerIcon, ZaloIcon } from "@/components/BrandIcons";
+
 import LeadForm from "@/components/LeadForm";
 
 /** Nội dung popup tư vấn: nút "Nhận tư vấn ngay" (mở form ngắn) + Zalo/Messenger (chỉ hiện khi có link). */

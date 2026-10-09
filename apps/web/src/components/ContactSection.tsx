@@ -1,6 +1,7 @@
+import { delay } from "@solar/ui";
 import Image from "next/image";
 import { CheckCircleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
-import { delay } from "@/utils/reveal";
+
 import { Tr } from "@/i18n/LangProvider";
 import LeadForm from "@/components/LeadForm";
 

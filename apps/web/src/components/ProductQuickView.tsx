@@ -1,14 +1,16 @@
 "use client";
 
+import { useDialog, PriceTag } from "@solar/ui";
+
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CATEGORY_LABEL, type Product } from "@/data/products";
 import { useQuoteCart } from "@/lib/quoteCartContext";
-import { useDialog } from "@/lib/useDialog";
+
 import { useLang } from "@/i18n/LangProvider";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
-import PriceTag from "@/components/PriceTag";
+
 import ProductImage from "@/components/ProductImage";
 
 /** Modal "Xem nhanh": ảnh (có ảnh phụ), thông số, giá và nút thêm vào yêu cầu báo giá. */

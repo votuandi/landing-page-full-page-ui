@@ -1,6 +1,6 @@
+import { delay } from "@solar/ui";
 import Link from "next/link";
 import { ArrowRightIcon, BanknotesIcon, BuildingLibraryIcon, CalendarDaysIcon, KeyIcon } from "@heroicons/react/24/outline";
-import { delay } from "@/utils/reveal";
 
 /** Nội dung 4 hình thức đầu tư. [DỮ LIỆU MẪU] — điều kiện thực tế phụ thuộc đối tác tài chính. */
 const MODELS = [

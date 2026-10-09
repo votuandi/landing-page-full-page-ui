@@ -1,12 +1,11 @@
 "use client";
 
+import { MediaImage, CarouselNav, SectionHead, useModal, useSnapCarousel } from "@solar/ui";
+
 import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassPlusIcon, ShieldCheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { MediaImage } from "@/components/ui/Media";
-import { CarouselNav, SectionHead, useModal } from "@/components/ui/ui";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
 const { items } = siteConfig.certificates;
 type Cert = (typeof items)[number];
@@ -81,7 +80,7 @@ export default function CertificatesSection() {
       <div className="t15-container relative">
         <SectionHead id="chung-chi-title" eyebrow={tr("Chứng chỉ & giấy phép", "Certificates & licences")}
           title={tr("Năng lực được chứng nhận, minh bạch từng giấy tờ.", "Certified capability, every document on show.")}
-          action={<CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden sm:flex" />} />
+          action={<CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} className="hidden sm:flex" />} />
 
         <div ref={c.ref} className="t15-no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:scroll-px-0 sm:px-0" aria-label={tr("Danh sách chứng chỉ", "Certificates")}>
           {items.map((cert, i) => (

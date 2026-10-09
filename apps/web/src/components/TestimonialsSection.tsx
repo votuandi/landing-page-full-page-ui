@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHead } from "@solar/ui";
+
 import { ArrowTopRightOnSquareIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
@@ -8,7 +10,6 @@ import { TESTIMONIALS } from "@/data/testimonials";
 import { formatNumber } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import SegmentIcon from "@/components/SegmentIcon";
-import { SectionHead } from "@/components/ui/ui";
 
 const REVIEW_LINKS = [
   siteConfig.reviews.google.url && { label: "Google", ...siteConfig.reviews.google },

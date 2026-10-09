@@ -1,11 +1,12 @@
+import { delay, SectionReveal } from "@solar/ui";
 import { Suspense } from "react";
 import { catalogEnabled } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
 import { SegmentProvider } from "@/lib/segment";
 import { StoryPlayerProvider } from "@/lib/storyPlayer";
-import { delay } from "@/utils/reveal";
+
 import { Tr } from "@/i18n/LangProvider";
-import SectionReveal from "@/components/SectionReveal";
+
 import Hero from "@/components/Hero";
 import SegmentGrid from "@/components/SegmentGrid";
 import VideoStories from "@/components/VideoStories";

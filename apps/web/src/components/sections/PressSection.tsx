@@ -1,11 +1,10 @@
 "use client";
 
+import { MediaImage, Wordmark, CarouselNav, SectionHead, pad2, useSnapCarousel } from "@solar/ui";
+
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { MediaImage, Wordmark } from "@/components/ui/Media";
-import { CarouselNav, SectionHead } from "@/components/ui/ui";
-import { pad2, useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
 const { outlets, articles } = siteConfig.press;
 const outletOf = (id: string) => outlets.find((o) => o.id === id);
@@ -57,7 +56,7 @@ export default function PressSection() {
 
         <div className="mt-10 flex items-center justify-between gap-4">
           <div className="text-sm font-black tabular-nums text-fg-muted" aria-hidden><span className="text-fg">{pad2(c.index + 1)}</span> / {pad2(c.count || articles.length)}</div>
-          <CarouselNav prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
+          <CarouselNav prevLabel={tr("Trước", "Previous")} nextLabel={tr("Tiếp", "Next")} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} />
         </div>
         <div ref={c.ref} className="t15-no-scrollbar -mx-4 mt-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:scroll-px-0 sm:px-0" aria-label={tr("Bài viết", "Articles")}>
           {articles.map((a) => <ArticleCard key={a.url} a={a} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]" />)}
