@@ -78,3 +78,47 @@
   thật sự cần (vd. 2 script mỏng `spawn-codex.ps1`/`.sh`, không Node core/test suite riêng). Bản dựng dở của lần
   chạy trước giữ ở `.agent-runs/E0-S06/draft/` (local, không commit) để tham khảo.
 - Phụ thuộc: E1-S01, E2, E3-S01…S04 (giống E4, để story chỉ sẵn sàng khi E4 bắt đầu) · Agent: Codex · Cỡ: M
+
+### E0-S07 · Bổ sung skill: Playwright CLI, Ponytail, Graphify, Agent Skills, OmniRoute
+**Là** chủ dự án, **tôi muốn** agent có thêm công cụ kiểm tra trình duyệt, chống over-engineering, bản đồ codebase và
+quy trình kỹ thuật chuẩn, **để** story chạy nhanh hơn, tốn ít token hơn và code gọn hơn.
+- **Chi tiết**: cài như E0-S03 (`npx skills add <nguồn> -a claude-code -a codex`, khóa trong `skills-lock.json`, bản copy
+  ở `.agents/skills` + `.claude/skills`, không symlink). Nguồn:
+  - `microsoft/playwright-cli` — điều khiển trình duyệt qua CLI (chụp ảnh, kiểm tra theme/section, e2e); dự phòng khi MCP
+    `playwright` không kết nối được.
+  - `DietrichGebert/ponytail` — viết ít code nhất cần thiết (ưu tiên code có sẵn, stdlib, tính năng nền tảng);
+    `/ponytail-review` rà over-engineering trên diff.
+  - `safishamsi/graphify` (Graphify-Labs) — đồ thị tri thức của repo để khảo sát khi viết plan thay vì đọc file thô.
+    Cần Python + `uv` (`uv tool install graphifyy` → `graphify install`); thư mục output đưa vào `.gitignore`.
+  - `addyosmani/agent-skills` — chỉ chọn các skill không trùng playbook dự án (vd. test, debug, hiệu năng web, đơn giản
+    hóa code); **không** dùng `/plan`, `/review`, `/ship` thay cho `run-story` / `pr-review`.
+  - `diegosouzapw/OmniRoute` — router nhiều nhà cung cấp LLM; chỉ có tác dụng khi chạy gateway OmniRoute. Cài để sẵn,
+    không gắn vào bước nào của story cho tới khi dự án dùng gateway.
+- **Áp dụng vào quy trình story** (sửa đúng chỗ, không chép quy tắc sang nhiều file). Playbook `run-story` đã có
+  bảng "Skill bổ trợ" gắn từng skill vào bước (2026-10-09, chạy như cũ khi skill chưa cài); story này làm phần còn lại:
+  - Plan (`solar-story-plan`): khảo sát bằng graphify trước khi đọc file.
+  - Thực thi (`solar-story-exec`): tuân theo ponytail ở mức `lite`/`full` — không trái với quy tắc token/schema/tenant.
+  - Design pass + bằng chứng AC UI: dùng Playwright CLI để chụp ảnh khi MCP `playwright` lỗi.
+  - Review (`pr-review`, `solar-pr-review`): thêm mục kiểm tra over-engineering theo ponytail; finding loại này tối đa P2
+    trừ khi gây lỗi.
+  - `CLAUDE.md` (mục "Skills nên dùng") và `AGENTS.md` thêm một dòng "khi nào dùng" cho từng skill mới.
+- **Target**: `/run-story` của story kế tiếp tự gọi các skill trên ở đúng bước mà không cần nhắc.
+- **AC**:
+  - [x] 5 nguồn có trong `skills-lock.json`; skill có ở cả `.agents/skills` và `.claude/skills`, không symlink
+    (`--copy`, 2026-10-09). Đã cài 15 skill: `playwright-cli` · `ponytail`, `ponytail-review` · `graphify` ·
+    Agent Skills: `test-driven-development`, `debugging-and-error-recovery`, `code-simplification`,
+    `performance-optimization`, `security-and-hardening`, `frontend-ui-engineering`, `browser-testing-with-devtools`,
+    `source-driven-development` · OmniRoute: `cli-setup`, `omni-auth`, `omni-mcp`. CLI kèm theo cài ở máy dev:
+    `npm i -g @playwright/cli`, `pip install --user graphifyy` (0.9.82).
+  - [x] Script trong các skill mới đã được rà: chỉ `graphify` có file ngoài `.md` — `skills add` chép cả package Python
+    (5,4 MB) vì `SKILL.md` nằm ở gốc package; đã cắt còn `SKILL.md` + `references/` (Claude: bản `skill-windows.md` vì
+    `python3` trên Windows là lối tắt Microsoft Store; Codex: `skill-codex.md`). Hash trong `skills-lock.json` vì thế
+    không khớp bản đã cắt; `npx skills update` sẽ chép lại cả package → cắt lại. Các skill khác chỉ có markdown; lệnh
+    mạng trong đó (`npm i -g`, `pip install`, `curl` tới `localhost:20128` của OmniRoute) đúng mục đích mô tả.
+  - [ ] `graphify` chạy được trên repo (Windows), output nằm trong `.gitignore`; `playwright-cli` chụp được trang `yarn dev`.
+  - [x] `run-story` trỏ tới skill mới ở đúng bước (bảng "Skill bổ trợ").
+  - [ ] `solar-story-plan`, `solar-story-exec`, `pr-review`, `solar-pr-review`, `CLAUDE.md`, `AGENTS.md` trỏ tới skill
+    mới ở đúng bước như trên; tên skill trong bảng của `run-story` khớp tên thư mục đã cài.
+  - [ ] Danh sách skill trong E0-S03 + bảng quyết định `roadmap/02-decisions.md` ghi lý do chọn/bỏ từng skill của
+    `agent-skills` và lý do OmniRoute chưa gắn vào quy trình.
+- Phụ thuộc: E0-S03 · Agent: Codex · Cỡ: S
