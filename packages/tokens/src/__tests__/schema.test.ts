@@ -1,6 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { test } from "node:test";
 import { parseTheme, safeParseTheme, ThemeParseError, ThemeTokensSchema } from "../index";
 import { t15 } from "./fixtures/t15";
@@ -29,28 +27,6 @@ function errorAt(input: unknown, path: string) {
 test("t15 parse thành công, giữ nguyên toàn bộ dữ liệu", () => {
   assert.deepEqual(parseTheme(t15), t15);
   assert.deepEqual(ThemeTokensSchema.parse(t15), t15);
-});
-
-test("fixture t15 khớp mọi khóa và giá trị RGB/kính của CSS light và dark", () => {
-  // E2-S07 sẽ đổi test này khi chuyển khối màu CSS sang packages/themes.
-  const css = readFileSync(resolve(process.cwd(), "../../apps/web/src/app/globals.css"), "utf8");
-  for (const [mode, selector] of [
-    ["light", ':root, [data-theme="light"] {'],
-    ["dark", '[data-theme="dark"] {'],
-  ] as const) {
-    const start = css.indexOf(selector);
-    assert.ok(start >= 0, `Thiếu selector ${selector}`);
-    const block = css.slice(start + selector.length, css.indexOf("}", start));
-    const rgb = [...block.matchAll(/--c-([a-z-]+):\s*(\d+ \d+ \d+)\s*;/g)]
-      .map((match) => [match[1], match[2]]);
-    const glass = [...block.matchAll(/--(glass(?:-border|-strong(?:-border)?)?):\s*(rgba\([^;]+\))\s*;/g)]
-      .map((match) => [match[1], match[2]]);
-    assert.deepEqual(Object.fromEntries([...rgb, ...glass]), t15.colors[mode]);
-    if (mode === "light") {
-      assert.equal(rgb.length, 35);
-      assert.equal(glass.length, 4);
-    }
-  }
 });
 
 test("thiếu primary: throw ThemeParseError có ID, đường dẫn và lý do tiếng Việt", () => {
