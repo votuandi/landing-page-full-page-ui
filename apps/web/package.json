@@ -7,14 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/lib/__tests__/quoteCart.test.js .test-dist/lib/__tests__/solarCalculator.test.js"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "next": "15.4.10",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "@solar/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20",

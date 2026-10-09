@@ -1,0 +1,9 @@
+{
+  "extends": "@solar/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["dom", "es2020"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", ".test-dist"]
+}
