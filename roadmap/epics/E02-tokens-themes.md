@@ -27,7 +27,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] Unit test: theme t15 parse thành công; theme thiếu `primary` bị từ chối.
 - Agent: Claude · Cỡ: M
 
-### E2-S02 · Sinh CSS variables theo theme lúc render
+### E2-S02 · Sinh CSS variables theo theme lúc render ✅ · PR [#13](https://github.com/votuandi/landing-page-full-page-ui/pull/13)
 **Là** tenant, **tôi muốn** site của tôi khoác đúng theme ngay từ byte đầu, **để** không nhấp nháy màu.
 - **Chi tiết**: `themeToCss(theme, overrides) → string` sinh `:root{…}` + `[data-theme="dark"]{…}` +
   `@media (prefers-color-scheme: dark)` nếu `supportsDark`. `apps/web` inline vào `<head>` qua `<style>` (CSP tĩnh cho phép style inline, không dùng nonce — D13, để trang vẫn cache tĩnh).
