@@ -33,10 +33,11 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   - [x] `pnpm --filter web dev|build|test` chạy được; 2 bộ test (`solarCalculator`, `quoteCart`) qua.
     Kiểm local: 17 test qua, build 54 trang, smoke dev và wrapper root; lỗi trùng `/robots.txt` ở dev đã tái hiện trên baseline.
   - [x] Bộ ảnh chụp baseline (E1-S04) so khớp ≤ 0,5% trên 11 trang.
-    Harness tạm E1-S02: 12 route × 2 viewport × light/dark = 48/48; sai khác lớn nhất 0,432%; artifact chờ đính PR.
+    Harness tạm E1-S02: 12 route × 2 viewport × light/dark = 48/48; sai khác lớn nhất 0,432%; artifact giữ local tại `.agent-runs/E1-S02/visual/`, E1-S04 dùng làm baseline và lưu bền (LFS/artifact CI).
   - [x] Lịch sử git của file giữ được (`git log --follow`).
     Commit `e142ad1`: 251 rename 100% + `tsconfig.json` 85%; `--follow` trên page/solarCalculator/quoteCart.test/favicon về tới commit gốc.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
+- PR: [#4](https://github.com/votuandi/landing-page-full-page-ui/pull/4)
 
 ### E1-S03 · Nâng Next.js 16
 **Là** dev, **tôi muốn** dùng Next 16 (proxy.ts, Cache Components), **để** làm phân giải tenant và cache theo tag đúng cách.
