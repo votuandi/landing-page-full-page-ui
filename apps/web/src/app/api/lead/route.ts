@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dispatchLead, type Lead } from "@/lib/leads";
-import { isVnMobile, normalizeVnPhone } from "@/lib/phone";
+import { isVnMobile, normalizeVnPhone } from "@solar/core";
 
 const str = (value: unknown, max = 300) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 

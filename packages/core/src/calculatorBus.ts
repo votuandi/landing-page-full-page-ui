@@ -1,6 +1,4 @@
-"use client";
-
-import { segmentFromParam, type Segment } from "@/config/segments";
+import { segmentFromParam, type Segment } from "./segment";
 
 export const CALCULATOR_ID = "du-toan";
 export const PACKAGES_ID = "goi-giai-phap";
@@ -28,12 +26,8 @@ export function openCalculator(input?: Segment | CalculatorPrefill) {
   const prefill = normalize(input);
   const el = document.getElementById(CALCULATOR_ID);
   if (!el) {
-    const q = new URLSearchParams();
-    if (prefill.segment) q.set("phan-khuc", prefill.segment);
-    if (prefill.bill) q.set("hoa-don", String(prefill.bill));
-    if (prefill.topic) q.set("nhu-cau", prefill.topic);
-    if (prefill.source) q.set("nguon", prefill.source);
-    window.location.href = `/${q.toString() ? `?${q}` : ""}#${CALCULATOR_ID}`;
+    const search = prefillToSearch(prefill);
+    window.location.href = `/${search ? `?${search}` : ""}#${CALCULATOR_ID}`;
     return;
   }
   window.dispatchEvent(new CustomEvent<CalculatorPrefill>(EVENT, { detail: prefill }));
@@ -46,9 +40,9 @@ export function onOpenCalculator(handler: (prefill: CalculatorPrefill) => void) 
   return () => window.removeEventListener(EVENT, listener);
 }
 
-/** Đọc giá trị điền sẵn từ URL (?phan-khuc=&hoa-don=&nhu-cau=&nguon=) khi đến từ trang khác. */
-export function prefillFromUrl(): CalculatorPrefill {
-  const q = new URLSearchParams(window.location.search);
+/** Đọc giá trị điền sẵn từ query, dùng được cả trong Node. */
+export function prefillFromSearch(search: string): CalculatorPrefill {
+  const q = new URLSearchParams(search);
   const bill = Number(q.get("hoa-don"));
   return {
     segment: segmentFromParam(q.get("phan-khuc")) ?? undefined,
@@ -56,4 +50,19 @@ export function prefillFromUrl(): CalculatorPrefill {
     topic: q.get("nhu-cau") || undefined,
     source: q.get("nguon") || undefined,
   };
+}
+
+/** Query điền sẵn cho liên kết tới calculator; rỗng → "". */
+export function prefillToSearch(prefill: CalculatorPrefill): string {
+  const q = new URLSearchParams();
+  if (prefill.segment) q.set("phan-khuc", prefill.segment);
+  if (prefill.bill !== undefined && Number.isFinite(prefill.bill) && prefill.bill > 0) q.set("hoa-don", String(prefill.bill));
+  if (prefill.topic) q.set("nhu-cau", prefill.topic);
+  if (prefill.source) q.set("nguon", prefill.source);
+  return q.toString();
+}
+
+/** Đọc giá trị điền sẵn từ URL khi đến từ trang khác. */
+export function prefillFromUrl(): CalculatorPrefill {
+  return prefillFromSearch(window.location.search);
 }

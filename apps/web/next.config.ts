@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@solar/core"],
   compress: true,
   poweredByHeader: false,
   async redirects() {

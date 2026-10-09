@@ -1,3 +1,4 @@
+import { SEGMENT_SLUGS } from "@solar/core";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_CONFIG } from "@/config/site";
@@ -20,7 +21,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = postBySlug(slug);
   if (!post) notFound();
   const others = POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
-  const cta = post.segment ? `/?phan-khuc=${SEGMENTS[post.segment].slug}#du-toan` : "/#du-toan";
+  const cta = post.segment ? `/?phan-khuc=${SEGMENT_SLUGS[post.segment]}#du-toan` : "/#du-toan";
   const schema = { "@context": "https://schema.org", "@type": "Article", headline: post.title, description: post.excerpt, publisher: { "@type": "Organization", name: SITE_CONFIG.brand.name } };
 
   return <main>

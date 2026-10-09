@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_CONFIG, catalogEnabled } from "@/config/site";
 import { CATEGORY_LABEL, PRODUCTS, productBySlug } from "@/data/products";
-import { resolvePrice } from "@/lib/price";
+import { resolvePrice } from "@solar/core";
 import { makeMetadata } from "@/utils/solar";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
 import PriceTag from "@/components/PriceTag";

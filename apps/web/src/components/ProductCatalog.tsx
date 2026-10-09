@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, productBrands, type Product, type ProductSegment } from "@/data/products";
-import { resolvePrice } from "@/lib/price";
+import { resolvePrice } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import ProductCard from "@/components/ProductCard";
 

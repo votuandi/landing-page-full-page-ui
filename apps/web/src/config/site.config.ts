@@ -17,7 +17,7 @@
  * ============================================================================
  */
 
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 export type Text = string | { vi: string; en: string };
 export type VideoSource = { provider: "youtube"; id: string } | { provider: "file"; src: string };

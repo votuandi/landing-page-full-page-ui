@@ -71,9 +71,13 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   Hệ số (`TARIFFS`, `VAT_RATE`, `PRICE_PER_KWP`, `PEAK_SUN_HOURS`) thành tham số hàm, không import config cứng.
 - **Target**: độ phủ test `packages/core` ≥ 85% dòng.
 - **AC**:
-  - [ ] `packages/core` không phụ thuộc React/Next.
-  - [ ] Hàm tính toán nhận `CalculatorParams` (sẽ đến từ schema section `calculator`).
-  - [ ] `apps/web` import từ `@solar/core`, mọi test qua.
+  - [x] `packages/core` không phụ thuộc React/Next.
+    `noFramework.test.ts`: không dependency runtime/import framework; barrel chạy trong Node không cần DOM.
+  - [x] Hàm tính toán nhận `CalculatorParams` (sẽ đến từ schema section `calculator`).
+    Test dùng fixture độc lập và bộ hệ số tùy chỉnh cho biểu giá, VAT, giá/kWp, giờ nắng, tỉnh và hệ thống.
+  - [x] `apps/web` import từ `@solar/core`, mọi test qua.
+    Kiểm local: 28/28 test, typecheck/lint qua, build 54 trang (một lần), smoke calculator/CTA/giỏ qua;
+    48/48 ảnh hồi quy khớp baseline. Coverage source Node 22: 99,44% dòng, CI ép ≥ 85% (ADR D15).
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
 ### E1-S06 · Tách `packages/ui` (primitive)

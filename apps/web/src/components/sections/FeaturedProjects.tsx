@@ -7,7 +7,7 @@ import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
 import { useInViewOnce } from "@/lib/useCountUp";
-import { openCalculator } from "@/lib/calculatorBus";
+import { openCalculator } from "@solar/core";
 import { MediaImage } from "@/components/ui/Media";
 import { CountUp, SectionHead } from "@/components/ui/ui";
 

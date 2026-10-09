@@ -1,8 +1,9 @@
+import { SEGMENT_SLUGS, SEGMENT_ORDER } from "@solar/core";
 import Link from "next/link";
 import { CheckBadgeIcon, ExclamationCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { catalogEnabled, telHref, zaloHref } from "@/config/site";
-import { SEGMENTS, SEGMENT_ORDER } from "@/config/segments";
+import { SEGMENTS } from "@/config/segments";
 import { Tr } from "@/i18n/LangProvider";
 import BrandLogo from "@/components/BrandLogo";
 import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@/components/BrandIcons";
@@ -90,7 +91,7 @@ export default function SiteFooter() {
           <div>
             <h2 className="t15-footer-title"><Tr vi="Giải pháp" en="Solutions" /></h2>
             <ul className="mt-5 space-y-3 text-sm text-fg-muted">
-              {SEGMENT_ORDER.map((s) => <li key={s}><Link className="hover:text-fg" href={`/?phan-khuc=${SEGMENTS[s].slug}#goi-giai-phap`}><Tr vi={SEGMENTS[s].label} en={SEGMENTS[s].en.label} /></Link></li>)}
+              {SEGMENT_ORDER.map((s) => <li key={s}><Link className="hover:text-fg" href={`/?phan-khuc=${SEGMENT_SLUGS[s]}#goi-giai-phap`}><Tr vi={SEGMENTS[s].label} en={SEGMENTS[s].en.label} /></Link></li>)}
               <li><Link className="hover:text-fg" href="/giai-phap"><Tr vi="Dịch vụ kỹ thuật" en="Engineering services" /></Link></li>
             </ul>
           </div>

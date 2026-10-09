@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { billFromKwh, calculateSolar, estimateSavingForKwp, formatMoneyShort, formatNumber, kwhFromBill, parseNumber } from "../solarCalculator";
-import { TARIFFS } from "../../config/solar";
+import { billFromKwh, calculateSolar, estimateSavingForKwp, kwhFromBill, regionOf, type CalculatorParams } from "../solarCalculator";
+import { CALCULATOR_PARAMS, TARIFFS } from "./fixtures";
+import { formatMoneyShort, formatNumber, parseNumber } from "../format";
 import { isVnMobile, normalizeVnPhone } from "../phone";
 import { discountPercent, priceView, resolvePrice } from "../price";
 
@@ -9,7 +10,7 @@ const close = (actual: number, expected: number, tolerance = 0.01) =>
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} ≉ ${expected}`);
 
 test("hộ gia đình – TP HCM – 2 triệu/tháng: tính ngược bậc thang", () => {
-  const r = calculateSolar({ segment: "household", monthlyBill: 2_000_000, roofArea: 40, province: "TP Hồ Chí Minh", daytimeRatio: 40 });
+  const r = calculateSolar({ segment: "household", monthlyBill: 2_000_000, roofArea: 40, province: "TP Hồ Chí Minh", daytimeRatio: 40 }, CALCULATOR_PARAMS);
   // 2.000.000 / 1,08 = 1.851.851,85 đ → hết bậc 5 (400 kWh = 1.074.500 đ) + 777.351,85 / 3.460 = 224,67 kWh
   close(r.monthlyKwh, 624.67);
   close(r.daytimeKwh, 249.87);
@@ -25,7 +26,7 @@ test("hộ gia đình – TP HCM – 2 triệu/tháng: tính ngược bậc than
 });
 
 test("cửa hàng – Hà Nội – 8 triệu/tháng", () => {
-  const r = calculateSolar({ segment: "shop", monthlyBill: 8_000_000, roofArea: 120, province: "Hà Nội", daytimeRatio: 70 });
+  const r = calculateSolar({ segment: "shop", monthlyBill: 8_000_000, roofArea: 120, province: "Hà Nội", daytimeRatio: 70 }, CALCULATOR_PARAMS);
   close(r.monthlyKwh, 2244.67);          // 8.000.000 / 1,08 / 3.300
   assert.equal(r.region, "bac-bo");
   assert.equal(r.kwp, 18.5);             // 1.571,27 / (30 × 3,5 × 0,8) = 18,71 → 18,5
@@ -38,7 +39,7 @@ test("cửa hàng – Hà Nội – 8 triệu/tháng", () => {
 });
 
 test("nhà xưởng – Đồng Nai – 80 triệu/tháng, mái lớn", () => {
-  const r = calculateSolar({ segment: "factory", monthlyBill: 80_000_000, roofArea: 5_000, province: "Đồng Nai", daytimeRatio: 80 });
+  const r = calculateSolar({ segment: "factory", monthlyBill: 80_000_000, roofArea: 5_000, province: "Đồng Nai", daytimeRatio: 80 }, CALCULATOR_PARAMS);
   close(r.monthlyKwh, 36_133.69, 0.01); // 80.000.000 / 1,08 / 2.050
   assert.equal(r.kwp, 262);
   assert.equal(r.limitedByRoof, false);
@@ -50,7 +51,7 @@ test("nhà xưởng – Đồng Nai – 80 triệu/tháng, mái lớn", () => {
 });
 
 test("trang trại – Đồng Tháp – 25 triệu/tháng", () => {
-  const r = calculateSolar({ segment: "farm", monthlyBill: 25_000_000, roofArea: 1_200, province: "Đồng Tháp", daytimeRatio: 70 });
+  const r = calculateSolar({ segment: "farm", monthlyBill: 25_000_000, roofArea: 1_200, province: "Đồng Tháp", daytimeRatio: 70 }, CALCULATOR_PARAMS);
   close(r.monthlyKwh, 10_288.07, 0.01);  // 25.000.000 / 1,08 / 2.250
   assert.equal(r.region, "nam-bo");
   close(r.kwpNeeded, 65.24, 0.01);       // 7.201,65 / (30 × 4,6 × 0,8)
@@ -63,7 +64,7 @@ test("trang trại – Đồng Tháp – 25 triệu/tháng", () => {
 });
 
 test("bị giới hạn bởi diện tích mái", () => {
-  const r = calculateSolar({ segment: "factory", monthlyBill: 80_000_000, roofArea: 800, province: "Đồng Nai", daytimeRatio: 80 });
+  const r = calculateSolar({ segment: "factory", monthlyBill: 80_000_000, roofArea: 800, province: "Đồng Nai", daytimeRatio: 80 }, CALCULATOR_PARAMS);
   assert.equal(r.kwpRoofMax, 145);       // 800 / 5,5 = 145,45 → làm tròn xuống 145
   assert.equal(r.kwp, 145);
   assert.equal(r.limitedByRoof, true);
@@ -72,7 +73,7 @@ test("bị giới hạn bởi diện tích mái", () => {
 });
 
 test("mái tối thiểu 16 m² luôn cho hệ ≥ 0,5 kWp và kWp chia hết 0,5", () => {
-  const r = calculateSolar({ segment: "household", monthlyBill: 600_000, roofArea: 16, province: "Huế", daytimeRatio: 40 });
+  const r = calculateSolar({ segment: "household", monthlyBill: 600_000, roofArea: 16, province: "Huế", daytimeRatio: 40 }, CALCULATOR_PARAMS);
   assert.ok(r.kwp > 0 && r.kwp <= 2.5);
   assert.equal(r.kwp % 0.5, 0);
 });
@@ -100,7 +101,7 @@ test("số di động Việt Nam", () => {
 
 test("tiết kiệm của gói 5 kWp hộ gia đình tại TP HCM", () => {
   // 5 × 4,6 × 30 × 0,8 = 552 kWh × 3.460 đ × 1,08
-  close(estimateSavingForKwp("household", 5, "TP Hồ Chí Minh"), 552 * 3460 * 1.08, 1);
+  close(estimateSavingForKwp("household", 5, "TP Hồ Chí Minh", CALCULATOR_PARAMS), 552 * 3460 * 1.08, 1);
 });
 
 test("salePrice chỉ hiển thị khi nhỏ hơn price", () => {
@@ -122,4 +123,48 @@ test("nhãn 'Giảm Y%' chỉ hiện khi Y ≥ 5; không có giá → Liên hệ
   assert.deepEqual(priceView(1_000_000, 1_200_000), { kind: "price", current: 1_000_000, original: undefined, badge: undefined });
   assert.deepEqual(priceView(undefined), { kind: "contact" });
   assert.deepEqual(priceView(0, 0), { kind: "contact" });
+});
+
+test("dự toán nhận toàn bộ hệ số từ CalculatorParams, không dùng cấu hình web", () => {
+  const params: CalculatorParams = {
+    tariffs: { ...TARIFFS, shop: { kind: "flat", averageRate: 1000, solarOffsetRate: 500 } },
+    vatRate: 0.2,
+    pricePerKwp: { household: 100_000, shop: 200_000, factory: 300_000, farm: 400_000 },
+    peakSunHours: { "bac-bo": 1, "bac-trung-bo": 2, "nam-trung-bo": 3, "tay-nguyen": 4, "nam-bo": 5 },
+    provinces: [{ name: "Tỉnh mẫu", region: "bac-bo" }],
+    system: { performanceRatio: 0.5, m2PerKwp: 10, panelWatt: 250, kwpStep: 2, minKwp: 4 },
+  };
+  const r = calculateSolar({ segment: "shop", monthlyBill: 120_000, roofArea: 100, province: "Tỉnh mẫu", daytimeRatio: 100 }, params);
+  assert.equal(r.monthlyKwh, 100);
+  assert.equal(r.peakSunHours, 1);
+  assert.equal(r.kwpRoofMax, 10);
+  assert.equal(r.kwp, 6);
+  assert.equal(r.panels, 24);
+  assert.equal(r.cost, 1_200_000);
+  assert.equal(r.monthlyProduction, 90);
+  assert.equal(r.monthlySavings, 54_000);
+  close(r.paybackYears, 1_200_000 / (54_000 * 12));
+  assert.equal(estimateSavingForKwp("shop", 6, "Tỉnh mẫu", params), 54_000);
+  const minimum = calculateSolar({ segment: "shop", monthlyBill: 0, roofArea: 100, province: "Tỉnh mẫu", daytimeRatio: 0 }, params);
+  assert.equal(minimum.kwp, 4);
+  assert.equal(minimum.paybackYears, Infinity);
+});
+
+test("dự toán: mái rỗng, giá trị âm và tỷ lệ ban ngày ngoài khoảng", () => {
+  const input = { segment: "shop" as const, monthlyBill: -1, roofArea: -1, province: "Hà Nội", daytimeRatio: -10 };
+  const r = calculateSolar(input, CALCULATOR_PARAMS);
+  assert.equal(r.monthlyKwh, 0);
+  assert.equal(r.daytimeKwh, 0);
+  assert.equal(r.kwp, 0);
+  assert.equal(r.panels, 0);
+  assert.equal(r.monthlySavings, 0);
+  assert.equal(r.paybackYears, Infinity);
+  const fullDay = calculateSolar({ ...input, monthlyBill: 8_000_000, roofArea: 100, daytimeRatio: 150 }, CALCULATOR_PARAMS);
+  assert.equal(fullDay.daytimeKwh, fullDay.monthlyKwh);
+  assert.throws(() => regionOf("Không tồn tại", CALCULATOR_PARAMS.provinces), /Không có tỉnh/);
+  assert.equal(regionOf("Hà Nội", CALCULATOR_PARAMS.provinces), "bac-bo");
+  assert.equal(billFromKwh(-1, TARIFFS.household), 0);
+  assert.equal(kwhFromBill(-1, TARIFFS.shop), 0);
+  const capped = { kind: "tiered" as const, tiers: [{ upTo: 10, price: 100 }] };
+  assert.equal(kwhFromBill(2000, capped), 10);
 });

@@ -6,7 +6,7 @@ import { ArrowRightIcon, CheckIcon, MapPinIcon } from "@heroicons/react/24/outli
 import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { openCalculator } from "@/lib/calculatorBus";
+import { openCalculator } from "@solar/core";
 import { MediaImage } from "@/components/ui/Media";
 import { CarouselNav, SectionHead } from "@/components/ui/ui";
 import { pad2, useSnapCarousel } from "@/components/ui/useSnapCarousel";

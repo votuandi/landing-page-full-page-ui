@@ -5,7 +5,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { SEGMENTS } from "@/config/segments";
 import { TESTIMONIALS } from "@/data/testimonials";
-import { formatNumber } from "@/lib/format";
+import { formatNumber } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import SegmentIcon from "@/components/SegmentIcon";
 import { SectionHead } from "@/components/ui/ui";

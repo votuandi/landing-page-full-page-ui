@@ -1,9 +1,9 @@
+import { SEGMENT_SLUGS, formatMoneyShort, formatNumber } from "@solar/core";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SEGMENTS } from "@/config/segments";
 import { PROJECTS, projectBySlug } from "@/data/projects";
-import { formatMoneyShort, formatNumber } from "@/lib/format";
 import { makeMetadata } from "@/utils/solar";
 
 export async function generateStaticParams() { return PROJECTS.map((p) => ({ slug: p.slug })); }
@@ -20,7 +20,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = projectBySlug(slug);
   if (!project) notFound();
   const related = PROJECTS.filter((p) => p.segment === project.segment && p.slug !== project.slug).slice(0, 3);
-  const segmentSlug = SEGMENTS[project.segment].slug;
+  const segmentSlug = SEGMENT_SLUGS[project.segment];
   return <main>
     <section className="t15-page-hero">
       <div className="t15-container grid gap-10 lg:grid-cols-[1fr_.85fr]">

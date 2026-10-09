@@ -1,11 +1,6 @@
-/**
- * SỐ LIỆU DỰ TOÁN ĐIỆN MẶT TRỜI — mọi con số của công cụ dự toán nằm ở file này.
- * Component không được viết cứng giá/hệ số; muốn chỉnh chỉ cần sửa ở đây.
- *
- * ⚠️ Các giá trị dưới đây là GIÁ TRỊ MẪU để demo. Chủ dự án phải xác minh trước khi xuất bản.
- */
-
-import type { CalculatorParams, Region, Segment, Tariff } from "@solar/core";
+/** [DỮ LIỆU MẪU] Sao chép hệ số demo của web để test độc lập, không dùng để xuất bản. */
+import type { CalculatorParams, Region, Tariff } from "../solarCalculator";
+import type { Segment } from "../segment";
 
 export const TARIFFS: Record<Segment, Tariff> = {
   // TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH — giá điện sinh hoạt bậc thang (đ/kWh, chưa VAT),

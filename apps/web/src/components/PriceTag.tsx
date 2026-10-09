@@ -1,5 +1,4 @@
-import { priceView } from "@/lib/price";
-import { formatMoneyShort, formatVnd } from "@/lib/format";
+import { priceView, formatMoneyShort, formatVnd } from "@solar/core";
 
 type Props = { price?: number; salePrice?: number; short?: boolean; className?: string };
 

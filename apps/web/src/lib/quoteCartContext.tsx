@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { catalogEnabled } from "@/config/site";
 import { productBySlug } from "@/data/products";
-import { addItem, clearCart, countItems, removeItem, sanitizeCart, setQty, type CartLine } from "@/lib/quoteCart";
+import { addItem, clearCart, countItems, removeItem, sanitizeCart, setQty, type CartLine } from "@solar/core";
 import { STORAGE_KEYS, readJson, writeJson } from "@/lib/storage";
 
 // Drawer chỉ tải khi mở lần đầu

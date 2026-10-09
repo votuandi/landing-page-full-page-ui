@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useCountUp } from "@/lib/useCountUp";
-import { formatNumber } from "@/lib/solarCalculator";
+import { formatNumber } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 
 /** Tiêu đề section theo design system template-12 (eyebrow + heading + mô tả). */

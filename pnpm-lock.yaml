@@ -23,6 +23,9 @@ importers:
       '@heroicons/react':
         specifier: ^2.2.0
         version: 2.2.0(react@19.0.0)
+      '@solar/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       next:
         specifier: 15.4.10
         version: 15.4.10(@playwright/test@1.58.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -85,6 +88,21 @@ importers:
       tailwindcss:
         specifier: 3.4.19
         version: 3.4.19
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/core:
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.9.3
         version: 5.9.3

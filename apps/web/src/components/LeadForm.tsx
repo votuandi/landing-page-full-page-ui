@@ -2,7 +2,7 @@
 
 import { FormEvent, useId, useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import { isVnMobile } from "@/lib/phone";
+import { isVnMobile } from "@solar/core";
 import type { Lead } from "@/lib/leads/types";
 import { SITE_CONFIG, primaryHotline, telHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";

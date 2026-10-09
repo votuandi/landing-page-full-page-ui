@@ -79,6 +79,13 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - Mọi tác dụng phụ sau khi ghi DB (revalidate cache, gửi lead tới kênh, xử lý ảnh) được ghi vào bảng `Outbox` trong cùng
   transaction, worker xử lý với idempotency key và retry. Không gọi trực tiếp "ghi DB rồi gọi mạng" trong request.
 
+## D15. Test logic nghiệp vụ bằng node:test
+- **Chọn**: giữ `node:test` cho `@solar/core`, biên dịch TypeScript sang CommonJS trước khi chạy. Không thêm test runner
+  hay dependency runtime; các assert dự toán và giỏ báo giá hiện có được giữ nguyên sau khi chuyển package.
+- `test` in coverage với `--experimental-test-coverage` (Node 20+). `test:coverage` dùng `--test-coverage-lines=85` và
+  loại `.test-dist/__tests__/**` (test + fixture), bắt buộc ở CI Node 22 (cờ ngưỡng cần Node ≥ 22.8).
+- **Loại**: Vitest ở E1-S05 — chưa có nhu cầu mà node:test không đáp ứng, tránh thêm dependency theo D12.
+
 ## D12. Không đổi stack UI
 - Giữ quy ước các template: không thư viện UI/animation lớn. Cho phép thêm: `zod`, `sharp`, `@aws-sdk/client-s3`,
   `ioredis`, `@dnd-kit/*` hoặc `@measured/puck` (admin), `@playwright/test` (dev).

@@ -1,4 +1,4 @@
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /**
  * CÔNG TRÌNH ĐÃ THỰC HIỆN — gallery trang chủ + trang /cong-trinh/[slug].

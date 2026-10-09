@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BanknotesIcon, CalculatorIcon, ClipboardDocumentCheckIcon, ExclamationTriangleIcon, MapPinIcon, TagIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { SEGMENTS, SEGMENT_ORDER, type Segment } from "@/config/segments";
-import { BILL_INPUT, DEFAULT_PROVINCE, PROVINCES, REGION_LABELS, ROOF_INPUT, SYSTEM, type Region } from "@/config/solar";
-import { calculateSolar, defaultDaytimeRatio } from "@/lib/solarCalculator";
-import { formatMoneyShort, formatNumber, parseNumber } from "@/lib/format";
-import { CALCULATOR_ID, onOpenCalculator, prefillFromUrl, type CalculatorPrefill } from "@/lib/calculatorBus";
+import { SEGMENTS, defaultDaytimeRatio } from "@/config/segments";
+import { SEGMENT_ORDER, type Segment, type Region, calculateSolar, formatMoneyShort, formatNumber, parseNumber, CALCULATOR_ID, onOpenCalculator, prefillFromUrl, type CalculatorPrefill } from "@solar/core";
+import { CALCULATOR_PARAMS, BILL_INPUT, DEFAULT_PROVINCE, PROVINCES, REGION_LABELS, ROOF_INPUT, SYSTEM } from "@/config/solar";
 import { useSegment } from "@/lib/segment";
 import { STORAGE_KEYS, writeJson } from "@/lib/storage";
 import { useCountUp } from "@/lib/useCountUp";
@@ -30,7 +28,7 @@ function CountUp({ value, format }: { value: number; format: (v: number) => stri
 /**
  * Dự toán chi phí: mọi ô nhập hiện cùng lúc, kết quả sơ bộ cập nhật ngay; form "Nhận báo giá chi tiết" gửi kèm toàn bộ thông số.
  * Điền sẵn từ: lưới phân khúc / gói (state chung), mega menu "Bảng giá lắp đặt", video, dự án (calculatorBus), URL ?phan-khuc=&hoa-don=&nhu-cau=.
- * Logic ở hàm thuần lib/solarCalculator.ts (có unit test); số liệu ở config/solar.ts.
+ * Logic ở hàm thuần @solar/core (có unit test); số liệu ở config/solar.ts.
  */
 export default function SolarEstimator() {
   const { tr } = useLang();
@@ -84,7 +82,7 @@ export default function SolarEstimator() {
   const roofValid = roof >= SYSTEM.minRoofArea;
   const range = BILL_INPUT[segment];
   const result = useMemo(
-    () => calculateSolar({ segment, monthlyBill: bill, roofArea: Math.max(roof, SYSTEM.minRoofArea), province, daytimeRatio: ratio }),
+    () => calculateSolar({ segment, monthlyBill: bill, roofArea: Math.max(roof, SYSTEM.minRoofArea), province, daytimeRatio: ratio }, CALCULATOR_PARAMS),
     [segment, bill, roof, province, ratio],
   );
 

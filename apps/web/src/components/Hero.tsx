@@ -3,8 +3,7 @@ import { ArrowRightIcon, Battery100Icon, BoltIcon, CpuChipIcon, LightBulbIcon, P
 import { StarIcon } from "@heroicons/react/24/solid";
 import { yearsOfExperience } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
-import { CALCULATOR_ID } from "@/lib/calculatorBus";
-import { SECTION_IDS } from "@/lib/segment";
+import { CALCULATOR_ID, SECTION_IDS } from "@solar/core";
 import { delay } from "@/utils/reveal";
 import { Tr } from "@/i18n/LangProvider";
 import HeroStats, { type HeroStat } from "@/components/HeroStats";

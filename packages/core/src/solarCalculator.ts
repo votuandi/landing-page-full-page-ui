@@ -1,14 +1,4 @@
-/**
- * Hàm thuần dự toán hệ điện mặt trời. Không phụ thuộc React/Next — test bằng `yarn test`.
- * Dùng import tương đối (không dùng alias "@/") để chạy được trực tiếp bằng Node.
- */
-import {
-  PEAK_SUN_HOURS, PRICE_PER_KWP, PROVINCES, SYSTEM, TARIFFS, VAT_RATE,
-  type Region, type Segment, type Tariff,
-} from "../config/solar";
-import { SEGMENTS } from "../config/segments";
-
-export { formatMoneyShort, formatNumber, parseNumber } from "./format";
+import type { Segment } from "./segment";
 
 export type CalculatorInput = {
   segment: Segment;
@@ -37,13 +27,23 @@ export type CalculatorResult = {
   paybackYears: number;
 };
 
-export type CalculatorOptions = {
-  tariffs?: Record<Segment, Tariff>;
-  pricePerKwp?: Record<Segment, number>;
-  vatRate?: number;
-  performanceRatio?: number;
-  m2PerKwp?: number;
-  panelWatt?: number;
+export type Region = "bac-bo" | "bac-trung-bo" | "nam-trung-bo" | "tay-nguyen" | "nam-bo";
+
+/** Bậc thang: `upTo` = kWh cộng dồn tối đa của bậc (null = không giới hạn), `price` = đ/kWh chưa VAT. */
+export type Tier = { upTo: number | null; price: number };
+
+export type Tariff =
+  | { kind: "tiered"; tiers: Tier[] }
+  /** averageRate: giá bình quân để quy đổi hóa đơn → kWh; solarOffsetRate: giá của kWh mà điện mặt trời thay thế (giờ ban ngày). */
+  | { kind: "flat"; averageRate: number; solarOffsetRate: number };
+
+export type CalculatorParams = {
+  tariffs: Record<Segment, Tariff>;
+  vatRate: number;
+  pricePerKwp: Record<Segment, number>;
+  peakSunHours: Record<Region, number>;
+  provinces: readonly { name: string; region: Region }[];
+  system: { performanceRatio: number; m2PerKwp: number; panelWatt: number; kwpStep: number; minKwp: number };
 };
 
 const roundTo = (value: number, step: number) => Math.round(value / step) * step;
@@ -85,22 +85,22 @@ export function kwhFromBill(bill: number, tariff: Tariff): number {
   return kwh;
 }
 
-export function regionOf(province: string): Region {
-  const found = PROVINCES.find((p) => p.name === province);
+export function regionOf(province: string, provinces: CalculatorParams["provinces"]): Region {
+  const found = provinces.find((p) => p.name === province);
   if (!found) throw new Error(`Không có tỉnh/thành "${province}" trong config`);
   return found.region;
 }
 
-export function calculateSolar(input: CalculatorInput, options: CalculatorOptions = {}): CalculatorResult {
-  const tariff = (options.tariffs ?? TARIFFS)[input.segment];
-  const vat = options.vatRate ?? VAT_RATE;
-  const pr = options.performanceRatio ?? SYSTEM.performanceRatio;
-  const m2PerKwp = options.m2PerKwp ?? SYSTEM.m2PerKwp;
-  const panelWatt = options.panelWatt ?? SYSTEM.panelWatt;
-  const pricePerKwp = (options.pricePerKwp ?? PRICE_PER_KWP)[input.segment];
+export function calculateSolar(input: CalculatorInput, params: CalculatorParams): CalculatorResult {
+  const tariff = params.tariffs[input.segment];
+  const vat = params.vatRate;
+  const pr = params.system.performanceRatio;
+  const m2PerKwp = params.system.m2PerKwp;
+  const panelWatt = params.system.panelWatt;
+  const pricePerKwp = params.pricePerKwp[input.segment];
 
-  const region = regionOf(input.province);
-  const peakSunHours = PEAK_SUN_HOURS[region];
+  const region = regionOf(input.province, params.provinces);
+  const peakSunHours = params.peakSunHours[region];
   const ratio = Math.min(100, Math.max(0, input.daytimeRatio)) / 100;
   const roofArea = Math.max(0, input.roofArea);
 
@@ -111,8 +111,8 @@ export function calculateSolar(input: CalculatorInput, options: CalculatorOption
   // 3. kWp cần để bù phần ban ngày
   const kwpNeeded = daytimeKwh / (30 * peakSunHours * pr);
   // 4. kWp tối đa theo mái (làm tròn xuống — không vượt diện tích), lấy giá trị nhỏ hơn
-  const kwpRoofMax = floorTo(roofArea / m2PerKwp, SYSTEM.kwpStep);
-  const kwpWanted = Math.max(SYSTEM.minKwp, roundTo(kwpNeeded, SYSTEM.kwpStep));
+  const kwpRoofMax = floorTo(roofArea / m2PerKwp, params.system.kwpStep);
+  const kwpWanted = Math.max(params.system.minKwp, roundTo(kwpNeeded, params.system.kwpStep));
   const kwp = Math.min(kwpWanted, kwpRoofMax);
   const limitedByRoof = kwpRoofMax < kwpWanted;
   // 5. Số tấm pin
@@ -138,13 +138,11 @@ export function calculateSolar(input: CalculatorInput, options: CalculatorOption
  * Tiết kiệm ước tính/tháng của một hệ có sẵn công suất (dùng cho thẻ gói giải pháp).
  * Giả định toàn bộ sản lượng được dùng trực tiếp; hộ gia đình tính theo giá bậc cao nhất bị cắt giảm.
  */
-export function estimateSavingForKwp(segment: Segment, kwp: number, province: string, options: CalculatorOptions = {}) {
-  const tariff = (options.tariffs ?? TARIFFS)[segment];
-  const vat = options.vatRate ?? VAT_RATE;
-  const pr = options.performanceRatio ?? SYSTEM.performanceRatio;
-  const production = kwp * PEAK_SUN_HOURS[regionOf(province)] * 30 * pr;
+export function estimateSavingForKwp(segment: Segment, kwp: number, province: string, params: CalculatorParams) {
+  const tariff = params.tariffs[segment];
+  const vat = params.vatRate;
+  const pr = params.system.performanceRatio;
+  const production = kwp * params.peakSunHours[regionOf(province, params.provinces)] * 30 * pr;
   const rate = tariff.kind === "flat" ? tariff.solarOffsetRate : tariff.tiers[tariff.tiers.length - 1].price;
   return production * rate * (1 + vat);
 }
-
-export const defaultDaytimeRatio = (segment: Segment) => SEGMENTS[segment].defaultDaytimeRatio;
