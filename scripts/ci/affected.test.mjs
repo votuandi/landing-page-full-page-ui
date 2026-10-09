@@ -43,7 +43,7 @@ test("PR chỉ sửa packages/core không build package không phụ thuộc cor
     maxBuffer: 64 * 1024 * 1024,
   });
   assert.equal(result.status, 0, result.stderr);
-  const built = new Set(JSON.parse(result.stdout).tasks.map((t) => t.package));
+  const built = new Set(JSON.parse(result.stdout).packages);
 
   for (const name of dependents) assert.ok(built.has(name), `${name} phải build`);
   for (const name of unrelated) assert.ok(!built.has(name), `${name} không được build`);
