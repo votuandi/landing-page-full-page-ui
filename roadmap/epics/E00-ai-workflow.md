@@ -49,7 +49,7 @@
   - [x] Danh sách quyền cho phép sẵn các lệnh kiểm tra (`yarn/pnpm typecheck|lint|test|build`, `codex exec|review`).
 - Agent: Claude · Cỡ: S
 
-### E0-S05 · Quy trình story → branch → review chéo · PR [#5](https://github.com/votuandi/landing-page-full-page-ui/pull/5) (AC3 chờ lượt B)
+### E0-S05 · Quy trình story → branch → review chéo ✅ · PR [#5](https://github.com/votuandi/landing-page-full-page-ui/pull/5)
 **Là** chủ dự án, **tôi muốn** mỗi story đi qua cùng một quy trình, **để** biết chính xác trạng thái và ai chịu trách nhiệm.
 - **Chi tiết**: template PR `.github/pull_request_template.md` (story ID, AC tick, bằng chứng, agent viết, agent review);
   CI chặn PR nếu thiếu story ID trong tiêu đề; nhãn `agent:codex` / `agent:claude`.
@@ -57,10 +57,11 @@
 - **AC**:
   - [x] PR template tồn tại và có checklist DoD từ `AGENTS.md` §7.
   - [x] Job CI `pr-meta` fail khi tiêu đề PR không khớp `\[E\d+-S\d+\]`. (PR [#5](https://github.com/votuandi/landing-page-full-page-ui/pull/5): `pr-meta` pass với tiêu đề có ID; nhánh fail chứng minh bằng `scripts/agents/pr-meta.test.mjs`)
-  - [ ] Thử nghiệm: 1 story do Codex làm (worktree + `codex exec`), Claude review; 1 story ngược lại — ghi lại thời gian
-        và vướng mắc vào `skills/solar-agent-collab`.
+  - ~~Thử nghiệm: 1 story do Codex làm (worktree + `codex exec`), Claude review; 1 story ngược lại — ghi lại thời gian
+    và vướng mắc vào `skills/solar-agent-collab`.~~ Bỏ khỏi AC (2026-10-09): lượt A đã chạy trong PR #5; lượt B
+    (Claude viết → Codex review) diễn ra tự nhiên khi có story chạy `--agent claude`, không cần story riêng.
 - Ghi chú: chủ dự án quyết định **không** đặt `pr-meta` thành required check — job chỉ báo đỏ, không chặn merge.
-  Lượt B của AC3: E1-S07 (hoặc story logic cỡ S kế tiếp) chạy `--agent claude`, Codex review.
+  E0 là setup quy trình cho agent, không tốn effort chạy thử nghiệm riêng.
 - Phụ thuộc: E1-S01 · Agent: Claude · Cỡ: S
 
 ### E0-S06 · Chạy song song nhiều Codex cho story cơ học
