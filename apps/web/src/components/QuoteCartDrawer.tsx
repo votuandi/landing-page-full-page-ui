@@ -8,7 +8,7 @@ import { productBySlug } from "@/data/products";
 import { useQuoteCart } from "@/lib/quoteCartContext";
 import { STORAGE_KEYS, readJson } from "@/lib/storage";
 import { useDialog } from "@/lib/useDialog";
-import { MAX_QTY } from "@/lib/quoteCart";
+import { MAX_QTY } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import LeadForm from "@/components/LeadForm";
 import PriceTag from "@/components/PriceTag";

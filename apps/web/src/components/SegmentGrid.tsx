@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { SEGMENTS, SEGMENT_ORDER, type Segment } from "@/config/segments";
-import { SECTION_IDS, useSegment } from "@/lib/segment";
+import { SEGMENTS } from "@/config/segments";
+import { SEGMENT_ORDER, type Segment, SECTION_IDS } from "@solar/core";
+import { useSegment } from "@/lib/segment";
 import { useLang } from "@/i18n/LangProvider";
 import SegmentIcon from "@/components/SegmentIcon";
 import { SectionHead } from "@/components/ui/ui";

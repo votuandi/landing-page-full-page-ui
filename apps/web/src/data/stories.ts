@@ -1,4 +1,4 @@
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /**
  * VIDEO SHORTS CÔNG TRÌNH (section "Video công trình thực tế").

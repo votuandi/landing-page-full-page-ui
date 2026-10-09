@@ -1,29 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { segmentFromParam, type Segment } from "@/config/segments";
-
-/** id các section trên trang chủ — dùng cho menu, CTA và cuộn trang. */
-export const SECTION_IDS = {
-  segments: "phan-khuc",
-  video: "video-cong-trinh",
-  packages: "goi-giai-phap",
-  calculator: "du-toan",
-  projects: "cong-trinh",
-  products: "san-pham-noi-bat",
-} as const;
-
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/** Cuộn tới một section của trang chủ; đang ở trang khác thì chuyển về trang chủ. */
-export function scrollToSection(id: string, segment?: Segment | null) {
-  const el = document.getElementById(id);
-  if (!el) {
-    window.location.href = `/${segment ? `?phan-khuc=${segment}` : ""}#${id}`;
-    return;
-  }
-  el.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
-}
+import { scrollToSection, segmentFromParam, type Segment } from "@solar/core";
 
 type SegmentState = {
   /** Phân khúc đang chọn; null = "Tất cả". */

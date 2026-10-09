@@ -1,4 +1,4 @@
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /**
  * BLOG THEO TÌNH HUỐNG SỬ DỤNG (/tin-tuc). Bài mới nhất đặt ĐẦU mảng; trang chủ hiện 3–6 bài đầu.

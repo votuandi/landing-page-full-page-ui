@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import { ArrowRightIcon, CheckIcon, SparklesIcon } from "@heroicons/react/24/outline";
-import { SEGMENTS, SEGMENT_ORDER, type Segment } from "@/config/segments";
+import { SEGMENTS } from "@/config/segments";
+import { SEGMENT_ORDER, type Segment, estimateSavingForKwp, formatMoneyShort, formatNumber, PACKAGES_ID, openCalculator } from "@solar/core";
 import { PACKAGE_REFERENCE_PROVINCE, packagesFor } from "@/data/packages";
-import { estimateSavingForKwp } from "@/lib/solarCalculator";
-import { formatMoneyShort, formatNumber } from "@/lib/format";
-import { PACKAGES_ID, openCalculator } from "@/lib/calculatorBus";
+import { CALCULATOR_PARAMS } from "@/config/solar";
 import { useSegment } from "@/lib/segment";
 import { useLang } from "@/i18n/LangProvider";
 import PriceTag from "@/components/PriceTag";
@@ -55,7 +54,7 @@ export default function PackagesSection() {
 
           <div data-reveal-stagger="up" data-reveal-step="0.1" className="grid gap-4 sm:grid-cols-2" aria-live="polite">
             {list.map((pkg) => {
-              const saving = estimateSavingForKwp(pkg.segment, pkg.kwp, PACKAGE_REFERENCE_PROVINCE);
+              const saving = estimateSavingForKwp(pkg.segment, pkg.kwp, PACKAGE_REFERENCE_PROVINCE, CALCULATOR_PARAMS);
               return (
                 <article key={pkg.id} className={`t15-card t15-card-hover relative flex flex-col overflow-hidden p-6 ${pkg.popular ? "!border-primary/50 ring-4 ring-primary/10" : ""}`}>
                   <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${pkg.popular ? "bg-accent" : "bg-primary/20"}`} />

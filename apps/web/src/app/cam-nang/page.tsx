@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FAQS } from "@/data/faq";
 import { POSTS } from "@/data/posts";
 import { makeMetadata } from "@/utils/solar";
-import { formatNumber } from "@/lib/format";
+import { formatNumber } from "@solar/core";
 import { Tr } from "@/i18n/LangProvider";
 import { ArticleCard } from "@/components/sections/PressSection";
 import PostCard from "@/components/PostCard";

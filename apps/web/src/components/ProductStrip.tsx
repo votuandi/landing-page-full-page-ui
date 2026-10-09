@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { featuredProducts, type Product } from "@/data/products";
-import { SECTION_IDS } from "@/lib/segment";
+import { SECTION_IDS } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import ProductCard from "@/components/ProductCard";
 import { CarouselNav, SectionHead } from "@/components/ui/ui";

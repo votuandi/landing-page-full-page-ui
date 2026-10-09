@@ -4,7 +4,7 @@ import { yearsOfExperience } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
 import { useCountUp, useInViewOnce } from "@/lib/useCountUp";
-import { formatNumber } from "@/lib/solarCalculator";
+import { formatNumber } from "@solar/core";
 
 function Stat({ value, decimals = 0, suffix, label, start }: { value: number; decimals?: number; suffix: string; label: string; start: boolean }) {
   const v = useCountUp(value, { duration: 1600, start });

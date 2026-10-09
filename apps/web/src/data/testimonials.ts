@@ -1,4 +1,4 @@
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /**
  * ĐÁNH GIÁ KHÁCH HÀNG (section "Khách hàng nói gì"). Điểm Google/Trustpilot nằm ở `reviews` trong site.config.ts.

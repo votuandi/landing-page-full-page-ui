@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { siteConfig, type BrandGroup, type PriceCategory, type PriceChip } from "@/config/site.config";
 import { catalogEnabled, directionsUrl, mapsUrl, telHref, zaloHref } from "@/config/site";
-import { openCalculator } from "@/lib/calculatorBus";
+import { openCalculator } from "@solar/core";
 import { useQuoteCart } from "@/lib/quoteCartContext";
 import { openConsult } from "@/components/ConsultPopup";
 import { useLang } from "@/i18n/LangProvider";

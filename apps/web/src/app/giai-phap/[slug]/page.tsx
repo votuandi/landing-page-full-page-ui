@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SERVICES } from "@/data/solar";
 import { PROJECTS } from "@/data/projects";
-import { formatMoneyShort, formatNumber } from "@/lib/format";
+import { formatMoneyShort, formatNumber } from "@solar/core";
 import { SEGMENTS } from "@/config/segments";
 import { makeMetadata } from "@/utils/solar";
 import LeadForm from "@/components/LeadForm";

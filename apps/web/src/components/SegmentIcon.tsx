@@ -1,5 +1,5 @@
 import { BuildingOffice2Icon, BuildingStorefrontIcon, HomeModernIcon } from "@heroicons/react/24/outline";
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /** Chuồng trại mái pin (heroicons không có icon trang trại) — cùng nét 1.5 với bộ outline. */
 function FarmIcon({ className }: { className?: string }) {

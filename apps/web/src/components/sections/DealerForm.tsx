@@ -5,7 +5,7 @@ import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { primaryBranch, telHref } from "@/config/site";
 import { PROVINCES } from "@/config/solar";
-import { isVnMobile } from "@/lib/phone";
+import { isVnMobile } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 
 type Status = "idle" | "sending" | "success" | "error";

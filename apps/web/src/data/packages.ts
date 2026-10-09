@@ -1,4 +1,4 @@
-import type { Segment } from "@/config/segments";
+import type { Segment } from "@solar/core";
 
 /**
  * GÓI GIẢI PHÁP trang chủ — tối đa 4 gói mỗi phân khúc (gói thứ 5 trở đi bị bỏ qua).

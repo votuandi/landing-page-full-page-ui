@@ -5,18 +5,7 @@
  * ⚠️ Các giá trị dưới đây là GIÁ TRỊ MẪU để demo. Chủ dự án phải xác minh trước khi xuất bản.
  */
 
-import type { Segment } from "./segments";
-
-export type { Segment } from "./segments";
-export type Region = "bac-bo" | "bac-trung-bo" | "nam-trung-bo" | "tay-nguyen" | "nam-bo";
-
-/** Bậc thang: `upTo` = kWh cộng dồn tối đa của bậc (null = không giới hạn), `price` = đ/kWh chưa VAT. */
-export type Tier = { upTo: number | null; price: number };
-
-export type Tariff =
-  | { kind: "tiered"; tiers: Tier[] }
-  /** averageRate: giá bình quân để quy đổi hóa đơn → kWh; solarOffsetRate: giá của kWh mà điện mặt trời thay thế (giờ ban ngày). */
-  | { kind: "flat"; averageRate: number; solarOffsetRate: number };
+import type { CalculatorParams, Region, Segment, Tariff } from "@solar/core";
 
 export const TARIFFS: Record<Segment, Tariff> = {
   // TODO: XÁC MINH VỚI BIỂU GIÁ EVN HIỆN HÀNH — giá điện sinh hoạt bậc thang (đ/kWh, chưa VAT),
@@ -112,3 +101,8 @@ export const ROOF_INPUT: Record<Segment, { default: number; max: number }> = {
 };
 
 export const DEFAULT_PROVINCE = "TP Hồ Chí Minh";
+
+export const CALCULATOR_PARAMS: CalculatorParams = {
+  tariffs: TARIFFS, vatRate: VAT_RATE, pricePerKwp: PRICE_PER_KWP,
+  peakSunHours: PEAK_SUN_HOURS, provinces: PROVINCES, system: SYSTEM,
+};
