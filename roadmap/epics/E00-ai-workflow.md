@@ -55,7 +55,7 @@
   CI chặn PR nếu thiếu story ID trong tiêu đề; nhãn `agent:codex` / `agent:claude`.
 - **Target**: 100% PR có story ID và review chéo.
 - **AC**:
-  - [ ] PR template tồn tại và có checklist DoD từ `AGENTS.md` §7.
+  - [x] PR template tồn tại và có checklist DoD từ `AGENTS.md` §7.
   - [ ] Job CI `pr-meta` fail khi tiêu đề PR không khớp `\[E\d+-S\d+\]`.
   - [ ] Thử nghiệm: 1 story do Codex làm (worktree + `codex exec`), Claude review; 1 story ngược lại — ghi lại thời gian
         và vướng mắc vào `skills/solar-agent-collab`.
