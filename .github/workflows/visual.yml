@@ -1,0 +1,119 @@
+name: Visual regression
+
+on:
+  push:
+    branches: [mono-repo-multi-tenent]
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/sections/**'
+      - 'packages/themes/**'
+      - 'packages/tokens/**'
+      - 'tooling/visual/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/visual.yml'
+  pull_request:
+    branches: [mono-repo-multi-tenent]
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/sections/**'
+      - 'packages/themes/**'
+      - 'packages/tokens/**'
+      - 'tooling/visual/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/visual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  baseline:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/mono-repo-multi-tenent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: visual-chromium-${{ runner.os }}-${{ hashFiles('tooling/visual/package.json') }}
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - run: pnpm visual:update
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-baseline
+          path: tooling/visual/__screenshots__/linux
+          retention-days: 90
+          if-no-files-found: error
+
+  compare:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: visual-chromium-${{ runner.os }}-${{ hashFiles('tooling/visual/package.json') }}
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - name: Download base baseline, or generate at merge-base
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          snapshot_dir="$GITHUB_WORKSPACE/tooling/visual/__screenshots__/linux"
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow visual.yml \
+            --branch mono-repo-multi-tenent --event push --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId // empty') || run_id=""
+          if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+            --name visual-baseline --dir "$snapshot_dir"; then
+            echo "Baseline restored from run $run_id"
+          else
+            echo '::notice::Baseline unavailable/expired; generating from merge-base with the PR harness.'
+            # Remove any partial download before generating a complete baseline.
+            rm -rf "$snapshot_dir"
+            merge_base=$(git merge-base HEAD "origin/$BASE_REF")
+            baseline_root="$RUNNER_TEMP/visual-base"
+            git worktree add --detach "$baseline_root" "$merge_base"
+            (
+              cd "$baseline_root"
+              pnpm install --frozen-lockfile
+              pnpm turbo run build --filter=web
+            )
+            # merge-base may predate tooling/visual; keep its dependencies/source untouched.
+            VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update
+            test -n "$(find "$snapshot_dir" -name '*.png' -print -quit)"
+          fi
+      - run: pnpm visual:test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-report
+          path: |
+            tooling/visual/playwright-report
+            tooling/visual/test-results
+          retention-days: 14
+          if-no-files-found: warn
