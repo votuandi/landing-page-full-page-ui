@@ -21,6 +21,19 @@ Tham số: `$ARGUMENTS`
 - Lệnh `codex exec` luôn chạy nền (`run_in_background: true`) và chờ thông báo — không poll.
 - Báo tiến độ bằng một câu ngắn mỗi bước.
 
+## Skill bổ trợ (E0-S07)
+
+Dùng ở đúng bước ghi bên dưới **nếu skill đã cài** (có trong `.claude/skills` / `.agents/skills`); chưa cài thì bỏ
+qua, chạy như cũ và ghi một dòng vào report. Quy tắc `AGENTS.md` (token, schema, tenant, entitlement) luôn ưu tiên hơn.
+
+| Skill | Bước | Dùng để |
+|---|---|---|
+| `graphify` | 1 (khảo sát) | Có `graphify-out/` → hỏi đồ thị (`graphify query`) để định vị file trước khi Grep/Glob/Read; đồ thị cũ hơn base → `graphify update` trước. Chưa có → bỏ qua (dựng đồ thị lần đầu là việc riêng, không làm trong story) |
+| `ponytail`, `ponytail-review` | 3 (thực thi), 6 (review) | Viết ít code nhất cần thiết (mức `full`); review over-engineering trên diff |
+| `playwright-cli` | 3 (design pass, bằng chứng UI) | Chụp ảnh/kiểm tra trang khi MCP `playwright` không kết nối được |
+| Agent Skills (Addy Osmani): `test-driven-development`, `debugging-and-error-recovery`, `code-simplification`, `performance-optimization`, `security-and-hardening`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `source-driven-development` | 3, 4 | Test, debug khi `verify` FAIL, hiệu năng web, bảo mật (tenant/auth/upload), UI, tra tài liệu gốc. Bộ planning/review/ship của repo này không cài — playbook dưới thay thế |
+| OmniRoute: `cli-setup`, `omni-auth`, `omni-mcp` | — | Chưa gắn vào bước nào (dự án chưa chạy gateway OmniRoute) |
+
 ## Bước 0 — Chuẩn bị
 
 1. `node scripts/agents/story.mjs info <ID>` (hoặc `next`) → JSON `S`. Dùng `S.mode` (`claude` | `split` | `codex`),
@@ -57,7 +70,7 @@ codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=
 1. `S.planBrief == true` → Codex khảo sát: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
    `Dùng skill solar-story-plan, mode brief. Story <ID> (<S.epicFile>). Output: <S.runDir>/brief.md.`
    `S.planBrief == false` → **không gọi Codex**; Claude tự khảo sát: đọc story trong epic, plan/ADR liên quan và chỉ
-   những file code cần thiết (Grep/Glob trước, đọc đoạn cần, không đọc cả cây).
+   những file code cần thiết (hỏi `graphify` trước nếu có, rồi Grep/Glob, đọc đoạn cần, không đọc cả cây).
 2. Claude viết `S.planFile` theo `roadmap/plans/README.md` (dựa trên brief nếu có).
    Story `split`: thêm mục **"Design pass"** — Claude sẽ tự làm phần nào (bố cục, khoảng cách, hiệu ứng, tương phản,
    responsive), Codex dựng phần nào (schema, fixture, cấu trúc component, đổi màu sang token, logic).
@@ -78,6 +91,9 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Story: <ID> — <S.title> (<S.epicFile>) · Plan: <S.planFile>
    Branch (đã checkout): <S.branch> · Base: <S.base> · Mode: <S.mode>
    Lệnh kiểm tra: <S.checks + lệnh riêng trong plan>
+   Skill bổ trợ (nếu có trong .agents/skills): ponytail mức full khi viết code; test-driven-development,
+   debugging-and-error-recovery khi viết test/sửa lỗi.
+   Quy tắc AGENTS.md ưu tiên hơn ponytail.
    Báo cáo: <S.runDir>/codex-report.md
    ```
 2. Chạy nền: sandbox `workspace-write`, effort `S.codexEffort.exec`, output `<S.runDir>/codex-exec-last.md`,
@@ -88,8 +104,9 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    xem file đó: thuộc story thì commit kèm message phù hợp `[<ID>]`; không thì để nguyên và báo người dùng.
 
 **`split`** — thêm Claude design pass sau khi Codex dựng xong:
-1. Chạy dev server, dùng MCP `playwright` chụp các trang/section của story ở 390px và 1440px (light/dark nếu theme có,
-   ≥ 3 theme với section variant). Story port template: so với branch gốc (`git show`/ảnh chụp branch gốc).
+1. Chạy dev server, dùng MCP `playwright` (không kết nối được → skill `playwright-cli`) chụp các trang/section của story
+   ở 390px và 1440px (light/dark nếu theme có, ≥ 3 theme với section variant). Story port template: so với branch gốc
+   (`git show`/ảnh chụp branch gốc).
 2. Dùng skill `frontend-design`, `ui-ux-pro-max`, `web-design-guidelines`: chỉ sửa phần trình bày (bố cục, khoảng cách,
    typography, hiệu ứng, tương phản, responsive, a11y) — không viết lại logic/schema của Codex. Lỗi logic → ghi lại để
    Codex sửa (vòng "Tiếp tục").
@@ -97,7 +114,8 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Ảnh chụp lưu `<S.runDir>/screenshots/`. Ghi ngắn vào `<S.runDir>/design-pass.md` những gì đã chỉnh.
 
 **`claude`** — Claude làm toàn bộ (story thiết kế UX mới):
-1. Thực thi theo plan với các skill giao diện ở trên + `vercel-react-best-practices`, `vercel-composition-patterns`.
+1. Thực thi theo plan với các skill giao diện ở trên + `vercel-react-best-practices`, `vercel-composition-patterns`,
+   `ponytail` (mức `full`).
 2. Kiểm trực quan như design pass; commit theo bước `<type>(<scope>): … [<ID>]` + dòng Co-Authored-By của Claude.
 3. Ghi `<S.runDir>/claude-report.md` cùng khung báo cáo của Codex (AC → bằng chứng, Lệnh kiểm tra, Lệch so với plan).
 
@@ -107,6 +125,7 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 - PASS → bước 5.
 - FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại bước 3 (Codex) với prompt
   `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log)`, rồi `run.mjs commit`.
+  Lỗi khó đoán nguyên nhân → thêm vào prompt "dùng skill debugging-and-error-recovery".
   Lỗi trình bày/design → Claude sửa. Tối đa **2 vòng**; hết vòng → ghi `HANDOFF.md`, dừng, báo người dùng.
 - "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.
 - AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]`.
@@ -140,7 +159,8 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>`; không gọi Codex cố định. Codex reviewer dùng solar-pr-review ở phiên read-only độc lập; Claude reviewer dùng subagent độc lập, model S.claudeReviewModel, cùng định dạng solar-pr-review, đối chiếu toàn bộ diff với plan/AC/DoD. Ghi verdict, SHA và bằng chứng vào review-r<n>.md. Vòng lặp:
 1. **S.reviewer review** toàn bộ PR (`solar-pr-review`): liệt kê mọi issue (Finding P0/P1/P2) và mọi case **chưa cover** AC,
    "Chi tiết"/"Target" của story, plan, DoD. Review **ở local** (`<S.runDir>/review-r<n>.md`), không đăng lên PR;
-   báo người dùng danh sách issue + case chưa cover.
+   báo người dùng danh sách issue + case chưa cover. Có `ponytail-review` → reviewer rà thêm over-engineering trên diff
+   (code/abstraction/dependency thừa); loại finding này tối đa P2 trừ khi gây lỗi hoặc vi phạm AGENTS.md.
 2. **Người viết S.author sửa** mọi finding P0/P1 + mọi mục chưa cover (trừ `[ngoài agent]`) + lỗi CI; Claude commit
    (`run.mjs commit`), `verify`, push.
 3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh, không

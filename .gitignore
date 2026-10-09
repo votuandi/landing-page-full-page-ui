@@ -60,3 +60,6 @@ HANDOFF.md
 # workspace task cache and build output
 .turbo/
 dist/
+
+# graphify knowledge graph (skill graphify, E0-S07)
+graphify-out/
