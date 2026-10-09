@@ -33,6 +33,11 @@ const config = {
       device: token("device"),
     },
     extend: {
+      borderRadius: { card: "28px" },
+      fontSize: { "2xs": "11px" },
+      backgroundImage: {
+        "media-glow": "radial-gradient(circle at 75% 20%, rgb(var(--c-accent) / .22), transparent 45%)",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },

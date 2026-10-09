@@ -1,5 +1,7 @@
 "use client";
 
+import { DragScroll } from "@solar/ui";
+
 import { useState } from "react";
 import { SwatchIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { SITE_CONFIG, THEME_PRESETS } from "@/config/site";
@@ -8,7 +10,7 @@ import { LangProvider } from "@/i18n/LangProvider";
 import ContactDock from "@/components/ContactDock";
 import ConsultPopup from "@/components/ConsultPopup";
 import CommitmentsStrip from "@/components/CommitmentsStrip";
-import DragScroll from "@/components/DragScroll";
+
 import TopBar from "@/components/layout/TopBar";
 import SiteHeader from "@/components/layout/SiteHeader";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";

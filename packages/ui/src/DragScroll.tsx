@@ -9,7 +9,7 @@ const THRESHOLD = 6;
  * Kéo bằng chuột cho mọi dải cuộn ngang ẩn thanh cuộn (.t15-no-scrollbar: carousel video, sản phẩm, chứng chỉ…).
  * Chỉ áp dụng chuột (cảm ứng đã vuốt được sẵn); kéo quá 6px thì chặn cú click để không mở nhầm thẻ.
  */
-export default function DragScroll() {
+export function DragScroll() {
   useEffect(() => {
     let el: HTMLElement | null = null;
     let startX = 0;

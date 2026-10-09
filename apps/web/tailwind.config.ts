@@ -4,6 +4,7 @@ import preset from "@solar/config/tailwind";
 const config: Config = {
   presets: [preset],
   content: [
+    "../../packages/ui/src/**/*.{ts,tsx}",
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",

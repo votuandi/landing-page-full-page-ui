@@ -1,5 +1,7 @@
 "use client";
 
+import { FacebookIcon, TikTokIcon, YouTubeIcon } from "@solar/ui";
+
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, PlayIcon, VideoCameraIcon } from "@heroicons/react/24/solid";
@@ -10,7 +12,6 @@ import { STORIES, STORY_TYPE_LABELS, TOTAL_CHANNEL_VIDEOS, type Story } from "@/
 import { useSegment } from "@/lib/segment";
 import { useStoryPlayer } from "@/lib/storyPlayer";
 import { useLang } from "@/i18n/LangProvider";
-import { FacebookIcon, TikTokIcon, YouTubeIcon } from "@/components/BrandIcons";
 
 const socials = SITE_CONFIG.socials;
 const SOCIAL_BUTTONS = [

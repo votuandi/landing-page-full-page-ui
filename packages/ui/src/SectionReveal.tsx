@@ -11,7 +11,7 @@ const SELECTOR = "[data-reveal], [data-reveal-stagger] > *";
  * bottom of the viewport so each section animates again when scrolled back down to.
  * Elements rendered later (tab switches, filters) are picked up by a MutationObserver.
  */
-export default function SectionReveal() {
+export function SectionReveal() {
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined";
     const seen = new WeakSet<Element>();

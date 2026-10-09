@@ -1,5 +1,7 @@
 "use client";
 
+import { Wordmark, ZaloIcon } from "@solar/ui";
+
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -14,8 +16,7 @@ import { openConsult } from "@/components/ConsultPopup";
 import { useLang } from "@/i18n/LangProvider";
 import { pickText, type Lang } from "@/i18n/text";
 import BrandLogo from "@/components/BrandLogo";
-import { Wordmark } from "@/components/ui/Media";
-import { ZaloIcon } from "@/components/BrandIcons";
+
 import ThemeSwitch from "@/components/layout/ThemeSwitch";
 
 type MenuId = "pricing" | "equipment" | "guide" | "hotline";

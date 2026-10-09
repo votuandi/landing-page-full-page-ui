@@ -1,10 +1,12 @@
 "use client";
 
+import { MessengerIcon, ZaloIcon } from "@solar/ui";
+
 import { ChatBubbleLeftRightIcon, PhoneIcon } from "@heroicons/react/24/solid";
 import { SITE_CONFIG } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { MessengerIcon, ZaloIcon } from "@/components/BrandIcons";
+
 import { openConsult } from "@/components/ConsultPopup";
 
 type Item = { key: string; label: string; href?: string; onClick?: () => void; Icon: (p: { className?: string }) => React.ReactNode; tone: string; external: boolean };

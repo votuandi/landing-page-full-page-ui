@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHead } from "@solar/ui";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, MapPinIcon } from "@heroicons/react/24/outline";
@@ -12,7 +14,6 @@ import { STORIES } from "@/data/stories";
 import { useSegment } from "@/lib/segment";
 import { useStoryPlayer } from "@/lib/storyPlayer";
 import { useLang } from "@/i18n/LangProvider";
-import { SectionHead } from "@/components/ui/ui";
 
 /** Gallery công trình lọc theo phân khúc chung. Công trình có video → nút play mở trình phát đúng video. */
 export default function ProjectsGallery() {

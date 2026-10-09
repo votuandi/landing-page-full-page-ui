@@ -1,17 +1,17 @@
 "use client";
 
+import { useInViewOnce, MediaImage, CountUp, SectionHead } from "@solar/ui";
+
 import dynamic from "next/dynamic";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRightIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { useLang } from "@/i18n/LangProvider";
-import { useInViewOnce } from "@/lib/useCountUp";
-import { openCalculator } from "@solar/core";
-import { MediaImage } from "@/components/ui/Media";
-import { CountUp, SectionHead } from "@/components/ui/ui";
 
-const VideoModal = dynamic(() => import("@/components/ui/VideoModal"), { ssr: false });
+import { openCalculator } from "@solar/core";
+
+const VideoModal = dynamic(() => import("@solar/ui").then((mod) => mod.VideoModal), { ssr: false });
 const { items } = siteConfig.projects;
 
 /** Tiền VNĐ/năm → đếm theo tỷ (≥ 1 tỷ) hoặc triệu. */
@@ -88,7 +88,7 @@ export default function FeaturedProjects() {
           </div>
         </div>
       </div>
-      {playing && <VideoModal video={p.video} title={p.client} onClose={() => setPlaying(false)} />}
+      {playing && <VideoModal closeLabel={tr("Đóng video", "Close video")} video={p.video} title={p.client} onClose={() => setPlaying(false)} />}
     </section>
   );
 }

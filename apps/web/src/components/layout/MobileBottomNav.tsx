@@ -1,11 +1,12 @@
 "use client";
 
+import { ZaloIcon } from "@solar/ui";
+
 import Link from "next/link";
 import { HomeIcon, PhoneIcon, Squares2X2Icon } from "@heroicons/react/24/solid";
 import { siteConfig } from "@/config/site.config";
 import { primaryBranch, telHref, zaloHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
-import { ZaloIcon } from "@/components/BrandIcons";
 
 /** Thanh điều hướng cố định đáy màn hình (mobile/tablet): Trang chủ · Danh mục · Gọi · Zalo Gia đình · Zalo Nhà xưởng. */
 export default function MobileBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {

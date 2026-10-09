@@ -1,10 +1,11 @@
+import { delay } from "@solar/ui";
 import Image from "next/image";
 import { ArrowRightIcon, Battery100Icon, BoltIcon, CpuChipIcon, LightBulbIcon, PlayIcon, SunIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { yearsOfExperience } from "@/config/site";
 import { siteConfig } from "@/config/site.config";
 import { CALCULATOR_ID, SECTION_IDS } from "@solar/core";
-import { delay } from "@/utils/reveal";
+
 import { Tr } from "@/i18n/LangProvider";
 import HeroStats, { type HeroStat } from "@/components/HeroStats";
 

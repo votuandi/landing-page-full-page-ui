@@ -1,3 +1,5 @@
+import type { VideoSource } from "@solar/ui";
+
 /**
  * ============================================================================
  *  SITE CONFIG — TOÀN BỘ THÔNG TIN CÔNG TY NẰM Ở FILE NÀY
@@ -20,7 +22,6 @@
 import type { Segment } from "@solar/core";
 
 export type Text = string | { vi: string; en: string };
-export type VideoSource = { provider: "youtube"; id: string } | { provider: "file"; src: string };
 export type GeoPoint = { address: string; lat: number; lng: number };
 
 export type Branch = {
@@ -447,7 +448,6 @@ export const siteConfig = {
       { title: "Kho lạnh 620 kWp bàn giao", location: "Tây Ninh", poster: "/images/illustrations/cold-storage-solar.webp", video: { provider: "file", src: "/videos/hero_video.mp4" } as VideoSource },
     ],
   },
-
 
   press: {
     enabled: true,

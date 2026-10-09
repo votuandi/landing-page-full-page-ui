@@ -1,9 +1,10 @@
 "use client";
 
+import { useCountUp, useInViewOnce, delay } from "@solar/ui";
+
 import { useLayoutEffect, useState } from "react";
-import { useCountUp, useInViewOnce } from "@/lib/useCountUp";
+
 import { useLang } from "@/i18n/LangProvider";
-import { delay } from "@/utils/reveal";
 
 /** unit / label: [tiếng Việt, English] */
 export type HeroStat = { value: number; decimals?: number; suffix?: string; unit: readonly [string, string]; label: readonly [string, string] };

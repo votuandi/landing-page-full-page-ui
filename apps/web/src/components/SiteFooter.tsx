@@ -1,3 +1,4 @@
+import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@solar/ui";
 import { SEGMENT_SLUGS, SEGMENT_ORDER } from "@solar/core";
 import Link from "next/link";
 import { CheckBadgeIcon, ExclamationCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
@@ -6,7 +7,6 @@ import { catalogEnabled, telHref, zaloHref } from "@/config/site";
 import { SEGMENTS } from "@/config/segments";
 import { Tr } from "@/i18n/LangProvider";
 import BrandLogo from "@/components/BrandLogo";
-import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@/components/BrandIcons";
 
 const { brand, legal, branches, complaintHotline, workingHours, socials } = siteConfig;
 const SOCIAL_ICONS = { facebook: FacebookIcon, youtube: YouTubeIcon, tiktok: TikTokIcon, zalo: ZaloIcon } as const;

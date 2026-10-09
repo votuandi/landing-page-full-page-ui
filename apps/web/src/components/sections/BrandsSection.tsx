@@ -1,5 +1,7 @@
 "use client";
 
+import { MediaImage, Wordmark, SectionHead } from "@solar/ui";
+
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -8,10 +10,8 @@ import { PlayIcon } from "@heroicons/react/24/solid";
 import { siteConfig, type BrandGroup } from "@/config/site.config";
 import { isDistributor } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
-import { MediaImage, Wordmark } from "@/components/ui/Media";
-import { SectionHead } from "@/components/ui/ui";
 
-const VideoModal = dynamic(() => import("@/components/ui/VideoModal"), { ssr: false });
+const VideoModal = dynamic(() => import("@solar/ui").then((mod) => mod.VideoModal), { ssr: false });
 
 const GROUP_LABEL: Record<BrandGroup, [string, string]> = {
   panel: ["Tấm pin", "Panel"], inverter: ["Inverter", "Inverter"], lithium: ["Lithium", "Lithium"], allinone: ["All-in-one", "All-in-one"], bess: ["BESS", "BESS"],
@@ -68,7 +68,7 @@ export default function BrandsSection() {
           </div>
         )}
       </div>
-      {playing && <VideoModal video={signingVideo.video} title={title} onClose={() => setPlaying(false)} />}
+      {playing && <VideoModal closeLabel={tr("Đóng video", "Close video")} video={signingVideo.video} title={title} onClose={() => setPlaying(false)} />}
     </section>
   );
 }

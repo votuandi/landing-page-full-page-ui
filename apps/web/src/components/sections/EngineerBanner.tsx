@@ -1,11 +1,11 @@
 "use client";
 
+import { ZaloIcon, MediaImage } from "@solar/ui";
+
 import { DocumentTextIcon, MapPinIcon, PhoneIcon, BoltIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
 import { primaryBranch, telHref, zaloHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
-import { ZaloIcon } from "@/components/BrandIcons";
-import { MediaImage } from "@/components/ui/Media";
 
 /** Banner đội ngũ kỹ sư + CTA Zalo / hotline + nhắc khách gửi khu vực, công suất, hóa đơn điện. */
 export default function EngineerBanner() {

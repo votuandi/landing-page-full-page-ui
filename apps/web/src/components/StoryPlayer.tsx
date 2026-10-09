@@ -1,10 +1,11 @@
 "use client";
 
+import { TikTokIcon, YouTubeIcon } from "@solar/ui";
+
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, SpeakerXMarkIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { STORY_TYPE_LABELS, type Story } from "@/data/stories";
 import { openCalculator } from "@solar/core";
-import { TikTokIcon, YouTubeIcon } from "@/components/BrandIcons";
 
 type Props = { stories: Story[]; startIndex: number; onClose: () => void };
 
