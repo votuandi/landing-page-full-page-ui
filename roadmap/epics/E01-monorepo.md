@@ -85,9 +85,12 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 - **Chi tiết**: từ t15 `components/ui/*`, `DragScroll`, `SectionReveal`, `useSnapCarousel`, `useDialog`, `useCountUp`,
   `Media`, `VideoModal`, `BrandIcons`, `PriceTag` → `packages/ui`. Mỗi primitive có props tối thiểu, chỉ class token.
 - **AC**:
-  - [ ] Không còn bản sao primitive trong `apps/web`.
-  - [ ] Mỗi primitive có ví dụ trong `/lab/ui` (route dev-only).
-  - [ ] `lint:tokens` (tạm thời regex) không báo lỗi trong `packages/ui`.
+  - [x] Không còn bản sao primitive trong `apps/web`.
+    `@solar/ui` xuất primitive dùng chung; tìm import cũ trả rỗng, cả 8 đường dẫn nguồn đã xóa; typecheck/lint qua.
+  - [x] Mỗi primitive có ví dụ trong `/lab/ui` (route dev-only).
+    Browser smoke: 21 export runtime khớp ví dụ, dev HTTP 200, production HTTP 404; dialog/carousel/VI-EN qua.
+  - [x] `lint:tokens` (tạm thời regex) không báo lỗi trong `packages/ui`.
+    Scanner báo 0 vi phạm; 18 test qua; thử `bg-[#0E7C3A]` trả exit 1 rồi xóa probe.
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
 ### E1-S07 · CI cho monorepo
