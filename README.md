@@ -17,21 +17,24 @@ Bật pnpm qua Corepack: `corepack enable`, `corepack prepare pnpm@10.34.6 --act
 
 ```bash
 pnpm install --frozen-lockfile
-cp .env.example .env.local   # điền biến môi trường nếu cần
-pnpm dev                     # http://localhost:3000
+cp apps/web/.env.example apps/web/.env.local   # điền biến môi trường nếu cần
+pnpm --filter web dev        # http://localhost:3000
+pnpm dev --filter web         # wrapper Turbo tương đương
 pnpm turbo run typecheck lint test
-pnpm turbo run typecheck lint # chạy lần nữa để kiểm FULL TURBO
+pnpm lint                    # kiểm cả app/package và helper root
+pnpm --filter web test
+pnpm --filter web build       # bắt buộc cho AC E1-S02
 pnpm turbo run build          # CI luôn build; local bắt buộc ở cuối epic
 ```
 
-Các script root `dev`, `build`, `lint`, `typecheck`, `test` vẫn gọi trực tiếp công cụ của app.
-Turbo đăng ký root tasks chuyển tiếp để kiểm cả app lẫn `@solar/config`; không gọi Turbo đệ quy từ script cùng tên.
-`pnpm test` chạy unit test dự toán, giỏ báo giá, quy tắc giá và số điện thoại.
+Các script root `dev`, `build`, `typecheck`, `test` điều phối workspace qua Turbo; `start` gọi `web start`.
+`pnpm lint` chạy lint workspace và task `lint:root` riêng cho helper/config ở root.
+`pnpm --filter web test` chạy hai file node:test trong `apps/web/.test-dist` (dự toán, giỏ báo giá, giá, số điện thoại).
 
-## Workspace hiện tại (E1-S01)
+## Workspace hiện tại (E1-S02)
 
 ```text
-src/, public/       app template-15 còn tại root
+apps/web/           app template-15: src/, public/, cấu hình Next/Tailwind/TypeScript, env
 packages/config/    TypeScript base, ESLint flat config và Tailwind preset dùng chung
 pnpm-workspace.yaml apps/* và packages/*
 turbo.json          task graph và cache local .turbo/
@@ -47,14 +50,18 @@ Task `lint:tokens` đã đăng ký trong Turbo nhưng **chưa có checker/script
 `themes`, `ui`, `sections`, `presets`, `core`, `db`, `storage`, `leads`, `plans`.
 Xem [roadmap](roadmap/README.md) để biết lộ trình.
 
-**Đến E1-S02** mới chuyển app sang `apps/web`, bỏ root tasks chuyển tiếp và thêm wrapper Turbo ở root.
-Lệnh `pnpm --filter web dev` / `pnpm dev --filter web` chưa dùng được trong E1-S01.
+App chạy từ `apps/web`; alias `@/*` vẫn trỏ `apps/web/src/*`, URL tài sản `/images/...` giữ nguyên.
+Next đọc env cục bộ trong `apps/web/.env.local`; biến inject từ shell/CI giữ nguyên tên.
+Script tạo media vẫn chạy từ root và xuất vào `apps/web/public`.
+Docker/Compose, Prisma/cron và workflow Yarn kế thừa cần cập nhật ở story deploy; không dùng làm quickstart pnpm hiện tại.
 
 Workflow `workspace.yml` kiểm Node 22 trên Windows/Ubuntu: frozen install, typecheck/lint hai lượt
 (lượt hai phải FULL TURBO), test và build. Workflow Yarn cũ giữ riêng cho các branch template.
 Turbo pin 2.11.7 phục vụ điều phối/cache; không thêm dependency runtime của app.
 
-## Trang chủ (theo thứ tự — bật/tắt từng section trong `src/config/site.config.ts`)
+## Trang chủ (theo thứ tự — bật/tắt từng section trong `apps/web/src/config/site.config.ts`)
+
+Các file component trong bảng dưới nằm dưới `apps/web/src/components/`.
 
 | # | Section | Nguồn | File |
 | --- | --- | --- | --- |
@@ -101,7 +108,7 @@ Section kế thừa tắt sẵn: `legacy.investmentModels`, `legacy.warranty` (b
 - **Giỏ yêu cầu báo giá** (`lib/quoteCart.ts`, `lib/quoteCartContext.tsx`): số lượng, lưu localStorage (fallback bộ nhớ),
   drawer gửi lead `source: "quote-cart"` kèm `items`; tick "Đính kèm kết quả dự toán" để gửi luôn kết quả dự toán gần nhất.
 
-## Cấu hình — `src/config/site.config.ts` (một file duy nhất)
+## Cấu hình — `apps/web/src/config/site.config.ts` (một file duy nhất)
 
 | Khóa | Nội dung |
 | --- | --- |
@@ -112,10 +119,10 @@ Section kế thừa tắt sẵn: `legacy.investmentModels`, `legacy.warranty` (b
 | `certificates`, `brands`, `projects`, `solutions`, `press`, `tiktok`, `dealer` | Dữ liệu từng section |
 | `<section>.enabled`, `legacy` | Bật/tắt section |
 
-`src/config/site.ts` chỉ là lớp dẫn xuất (helper `telHref`, `zaloHref`, `mapsUrl`, `catalogEnabled`, bộ màu demo) — không sửa dữ liệu ở đó.
-Phân khúc & tỷ lệ dùng điện ban ngày: `src/config/segments.ts`. Biểu giá, đơn giá, giờ nắng: `src/config/solar.ts`.
+`apps/web/src/config/site.ts` chỉ là lớp dẫn xuất (helper `telHref`, `zaloHref`, `mapsUrl`, `catalogEnabled`, bộ màu demo) — không sửa dữ liệu ở đó.
+Phân khúc & tỷ lệ dùng điện ban ngày: `apps/web/src/config/segments.ts`. Biểu giá, đơn giá, giờ nắng: `apps/web/src/config/solar.ts`.
 
-## Dữ liệu — `src/data/`
+## Dữ liệu — `apps/web/src/data/`
 
 | File | Nội dung |
 | --- | --- |
@@ -128,7 +135,7 @@ Phân khúc & tỷ lệ dùng điện ban ngày: `src/config/segments.ts`. Biể
 Ảnh minh họa demo (không logo thật, có chữ "MẪU"): `node scripts/make-catalog-images.js` (sản phẩm),
 `node scripts/make-trust-images.js` (chứng chỉ); video Shorts demo: `scripts/make-demo-shorts.sh`.
 
-## Đổi màu — `src/app/globals.css`
+## Đổi màu — `apps/web/src/app/globals.css`
 
 Mọi màu là token trong `:root` (dạng `--c-<tên>: R G B`); Tailwind chỉ sinh class từ token nên không có mã màu cứng.
 
@@ -150,7 +157,7 @@ Mọi màu là token trong `:root` (dạng `--c-<tên>: R G B`); Tailwind chỉ 
 
 ## Gửi lead
 
-Mọi form gọi `POST /api/lead` (kiểm tra họ tên, số di động VN, honeypot) → adapter trong `src/lib/leads/`.
+Mọi form gọi `POST /api/lead` (kiểm tra họ tên, số di động VN, honeypot) → adapter trong `apps/web/src/lib/leads/`.
 Không cấu hình adapter = **chế độ demo**. `source`: `calculator`, `story-cta`, `quote-cart`, `popup`, `contact`, `home-bottom`,
 `dealer`, `service-<slug>`; payload có thể kèm `estimate`, `items`, `province`, `businessType`, `page`.
 

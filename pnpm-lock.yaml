@@ -7,6 +7,18 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:packages/config
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
+      turbo:
+        specifier: 2.11.7
+        version: 2.11.7
+
+  apps/web:
     dependencies:
       '@heroicons/react':
         specifier: ^2.2.0
@@ -23,7 +35,7 @@ importers:
     devDependencies:
       '@solar/config':
         specifier: workspace:*
-        version: link:packages/config
+        version: link:../../packages/config
       '@types/node':
         specifier: ^20
         version: 20.19.37
@@ -48,9 +60,6 @@ importers:
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.19
-      turbo:
-        specifier: 2.11.7
-        version: 2.11.7
       typescript:
         specifier: ^5
         version: 5.9.3

@@ -1,10 +1,10 @@
 import { nextConfig } from "@solar/config/eslint";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const config = [
   { ignores: ["apps/**", "packages/**"] },
-  ...nextConfig(dirname(fileURLToPath(import.meta.url))),
+  ...nextConfig(join(dirname(fileURLToPath(import.meta.url)), "apps/web")),
 ];
 
 export default config;

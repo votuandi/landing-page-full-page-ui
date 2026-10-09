@@ -1,12 +1,12 @@
 #!/bin/sh
 # Tạo 8 video Shorts DEMO (9:16, 6 giây, không tiếng) + poster từ ảnh minh họa của chính template
-# (public/images/illustrations — tài sản tự tạo của template-8, không dùng nội dung bên thứ ba).
+# (apps/web/public/images/illustrations — tài sản tự tạo của template-8, không dùng nội dung bên thứ ba).
 # Cần ffmpeg. Chạy từ thư mục gốc dự án:  sh scripts/make-demo-shorts.sh
 # Thay bằng video công trình thật trước khi xuất bản (xem README – "Thêm video").
 set -e
-SRC=public/images/illustrations
-VID=public/videos/shorts
-IMG=public/images/shorts
+SRC=apps/web/public/images/illustrations
+VID=apps/web/public/videos/shorts
+IMG=apps/web/public/images/shorts
 mkdir -p "$VID" "$IMG"
 
 encode() { # name, filter, source
