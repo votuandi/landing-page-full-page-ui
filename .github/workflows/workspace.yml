@@ -44,10 +44,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: node --test scripts/ci/affected.test.mjs
       - name: Typecheck and lint (populate cache)
-        run: pnpm turbo run typecheck lint ${TURBO_FILTER:+"$TURBO_FILTER"}
+        run: pnpm turbo run typecheck lint lint:root ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Typecheck and lint (verify FULL TURBO)
         run: |
-          output=$(pnpm turbo run typecheck lint ${TURBO_FILTER:+"$TURBO_FILTER"} 2>&1) || { echo "$output"; exit 1; }
+          output=$(pnpm turbo run typecheck lint lint:root ${TURBO_FILTER:+"$TURBO_FILTER"} 2>&1) || { echo "$output"; exit 1; }
           echo "$output"
           # PR không đụng package nào thì turbo không có task để chạy.
           grep -qE 'FULL TURBO|No tasks were executed' <<< "$output" || {
