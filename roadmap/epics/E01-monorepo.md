@@ -56,8 +56,11 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   tắt animation (`prefers-reduced-motion`), che vùng động (marquee, đếm số). Lưu baseline trong git LFS hoặc artifact CI.
 - **Target**: chạy ≤ 3 phút.
 - **AC**:
-  - [ ] `pnpm visual:test` so sánh và xuất report HTML khi lệch.
-  - [ ] `pnpm visual:update` cập nhật baseline có chủ đích.
+  - [x] `pnpm visual:test` so sánh và xuất report HTML khi lệch.
+    Local: 12 route × 4 cấu hình = 48 ảnh; 3 lượt liên tiếp 48/48 PASS (1,4 phút/lượt).
+    Đổi tạm token nền light: 24 FAIL / 24 PASS, exit 1, HTML + diff; đã hoàn tác CSS.
+  - [x] `pnpm visual:update` cập nhật baseline có chủ đích.
+    Đã tạo đủ 48 ảnh Chromium; baseline tách win32/linux, ignored; CI cấu hình artifact 90 ngày.
   - [ ] Chạy trong CI ở PR chạm `apps/web` hoặc `packages/{ui,sections,themes,tokens}`.
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
