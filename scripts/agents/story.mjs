@@ -81,7 +81,9 @@ function depStatus(story, stories) {
 
 /**
  * mode: "claude" (Claude viết toàn bộ) | "split" (Codex dựng, Claude design pass) | "codex".
- * planMode: "claude" (Codex khảo sát → Claude viết plan) | "codex-draft" (Codex viết nháp → Claude duyệt).
+ * planMode: "claude" (Claude viết plan) | "codex-draft" (Codex viết nháp → Claude duyệt).
+ * planBrief: true khi Codex khảo sát (brief) trước để Claude viết plan; false khi Claude tự khảo sát.
+ * routing.planPolicy: "claude" = Claude tự viết plan mọi story, Codex chỉ implement | "budget" = theo budget/architecture.
  */
 function routeStory(id) {
   const budget = routing.budget ?? "balanced";
@@ -94,12 +96,15 @@ function routeStory(id) {
   let planMode = architecture || mode !== "codex" ? "claude" : "codex-draft";
   if (budget === "claude-saver" && !architecture) planMode = "codex-draft";
   if (budget === "codex-saver") planMode = "claude";
-  return { mode, planMode, architecture };
+  const planPolicy = routing.planPolicy ?? "budget";
+  if (planPolicy === "claude") planMode = "claude";
+  const planBrief = planMode === "claude" && planPolicy !== "claude";
+  return { mode, planMode, planBrief, architecture };
 }
 
 function describe(story, stories) {
   const other = (agent) => (agent === "claude" ? "codex" : "claude");
-  const { mode, planMode, architecture } = routeStory(story.id);
+  const { mode, planMode, planBrief, architecture } = routeStory(story.id);
   const kind = mode === "codex" ? "logic" : "ui";
   // split: Codex viết phần lớn code → tính là người viết; Claude làm design pass.
   const author = mode === "claude" ? "claude" : "codex";
@@ -125,6 +130,7 @@ function describe(story, stories) {
     kind,
     mode,
     planMode,
+    planBrief,
     architecture,
     author,
     designPass: mode === "split" ? "claude" : null,
@@ -178,14 +184,15 @@ if (cmd === "info") {
     console.log(`${d.id.padEnd(7)} ${status.padEnd(8)} plan:${d.planMode.padEnd(11)} ${who.padEnd(12)} → review ${d.reviewer.padEnd(6)} ${d.size || "-"}  ${d.title}`);
   }
 } else if (cmd === "load") {
-  // Ước lượng tải theo điểm: S=1, M=2, L=4. Plan: Claude viết = 1 điểm Claude; Codex nháp = 0,3 điểm Claude (duyệt).
+  // Ước lượng tải theo điểm: S=1, M=2, L=4. Plan: Claude viết = 1 điểm Claude (+0,3 Codex nếu có brief);
+  // Codex nháp = 0,3 điểm Claude (duyệt).
   const pts = { S: 1, M: 2, L: 4 };
   const load = { claude: 0, codex: 0 };
   for (const s of stories.values()) {
     const d = describe(s, stories);
     if (d.done) continue;
     const p = pts[d.size] ?? 2;
-    if (d.planMode === "claude") { load.claude += 1; load.codex += 0.3; } else { load.codex += 1; load.claude += 0.3; }
+    if (d.planMode === "claude") { load.claude += 1; if (d.planBrief) load.codex += 0.3; } else { load.codex += 1; load.claude += 0.3; }
     if (d.mode === "claude") load.claude += p;
     else if (d.mode === "split") { load.codex += p * 0.7; load.claude += p * 0.3; }
     else load.codex += p;

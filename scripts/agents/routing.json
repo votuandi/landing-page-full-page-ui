@@ -5,6 +5,9 @@
   "budget": "claude-saver",
   "$budget": "balanced = mặc định | claude-saver = Claude sắp hết quota: Codex viết nháp plan cho mọi story trừ 'architecture', story UI 'claudeFull' chuyển thành 'split' | codex-saver = ngược lại: Claude tự viết plan và tự làm story UI split",
 
+  "planPolicy": "claude",
+  "$planPolicy": "claude = Claude tự khảo sát và viết plan cho mọi story, Codex chỉ implement (bỏ qua phần plan của budget) | budget = Codex viết nháp/brief theo budget và 'architecture'",
+
   "reviewPolicy": "claude",
   "$reviewPolicy": "codex-except-architecture = Codex review mọi story, trừ story trong 'architecture' do Claude (subagent) review | codex = Codex review tất cả | claude = Claude (subagent claudeReviewModel) review tất cả, story Claude viết vẫn swap sang Codex nếu selfReview=swap | parity = lẻ → reviewerByParity.odd, chẵn → reviewerByParity.even",
   "reviewerByParity": { "odd": "codex", "even": "claude" },

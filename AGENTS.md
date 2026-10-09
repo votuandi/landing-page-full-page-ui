@@ -88,9 +88,10 @@ section variant / theme theo skill `solar-section-variant` và `solar-theme-port
 
 Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code (skill `.claude/skills/run-story`):
 
-1. **Plan** → `roadmap/plans/<ID>.md`, Claude chốt. Story logic thường: Codex viết nháp, Claude duyệt. Story kiến trúc
-   (`architecture` trong `scripts/agents/routing.json`) và story UI: Codex khảo sát (brief), Claude viết plan.
-   (skill `solar-story-plan`)
+1. **Plan** → `roadmap/plans/<ID>.md`, theo `"planPolicy"` trong `scripts/agents/routing.json`. Hiện tại `claude`:
+   Claude tự khảo sát và viết plan cho mọi story; Codex chỉ implement và không viết plan/brief. Lựa chọn khác `budget`:
+   story logic thường Codex viết nháp, Claude duyệt; story kiến trúc (`architecture`) và story UI Codex khảo sát (brief),
+   Claude viết plan (skill `solar-story-plan`).
 2. **Thực thi** theo mode trong `routing.json`:
    - `claudeFull` (thiết kế UX mới): Claude làm toàn bộ.
    - `split` (port template, section variant, màn hình CMS theo mẫu): Codex dựng, Claude làm design pass.

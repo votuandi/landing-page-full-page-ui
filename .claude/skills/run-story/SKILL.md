@@ -24,7 +24,7 @@ Tham số: `$ARGUMENTS`
 ## Bước 0 — Chuẩn bị
 
 1. `node scripts/agents/story.mjs info <ID>` (hoặc `next`) → JSON `S`. Dùng `S.mode` (`claude` | `split` | `codex`),
-   `S.planMode` (`claude` | `codex-draft`), `S.author`, `S.reviewer`, `S.branch`, `S.base`, `S.planFile`, `S.runDir`,
+   `S.planMode` (`claude` | `codex-draft`), `S.planBrief`, `S.author`, `S.reviewer`, `S.branch`, `S.base`, `S.planFile`, `S.runDir`,
    `S.codexEffort`, `S.claudeReviewModel`. Khi có `--agent`, cập nhật `S.mode` và `S.author` theo agent ép;
    tính lại reviewer theo reviewPolicy và selfReview (swap nếu trùng author), rồi tính selfReviewConflict theo reviewer cuối.
    Dùng cùng vai trò này khi sinh PR body. Chỉ khi cần để CLI trả đúng vai trò, tạm đặt `authorOverride` của story
@@ -53,10 +53,12 @@ codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=
 2. Claude duyệt nháp: kiểm AC nào cũng có bằng chứng, phạm vi đúng, không mâu thuẫn ADR/AGENTS.md, câu hỏi `[chặn]`.
    Sửa trực tiếp chỗ sai (không viết lại cả plan), xóa dòng "Nháp do Codex viết".
 
-**`S.planMode == "claude"`** (story kiến trúc hoặc UI):
-1. Codex khảo sát: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
+**`S.planMode == "claude"`** (mọi story khi `planPolicy: "claude"`; story kiến trúc hoặc UI khi `planPolicy: "budget"`):
+1. `S.planBrief == true` → Codex khảo sát: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
    `Dùng skill solar-story-plan, mode brief. Story <ID> (<S.epicFile>). Output: <S.runDir>/brief.md.`
-2. Claude viết `S.planFile` theo `roadmap/plans/README.md`, dựa trên brief; chỉ mở file code khi brief không đủ.
+   `S.planBrief == false` → **không gọi Codex**; Claude tự khảo sát: đọc story trong epic, plan/ADR liên quan và chỉ
+   những file code cần thiết (Grep/Glob trước, đọc đoạn cần, không đọc cả cây).
+2. Claude viết `S.planFile` theo `roadmap/plans/README.md` (dựa trên brief nếu có).
    Story `split`: thêm mục **"Design pass"** — Claude sẽ tự làm phần nào (bố cục, khoảng cách, hiệu ứng, tương phản,
    responsive), Codex dựng phần nào (schema, fixture, cấu trúc component, đổi màu sang token, logic).
 

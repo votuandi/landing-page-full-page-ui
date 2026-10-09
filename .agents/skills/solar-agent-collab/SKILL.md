@@ -15,7 +15,8 @@ khi trùng author; không suy vai trò theo chẵn/lẻ nếu policy khác parit
 
 Lấy phân vai từ `story.mjs info <ID>` theo routing hiện tại: mode `codex` giao Codex thực thi;
 `claude` giao Claude làm toàn bộ; `split` giao Codex dựng và Claude làm design pass.
-Plan theo S.planMode, reviewer theo S.reviewer; Claude chốt plan và quản lý git.
+Plan theo S.planMode/S.planBrief (planPolicy=claude: Claude tự viết plan, Codex chỉ implement),
+reviewer theo S.reviewer; Claude chốt plan và quản lý git.
 Khi ép `--agent`, dùng quy trình override tạm thời của run-story, không commit thay đổi routing.json.
 
 ## Giao việc
