@@ -7,7 +7,7 @@ revalidate; 0 vi phạm `lint:tokens`.
 
 ---
 
-### E2-S01 · Schema `ThemeTokens`
+### E2-S01 · Schema `ThemeTokens` ✅ · PR [#12](https://github.com/votuandi/landing-page-full-page-ui/pull/12)
 **Là** dev, **tôi muốn** một kiểu dữ liệu duy nhất mô tả theme, **để** mọi theme có cùng bộ biến và section tin cậy được biến đó tồn tại.
 - **Chi tiết**: `packages/tokens/src/schema.ts` (zod) gồm:
   - `colors` (light, `dark?`): bộ token của t15 — `bg, bg-elevated, bg-deep, bg-tint, bg-sky, bg-sun, primary, primary-strong,
