@@ -11,6 +11,13 @@ Nguồn phân vai là scripts/agents/routing.json; đọc `node scripts/agents/s
 khi trùng author; không suy vai trò theo chẵn/lẻ nếu policy khác parity.
 `--agent` phải cập nhật author và tính lại reviewer; PR body dùng cùng vai trò này.
 
+## Chọn agent
+
+Lấy phân vai từ `story.mjs info <ID>` theo routing hiện tại: mode `codex` giao Codex thực thi;
+`claude` giao Claude làm toàn bộ; `split` giao Codex dựng và Claude làm design pass.
+Plan theo S.planMode, reviewer theo S.reviewer; Claude chốt plan và quản lý git.
+Khi ép `--agent`, dùng quy trình override tạm thời của run-story, không commit thay đổi routing.json.
+
 ## Giao việc
 
 Claude chuẩn bị plan, worktree/branch và cài pnpm --frozen-lockfile riêng. Codex thực thi
@@ -36,6 +43,9 @@ và node_modules riêng. Không giao Codex tự commit trong sandbox khóa .git.
 Reviewer lấy từ S.reviewer. Codex dùng solar-pr-review trong phiên read-only độc lập;
 Claude dùng subagent độc lập, model S.claudeReviewModel, cùng định dạng solar-pr-review.
 Đối chiếu toàn bộ diff với plan/AC/Chi tiết/Target/DoD. Ghi verdict, SHA cuối, finding và case chưa cover.
+Checklist review theo AGENTS.md §4 và §7: token/schema/migration; tenantId, cache tag và media key;
+membership admin; entitlement phía server/API; dependency; reduced motion và nội dung khi tắt JavaScript;
+test/bằng chứng cho AC và các kiểm tra DoD.
 Người viết sửa P0/P1 và case thiếu, Claude commit/push, reviewer review lại SHA cuối.
 Nhãn agent:codex / agent:claude chỉ người viết chính (split: Codex); reviewer ghi trong body.
 Playbook bảo đảm nhãn tồn tại rồi gắn bằng MCP/gh sau tạo PR. Không tự merge.
