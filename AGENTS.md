@@ -98,11 +98,11 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    Sandbox Codex khóa ghi `.git`, nên Claude tạo branch và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
 3. Việc cơ học chạy bằng `scripts/agents/run.mjs` (`verify`, `commit`, `pr-body`), Claude chỉ đọc tóm tắt; rồi push, tạo PR.
    Claude không tạo được PR (GitHub MCP / `gh` lỗi) → giao Codex tạo PR. Không bao giờ để người dùng tự tạo PR.
-4. **Review** theo `"reviewPolicy"` trong `routing.json`. Mặc định `codex-except-architecture`: Codex review mọi story
-   (effort high); 15 story `architecture` (dữ liệu tenant, cache, RLS, upload, tên miền…) do Claude review bằng subagent
-   (model `claudeReviewModel`, mặc định Sonnet). Khi Codex review code Codex viết, skill `solar-pr-review` chạy chế độ
-   "Tự review" (kiểm kỹ hơn) và PR ghi cảnh báo. Lựa chọn khác: `codex` (Codex review tất cả), `parity` (lẻ → Codex,
-   chẵn → Claude). Skill `pr-review`, định dạng `solar-pr-review`.
+4. **Review** theo `"reviewPolicy"` trong `routing.json`. Hiện tại `claude`: Claude review mọi story bằng subagent
+   (model `claudeReviewModel`, mặc định Sonnet) để tiết kiệm quota Codex; với `selfReview: "swap"`, story do Claude viết
+   (`--agent claude`) vẫn sang Codex review. Lựa chọn khác: `codex-except-architecture` (Codex review mọi story trừ 15 story
+   `architecture` do Claude review), `codex` (Codex review tất cả), `parity` (lẻ → Codex, chẵn → Claude). Khi agent
+   review code chính nó viết (`selfReview: "allow"`), skill `solar-pr-review` chạy chế độ "Tự review" và PR ghi cảnh báo. Skill `pr-review`, định dạng `solar-pr-review`.
    **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,
    `codex-saver` khi Codex sắp hết. Xem tỷ lệ: `node scripts/agents/story.mjs load`.
 5. Review liệt kê issue + case chưa cover AC/yêu cầu của story. Finding P0/P1 và case chưa cover → người viết sửa,

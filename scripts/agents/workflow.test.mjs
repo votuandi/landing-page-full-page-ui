@@ -7,12 +7,15 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const source = fileURLToPath(new URL("./", import.meta.url));
-for (const [policy, author, reviewer, conflict] of [
-  ["swap", "codex", "claude", false],
-  ["allow", "codex", "codex", true],
-  ["swap", "claude", "codex", false],
+for (const [policy, reviewPolicy, author, reviewer, conflict] of [
+  ["swap", "codex", "codex", "claude", false],
+  ["allow", "codex", "codex", "codex", true],
+  ["swap", "codex", "claude", "codex", false],
+  ["swap", "claude", "codex", "claude", false],
+  ["allow", "claude", "claude", "claude", true],
+  ["swap", "claude", "claude", "codex", false],
 ]) {
-  test(`${policy}: ${author} → ${reviewer}, title/body CLI`, () => {
+  test(`${reviewPolicy}/${policy}: ${author} → ${reviewer}, title/body CLI`, () => {
     const root = mkdtempSync(join(tmpdir(), "solar-workflow-"));
     try {
       const scripts = join(root, "scripts", "agents");
@@ -22,7 +25,7 @@ for (const [policy, author, reviewer, conflict] of [
       for (const file of ["run.mjs", "story.mjs"]) copyFileSync(join(source, file), join(scripts, file));
       const routing = JSON.parse(readFileSync(join(source, "routing.json"), "utf8"));
       routing.selfReview = policy;
-      routing.reviewPolicy = "codex";
+      routing.reviewPolicy = reviewPolicy;
       routing.authorOverride = { "E0-S05": author };
       writeFileSync(join(scripts, "routing.json"), JSON.stringify(routing));
       writeFileSync(join(epics, "E00-fixture.md"), `### E0-S05 · ${"Tiêu đề `dài` ".repeat(30)}\n- [ ] AC\n- Agent: Claude · Cỡ: S\n`);
