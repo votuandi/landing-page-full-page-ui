@@ -39,7 +39,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 - PR: [#4](https://github.com/votuandi/landing-page-full-page-ui/pull/4)
 
-### E1-S03 · Nâng Next.js 16
+### E1-S03 · Nâng Next.js 16 ✅ · PR [#10](https://github.com/votuandi/landing-page-full-page-ui/pull/10)
 **Là** dev, **tôi muốn** dùng Next 16 (proxy.ts, Cache Components), **để** làm phân giải tenant và cache theo tag đúng cách.
 - **Chi tiết**: chạy `npx @next/codemod@latest upgrade`; React 19.2; kiểm `next.config` (`images.remotePatterns`,
   redirects 308); dùng skill `next-dev-loop` + MCP `next-devtools` để quét lỗi. Chưa bật `cacheComponents` (E5-S06).
