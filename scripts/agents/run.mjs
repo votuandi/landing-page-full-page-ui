@@ -140,7 +140,7 @@ function prBody(id) {
   const verifyFile = join(S.runDir, "verify.json");
   const v = existsSync(verifyFile) ? JSON.parse(readFileSync(verifyFile, "utf8")) : null;
   const who = S.mode === "split" ? "codex (dựng) + claude (design pass)" : S.author;
-  const title = `${S.commitType}: ${S.title} [${id}]`.replace(/`/g, "").slice(0, 90);
+  const title = `${S.commitType}: [${id}] ${S.title}`.replace(/`/g, "").slice(0, 90);
   const body = `## Story
 
 - ID: [${id}] — ${S.title}
@@ -160,10 +160,21 @@ ${v?.outsidePlan?.length ? `- File ngoài danh sách của plan: ${v.outsidePlan
 
 ${section("Lệch so với plan")}
 
+## Kết quả review
+
+_Chờ reviewer theo policy; ghi verdict, SHA cuối, vòng sửa và tóm tắt hoặc đính kèm bằng chứng review/checks trong PR._
+
 ## Checklist DoD (AGENTS.md §7)
 
 - [${v?.ok ? "x" : " "}] Mọi AC đạt và có bằng chứng
-- [ ] Reviewer xác nhận: có test cho logic mới; không hard-code style; truy vấn có \`tenantId\`; entitlement phía server
+- [ ] typecheck · lint · test qua, có bằng chứng lệnh/exit code
+- [ ] Build qua khi buildPolicy yêu cầu (epic-last: story cuối epic; CI build mọi PR)
+- [ ] \`lint:tokens\` qua sau E2; ảnh 390/1440 cho story UI
+- [ ] Có test cho logic mới và e2e cho luồng người dùng phù hợp
+- [ ] Review theo policy trên SHA cuối; mọi finding P0/P1 đã xử lý
+- [ ] Tài liệu/roadmap cập nhật nếu hành vi thay đổi
+- [ ] Không hard-code style; truy vấn có \`tenantId\`; entitlement phía server
+- [ ] Dependency mới có lý do trong PR
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 `;

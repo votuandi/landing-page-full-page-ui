@@ -55,8 +55,8 @@
   CI chặn PR nếu thiếu story ID trong tiêu đề; nhãn `agent:codex` / `agent:claude`.
 - **Target**: 100% PR có story ID và review chéo.
 - **AC**:
-  - [ ] PR template tồn tại và có checklist DoD từ `AGENTS.md` §7.
-  - [ ] Job CI `pr-meta` fail khi tiêu đề PR không khớp `\[E\d+-S\d+\]`.
+  - [x] PR template tồn tại và có checklist DoD từ `AGENTS.md` §7.
+  - [x] Job CI `pr-meta` fail khi tiêu đề PR không khớp `\[E\d+-S\d+\]`. (PR [#5](https://github.com/votuandi/landing-page-full-page-ui/pull/5): `pr-meta` pass với tiêu đề có ID; nhánh fail chứng minh bằng `scripts/agents/pr-meta.test.mjs`)
   - [ ] Thử nghiệm: 1 story do Codex làm (worktree + `codex exec`), Claude review; 1 story ngược lại — ghi lại thời gian
         và vướng mắc vào `skills/solar-agent-collab`.
 - Phụ thuộc: E1-S01 · Agent: Claude · Cỡ: S

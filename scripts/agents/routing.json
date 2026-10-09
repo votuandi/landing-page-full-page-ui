@@ -5,10 +5,10 @@
   "budget": "claude-saver",
   "$budget": "balanced = mặc định | claude-saver = Claude sắp hết quota: Codex viết nháp plan cho mọi story trừ 'architecture', story UI 'claudeFull' chuyển thành 'split' | codex-saver = ngược lại: Claude tự viết plan và tự làm story UI split",
 
-  "reviewPolicy": "codex",
-  "$reviewPolicy": "codex-except-architecture = Codex review mọi story, trừ story trong 'architecture' do Claude (subagent) review | codex = Codex review tất cả | parity = lẻ → reviewerByParity.odd, chẵn → reviewerByParity.even",
+  "reviewPolicy": "claude",
+  "$reviewPolicy": "codex-except-architecture = Codex review mọi story, trừ story trong 'architecture' do Claude (subagent) review | codex = Codex review tất cả | claude = Claude (subagent claudeReviewModel) review tất cả, story Claude viết vẫn swap sang Codex nếu selfReview=swap | parity = lẻ → reviewerByParity.odd, chẵn → reviewerByParity.even",
   "reviewerByParity": { "odd": "codex", "even": "claude" },
-  "selfReview": "allow",
+  "selfReview": "swap",
 
   "buildPolicy": "epic-last",
   "$buildPolicy": "epic-last = chỉ story cuối của mỗi epic chạy build trong checks (tiết kiệm thời gian), các story khác chạy typecheck/lint/test | always = mọi story đều build",
