@@ -73,4 +73,7 @@
   - [ ] Hai script chạy trên Windows PowerShell 7 và bash.
   - [ ] Mỗi worktree độc lập (`node_modules` riêng qua `pnpm install --frozen-lockfile`, cổng dev khác nhau).
   - [ ] Tài liệu trong `solar-agent-collab`.
-- Phụ thuộc: E1-S01 · Agent: Codex · Cỡ: M
+- Ghi chú: **hoãn tới khi bắt đầu E4** (2026-10-09) — E0 là setup quy trình, chưa cần chạy song song; làm gọn khi
+  thật sự cần (vd. 2 script mỏng `spawn-codex.ps1`/`.sh`, không Node core/test suite riêng). Bản dựng dở của lần
+  chạy trước giữ ở `.agent-runs/E0-S06/draft/` (local, không commit) để tham khảo.
+- Phụ thuộc: E1-S01, E2, E3-S01…S04 (giống E4, để story chỉ sẵn sàng khi E4 bắt đầu) · Agent: Codex · Cỡ: M
