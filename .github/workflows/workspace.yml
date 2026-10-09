@@ -15,30 +15,46 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    env:
+      # PR: chỉ package đổi so với base + package phụ thuộc vào chúng. Push/dispatch: toàn repo (làm ấm cache).
+      TURBO_FILTER: ${{ github.event_name == 'pull_request' && format('--filter=...[origin/{0}]', github.base_ref) || '' }}
+      # Remote cache tùy chọn: đặt secret TURBO_TOKEN + variable TURBO_TEAM; để trống thì dùng cache .turbo/cache.
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
+      - uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
       - run: node --version
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
+      - run: node --test scripts/ci/affected.test.mjs
       - name: Typecheck and lint (populate cache)
-        run: pnpm turbo run typecheck lint
+        run: pnpm turbo run typecheck lint ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Typecheck and lint (verify FULL TURBO)
-        shell: pwsh
         run: |
-          $output = pnpm turbo run typecheck lint 2>&1
-          $exitCode = $LASTEXITCODE
-          $output | Write-Output
-          if ($exitCode -ne 0) { exit $exitCode }
-          if (($output -join "`n") -notmatch 'FULL TURBO') {
-            throw 'The second run must hit the cache for every task.'
+          output=$(pnpm turbo run typecheck lint ${TURBO_FILTER:+"$TURBO_FILTER"} 2>&1) || { echo "$output"; exit 1; }
+          echo "$output"
+          # PR không đụng package nào thì turbo không có task để chạy.
+          grep -qE 'FULL TURBO|No tasks were executed' <<< "$output" || {
+            echo '::error::The second run must hit the cache for every task.'
+            exit 1
           }
-      - run: pnpm turbo run lint:tokens
-      - run: pnpm turbo run test build
+      - run: pnpm turbo run lint:tokens ${TURBO_FILTER:+"$TURBO_FILTER"}
+      - run: pnpm turbo run test build ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Core coverage (at least 85% of source lines)
         run: pnpm --filter @solar/core test:coverage
