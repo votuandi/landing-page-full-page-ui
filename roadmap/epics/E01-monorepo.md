@@ -95,7 +95,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
     Scanner báo 0 vi phạm; 18 test qua; thử `bg-[#0E7C3A]` trả exit 1 rồi xóa probe.
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
-### E1-S07 · CI cho monorepo
+### E1-S07 · CI cho monorepo ✅ · PR [#11](https://github.com/votuandi/landing-page-full-page-ui/pull/11)
 **Là** chủ dự án, **tôi muốn** CI chỉ chạy phần bị ảnh hưởng và có cache, **để** PR nhanh mà vẫn an toàn.
 - **Chi tiết**: GitHub Actions: pnpm cache, `turbo run … --filter=...[origin/mono-repo-multi-tenent]`, job visual (S04),
   job `pr-meta` (E0-S05). Bỏ trigger theo branch template cũ cho workflow mới.

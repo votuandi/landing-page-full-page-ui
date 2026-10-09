@@ -23,8 +23,8 @@ revalidate; 0 vi phạm `lint:tokens`.
   - `meta`: `id`, `name`, `group` (`classic|pro|signature`), `supportsDark`, `preview` (ảnh).
 - **Target**: t15 hiện tại biểu diễn được 100% bằng schema mà không mất biến nào.
 - **AC**:
-  - [ ] `parseTheme()` báo lỗi rõ trường thiếu/sai định dạng.
-  - [ ] Unit test: theme t15 parse thành công; theme thiếu `primary` bị từ chối.
+  - [x] `parseTheme()` báo lỗi rõ trường thiếu/sai định dạng.
+  - [x] Unit test: theme t15 parse thành công; theme thiếu `primary` bị từ chối.
 - Agent: Claude · Cỡ: M
 
 ### E2-S02 · Sinh CSS variables theo theme lúc render
