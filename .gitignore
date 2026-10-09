@@ -39,12 +39,12 @@ next-env.d.ts
 
 
 # assets
-/public/images/
-/public/videos/
-/public/news/
-/public/products/
-/public/backup/
-/public/logs/
+/apps/web/public/images/
+/apps/web/public/videos/
+/apps/web/public/news/
+/apps/web/public/products/
+/apps/web/public/backup/
+/apps/web/public/logs/
 
 # docs
 /docs

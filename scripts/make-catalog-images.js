@@ -1,12 +1,12 @@
 /**
- * Tạo ảnh minh họa sản phẩm DEMO (SVG, không logo thương hiệu) vào public/images/catalog/.
+ * Tạo ảnh minh họa sản phẩm DEMO (SVG, không logo thương hiệu) vào apps/web/public/images/catalog/.
  * Chạy: node scripts/make-catalog-images.js — thay bằng ảnh sản phẩm thật khi bàn giao.
  * Màu trong file ảnh là màu của chính hình minh họa (tài sản tĩnh), không phải màu giao diện.
  */
 const fs = require("fs");
 const path = require("path");
 
-const out = path.join(__dirname, "..", "public", "images", "catalog");
+const out = path.join(__dirname, "..", "apps", "web", "public", "images", "catalog");
 fs.mkdirSync(out, { recursive: true });
 
 const BG = "#EEF7F1";

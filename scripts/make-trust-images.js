@@ -1,5 +1,5 @@
 /**
- * Ảnh DEMO cho khối uy tín → public/images/trust/:
+ * Ảnh DEMO cho khối uy tín → apps/web/public/images/trust/:
  *  - cert-<id>.svg      : logo/huy hiệu chứng chỉ (lưới logo)
  *  - cert-<id>-full.svg : bản xem lớn (mô phỏng giấy chứng nhận, có dấu "MẪU")
  *  - press-<id>.svg     : logo báo/tạp chí HƯ CẤU
@@ -9,7 +9,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const out = path.join(__dirname, "..", "public", "images", "trust");
+const out = path.join(__dirname, "..", "apps", "web", "public", "images", "trust");
 fs.mkdirSync(out, { recursive: true });
 const font = "Arial,Helvetica,sans-serif";
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
