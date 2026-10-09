@@ -111,8 +111,8 @@ function describe(story, stories) {
     policy === "codex" ? "codex"
     : policy === "codex-except-architecture" ? (architecture ? "claude" : "codex")
     : routing.reviewerByParity[parity];
+  if (reviewer === author && routing.selfReview === "swap") reviewer = other(author);
   const selfReviewConflict = reviewer === author;
-  if (selfReviewConflict && routing.selfReview === "swap") reviewer = other(author);
   const branchType = routing.branchType[story.epic] ?? "feat";
   const pnpm = existsSync(join(root, "pnpm-workspace.yaml"));
   const deps = depStatus(story, stories);

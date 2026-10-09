@@ -1,6 +1,6 @@
 ---
 name: run-story
-description: Playbook chạy trọn một story của roadmap, chia tải cân bằng giữa Claude và Codex — Codex khảo sát/viết nháp plan, Claude chốt plan và tạo branch, Codex hoặc Claude thực thi (story UI chia Codex dựng + Claude design pass), script kiểm tra/commit/PR, rồi Codex review PR ở local (issue + case chưa cover AC/yêu cầu, không đăng lên PR) và sửa lặp lại cho tới khi PR merge được — báo người dùng tự merge. Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
+description: Playbook chạy trọn một story của roadmap, chia tải cân bằng giữa Claude và Codex — Codex khảo sát/viết nháp plan, Claude chốt plan và tạo branch, Codex hoặc Claude thực thi (story UI chia Codex dựng + Claude design pass), script kiểm tra/commit/PR, rồi reviewer theo routing review PR ở local (issue + case chưa cover AC/yêu cầu, không đăng lên PR) và sửa lặp lại cho tới khi PR merge được — báo người dùng tự merge. Dùng khi người dùng gõ /run-story <STORY-ID|next> hoặc nói "chạy story E1-S01".
 argument-hint: "<STORY-ID|next> [--agent claude|codex] [--confirm] [--no-pr] [--force]"
 ---
 
@@ -14,7 +14,7 @@ Tham số: `$ARGUMENTS`
 ## Nguyên tắc tiết kiệm token của Claude
 
 - **Việc đọc nhiều → Codex** (khảo sát code, đọc branch template, viết nháp, dựng code). **Việc cơ học → script**
-  (`scripts/agents/run.mjs`). Claude chỉ: chốt plan, design pass giao diện, phán đoán khi có lỗi, review story chẵn.
+  (`scripts/agents/run.mjs`). Claude chỉ: chốt plan, design pass giao diện, phán đoán khi có lỗi, điều phối review theo S.reviewer.
 - Không đọc log dài: chỉ đọc output tóm tắt của script; mở `checks.log` / `codex-exec.log` khi script báo FAIL, và chỉ
   đọc phần đuôi.
 - Không đọc lại toàn bộ file Codex đã sửa; dùng `git diff --stat` và chỉ mở file khi cần phán đoán.
@@ -25,7 +25,7 @@ Tham số: `$ARGUMENTS`
 
 1. `node scripts/agents/story.mjs info <ID>` (hoặc `next`) → JSON `S`. Dùng `S.mode` (`claude` | `split` | `codex`),
    `S.planMode` (`claude` | `codex-draft`), `S.author`, `S.reviewer`, `S.branch`, `S.base`, `S.planFile`, `S.runDir`,
-   `S.codexEffort`, `S.claudeReviewModel`. `--agent` → `S.mode = <agent>` (codex) hoặc `claude`.
+   `S.codexEffort`, `S.claudeReviewModel`. `--agent` → cập nhật `S.mode` và `S.author` theo agent ép; tính lại reviewer theo reviewPolicy và selfReview (swap nếu trùng author), rồi tính selfReviewConflict theo reviewer cuối. Dùng cùng vai trò này khi sinh PR body; lưu authorOverride cho story vào routing.json nếu cần để CLI trả đúng người viết/reviewer.
 2. Dừng và báo nếu: `S.done`; `!S.ready` và không `--force` (liệt kê `S.depStatus` chưa xong); `git status --porcelain`
    không rỗng (không tự stash).
 3. `git fetch origin`, `git switch <S.base>`, `git pull --ff-only` (nếu base có trên origin).
@@ -105,6 +105,9 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 - "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.
 - AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]`.
 
+Ngoại lệ E0-S05 đã chốt trong plan: AC3 chờ lượt B ngoài PR; verify còn fail vì AC3 thì ghi rõ trong PR body.
+Chỉ tiếp tục khi AC1/AC2 và lượt A có đủ bằng chứng, mọi lỗi khác đã xử lý; không tick AC3 để làm verify xanh.
+
 `--no-pr` → dừng, báo kết quả.
 
 ## Bước 5 — Push & PR
@@ -124,21 +127,25 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Cả ba đều lỗi → báo lỗi nguyên văn của từng cách (thường là thiếu quyền/auth GitHub) và dừng; không in link
    `compare` bắt người dùng tự tạo. Ghi `<S.runDir>/pr.json` (`{number, url, createdBy: "mcp"|"gh"|"codex"}`).
 
-## Bước 6 — Codex review và sửa tới khi merge được
+4. Gắn nhãn người viết `agent:<S.author>` (split dùng `agent:codex`): qua GitHub MCP hoặc
+   kiểm nhãn đã tồn tại bằng MCP/gh; nếu thiếu, `gh label create "agent:<S.author>" --description "Người viết chính"`, rồi
+   `gh pr edit <số> --add-label "agent:<S.author>"`. Kiểm lại title, labels và reviewer trong body.
+   Không thêm workflow có quyền ghi để gắn nhãn. Nếu lỗi quyền, ghi lỗi và phần còn chờ trong report.
 
-Gọi skill `pr-review` với số PR (reviewer Codex theo `reviewPolicy: "codex"`). Vòng lặp trong skill đó:
-1. **Codex review** toàn bộ PR (`solar-pr-review`): liệt kê mọi issue (Finding P0/P1/P2) và mọi case **chưa cover** AC,
+## Bước 6 — Review theo routing và sửa tới khi merge được
+
+Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>`; không gọi Codex cố định. Codex reviewer dùng solar-pr-review ở phiên read-only độc lập; Claude reviewer dùng subagent độc lập, model S.claudeReviewModel, cùng định dạng solar-pr-review, đối chiếu toàn bộ diff với plan/AC/DoD. Ghi verdict, SHA và bằng chứng vào review-r<n>.md. Vòng lặp:
+1. **S.reviewer review** toàn bộ PR (`solar-pr-review`): liệt kê mọi issue (Finding P0/P1/P2) và mọi case **chưa cover** AC,
    "Chi tiết"/"Target" của story, plan, DoD. Review **ở local** (`<S.runDir>/review-r<n>.md`), không đăng lên PR;
    báo người dùng danh sách issue + case chưa cover.
-2. **Codex sửa** mọi finding P0/P1 + mọi mục chưa cover (trừ `[ngoài agent]`) + lỗi CI; Claude commit
+2. **Người viết S.author sửa** mọi finding P0/P1 + mọi mục chưa cover (trừ `[ngoài agent]`) + lỗi CI; Claude commit
    (`run.mjs commit`), `verify`, push.
 3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh, không
    conflict với base. Mục `[ngoài agent]` cần CI (vd. AC "chạy trên Windows/Ubuntu") → CI xanh thì Claude tick AC.
 4. Dừng sớm, hỏi người dùng khi: finding lặp lại 2 vòng không sửa được, cần quyết định phạm vi/dependency/AC, hoặc quá
    5 vòng sửa.
 
-Claude chỉ điều phối (chạy lệnh, commit, đọc dòng `VERDICT` + mục tiêu đề của review) — không tự đọc diff, trừ khi
-Codex và review bất đồng.
+Claude điều phối, quản lý git và đọc verdict; review Claude luôn ở subagent độc lập. Sau mỗi vòng sửa, reviewer theo S.reviewer review lại SHA cuối, kể cả khi hướng dẫn cũ trong pr-review ghi Codex cố định. Không dùng ngoại lệ vòng sửa nhỏ để bỏ review độc lập lượt A E0-S05. Không suy reviewer từ nhãn người viết.
 
 ## Bước 7 — Kết thúc
 
