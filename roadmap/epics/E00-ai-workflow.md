@@ -81,7 +81,7 @@
   chạy trước giữ ở `.agent-runs/E0-S06/draft/` (local, không commit) để tham khảo.
 - Phụ thuộc: E1-S01, E2, E3-S01…S04 (giống E4, để story chỉ sẵn sàng khi E4 bắt đầu) · Agent: Codex · Cỡ: M
 
-### E0-S07 · Bổ sung skill: Playwright CLI, Ponytail, Graphify, Agent Skills, OmniRoute
+### E0-S07 · Bổ sung skill: Playwright CLI, Ponytail, Graphify, Agent Skills, OmniRoute ✅ · PR [#9](https://github.com/votuandi/landing-page-full-page-ui/pull/9)
 **Là** chủ dự án, **tôi muốn** agent có thêm công cụ kiểm tra trình duyệt, chống over-engineering, bản đồ codebase và
 quy trình kỹ thuật chuẩn, **để** story chạy nhanh hơn, tốn ít token hơn và code gọn hơn.
 - **Chi tiết**: cài như E0-S03 (`npx skills add <nguồn> -a claude-code -a codex`, khóa trong `skills-lock.json`, bản copy
