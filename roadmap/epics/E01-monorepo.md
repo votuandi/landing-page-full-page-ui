@@ -7,7 +7,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 
 ---
 
-### E1-S01 · Khởi tạo workspace pnpm + Turborepo
+### E1-S01 · Khởi tạo workspace pnpm + Turborepo ✅ · PR [#3](https://github.com/votuandi/landing-page-full-page-ui/pull/3)
 **Là** dev, **tôi muốn** một workspace với app và package tách bạch, **để** chia sẻ code giữa site công khai và admin.
 - **Chi tiết**:
   - `pnpm-workspace.yaml` (`apps/*`, `packages/*`), `turbo.json` (task `build`, `dev`, `lint`, `typecheck`, `test`,
@@ -24,7 +24,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
   - [x] README gốc mô tả cấu trúc và lệnh mới.
 - Agent: Codex · Cỡ: M
 
-### E1-S02 · Di chuyển template-15 vào `apps/web`
+### E1-S02 · Di chuyển template-15 vào `apps/web` ✅ · PR [#4](https://github.com/votuandi/landing-page-full-page-ui/pull/4)
 **Là** dev, **tôi muốn** app hiện tại chạy trong `apps/web` không đổi hành vi, **để** có baseline cho mọi bước tách sau.
 - **Chi tiết**: `git mv src public next.config.ts tailwind.config.ts postcss.config.mjs → apps/web/`; alias `@/*` giữ
   nguyên; script test `node:test` chạy trong `apps/web`. Chưa tách package.
