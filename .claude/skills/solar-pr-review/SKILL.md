@@ -34,6 +34,8 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - **Bảo mật**: rò dữ liệu giữa tenant, SSRF, XSS (`dangerouslySetInnerHTML`), bí mật trong code/log, upload không kiểm.
 - **Test**: logic mới có test; test có thật sự kiểm hành vi.
 - **Phạm vi**: thay đổi ngoài plan/story.
+- **Over-engineering** (skill `ponytail-review`, nếu đã cài): code, abstraction, cấu hình hoặc dependency thừa so với AC;
+  tự viết lại thứ đã có sẵn trong repo, stdlib hoặc nền tảng. Mức tối đa P2, trừ khi gây lỗi hoặc vi phạm `AGENTS.md`.
 - Story UI: tương phản, responsive 390/1440, reduced motion, bàn phím, nội dung khi tắt JS.
 - Có thể chạy lệnh chỉ đọc (`git`, đọc file, chạy test nếu sandbox cho phép) để xác minh. Không xác minh được → ghi rõ
   "chưa xác minh".
@@ -42,7 +44,7 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 
 - **P0**: hỏng dữ liệu/bảo mật/rò tenant, build hoặc test chính lỗi, AC cốt lõi không đạt.
 - **P1**: bug thật trong case thường gặp, vi phạm quy tắc bắt buộc của `AGENTS.md`, AC thiếu bằng chứng.
-- **P2**: cải thiện, đặt tên, đơn giản hóa — không chặn merge.
+- **P2**: cải thiện, đặt tên, đơn giản hóa, over-engineering không gây lỗi. Không chặn merge.
 
 ## Định dạng kết quả (bắt buộc, tiếng Việt)
 

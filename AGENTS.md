@@ -110,6 +110,16 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    review lại, lặp tới khi PR merge được (APPROVE, CI xanh, không conflict; chặn an toàn 5 vòng) rồi báo người dùng.
    **Không agent nào tự merge.**
 
+Skill bổ trợ, dùng nếu đã cài trong `.agents/skills` (lý do chọn/bỏ: ADR D16):
+- Plan: `graphify`, gọi `python -m graphify query "<câu hỏi>"` để định vị file trước khi đọc.
+- Thực thi: `ponytail` mức `full`, viết ít code nhất; `AGENTS.md` §4 ưu tiên hơn.
+- Test và debug: `test-driven-development`, và `debugging-and-error-recovery` khi lệnh kiểm tra lỗi.
+- Bằng chứng UI: `playwright-cli` khi MCP `playwright` lỗi.
+- Review: `ponytail-review` rà over-engineering, tối đa P2.
+- Theo việc: `security-and-hardening` (tenant/auth/upload), `performance-optimization`, `source-driven-development`,
+  `code-simplification`, `frontend-ui-engineering`, `browser-testing-with-devtools`.
+- OmniRoute (`cli-setup`, `omni-auth`, `omni-mcp`): chưa dùng tới khi dự án chạy gateway.
+
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.
 
 - Branch: `<type>/<STORY-ID>-<slug>` (vd. `feat/E3-S02-kieu-du-lieu-nen`), tách khỏi `mono-repo-multi-tenent`.

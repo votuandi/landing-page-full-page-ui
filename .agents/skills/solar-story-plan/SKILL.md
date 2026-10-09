@@ -12,6 +12,11 @@ repo, **không sửa code**. File được ghi: đúng file output trong prompt.
 quan), `roadmap/plans/README.md` (khung plan). Story port template: đọc nguồn bằng `git show origin/template-NN:<path>` và
 bảng ở `roadmap/01-template-analysis.md`.
 
+**Khảo sát code: graphify trước, file sau** (skill `graphify`). Có `graphify-out/graph.json` thì hỏi đồ thị trước khi
+Grep/Glob/Read: `python -m graphify query "<câu hỏi>" --budget 1500`, rồi chỉ mở các file/dòng mà đồ thị trỏ tới.
+Đồ thị cũ hơn base → `python -m graphify update .` trước (AST, không cần LLM). Chưa có đồ thị hoặc lệnh lỗi → bỏ qua,
+khảo sát như cũ. Không dựng đồ thị lần đầu trong story.
+
 ## Mode `brief` → `.agent-runs/<ID>/brief.md` (≤ 150 dòng)
 
 Dùng khi Claude tự viết plan (story kiến trúc/UI). Chỉ ghi sự thật đã kiểm, không đề xuất thiết kế:

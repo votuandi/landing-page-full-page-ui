@@ -28,7 +28,8 @@ Chạy nền, chờ thông báo:
 codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<S.codexEffort.review> -o "<S.runDir>/review-r<n>.md" \
   "Dùng skill solar-pr-review. Review PR #<số> — story <ID> (<S.epicFile>), plan <S.planFile>. \
 Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.> \
-Liệt kê mọi issue (Finding) và mọi case chưa cover hết AC + yêu cầu của story (mục 'Chưa cover').\
+Liệt kê mọi issue (Finding) và mọi case chưa cover hết AC + yêu cầu của story (mục 'Chưa cover'). \
+Rà thêm over-engineering trên diff theo skill ponytail-review nếu có (tối đa P2 trừ khi gây lỗi).\
 <nếu CI đỏ: CI đang lỗi: <tên job + đuôi log>.>\
 <nếu n>1: Kiểm tra các finding và mục chưa cover của vòng trước trong <S.runDir>/review-r<n-1>.md đã được xử lý chưa.>" \
   < /dev/null > "<S.runDir>/review-r<n>.log" 2>&1
@@ -39,7 +40,8 @@ Không sửa, không rút gọn kết luận của Codex.
 Luôn review bằng subagent (ngữ cảnh riêng, không làm phình phiên chính, và độc lập với người viết): gọi Agent tool
 `subagent_type: general-purpose`, `model: <S.claudeReviewModel>` (mặc định `sonnet` — rẻ hơn, đủ cho review theo AC;
 đổi trong `routing.json`), `run_in_background: false`. Prompt chỉ gồm: dùng skill `solar-pr-review`, số PR, branch,
-base, đường dẫn story và plan, vòng `n`, file review vòng trước (nếu có), file UI thì áp thêm `web-design-guidelines`,
+base, đường dẫn story và plan, vòng `n`, file review vòng trước (nếu có), rà over-engineering bằng `ponytail-review`
+(nếu đã cài), file UI thì áp thêm `web-design-guidelines`,
 và yêu cầu ghi kết quả vào `<S.runDir>/review-r<n>.md` rồi chỉ trả về dòng `VERDICT` + số finding P0/P1/P2.
 Không đưa tóm tắt "đã làm gì" của người viết. Phiên chính chỉ đọc kết quả trả về, không đọc lại diff.
 
