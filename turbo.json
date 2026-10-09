@@ -40,6 +40,7 @@
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"] },
     "@solar/ui#test": { "dependsOn": ["^build"], "outputs": [] },
+    "@solar/themes#test": { "dependsOn": ["^build"], "outputs": [] },
     "lint:tokens": { "outputs": [] },
     "//#lint:root": { "dependsOn": ["@solar/config#lint"], "outputs": [] }
   }

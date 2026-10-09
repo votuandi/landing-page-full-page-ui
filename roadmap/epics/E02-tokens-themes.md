@@ -7,7 +7,7 @@ revalidate; 0 vi phạm `lint:tokens`.
 
 ---
 
-### E2-S01 · Schema `ThemeTokens`
+### E2-S01 · Schema `ThemeTokens` ✅ · PR [#12](https://github.com/votuandi/landing-page-full-page-ui/pull/12)
 **Là** dev, **tôi muốn** một kiểu dữ liệu duy nhất mô tả theme, **để** mọi theme có cùng bộ biến và section tin cậy được biến đó tồn tại.
 - **Chi tiết**: `packages/tokens/src/schema.ts` (zod) gồm:
   - `colors` (light, `dark?`): bộ token của t15 — `bg, bg-elevated, bg-deep, bg-tint, bg-sky, bg-sun, primary, primary-strong,
@@ -34,9 +34,9 @@ revalidate; 0 vi phạm `lint:tokens`.
   Script chống nhấp nháy dark mode giữ cách t15 đang làm.
 - **Target**: CSS theme ≤ 4 KB/tenant; không thêm request.
 - **AC**:
-  - [ ] Ảnh chụp t15 sau khi chuyển sang CSS sinh động khớp baseline (≤ 0,5%).
-  - [ ] Override `primary` của tenant thắng giá trị theme.
-  - [ ] Không có biến CSS nào của theme khác lẫn vào HTML.
+  - [x] Ảnh chụp t15 sau khi chuyển sang CSS sinh động khớp baseline (≤ 0,5%).
+  - [x] Override `primary` của tenant thắng giá trị theme.
+  - [x] Không có biến CSS nào của theme khác lẫn vào HTML.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E2-S03 · Tailwind preset từ token
@@ -85,7 +85,7 @@ revalidate; 0 vi phạm `lint:tokens`.
 
 ### E2-S07 · Theme t15 làm theme chuẩn + trang `/lab/themes`
 **Là** dev/designer, **tôi muốn** xem mọi token của một theme trên một trang, **để** kiểm nhanh theme mới.
-- **Chi tiết**: chuyển `globals.css :root` của t15 thành `packages/themes/t15/theme.ts`; trang dev-only `/lab/themes/[id]`
+- **Chi tiết**: `packages/themes/t15/theme.ts` đã có từ E2-S02; trang dev-only `/lab/themes/[id]`
   hiển thị bảng màu, typography, bo góc, kính, bóng, motion, và lưới tất cả section đã port với theme đó; bộ chọn theme để so sánh.
 - **AC**:
   - [ ] `apps/web` không còn khối `:root` màu cứng trong `globals.css`.
