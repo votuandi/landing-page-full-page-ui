@@ -9,7 +9,9 @@
     "lint": "turbo run lint lint:root",
     "lint:root": "eslint .",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "visual:test": "turbo run build --filter=web && pnpm --filter @solar/visual visual:test",
+    "visual:update": "turbo run build --filter=web && pnpm --filter @solar/visual visual:update"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

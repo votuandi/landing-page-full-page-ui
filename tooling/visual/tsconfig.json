@@ -1,0 +1,9 @@
+{
+  "extends": "@solar/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "types": ["node"]
+  },
+  "include": ["*.ts"],
+  "exclude": ["node_modules", "playwright-report", "test-results", "__screenshots__"]
+}
