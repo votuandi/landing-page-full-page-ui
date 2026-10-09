@@ -102,5 +102,5 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
 - **Target**: PR nhỏ ≤ 5 phút, PR toàn repo ≤ 12 phút.
 - **AC**:
   - [x] PR chỉ sửa `packages/core` không chạy build `apps/admin`.
-  - [ ] Cache Turborepo (remote cache tùy chọn) hoạt động.
+  - [x] Cache Turborepo (remote cache tùy chọn) hoạt động.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
