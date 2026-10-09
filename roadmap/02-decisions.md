@@ -89,3 +89,31 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 ## D12. Không đổi stack UI
 - Giữ quy ước các template: không thư viện UI/animation lớn. Cho phép thêm: `zod`, `sharp`, `@aws-sdk/client-s3`,
   `ioredis`, `@dnd-kit/*` hoặc `@measured/puck` (admin), `@playwright/test` (dev).
+
+## D16. Skill bổ trợ cho agent (E0-S07)
+- **Chọn**:
+  - `playwright-cli`: chụp ảnh và kiểm trang khi MCP `playwright` lỗi.
+  - `ponytail`, `ponytail-review`: viết ít code nhất, và rà over-engineering lúc review (tối đa P2).
+  - `graphify`: đồ thị AST của repo để khảo sát khi viết plan, đọc ít file thô hơn. Gọi `python -m graphify`.
+    `.graphifyignore` loại các bản copy skill.
+  - Từ `addyosmani/agent-skills`, chọn 8/25 skill bổ sung đúng chỗ playbook chưa có:
+    - `test-driven-development`, `debugging-and-error-recovery`: viết test, và sửa khi `verify` FAIL.
+    - `security-and-hardening`: tenant, auth, upload.
+    - `performance-optimization`: Core Web Vitals của site công khai.
+    - `source-driven-development`: tra tài liệu gốc, đi cùng context7.
+    - `code-simplification`, `frontend-ui-engineering`, `browser-testing-with-devtools`: dùng khi cần.
+- **Bỏ** 17 skill còn lại của `agent-skills`:
+  - Trùng playbook `run-story` / `pr-review` / `solar-story-*`, hoặc trùng quy ước trong `AGENTS.md`:
+    `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `code-review-and-quality`,
+    `shipping-and-launch`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `documentation-and-adrs`,
+    `using-agent-skills`, `context-engineering`. Hai bộ quy trình song song sẽ làm agent chọn sai.
+  - Hỏi đáp với người dùng, trái với chế độ chạy tự động theo plan: `idea-refine`, `interview-me`,
+    `doubt-driven-development`, `constraint-driven-development`.
+  - Chưa có đối tượng để áp dụng:
+    - `api-and-interface-design`: API admin ở E6+, dùng chung `vercel-composition-patterns`.
+    - `observability-and-instrumentation`: chưa chạy production.
+    - `deprecation-and-migration`: migration schema đã có quy ước riêng ở §4.
+  - Xét lại khi tới epic tương ứng.
+- **OmniRoute** (`cli-setup`, `omni-auth`, `omni-mcp`): cài để sẵn nhưng không gắn vào bước nào. Skill chỉ có tác dụng
+  khi chạy gateway OmniRoute (`localhost:20128`). Dự án đang gọi Claude Code và Codex trực tiếp, cân tải bằng `budget`
+  trong `routing.json`. Gắn vào quy trình khi có story dựng gateway.

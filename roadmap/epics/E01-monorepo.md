@@ -80,7 +80,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
     48/48 ảnh hồi quy khớp baseline. Coverage source Node 22: 99,44% dòng, CI ép ≥ 85% (ADR D15).
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
-### E1-S06 · Tách `packages/ui` (primitive)
+### E1-S06 · Tách `packages/ui` (primitive) ✅ · PR [#8](https://github.com/votuandi/landing-page-full-page-ui/pull/8)
 **Là** dev, **tôi muốn** primitive giao diện dùng chung, **để** section không tự viết lại nút, thẻ, dialog, carousel.
 - **Chi tiết**: từ t15 `components/ui/*`, `DragScroll`, `SectionReveal`, `useSnapCarousel`, `useDialog`, `useCountUp`,
   `Media`, `VideoModal`, `BrandIcons`, `PriceTag` → `packages/ui`. Mỗi primitive có props tối thiểu, chỉ class token.

@@ -30,6 +30,12 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   lý do vào báo cáo mục "Lệch so với plan". Thay đổi lớn (đổi kiến trúc, thêm dependency ngoài danh sách đã duyệt trong
   `AGENTS.md`, sửa schema dùng chung không có trong plan) → **dừng**, ghi `HANDOFF.md` và báo cáo, không tự quyết.
 - Tuân thủ mọi quy tắc trong `AGENTS.md` §4 (token, schema, tenant, entitlement). Viết test cho logic mới.
+- Skill bổ trợ, bỏ qua nếu chưa cài:
+  - `ponytail` mức `full`: viết ít code nhất thỏa AC, ưu tiên code có sẵn, stdlib và tính năng nền tảng. Khi xung đột
+    thì `AGENTS.md` §4 và plan thắng, ví dụ token, schema chung, tenant.
+  - `test-driven-development` khi viết test.
+  - `debugging-and-error-recovery` khi lệnh kiểm tra lỗi mà chưa rõ nguyên nhân.
+  - `playwright-cli` để chụp bằng chứng UI khi MCP `playwright` không kết nối được.
 - Chia thay đổi thành các commit nhỏ theo bước (ghi trong "Commit đề xuất"): `<type>(<scope>): <mô tả> [<ID>]`.
   Không đưa `.agent-runs/`, `HANDOFF.md`, file `.env*` vào commit nào.
 - Không tạo PR, không sửa file của story khác.

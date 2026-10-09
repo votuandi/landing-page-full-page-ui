@@ -28,7 +28,7 @@ qua, chạy như cũ và ghi một dòng vào report. Quy tắc `AGENTS.md` (tok
 
 | Skill | Bước | Dùng để |
 |---|---|---|
-| `graphify` | 1 (khảo sát) | Có `graphify-out/` → hỏi đồ thị (`graphify query`) để định vị file trước khi Grep/Glob/Read; đồ thị cũ hơn base → `graphify update` trước. Chưa có → bỏ qua (dựng đồ thị lần đầu là việc riêng, không làm trong story) |
+| `graphify` | 1 (khảo sát) | Có `graphify-out/` → hỏi đồ thị (`python -m graphify query "<câu hỏi>"`) để định vị file trước khi Grep/Glob/Read; đồ thị cũ hơn base → `python -m graphify update .` trước. Chưa có → bỏ qua (dựng đồ thị lần đầu là việc riêng, không làm trong story) |
 | `ponytail`, `ponytail-review` | 3 (thực thi), 6 (review) | Viết ít code nhất cần thiết (mức `full`); review over-engineering trên diff |
 | `playwright-cli` | 3 (design pass, bằng chứng UI) | Chụp ảnh/kiểm tra trang khi MCP `playwright` không kết nối được |
 | Agent Skills (Addy Osmani): `test-driven-development`, `debugging-and-error-recovery`, `code-simplification`, `performance-optimization`, `security-and-hardening`, `frontend-ui-engineering`, `browser-testing-with-devtools`, `source-driven-development` | 3, 4 | Test, debug khi `verify` FAIL, hiệu năng web, bảo mật (tenant/auth/upload), UI, tra tài liệu gốc. Bộ planning/review/ship của repo này không cài — playbook dưới thay thế |

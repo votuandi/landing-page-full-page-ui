@@ -34,6 +34,8 @@
   `web-design-guidelines` (Vercel) · `next-cache-components-adoption`, `next-dev-loop` (Next.js) ·
   `ui-ux-pro-max`, `design-system` (UI UX Pro Max).
   Skill riêng: `solar-section-variant`, `solar-theme-port` (+ `token-map.md`), `solar-agent-collab`.
+  Bổ sung ở E0-S07 (cùng cách cài): `playwright-cli`, `ponytail`, `ponytail-review`, `graphify`, 8 skill của
+  `addyosmani/agent-skills`, OmniRoute (`cli-setup`, `omni-auth`, `omni-mcp`). Lý do chọn/bỏ: ADR D16.
 - **Target**: mọi story port section/theme đều chỉ cần trỏ tới skill, không viết lại hướng dẫn.
 - **AC**:
   - [x] Skill có ở cả hai thư mục, không dùng symlink (Windows `core.symlinks=false`).
@@ -115,10 +117,12 @@ quy trình kỹ thuật chuẩn, **để** story chạy nhanh hơn, tốn ít to
     `python3` trên Windows là lối tắt Microsoft Store; Codex: `skill-codex.md`). Hash trong `skills-lock.json` vì thế
     không khớp bản đã cắt; `npx skills update` sẽ chép lại cả package → cắt lại. Các skill khác chỉ có markdown; lệnh
     mạng trong đó (`npm i -g`, `pip install`, `curl` tới `localhost:20128` của OmniRoute) đúng mục đích mô tả.
-  - [ ] `graphify` chạy được trên repo (Windows), output nằm trong `.gitignore`; `playwright-cli` chụp được trang `yarn dev`.
+  - [x] `graphify` chạy được trên repo (Windows), output nằm trong `.gitignore`; `playwright-cli` chụp được trang `yarn dev`.
+    `python -m graphify update .` 1320 node (`.graphifyignore` loại bản copy skill), `graphify-out/` bị ignore; repo đã
+    sang pnpm nên chụp `pnpm dev` ở 390/1440px (2026-10-09).
   - [x] `run-story` trỏ tới skill mới ở đúng bước (bảng "Skill bổ trợ").
-  - [ ] `solar-story-plan`, `solar-story-exec`, `pr-review`, `solar-pr-review`, `CLAUDE.md`, `AGENTS.md` trỏ tới skill
+  - [x] `solar-story-plan`, `solar-story-exec`, `pr-review`, `solar-pr-review`, `CLAUDE.md`, `AGENTS.md` trỏ tới skill
     mới ở đúng bước như trên; tên skill trong bảng của `run-story` khớp tên thư mục đã cài.
-  - [ ] Danh sách skill trong E0-S03 + bảng quyết định `roadmap/02-decisions.md` ghi lý do chọn/bỏ từng skill của
+  - [x] Danh sách skill trong E0-S03 + bảng quyết định `roadmap/02-decisions.md` ghi lý do chọn/bỏ từng skill của
     `agent-skills` và lý do OmniRoute chưa gắn vào quy trình.
 - Phụ thuộc: E0-S03 · Agent: Codex · Cỡ: S
