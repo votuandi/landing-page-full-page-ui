@@ -30,7 +30,8 @@ Tham số: `$ARGUMENTS`
    không rỗng (không tự stash).
 3. `git fetch origin`, `git switch <S.base>`, `git pull --ff-only` (nếu base có trên origin).
 4. Branch `S.branch` đã tồn tại → lần chạy trước dở. Đã có PR mở cho branch (GitHub MCP `list_pull_requests` với
-   `head: <owner>:<S.branch>`) → nhảy thẳng tới **Bước 6** (bỏ qua điều kiện working tree của base). Chưa có PR → đọc
+   `head: <owner>:<S.branch>`) → nhảy thẳng tới **Bước 6** (bỏ qua điều kiện working tree của base). Chưa có PR nhưng
+   branch đã push và `<S.runDir>/` có report/commit đã xong → nhảy tới **Bước 5.3** tạo PR. Còn lại → đọc
    `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
 5. `mkdir -p <S.runDir>`.
 
@@ -110,10 +111,18 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 
 1. `git ls-remote --exit-code --heads origin <S.base>` không có → `git push -u origin <S.base>` (báo một dòng).
 2. `git push -u origin <S.branch>` (không `--force`; lỗi → báo nguyên văn, dừng).
-3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó:
-   GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải) → hoặc `gh pr create --body-file` →
-   hoặc in link `compare` + đường dẫn `bodyFile` cho người dùng tự tạo, dừng và dặn: tạo xong chạy lại
-   `/run-story <ID>` (Bước 0.4 sẽ nhảy tới Bước 6). Ghi `<S.runDir>/pr.json`.
+3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó, thử lần
+   lượt, cách nào được thì dừng:
+   1. GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải).
+   2. `gh pr create --base <base> --head <head> --title "<title>" --body-file <bodyFile>`.
+   3. **Giao Codex tạo PR** (không bao giờ bắt người dùng tự tạo): sandbox `workspace-write`, effort `low`,
+      out `<S.runDir>/codex-pr.md`, log `<S.runDir>/codex-pr.log`, prompt
+      `Tạo pull request trên GitHub cho branch đã push: base <base>, head <head>, tiêu đề "<title>", nội dung đúng
+      file <bodyFile>. Dùng gh pr create --base <base> --head <head> --title "<title>" --body-file <bodyFile>; nếu đã
+      có PR mở cho head đó thì không tạo mới. Không sửa file, không chạy lệnh git ghi. Dòng cuối in đúng: PR_URL=<url>
+      hoặc PR_ERROR=<lỗi nguyên văn>.` Đọc dòng `PR_URL=`/`PR_ERROR=` trong out.
+   Cả ba đều lỗi → báo lỗi nguyên văn của từng cách (thường là thiếu quyền/auth GitHub) và dừng; không in link
+   `compare` bắt người dùng tự tạo. Ghi `<S.runDir>/pr.json` (`{number, url, createdBy: "mcp"|"gh"|"codex"}`).
 
 ## Bước 6 — Codex review và sửa tới khi merge được
 

@@ -97,6 +97,7 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    - còn lại: Codex làm toàn bộ (skill `solar-story-exec`).
    Sandbox Codex khóa ghi `.git`, nên Claude tạo branch và commit theo "Commit đề xuất" của Codex (`Co-Authored-By: Codex`).
 3. Việc cơ học chạy bằng `scripts/agents/run.mjs` (`verify`, `commit`, `pr-body`), Claude chỉ đọc tóm tắt; rồi push, tạo PR.
+   Claude không tạo được PR (GitHub MCP / `gh` lỗi) → giao Codex tạo PR. Không bao giờ để người dùng tự tạo PR.
 4. **Review** theo `"reviewPolicy"` trong `routing.json`. Mặc định `codex-except-architecture`: Codex review mọi story
    (effort high); 15 story `architecture` (dữ liệu tenant, cache, RLS, upload, tên miền…) do Claude review bằng subagent
    (model `claudeReviewModel`, mặc định Sonnet). Khi Codex review code Codex viết, skill `solar-pr-review` chạy chế độ
