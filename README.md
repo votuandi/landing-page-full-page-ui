@@ -56,7 +56,9 @@ Script tạo media vẫn chạy từ root và xuất vào `apps/web/public`.
 Docker/Compose, Prisma/cron và workflow Yarn kế thừa cần cập nhật ở story deploy; không dùng làm quickstart pnpm hiện tại.
 
 Workflow `workspace.yml` kiểm Node 22 trên Windows/Ubuntu: frozen install, typecheck/lint hai lượt
-(lượt hai phải FULL TURBO), test và build. Workflow Yarn cũ giữ riêng cho các branch template.
+(lượt hai phải FULL TURBO), test và build. PR chỉ chạy package đổi so với base và package phụ thuộc vào chúng
+(`--filter=...[origin/<base>]`); push lên base chạy toàn repo. Cache `.turbo/cache` giữ giữa các run; remote cache
+bật khi đặt secret `TURBO_TOKEN` và variable `TURBO_TEAM`.
 Turbo pin 2.11.7 phục vụ điều phối/cache; không thêm dependency runtime của app.
 
 ## Trang chủ (theo thứ tự — bật/tắt từng section trong `apps/web/src/config/site.config.ts`)
