@@ -61,7 +61,7 @@ refactor (sai khác pixel ≤ 0,5%); CI ≤ 8 phút với cache.
     Đổi tạm token nền light: 24 FAIL / 24 PASS, exit 1, HTML + diff; đã hoàn tác CSS.
   - [x] `pnpm visual:update` cập nhật baseline có chủ đích.
     Đã tạo đủ 48 ảnh Chromium; baseline tách win32/linux, ignored; CI cấu hình artifact 90 ngày.
-  - [ ] Chạy trong CI ở PR chạm `apps/web` hoặc `packages/{ui,sections,themes,tokens}`.
+  - [x] Chạy trong CI ở PR chạm `apps/web` hoặc `packages/{ui,sections,themes,tokens}`. (PR [#6](https://github.com/votuandi/landing-page-full-page-ui/pull/6): job [`compare`](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/37893001051/job/113697905515) xanh, nhánh fallback, ~5 phút)
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
 ### E1-S05 · Tách `packages/core` (logic nghiệp vụ)
