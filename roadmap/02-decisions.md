@@ -14,6 +14,13 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
   + `"use cache"` + `cacheTag` cho cache theo tenant; `revalidateTag(tag, profile)` / `updateTag` trong Server Action.
 - Nâng ở E1-S03 trên baseline t15, có test hồi quy ảnh. Nếu vướng, tạm giữ 15.4 với ISR `revalidateTag` (API tương đương)
   — các story E5 viết theo lớp `packages/cache` để đổi được.
+- **Kết quả E1-S03: giữ Next 16.** `next 16.3.8` (Turbopack) + React 19.2.8, `eslint-config-next 16.3.8` (flat config gốc).
+  Build không cảnh báo deprecation; MCP `get_errors` sạch trên 12 route; ảnh hồi quy 48/48 khớp baseline;
+  Lighthouse trang chủ (mobile, trung vị 3 lần) Perf 84 → 85, A11y 94, BP 100, SEO 100. `cacheComponents` chưa bật (E5-S06).
+- Điều chỉnh đi kèm: `images.qualities: [70, 75]` (Next 16 chỉ cho 75), `<html data-scroll-behavior="smooth">`,
+  `agentRules: false` (không sinh `apps/web/AGENTS.md`); `SectionReveal` đặt độ trễ stagger bằng `<style>` riêng thay vì
+  ghi `style` vào phần tử chưa hydrate (lỗi hydration mismatch React 19.2 báo). Ba luật React Compiler mới của
+  `react-hooks` v7 (`refs`, `set-state-in-effect`, `immutability`) để `warn` — code cũ còn ~55 chỗ vi phạm, sửa ở story riêng.
 
 ## D3. Postgres + Prisma, shared schema
 - Một database, mọi bảng nội dung có `tenantId` (index kép `(tenantId, …)`). Truy cập qua `packages/db` →
