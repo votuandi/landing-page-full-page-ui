@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node --test src/__tests__/theme.test.mjs"
+    "test": "node --test src/__tests__/theme.test.mjs src/__tests__/fonts.test.mjs"
   },
   "dependencies": { "@solar/tokens": "workspace:*" },
   "devDependencies": {

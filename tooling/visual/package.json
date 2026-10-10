@@ -6,7 +6,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "visual:test": "playwright test",
-    "visual:update": "playwright test --update-snapshots"
+    "visual:update": "playwright test --update-snapshots",
+    "test:fonts": "playwright test --config playwright.fonts.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
