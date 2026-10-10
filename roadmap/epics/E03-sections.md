@@ -85,7 +85,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Design pass và review Claude đang chờ theo mode split; PR được ghi sau khi Claude tạo.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
-### E3-S06 · Schema + variant đợt 3 (tính năng cao cấp)
+### E3-S06 · Schema + variant đợt 3 (tính năng cao cấp) ✅ · PR [#26](https://github.com/votuandi/landing-page-full-page-ui/pull/26)
 - **Chi tiết**: `products` (+ quick view, thêm vào giỏ), `dealer`, `branch-map`, `press`, `tiktok`, `social`,
   `investment-models`, `warranty`, `about-story`, `services` — variant t15/t14.
 - **Target**: đủ 28 type (bảng ở `01-template-analysis.md` §3).
