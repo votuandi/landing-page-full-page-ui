@@ -28,7 +28,7 @@ export default function SegmentGrid() {
 
   return (
     <section id={SECTION_IDS.segments} aria-labelledby="phan-khuc-title" className="t15-section relative overflow-hidden bg-bg-elevated">
-      <div aria-hidden className="pointer-events-none absolute -right-40 -top-20 h-[460px] w-[460px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.22),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 -top-20 h-[460px] w-[460px] rounded-full bg-glow-accent-22" />
       <div className="t15-container relative">
         <SectionHead id="phan-khuc-title" eyebrow={tr("Giải pháp theo công trình", "Solutions by building")}
           title={tr("Bạn cần lắp cho công trình nào?", "What are you powering?")}
@@ -44,7 +44,7 @@ export default function SegmentGrid() {
                 <span className={`relative block aspect-[4/3] overflow-hidden bg-bg-tint`}>
                   <Image src={card.image} alt="" fill loading="lazy" sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.06]" />
                   <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-scrim/60 to-transparent" />
-                  <span className="absolute bottom-3 left-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-black text-on-accent shadow">{tr("Giảm đến", "Save up to")} {card.saving}</span>
+                  <span className="absolute bottom-3 left-3 rounded-full bg-accent px-2.5 py-1 text-2xs font-black text-on-accent shadow">{tr("Giảm đến", "Save up to")} {card.saving}</span>
                 </span>
                 <span className="flex flex-1 flex-col p-4 sm:p-5">
                   <span className="flex items-center gap-3">

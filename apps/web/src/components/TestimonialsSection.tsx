@@ -31,7 +31,7 @@ export default function TestimonialsSection() {
 
   return (
     <section id="danh-gia" className="t15-section relative overflow-hidden bg-bg-sun/60" aria-labelledby="danh-gia-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.3),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-0 h-[520px] w-[520px] rounded-full bg-glow-accent-30" />
       <div className="t15-container relative">
         <SectionHead id="danh-gia-title" eyebrow={tr("Khách hàng nói gì", "What clients say")}
           title={tr("Niềm tin đến từ những hóa đơn điện thật.", "Trust built on real electricity bills.")}

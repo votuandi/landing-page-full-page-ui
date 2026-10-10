@@ -36,7 +36,7 @@ export default function QuoteCartDrawer({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[80] flex justify-end bg-scrim/40 backdrop-blur-sm" role="presentation">
       <button type="button" tabIndex={-1} aria-hidden className="absolute inset-0 cursor-default" onClick={onClose} />
       <aside ref={ref} role="dialog" aria-modal="true" aria-labelledby="cart-title" tabIndex={-1}
-        className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-[32px] bg-bg-elevated shadow-2xl">
+        className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-media bg-bg-elevated shadow-2xl">
         <div className="sticky top-0 z-10 border-b border-line/10 bg-bg-elevated/95 px-6 py-5 backdrop-blur-xl">
           <div aria-hidden className="t15-energy-line absolute inset-x-0 top-0 h-1" />
           <div className="flex items-center justify-between gap-3">

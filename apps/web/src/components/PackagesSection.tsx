@@ -30,7 +30,7 @@ export default function PackagesSection() {
 
   return (
     <section id={PACKAGES_ID} className="t15-section relative overflow-hidden bg-bg" aria-labelledby="goi-title">
-      <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-leaf)/.16),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-glow-leaf-16" />
       <div className="t15-container relative">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div data-reveal="down" className="max-w-3xl">
@@ -45,7 +45,7 @@ export default function PackagesSection() {
         </div>
 
         <div className="mt-10 grid gap-5 lg:grid-cols-[.8fr_2.2fr]">
-          <div data-reveal="left" className="relative hidden min-h-[440px] overflow-hidden rounded-[32px] border-4 border-bg-elevated shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.5)] lg:block">
+          <div data-reveal="left" className="relative hidden min-h-[440px] overflow-hidden rounded-media border-4 border-bg-elevated shadow-package lg:block">
             <Image key={cover.src} src={cover.src} alt="" fill className="object-cover" sizes="25vw" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-scrim/10 to-transparent" />
             <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-on-media/25 bg-on-media/15 p-5 text-on-media backdrop-blur-xl">
@@ -60,11 +60,11 @@ export default function PackagesSection() {
               return (
                 <article key={pkg.id} className={`t15-card t15-card-hover relative flex flex-col overflow-hidden p-6 ${pkg.popular ? "!border-primary/50 ring-4 ring-primary/10" : ""}`}>
                   <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${pkg.popular ? "bg-accent" : "bg-primary/20"}`} />
-                  {pkg.popular && <span className="absolute right-5 top-5 rounded-full bg-accent px-3 py-1 text-[11px] font-black text-on-accent">{tr("Chọn nhiều", "Popular")}</span>}
+                  {pkg.popular && <span className="absolute right-5 top-5 rounded-full bg-accent px-3 py-1 text-2xs font-black text-on-accent">{tr("Chọn nhiều", "Popular")}</span>}
                   <h3 className="text-sm font-bold text-fg-muted">{pkg.name}</h3>
                   <div className="mt-1 text-3xl font-black tracking-tight text-fg">{formatNumber(pkg.kwp, 1)}<span className="ml-1 text-base text-fg-subtle">kWp</span></div>
                   <div className="mt-4 rounded-2xl bg-bg-tint p-3">
-                    <div className="text-[11px] font-bold uppercase tracking-[.14em] text-fg-muted">{tr("Giảm tiền điện", "Bill savings")}</div>
+                    <div className="text-2xs font-bold uppercase tracking-[.14em] text-fg-muted">{tr("Giảm tiền điện", "Bill savings")}</div>
                     <div className="text-xl font-black text-primary">~{formatMoneyShort(saving)}<span className="text-sm font-bold text-fg-muted">/{tr("tháng", "month")}</span></div>
                   </div>
                   <ul className="mt-4 grid gap-2 text-sm text-fg-muted">

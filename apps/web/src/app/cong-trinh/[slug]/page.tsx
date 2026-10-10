@@ -31,7 +31,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <p className="t15-page-desc">{project.detail}</p>
           <Link href={`/?phan-khuc=${segmentSlug}&nhu-cau=${encodeURIComponent(`Công trình tương tự: ${project.title}`)}#du-toan`} className="t15-button t15-button-accent mt-8">Nhận báo giá công trình tương tự</Link>
         </div>
-        <div className="relative min-h-80 overflow-hidden rounded-[32px] border-4 border-bg-elevated shadow-xl"><Image src={project.image} alt={project.title} fill className="object-cover" priority sizes="(max-width:1024px) 100vw, 45vw" /></div>
+        <div className="relative min-h-80 overflow-hidden rounded-media border-4 border-bg-elevated shadow-xl"><Image src={project.image} alt={project.title} fill className="object-cover" priority sizes="(max-width:1024px) 100vw, 45vw" /></div>
       </div>
     </section>
     <section className="t15-section">

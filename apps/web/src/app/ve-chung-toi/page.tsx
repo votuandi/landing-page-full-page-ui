@@ -47,7 +47,7 @@ export default function AboutPage() {
             <Link href="/lien-he" className="t15-button t15-button-secondary">Đặt lịch khảo sát miễn phí</Link>
           </div>
         </div>
-        <div className="relative min-h-80 overflow-hidden rounded-[32px] border-4 border-bg-elevated shadow-xl"><Image src="/images/our_story.webp" alt="Đội ngũ kỹ sư khảo sát công trình điện mặt trời" fill className="object-cover" priority sizes="(max-width:1024px) 100vw, 40vw" /></div>
+        <div className="relative min-h-80 overflow-hidden rounded-media border-4 border-bg-elevated shadow-xl"><Image src="/images/our_story.webp" alt="Đội ngũ kỹ sư khảo sát công trình điện mặt trời" fill className="object-cover" priority sizes="(max-width:1024px) 100vw, 40vw" /></div>
       </div>
     </section>
 
@@ -107,7 +107,7 @@ export default function AboutPage() {
         <span className="t15-eyebrow">Hành trình</span>
         <div className="mt-8 grid gap-4 md:grid-cols-4">
           {timeline.map(([year, title, desc]) => (
-            <article key={year} className="t15-glass-dark rounded-[28px] p-6">
+            <article key={year} className="t15-glass-dark rounded-card p-6">
               <div className="text-2xl font-black text-accent-ink">{year}</div>
               <h3 className="mt-7 text-xl font-black">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-fg-muted">{desc}</p>

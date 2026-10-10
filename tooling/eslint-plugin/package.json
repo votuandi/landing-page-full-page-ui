@@ -1,0 +1,25 @@
+{
+  "name": "@solar/eslint-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "bin": {
+    "solar-lint-tokens": "./src/cli.mjs"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test src/matchers.test.mjs src/no-hardcoded-style.test.mjs src/cli.test.mjs"
+  },
+  "peerDependencies": {
+    "eslint": "9.39.5",
+    "@typescript-eslint/parser": "^8.71.1"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "eslint": "9.39.5",
+    "@typescript-eslint/parser": "8.71.1"
+  }
+}

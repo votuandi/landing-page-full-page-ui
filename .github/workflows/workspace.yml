@@ -54,7 +54,7 @@ jobs:
             echo '::error::The second run must hit the cache for every task.'
             exit 1
           }
-      - run: pnpm turbo run lint:tokens ${TURBO_FILTER:+"$TURBO_FILTER"}
+      - run: pnpm lint:tokens ${TURBO_FILTER:+"$TURBO_FILTER"}
       - run: pnpm turbo run test build ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Core coverage (at least 85% of source lines)
         run: pnpm --filter @solar/core test:coverage

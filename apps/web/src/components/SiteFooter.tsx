@@ -17,9 +17,9 @@ function MoitBadge() {
   const body = (
     <span className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-dashed border-line/25 bg-glass px-3 py-2">
       <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-primary"><CheckBadgeIcon className="h-6 w-6" /></span>
-      <span className="text-[11px] font-black uppercase leading-tight tracking-wide text-fg">
+      <span className="text-2xs font-black uppercase leading-tight tracking-wide text-fg">
         <Tr vi="Đã thông báo" en="Notified to" /><br /><Tr vi="Bộ Công Thương" en="Ministry of Industry & Trade" />
-        <span className="block text-[9px] font-bold normal-case tracking-normal text-fg-subtle">(placeholder)</span>
+        <span className="block text-5xs font-bold normal-case tracking-normal text-fg-subtle">(placeholder)</span>
       </span>
     </span>
   );
@@ -32,7 +32,7 @@ export default function SiteFooter() {
   return (
     <footer className="t15-invert t15-ocean relative overflow-hidden text-fg">
       <div aria-hidden className="t15-energy-line h-1 w-full" />
-      <div aria-hidden className="t15-dots pointer-events-none absolute inset-0 opacity-60 [mask-image:linear-gradient(180deg,transparent,rgb(0_0_0)_40%,transparent)]" />
+      <div aria-hidden className="t15-dots pointer-events-none absolute inset-0 opacity-60 [mask-image:linear-gradient(180deg,transparent,black_40%,transparent)]" />
       <div className="t15-container relative grid gap-10 py-16 lg:grid-cols-[1.1fr_2fr_.9fr]">
         {/* Thương hiệu + pháp lý */}
         <div>
@@ -52,7 +52,7 @@ export default function SiteFooter() {
             {legal.licenses.map((l) => <p key={l}>{l}</p>)}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {legal.iso.map((iso) => <span key={iso} className="rounded-full border border-line/20 bg-glass px-3 py-1 text-[11px] font-black text-fg">{iso}</span>)}
+            {legal.iso.map((iso) => <span key={iso} className="rounded-full border border-line/20 bg-glass px-3 py-1 text-2xs font-black text-fg">{iso}</span>)}
           </div>
           <a href={telHref(complaintHotline)} className="mt-6 flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 transition hover:bg-accent/20">
             <ExclamationCircleIcon className="h-6 w-6 shrink-0 text-accent-ink" />
@@ -74,7 +74,7 @@ export default function SiteFooter() {
                       {s.address && <div>{s.address}</div>}
                       <div className="mt-1 flex items-center gap-2">
                         <a href={telHref(s.phone)} className="font-black tabular-nums text-fg hover:text-accent-ink">{s.phone}</a>
-                        <a href={zaloHref(s.phone)} target="_blank" rel="noopener noreferrer" aria-label={`Zalo ${s.phone}`} className="inline-flex min-h-8 items-center gap-1 rounded-full bg-primary/20 px-2.5 text-[11px] font-black text-fg hover:bg-primary hover:text-on-primary">
+                        <a href={zaloHref(s.phone)} target="_blank" rel="noopener noreferrer" aria-label={`Zalo ${s.phone}`} className="inline-flex min-h-8 items-center gap-1 rounded-full bg-primary/20 px-2.5 text-2xs font-black text-fg hover:bg-primary hover:text-on-primary">
                           <ZaloIcon className="h-3.5 w-3.5" />Zalo
                         </a>
                       </div>

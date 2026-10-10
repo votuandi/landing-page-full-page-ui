@@ -22,7 +22,7 @@ export default function SolutionsSection() {
 
   return (
     <section id="giai-phap" className="t15-section relative overflow-hidden bg-bg" aria-labelledby="giai-phap-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.14),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-40 h-[520px] w-[520px] rounded-full bg-glow-accent-soft-14" />
       <div className="t15-container relative">
         <SectionHead id="giai-phap-title" eyebrow={tr("Giải pháp theo phân khúc", "Solutions by segment")}
           title={tr("Một đơn vị — từ thiết bị đến công trình hoàn chỉnh.", "One partner — from equipment to a finished system.")} />
@@ -34,7 +34,7 @@ export default function SolutionsSection() {
         </div>
 
         <div id="gp-panel" role="tabpanel" aria-labelledby={`gp-tab-${seg.id}`} className="mt-6 grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
-          <div className="relative min-h-[340px] overflow-hidden rounded-[32px] border-[5px] border-glass-tint/15 shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.55)]">
+          <div className="relative min-h-[340px] overflow-hidden rounded-media border-5 border-glass-tint/15 shadow-feature">
             <MediaImage key={seg.id} src={seg.image} alt={tr(seg.label)} sizes="(max-width:1024px) 100vw, 45vw" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/90 via-scrim/20 to-transparent" />
             <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-on-media/20 bg-on-media/10 p-5 text-on-media backdrop-blur-xl">

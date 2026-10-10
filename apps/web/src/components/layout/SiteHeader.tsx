@@ -47,13 +47,13 @@ function PricingPanel({ onDone, compact = false }: { onDone: () => void; compact
 
   const chips = (c: PriceCategory) => c.groups.map((g, gi) => (
     <div key={gi} className={gi ? "mt-5" : ""}>
-      {g.title && <div className="mb-2.5 text-[11px] font-black uppercase tracking-[.16em] text-fg-subtle">{tr(g.title)}</div>}
+      {g.title && <div className="mb-2.5 text-2xs font-black uppercase tracking-[.16em] text-fg-subtle">{tr(g.title)}</div>}
       <div className="flex flex-wrap gap-2">
         {g.chips.map((chip, ci) => (
           <button key={ci} type="button" onClick={() => { pickPrice(c, g.title, chip); onDone(); }}
             className="t15-chip relative !min-h-10 hover:border-primary/60 hover:bg-primary/15">
             {tr(chip.label)}
-            {chip.popular && <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-black text-on-accent">{tr("Phổ biến", "Popular")}</span>}
+            {chip.popular && <span className="rounded-full bg-accent px-2 py-0.5 text-4xs font-black text-on-accent">{tr("Phổ biến", "Popular")}</span>}
           </button>
         ))}
       </div>
@@ -104,7 +104,7 @@ function PricingPanel({ onDone, compact = false }: { onDone: () => void; compact
             if (!list.length) return null;
             return (
               <div key={group}>
-                <div className="text-[11px] font-black uppercase tracking-[.16em] text-fg-subtle">{tr(vi, en)}</div>
+                <div className="text-2xs font-black uppercase tracking-[.16em] text-fg-subtle">{tr(vi, en)}</div>
                 <div className="mt-2.5 flex flex-wrap gap-3">
                   {list.map((b) => <Link key={b.name} href={equipmentHref(group === "lithium" ? "battery" : group, { brand: b.name })} onClick={onDone} className="rounded-xl border border-line/12 bg-glass px-2.5 py-1.5 transition hover:border-primary/50"><Wordmark name={b.name} src={b.logo} size="sm" /></Link>)}
                 </div>
@@ -301,7 +301,7 @@ export default function SiteHeader({ brandName, drawerOpen, setDrawerOpen }: Pro
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-on-accent"><PhoneIcon className="h-4 w-4" /></span><span className="hidden 2xl:inline">Hotline</span><ChevronDownIcon aria-hidden className={`h-4 w-4 transition ${open === "hotline" ? "rotate-180" : ""}`} />
               </button>
               {open === "hotline" && (
-                <div id="menu-hotline" className="absolute right-0 top-[calc(100%+12px)] max-h-[calc(100svh-8rem)] w-[420px] overflow-y-auto rounded-[28px] border border-line/10 bg-bg-elevated p-4 shadow-2xl">
+                <div id="menu-hotline" className="absolute right-0 top-[calc(100%+12px)] max-h-[calc(100svh-8rem)] w-[420px] overflow-y-auto rounded-card border border-line/10 bg-bg-elevated p-4 shadow-2xl">
                   <div className="mb-3 px-1 text-xs font-black uppercase tracking-[.16em] text-fg-subtle">{tr("Hotline theo chi nhánh", "Hotlines by branch")}</div>
                   <HotlineList onDone={() => close()} />
                 </div>
@@ -320,7 +320,7 @@ export default function SiteHeader({ brandName, drawerOpen, setDrawerOpen }: Pro
         {open && open !== "hotline" && panels[open] && (
           <div id={`menu-${open}`} className="absolute inset-x-0 top-full hidden xl:block">
             <div className="t15-container pt-3">
-              <div className="max-h-[calc(100svh-7rem)] overflow-y-auto rounded-[32px] border border-line/10 bg-bg-elevated p-6 shadow-2xl xl:p-8">{panels[open]}</div>
+              <div className="max-h-[calc(100svh-7rem)] overflow-y-auto rounded-media border border-line/10 bg-bg-elevated p-6 shadow-2xl xl:p-8">{panels[open]}</div>
             </div>
           </div>
         )}
@@ -359,7 +359,7 @@ function MobileDrawer({ onClose }: { onClose: () => void }) {
   return (
     <div id="mobile-drawer" role="dialog" aria-modal="true" aria-label={tr("Danh mục", "Menu")} className="fixed inset-0 z-[75] flex justify-end bg-scrim/60 backdrop-blur-sm xl:hidden">
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label={tr("Đóng menu", "Close menu")} tabIndex={-1} />
-      <aside className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-[28px] bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
+      <aside className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-card bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2"><LangSwitch /><ThemeSwitch /></div>
           <button ref={closeRef} type="button" onClick={onClose} className="t15-icon-button" aria-label={tr("Đóng menu", "Close menu")}><XMarkIcon className="h-6 w-6" /></button>

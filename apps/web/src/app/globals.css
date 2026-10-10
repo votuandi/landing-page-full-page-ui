@@ -8,15 +8,15 @@
 /* Section "nhấn" (dự án, số liệu, đại lý, theo dõi 24/7, footer…): light mode = nền pastel sáng, thẻ kính trắng,
    số liệu màu xanh lá; dark mode = nền tối sâu hơn một bậc. */
 .t15-invert {
-  --glass-strong: rgba(255,255,255,0.78);
-  --glass-strong-border: rgba(21,128,61,0.14);
-  --c-accent-ink: 21 128 61;
+  --glass-strong: rgb(var(--c-on-media) / .78);
+  --glass-strong-border: rgb(var(--c-primary) / .14);
+  --c-accent-ink: var(--c-primary);
   color: rgb(var(--c-fg));
 }
 [data-theme="dark"] .t15-invert {
-  --glass-strong: rgba(255,255,255,0.08);
-  --glass-strong-border: rgba(255,255,255,0.16);
-  --c-accent-ink: 253 224 71;
+  --glass-strong: rgb(var(--c-on-media) / .08);
+  --glass-strong-border: rgb(var(--c-on-media) / .16);
+  --c-accent-ink: inherit;
 }
 
 * { box-sizing: border-box; }
@@ -44,9 +44,9 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 @layer components {
   .t15-container { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8; }
   .t15-section { @apply py-16 md:py-24; }
-  .t15-heading { @apply mt-4 max-w-4xl text-[2rem] font-black leading-[1.12] tracking-[-.03em] text-fg sm:text-[2.6rem] lg:text-5xl; }
+  .t15-heading { @apply mt-4 max-w-4xl text-display-sm font-black leading-[1.12] tracking-[-.03em] text-fg sm:text-display-lg lg:text-5xl; }
   .t15-subheading { @apply mt-4 max-w-3xl text-base leading-7 text-fg-muted sm:text-lg sm:leading-8; }
-  .t15-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[.08] py-1.5 pl-2 pr-3.5 text-[11px] font-black uppercase tracking-[.14em] text-primary; }
+  .t15-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[.08] py-1.5 pl-2 pr-3.5 text-2xs font-black uppercase tracking-[.14em] text-primary; }
   .t15-eyebrow::before { content: ""; @apply h-2.5 w-2.5 shrink-0 rounded-full; background: radial-gradient(circle at 35% 35%, rgb(var(--c-accent-soft)), rgb(var(--c-accent)) 60%); box-shadow: 0 0 0 3px rgb(var(--c-accent) / .28); }
   .t15-eyebrow:has(> svg)::before { display: none; }
   .t15-eyebrow > svg { @apply text-accent-ink; }
@@ -68,9 +68,9 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-filter-option { @apply w-full px-3 py-2.5 text-left text-sm font-bold text-fg-muted transition hover:bg-primary/[.08] hover:text-primary; border-radius: var(--t15-radius); }
   .t15-filter-option.is-active { @apply bg-primary text-on-primary hover:bg-primary hover:text-on-primary; }
 
-  .t15-card { @apply rounded-[28px] border border-line/10 bg-bg-elevated shadow-[0_24px_60px_-36px_rgb(var(--c-shadow)/.35)]; }
-  .t15-card-hover { @apply transition duration-300 motion-safe:hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-[0_30px_70px_-34px_rgb(var(--c-primary)/.45)]; }
-  .t15-glass { @apply border border-glass-border bg-glass shadow-[0_18px_50px_-24px_rgb(var(--c-shadow)/.35)] backdrop-blur-xl; }
+  .t15-card { @apply rounded-card border border-line/10 bg-bg-elevated shadow-card; }
+  .t15-card-hover { @apply transition duration-300 motion-safe:hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-card-hover; }
+  .t15-glass { @apply border border-glass-border bg-glass shadow-glass backdrop-blur-xl; }
   .t15-glass-dark { @apply border border-glass-strong-border bg-glass-strong backdrop-blur-xl; }
   .t15-chip { @apply inline-flex min-h-11 items-center gap-2 rounded-full border border-line/15 bg-bg-elevated px-4 text-sm font-bold text-fg-muted transition hover:border-primary/40 hover:text-primary; }
   .t15-chip[aria-selected="true"], .t15-chip[aria-pressed="true"] { @apply border-primary bg-primary text-on-primary hover:text-on-primary; }
@@ -78,7 +78,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-header { @apply sticky top-0 z-50 border-b border-line/10 bg-bg-elevated/85 backdrop-blur-xl; }
   .t15-nav-link { @apply relative whitespace-nowrap text-sm font-bold text-fg-muted transition hover:text-primary; }
   .t15-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/12 bg-bg-elevated text-fg transition hover:border-primary/40 hover:text-primary; }
-  .t15-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-black text-on-accent ring-2 ring-bg-elevated; }
+  .t15-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-4xs font-black text-on-accent ring-2 ring-bg-elevated; }
   .t15-demo-bar { @apply relative z-[60] bg-primary-deep text-on-media; }
   .t15-demo-link { @apply items-center border-b border-accent/70 font-black text-accent; }
   .t15-footer-title { @apply text-xs font-black uppercase tracking-[.18em] text-accent-ink; }
@@ -87,7 +87,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   /* Hero trang phụ: nền bạc hà nhạt một màu + mặt trời nhỏ góc phải (không trộn xanh/vàng) */
   .t15-page-hero { @apply relative isolate overflow-hidden border-b border-line/[.06] bg-bg-tint py-16 md:py-24; }
   .t15-page-hero::before { content: ""; @apply pointer-events-none absolute -right-24 -top-24 -z-10 h-80 w-80 rounded-full; background: radial-gradient(circle, rgb(var(--c-accent) / .55), rgb(var(--c-accent) / 0) 68%); }
-  .t15-page-hero::after { content: ""; @apply pointer-events-none absolute inset-0 -z-10 opacity-60; background-image: radial-gradient(rgb(var(--c-primary) / .12) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(90deg, transparent, rgb(0 0 0) 60%); }
+  .t15-page-hero::after { content: ""; @apply pointer-events-none absolute inset-0 -z-10 opacity-60; background-image: radial-gradient(rgb(var(--c-primary) / .12) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(90deg, transparent, black 60%); }
   .t15-page-title { @apply mt-5 max-w-5xl text-4xl font-black leading-[1.08] tracking-[-.04em] text-fg sm:text-5xl lg:text-6xl; }
   .t15-page-desc { @apply mt-6 max-w-3xl text-base leading-8 text-fg-muted sm:text-lg; }
 
@@ -96,7 +96,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   [data-theme="dark"] .t15-ocean { background: linear-gradient(180deg, rgb(var(--c-bg-deep)), rgb(var(--c-bg))); }
   /* Lưới chấm trang trí */
   .t15-dots { background-image: radial-gradient(rgb(var(--c-primary) / .14) 1px, transparent 1px); background-size: 22px 22px; }
-  [data-theme="dark"] .t15-dots { background-image: radial-gradient(rgb(255 255 255 / .08) 1px, transparent 1px); }
+  [data-theme="dark"] .t15-dots { background-image: radial-gradient(rgb(var(--c-on-media) / .08) 1px, transparent 1px); }
 }
 
 /* ---------- Chuyển động trang trí ---------- */
@@ -134,7 +134,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 
 /* Top bar marquee: 2 bản sao nội dung, dịch -50% → lặp liền mạch. Dừng khi hover/focus. */
 @keyframes t15-marquee { to { transform:translateX(-50%); } }
-.t15-marquee { overflow:hidden; mask-image:linear-gradient(90deg, transparent, rgb(0 0 0) 4%, rgb(0 0 0) 96%, transparent); }
+.t15-marquee { overflow:hidden; mask-image:linear-gradient(90deg, transparent, black 4%, black 96%, transparent); }
 .t15-marquee-track { animation:t15-marquee 38s linear infinite; }
 .t15-marquee:hover .t15-marquee-track, .t15-marquee:focus-within .t15-marquee-track { animation-play-state:paused; }
 @media (prefers-reduced-motion:reduce) {

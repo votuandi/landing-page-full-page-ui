@@ -116,7 +116,7 @@ export default function SolarEstimator() {
 
   return (
     <section id={CALCULATOR_ID} className="t15-section relative overflow-hidden bg-gradient-to-b from-bg-sun/70 to-bg" aria-labelledby="du-toan-title">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.22),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-glow-accent-22" />
       <div className="t15-container relative">
         <div data-reveal="down" className="max-w-3xl">
           <span className="t15-eyebrow"><CalculatorIcon className="h-4 w-4" />{tr("Dự toán miễn phí", "Free estimate")}</span>
@@ -211,8 +211,8 @@ export default function SolarEstimator() {
                   [tr("Hoàn vốn", "Payback"), Number.isFinite(result.paybackYears) ? <>~<CountUp value={result.paybackYears} format={(v) => formatNumber(v, 1)} /> <span className="text-base">{tr("năm", "yrs")}</span></> : "—"],
                 ] as const).map(([label, value]) => (
                   <div key={label} className="t15-glass-dark rounded-2xl p-4 sm:p-5">
-                    <div className="text-[11px] font-bold uppercase tracking-[.14em] text-fg-muted">{label}</div>
-                    <div className="mt-2 text-xl font-black leading-tight tabular-nums text-accent-ink sm:text-2xl xl:text-[1.75rem]">{value}</div>
+                    <div className="text-2xs font-bold uppercase tracking-[.14em] text-fg-muted">{label}</div>
+                    <div className="mt-2 text-xl font-black leading-tight tabular-nums text-accent-ink sm:text-2xl xl:text-display-xs">{value}</div>
                   </div>
                 ))}
               </div>

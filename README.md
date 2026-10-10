@@ -42,7 +42,8 @@ turbo.json          task graph và cache local .turbo/
 
 `pnpm --filter @solar/config typecheck` và `pnpm --filter @solar/config lint` kiểm cấu hình thực.
 Preset giữ bảng màu token của t15; không thêm màu mặc định Tailwind.
-Task `lint:tokens` đã đăng ký trong Turbo nhưng **chưa có checker/script**; E1-S06/E2 sẽ triển khai.
+`pnpm lint:tokens` chạy ESLint rule `@solar/no-hardcoded-style` và kiểm CSS cho UI/app trong CI.
+Màu/font/bo góc/bóng viết cứng bị từ chối kèm gợi ý token; xem [plugin](tooling/eslint-plugin/README.md).
 
 ## Cấu trúc đích
 

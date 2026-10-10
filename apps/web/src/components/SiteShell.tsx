@@ -67,6 +67,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {Object.values(THEME_PRESETS).map((theme) => (
                   <button key={theme.label} type="button" onClick={() => applyTheme(theme)} className="flex items-center gap-2 rounded-xl border border-line/12 p-2 text-left text-xs font-bold text-fg hover:border-primary/40">
+                    {/* token-exempt: swatch hiển thị màu lấy từ dữ liệu theme */}
                     <span className="flex -space-x-1.5">{[theme.primary, theme.secondary, theme.accent].map((c) => <span key={c} className="h-4 w-4 rounded-full ring-2 ring-bg-elevated" style={{ background: `rgb(${c})` }} />)}</span>{theme.label}
                   </button>
                 ))}

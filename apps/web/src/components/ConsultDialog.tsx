@@ -22,7 +22,7 @@ export default function ConsultDialog({ startWithForm, onClose }: { startWithFor
     <div className="fixed inset-0 z-[75] flex items-end justify-center bg-scrim/45 p-3 backdrop-blur-sm sm:items-center" role="presentation">
       <button type="button" tabIndex={-1} aria-hidden className="absolute inset-0 cursor-default" onClick={onClose} />
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="consult-title" tabIndex={-1}
-        className="relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[28px] bg-bg-elevated shadow-2xl">
+        className="relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-card bg-bg-elevated shadow-2xl">
         <div aria-hidden className="relative h-24 overflow-hidden bg-primary"><span className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-accent" /></div>
         <button type="button" onClick={onClose} className="t15-icon-button absolute right-4 top-4" aria-label={tr("Đóng popup tư vấn", "Close")} data-autofocus><XMarkIcon className="h-5 w-5" /></button>
         <div className="-mt-8 px-6 pb-6 sm:px-7 sm:pb-7">

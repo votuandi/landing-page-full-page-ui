@@ -38,7 +38,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
   const card = (p: (typeof PRODUCTS)[number]) => (
     <Link key={p.slug} href={`/san-pham/${p.slug}`} className="t15-card t15-card-hover overflow-hidden">
       <div className="relative aspect-square bg-bg-tint"><ProductImage src={p.images[0]} alt="" fill sizes="(max-width:1024px) 50vw, 280px" className="object-cover" /></div>
-      <div className="p-4"><div className="text-[11px] font-black uppercase tracking-[.14em] text-secondary">{p.brand}</div><div className="mt-1 line-clamp-2 font-black text-fg">{p.name}</div><div className="mt-2"><PriceTag price={p.price} salePrice={p.salePrice} className="text-base" /></div></div>
+      <div className="p-4"><div className="text-2xs font-black uppercase tracking-[.14em] text-secondary">{p.brand}</div><div className="mt-1 line-clamp-2 font-black text-fg">{p.name}</div><div className="mt-2"><PriceTag price={p.price} salePrice={p.salePrice} className="text-base" /></div></div>
     </Link>
   );
 
@@ -47,7 +47,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ slug
     <section className="t15-section bg-gradient-to-b from-bg-tint to-bg">
       <div className="t15-container grid gap-10 lg:grid-cols-2">
         <div>
-          <div className="relative aspect-square overflow-hidden rounded-[32px] border-4 border-bg-elevated bg-bg-tint shadow-xl"><ProductImage src={product.images[0]} alt={product.name} fill priority sizes="(max-width:1024px) 100vw, 600px" className="object-cover" /></div>
+          <div className="relative aspect-square overflow-hidden rounded-media border-4 border-bg-elevated bg-bg-tint shadow-xl"><ProductImage src={product.images[0]} alt={product.name} fill priority sizes="(max-width:1024px) 100vw, 600px" className="object-cover" /></div>
           {product.images.length > 1 && (
             <div className="mt-3 grid grid-cols-4 gap-3">
               {product.images.slice(1).map((src) => <div key={src} className="relative aspect-square overflow-hidden rounded-2xl bg-bg-tint"><ProductImage src={src} alt="" fill sizes="150px" className="object-cover" /></div>)}

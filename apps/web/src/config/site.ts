@@ -36,7 +36,6 @@ export const SITE_CONFIG = {
     foundedYear: siteConfig.brand.foundedYear,
   },
   siteMode,
-  themeColor: siteConfig.brand.themeColor,
   url: siteConfig.brand.url,
   callbackHours: siteConfig.callbackHours,
   contact: {

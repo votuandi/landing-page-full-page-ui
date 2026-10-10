@@ -6,7 +6,8 @@
     "packages/config/tsconfig.base.json",
     "packages/config/eslint.config.mjs",
     "packages/tokens/src/tailwind-preset.ts",
-    "packages/tokens/src/color-keys.ts"
+    "packages/tokens/src/color-keys.ts",
+    "tooling/eslint-plugin/src/**"
   ],
   "tasks": {
     "build": {
@@ -40,7 +41,7 @@
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"] },
-    "@solar/ui#test": { "dependsOn": ["^build"], "outputs": [] },
+    "@solar/eslint-plugin#test": { "dependsOn": ["^build"], "outputs": [] },
     "@solar/themes#test": { "dependsOn": ["^build"], "outputs": [] },
     "lint:tokens": { "outputs": [] },
     "//#lint:root": { "dependsOn": ["@solar/config#lint"], "outputs": [] }

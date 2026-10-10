@@ -27,20 +27,20 @@ function toPath(values: number[], close: boolean) {
 
 function PhoneDashboard() {
   return (
-    <div className="absolute left-[60px] top-[10px] h-[540px] w-[260px] rounded-[44px] bg-device p-[9px] shadow-[0_50px_100px_-30px_rgb(var(--c-shadow)/.6)]">
-      <div className="relative h-full w-full overflow-hidden rounded-[36px] bg-gradient-to-b from-bg-elevated to-bg-tint text-fg">
+    <div className="absolute left-[60px] top-[10px] h-[540px] w-[260px] rounded-dashboard bg-device p-[9px] shadow-dashboard">
+      <div className="relative h-full w-full overflow-hidden rounded-screen bg-gradient-to-b from-bg-elevated to-bg-tint text-fg">
         <div className="absolute left-1/2 top-2 h-5 w-20 -translate-x-1/2 rounded-full bg-device" />
-        <div className="flex items-center justify-between px-5 pt-2.5 text-[10px] font-bold"><span>9:41</span><span className="tracking-tighter">●●● ▮</span></div>
+        <div className="flex items-center justify-between px-5 pt-2.5 text-4xs font-bold"><span>9:41</span><span className="tracking-tighter">●●● ▮</span></div>
 
         <div className="px-4 pt-5">
           <div className="flex items-center justify-between">
-            <div><div className="text-[10px] font-semibold text-fg-muted">Xin chào,</div><div className="text-[13px] font-black">Nhà máy Long An</div></div>
-            <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-[9px] font-bold text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />Trực tuyến</span>
+            <div><div className="text-4xs font-semibold text-fg-muted">Xin chào,</div><div className="text-body-sm font-black">Nhà máy Long An</div></div>
+            <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-5xs font-bold text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />Trực tuyến</span>
           </div>
 
           <div className="mt-3 rounded-2xl bg-primary p-3 text-on-primary">
             <div className="flex items-start justify-between">
-              <div><div className="text-[9px] font-semibold uppercase tracking-wider text-on-primary/75">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-[10px] font-semibold text-on-primary/75">kWh</span></div><div className="text-[9px] font-bold text-accent">▲ 12% so với hôm qua</div></div>
+              <div><div className="text-5xs font-semibold uppercase tracking-wider text-on-primary/75">Sản lượng hôm nay</div><div className="mt-0.5 text-xl font-black">1.248 <span className="text-4xs font-semibold text-on-primary/75">kWh</span></div><div className="text-5xs font-bold text-accent">▲ 12% so với hôm qua</div></div>
               <svg viewBox="0 0 36 36" className="h-12 w-12 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-on-primary) / .25)" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--c-accent))" strokeWidth="4" strokeDasharray="94.2" strokeDashoffset="20" strokeLinecap="round" /></svg>
             </div>
           </div>
@@ -49,27 +49,27 @@ function PhoneDashboard() {
             {flows.map(({ label, value, Icon, tone }) => (
               <div key={label} className="rounded-xl bg-bg-elevated/95 p-2 shadow-sm">
                 <span className={`grid h-5 w-5 place-items-center rounded-full ${tone}`}><Icon className="h-3 w-3" /></span>
-                <div className="mt-1.5 text-[11px] font-black">{value}</div>
-                <div className="text-[8px] font-semibold text-fg-muted">{label}</div>
+                <div className="mt-1.5 text-2xs font-black">{value}</div>
+                <div className="text-6xs font-semibold text-fg-muted">{label}</div>
               </div>
             ))}
           </div>
 
           <div className="mt-2.5 rounded-2xl bg-bg-elevated/95 p-2.5 shadow-sm">
-            <div className="flex items-center justify-between text-[9px] font-bold"><span>Sản xuất vs tiêu thụ</span><span className="text-fg-subtle">24h</span></div>
+            <div className="flex items-center justify-between text-5xs font-bold"><span>Sản xuất vs tiêu thụ</span><span className="text-fg-subtle">24h</span></div>
             <svg viewBox="0 0 220 96" className="mt-1 h-[78px] w-full">
               <defs><linearGradient id="t15-prod" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="rgb(var(--c-chart-a))" stopOpacity=".7" /><stop offset="1" stopColor="rgb(var(--c-chart-a))" stopOpacity=".05" /></linearGradient></defs>
               <path d={toPath(production, true)} fill="url(#t15-prod)" />
               <path d={toPath(production, false)} fill="none" stroke="rgb(var(--c-chart-a))" strokeWidth="1.5" />
               <path d={toPath(consumption, false)} fill="none" stroke="rgb(var(--c-chart-b))" strokeWidth="1.5" strokeDasharray="3 2" />
             </svg>
-            <div className="mt-1 flex gap-3 text-[8px] font-semibold text-fg-muted"><span className="flex items-center gap-1"><i className="h-1.5 w-3 rounded-full bg-chart-a" />Sản xuất</span><span className="flex items-center gap-1"><i className="h-1.5 w-3 rounded-full bg-chart-b" />Tiêu thụ</span></div>
+            <div className="mt-1 flex gap-3 text-6xs font-semibold text-fg-muted"><span className="flex items-center gap-1"><i className="h-1.5 w-3 rounded-full bg-chart-a" />Sản xuất</span><span className="flex items-center gap-1"><i className="h-1.5 w-3 rounded-full bg-chart-b" />Tiêu thụ</span></div>
           </div>
 
           <div className="mt-2.5 rounded-2xl bg-bg-elevated/95 p-2.5 shadow-sm">
-            <div className="flex items-center justify-between text-[9px] font-bold"><span>Pin lưu trữ • đang sạc</span><span className="text-success">86%</span></div>
+            <div className="flex items-center justify-between text-5xs font-bold"><span>Pin lưu trữ • đang sạc</span><span className="text-success">86%</span></div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bg-elevated"><div className="h-full w-[86%] rounded-full bg-primary" /></div>
-            <div className="mt-1.5 text-[8px] font-semibold text-fg-muted">Dự phòng ước tính 5 giờ 20 phút</div>
+            <div className="mt-1.5 text-6xs font-semibold text-fg-muted">Dự phòng ước tính 5 giờ 20 phút</div>
           </div>
         </div>
 
@@ -116,8 +116,8 @@ function HandHoldingPhone() {
 export default function EnergyMonitoringSection() {
   return (
     <section id="theo-doi-24-7" className="t15-invert t15-screen relative isolate overflow-hidden t15-ocean py-16 text-fg md:py-24">
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.25),transparent_65%)]" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-bg-tint)/.18),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[520px] w-[520px] rounded-full bg-glow-accent-25" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-glow-bg-tint-18" />
       <div aria-hidden className="absolute inset-0 -z-10 opacity-[.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="t15-container grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
@@ -146,15 +146,15 @@ export default function EnergyMonitoringSection() {
         <div className="flex justify-center">
         <div className="relative -mb-24 w-[380px] shrink-0 origin-top scale-[.84] sm:mb-0 sm:scale-100">
           <div aria-hidden className="absolute left-1/2 top-[42%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-line/15" />
-          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent-soft)/.3),transparent_68%)]" />
+          <div aria-hidden className="absolute left-1/2 top-[42%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow-accent-soft-30" />
           <div data-reveal="up" style={delay(0.15)}><HandHoldingPhone /></div>
           <div data-reveal="left" style={delay(0.55)} className="t15-glass t15-float absolute -left-24 top-[34%] hidden rounded-2xl px-4 py-3 text-fg sm:block lg:-left-32">
-            <div className="text-[10px] font-bold uppercase tracking-[.12em] text-fg-muted">Tiết kiệm tháng này</div>
+            <div className="text-4xs font-bold uppercase tracking-[.12em] text-fg-muted">Tiết kiệm tháng này</div>
             <div className="text-lg font-black">128,4 triệu ₫</div>
           </div>
           <div data-reveal="right" style={delay(0.7)} className="t15-glass t15-float-delay absolute -right-28 top-[6%] hidden max-w-[190px] items-start gap-2 rounded-2xl px-3 py-3 text-fg sm:flex lg:-right-10">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-accent-ink"><BellAlertIcon className="h-4 w-4" /></span>
-            <div className="text-[11px] font-semibold leading-4"><b className="block text-xs">String 3 giảm 8%</b>Đề xuất vệ sinh tấm pin</div>
+            <div className="text-2xs font-semibold leading-4"><b className="block text-xs">String 3 giảm 8%</b>Đề xuất vệ sinh tấm pin</div>
           </div>
         </div>
         </div>

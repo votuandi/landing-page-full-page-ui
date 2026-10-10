@@ -46,7 +46,7 @@ export default function FeaturedProjects() {
 
   return (
     <section id="du-an" className="t15-invert t15-section relative overflow-hidden t15-ocean text-fg" aria-labelledby="du-an-title">
-      <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.25),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-glow-accent-25" />
       <div className="t15-container relative">
         <SectionHead id="du-an-title" eyebrow={tr("Dự án tiêu biểu", "Featured projects")} title={tr("Khách hàng thật, số liệu vận hành thật.", "Real clients, real operating data.")} />
 
@@ -63,7 +63,7 @@ export default function FeaturedProjects() {
 
         <div ref={ref} id="da-panel" role="tabpanel" aria-labelledby={`da-tab-${p.id}`} className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
           <button type="button" onClick={() => setPlaying(true)} aria-label={`${tr("Xem video dự án", "Watch project video")}: ${p.client}`}
-            className="group relative min-h-[280px] overflow-hidden rounded-[32px] border border-glass-border sm:min-h-[400px]">
+            className="group relative min-h-[280px] overflow-hidden rounded-media border border-glass-border sm:min-h-[400px]">
             <MediaImage key={p.id} src={p.image} alt="" sizes="(max-width:1024px) 100vw, 55vw" className="transition duration-700 motion-safe:group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-transparent to-transparent" />
             <span className="absolute left-1/2 top-1/2 grid h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-accent text-on-accent shadow-2xl transition motion-safe:group-hover:scale-110"><PlayIcon className="ml-1 h-8 w-8" /></span>
