@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:tokens": "solar-lint-tokens src"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -29,6 +30,7 @@
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
-    "@solar/config": "workspace:*"
+    "@solar/config": "workspace:*",
+    "@solar/eslint-plugin": "workspace:*"
   }
 }

@@ -6,8 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:tokens": "node scripts/lint-tokens.mjs src",
-    "test": "node --test scripts/lint-tokens.test.mjs"
+    "lint:tokens": "solar-lint-tokens src"
   },
   "dependencies": { "@solar/core": "workspace:*" },
   "peerDependencies": {
@@ -16,6 +15,7 @@
     "@heroicons/react": "^2.2.0"
   },
   "devDependencies": {
+    "@solar/eslint-plugin": "workspace:*",
     "@solar/config": "workspace:*",
     "@types/node": "^20",
     "@types/react": "19.2.18",

@@ -17,6 +17,6 @@ App truyền label đã dịch để hỗ trợ EN; package không phụ thuộc
 Ví dụ mọi primitive và hook nằm ở `/lab/ui`: chỉ mở trong dev hoặc production có `LAB_ENABLED=true` lúc build.
 Route không được index, không có trong sitemap.
 
-Kiểm tra: `pnpm --filter @solar/ui typecheck`, `lint`, `test`, `lint:tokens`.
-`lint:tokens` là scanner regex tạm đến E2-S04; bỏ qua `brand-icons/` và dòng có comment
-`token-exempt: <lý do>`. Không dùng exemption cho style của app thông thường.
+Kiểm tra: `pnpm --filter @solar/ui typecheck`, `lint`, `lint:tokens`.
+`lint:tokens` dùng ESLint rule AST của `@solar/eslint-plugin`; bỏ qua `brand-icons/` và comment thật
+`token-exempt: <lý do không rỗng>` trên cùng dòng hoặc ngay phía trên. Test rule nằm trong package plugin. Không dùng exemption cho style của app thông thường.
