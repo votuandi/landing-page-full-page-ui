@@ -12,7 +12,14 @@ const css = themeToCss(t15);
 
 App inline CSS của đúng theme vào `<head>`; package tokens không phụ thuộc themes.
 Fixture t15 trong tokens giữ độc lập để kiểm tra dữ liệu chuẩn, tránh vòng phụ thuộc.
-Trang `/lab/themes` thuộc E2-S07.
+`themes` là registry duy nhất; `getTheme(id)` trả theme hoặc `undefined` nếu không có.
+Thêm theme đã parse vào `themes` để hiện trong bộ chọn `/lab/themes`.
+Trang này chuyển đến theme đầu tiên, `/lab/themes/<id>` hiển thị toàn bộ token và link primitive `/lab/ui`.
+Dark palette kế thừa light cho các token không override, giống CSS sinh bởi `themeToCss`.
+Chưa có section đã port (E3), trang lab hiển thị trạng thái rỗng.
+
+Toàn bộ `/lab/*` trả 404 ở production mặc định. Đặt `LAB_ENABLED=true` lúc `pnpm --filter web start`
+để mở lab trên cùng bản build; lab luôn có metadata `noindex, nofollow`.
 
 ## Font
 

@@ -23,7 +23,7 @@ test("export t15 parse thành công và khớp fixture chuẩn, gồm màu dark 
 });
 
 test("mọi theme đạt WCAG AA cho cặp bắt buộc", () => {
-  const themes = Object.values(require("../index.ts")).filter((value) => value?.meta?.id);
+  const { themes } = require("../index.ts");
   const { checkContrast } = require("@solar/tokens");
   assert.ok(themes.length > 0, "cần ít nhất một theme được export");
   for (const theme of themes) {
@@ -33,4 +33,13 @@ test("mọi theme đạt WCAG AA cho cặp bắt buộc", () => {
       + ` = ${issue.ratio.toFixed(3)} < ${issue.min}; gợi ý ${issue.suggestion}`).join("\n");
     assert.deepEqual(issues, [], `Theme ${theme.meta.id} không đạt WCAG AA:\n${details}`);
   }
+});
+
+test("registry có id duy nhất và tra cứu đúng theme", () => {
+  const { themes, getTheme, t15 } = require("../index.ts");
+  assert.ok(themes.length > 0);
+  assert.equal(new Set(themes.map((theme) => theme.meta.id)).size, themes.length);
+  for (const theme of themes) assert.equal(getTheme(theme.meta.id), theme);
+  assert.equal(getTheme("t15"), t15);
+  assert.equal(getTheme("khong-co"), undefined);
 });
