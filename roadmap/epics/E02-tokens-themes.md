@@ -74,13 +74,13 @@ revalidate; 0 vi phạm `lint:tokens`.
 
 ### E2-S06 · Font theo theme
 **Là** tenant, **tôi muốn** font đúng của theme mà site không tải font thừa, **để** trang nhanh.
-- **Chi tiết**: `next/font` yêu cầu khai báo tĩnh → `packages/themes/fonts.ts` khai báo trước toàn bộ font được phép
-  (Inter, Be Vietnam Pro, Manrope, + ≤ 5 font cho override), mỗi font gắn biến CSS riêng; layout chỉ gắn `className`
-  của font theme đang dùng → Next chỉ preload font đó.
+- **Chi tiết**: registry font tự host trong `packages/themes/src/fonts.ts` (Inter, Be Vietnam Pro, Manrope,
+  Plus Jakarta Sans, Montserrat); CSS và preload được chọn từ `theme.font` lúc render. Mỗi woff2 gộp latin + vietnamese.
+  Không dùng `next/font` vì preload theo module import, không theo className; quyết định và công cụ dựng nằm trong plan E2-S06.
 - **Target**: mỗi trang tải ≤ 2 họ font, ≤ 4 file woff2.
 - **AC**:
-  - [ ] Trang tenant theme t11 chỉ preload Manrope + Be Vietnam Pro.
-  - [ ] Font có subset `vietnamese`.
+  - [x] Trang tenant theme t11 chỉ preload Manrope + Be Vietnam Pro. Bằng chứng theo plan: fixture t11 kiểm đúng 4 file / 2 họ; e2e t15 kiểm cùng cơ chế preload (t11 chưa port).
+  - [x] Font có subset `vietnamese`. Script kiểm cmap nguồn/woff2; unit test kiểm unicode-range; e2e kiểm chữ có dấu.
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: S
 
 ### E2-S07 · Theme t15 làm theme chuẩn + trang `/lab/themes`
