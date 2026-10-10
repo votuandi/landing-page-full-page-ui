@@ -6,3 +6,6 @@ export type {
 export { createRegistry, sectionRegistry } from "./registry";
 export type { SectionTypeName, SectionProps } from "./registry";
 export type { Locale, SiteContext } from "./site";
+export * from "./fields";
+export { RichText } from "./render/RichText";
+export { SectionLink } from "./render/SectionLink";
