@@ -1,7 +1,7 @@
 # @solar/sections
 
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
-(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 18 type qua E3-S04 và E3-S05, xem mục "Type đã có".
+(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có đủ 28 type qua E3-S04–S06, xem mục "Type đã có".
 
 ## Khai báo một type
 
@@ -247,9 +247,39 @@ schema, query/loader, JSON-LD an toàn và href CTA. `tooling/visual/content.spe
 JSON-LD trong HTML, filter riêng từng section, player/phím/focus, hai nguồn CTA gửi lead, nội dung khi tắt JS.
 
 `pnpm --filter web test` biên dịch adapter và workspace dependencies sang JS rồi chạy `node:test`, như các package.
-`apps/web/src/lib/__tests__/sectionCollections.test.ts` kiểm đủ 4 collection, mapping video/link/media và loader
+`apps/web/src/lib/__tests__/sectionCollections.test.ts` kiểm đủ 6 collection, mapping video/link/media và loader
 với ids/filter thật; test này cũng chạy bởi `pnpm test` / `pnpm turbo run test`. Unit sections kiểm SSR stats
 (sinceYear, decimals, suffix, VI/EN), cả 11 type ở EN và các nhánh dữ liệu thiếu.
+
+## Type đợt 3 — E3-S06
+
+10 type mới có fixture mẫu và variant t15: products, dealer, branch-map, press, tiktok, social,
+investment-models, warranty, about-story, services. Nội dung tenant dùng localized/richText/mediaRef/link;
+variant server chọn locale trước khi truyền chuỗi vào island. Press, social, investment-models và warranty
+không hydrate. Các type tương tác nạp island qua stub dynamic, giữ nội dung SSR khi tắt JavaScript.
+
+Products dùng collectionQuery("products"), mặc định featured=true, tối đa 12 item, quick view (ảnh phụ,
+thông số, bảo hành, focus trap/Escape) và nút thêm yêu cầu báo giá qua quoteCartStore của core.
+Branch-map dùng collectionQuery("branches"), tọa độ lat 8–24/lng 102–118; Google Maps được dựng từ
+tọa độ đã validate. Bản đồ giữ Hoàng Sa/Trường Sa; SSR hiện đủ địa chỉ và hotline của mọi chi nhánh.
+Dealer có tab chính sách/hỏi đáp, gallery và form dùng provinces/isVnMobile từ core, POST /api/lead
+với source="dealer". TikTok, services và about-story tái dùng StoryPlayer; video TikTok thiếu segment
+không hiện CTA công trình tương tự.
+
+Collection schemas mới: productItem (giá nguyên không âm, 1–8 ảnh, tối đa 12 thông số), branchItem,
+geoPoint. Adapter web đọc data/products.ts và siteConfig.branches; loader vẫn nhận SiteContext.
+Entitlement: products=catalog; dealer=dealer; branch-map=branchMap; press=press; tiktok=tiktok;
+social=social; investment-models=investmentModels. Services, warranty và about-story là Cơ bản.
+E6 bổ sung kiểm quyền theo gói thật; story này khai meta cho renderer.
+
+Giỏ dùng QUOTE_CART_KEY từ core, event t15:quote-cart-change và t15:open-quote-cart.
+Section tự thêm sản phẩm khi không có provider; provider/drawer cũ của web nghe cùng store.
+Nội dung/default không mất khi đổi theme; variant t14 riêng nằm ngoài S06 theo plan.
+
+Lab: /lab/sections/t15-premium (EN: ?lang=en). premium.test.ts kiểm 28 type và entitlement,
+fixture, validation, loader, SSR/locale. premium.spec.ts kiểm production rendering, quick view,
+giỏ đồng bộ với drawer, form đại lý (validation/success/error/retry), ghim bản đồ, video/tab
+và nội dung/href khi tắt JavaScript.
 
 ## Lệnh kiểm tra
 

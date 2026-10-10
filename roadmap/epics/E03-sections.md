@@ -89,7 +89,19 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
 - **Chi tiết**: `products` (+ quick view, thêm vào giỏ), `dealer`, `branch-map`, `press`, `tiktok`, `social`,
   `investment-models`, `warranty`, `about-story`, `services` — variant t15/t14.
 - **Target**: đủ 28 type (bảng ở `01-template-analysis.md` §3).
-- **AC**: như S04; `meta.entitlement` khai báo đúng gói theo bảng.
+- **AC**:
+  - [x] 10 type có `schema.ts`, `fixtures.ts`, `t15.tsx`, variant trong registry và test parse fixture/defaults (như S04).
+  - [x] Registry đủ 28 type theo bảng Target ở `01-template-analysis.md` §3.
+  - [x] Không import `config/*`/`@/` từ section; giao diện chỉ dùng token (như S04).
+  - [x] `meta.entitlement` đúng gói theo bảng §3 cho cả 28 type.
+  - [x] `products` có quick view và thêm vào giỏ báo giá, dùng được không cần provider của app.
+  - [x] Section collection dùng `collectionQuery` cho `products` và `branch-map`.
+- Bằng chứng triển khai: `premium.test.ts` (fixture/defaults, 28 type, entitlement, loader, SSR),
+  `conversion.test.ts` (quét import), `quoteCartStore.test.ts` (storage fallback/event),
+  `sectionCollections.test.ts` (adapter), `tooling/visual/premium.spec.ts` và `/lab/sections/t15-premium`.
+  Kiểm tra: typecheck/lint/test 23/23 tasks; lint:tokens 0 vi phạm; build web PASS; sections e2e 23/23 PASS.
+  Log: `.agent-runs/E3-S06/{checks,tokens,build,visual}-resume.log`. Design pass và review Claude còn chờ theo mode split;
+  link PR sẽ được ghi sau khi Claude tạo.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
 ### E3-S07 · Widget toàn site
