@@ -6,6 +6,8 @@ import { PROJECTS } from "../../data/projects";
 import { STORIES } from "../../data/stories";
 import { TESTIMONIALS } from "../../data/testimonials";
 import { POSTS } from "../../data/posts";
+import { PRODUCTS, CATEGORY_LABEL } from "../../data/products";
+import { siteConfig } from "../../config/site.config";
 
 const site = { tenantId: "adapter-test", locale: "vi", themeId: "t15" } as const;
 const expectedIds = {
@@ -13,8 +15,10 @@ const expectedIds = {
   stories: STORIES.map((item) => item.id),
   testimonials: TESTIMONIALS.map((_, i) => `testimonial-${i + 1}`),
   posts: POSTS.map((item) => item.slug),
+  products: PRODUCTS.map((item) => item.slug),
+  branches: siteConfig.branches.map((item) => item.id),
 };
-const types: Record<CollectionName, string> = { projects: "projects", stories: "shorts", testimonials: "testimonials", posts: "blog" };
+const types: Record<CollectionName, string> = { projects: "projects", stories: "shorts", testimonials: "testimonials", posts: "blog", products: "products", branches: "branch-map" };
 
 for (const locale of ["vi", "en"] as const) {
   for (const name of Object.keys(collectionSchemas) as CollectionName[]) {
@@ -47,7 +51,7 @@ test("story, testimonial and post adapters preserve collection content", async (
   assert.deepEqual(posts.map((item) => [item.title, item.excerpt, item.cover.id, item.readMinutes, item.href]), POSTS.map((item) => [item.title, item.excerpt, item.cover, item.readMinutes, `/tin-tuc/${item.slug}`]));
 });
 
-for (const name of Object.keys(collectionSchemas) as CollectionName[]) {
+for (const name of ["projects", "stories", "testimonials", "posts"] as const) {
   test(`real ${name} adapter and loader apply ids order and segment filter`, async () => {
     const source = collectionSchemas[name].array().parse(await staticCollectionSource[name]!(site));
     const selected = source.slice(0, 3).reverse();
@@ -64,5 +68,41 @@ for (const name of Object.keys(collectionSchemas) as CollectionName[]) {
     assert.deepEqual(parsed.items, selected);
     const filtered = def.schema.parse(await load({ section, data: { ...data, query: { ...data.query, filter: { segment } } }, site })) as { items: { id: string }[] };
     assert.deepEqual(filtered.items, selected.filter((item) => item.segment === segment));
+  });
+}
+
+test("product and branch adapters preserve details, prices, contacts and coordinates", async () => {
+  const products = collectionSchemas.products.array().parse(await staticCollectionSource.products!(site));
+  for (const [i, item] of products.entries()) {
+    const original = PRODUCTS[i];
+    assert.equal(item.href, "/san-pham/" + original.slug);
+    assert.equal(item.categoryLabel, CATEGORY_LABEL[original.category]);
+    assert.deepEqual(item.images.map((image) => image.id), original.images);
+    assert.deepEqual(item.specs, Object.entries(original.specs).map(([label, value]) => ({ label, value })));
+    assert.equal(item.price, original.price);
+    assert.equal(item.salePrice, original.salePrice);
+  }
+  const branches = collectionSchemas.branches.array().parse(await staticCollectionSource.branches!(site));
+  for (const [i, item] of branches.entries()) {
+    assert.deepEqual(item.office, siteConfig.branches[i].office);
+    assert.deepEqual(item.warehouse, siteConfig.branches[i].warehouse);
+    assert.equal(item.hotline, siteConfig.branches[i].hotline.main);
+    assert.equal(item.hours, siteConfig.branches[i].openingHours);
+  }
+});
+
+for (const name of ["products", "branches"] as const) {
+  test("real " + name + " loader respects ids order, filter and limit", async () => {
+    const items = collectionSchemas[name].array().parse(await staticCollectionSource[name]!(site));
+    const selected = items.slice(0, 3).reverse();
+    const type = types[name];
+    const def = sectionRegistry.getType(type)!;
+    const data = { ...def.defaults as Record<string, unknown>, query: { ids: selected.map((item) => item.id), filter: {}, limit: 3 } };
+    const section = { id: type, type, variant: "t15", enabled: true, data };
+    const load = createCollectionLoader(staticCollectionSource);
+    const loaded = def.schema.parse(await load({ section, data, site })) as { items: unknown[] };
+    assert.deepEqual(loaded.items, selected);
+    const filtered = def.schema.parse(await load({ section, data: { ...data, query: { ...data.query, filter: { id: selected[0].id }, limit: 1 } }, site })) as { items: unknown[] };
+    assert.deepEqual(filtered.items, [selected[0]]);
   });
 }
