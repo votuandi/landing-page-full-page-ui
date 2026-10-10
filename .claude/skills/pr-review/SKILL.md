@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Review PR của một story theo S.reviewer từ scripts/agents/story.mjs; review ở local (không đăng lên PR), liệt kê issue và case chưa cover AC/yêu cầu, giao người viết S.author sửa rồi reviewer review lại cho tới khi PR merge được (CI xanh, không conflict), sau đó báo người dùng tự merge. Dùng khi /run-story tới bước review, hoặc người dùng gõ /pr-review <số PR|STORY-ID>.
-argument-hint: "<số PR | STORY-ID> [--reviewer claude|codex]"
+argument-hint: "<số PR | STORY-ID> [--reviewer claude|codex] [--claude-only]"
 ---
 
 # /pr-review — review PR của story
@@ -14,6 +14,8 @@ Tham số: `$ARGUMENTS`.
    Có số PR → đọc PR, lấy STORY-ID từ tiêu đề `[E\d+-S\d+]`.
 2. `node scripts/agents/story.mjs info <ID>` → `S`. Reviewer = `S.reviewer` (tính theo `reviewPolicy` trong
    `scripts/agents/routing.json`); `--reviewer` ghi đè. Người viết = `S.author` (hoặc "Người viết" trong mô tả PR nếu khác).
+   `--claude-only` (từ `/run-story --agent claude`, hoặc người dùng yêu cầu chỉ dùng Claude): reviewer = Claude, người sửa =
+   Claude, chế độ "Tự review"; không gọi `codex exec` ở bất kỳ bước nào, kể cả khi đổi vòng.
 3. Vòng review `n` = số file `<S.runDir>/review-r*.md` hiện có + 1. Vòng lặp review → sửa chạy cho tới khi PR merge được
    (mục 4); chặn an toàn: `n > 6` (đã 5 vòng sửa) → dừng, báo người dùng.
 4. Lấy code: `git fetch origin <branch>`; review trên `origin/<S.base>...origin/<branch>`.
@@ -93,7 +95,8 @@ cover.
     Claude tự đọc diff vòng sửa, đối chiếu từng finding / mục "Chưa cover" của `review-r<n>.md`, ghi kết luận vào
     `<S.runDir>/review-r<n+1>.md` theo định dạng `solar-pr-review` (dòng đầu `VERDICT: …`, ghi "Claude kiểm vòng sửa nhỏ").
     Có điểm nghi ngờ (thay đổi lan rộng, finding chưa rõ đã sửa) → quay về review đầy đủ theo `S.reviewer`.
-    Khi `S.author = claude`, không dùng ngoại lệ này; Codex phải review lại theo routing review chéo.
+    Khi `S.author = claude`, không dùng ngoại lệ này; Codex phải review lại theo routing review chéo — trừ khi
+    `--claude-only`: khi đó subagent Claude review lại mọi vòng.
   - Dừng sớm và báo người dùng (kèm ý kiến của Claude: đồng ý / cho rằng finding sai và vì sao) khi: cùng một finding
     "chưa sửa" ở 2 vòng liền; finding cần quyết định của người dùng (phạm vi, dependency, đổi AC); hoặc chạm chặn an toàn
     ở mục 1.3.

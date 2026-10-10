@@ -9,6 +9,10 @@ argument-hint: "<STORY-ID|next> [--agent claude|codex] [--confirm] [--no-pr] [--
 Tham số: `$ARGUMENTS`
 - `<STORY-ID>` (vd. `E1-S01`) hoặc `next`.
 - `--agent claude|codex`: ép người thực thi toàn bộ (bỏ qua mode trong `routing.json`).
+  - `--agent claude` = **chế độ chỉ Claude**: cả phiên không gọi Codex ở bất kỳ bước nào. Plan: Claude tự khảo sát
+    (`S.planMode = "claude"`, `S.planBrief = false`). Thực thi: mode `claude`. PR: bỏ cách 3 (Codex tạo PR). Review và
+    sửa: reviewer = Claude (subagent), người sửa = Claude. Bỏ qua "Việc đọc nhiều → Codex" ở dưới.
+  - `--agent codex`: Codex thực thi toàn bộ; plan/review theo `routing.json` như bình thường.
 - `--confirm`: dừng sau bước plan để người dùng duyệt. `--no-pr`: dừng sau commit. `--force`: chạy dù thiếu phụ thuộc.
 
 ## Nguyên tắc tiết kiệm token của Claude
@@ -40,6 +44,9 @@ qua, chạy như cũ và ghi một dòng vào report. Quy tắc `AGENTS.md` (tok
    `S.planMode` (`claude` | `codex-draft`), `S.planBrief`, `S.author`, `S.reviewer`, `S.branch`, `S.base`, `S.planFile`, `S.runDir`,
    `S.codexEffort`, `S.claudeReviewModel`. Khi có `--agent`, cập nhật `S.mode` và `S.author` theo agent ép;
    tính lại reviewer theo reviewPolicy và selfReview (swap nếu trùng author), rồi tính selfReviewConflict theo reviewer cuối.
+   Riêng `--agent claude`: `S.mode = "claude"`, `S.author = "claude"`, `S.planMode = "claude"`, `S.planBrief = false`,
+   `S.reviewer = "claude"` (không swap sang Codex), `S.selfReviewConflict = true` (review chạy chế độ "Tự review",
+   PR body ghi cảnh báo).
    Dùng cùng vai trò này khi sinh PR body. Chỉ khi cần để CLI trả đúng vai trò, tạm đặt `authorOverride` của story
    trong `routing.json`; ghi lại giá trị cũ, khôi phục sau khi gọi CLI và trước mọi commit. Không commit thay đổi
    `routing.json` do `--agent`; mỗi lần gọi CLI tiếp theo cần override thì tạm đặt lại và khôi phục như trên.
@@ -140,7 +147,8 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    lượt, cách nào được thì dừng:
    1. GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải).
    2. `gh pr create --base <base> --head <head> --title "<title>" --body-file <bodyFile>`.
-   3. **Giao Codex tạo PR** (không bao giờ bắt người dùng tự tạo): sandbox `workspace-write`, effort `low`,
+   3. **Giao Codex tạo PR** — bỏ qua khi `--agent claude` (cách 1 và 2 đều lỗi → báo lỗi nguyên văn, dừng)
+      (không bao giờ bắt người dùng tự tạo): sandbox `workspace-write`, effort `low`,
       out `<S.runDir>/codex-pr.md`, log `<S.runDir>/codex-pr.log`, prompt
       `Tạo pull request trên GitHub cho branch đã push: base <base>, head <head>, tiêu đề "<title>", nội dung đúng
       file <bodyFile>. Dùng gh pr create --base <base> --head <head> --title "<title>" --body-file <bodyFile>; nếu đã
@@ -156,7 +164,7 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 
 ## Bước 6 — Review theo routing và sửa tới khi merge được
 
-Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>`; không gọi Codex cố định. Codex reviewer dùng solar-pr-review ở phiên read-only độc lập; Claude reviewer dùng subagent độc lập, model S.claudeReviewModel, cùng định dạng solar-pr-review, đối chiếu toàn bộ diff với plan/AC/DoD. Ghi verdict, SHA và bằng chứng vào review-r<n>.md. Vòng lặp:
+Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>` (`--agent claude` → thêm `--claude-only`); không gọi Codex cố định. Codex reviewer dùng solar-pr-review ở phiên read-only độc lập; Claude reviewer dùng subagent độc lập, model S.claudeReviewModel, cùng định dạng solar-pr-review, đối chiếu toàn bộ diff với plan/AC/DoD. Ghi verdict, SHA và bằng chứng vào review-r<n>.md. Vòng lặp:
 1. **S.reviewer review** toàn bộ PR (`solar-pr-review`): liệt kê mọi issue (Finding P0/P1/P2) và mọi case **chưa cover** AC,
    "Chi tiết"/"Target" của story, plan, DoD. Review **ở local** (`<S.runDir>/review-r<n>.md`), không đăng lên PR;
    báo người dùng danh sách issue + case chưa cover. Có `ponytail-review` → reviewer rà thêm over-engineering trên diff
