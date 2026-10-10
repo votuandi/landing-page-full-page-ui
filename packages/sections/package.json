@@ -7,7 +7,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:tokens": "solar-lint-tokens src",
-    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/sections/src/__tests__/registerCore.js --test .test-dist/sections/src/__tests__/registry.test.js .test-dist/sections/src/__tests__/fields.test.js .test-dist/sections/src/__tests__/richText.test.js"
+    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/sections/src/__tests__/registerCore.js --test .test-dist/sections/src/__tests__/registry.test.js .test-dist/sections/src/__tests__/fields.test.js .test-dist/sections/src/__tests__/richText.test.js .test-dist/sections/src/__tests__/pageRenderer.test.js"
   },
   "dependencies": { "zod": "4.6.5", "@solar/core": "workspace:*" },
   "peerDependencies": { "react": "19.2.8", "next": "16.3.8" },

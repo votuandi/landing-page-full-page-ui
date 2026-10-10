@@ -35,3 +35,4 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 export const sectionRegistry = createRegistry({});
 export type SectionTypeName = keyof typeof sectionRegistry.types;
 export type SectionProps<K extends SectionTypeName> = SectionPropsOf<(typeof sectionRegistry.types)[K]>;
+export type SectionRegistry = ReturnType<typeof createRegistry>;

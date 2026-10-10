@@ -48,8 +48,8 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   truy vấn collection) trong `try/catch` và render fallback nếu lỗi; phía client, mỗi section bọc error boundary.
 - **Target**: TTFB không tăng > 10% so với `HomePage.tsx` viết tay.
 - **AC** (nghiệm thu với 2–3 section mẫu + fixture; khớp toàn bộ trang t15 thuộc E4-S01):
-  - [ ] Trang thử nghiệm render đúng thứ tự, bỏ section `enabled=false`.
-  - [ ] Inject lỗi khi lấy dữ liệu (server) và lỗi khi render (client) → section đó hiện fallback rỗng + log có `tenantId`,
+  - [x] Trang thử nghiệm render đúng thứ tự, bỏ section `enabled=false`.
+  - [x] Inject lỗi khi lấy dữ liệu (server) và lỗi khi render (client) → section đó hiện fallback rỗng + log có `tenantId`,
         `sectionId`; các section khác vẫn hiện, HTTP 200.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
