@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { SiteContext } from "./site";
+import type { Localized } from "./fields/localized";
 
-export type LocalizedText = { vi: string; en?: string };
+export type LocalizedText = Localized;
 export type SectionMeta = {
   label: LocalizedText;
   icon: string;
