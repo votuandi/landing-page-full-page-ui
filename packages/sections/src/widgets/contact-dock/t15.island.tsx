@@ -14,7 +14,7 @@ export default function ContactDock({ items, mobileBar, ariaLabel }: { items: It
       ? `flex min-h-11 items-center justify-center gap-1.5 rounded-pill px-2 text-xs font-black ${TONES[kind]}`
       : `group flex h-14 items-center gap-2 overflow-hidden rounded-pill px-4 shadow-float transition motion-safe:hover:-translate-y-0.5 ${TONES[kind]}`;
     const content = <><Icon aria-hidden className={mobile ? "h-4 w-4 shrink-0" : "h-6 w-6 shrink-0"} />
-      <span className={mobile ? "truncate" : "max-w-0 whitespace-nowrap text-sm font-black opacity-0 transition-all duration-motion-base group-hover:max-w-48 group-hover:opacity-100 group-focus-visible:max-w-48 group-focus-visible:opacity-100"}>{label}</span></>;
+      <span className={mobile ? "truncate" : "max-w-0 whitespace-nowrap text-sm font-black opacity-0 motion-safe:transition-all motion-safe:duration-motion-base group-hover:max-w-48 group-hover:opacity-100 group-focus-visible:max-w-48 group-focus-visible:opacity-100"}>{label}</span></>;
     return kind === "consult" ? <button key={i} type="button" aria-label={label} onClick={openConsult} className={className}>{content}</button>
       : <a key={i} href={link?.href} aria-label={label} target={link?.external ? "_blank" : undefined} rel={link?.external ? "noopener noreferrer" : undefined} className={className}>{content}</a>;
   });

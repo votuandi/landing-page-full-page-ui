@@ -14,7 +14,7 @@ export default function ThemeSwitch({ lightLabel, darkLabel }: { lightLabel: str
     document.documentElement.dataset.theme = next ? "dark" : "light";
     try { localStorage.setItem("t15-theme", next ? "dark" : "light"); } catch { /* Storage may be blocked. */ }
   };
-  return <button type="button" onClick={toggle} aria-pressed={dark} aria-label={dark ? lightLabel : darkLabel}
+  return <button type="button" onClick={toggle} aria-label={dark ? lightLabel : darkLabel}
     className="t15-icon-button fixed bottom-24 left-3 z-40 h-11 w-11 rounded-pill shadow-float lg:bottom-6 lg:left-6">
     {dark ? <SunIcon aria-hidden className="h-5 w-5 text-accent" /> : <MoonIcon aria-hidden className="h-5 w-5" />}
   </button>;

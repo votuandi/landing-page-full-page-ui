@@ -139,7 +139,7 @@ test("theme switch persists dark mode and supports English labels", async ({ pag
   await expect(button).toHaveAccessibleName("Switch to dark mode");
   await button.click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expect(button).toHaveAccessibleName("Switch to light mode");
   await page.reload({ waitUntil: "networkidle" });
   await expect(button).toHaveAccessibleName("Switch to light mode");
   await testInfo.attach("widgets-dark", { body: await page.screenshot({ path: "../../.agent-runs/E3-S07/screenshots/widgets-dark.png" }), contentType: "image/png" });
