@@ -119,7 +119,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Phần Codex hoàn tất; design pass/review Claude còn chờ theo mode split. Link PR ghi sau khi Claude tạo.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
-### E3-S08 · Trạng thái liên section (segment, calculator bus, quote cart)
+### E3-S08 · Trạng thái liên section (segment, calculator bus, quote cart) ✅ · PR [#28](https://github.com/votuandi/landing-page-full-page-ui/pull/28)
 **Là** khách truy cập, **tôi muốn** chọn phân khúc một lần mà video, gói, công trình, dự toán đều lọc theo, **để** không phải chọn lại.
 - **Chi tiết**: giữ hành vi t15 (`lib/segment.tsx`, `?phan-khuc=`, `calculatorBus`) nhưng chuyển provider lên layout của
   site; section chỉ đăng ký/đọc qua hook `useSegment()`, `openCalculator()`. Nếu trang không có section `calculator`,
