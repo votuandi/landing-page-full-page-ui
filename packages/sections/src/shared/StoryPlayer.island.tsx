@@ -174,7 +174,7 @@ export default function StoryPlayer({ stories, startIndex, onClose, locale, ctaL
         <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-scrim/95 via-scrim/80 to-transparent p-4 pt-16 text-on-media" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
           <div className="text-lg font-black leading-snug">{story.title}</div>
           <div className="mt-1 text-sm text-on-media/90">📍 {story.location}{story.kwp > 0 ? ` · ${story.kwp} kWp` : ""}</div>
-          {quote && <Anchor link={storyQuoteLink(story, locale, ctaLabel)} onNavigate={onClose} className="t15-button t15-button-accent mt-4 min-h-12 w-full text-base">{ctaLabel ?? tr("Nhận báo giá công trình tương tự", "Get a quote for a similar project")} <ArrowRightIcon aria-hidden className="h-5 w-5" /></Anchor>}
+          {quote && story.quote !== false && <Anchor link={storyQuoteLink(story, locale, ctaLabel)} onNavigate={onClose} className="t15-button t15-button-accent mt-4 min-h-12 w-full text-base">{ctaLabel ?? tr("Nhận báo giá công trình tương tự", "Get a quote for a similar project")} <ArrowRightIcon aria-hidden className="h-5 w-5" /></Anchor>}
           {platform && (
             <a href={story.source.originalUrl} target="_blank" rel="noopener noreferrer" className="mx-auto mt-2 flex min-h-11 w-fit items-center gap-1.5 px-3 text-xs font-bold text-on-media/90 underline-offset-4 hover:underline">
               <platform.Icon className="h-4 w-4" />{tr("Xem trên", "Watch on")} {platform.name}

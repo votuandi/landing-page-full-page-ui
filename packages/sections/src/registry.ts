@@ -1,3 +1,13 @@
+import { variants as services } from "./services";
+import { variants as aboutStory } from "./about-story";
+import { variants as warranty } from "./warranty";
+import { variants as investmentModels } from "./investment-models";
+import { variants as social } from "./social";
+import { variants as tiktok } from "./tiktok";
+import { variants as press } from "./press";
+import { variants as branchMap } from "./branch-map";
+import { variants as dealer } from "./dealer";
+import { variants as products } from "./products";
 import { variants as projects } from "./projects";
 import { variants as shorts } from "./shorts";
 import { variants as stats } from "./stats";
@@ -51,6 +61,16 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 }
 
 export const sectionRegistry = createRegistry({
+  "products": products,
+  "dealer": dealer,
+  "branch-map": branchMap,
+  "press": press,
+  "tiktok": tiktok,
+  "social": social,
+  "investment-models": investmentModels,
+  "warranty": warranty,
+  "about-story": aboutStory,
+  "services": services,
   "projects": projects,
   "shorts": shorts,
   "stats": stats,

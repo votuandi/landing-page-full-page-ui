@@ -5,4 +5,5 @@ import type { StorySource } from "../collections/schemas";
 export type StoryView = {
   id: string; title: string; location: string; kwp: number; segment: Segment;
   poster?: string; source: StorySource; kindLabel: string;
+  quote?: boolean;
 };
