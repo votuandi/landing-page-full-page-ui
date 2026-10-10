@@ -133,7 +133,7 @@ Section chỉ dùng class token; animation phải tôn trọng `prefers-reduced-
 ## Render trang
 
 Trang là danh sách section đã parse bằng `pageConfigSchema`: `{ id, type, variant, enabled = true, anchor?, data }`.
-`id` không được trùng; `anchor` (`[a-z0-9-]+`) thành `id` neo, ví dụ `#du-toan`.
+`id` và `anchor` không được trùng; `anchor` (`[a-z0-9-]+`) thành `id` neo, ví dụ `#du-toan`.
 
 ```tsx
 import { PageRenderer, pageConfigSchema } from "@solar/sections";
@@ -145,8 +145,8 @@ import { PageRenderer, pageConfigSchema } from "@solar/sections";
 
 - Bỏ section `enabled: false`, type không có trong registry, và section có `meta.entitlement` mà `canUse` trả `false`.
   Section bị bỏ vì quyền không gọi `load()` nên không tải chunk. `canUse` mặc định cho phép tới E6.
-- Chuẩn bị song song cho mọi section: parse `data` bằng schema của type, gọi `loadData` (E5 truy vấn collection; giá trị
-  trả về là `data` của variant) và nạp module variant. Lỗi ở bước này được log
+- Chuẩn bị song song cho mọi section: gọi `loadData` với `data` thô (E5 truy vấn collection), nạp module variant, rồi
+  parse kết quả bằng schema của type — dữ liệu loader trả về sai schema cũng thành fallback. Lỗi ở bước này được log
   `console.error("[sections] chuẩn bị section lỗi", { tenantId, sectionId, type, variant, error })` và section đó
   thành wrapper rỗng có `data-section-fallback`.
 - Mỗi section nằm trong `<div id={anchor} data-section-id data-section-type>` → `SectionBoundary` (error boundary

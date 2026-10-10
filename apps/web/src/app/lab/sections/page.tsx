@@ -13,7 +13,7 @@ export default async function SectionsLabPage() {
     const def = demoRegistry.getType(type);
     if (!resolved || !def) return null;
     const { default: Variant } = await resolved.load();
-    return <Variant key={id} sectionId={id} site={site} data={def.schema.parse(def.defaults)} />;
+    return <div key={id} id={id}><Variant sectionId={id} site={site} data={def.schema.parse(def.defaults)} /></div>;
   }));
 
   return (

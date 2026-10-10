@@ -83,7 +83,31 @@ test("lỗi chuẩn bị dữ liệu chỉ làm section đó rỗng và log tena
   }
 });
 
-test("loadData trả dữ liệu đã chuẩn bị cho variant", async () => {
+test("dữ liệu loadData trả về sai schema hoặc undefined thành fallback, có log", async (t) => {
+  const error = t.mock.method(console, "error", () => {});
+  const html = await render({
+    page: page([
+      { id: "sai-kieu", type: "demo", variant: "v1", data: { title: "A" } },
+      { id: "rong", type: "demo", variant: "v1", data: { title: "B" } },
+      { id: "ok", type: "demo", variant: "v1", data: { title: "OK" } },
+    ]),
+    loadData: async ({ section, data }) => {
+      if (section.id === "sai-kieu") return { title: { not: "string" } };
+      if (section.id === "rong") return undefined;
+      return data;
+    },
+  });
+  assert.equal(html,
+    '<div data-section-id="sai-kieu" data-section-type="demo" data-section-fallback=""></div>'
+    + '<div data-section-id="rong" data-section-type="demo" data-section-fallback=""></div>'
+    + '<div data-section-id="ok" data-section-type="demo">OK</div>');
+  assert.deepEqual(error.mock.calls.map(({ arguments: [, detail] }) => {
+    const { tenantId, sectionId } = detail as Record<string, unknown>;
+    return [tenantId, sectionId];
+  }), [["tenant-mau", "sai-kieu"], ["tenant-mau", "rong"]]);
+});
+
+test("loadData nhận data thô, kết quả được parse rồi đưa cho variant", async () => {
   const html = await render({
     page: page([{ id: "a", type: "demo", variant: "v1", data: { title: "Gốc" } }]),
     loadData: async ({ data }) => ({ ...(data as object), title: "Đã chuẩn bị" }),
@@ -91,7 +115,11 @@ test("loadData trả dữ liệu đã chuẩn bị cho variant", async () => {
   assert.equal(html, '<div data-section-id="a" data-section-type="demo">Đã chuẩn bị</div>');
 });
 
-test("pageConfigSchema từ chối id trùng và anchor sai, enabled mặc định true", () => {
+test("pageConfigSchema từ chối id trùng, anchor trùng/sai, enabled mặc định true", () => {
+  assert.equal(pageConfigSchema.safeParse({ sections: [
+    { id: "a", type: "demo", variant: "v1", anchor: "du-toan", data: {} },
+    { id: "b", type: "demo", variant: "v1", anchor: "du-toan", data: {} },
+  ] }).success, false);
   assert.equal(pageConfigSchema.safeParse({ sections: [
     { id: "a", type: "demo", variant: "v1", data: {} }, { id: "a", type: "demo", variant: "v1", data: {} },
   ] }).success, false);

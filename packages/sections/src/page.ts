@@ -10,10 +10,13 @@ export const pageSectionSchema = z.object({
   data: z.unknown(),
 });
 
-export const pageConfigSchema = z.object({ sections: z.array(pageSectionSchema) }).refine(
-  ({ sections }) => new Set(sections.map((section) => section.id)).size === sections.length,
-  { message: "id section bị trùng", path: ["sections"] },
-);
+const unique = (values: string[]) => new Set(values).size === values.length;
+
+export const pageConfigSchema = z.object({ sections: z.array(pageSectionSchema) })
+  .refine(({ sections }) => unique(sections.map((section) => section.id)),
+    { message: "id section bị trùng", path: ["sections"] })
+  .refine(({ sections }) => unique(sections.flatMap((section) => section.anchor ?? [])),
+    { message: "anchor bị trùng", path: ["sections"] });
 
 export type PageSection = z.output<typeof pageSectionSchema>;
 export type PageConfig = z.output<typeof pageConfigSchema>;

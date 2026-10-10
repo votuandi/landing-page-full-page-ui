@@ -9,7 +9,7 @@ const page = pageConfigSchema.parse({ sections: [
   { id: "mo-dau", type: "demo-b", variant: "v1", data: title("Mở đầu") },
   { id: "bi-tat", type: "demo-a", variant: "v1", enabled: false, data: title("Section đã tắt") },
   { id: "loi-server", type: "demo-a", variant: "v2", data: title("Lỗi dữ liệu server") },
-  { id: "loi-client", type: "demo-crash", variant: "v1", data: title("Lỗi render client") },
+  { id: "loi-client", type: "demo-crash", variant: "v1", anchor: "loi-client", data: title("Lỗi render client") },
   { id: "du-toan", type: "demo-a", variant: "v1", anchor: "du-toan", data: title("Dự toán") },
 ] });
 

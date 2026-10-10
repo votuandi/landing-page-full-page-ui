@@ -20,7 +20,17 @@ test("PageRenderer giữ thứ tự, bỏ section tắt và cô lập lỗi serv
   await expect(page.locator('[data-section-id="loi-client"]')).toBeEmpty();
   await expect(page.locator('[data-section-id="mo-dau"] section')).toBeVisible();
   await expect(page.locator("#du-toan section")).toContainText("Dự toán");
-  await expect(page.locator('#du-toan [data-island="SECTIONS_ISLAND_demo-a_v1"]')).toHaveText("Số lần nhấn: 0");
+  // Neo duy nhất và còn sau lỗi hydrate; island của section lành vẫn dùng được bằng bàn phím.
+  expect(await page.locator("[id]").evaluateAll((nodes) => {
+    const ids = nodes.map((node) => node.id);
+    return ids.filter((id, index) => ids.indexOf(id) !== index);
+  })).toEqual([]);
+  await expect(page.locator("#loi-client")).toHaveAttribute("data-section-id", "loi-client");
+  const counter = page.locator('#du-toan [data-island="SECTIONS_ISLAND_demo-a_v1"]');
+  await expect(counter).toHaveText("Số lần nhấn: 0");
+  await counter.focus();
+  await page.keyboard.press("Enter");
+  await expect(counter).toHaveText("Số lần nhấn: 1");
 
   await expect.poll(() => logs.find((log) => log.includes("render section lỗi"))).toBeTruthy();
   const log = logs.find((text) => text.includes("render section lỗi"))!;
@@ -29,7 +39,10 @@ test("PageRenderer giữ thứ tự, bỏ section tắt và cô lập lỗi serv
   expect(pageErrors).toEqual([]);
 
   await testInfo.attach("console-errors", { body: logs.join("\n"), contentType: "text/plain" });
-  await testInfo.attach("renderer-lab", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  await testInfo.attach("renderer-lab-1440", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#du-toan section")).toBeVisible();
+  await testInfo.attach("renderer-lab-390", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
 });
 
 test("HTML server có nội dung khi tắt JavaScript và section lỗi server rỗng", async ({ browser, baseURL }) => {

@@ -12,7 +12,7 @@ export type PageRendererProps = {
   registry?: SectionRegistry;
   /** E6 thay bằng `(feature) => can(site, feature)`. */
   canUse?: (feature: string) => boolean;
-  /** Chuẩn bị dữ liệu sau khi parse (E5: truy vấn collection); trả về data cho variant. */
+  /** Chuẩn bị dữ liệu thô trước khi parse (E5: truy vấn collection); kết quả được parse bằng schema của type. */
   loadData?: LoadSectionData;
 };
 
@@ -24,12 +24,11 @@ async function prepare(section: PageSection, { site, registry = sectionRegistry,
   const resolved = registry.getVariant(section.type, section.variant);
   if (!def || !resolved) return null;
   try {
-    const parsed = def.schema.parse(section.data);
-    const [data, { default: Variant }] = await Promise.all([
-      loadData ? loadData({ section, data: parsed, site }) : parsed,
+    const [raw, { default: Variant }] = await Promise.all([
+      loadData ? loadData({ section, data: section.data, site }) : section.data,
       resolved.load(),
     ]);
-    return { section, Variant, data };
+    return { section, Variant, data: def.schema.parse(raw) };
   } catch (error) {
     console.error("[sections] chuẩn bị section lỗi", {
       tenantId: site.tenantId, sectionId: section.id, type: section.type, variant: resolved.variant, error,
@@ -40,8 +39,9 @@ async function prepare(section: PageSection, { site, registry = sectionRegistry,
 
 /**
  * Render trang theo thứ tự cấu hình. Dữ liệu và module variant chuẩn bị song song; mỗi section có error boundary riêng
- * nên một section lỗi chỉ để lại wrapper rỗng, trang vẫn 200. Không bọc Suspense: island `next/dynamic` suspend khi SSR,
- * Suspense sẽ stream section vào `<div hidden>` và nội dung biến mất khi tắt JavaScript.
+ * nên một section lỗi chỉ để lại wrapper rỗng, trang vẫn 200. Lỗi render Server Component của variant trên server không
+ * được bắt ở đây — việc dễ lỗi (I/O, parse) phải nằm trong `loadData`. Không bọc Suspense: island `next/dynamic` suspend
+ * khi SSR, Suspense sẽ stream section vào `<div hidden>` và nội dung biến mất khi tắt JavaScript.
  */
 export async function PageRenderer(props: PageRendererProps) {
   const { page, site, registry = sectionRegistry, canUse = () => true } = props;
