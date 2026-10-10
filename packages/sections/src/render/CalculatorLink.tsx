@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { CalculatorPrefill } from "@solar/core";
 import { handleCalculatorClick } from "../fields/calculatorClick";
+import { useOpenCalculator } from "../state/SiteState";
 
 export function CalculatorLink({ href, prefill, className, children }: {
   href: string;
@@ -10,5 +11,6 @@ export function CalculatorLink({ href, prefill, className, children }: {
   className?: string;
   children: ReactNode;
 }) {
-  return <a href={href} className={className} onClick={(event) => handleCalculatorClick(event, prefill)}>{children}</a>;
+  const openCalculator = useOpenCalculator();
+  return <a href={href} className={className} onClick={(event) => handleCalculatorClick(event, prefill, openCalculator)}>{children}</a>;
 }

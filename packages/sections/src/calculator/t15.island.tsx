@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   PROVINCES, REGION_LABELS, REGION_ORDER, calculateSolar, formatMoneyShort, formatNumber, onOpenCalculator, parseNumber,
-  prefillFromUrl, type CalculatorPrefill, type Segment,
+  prefillFromUrl, saveLastEstimate, type CalculatorPrefill, type Segment,
 } from "@solar/core";
 import { delay, useCountUp } from "@solar/ui";
 import { pickLocale } from "../fields/pickLocale";
@@ -16,6 +16,7 @@ import { SegmentIcon } from "../shared/SegmentIcon";
 import type { Locale } from "../site";
 import { toCalculatorParams } from "./params";
 import type { calculatorSchema } from "./schema";
+import { useSegment } from "../state/SiteState";
 
 type Data = z.output<typeof calculatorSchema>;
 
@@ -52,6 +53,7 @@ function CountUp({ value, format }: { value: number; format: (v: number) => stri
  */
 export default function CalculatorIsland({ data, locale, sectionId }: { data: Data; locale: Locale; sectionId: string }) {
   const ui = UI[locale];
+  const shared = useSegment();
   const t = (value: { vi: string; en?: string }) => pickLocale(value, locale);
   const params = useMemo(() => toCalculatorParams(data), [data]);
   const allowed = useMemo(() => new Set<Segment>(data.segments.map((s) => s.segment)), [data.segments]);
@@ -77,7 +79,10 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
 
   const apply = ({ segment: s, bill: b, topic: t, source }: CalculatorPrefill) => {
     if (!s && !b && !t && !source) return;
-    if (s && allowed.has(s)) applySegment(s);
+    if (s && allowed.has(s)) {
+      applySegment(s);
+      shared.setSegment(s, source ?? "calculator-prefill");
+    }
     if (b) setBill(b);
     setTopic(t || "");
     setLeadSource(source === "story-cta" ? "story-cta" : data.leadSource);
@@ -89,6 +94,17 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
     applyRef.current(prefillFromUrl());
     return onOpenCalculator((prefill) => applyRef.current(prefill));
   }, []);
+
+  useEffect(() => {
+    const next = shared.segment;
+    if (shared.version > 0 && next && allowed.has(next) && next !== segment) {
+      setSegment(next);
+      setBill(data.inputs[next].bill.default);
+      setRoofText(String(data.inputs[next].roof.default));
+      setRatio(data.segmentRatios[next]);
+      setTouched(true);
+    }
+  }, [shared.version, shared.segment, allowed, segment, data.inputs, data.segmentRatios]);
 
   const { minRoofArea, m2PerKwp } = data.system;
   const roof = parseNumber(roofText);
@@ -121,15 +137,15 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
   useEffect(() => {
     if (!touched || !roofValid) return;
     const timer = setTimeout(() => {
-      try {
-        localStorage.setItem("t15-last-estimate", JSON.stringify({ savedAt: Date.now(), segment: current.label.vi, estimate }));
-      } catch { /* storage bị chặn */ }
+      saveLastEstimate({ savedAt: Date.now(), segment: current.label.vi, estimate });
     }, 400);
     return () => clearTimeout(timer);
   }, [touched, roofValid, current, estimate]);
 
   const edit = <T,>(setter: (v: T) => void) => (v: T) => { setTouched(true); setter(v); };
-  const chooseSegment = (next: Segment) => { setLeadSource(data.leadSource); setTouched(true); applySegment(next); };
+  const chooseSegment = (next: Segment) => {
+    setLeadSource(data.leadSource); setTouched(true); applySegment(next); shared.setSegment(next, "calculator");
+  };
 
   const steps = {
     segment: (

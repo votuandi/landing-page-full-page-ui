@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { formatMoneyShort, formatNumber, openCalculator, segmentFromParam, type Segment } from "@solar/core";
+import { formatMoneyShort, formatNumber, type Segment } from "@solar/core";
 import { MediaImage, PriceTag } from "@solar/ui";
 import { SegmentIcon } from "../shared/SegmentIcon";
+import { useSegment, useOpenCalculator } from "../state/SiteState";
 
 export type PackageTabView = { segment: Segment; label: string; short: string; pitch: string; cover: { src?: string; alt: string } };
 export type PackageView = {
@@ -23,11 +24,9 @@ export default function PackagesIsland({ head, tabs, items, defaultSegment, maxP
   maxPerSegment: number;
   text: { cta: string; saving: string; popular: string; month: string; group: string };
 }) {
-  const [current, setCurrent] = useState(defaultSegment);
-  useEffect(() => {
-    const fromUrl = segmentFromParam(new URLSearchParams(window.location.search).get("phan-khuc"));
-    if (fromUrl && tabs.some((tab) => tab.segment === fromUrl)) setCurrent(fromUrl);
-  }, [tabs]);
+  const { segment, setSegment } = useSegment();
+  const openCalculator = useOpenCalculator();
+  const current = segment && tabs.some((tab) => tab.segment === segment) ? segment : defaultSegment;
 
   const tab = tabs.find((t) => t.segment === current) ?? tabs[0];
   const list = items.filter((item) => item.segment === tab.segment).slice(0, maxPerSegment);
@@ -40,7 +39,7 @@ export default function PackagesIsland({ head, tabs, items, defaultSegment, maxP
         <div data-reveal="up" role="group" aria-label={text.group}
           className="t15-no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 lg:max-w-[46%] lg:justify-end">
           {tabs.map((t) => (
-            <button key={t.segment} type="button" aria-pressed={tab.segment === t.segment} onClick={() => setCurrent(t.segment)} className="t15-chip shrink-0">
+            <button key={t.segment} type="button" aria-pressed={tab.segment === t.segment} onClick={() => setSegment(t.segment, "packages")} className="t15-chip shrink-0">
               <SegmentIcon segment={t.segment} className="h-4 w-4" />{t.short}
             </button>
           ))}
