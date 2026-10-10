@@ -68,8 +68,8 @@ revalidate; 0 vi phạm `lint:tokens`.
   trong CMS: báo lỗi và gợi ý màu gần nhất đạt chuẩn.
 - **Target**: mọi theme gốc đạt WCAG AA cho chữ thường (4.5:1).
 - **AC**:
-  - [ ] Chạy trong CI cho mọi theme.
-  - [ ] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
+  - [x] Chạy trong CI cho mọi theme.
+  - [x] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
 ### E2-S06 · Font theo theme
