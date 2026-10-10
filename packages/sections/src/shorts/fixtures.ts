@@ -14,6 +14,12 @@ export const shortsFixture = {
   "query": {
     "limit": 8
   },
+  "segmentLabels": {
+    "household": { "vi": "Hộ gia đình", "en": "Households" },
+    "shop": { "vi": "Cửa hàng", "en": "Shops" },
+    "factory": { "vi": "Nhà xưởng", "en": "Factories" },
+    "farm": { "vi": "Trang trại", "en": "Farms" }
+  },
   "description": {
     "vi": "Video ngắn từ công trình minh họa.",
     "en": "Short videos from sample projects."

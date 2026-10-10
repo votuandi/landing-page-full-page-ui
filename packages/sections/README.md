@@ -234,6 +234,10 @@ fixture; lỗi source truyền ra cho `PageRenderer` ghi log và cô lập secti
 Projects và player shorts có link dự toán chứa `nguon=story-cta` và `#du-toan`, điền nhu cầu + phân khúc; form calculator
 gửi lead với `source: "story-cta"`. Filter/player là state riêng mỗi section tới E3-S08.
 
+Projects/shorts thông báo trạng thái trống theo VI/EN khi phân khúc được chọn không có item. Shorts nhận nhãn chip
+từ `segmentLabels` như projects; schema v2 có default cho dữ liệu cũ và `shorts/migrations.ts` bổ sung nhãn khi chuyển
+từ v1, giữ nguyên nội dung, query và items.
+
 Stats hiển thị số cuối trong HTML server; sau hydrate mới đếm khi vào viewport và không đếm với reduced motion.
 Trust có ảnh lớn trong dialog; thẻ vẫn đọc đủ thông tin khi tắt JavaScript. `process`, `testimonials`, `energy-monitoring`,
 `faq`, `blog`, `cta-banner` là server-only; các type tương tác chỉ hydrate island.
@@ -241,6 +245,11 @@ Trust có ảnh lớn trong dialog; thẻ vẫn đọc đủ thông tin khi tắ
 `/lab/sections/t15-content` render 11 type + calculator qua registry và loader mẫu. `content.test.ts` kiểm fixture,
 schema, query/loader, JSON-LD an toàn và href CTA. `tooling/visual/content.spec.ts` kiểm adapter mẫu, production SSR,
 JSON-LD trong HTML, filter riêng từng section, player/phím/focus, hai nguồn CTA gửi lead, nội dung khi tắt JS.
+
+`pnpm --filter web test` biên dịch adapter và workspace dependencies sang JS rồi chạy `node:test`, như các package.
+`apps/web/src/lib/__tests__/sectionCollections.test.ts` kiểm đủ 4 collection, mapping video/link/media và loader
+với ids/filter thật; test này cũng chạy bởi `pnpm test` / `pnpm turbo run test`. Unit sections kiểm SSR stats
+(sinceYear, decimals, suffix, VI/EN), cả 11 type ở EN và các nhánh dữ liệu thiếu.
 
 ## Lệnh kiểm tra
 

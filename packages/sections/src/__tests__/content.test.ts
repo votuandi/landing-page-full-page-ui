@@ -17,6 +17,34 @@ import { resolve } from "node:path";
 import { fieldMeta } from "../fields/widget";
 import { projectsSchema } from "../projects/schema";
 import { blogSchema } from "../blog/schema";
+import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
+import StatsT15 from "../stats/t15";
+import Shorts from "../shorts/t15.island";
+import { shorts } from "../shorts/schema";
+import { migrateShortsV1 } from "../shorts/migrations";
+import { pickLocale } from "../fields";
+import type { Locale } from "../site";
+
+const collectionItems = {
+  projects: [{ id: "p", title: "Sample project", segment: "shop", location: "HCM", kwp: 10, image: { id: "/p.webp", alt: { vi: "Ảnh", en: "Project image" } } }],
+  shorts: [{ id: "s", title: "Sample video", segment: "shop", location: "HCM", kwp: 10, kind: "done", poster: { id: "/s.webp", alt: { vi: "Ảnh", en: "Poster" } }, source: { provider: "file", idOrSrc: "/s.mp4" } }],
+  testimonials: [{ id: "t", name: "Sample client", segment: "shop", location: "HCM", kwp: 10, quote: "Sample quote", rating: 5 }],
+  blog: [{ id: "b", title: "Sample post", excerpt: "Sample excerpt", cover: { id: "/b.webp", alt: { vi: "Ảnh", en: "Post image" } }, readMinutes: 5, href: "/tin-tuc/sample" }],
+};
+
+async function renderContent(type: string, overrides: Record<string, unknown> = {}, locale: Locale = "en") {
+  const def = sectionRegistry.getType(type)!;
+  const data = def.schema.parse({ ...def.defaults as Record<string, unknown>, ...overrides });
+  const Component = (await import(`../${type}/t15`)).default;
+  // Preload the real next/dynamic islands so static markup includes their SSR content.
+  await Loadable.preloadAll();
+  return renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: type }));
+}
+
+function assertText(html: string, text: string) {
+  const encoded = renderToStaticMarkup(createElement("span", null, text)).slice(6, -7);
+  assert.ok(html.includes(encoded), `Missing text: ${text}`);
+}
 
 const types = ["projects", "shorts", "stats", "energy-monitoring", "process", "testimonials", "trust", "brands", "faq", "blog", "cta-banner"];
 const site = { tenantId: "test", locale: "vi", themeId: "t15" } as const;
@@ -104,4 +132,105 @@ test("project video card has a no-JS calculator link with story-cta source", () 
   }));
   assert.match(html, /href="\?[^" ]*nguon=story-cta[^" ]*#du-toan"/);
   assert.match(html, /Nhận báo giá công trình tương tự/);
+});
+
+test("stats SSR renders current-year experience, decimals, suffix and final values in VI/EN", async () => {
+  const sinceYear = 2014;
+  const years = Math.max(0, new Date().getFullYear() - sinceYear);
+  const data = stats.schema.parse({ items: [
+    { sinceYear, label: { vi: "Kinh nghiệm", en: "Experience" }, suffix: { vi: " năm", en: " years" } },
+    { value: 4200.25, decimals: 1, label: { vi: "Công suất", en: "Capacity" }, suffix: { vi: " kWp", en: " kWp" } },
+  ] });
+  await Loadable.preloadAll();
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(StatsT15, { data, site: { ...site, locale }, sectionId: "stats" }));
+    const suffix = locale === "en" ? " years" : " năm";
+    const decimal = locale === "en" ? "4,200.3" : "4.200,3";
+    assert.ok(html.includes(`>${years}<span class="text-2xl">${suffix}</span></dd>`));
+    assert.ok(html.includes(`>${decimal}<span class="text-2xl"> kWp</span></dd>`));
+    assertText(html, locale === "en" ? "Experience" : "Kinh nghiệm");
+    assertText(html, locale === "en" ? "Capacity" : "Công suất");
+  }
+});
+
+for (const type of types) {
+  test(`${type} renders English heading and collection content`, async () => {
+    const items = collectionItems[type as keyof typeof collectionItems];
+    const html = await renderContent(type, items ? { items } : {});
+    const { title } = sectionRegistry.getType(type)!.defaults as { title: { vi: string; en: string } };
+    assertText(html, title.en);
+    assert.ok(html.includes(`<h2 id="${type}-title"`));
+    if (items) {
+      const item = items[0];
+      assertText(html, "title" in item ? item.title : item.quote);
+    }
+  });
+}
+
+for (const locale of ["vi", "en"] as const) {
+  test(`projects hides absent savings and omits empty collections (${locale})`, async () => {
+    const html = await renderContent("projects", { items: collectionItems.projects, savingLabel: { vi: "Tiết kiệm cần ẩn", en: "Hidden savings" } }, locale);
+    assertText(html, "Sample project");
+    assert.doesNotMatch(html, /Tiết kiệm cần ẩn|Hidden savings/);
+    assert.equal(await renderContent("projects", { items: [] }, locale), "");
+    assert.equal(await renderContent("shorts", { items: [] }, locale), "");
+  });
+
+  test(`testimonials renders ratings without items (${locale})`, async () => {
+    const html = await renderContent("testimonials", { items: [], ratings: [{ label: { vi: "Đánh giá mẫu", en: "Sample ratings" }, score: 4.8, count: 12, url: "https://example.com/reviews" }] }, locale);
+    assertText(html, locale === "en" ? "Sample ratings" : "Đánh giá mẫu");
+    assertText(html, "4.8/5");
+    assert.doesNotMatch(html, /<figure|<blockquote/);
+    assert.equal(await renderContent("testimonials", { items: [], ratings: [] }, locale), "");
+  });
+
+  test(`brands renders wordmarks without signing video (${locale})`, async () => {
+    const html = await renderContent("brands", { signingVideo: undefined }, locale);
+    const { items } = sectionRegistry.getType("brands")!.defaults as { items: { name: { vi: string; en?: string } }[] };
+    assertText(html, pickLocale(items[0].name, locale));
+    assert.doesNotMatch(html, /Watch video:|Xem video:/);
+  });
+
+  test(`trust renders certificate metadata without images (${locale})`, async () => {
+    const { items } = sectionRegistry.getType("trust")!.defaults as { items: { number: { vi: string; en?: string }; scope: { vi: string; en?: string } }[] };
+    const html = await renderContent("trust", { items: items.map((item) => ({ ...item, image: undefined })) }, locale);
+    assertText(html, pickLocale(items[0].number, locale));
+    assertText(html, pickLocale(items[0].scope, locale));
+    assert.doesNotMatch(html, /<img/);
+  });
+
+  test(`cta-banner renders primary CTA without secondary CTA (${locale})`, async () => {
+    const html = await renderContent("cta-banner", { secondaryCta: undefined }, locale);
+    const { primaryCta } = sectionRegistry.getType("cta-banner")!.defaults as { primaryCta: { label: { vi: string; en?: string } } };
+    assertText(html, pickLocale(primaryCta.label, locale));
+    assert.equal((html.match(/<a\s/g) ?? []).length, 1);
+  });
+
+  test(`projects and shorts announce empty filtered lists (${locale})`, () => {
+    const labels = { household: "Nhà", shop: "Cửa hàng", factory: "Xưởng", farm: "Trại" };
+    const projectsHtml = renderToStaticMarkup(createElement(Projects, { items: [], labels, showFilter: true, savingLabel: "Savings", allLabel: "All", ctaLabel: "Quote", locale }));
+    const shortsHtml = renderToStaticMarkup(createElement(Shorts, { items: [], labels, ctaLabel: "Quote", locale }));
+    assertText(projectsHtml, locale === "en" ? "No projects for this segment yet." : "Chưa có công trình cho phân khúc này.");
+    assertText(shortsHtml, locale === "en" ? "No videos for this segment yet." : "Chưa có video cho phân khúc này.");
+    assert.match(projectsHtml, /role="status"/);
+    assert.match(shortsHtml, /role="status"/);
+  });
+
+  test(`shorts uses tenant segment labels from schema (${locale})`, async () => {
+    const segmentLabels = { ...shorts.defaults.segmentLabels, shop: { vi: "Cửa hàng của khách", en: "Tenant shops" } };
+    const html = await renderContent("shorts", { items: collectionItems.shorts, segmentLabels }, locale);
+    assertText(html, pickLocale(segmentLabels.shop, locale));
+    assert.doesNotMatch(html, />Shops<|>Cửa hàng</);
+  });
+}
+
+test("shorts v1 migration adds labels without changing content or overwriting tenant labels", () => {
+  const { segmentLabels, ...v1 } = shorts.schema.parse({ ...shorts.defaults, items: collectionItems.shorts });
+  const original = structuredClone(v1);
+  assert.equal(shorts.schemaVersion, 2);
+  assert.deepEqual(shorts.schema.parse(migrateShortsV1(v1)), { ...v1, segmentLabels });
+  assert.deepEqual(shorts.schema.parse(v1), { ...v1, segmentLabels });
+  const custom = { ...segmentLabels, shop: { vi: "Cửa hàng của khách", en: "Tenant shops" } };
+  assert.deepEqual(migrateShortsV1({ ...v1, segmentLabels: custom }).segmentLabels, custom);
+  assert.deepEqual(v1, original);
 });
