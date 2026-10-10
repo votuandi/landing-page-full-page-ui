@@ -8,7 +8,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
 
 ---
 
-### E3-S01 · Khung `defineSection` + registry
+### E3-S01 · Khung `defineSection` + registry ✅ · PR [#19](https://github.com/votuandi/landing-page-full-page-ui/pull/19)
 **Là** dev, **tôi muốn** một API khai báo section thống nhất, **để** CMS, builder và renderer đều biết section có gì.
 - **Chi tiết**:
   ```ts
