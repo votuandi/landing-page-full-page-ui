@@ -4,7 +4,7 @@
     "target": "ES2020",
     "module": "commonjs",
     "moduleResolution": "node",
-    "paths": { "@solar/core": ["../core/src/index.ts"] },
+    "paths": { "@solar/core": ["../core/src/index.ts"], "@solar/ui": ["../ui/src/index.ts"] },
     "jsx": "react-jsx",
     "noEmit": false,
     "incremental": false,

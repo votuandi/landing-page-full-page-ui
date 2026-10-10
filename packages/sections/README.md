@@ -1,7 +1,7 @@
 # @solar/sections
 
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
-(`z.output`), `SiteContext` và `sectionId`. Registry thật đang rỗng ở E3-S01; S04 đăng ký các type sản phẩm.
+(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 7 type đợt 1 (E3-S04), xem mục "Type đã có".
 
 ## Khai báo một type
 
@@ -45,7 +45,7 @@ không ghi `z.globalRegistry`. CMS đọc metadata ở E7-S03.
 `pickLocale(value, locale)` lấy EN khi có nội dung, fallback VI khi EN thiếu/rỗng. `mediaRef.id` là id bản ghi Media;
 focal nằm trong 0..1. S02 chưa resolve URL media hay kiểm tenant; E5 kiểm media/id collection cùng tenant.
 
-`link.kind` hỗ trợ `page` (slug, rỗng = trang chủ), `url` (chỉ HTTP/HTTPS), `anchor` (id không có `#`),
+`link.kind` hỗ trợ `page` (slug, rỗng = trang chủ, tùy chọn kèm query như `san-pham?category=panel`; không nhận `#`, khoảng trắng, `//`), `url` (chỉ HTTP/HTTPS), `anchor` (id không có `#`),
 `phone`/`zalo` (số VN được chuẩn hóa) và `calculator`. `resolveLink` trả `{ href, external, calculator? }`,
 kiểm lại protocol URL lúc render và fallback `#` nếu sai. Calculator dùng query string, ví dụ
 `phan-khuc=factory&hoa-don=15000000`; `calculatorBus` parse và serialize các trường đã biết, bỏ qua tham số sai.
@@ -176,18 +176,49 @@ return <Variant data={def.schema.parse(rawData)} site={site} sectionId={sectionI
 Lookup bằng string trộn nhiều schema, nên renderer phải parse dữ liệu bằng definition tương ứng trước khi render.
 `SectionPropsOf` và `defineVariants` giữ kiểm tra kiểu tại nơi khai báo variant.
 
+## Type đã có (E3-S04)
+
+| Type | Variant | Island | Entitlement |
+| --- | --- | --- | --- |
+| `site-header` | `t15` | mega menu, hotline, drawer mobile | — |
+| `hero` | `t15` | đếm số liệu | — |
+| `segments` | `t15` | không (thẻ là link `?phan-khuc=<slug>#<targetAnchor>`) | — |
+| `packages` | `t15` | tab phân khúc, nút mở dự toán | `packages` |
+| `calculator` | `t15` | ô nhập + kết quả + form lead | `calculator` |
+| `lead-form` | `t15` | form lead | `leadForm` |
+| `site-footer` | `t15` | không | — |
+
+Mỗi type: `schema.ts` (export `<type>Schema` + definition, `defaults = schema.parse(fixture)`), `fixtures.ts`
+(`[DỮ LIỆU MẪU]` của t15), `index.ts`, `t15.tsx`. Server variant chọn ngôn ngữ (`pickLocale`) và resolve link
+(`toClientLink`) trước khi truyền xuống island, nên island không import zod.
+
+- `calculator` giữ mọi hệ số dự toán trong dữ liệu section (`tariffs`, `vatRate`, `pricePerKwp`, `peakSunHours`,
+  `segmentRatios`, `system`, `inputs`); `toCalculatorParams(data)` đổi sang `CalculatorParams` của `@solar/core`.
+  `steps` là các ô nhập hiển thị theo thứ tự (`segment|bill|roof|province|ratio`). Danh sách tỉnh/vùng là dữ liệu địa lý
+  ở core (`PROVINCES`, `REGION_LABELS`). Island nhận điền sẵn từ URL và `calculatorBus`.
+- `packages.items[].monthlySaving` là số tenant nhập (fixture tính bằng `estimateSavingForKwp`); trống → ẩn.
+- State phân khúc dùng chung giữa section là E3-S08; hiện `packages` đọc `?phan-khuc=` khi mở.
+- `mediaSrc(ref)` tạm thời: `id` bắt đầu bằng `/` (không phải `//`) là ảnh tĩnh của app, còn lại vẽ placeholder;
+  E5 thay bằng resolver media theo tenant.
+- Header chưa có công tắc theme, giỏ báo giá, đổi ngôn ngữ (widget E3-S07 / i18n).
+
+`/lab/sections/t15` render 7 type bằng `PageRenderer` + registry sản phẩm (`?lang=en` cho tiếng Anh). Trang lab vẫn
+nằm trong `SiteShell` cũ nên có thêm header/footer cũ tới E4-S01.
+
 ## Kiểm tra
 
 - `pnpm --filter @solar/sections typecheck`: gồm `@ts-expect-error` cho trường sai, loader sai type, default variant
   sai và defaults thiếu trường; các file `*.typecheck.ts` không chạy trong unit test.
-- `pnpm --filter @solar/sections test`: registry, parse trường, metadata, link/click calculator, renderer richText
+- `pnpm --filter @solar/sections test`: type đợt 1 (fixture parse, dữ liệu sai bị chặn, đổi giá điện → dự toán đổi,
+  không import cấu hình app), registry, parse trường, metadata, link/click calculator, renderer richText
   (escape, whitelist, locale, URL độc) và `PageRenderer` (thứ tự, bỏ section, entitlement, fallback + log). Cấu hình test biên dịch dependency core cùng sections; preload test trỏ
   `@solar/core` tới bản JS thật vừa sinh vì Node 20 không chạy trực tiếp workspace export TypeScript.
 - `pnpm --filter @solar/sections lint` và `pnpm lint:tokens`.
 - `pnpm turbo run build --filter=web` rồi `pnpm --filter @solar/visual test:sections`: production SSR, counter island
   và danh sách response JS. Spec yêu cầu marker v1 có mặt, marker v2 vắng mặt; đính kèm danh sách request và ảnh lab.
   `/lab/fields` kiểm calculatorBus nhận prefill, click/Enter không reload, fallback href không JavaScript và
-  richText độc chỉ hiện dạng chữ; `/lab/renderer` kiểm thứ tự, HTTP 200, fallback lỗi server/client và log
+  richText độc chỉ hiện dạng chữ; `/lab/sections/t15` (`conversion.spec.ts`) kiểm 7 section render, nhập tiền điện đổi kết quả, tab gói và nút gói mở
+  dự toán, bản EN; `/lab/renderer` kiểm thứ tự, HTTP 200, fallback lỗi server/client và log
   client có `tenantId`, `sectionId`; ảnh trang được đính kèm vào report Playwright.
 
 `/lab/sections` và `/lab/renderer` dùng registry demo riêng (demo-a, demo-b mỗi type hai variant, demo-crash), không

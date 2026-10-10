@@ -1,4 +1,11 @@
 import type { SectionPropsOf, SectionTypeDef, SectionVariants, VariantLoader } from "./define";
+import { variants as calculator } from "./calculator";
+import { variants as hero } from "./hero";
+import { variants as leadForm } from "./lead-form";
+import { variants as packages } from "./packages";
+import { variants as segments } from "./segments";
+import { variants as siteFooter } from "./site-footer";
+import { variants as siteHeader } from "./site-header";
 
 // Registry trộn nhiều schema; defineVariants kiểm props trước khi xóa kiểu ở lookup bằng string.
 export function createRegistry<E extends Record<string, SectionVariants<any, string>>>(entries: E) {
@@ -32,7 +39,15 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
   };
 }
 
-export const sectionRegistry = createRegistry({});
+export const sectionRegistry = createRegistry({
+  "site-header": siteHeader,
+  hero,
+  segments,
+  packages,
+  calculator,
+  "lead-form": leadForm,
+  "site-footer": siteFooter,
+});
 export type SectionTypeName = keyof typeof sectionRegistry.types;
 export type SectionProps<K extends SectionTypeName> = SectionPropsOf<(typeof sectionRegistry.types)[K]>;
 export type SectionRegistry = ReturnType<typeof createRegistry>;

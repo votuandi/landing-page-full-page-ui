@@ -59,7 +59,7 @@ test("link parse đủ sáu kind, label và metadata", () => {
   const schema = link();
   assert.deepEqual(fieldMeta(schema), { widget: "link" });
   for (const [kind, value] of [
-    ["page", ""], ["page", "dich-vu/dien-mat-troi"], ["url", "https://example.com/path"],
+    ["page", ""], ["page", "dich-vu/dien-mat-troi"], ["page", "san-pham?category=panel&brand=A"], ["url", "https://example.com/path"],
     ["url", "http://example.com"], ["anchor", "du-toan"], ["phone", "+84 912 345 678"],
     ["zalo", "0912345678"], ["calculator", ""], ["calculator", "phan-khuc=factory&hoa-don=15000000"],
   ]) assert.deepEqual(schema.parse({ kind, value, label }), { kind, value, label });
@@ -72,7 +72,7 @@ test("link chặn protocol nguy hiểm, slug thoát đường dẫn và số đi
   for (const value of ["javascript:alert(1)", "data:text/html,<script>alert(1)</script>", "//evil.com", "not a URL"]) {
     assert.equal(schema.safeParse({ kind: "url", value, label }).success, false);
   }
-  for (const value of ["../admin", "a/../admin", "/admin", "//evil.com", "a?b=1", "a#b", "a\\b"]) {
+  for (const value of ["../admin", "a/../admin", "/admin", "//evil.com", "a#b", "a\\b", "a?b=1#c", "a?b c", "?//x#y"]) {
     assert.equal(schema.safeParse({ kind: "page", value, label }).success, false);
   }
   for (const value of ["#du-toan", "", "a/b"]) {
@@ -88,6 +88,7 @@ test("link chặn protocol nguy hiểm, slug thoát đường dẫn và số đi
 test("resolveLink tạo href và cờ external đúng cho mọi kind", () => {
   const cases: [Link["kind"], string, string, boolean][] = [
     ["page", "", "/", false], ["page", "dich-vu/dien-mat-troi", "/dich-vu/dien-mat-troi", false],
+    ["page", "san-pham?category=panel", "/san-pham?category=panel", false],
     ["url", "https://example.com", "https://example.com", true],
     ["anchor", "du-toan", "#du-toan", false],
     ["phone", "+84 912 345 678", "tel:0912345678", false],

@@ -40,7 +40,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   - [x] `link.kind = "calculator"` mở dự toán qua `calculatorBus` với tham số.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
-### E3-S03 · Renderer trang từ cấu hình
+### E3-S03 · Renderer trang từ cấu hình ✅ · PR [#21](https://github.com/votuandi/landing-page-full-page-ui/pull/21)
 **Là** tenant, **tôi muốn** trang chủ hiện đúng thứ tự section tôi chọn, **để** tôi kiểm soát bố cục.
 - **Chi tiết**: `<PageRenderer page={…} site={…}/>` (Server Component) duyệt danh sách, bỏ section `enabled=false` hoặc
   không đủ entitlement (E6), lazy-load section dưới màn hình đầu, gắn `id` neo (`#du-toan`).
@@ -65,9 +65,9 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `segmentRatios`, `steps`, `ctaLabel` — đọc chung cho variant t12/t14/t15 (theo yêu cầu: giá điện, đơn giá/kWp, hệ số sản lượng).
 - **Target**: 7 type, mỗi type có fixture + ít nhất 1 variant.
 - **AC**:
-  - [ ] Mỗi type có `schema.ts`, `fixtures.ts`, `t15.tsx`, test parse fixture.
-  - [ ] Đổi giá điện trong dữ liệu section → kết quả dự toán thay đổi tương ứng (test `packages/core`).
-  - [ ] Không còn import `config/solar.ts` cứng từ section.
+  - [x] Mỗi type có `schema.ts`, `fixtures.ts`, `t15.tsx`, test parse fixture.
+  - [x] Đổi giá điện trong dữ liệu section → kết quả dự toán thay đổi tương ứng (test `packages/core`).
+  - [x] Không còn import `config/solar.ts` cứng từ section.
 - Phụ thuộc: S01–S03 · Agent: Codex (review Claude) · Cỡ: L
 
 ### E3-S05 · Schema + variant đợt 2 (uy tín & nội dung)

@@ -168,3 +168,26 @@ test("dự toán: mái rỗng, giá trị âm và tỷ lệ ban ngày ngoài kho
   const capped = { kind: "tiered" as const, tiers: [{ upTo: 10, price: 100 }] };
   assert.equal(kwhFromBill(2000, capped), 10);
 });
+
+test("đổi giá điện trong params → kWh quy đổi và tiết kiệm đổi theo", () => {
+  const input = { segment: "shop", monthlyBill: 8_000_000, roofArea: 1_000, province: "Hà Nội", daytimeRatio: 70 } as const;
+  const base = calculateSolar(input, CALCULATOR_PARAMS);
+  const pricier: CalculatorParams = {
+    ...CALCULATOR_PARAMS,
+    tariffs: { ...CALCULATOR_PARAMS.tariffs, shop: { kind: "flat", averageRate: 3300 * 1.1, solarOffsetRate: 3150 * 1.1 } },
+  };
+  const r = calculateSolar(input, pricier);
+  // Cùng hóa đơn, giá cao hơn 10% → ít kWh hơn đúng tỉ lệ 1/1,1.
+  close(r.monthlyKwh, base.monthlyKwh / 1.1);
+  assert.ok(r.kwp < base.kwp);
+  close(r.monthlySavings, r.monthlyProduction * 3150 * 1.1 * 1.08, 1);
+
+  const household = { segment: "household", monthlyBill: 2_000_000, roofArea: 100, province: "Huế", daytimeRatio: 40 } as const;
+  const tiers = CALCULATOR_PARAMS.tariffs.household;
+  assert.equal(tiers.kind, "tiered");
+  const raised: CalculatorParams = {
+    ...CALCULATOR_PARAMS,
+    tariffs: { ...CALCULATOR_PARAMS.tariffs, household: { kind: "tiered", tiers: tiers.tiers.map((t) => ({ ...t, price: t.price * 2 })) } },
+  };
+  assert.ok(calculateSolar(household, raised).monthlyKwh < calculateSolar(household, CALCULATOR_PARAMS).monthlyKwh);
+});
