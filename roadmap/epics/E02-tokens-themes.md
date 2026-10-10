@@ -83,7 +83,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] Font có subset `vietnamese`. Script kiểm cmap nguồn/woff2; unit test kiểm unicode-range; e2e kiểm chữ có dấu.
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: S
 
-### E2-S07 · Theme t15 làm theme chuẩn + trang `/lab/themes`
+### E2-S07 · Theme t15 làm theme chuẩn + trang `/lab/themes` ✅ · PR [#18](https://github.com/votuandi/landing-page-full-page-ui/pull/18)
 **Là** dev/designer, **tôi muốn** xem mọi token của một theme trên một trang, **để** kiểm nhanh theme mới.
 - **Chi tiết**: `packages/themes/t15/theme.ts` đã có từ E2-S02; trang dev-only `/lab/themes/[id]`
   hiển thị bảng màu, typography, bo góc, kính, bóng, motion, và lưới tất cả section đã port với theme đó; bộ chọn theme để so sánh.
