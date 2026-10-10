@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Không để `next dev` sinh AGENTS.md/CLAUDE.md trong apps/web — quy ước agent nằm ở AGENTS.md gốc
   agentRules: false,
+  async headers() {
+    return [{
+      source: "/fonts/:path*",
+      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+    }];
+  },
   async redirects() {
     // Đường dẫn cũ của template-8 → slug tiếng Việt
     return [
