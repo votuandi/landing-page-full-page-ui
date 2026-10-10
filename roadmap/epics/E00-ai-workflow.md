@@ -66,7 +66,7 @@
   E0 là setup quy trình cho agent, không tốn effort chạy thử nghiệm riêng.
 - Phụ thuộc: E1-S01 · Agent: Claude · Cỡ: S
 
-### E0-S06 · Chạy song song nhiều Codex cho story cơ học
+### E0-S06 · Chạy song song nhiều Codex cho story cơ học ✅ · PR [#24](https://github.com/votuandi/landing-page-full-page-ui/pull/24)
 **Là** chủ dự án, **tôi muốn** giao nhiều story port section cho Codex chạy song song, **để** rút ngắn E4.
 - **Chi tiết**: script `scripts/agents/spawn-codex.ps1 <story-id…>` tạo worktree + branch mỗi story, chạy
   `codex exec` nền, ghi log `../lp-worktrees/<id>/codex.log`; script `collect.ps1` liệt kê branch đã có commit + kết quả
