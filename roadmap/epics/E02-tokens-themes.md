@@ -72,7 +72,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
-### E2-S06 · Font theo theme
+### E2-S06 · Font theo theme ✅ · PR [#17](https://github.com/votuandi/landing-page-full-page-ui/pull/17)
 **Là** tenant, **tôi muốn** font đúng của theme mà site không tải font thừa, **để** trang nhanh.
 - **Chi tiết**: registry font tự host trong `packages/themes/src/fonts.ts` (Inter, Be Vietnam Pro, Manrope,
   Plus Jakarta Sans, Montserrat); CSS và preload được chọn từ `theme.font` lúc render. Mỗi woff2 gộp latin + vietnamese.
@@ -88,6 +88,6 @@ revalidate; 0 vi phạm `lint:tokens`.
 - **Chi tiết**: `packages/themes/t15/theme.ts` đã có từ E2-S02; trang dev-only `/lab/themes/[id]`
   hiển thị bảng màu, typography, bo góc, kính, bóng, motion, và lưới tất cả section đã port với theme đó; bộ chọn theme để so sánh.
 - **AC**:
-  - [ ] `apps/web` không còn khối `:root` màu cứng trong `globals.css`.
-  - [ ] `/lab` bị chặn ở production (404) trừ khi `LAB_ENABLED=true`.
+  - [x] `apps/web` không còn khối `:root` màu cứng trong `globals.css`. Bằng chứng: tìm `:root`/`t15-radius` rỗng; 48/48 ảnh hồi quy qua.
+  - [x] `/lab` bị chặn ở production (404) trừ khi `LAB_ENABLED=true`. Bằng chứng: `lab.spec.ts` 16/16 qua; cùng build bật env lúc start trả 200 cho `/lab/themes/t15` và `/lab/ui` (report `.agent-runs/E2-S07/codex-report.md`).
 - Phụ thuộc: S02, S03 · Agent: Claude · Cỡ: M
