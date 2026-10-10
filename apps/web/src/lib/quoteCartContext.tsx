@@ -24,7 +24,7 @@ type QuoteCartApi = {
 const Ctx = createContext<QuoteCartApi | null>(null);
 
 /** Giỏ yêu cầu báo giá (không thanh toán): lưu localStorage (bọc try/catch, có fallback bộ nhớ), drawer bên phải. */
-export function QuoteCartProvider({ children }: { children: React.ReactNode }) {
+export function QuoteCartProvider({ children, showDrawer = true }: { children: React.ReactNode; showDrawer?: boolean }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setOpen] = useState(false);
 
@@ -48,7 +48,7 @@ export function QuoteCartProvider({ children }: { children: React.ReactNode }) {
   return (
     <Ctx.Provider value={api}>
       {children}
-      {catalogEnabled && isOpen && <QuoteCartDrawer onClose={close} />}
+      {showDrawer && catalogEnabled && isOpen && <QuoteCartDrawer onClose={close} />}
     </Ctx.Provider>
   );
 }
