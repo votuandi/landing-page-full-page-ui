@@ -15,3 +15,7 @@ export { PageRenderer } from "./render/PageRenderer";
 export type { PageRendererProps, LoadSectionData } from "./render/PageRenderer";
 export { mediaSrc } from "./shared/media";
 export { toCalculatorParams } from "./calculator/params";
+export { createCollectionLoader } from "./collections/loader";
+export type { CollectionSource } from "./collections/loader";
+export { applyCollectionQuery } from "./collections/query";
+export * from "./collections/schemas";
