@@ -125,8 +125,13 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   site; section chỉ đăng ký/đọc qua hook `useSegment()`, `openCalculator()`. Nếu trang không có section `calculator`,
   `openCalculator` điều hướng tới trang có calculator hoặc mở dialog lead đơn giản.
 - **AC**:
-  - [ ] Bỏ section `segments` khỏi trang → các section khác vẫn chạy (segment mặc định).
-  - [ ] Test e2e: chọn "Trang trại" ở lưới phân khúc → tab gói và dự toán đổi theo.
+  - [x] Bỏ section `segments` khỏi trang → các section khác vẫn chạy (segment mặc định).
+  - [x] Test e2e: chọn "Trang trại" ở lưới phân khúc → tab gói và dự toán đổi theo.
+- Bằng chứng triển khai: `state.test.tsx`, `lastEstimate.test.ts`, `widgets.test.tsx`,
+  `tooling/visual/{conversion,content,widgets}.spec.ts`; `/lab/sections/t15?an=segments` và `?an=calculator`.
+  Kiểm tra: typecheck/lint/test 23/23 tác vụ; lint:tokens 0 vi phạm; build web PASS; sections e2e 43/43 PASS.
+  Log và ảnh: `.agent-runs/E3-S08/{checks-final,tokens-final,build-final,visual-final}.log`, `screenshots/shared-segment.png`.
+  Phần triển khai Codex hoàn tất; review Claude, commit/PR và link PR còn chờ theo routing.
 - Phụ thuộc: S04 · Agent: Claude · Cỡ: M
 
 ### E3-S09 · Migration dữ liệu section theo `schemaVersion`
