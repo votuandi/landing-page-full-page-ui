@@ -316,7 +316,9 @@ Dữ liệu lỗi bị bỏ riêng từng widget và log tenant; mọi widget đ
 
 `createCollectionLoader(source, widgetRegistry)` nạp catalog cho giỏ (query limit mặc định 48).
 Giỏ chia sẻ `@solar/core` store/event với products, lọc SKU theo catalog, gửi lead `source: "quote-cart"`
-và chỉ xóa sau khi gửi thành công. Chưa đính kèm dự toán (E3-S08).
+và chỉ xóa sau khi gửi thành công. Khi mở drawer, đọc dự toán gần nhất từ `@solar/core` (tối đa 30 ngày);
+checkbox mặc định bật gửi kèm `segment` và `estimate`. Storage bị chặn hoặc dữ liệu sai/quá hạn thì bỏ phần này.
+Schema quote-cart v2 thêm hai nhãn VI/EN; `migrateQuoteCartV1` bổ sung nhãn mà giữ nội dung cũ, dữ liệu v1 vẫn parse được.
 
 Bus: `openConsult`/`onOpenConsult` dùng `t15:open-consult`; `toggleSiteMenu`/`onToggleSiteMenu` dùng
 `t15:toggle-site-menu`. Header section nghe event menu. Popup mở theo thời gian hoặc ngưỡng cuộn,
@@ -326,3 +328,20 @@ Theme-switch lưu `t15-theme`; layout app giữ script áp theme trước khi v�
 Lab: `/lab/sections/t15-widgets` (tất cả bật), `?plan=basic` (không catalog), `?lang=en`.
 Widget cũ của SiteShell tạm tắt trên route này tới E4-S01. Kiểm tra: `widgets.test.tsx`,
 `tooling/visual/widgets.spec.ts` trong `pnpm --filter @solar/visual test:sections`.
+
+## State liên section
+
+Đặt `<SiteStateProvider>` ở layout site, bao cả section và widget. `useSegment()` cung cấp phân khúc
+(`null` = Tất cả), `version`, `source`, `setSegment` và `focusSegment`. Chọn ở lưới, tab gói, video,
+công trình hoặc calculator đồng bộ ngay; URL `?phan-khuc=` được thay bằng `history.replaceState`, giữ
+query khác và hash. Link lưới vẫn render ở server và hoạt động khi tắt JavaScript; click có phím bổ trợ
+giữ hành vi trình duyệt. Thiếu anchor chỉ cập nhật state, không điều hướng.
+
+`useOpenCalculator()` nhận `Segment` hoặc `CalculatorPrefill`: nếu có `#du-toan` dùng bus;
+thiếu calculator thì `calculatorHref` mặc định/undefined điều hướng tới `/?…#du-toan`, đường dẫn
+nội bộ như `/bang-gia` điều hướng tới trang đó với prefill, `null` hoặc đường dẫn không hợp lệ mở
+`consult-popup`. Nhánh tư vấn yêu cầu widget consult-popup bật. E5-S04 sẽ truyền đường dẫn từ cấu hình site.
+
+Thiếu provider, hook phân khúc dùng state cục bộ và đọc URL; calculator vẫn dùng bus/fallback trang chủ.
+Lab `/lab/sections/*` có provider; `/lab/sections/t15?an=segments` hoặc `?an=calculator` kiểm các section vắng mặt.
+Store quote cart của core giữ nguyên; dự toán lưu qua `saveLastEstimate`/`readLastEstimate`.

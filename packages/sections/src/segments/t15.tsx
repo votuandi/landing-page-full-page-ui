@@ -7,10 +7,11 @@ import { pickLocale } from "../fields";
 import { mediaSrc } from "../shared/media";
 import { SegmentIcon } from "../shared/SegmentIcon";
 import type { segments } from "./schema";
+import { SegmentLink } from "./t15.island";
 
 /**
  * Lưới phân khúc t15. Mỗi thẻ là link `?phan-khuc=<slug>#<targetAnchor>` nên chạy cả khi tắt JavaScript;
- * state phân khúc dùng chung giữa section là E3-S08.
+ * click thường đồng bộ phân khúc qua state của site.
  */
 export default function SegmentsT15({ data, site, sectionId }: SectionPropsOf<typeof segments>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
@@ -25,7 +26,7 @@ export default function SegmentsT15({ data, site, sectionId }: SectionPropsOf<ty
             const src = mediaSrc(item.image);
             return (
               <li key={item.segment} className="flex">
-                <a href={`?phan-khuc=${SEGMENT_SLUGS[item.segment]}#${data.targetAnchor}`}
+                <SegmentLink segment={item.segment} anchor={data.targetAnchor} href={`?phan-khuc=${SEGMENT_SLUGS[item.segment]}#${data.targetAnchor}`}
                   className="t15-card t15-card-hover group relative flex w-full flex-col overflow-hidden text-left">
                   <span className="relative block aspect-[4/3] overflow-hidden bg-bg-tint">
                     {src
@@ -46,7 +47,7 @@ export default function SegmentsT15({ data, site, sectionId }: SectionPropsOf<ty
                   <span aria-hidden className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-bg-elevated text-primary shadow transition group-hover:translate-x-1 motion-reduce:transition-none">
                     <ArrowRightIcon className="h-4 w-4" />
                   </span>
-                </a>
+                </SegmentLink>
               </li>
             );
           })}

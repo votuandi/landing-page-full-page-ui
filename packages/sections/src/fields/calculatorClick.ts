@@ -9,12 +9,16 @@ type CalculatorClick = {
   preventDefault(): void;
 };
 
+export function isPlainClick(event: CalculatorClick): boolean {
+  return event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
+}
+
 export function handleCalculatorClick(
   event: CalculatorClick,
   prefill: CalculatorPrefill,
   open: (prefill: CalculatorPrefill) => void = openCalculator,
 ): void {
-  if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  if (!isPlainClick(event)) return;
   event.preventDefault();
   open(prefill);
 }

@@ -8,8 +8,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "tsc -p tsconfig.test.json && node --test --experimental-test-coverage .test-dist/__tests__/browserHelpers.test.js .test-dist/__tests__/calculatorBus.test.js .test-dist/__tests__/format.test.js .test-dist/__tests__/noFramework.test.js .test-dist/__tests__/quoteCart.test.js .test-dist/__tests__/quoteCartStore.test.js .test-dist/__tests__/segment.test.js .test-dist/__tests__/solarCalculator.test.js",
-    "test:coverage": "tsc -p tsconfig.test.json && node --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-exclude=\".test-dist/__tests__/**\" .test-dist/__tests__/browserHelpers.test.js .test-dist/__tests__/calculatorBus.test.js .test-dist/__tests__/format.test.js .test-dist/__tests__/noFramework.test.js .test-dist/__tests__/quoteCart.test.js .test-dist/__tests__/quoteCartStore.test.js .test-dist/__tests__/segment.test.js .test-dist/__tests__/solarCalculator.test.js"
+    "test": "tsc -p tsconfig.test.json && node --test --experimental-test-coverage .test-dist/__tests__/browserHelpers.test.js .test-dist/__tests__/calculatorBus.test.js .test-dist/__tests__/lastEstimate.test.js .test-dist/__tests__/format.test.js .test-dist/__tests__/noFramework.test.js .test-dist/__tests__/quoteCart.test.js .test-dist/__tests__/quoteCartStore.test.js .test-dist/__tests__/segment.test.js .test-dist/__tests__/solarCalculator.test.js",
+    "test:coverage": "tsc -p tsconfig.test.json && node --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-exclude=\".test-dist/__tests__/**\" .test-dist/__tests__/browserHelpers.test.js .test-dist/__tests__/calculatorBus.test.js .test-dist/__tests__/lastEstimate.test.js .test-dist/__tests__/format.test.js .test-dist/__tests__/noFramework.test.js .test-dist/__tests__/quoteCart.test.js .test-dist/__tests__/quoteCartStore.test.js .test-dist/__tests__/segment.test.js .test-dist/__tests__/solarCalculator.test.js"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

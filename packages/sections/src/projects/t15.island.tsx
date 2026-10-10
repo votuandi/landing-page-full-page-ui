@@ -1,24 +1,24 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { MediaImage } from "@solar/ui";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { PlayIcon } from "@heroicons/react/24/solid";
-import { SEGMENT_ORDER, segmentFromParam, formatMoneyShort, formatNumber, type Segment } from "@solar/core";
+import { SEGMENT_ORDER, formatMoneyShort, formatNumber, type Segment } from "@solar/core";
 import type { ProjectItem } from "../collections/schemas";
 import type { Locale } from "../site";
 import { CalculatorLink } from "../render/CalculatorLink";
 import { storyQuoteLink } from "../shared/storyQuote";
 import type { StoryView } from "../shared/storyView";
+import { useSegment } from "../state/SiteState";
 
 const StoryPlayer = dynamic(() => import("../shared/StoryPlayer.island"), { ssr: false });
 type ProjectView = Omit<ProjectItem, "image"> & { imageSrc?: string; imageAlt: string };
 export default function Projects({ items, labels, showFilter, savingLabel, allLabel, ctaLabel, locale }: {
   items: ProjectView[]; labels: Record<Segment, string>; showFilter: boolean; savingLabel: string; allLabel: string; ctaLabel: string; locale: Locale;
 }) {
-  const [segment, setSegment] = useState<Segment | null>(null);
+  const { segment, setSegment } = useSegment();
   const [playing, setPlaying] = useState<{ stories: StoryView[]; index: number } | null>(null);
-  useEffect(() => { setSegment(segmentFromParam(new URLSearchParams(window.location.search).get("phan-khuc"))); }, []);
   const list = items.filter((item) => !segment || item.segment === segment);
   const stories: StoryView[] = list.flatMap((item) => item.video ? [{ id: item.id, title: item.title, location: item.location, kwp: item.kwp, segment: item.segment, poster: item.imageSrc, source: item.video, kindLabel: labels[item.segment] }] : []);
   return <>

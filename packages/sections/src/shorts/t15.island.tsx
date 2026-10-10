@@ -3,20 +3,21 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { MediaImage, CarouselNav, useSnapCarousel } from "@solar/ui";
 import { PlayIcon } from "@heroicons/react/24/solid";
-import { SEGMENT_ORDER, segmentFromParam, type Segment } from "@solar/core";
+import { SEGMENT_ORDER, type Segment } from "@solar/core";
 import type { Locale } from "../site";
 import type { StoryView } from "../shared/storyView";
+import { useSegment } from "../state/SiteState";
 
 const StoryPlayer = dynamic(() => import("../shared/StoryPlayer.island"), { ssr: false });
 const CARD_W = "w-[calc((100%-0.75rem*0.8)/1.8)] sm:w-[calc((100%-1rem*2.5)/3.5)] lg:w-[calc((100%-1rem*4.5)/5.5)]";
 export default function Shorts({ items, labels, locale, ctaLabel }: { items: StoryView[]; labels: Record<Segment, string>; locale: Locale; ctaLabel: string }) {
-  const [segment, setSegment] = useState<Segment | null>(null);
+  const { segment, setSegment } = useSegment();
   const [playing, setPlaying] = useState<{ stories: StoryView[]; index: number } | null>(null);
   const { ref, prev, next, atStart, atEnd } = useSnapCarousel();
   const tr = (vi: string, en: string) => locale === "en" ? en : vi;
-  useEffect(() => { setSegment(segmentFromParam(new URLSearchParams(window.location.search).get("phan-khuc"))); }, []);
+  useEffect(() => { ref.current?.scrollTo({ left: 0 }); }, [segment, ref]);
   const list = items.filter((item) => !segment || item.segment === segment);
-  const select = (s: Segment | null) => { setSegment(s); ref.current?.scrollTo({ left: 0 }); };
+  const select = (s: Segment | null) => setSegment(s, "shorts");
   return <>
     <div className="t15-no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label={tr("Lọc video theo phân khúc", "Filter videos by segment")}>
       <button type="button" aria-pressed={!segment} onClick={() => select(null)} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>{SEGMENT_ORDER.map((s) => <button key={s} type="button" aria-pressed={segment === s} onClick={() => select(s)} className="t15-chip shrink-0">{labels[s]}</button>)}

@@ -25,3 +25,4 @@ export { widgetRegistry, WIDGET_SLOTS } from "./widgets/registry";
 export { SiteWidgets } from "./widgets/SiteWidgets";
 export type { SiteWidgetsProps } from "./widgets/SiteWidgets";
 export { openConsult, onOpenConsult, toggleSiteMenu, onToggleSiteMenu } from "./widgets/events";
+export { SiteStateProvider, useSegment, useOpenCalculator } from "./state/SiteState";
