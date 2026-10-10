@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens"],
+  transpilePackages: ["@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections"],
   compress: true,
   poweredByHeader: false,
   // Không để `next dev` sinh AGENTS.md/CLAUDE.md trong apps/web — quy ước agent nằm ở AGENTS.md gốc

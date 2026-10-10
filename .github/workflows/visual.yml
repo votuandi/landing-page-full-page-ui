@@ -112,6 +112,7 @@ jobs:
             test -n "$(find "$snapshot_dir" -name '*.png' -print -quit)"
           fi
       - run: pnpm visual:test
+      - run: pnpm --filter @solar/visual test:sections
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

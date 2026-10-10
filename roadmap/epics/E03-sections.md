@@ -24,9 +24,9 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Kiểu `SectionProps<"calculator">` = `{ data: z.infer<schema>, site: SiteContext, sectionId: string }`.
 - **Target**: thêm một variant mới chỉ chạm ≤ 2 file (component + registry).
 - **AC**:
-  - [ ] TS báo lỗi khi variant đọc trường không có trong schema.
-  - [ ] Unit test: registry trả fallback + cảnh báo khi variant không tồn tại.
-  - [ ] Variant là Server Component mặc định; phần tương tác tách thành client island import qua `next/dynamic` → JS của variant
+  - [x] TS báo lỗi khi variant đọc trường không có trong schema.
+  - [x] Unit test: registry trả fallback + cảnh báo khi variant không tồn tại.
+  - [x] Variant là Server Component mặc định; phần tương tác tách thành client island import qua `next/dynamic` → JS của variant
         không dùng không xuất hiện trong trang. Kiểm bằng bundle analyzer + danh sách request mạng của trang có 1 variant/type.
 - Agent: Claude · Cỡ: M
 

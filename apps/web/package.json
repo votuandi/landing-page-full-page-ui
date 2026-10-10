@@ -18,7 +18,9 @@
     "@solar/core": "workspace:*",
     "@solar/ui": "workspace:*",
     "@solar/themes": "workspace:*",
-    "@solar/tokens": "workspace:*"
+    "@solar/tokens": "workspace:*",
+    "@solar/sections": "workspace:*",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -1,0 +1,24 @@
+{
+  "name": "@solar/sections",
+  "version": "0.0.0",
+  "private": true,
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:tokens": "solar-lint-tokens src",
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/__tests__/registry.test.js"
+  },
+  "dependencies": { "zod": "4.6.5" },
+  "peerDependencies": { "react": "19.2.8", "next": "16.3.8" },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@solar/eslint-plugin": "workspace:*",
+    "@types/node": "20.19.37",
+    "@types/react": "19.2.18",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "react": "19.2.8",
+    "next": "16.3.8"
+  }
+}

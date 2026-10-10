@@ -26,6 +26,9 @@ importers:
       '@solar/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@solar/sections':
+        specifier: workspace:*
+        version: link:../../packages/sections
       '@solar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
@@ -44,6 +47,9 @@ importers:
       react-dom:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@solar/config':
         specifier: workspace:*
@@ -109,6 +115,37 @@ importers:
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@1.21.7)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/sections:
+    dependencies:
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@solar/eslint-plugin':
+        specifier: workspace:*
+        version: link:../../tooling/eslint-plugin
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      '@types/react':
+        specifier: 19.2.18
+        version: 19.2.18
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
+      next:
+        specifier: 16.3.8
+        version: 16.3.8(@babel/core@7.29.7)(@playwright/test@1.58.2)(@types/node@20.19.37)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: 19.2.8
+        version: 19.2.8
       typescript:
         specifier: 5.9.3
         version: 5.9.3
