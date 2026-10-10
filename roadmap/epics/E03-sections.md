@@ -40,7 +40,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   - [x] `link.kind = "calculator"` mở dự toán qua `calculatorBus` với tham số.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
-### E3-S03 · Renderer trang từ cấu hình
+### E3-S03 · Renderer trang từ cấu hình ✅ · PR [#21](https://github.com/votuandi/landing-page-full-page-ui/pull/21)
 **Là** tenant, **tôi muốn** trang chủ hiện đúng thứ tự section tôi chọn, **để** tôi kiểm soát bố cục.
 - **Chi tiết**: `<PageRenderer page={…} site={…}/>` (Server Component) duyệt danh sách, bỏ section `enabled=false` hoặc
   không đủ entitlement (E6), lazy-load section dưới màn hình đầu, gắn `id` neo (`#du-toan`).
