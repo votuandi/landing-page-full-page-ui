@@ -56,13 +56,17 @@ for (const origin of ["projects", "shorts"]) {
   });
 }
 
-test("project and shorts filters are local; player supports keyboard close and focus restore", async ({ page }) => {
+test("projects, shorts and calculator share filters; player supports keyboard close and focus restore", async ({ page }) => {
   await page.goto(`${route}?phan-khuc=trang-trai`, { waitUntil: "networkidle" });
   const projects = page.locator('[data-section-type="projects"]');
   await expect(projects.locator("article")).toHaveCount(2);
   await projects.getByRole("button", { name: "Cửa hàng", exact: true }).click();
   await expect(projects.locator("article")).toHaveCount(2);
   const shorts = page.locator('[data-section-type="shorts"]');
+  await expect(shorts.getByRole("button", { name: "Cửa hàng", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#du-toan").getByRole("radio", { name: "Cửa hàng", exact: true })).toBeChecked();
+  await shorts.getByRole("button", { name: "Trang trại", exact: true }).click();
+  await expect(projects.getByRole("button", { name: "Trang trại", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(shorts.getByRole("button", { name: /Phát video:/ })).toHaveCount(2);
   const opener = shorts.getByRole("button", { name: /Phát video:/ }).first();
   await opener.click();
@@ -72,6 +76,9 @@ test("project and shorts filters are local; player supports keyboard close and f
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(opener).toBeFocused();
+  await shorts.getByRole("button", { name: "Tất cả", exact: true }).click();
+  await expect(projects.getByRole("button", { name: "Tất cả", exact: true })).toHaveAttribute("aria-pressed", "true");
+  expect(new URL(page.url()).searchParams.has("phan-khuc")).toBe(false);
 });
 
 test("content and final stats remain visible without JavaScript", async ({ browser }) => {
