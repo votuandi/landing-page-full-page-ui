@@ -31,7 +31,10 @@ UNICODE_RANGE = (
 )
 VIETNAMESE = {ord(char) for char in "ạưđĂơễ"}
 # Same Arial normalization as Next's calculateSizeAdjustValues (capsize-font-metrics).
-ARIAL_AVERAGE_WIDTH = 913 / 2048
+# Fallback size-adjust: average advance of a Vietnamese sample vs. Arial (OS/2.xAvgCharWidth counts every glyph,
+# incl. wide accented ones, and overshoots ~20%). Arial value measured once from arial.ttf with the same sample.
+WIDTH_SAMPLE = "Điện mặt trời áp mái giúp hộ gia đình và doanh nghiệp tiết kiệm chi phí điện mỗi tháng"
+ARIAL_SAMPLE_WIDTH = 0.44394
 ROOT = Path(__file__).resolve().parents[3]
 OUTPUT = ROOT / "apps/web/public/fonts"
 
@@ -43,7 +46,9 @@ def download(path):
 
 def fallback_metrics(font):
     units = font["head"].unitsPerEm
-    adjust = font["OS/2"].xAvgCharWidth / units / ARIAL_AVERAGE_WIDTH
+    cmap, advances = font.getBestCmap(), font["hmtx"].metrics
+    width = sum(advances[cmap[ord(char)]][0] for char in WIDTH_SAMPLE) / len(WIDTH_SAMPLE) / units
+    adjust = width / ARIAL_SAMPLE_WIDTH
     if adjust <= 0:
         raise ValueError("Font must have a positive average character width")
     metrics = font["hhea"]
@@ -79,8 +84,9 @@ def main():
                         minimum = maximum = weight
                 subset.main([
                     str(source), f"--output-file={target}", f"--unicodes={UNICODE_RANGE}",
-                    # Google Fonts' served woff2 omits TrueType hinting; match that rasterization.
-                    "--flavor=woff2", "--layout-features=*", "--no-recalc-timestamp", "--no-hinting",
+                    # Match Google Fonts' served woff2: no TrueType hinting and no GSUB (liga/case/ss01 would
+                    # change glyph widths and line wraps vs. the next/font baseline).
+                    "--flavor=woff2", "--layout-features=kern,mark,mkmk", "--no-recalc-timestamp", "--no-hinting",
                 ])
                 data = target.read_bytes()
                 with TTFont(io.BytesIO(data)) as font:

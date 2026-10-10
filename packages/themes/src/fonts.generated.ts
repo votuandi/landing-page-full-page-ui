@@ -3,7 +3,7 @@ export const FONTS = {
   "Inter": {
     "files": [
       {
-        "file": "inter-var.33eb8030.woff2",
+        "file": "inter-var.44bdb374.woff2",
         "weight": "100 900",
         "minWeight": 100,
         "maxWeight": 900,
@@ -11,30 +11,30 @@ export const FONTS = {
       }
     ],
     "fallback": {
-      "ascentOverride": "67.47%",
-      "descentOverride": "16.80%",
+      "ascentOverride": "91.55%",
+      "descentOverride": "22.79%",
       "lineGapOverride": "0.00%",
-      "sizeAdjust": "143.59%"
+      "sizeAdjust": "105.82%"
     }
   },
   "Be Vietnam Pro": {
     "files": [
       {
-        "file": "be-vietnam-pro-400.f67fe530.woff2",
+        "file": "be-vietnam-pro-400.75bc7b1c.woff2",
         "weight": "400",
         "minWeight": 400,
         "maxWeight": 400,
         "unicodeRange": "U+0000-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0131,U+0152-0153,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB-20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
       },
       {
-        "file": "be-vietnam-pro-600.d75410de.woff2",
+        "file": "be-vietnam-pro-600.00994d28.woff2",
         "weight": "600",
         "minWeight": 600,
         "maxWeight": 600,
         "unicodeRange": "U+0000-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0131,U+0152-0153,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB-20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
       },
       {
-        "file": "be-vietnam-pro-800.a6c61ad1.woff2",
+        "file": "be-vietnam-pro-800.f6e019a8.woff2",
         "weight": "800",
         "minWeight": 800,
         "maxWeight": 800,
@@ -42,16 +42,16 @@ export const FONTS = {
       }
     ],
     "fallback": {
-      "ascentOverride": "75.43%",
-      "descentOverride": "19.99%",
+      "ascentOverride": "91.58%",
+      "descentOverride": "24.27%",
       "lineGapOverride": "0.00%",
-      "sizeAdjust": "132.57%"
+      "sizeAdjust": "109.20%"
     }
   },
   "Manrope": {
     "files": [
       {
-        "file": "manrope-var.d7dbfdb0.woff2",
+        "file": "manrope-var.f1ef7aa4.woff2",
         "weight": "200 800",
         "minWeight": 200,
         "maxWeight": 800,
@@ -59,16 +59,16 @@ export const FONTS = {
       }
     ],
     "fallback": {
-      "ascentOverride": "84.04%",
-      "descentOverride": "23.65%",
+      "ascentOverride": "109.47%",
+      "descentOverride": "30.81%",
       "lineGapOverride": "0.00%",
-      "sizeAdjust": "126.85%"
+      "sizeAdjust": "97.38%"
     }
   },
   "Plus Jakarta Sans": {
     "files": [
       {
-        "file": "plus-jakarta-sans-var.55b9a6fa.woff2",
+        "file": "plus-jakarta-sans-var.c7593033.woff2",
         "weight": "200 800",
         "minWeight": 200,
         "maxWeight": 800,
@@ -76,16 +76,16 @@ export const FONTS = {
       }
     ],
     "fallback": {
-      "ascentOverride": "79.10%",
-      "descentOverride": "16.92%",
+      "ascentOverride": "100.76%",
+      "descentOverride": "21.55%",
       "lineGapOverride": "0.00%",
-      "sizeAdjust": "131.22%"
+      "sizeAdjust": "103.02%"
     }
   },
   "Montserrat": {
     "files": [
       {
-        "file": "montserrat-var.ebda3b7a.woff2",
+        "file": "montserrat-var.8e6f6399.woff2",
         "weight": "100 900",
         "minWeight": 100,
         "maxWeight": 900,
@@ -93,10 +93,10 @@ export const FONTS = {
       }
     ],
     "fallback": {
-      "ascentOverride": "69.16%",
-      "descentOverride": "17.93%",
+      "ascentOverride": "86.08%",
+      "descentOverride": "22.32%",
       "lineGapOverride": "0.00%",
-      "sizeAdjust": "139.97%"
+      "sizeAdjust": "112.45%"
     }
   }
 } as const;

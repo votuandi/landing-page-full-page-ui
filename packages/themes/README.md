@@ -19,6 +19,8 @@ Trang `/lab/themes` thuộc E2-S07.
 Danh sách được phép: Inter, Be Vietnam Pro, Manrope, Plus Jakarta Sans và Montserrat.
 `themeFontFamilies(theme)` bỏ trùng họ sans/display; `themeFontFiles(theme)` chọn đúng file theo weight;
 `themeFontCss(theme, baseUrl = "/fonts/")` sinh font-face, fallback Arial có metric và biến sans/display.
+Script giữ như file Google Fonts phục vụ: bỏ hinting và GSUB, chỉ giữ `kern,mark,mkmk`; `size-adjust` của fallback
+tính theo độ rộng một câu tiếng Việt mẫu so với Arial (sát giá trị `next/font`, chống xô lệch lúc tải).
 Font hoặc weight ngoài danh sách bị từ chối. `font.source` được giữ để tương thích schema.
 
 Mỗi trang dùng tối đa **2 họ / 4 file woff2**. Be Vietnam Pro có 3 file static (400/600/800);
