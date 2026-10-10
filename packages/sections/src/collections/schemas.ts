@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { mediaRef } from "../fields";
 import { segmentEnum } from "../shared/schema";
+import { normalizeVnPhone } from "@solar/core";
 
 const https = () => z.url().refine((url) => new URL(url).protocol === "https:", "HTTPS required");
 const localPath = (path: string) => {
@@ -43,5 +44,20 @@ export type ProjectItem = z.output<typeof projectItem>;
 export type StoryItem = z.output<typeof storyItem>;
 export type TestimonialItem = z.output<typeof testimonialItem>;
 export type PostItem = z.output<typeof postItem>;
-export const collectionSchemas = { projects: projectItem, stories: storyItem, testimonials: testimonialItem, posts: postItem };
+export const productItem = z.object({
+  id: text(), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(200), name: text(), brand: text(),
+  category: text(), categoryLabel: text(), images: z.array(mediaRef()).min(1).max(8),
+  price: z.number().int().nonnegative().optional(), salePrice: z.number().int().nonnegative().optional(), unit: text().optional(),
+  warranty: text(), specs: z.array(z.object({ label: text(), value: text() })).max(12), featured: z.boolean().optional(), href: href(),
+});
+export const geoPoint = z.object({ address: text(), lat: z.number().min(8).max(24), lng: z.number().min(102).max(118) });
+const phone = () => z.string().refine((value) => /^\d{9,11}$/.test(normalizeVnPhone(value)), "Invalid phone");
+export const branchItem = z.object({
+  id: text(), name: text(), primary: z.boolean().optional(), hotline: phone(), zaloPhone: phone().optional(),
+  hours: text().optional(), office: geoPoint, warehouse: geoPoint.optional(),
+});
+export type ProductItem = z.output<typeof productItem>;
+export type BranchItem = z.output<typeof branchItem>;
+export type GeoPoint = z.output<typeof geoPoint>;
+export const collectionSchemas = { projects: projectItem, stories: storyItem, testimonials: testimonialItem, posts: postItem, products: productItem, branches: branchItem };
 export type CollectionName = keyof typeof collectionSchemas;

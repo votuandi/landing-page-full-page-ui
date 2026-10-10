@@ -6,7 +6,7 @@ if (!webServer || Array.isArray(webServer)) throw new Error("sections dùng mộ
 
 export default defineConfig({
   ...config,
-  testMatch: ["sections-bundle.spec.ts", "fields.spec.ts", "renderer.spec.ts", "conversion.spec.ts", "content.spec.ts"],
+  testMatch: ["sections-bundle.spec.ts", "fields.spec.ts", "renderer.spec.ts", "conversion.spec.ts", "content.spec.ts", "premium.spec.ts"],
   projects: [{ name: "desktop-1440-light", use: { viewport: { width: 1440, height: 900 }, colorScheme: "light" } }],
   webServer: { ...webServer, env: { ...webServer.env, LAB_ENABLED: "true" } },
   outputDir: "test-results/sections",

@@ -3,6 +3,8 @@
  * (chế độ riêng tư, hết dung lượng, cookie bị chặn) thì tự dùng bộ nhớ tạm trong trang —
  * website vẫn hoạt động, chỉ không giữ dữ liệu sau khi tải lại.
  */
+import { QUOTE_CART_KEY } from "@solar/core";
+
 const memory = new Map<string, string>();
 
 function store(): Storage | null {
@@ -39,6 +41,6 @@ export function removeKey(key: string) {
 }
 
 export const STORAGE_KEYS = {
-  quoteCart: "t15-quote-cart",
+  quoteCart: QUOTE_CART_KEY,
   lastEstimate: "t15-last-estimate",
 } as const;
