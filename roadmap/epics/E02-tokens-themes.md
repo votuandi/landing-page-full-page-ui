@@ -61,7 +61,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] `pnpm lint:tokens` chạy trong CI; PR thêm `bg-[#0E7C3A]` bị fail với thông báo gợi ý token thay thế.
 - Phụ thuộc: E1-S01 · Agent: Codex · Cỡ: M
 
-### E2-S05 · Kiểm tra tương phản tự động
+### E2-S05 · Kiểm tra tương phản tự động ✅ · PR [#16](https://github.com/votuandi/landing-page-full-page-ui/pull/16)
 **Là** khách hàng, **tôi muốn** chữ luôn đọc được dù đổi màu thương hiệu, **để** site không xấu và đạt tiêu chuẩn truy cập.
 - **Chi tiết**: `check-contrast` duyệt các cặp bắt buộc (`fg*` trên `bg*`, `on-primary` trên `primary`, `on-accent`
   trên `accent`, `accent-ink` trên `bg`, `on-media` trên `scrim/60` …) cho light và dark. Dùng cả khi khách override màu
