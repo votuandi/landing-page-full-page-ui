@@ -23,7 +23,7 @@ test("export t15 parse thành công và khớp fixture chuẩn, gồm màu dark 
 });
 
 test("mọi theme đạt WCAG AA cho cặp bắt buộc", () => {
-  const themes = Object.values(require("../index.ts"));
+  const themes = Object.values(require("../index.ts")).filter((value) => value?.meta?.id);
   const { checkContrast } = require("@solar/tokens");
   assert.ok(themes.length > 0, "cần ít nhất một theme được export");
   for (const theme of themes) {
