@@ -70,7 +70,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   - [x] Không còn import `config/solar.ts` cứng từ section.
 - Phụ thuộc: S01–S03 · Agent: Codex (review Claude) · Cỡ: L
 
-### E3-S05 · Schema + variant đợt 2 (uy tín & nội dung)
+### E3-S05 · Schema + variant đợt 2 (uy tín & nội dung) ✅ · PR [#25](https://github.com/votuandi/landing-page-full-page-ui/pull/25)
 - **Chi tiết**: `projects`, `shorts`, `stats`, `energy-monitoring`, `process`, `testimonials`, `trust`, `brands`, `faq`,
   `blog`, `cta-banner` — variant t15. Section đọc collection dùng `collectionQuery` (dữ liệu thật đến từ E5; tạm thời
   adapter đọc `src/data/*.ts`).
