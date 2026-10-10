@@ -75,8 +75,14 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `blog`, `cta-banner` — variant t15. Section đọc collection dùng `collectionQuery` (dữ liệu thật đến từ E5; tạm thời
   adapter đọc `src/data/*.ts`).
 - **Target**: 11 type.
-- **AC**: như S04; `faq` sinh JSON-LD `FAQPage`; `projects`/`shorts` có nút "Nhận báo giá công trình tương tự" → lead
-  `source: "story-cta"`.
+- **AC**:
+  - [x] 11 type có `schema.ts`, `fixtures.ts`, `t15.tsx`, variant trong registry và test parse fixture.
+  - [x] Section không import cấu hình app (`config/*`, `@/`); giao diện chỉ dùng token.
+  - [x] Section collection dùng `collectionQuery`; adapter tạm đọc `src/data/*.ts`, loader điền item qua `PageRenderer`.
+  - [x] `faq` sinh JSON-LD `FAQPage` từ dữ liệu theo locale, escape an toàn và hỗ trợ `jsonLd: false`.
+  - [x] `projects`/`shorts` có nút "Nhận báo giá công trình tương tự" → lead `source: "story-cta"` (e2e cả hai nguồn).
+- Bằng chứng triển khai: `/lab/sections/t15-content`, `content.test.ts`, `tooling/visual/content.spec.ts`.
+  Design pass và review Claude đang chờ theo mode split; PR được ghi sau khi Claude tạo.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
 ### E3-S06 · Schema + variant đợt 3 (tính năng cao cấp)
