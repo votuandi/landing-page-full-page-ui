@@ -8,7 +8,7 @@ export const fixture = {
     "en": "Product & installation advice"
   },
   "description": {
-    "vi": "[DỮ LIỆU MẪU] Kỹ sư tư vấn miễn phí, gọi lại trong 24 giờ.",
+    "vi": "Kỹ sư tư vấn miễn phí, gọi lại trong 24 giờ.",
     "en": "[SAMPLE DATA] Free advice; we call back within 24 hours."
   },
   "openFormLabel": {

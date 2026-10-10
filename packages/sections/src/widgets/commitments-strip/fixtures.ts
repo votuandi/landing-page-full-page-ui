@@ -12,7 +12,7 @@ export const fixture = {
         "en": "Free survey"
       },
       "description": {
-        "vi": "[DỮ LIỆU MẪU] Khảo sát tận nơi."
+        "vi": "Khảo sát tận nơi."
       }
     },
     {

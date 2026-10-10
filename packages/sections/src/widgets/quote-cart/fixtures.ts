@@ -16,7 +16,7 @@ export const fixture = {
     "en": "Quote request cart"
   },
   "note": {
-    "vi": "[DỮ LIỆU MẪU] Chúng tôi gửi báo giá và gọi xác nhận.",
+    "vi": "Chúng tôi gửi báo giá và gọi xác nhận.",
     "en": "[SAMPLE DATA] We send a quote and call to confirm."
   },
   "emptyText": {

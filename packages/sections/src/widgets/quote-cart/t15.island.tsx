@@ -24,7 +24,7 @@ export default function QuoteCart(props: Props) {
   const count = countItems(lines);
   return <>
     {(count > 0 || open) && <button type="button" onClick={() => setOpen(true)} aria-label={props.labels.buttonLabel} aria-expanded={open}
-      className="fixed bottom-24 right-3 z-40 flex min-h-12 items-center gap-2 rounded-pill bg-primary px-4 py-3 font-black text-on-primary shadow-float lg:bottom-24 lg:right-24">
+      className="fixed bottom-24 right-3 z-40 flex min-h-12 items-center gap-2 rounded-pill bg-primary px-4 py-3 font-black text-on-primary shadow-float lg:bottom-80 lg:right-6">
       <ShoppingBagIcon aria-hidden className="h-6 w-6" /><span data-cart-count className="grid min-h-6 min-w-6 place-items-center rounded-pill bg-accent px-1 text-xs text-on-accent">{count}</span>
     </button>}
     {open && <CartDrawer {...props} lines={lines} onClose={() => setOpen(false)} />}
