@@ -7,7 +7,8 @@
     "lint": "eslint .",
     "visual:test": "playwright test",
     "visual:update": "playwright test --update-snapshots",
-    "test:fonts": "playwright test --config playwright.fonts.config.ts"
+    "test:fonts": "playwright test --config playwright.fonts.config.ts",
+    "test:sections": "playwright test --config playwright.sections.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
