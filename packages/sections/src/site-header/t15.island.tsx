@@ -6,6 +6,7 @@ import { Bars3Icon, ChevronDownIcon, MapPinIcon, PhoneIcon, XMarkIcon } from "@h
 import { Anchor } from "../shared/Anchor";
 import type { ClientLink } from "../shared/links";
 import type { Locale } from "../site";
+import { onToggleSiteMenu } from "../widgets/events";
 
 type Phone = { phone: string; href: string };
 export type HeaderPricing = {
@@ -144,6 +145,7 @@ export default function HeaderIsland(props: {
   const ui = UI[props.locale];
   const [open, setOpen] = useState<MenuId | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  useEffect(() => onToggleSiteMenu(() => setDrawerOpen((value) => !value)), []);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimer = useRef(0);
   const hoverOpened = useRef<MenuId | null>(null);

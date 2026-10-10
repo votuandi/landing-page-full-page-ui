@@ -102,6 +102,6 @@ test("section không import cấu hình cứng của app (config/solar, @/)", ()
   assert.ok(files.length > 20);
   for (const file of files) {
     const source = readFileSync(file, "utf8");
-    assert.doesNotMatch(source, /(?:from|import\()\s*["'](?:[^"']*config\/solar|@\/)/, file);
+    assert.doesNotMatch(source, /(?:from|import\()\s*["'](?:[^"']*config\/|@\/)/, file);
   }
 });

@@ -3,6 +3,7 @@
 import { DragScroll } from "@solar/ui";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { SwatchIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { SITE_CONFIG, THEME_PRESETS } from "@/config/site";
 import { QuoteCartProvider } from "@/lib/quoteCartContext";
@@ -17,6 +18,8 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 /** Khung chung mọi trang: thanh demo, top bar, header + mega menu, dải cam kết, footer, liên hệ nhanh, giỏ báo giá, popup tư vấn. */
 export default function SiteShell({ children, footer }: { children: React.ReactNode; footer?: React.ReactNode }) {
+  // Temporary lab isolation; E4-S01 replaces legacy widgets with SiteWidgets.
+  const widgetLab = usePathname().startsWith("/lab/sections/t15-widgets");
   const [menuOpen, setMenuOpen] = useState(false);
   const [demoVisible, setDemoVisible] = useState(SITE_CONFIG.demo.enabled);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -32,8 +35,8 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
 
   return (
     <LangProvider>
-    <QuoteCartProvider>
-      <div aria-hidden className="t15-scroll-progress" />
+    <QuoteCartProvider showDrawer={!widgetLab}>
+      {!widgetLab && <div aria-hidden className="t15-scroll-progress" />}
       <DragScroll />
       {demoVisible && (
         <div className="t15-demo-bar">
@@ -53,7 +56,7 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
 
       {children}
 
-      <CommitmentsStrip />
+      {!widgetLab && <CommitmentsStrip />}
       {footer}
 
       {SITE_CONFIG.demo.enabled && (
@@ -78,9 +81,11 @@ export default function SiteShell({ children, footer }: { children: React.ReactN
         </div>
       )}
 
-      <ContactDock />
-      <MobileBottomNav menuOpen={menuOpen} onMenu={() => setMenuOpen((v) => !v)} />
-      <ConsultPopup />
+      {!widgetLab && <>
+        <ContactDock />
+        <MobileBottomNav menuOpen={menuOpen} onMenu={() => setMenuOpen((v) => !v)} />
+        <ConsultPopup />
+      </>}
     </QuoteCartProvider>
     </LangProvider>
   );

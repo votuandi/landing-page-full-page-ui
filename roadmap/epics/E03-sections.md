@@ -85,7 +85,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Design pass và review Claude đang chờ theo mode split; PR được ghi sau khi Claude tạo.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
-### E3-S06 · Schema + variant đợt 3 (tính năng cao cấp)
+### E3-S06 · Schema + variant đợt 3 (tính năng cao cấp) ✅ · PR [#26](https://github.com/votuandi/landing-page-full-page-ui/pull/26)
 - **Chi tiết**: `products` (+ quick view, thêm vào giỏ), `dealer`, `branch-map`, `press`, `tiktok`, `social`,
   `investment-models`, `warranty`, `about-story`, `services` — variant t15/t14.
 - **Target**: đủ 28 type (bảng ở `01-template-analysis.md` §3).
@@ -109,8 +109,14 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
 - **Chi tiết**: `packages/sections/widgets/*` với schema riêng (`contact-dock`, `consult-popup` có `delayMs`, `scrollRatio`,
   1 lần/phiên; `mobile-bottom-nav`; `commitments-strip`; `quote-cart`; `theme-switch`; `scroll-progress`).
 - **AC**:
-  - [ ] Cấu hình site có `widgets: { [key]: { enabled, variant, data } }`.
-  - [ ] `quote-cart` chỉ hiện khi có entitlement `catalog`.
+  - [x] Cấu hình site có `widgets: { [key]: { enabled, variant, data } }`.
+  - [x] `quote-cart` chỉ hiện khi có entitlement `catalog`.
+- Bằng chứng triển khai: `packages/sections/src/widgets/` (7 schema/fixture/variant), `widgets.test.tsx`
+  (cấu hình, entitlement trước tải module/collection, slot/fallback, phiên popup, loader tenant),
+  `tooling/visual/widgets.spec.ts` và `/lab/sections/t15-widgets` (`?plan=basic`, `?lang=en`).
+  Kiểm tra: typecheck/lint/test 23/23 tasks; lint:tokens 0 vi phạm; build web PASS; sections e2e 33/33 PASS.
+  Log và ảnh: `.agent-runs/E3-S07/{checks-final,tokens-final,build-final,visual-final}.log`, `screenshots/`.
+  Phần Codex hoàn tất; design pass/review Claude còn chờ theo mode split. Link PR ghi sau khi Claude tạo.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
 ### E3-S08 · Trạng thái liên section (segment, calculator bus, quote cart)
