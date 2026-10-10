@@ -72,6 +72,38 @@ test("automatic advice waits for another modal before opening", async ({ page })
   await expect(page.getByRole("dialog")).toContainText("Tư vấn sản phẩm & lắp đặt", { timeout: 8000 });
 });
 
+test("scroll threshold opens advice once per session before the long delay", async ({ page }) => {
+  await page.goto(route + "?popup=scroll", { waitUntil: "networkidle" });
+  const dialog = page.getByRole("dialog");
+  const scrollToRatio = async (ratio: number) => {
+    const target = await page.evaluate((ratio) => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max <= 0) throw new Error("Scroll lab must be scrollable");
+      const target = Math.ceil(max * ratio);
+      window.scrollTo({ top: target, behavior: "instant" });
+      return target;
+    }, ratio);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(target);
+  };
+  await scrollToRatio(0.59);
+  await page.waitForTimeout(300);
+  await expect(dialog).toHaveCount(0);
+  await scrollToRatio(0.6);
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Nhận tư vấn ngay" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await scrollToRatio(0);
+  await scrollToRatio(0.7);
+  await page.waitForTimeout(300);
+  await expect(dialog).toHaveCount(0);
+  await page.reload({ waitUntil: "networkidle" });
+  await scrollToRatio(0);
+  await scrollToRatio(0.6);
+  await page.waitForTimeout(300);
+  await expect(dialog).toHaveCount(0);
+});
+
 test("quote cart filters unknown SKUs, changes quantity, traps focus and clears after successful lead", async ({ page }) => {
   await seed(page, true);
   let requests = 0;
@@ -161,6 +193,38 @@ test("mobile navigation emits menu event and opens the section header drawer", a
   await expect(page.locator("#widget-lab-site-header-drawer")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.locator("#widget-lab-site-header-drawer")).toHaveCount(0);
+});
+
+test("mobile contact bar has 44px touch targets and clears cart and theme switch", async ({ page }, testInfo) => {
+  await seed(page, true);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(route + "?dock=bar", { waitUntil: "networkidle" });
+  const bar = page.locator('[data-widget="contact-dock"]').getByRole("navigation").filter({ visible: true });
+  await expect(bar).toBeVisible();
+  await expect(page.locator('[data-widget="mobile-bottom-nav"]')).toHaveCount(0);
+  const targets = bar.locator("button, a");
+  await expect(targets).toHaveCount(4);
+  for (const target of await targets.all()) {
+    const box = await target.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+  const barBox = await bar.boundingBox();
+  expect(barBox).not.toBeNull();
+  expect(barBox!.x).toBeGreaterThanOrEqual(0);
+  expect(barBox!.x + barBox!.width).toBeLessThanOrEqual(390);
+  expect(barBox!.y + barBox!.height).toBeLessThanOrEqual(844);
+  for (const key of ["quote-cart", "theme-switch"]) {
+    const button = page.locator(`[data-widget="${key}"]`).getByRole("button");
+    await expect(button).toBeVisible();
+    const box = await button.boundingBox();
+    expect(box).not.toBeNull();
+    const overlaps = barBox!.x < box!.x + box!.width && barBox!.x + barBox!.width > box!.x
+      && barBox!.y < box!.y + box!.height && barBox!.y + barBox!.height > box!.y;
+    expect(overlaps, `contact bar overlaps ${key}`).toBe(false);
+  }
+  await testInfo.attach("widgets-mobile-dockbar", { body: await page.screenshot({ path: "../../.agent-runs/E3-S07/screenshots/widgets-mobile-dockbar.png" }), contentType: "image/png" });
 });
 
 test("contact links and commitments remain visible without JavaScript", async ({ browser }) => {
