@@ -43,10 +43,15 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
 ### E3-S03 · Renderer trang từ cấu hình
 **Là** tenant, **tôi muốn** trang chủ hiện đúng thứ tự section tôi chọn, **để** tôi kiểm soát bố cục.
 - **Chi tiết**: `<PageRenderer page={…} site={…}/>` (Server Component) duyệt danh sách, bỏ section `enabled=false` hoặc
-  không đủ entitlement (E6), lazy-load section dưới màn hình đầu (giữ kiểu `<Lazy>` của t13), gắn `id` neo (`#du-toan`).
+  không đủ entitlement (E6), lazy-load section dưới màn hình đầu, gắn `id` neo (`#du-toan`).
+  *Chốt phạm vi (người dùng, 10/10/2026, review PR #21)*: lazy-load nghiệm thu ở mức island — variant là Server Component
+  (không hydrate), island tách chunk async (E3-S01). Không bọc `Suspense`/`<Lazy>` theo section: island `next/dynamic`
+  suspend khi SSR nên section bị stream vào `<div hidden>`, trái luật "nội dung hiện khi tắt JavaScript" (AGENTS.md).
   Widget toàn site render ở layout. Cô lập lỗi hai phía: phía server, renderer chuẩn bị dữ liệu từng section (parse schema,
   truy vấn collection) trong `try/catch` và render fallback nếu lỗi; phía client, mỗi section bọc error boundary.
-- **Target**: TTFB không tăng > 10% so với `HomePage.tsx` viết tay.
+- **Target**: TTFB không tăng > 10% so với `HomePage.tsx` viết tay — *chuyển nghiệm thu sang E4-S01* (người dùng chốt
+  10/10/2026), khi trang t15 render qua renderer. Bằng chứng tạm ở story này: lab production, renderer +5% trung vị so với
+  render tay cùng registry demo.
 - **AC** (nghiệm thu với 2–3 section mẫu + fixture; khớp toàn bộ trang t15 thuộc E4-S01):
   - [x] Trang thử nghiệm render đúng thứ tự, bỏ section `enabled=false`.
   - [x] Inject lỗi khi lấy dữ liệu (server) và lỗi khi render (client) → section đó hiện fallback rỗng + log có `tenantId`,
