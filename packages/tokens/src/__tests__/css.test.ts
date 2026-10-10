@@ -117,7 +117,7 @@ test("sinh token không màu chỉ ở root, blur và reveal bằng 0 khi tắt"
     "radius-input": "16px", "radius-button": "9999px", "shadow-strength": "1",
     "c-shadow-tint": "var(--c-shadow)", "glass-blur": "24px", "motion-fast": "300ms",
     "motion-base": "500ms", "motion-slow": "900ms", "motion-ease": "cubic-bezier(.16,1,.3,1)",
-    "reveal-distance": "64px", container: "1280px",
+    "reveal-distance": "64px", container: "1280px", "section-y": "80px",
   })) {
     assert.ok(root.includes(`--${name}:${value};`));
     assert.ok(!block(css, darkSelector).includes(`--${name}:`));
@@ -125,7 +125,15 @@ test("sinh token không màu chỉ ở root, blur và reveal bằng 0 khi tắt"
   const disabled = themeToCss({ ...t15, glass: { ...t15.glass, enabled: false }, motion: { ...t15.motion, revealEnabled: false } });
   assert.match(disabled, /--glass-blur:0px;/);
   assert.match(disabled, /--reveal-distance:0px;/);
-  assert.doesNotMatch(css, /--font-|--section/);
+  assert.doesNotMatch(css, /--font-/);
+});
+
+test("sectionY ánh xạ đủ ba mức mật độ sang khoảng cách section", () => {
+  for (const [sectionY, pixels] of [["sm", 64], ["md", 80], ["lg", 112]] as const) {
+    const css = themeToCss({ ...t15, density: { ...t15.density, sectionY } });
+    assert.match(block(css, lightSelector), new RegExp(`--section-y:${pixels}px;`));
+    assert.doesNotMatch(block(css, darkSelector), /--section-y:/);
+  }
 });
 
 test("hai theme render xen kẽ không lẫn biến hay làm đổi dữ liệu", () => {

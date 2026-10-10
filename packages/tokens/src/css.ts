@@ -39,6 +39,7 @@ export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides): stri
     `--motion-ease:${theme.motion.easing}`,
     `--reveal-distance:${theme.motion.revealEnabled ? theme.motion.revealDistance : 0}px`,
     `--container:${theme.density.container}px`,
+    `--section-y:${({ sm: 64, md: 80, lg: 112 })[theme.density.sectionY]}px`,
     "color-scheme:light",
   ].join(";");
   const css = `:root,[data-theme="light"]{${light}}`;
