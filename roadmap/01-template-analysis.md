@@ -82,6 +82,10 @@ Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = 
 `consult-popup` (**t13**), `mobile-bottom-nav` (**t14**), `commitments-strip` (**t13**), `quote-cart` (**t13**,
 cần entitlement `catalog`), `theme-switch` (**t15**), `scroll-progress` (t15).
 
+Đã port trong E3-S07: cả 7 widget có variant `t15` tại `packages/sections/src/widgets/`,
+schema + fixture riêng, registry và renderer theo slot. Giao diện dùng token; lab `/lab/sections/t15-widgets`.
+Design pass/review Claude theo mode split còn chờ.
+
 **Trang con** (page type có layout cố định + vùng section tùy chọn): danh sách/chi tiết sản phẩm, dự án, dịch vụ (giải pháp),
 bài viết; giới thiệu; liên hệ; cẩm nang; chính sách. Nguồn chuẩn: t15 (slug tiếng Việt + redirect 308 từ slug cũ).
 

@@ -300,3 +300,29 @@ và nội dung/href khi tắt JavaScript.
 `/lab/sections` và `/lab/renderer` dùng registry demo riêng (demo-a, demo-b mỗi type hai variant, demo-crash), không
 thêm vào registry sản phẩm. Các lab chỉ mở ở development hoặc production có `LAB_ENABLED=true`. `SiteContext` hiện có `tenantId`, `locale`,
 `themeId`; E5 mở rộng ngữ cảnh tenant.
+
+
+## Widget toàn site
+
+`siteWidgetsSchema` đọc cấu hình `widgets: { [key]: { enabled, variant, data } }` gồm `contact-dock`,
+`consult-popup`, `mobile-bottom-nav`, `commitments-strip`, `quote-cart`, `theme-switch`, `scroll-progress`.
+Widget mặc định tắt; variant mặc định `t15`, variant lạ fallback; data thiếu dùng defaults của schema.
+Bật đồng thời contact-dock `mobileBar` và mobile-bottom-nav bị từ chối.
+
+Render `<SiteWidgets widgets={site.widgets} site={context} slot="inline" canUse={canUse} />` trước footer
+(`commitments-strip`) và `slot="overlay"` cuối body (các widget còn lại). Renderer kiểm entitlement trước khi
+load variant/collection; `quote-cart` yêu cầu `catalog`. E6 sẽ nối `canUse` với `can(site, feature)` ở server.
+Dữ liệu lỗi bị bỏ riêng từng widget và log tenant; mọi widget được bọc SectionBoundary.
+
+`createCollectionLoader(source, widgetRegistry)` nạp catalog cho giỏ (query limit mặc định 48).
+Giỏ chia sẻ `@solar/core` store/event với products, lọc SKU theo catalog, gửi lead `source: "quote-cart"`
+và chỉ xóa sau khi gửi thành công. Chưa đính kèm dự toán (E3-S08).
+
+Bus: `openConsult`/`onOpenConsult` dùng `t15:open-consult`; `toggleSiteMenu`/`onToggleSiteMenu` dùng
+`t15:toggle-site-menu`. Header section nghe event menu. Popup mở theo thời gian hoặc ngưỡng cuộn,
+tối đa một lần mỗi phiên, hoãn 5 giây nếu có modal khác; gọi thủ công luôn mở kèm form.
+Theme-switch lưu `t15-theme`; layout app giữ script áp theme trước khi vẽ.
+
+Lab: `/lab/sections/t15-widgets` (tất cả bật), `?plan=basic` (không catalog), `?lang=en`.
+Widget cũ của SiteShell tạm tắt trên route này tới E4-S01. Kiểm tra: `widgets.test.tsx`,
+`tooling/visual/widgets.spec.ts` trong `pnpm --filter @solar/visual test:sections`.
