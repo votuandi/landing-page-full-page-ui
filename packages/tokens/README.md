@@ -48,8 +48,9 @@ cũng bị từ chối. Override light và dark độc lập, không tự suy da
 
 CSS có thứ tự màu ổn định theo `COLOR_KEYS` rồi `GLASS_COLOR_KEYS`: màu RGB dùng
 `--c-<key>`, kính dùng `--<key>`. Khối `:root,[data-theme="light"]` chứa màu light
-và các biến radius, shadow, glass blur, motion, reveal distance, container.
-Blur/reveal distance bằng `0px` khi tắt. Font và `density.sectionY` chưa sinh ở đây.
+và các biến radius, shadow, glass blur, motion, reveal distance, container, section spacing.
+Blur/reveal distance bằng `0px` khi tắt. `--section-y` ánh xạ `density.sectionY`:
+`sm` → `64px`, `md` → `80px`, `lg` → `112px`. Font được gắn bởi cấu hình font của app.
 
 Khi `meta.supportsDark` đúng, hàm thêm `[data-theme="dark"]` và media query
 `prefers-color-scheme:dark` cho `:root:not([data-theme])`; lựa chọn `data-theme`
@@ -61,7 +62,32 @@ CSS t15 ≤ 4096 byte, override, dữ liệu sai và hai theme render xen kẽ k
 
 Dependency runtime `zod@4.6.5` (đã được AGENTS.md chấp thuận) dùng để kiểm tra dữ liệu
 theme và suy ra một kiểu TypeScript duy nhất, tránh lệch giữa validation và kiểu dữ liệu.
-Tailwind preset và cấu hình font thuộc các story sau.
+
+## Tailwind preset
+
+```ts
+import preset from "@solar/tokens/tailwind";
+
+export default {
+  presets: [preset],
+  content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}", "../../packages/sections/src/**/*.{ts,tsx}"],
+};
+```
+
+Preset thay toàn bộ `theme.colors` bằng `COLOR_KEYS` và `GLASS_COLOR_KEYS` từ schema,
+cộng `transparent`, `current`, `inherit`. Màu mặc định như `bg-white`, `text-slate-500`
+không sinh CSS; màu RGB hỗ trợ opacity (`bg-primary/20`).
+
+Utility token: `rounded-card|pill|media|input|button`, `shadow-sm|lg|xl|2xl`
+(alpha nhân `--shadow-strength`), `backdrop-blur-glass`, `duration-motion-fast|base|slow`,
+`py-section`, `font-sans`, `font-display`. Display fallback về sans khi chưa gắn
+`--font-display`. Thang radius mặc định (kể cả `rounded-3xl`) vẫn giữ để tương thích
+t15; việc đổi class sang token thuộc lúc port section.
+
+`tailwindcss@3.4.19` và `postcss@8.5.8` chỉ là devDependencies cho type và test
+biên dịch Tailwind thật; preset không import runtime Tailwind. Hằng màu nằm trong
+`src/color-keys.ts` và được schema re-export, để jiti không phải nạp Zod.
+Test dùng `tailwindcss/loadConfig` kiểm tra cấu hình TypeScript thật của web.
 
 Kiểm tra: `pnpm --filter @solar/tokens typecheck`, `pnpm --filter @solar/tokens lint`,
 `pnpm --filter @solar/tokens test`.

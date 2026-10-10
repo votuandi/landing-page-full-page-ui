@@ -4,7 +4,7 @@ Primitive giao diện dùng chung, xuất source TypeScript qua `@solar/ui` (kh�
 React, Next.js và Heroicons là peer dependency đã có trong app; logic giá và định dạng dùng `@solar/core`.
 
 App sử dụng phải thêm `@solar/ui` vào `transpilePackages`, quét `packages/ui/src/**/*.{ts,tsx}` trong Tailwind
-và dùng preset `@solar/config/tailwind`. Mỗi file client giữ `"use client"`; barrel không có directive.
+và dùng preset `@solar/tokens/tailwind`. Mỗi file client giữ `"use client"`; barrel không có directive.
 
 Trong E1, app vẫn cung cấp CSS `.t15-eyebrow`, `.t15-heading`, `.t15-subheading`, `.t15-glass`,
 `.t15-no-scrollbar` (cùng `.can-drag`/`.is-dragging`) và `[data-reveal]`/`[data-reveal-stagger]`/`--rd`
