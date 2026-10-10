@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
-const IGNORED = /^(\.agent-runs\/|HANDOFF\.md$|\.env)/;
+const IGNORED = /^(\.agent-runs\/|HANDOFF\.md$|\.env|codex\.log$)/;
 
 const git = (...args) => execFileSync("git", args, { cwd: process.cwd(), encoding: "utf8" }).trim();
 const lines = (text) => text.split("\n").map((l) => l.trim()).filter(Boolean);

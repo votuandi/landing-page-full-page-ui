@@ -56,6 +56,7 @@ next-env.d.ts
 # agent playbook runs (logs, reports, reviews)
 /.agent-runs/
 HANDOFF.md
+/codex.log
 
 # workspace task cache and build output
 .turbo/
