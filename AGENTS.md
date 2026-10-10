@@ -101,7 +101,8 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    Claude không tạo được PR (GitHub MCP / `gh` lỗi) → giao Codex tạo PR. Không bao giờ để người dùng tự tạo PR.
 4. **Review** theo `"reviewPolicy"` trong `routing.json`. Hiện tại `claude`: Claude review mọi story bằng subagent
    (model `claudeReviewModel`, mặc định Sonnet) để tiết kiệm quota Codex; với `selfReview: "swap"`, story do Claude viết
-   (`--agent claude`) vẫn sang Codex review. Lựa chọn khác: `codex-except-architecture` (Codex review mọi story trừ 15 story
+   vẫn sang Codex review — trừ `/run-story … --agent claude`: chế độ chỉ Claude, cả phiên (plan, thực thi, tạo PR,
+   review bằng subagent ở chế độ "Tự review", sửa) không gọi Codex. Lựa chọn khác: `codex-except-architecture` (Codex review mọi story trừ 15 story
    `architecture` do Claude review), `codex` (Codex review tất cả), `parity` (lẻ → Codex, chẵn → Claude). Khi agent
    review code chính nó viết (`selfReview: "allow"`), skill `solar-pr-review` chạy chế độ "Tự review" và PR ghi cảnh báo. Skill `pr-review`, định dạng `solar-pr-review`.
    **Cân tải**: `"budget"` trong `routing.json` — `balanced` (mặc định), `claude-saver` khi Claude sắp hết quota,

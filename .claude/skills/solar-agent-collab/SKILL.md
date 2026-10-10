@@ -10,6 +10,8 @@ Nguồn phân vai là scripts/agents/routing.json; đọc `node scripts/agents/s
 để lấy S.author, S.mode, S.reviewer và selfReviewConflict cuối. selfReview=swap đổi reviewer
 khi trùng author; không suy vai trò theo chẵn/lẻ nếu policy khác parity.
 `--agent` phải cập nhật author và tính lại reviewer; PR body dùng cùng vai trò này.
+`--agent claude` là chế độ chỉ Claude: plan, thực thi, tạo PR, review (subagent, "Tự review") và sửa đều do Claude,
+không gọi Codex trong phiên đó.
 
 ## Chọn agent
 
