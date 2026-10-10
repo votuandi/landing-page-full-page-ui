@@ -116,3 +116,38 @@ Các class này thay thế arbitrary style; không dùng opacity riêng cho glow
 `colorChannelsToHex(channels)` đổi token RGB đã kiểm bằng `RgbChannels` sang hex
 cho metadata (vd. viewport.themeColor); từ chối kênh sai hoặc ngoài 0–255.
 App lấy token bg từ theme đang render, thay cho màu cứng trong cấu hình công ty.
+
+## Kiểm tra tương phản
+
+```ts
+import { checkContrast, contrastRatio, suggestAccessible } from "@solar/tokens";
+
+const issues = checkContrast(theme, { colors: { light: { "fg-subtle": "200 200 200" } } });
+// [{ mode, fg, bg, scrimAlpha?, ratio, min, suggestion }]
+const accessible = suggestAccessible("200 200 200", "255 255 255"); // "118 118 118"
+const ratio = contrastRatio(accessible, "255 255 255"); // >= 4.5
+```
+
+`checkContrast()` nhận theme đã qua `parseTheme()`, kiểm tra override bằng
+`ThemeOverridesSchema` và trả `[]` khi mọi cặp đạt WCAG AA cho chữ thường (4.5:1).
+Light dùng màu theme + override light; dark kế thừa bộ light hiệu lực, rồi ghi đè
+màu dark của theme và override dark. Chỉ kiểm dark khi `meta.supportsDark` đúng.
+Không sửa dữ liệu đầu vào. `CONTRAST_PAIRS` gồm 21 cặp ở mỗi mode:
+
+- `fg`, `fg-muted`, `fg-subtle` trên từng nền `bg`, `bg-elevated`, `bg-tint`, `bg-sky`, `bg-sun`.
+- `on-primary`/`primary`, `on-secondary`/`secondary`, `on-accent`/`accent`.
+- `accent-ink` trên `bg` và `bg-elevated`.
+- `on-media` trên `scrim` alpha 0.6: ghép scrim lên trắng và đen, làm tròn kênh RGB,
+  lấy tỷ lệ thấp hơn và gợi ý màu chữ trên nền ghép đó.
+
+`contrastRatio()` dùng luminance sRGB WCAG 2.x, không làm tròn tỷ lệ khi so ngưỡng;
+cả hai màu phải là chuỗi `"R G B"` hợp lệ. `suggestAccessible(color, against, min = 4.5)`
+giữ nguyên màu đã đạt; nếu chưa đạt, tìm mức trộn nhỏ nhất về đen hoặc trắng,
+kiểm tra cả sau khi làm tròn kênh và chọn hướng cần trộn ít hơn. Đây là màu gần nhất
+theo mức trộn của hai hướng này. Nếu ngưỡng không thể đạt (vd. 22), trả đen hoặc
+trắng có tương phản cao hơn; khi đó kết quả vẫn có thể dưới ngưỡng yêu cầu.
+
+Test `@solar/themes` kiểm mọi theme export từ `src/index.ts`, chạy trong CI Workspace
+qua `pnpm turbo run test`; theme mới tự được kiểm. E7-S08 sẽ dùng các API này để báo
+lỗi và gợi ý màu cho override CMS. UI CMS, chữ lớn 3:1 và cặp ngoài danh sách thuộc
+story khác. Với scrim, đây là phép kiểm hai nền trắng/đen theo quy ước, không đo ảnh thật.

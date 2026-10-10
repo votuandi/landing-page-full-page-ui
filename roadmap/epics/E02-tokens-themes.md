@@ -49,7 +49,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] Class `/opacity` hoạt động với token (`bg-primary/20`).
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
-### E2-S04 · `lint:tokens` — chặn hard-code
+### E2-S04 · `lint:tokens` — chặn hard-code ✅ · PR [#15](https://github.com/votuandi/landing-page-full-page-ui/pull/15)
 **Là** chủ dự án, **tôi muốn** CI từ chối mọi màu/font/bo góc viết cứng, **để** section luôn trộn được giữa các theme.
 - **Chi tiết**: ESLint rule tùy biến (`@solar/eslint-plugin/no-hardcoded-style`) kiểm chuỗi className và style object:
   cấm `#[0-9a-f]{3,8}`, `rgb(`/`hsl(` (trừ `rgb(var(--c-…))`), class arbitrary `bg-[`, `text-[`, `from-[`, `to-[`,
@@ -68,8 +68,8 @@ revalidate; 0 vi phạm `lint:tokens`.
   trong CMS: báo lỗi và gợi ý màu gần nhất đạt chuẩn.
 - **Target**: mọi theme gốc đạt WCAG AA cho chữ thường (4.5:1).
 - **AC**:
-  - [ ] Chạy trong CI cho mọi theme.
-  - [ ] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
+  - [x] Chạy trong CI cho mọi theme.
+  - [x] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
 ### E2-S06 · Font theo theme

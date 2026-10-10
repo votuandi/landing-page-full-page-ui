@@ -21,3 +21,16 @@ test("export t15 parse thành công và khớp fixture chuẩn, gồm màu dark 
   assert.deepEqual(parseTheme(t15), t15);
   assert.equal(themeToCss(t15), themeToCss(parseTheme(fixture)));
 });
+
+test("mọi theme đạt WCAG AA cho cặp bắt buộc", () => {
+  const themes = Object.values(require("../index.ts"));
+  const { checkContrast } = require("@solar/tokens");
+  assert.ok(themes.length > 0, "cần ít nhất một theme được export");
+  for (const theme of themes) {
+    const issues = checkContrast(theme);
+    const details = issues.map((issue) =>
+      `${issue.mode}: ${issue.fg}/${issue.bg}${issue.scrimAlpha === undefined ? "" : ` (alpha ${issue.scrimAlpha})`}`
+      + ` = ${issue.ratio.toFixed(3)} < ${issue.min}; gợi ý ${issue.suggestion}`).join("\n");
+    assert.deepEqual(issues, [], `Theme ${theme.meta.id} không đạt WCAG AA:\n${details}`);
+  }
+});
