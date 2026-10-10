@@ -39,7 +39,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] Không có biến CSS nào của theme khác lẫn vào HTML.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
-### E2-S03 · Tailwind preset từ token
+### E2-S03 · Tailwind preset từ token ✅ · PR [#14](https://github.com/votuandi/landing-page-full-page-ui/pull/14)
 **Là** dev, **tôi muốn** Tailwind chỉ sinh class từ token, **để** không thể vô tình dùng màu cứng.
 - **Chi tiết**: `packages/tokens/tailwind-preset.ts` thay hẳn `theme.colors`, thêm `borderRadius` (`card`, `pill`, `media`,
   `input`, `button`), `boxShadow` dựa `--c-shadow` + `--shadow-strength`, `backdropBlur.glass`, `transitionDuration.motion*`,
