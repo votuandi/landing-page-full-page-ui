@@ -1,3 +1,14 @@
+import { variants as projects } from "./projects";
+import { variants as shorts } from "./shorts";
+import { variants as stats } from "./stats";
+import { variants as energyMonitoring } from "./energy-monitoring";
+import { variants as process } from "./process";
+import { variants as testimonials } from "./testimonials";
+import { variants as trust } from "./trust";
+import { variants as brands } from "./brands";
+import { variants as faq } from "./faq";
+import { variants as blog } from "./blog";
+import { variants as ctaBanner } from "./cta-banner";
 import type { SectionPropsOf, SectionTypeDef, SectionVariants, VariantLoader } from "./define";
 import { variants as calculator } from "./calculator";
 import { variants as hero } from "./hero";
@@ -40,6 +51,17 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 }
 
 export const sectionRegistry = createRegistry({
+  "projects": projects,
+  "shorts": shorts,
+  "stats": stats,
+  "energy-monitoring": energyMonitoring,
+  "process": process,
+  "testimonials": testimonials,
+  "trust": trust,
+  "brands": brands,
+  "faq": faq,
+  "blog": blog,
+  "cta-banner": ctaBanner,
   "site-header": siteHeader,
   hero,
   segments,

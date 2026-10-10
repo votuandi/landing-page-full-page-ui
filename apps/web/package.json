@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/apps/web/src/lib/__tests__/registerWorkspace.js --test .test-dist/apps/web/src/lib/__tests__/sectionCollections.test.js",
     "lint:tokens": "solar-lint-tokens src"
   },
   "dependencies": {

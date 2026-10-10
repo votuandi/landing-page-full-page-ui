@@ -1,7 +1,7 @@
 # @solar/sections
 
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
-(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 7 type đợt 1 (E3-S04), xem mục "Type đã có".
+(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 18 type qua E3-S04 và E3-S05, xem mục "Type đã có".
 
 ## Khai báo một type
 
@@ -205,7 +205,53 @@ Mỗi type: `schema.ts` (export `<type>Schema` + definition, `defaults = schema.
 `/lab/sections/t15` render 7 type bằng `PageRenderer` + registry sản phẩm (`?lang=en` cho tiếng Anh). Trang lab vẫn
 nằm trong `SiteShell` cũ nên có thêm header/footer cũ tới E4-S01.
 
-## Kiểm tra
+## Collection và type nội dung (E3-S05)
+
+11 type mới có schema, fixture và variant `t15`: `projects`, `shorts`, `stats`, `energy-monitoring`, `process`,
+`testimonials`, `trust`, `brands`, `faq`, `blog`, `cta-banner`. Fixture đọc collection chỉ chứa `query`; `items`
+mặc định rỗng và được loader điền. `projects`, `shorts`, `blog` không có item thì không render;
+`testimonials` vẫn có thể render điểm đánh giá. Các entitlement khai báo trong metadata theo plan; E6 nối kiểm tra gói thật.
+
+`collections/schemas.ts` chuẩn hóa `projectItem`, `storyItem`, `testimonialItem`, `postItem` và `storySource`.
+Chuỗi collection đã chọn ngôn ngữ ở adapter; văn bản cấu hình section dùng `localized()`. Nguồn video chỉ nhận ID
+YouTube/TikTok hợp lệ, đường dẫn file cùng origin không traversal, hoặc URL Bunny HTTPS. `storyEmbed` kiểm lại
+nguồn trước khi dựng URL nhúng, dùng YouTube no-cookie và TikTok player; file/Bunny dùng `<video>`.
+
+```tsx
+import { PageRenderer, createCollectionLoader } from "@solar/sections";
+
+<PageRenderer page={page} site={site} loadData={createCollectionLoader(source)} />;
+```
+
+`CollectionSource` nhận `site` ở mỗi lần gọi để E5 thay nguồn bằng repository tenant. Adapter mẫu
+`apps/web/src/lib/sectionCollections.ts` đọc `src/data/*.ts`, thêm nhãn `[DỮ LIỆU MẪU]`, map `storyId` của project
+thành nguồn video và tạo href chi tiết. Adapter hiện chỉ có dữ liệu VI; EN fallback VI tới khi E5 cung cấp nội dung dịch.
+`applyCollectionQuery` giữ thứ tự `ids`, rồi filter so bằng, sort, limit; không sửa mảng nguồn. Thiếu source giữ nguyên
+fixture; lỗi source truyền ra cho `PageRenderer` ghi log và cô lập section. Kết quả được schema kiểm trước khi render.
+
+`faq` dùng `<details>` và sinh JSON-LD `FAQPage` từ chính câu hỏi/đáp theo `site.locale`, có thể tắt bằng `jsonLd: false`.
+`serializeJsonLd` escape `<`, `>`, `&`, U+2028/U+2029, render bằng text child của `<script>`; không dùng HTML thô.
+Projects và player shorts có link dự toán chứa `nguon=story-cta` và `#du-toan`, điền nhu cầu + phân khúc; form calculator
+gửi lead với `source: "story-cta"`. Filter/player là state riêng mỗi section tới E3-S08.
+
+Projects/shorts thông báo trạng thái trống theo VI/EN khi phân khúc được chọn không có item. Shorts nhận nhãn chip
+từ `segmentLabels` như projects; schema v2 có default cho dữ liệu cũ và `shorts/migrations.ts` bổ sung nhãn khi chuyển
+từ v1, giữ nguyên nội dung, query và items.
+
+Stats hiển thị số cuối trong HTML server; sau hydrate mới đếm khi vào viewport và không đếm với reduced motion.
+Trust có ảnh lớn trong dialog; thẻ vẫn đọc đủ thông tin khi tắt JavaScript. `process`, `testimonials`, `energy-monitoring`,
+`faq`, `blog`, `cta-banner` là server-only; các type tương tác chỉ hydrate island.
+
+`/lab/sections/t15-content` render 11 type + calculator qua registry và loader mẫu. `content.test.ts` kiểm fixture,
+schema, query/loader, JSON-LD an toàn và href CTA. `tooling/visual/content.spec.ts` kiểm adapter mẫu, production SSR,
+JSON-LD trong HTML, filter riêng từng section, player/phím/focus, hai nguồn CTA gửi lead, nội dung khi tắt JS.
+
+`pnpm --filter web test` biên dịch adapter và workspace dependencies sang JS rồi chạy `node:test`, như các package.
+`apps/web/src/lib/__tests__/sectionCollections.test.ts` kiểm đủ 4 collection, mapping video/link/media và loader
+với ids/filter thật; test này cũng chạy bởi `pnpm test` / `pnpm turbo run test`. Unit sections kiểm SSR stats
+(sinceYear, decimals, suffix, VI/EN), cả 11 type ở EN và các nhánh dữ liệu thiếu.
+
+## Lệnh kiểm tra
 
 - `pnpm --filter @solar/sections typecheck`: gồm `@ts-expect-error` cho trường sai, loader sai type, default variant
   sai và defaults thiếu trường; các file `*.typecheck.ts` không chạy trong unit test.

@@ -4,3 +4,7 @@ import { resolve } from "node:path";
 const compiled = require.resolve(resolve(__dirname, "../../../core/src/index.js"));
 require(compiled);
 require.cache[require.resolve("@solar/core")] = require.cache[compiled];
+
+const ui = require.resolve(resolve(__dirname, "../../../ui/src/index.js"));
+require(ui);
+require.cache[require.resolve("@solar/ui")] = require.cache[ui];
