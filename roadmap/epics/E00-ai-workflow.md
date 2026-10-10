@@ -73,12 +73,11 @@
   test. Tùy chọn dùng Codex cloud (`codex cloud`) cho story không cần môi trường Windows.
 - **Target**: chạy ≥ 4 story đồng thời không xung đột file.
 - **AC**:
-  - [ ] Hai script chạy trên Windows PowerShell 7 và bash.
-  - [ ] Mỗi worktree độc lập (`node_modules` riêng qua `pnpm install --frozen-lockfile`, cổng dev khác nhau).
-  - [ ] Tài liệu trong `solar-agent-collab`.
-- Ghi chú: **hoãn tới khi bắt đầu E4** (2026-10-09) — E0 là setup quy trình, chưa cần chạy song song; làm gọn khi
-  thật sự cần (vd. 2 script mỏng `spawn-codex.ps1`/`.sh`, không Node core/test suite riêng). Bản dựng dở của lần
-  chạy trước giữ ở `.agent-runs/E0-S06/draft/` (local, không commit) để tham khảo.
+  - [x] Hai script chạy trên Windows PowerShell 7 và bash. (2026-10-10, codex giả: lô 4 story mỗi shell, nhánh lỗi exit 1)
+  - [x] Mỗi worktree độc lập (`node_modules` riêng qua `pnpm install --frozen-lockfile`, cổng dev khác nhau).
+    Lô pwsh: 4 lần install riêng (26–63s), cổng 3201–3204; lô bash: cổng 3101–3104, 4 codex chạy đồng thời.
+  - [x] Tài liệu trong `solar-agent-collab` (mục "Chạy song song").
+- Ghi chú: làm gọn — 2 cặp script mỏng `.ps1`/`.sh`, không Node core/test suite riêng (bản dựng dở cũ bị bỏ).
 - Phụ thuộc: E1-S01, E2, E3-S01…S04 (giống E4, để story chỉ sẵn sàng khi E4 bắt đầu) · Agent: Codex · Cỡ: M
 
 ### E0-S07 · Bổ sung skill: Playwright CLI, Ponytail, Graphify, Agent Skills, OmniRoute ✅ · PR [#9](https://github.com/votuandi/landing-page-full-page-ui/pull/9)
