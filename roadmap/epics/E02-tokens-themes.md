@@ -72,7 +72,7 @@ revalidate; 0 vi phạm `lint:tokens`.
   - [x] API `suggestAccessible(color, against)` trả màu đạt chuẩn, dùng ở E7-S08.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
-### E2-S06 · Font theo theme
+### E2-S06 · Font theo theme ✅ · PR [#17](https://github.com/votuandi/landing-page-full-page-ui/pull/17)
 **Là** tenant, **tôi muốn** font đúng của theme mà site không tải font thừa, **để** trang nhanh.
 - **Chi tiết**: registry font tự host trong `packages/themes/src/fonts.ts` (Inter, Be Vietnam Pro, Manrope,
   Plus Jakarta Sans, Montserrat); CSS và preload được chọn từ `theme.font` lúc render. Mỗi woff2 gộp latin + vietnamese.
