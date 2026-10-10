@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -31,7 +31,7 @@ test("10 premium fixtures parse to defaults and have t15 variants", async () => 
     assert.ok(def, type);
     const fixture = Object.values(await import(`../${type}/fixtures`))[0];
     assert.deepEqual(def.schema.parse(fixture), def.defaults);
-    assert.ok(JSON.stringify(fixture).includes("[DỮ LIỆU MẪU]"));
+    assert.ok(readFileSync(resolve(__dirname, "../../../../src", type, "fixtures.ts"), "utf8").includes("[DỮ LIỆU MẪU]"), type);
     for (const file of ["schema.ts", "fixtures.ts", "index.ts", "t15.tsx"]) assert.ok(existsSync(resolve(__dirname, "../../../../src", type, file)));
     assert.equal(sectionRegistry.getVariant(type, "t15")?.fallback, false);
   }

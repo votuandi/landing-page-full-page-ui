@@ -4,7 +4,7 @@ import type { dealerSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const dealerFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Trở thành đại lý",
+    "vi": "Trở thành đại lý",
     "en": "[SAMPLE DATA] Trở thành đại lý"
   },
   "title": {

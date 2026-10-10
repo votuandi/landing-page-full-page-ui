@@ -4,7 +4,7 @@ import type { investmentModelsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const investmentModelsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Hình thức đầu tư",
+    "vi": "Hình thức đầu tư",
     "en": "[SAMPLE DATA] Hình thức đầu tư"
   },
   "title": {

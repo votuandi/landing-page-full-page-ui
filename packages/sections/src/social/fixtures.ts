@@ -4,7 +4,7 @@ import type { socialSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const socialFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Mạng xã hội",
+    "vi": "Mạng xã hội",
     "en": "[SAMPLE DATA] Mạng xã hội"
   },
   "title": {

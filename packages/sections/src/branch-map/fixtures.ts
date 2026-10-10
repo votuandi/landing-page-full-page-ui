@@ -4,7 +4,7 @@ import type { branchMapSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const branchMapFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Hệ thống chi nhánh",
+    "vi": "Hệ thống chi nhánh",
     "en": "[SAMPLE DATA] Hệ thống chi nhánh"
   },
   "title": {

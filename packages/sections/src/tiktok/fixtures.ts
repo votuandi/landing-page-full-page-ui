@@ -4,7 +4,7 @@ import type { tiktokSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const tiktokFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] TikTok",
+    "vi": "TikTok",
     "en": "[SAMPLE DATA] TikTok"
   },
   "title": {

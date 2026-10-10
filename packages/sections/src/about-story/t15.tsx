@@ -19,7 +19,7 @@ export default function AboutStoryT15({ data, site, sectionId }: SectionPropsOf<
             <dd className="text-3xl font-black text-primary">{new Intl.NumberFormat(site.locale, { maximumFractionDigits: 1 }).format(stat.value ?? Math.max(0, new Date().getFullYear() - stat.sinceYear!))}{stat.suffix && t(stat.suffix)}</dd>
             <dt className="mt-1 text-sm text-fg-muted">{t(stat.label)}</dt>
           </div>)}</dl>
-          <div className="mt-8 flex flex-wrap gap-3">{data.ctas.map((cta, i) => <SectionLink key={i} link={cta} locale={site.locale} className="t15-button t15-button-secondary" />)}</div>
+          <div className="mt-8 flex flex-wrap gap-3">{data.ctas.map((cta, i) => <SectionLink key={i} link={cta} locale={site.locale} className={`t15-button ${i === 0 ? "t15-button-accent" : "t15-button-secondary"}`} />)}</div>
         </div>
         <div>
           {data.image && <div className="relative min-h-80 overflow-hidden rounded-media border-4 border-bg-elevated shadow-xl"><MediaImage src={mediaSrc(data.image)} alt={t(data.image.alt)} sizes="(max-width:1024px) 100vw, 40vw" /></div>}

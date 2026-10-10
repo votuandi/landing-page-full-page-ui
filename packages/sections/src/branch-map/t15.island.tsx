@@ -35,8 +35,11 @@ export default function BranchMap({ items, labels, locale }: {
           const { x, y } = project(branch.office.lat, branch.office.lng);
           const selected = (active ?? initial) === branch.id;
           return <button key={branch.id} type="button" onClick={() => setActive(branch.id)} aria-pressed={selected} aria-label={branchLabel + branch.name}
-            className="group absolute grid h-11 w-11 -translate-x-1/2 -translate-y-full place-items-center focus-visible:z-20" style={{ left: pct(x, MAP_W), top: pct(y, MAP_H) }}>
-            <MapPinIcon aria-hidden className={"h-8 w-8 " + (selected ? "text-accent" : "text-on-media")} />
+            className={"group absolute grid h-11 w-11 -translate-x-1/2 -translate-y-full place-items-center focus-visible:z-20 " + (selected ? "z-10" : "hover:z-20")} style={{ left: pct(x, MAP_W), top: pct(y, MAP_H) }}>
+            {/* Nền tròn riêng: ghim sát bờ biển vẫn thấy rõ trên nền thẻ sáng. */}
+            <span className={"grid h-8 w-8 place-items-center rounded-full shadow-md ring-2 ring-bg-elevated transition-transform group-hover:scale-110 motion-reduce:transition-none " + (selected ? "bg-accent text-on-accent" : "bg-primary text-on-primary")}>
+              <MapPinIcon aria-hidden className="h-5 w-5" />
+            </span>
             {selected && <span className="absolute bottom-11 whitespace-nowrap rounded-pill bg-accent px-2 py-0.5 text-4xs font-black text-on-accent shadow-lg sm:text-xs">{branch.name}</span>}
           </button>;
         })}

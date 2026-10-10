@@ -4,7 +4,7 @@ import type { pressSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const pressFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Báo chí & truyền hình",
+    "vi": "Báo chí & truyền hình",
     "en": "[SAMPLE DATA] Báo chí & truyền hình"
   },
   "title": {

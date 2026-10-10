@@ -4,7 +4,7 @@ import type { servicesSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const servicesFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Giải pháp điện mặt trời",
+    "vi": "Giải pháp điện mặt trời",
     "en": "[SAMPLE DATA] Giải pháp điện mặt trời"
   },
   "title": {

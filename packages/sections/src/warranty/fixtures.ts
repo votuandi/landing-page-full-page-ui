@@ -4,7 +4,7 @@ import type { warrantySchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const warrantyFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Bảo hành",
+    "vi": "Bảo hành",
     "en": "[SAMPLE DATA] Bảo hành"
   },
   "title": {

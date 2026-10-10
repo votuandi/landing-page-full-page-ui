@@ -4,7 +4,7 @@ import type { productsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const productsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Cửa hàng thiết bị",
+    "vi": "Cửa hàng thiết bị",
     "en": "[SAMPLE DATA] Cửa hàng thiết bị"
   },
   "title": {

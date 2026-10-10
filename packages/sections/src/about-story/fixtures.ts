@@ -4,7 +4,7 @@ import type { aboutStorySchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const aboutStoryFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Câu chuyện",
+    "vi": "Câu chuyện",
     "en": "[SAMPLE DATA] Câu chuyện"
   },
   "title": {
@@ -129,6 +129,24 @@ export const aboutStoryFixture = {
       },
       "description": {
         "vi": "Số liệu minh bạch ở từng bước."
+      }
+    },
+    {
+      "title": {
+        "vi": "Trách nhiệm",
+        "en": "Accountability"
+      },
+      "description": {
+        "vi": "Mỗi hạng mục có người chịu trách nhiệm và thời hạn bảo hành rõ ràng."
+      }
+    },
+    {
+      "title": {
+        "vi": "Đồng hành lâu dài",
+        "en": "Long-term care"
+      },
+      "description": {
+        "vi": "Theo dõi sản lượng, bảo trì định kỳ sau khi bàn giao."
       }
     }
   ],
