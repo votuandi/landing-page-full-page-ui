@@ -104,7 +104,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   PR [#26](https://github.com/votuandi/landing-page-full-page-ui/pull/26).
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
-### E3-S07 · Widget toàn site
+### E3-S07 · Widget toàn site ✅ · PR [#27](https://github.com/votuandi/landing-page-full-page-ui/pull/27)
 **Là** tenant, **tôi muốn** bật/tắt nút liên hệ nổi, popup tư vấn, thanh đáy mobile, giỏ báo giá, công tắc sáng/tối, **để** tùy theo gói và nhu cầu.
 - **Chi tiết**: `packages/sections/widgets/*` với schema riêng (`contact-dock`, `consult-popup` có `delayMs`, `scrollRatio`,
   1 lần/phiên; `mobile-bottom-nav`; `commitments-strip`; `quote-cart`; `theme-switch`; `scroll-progress`).
