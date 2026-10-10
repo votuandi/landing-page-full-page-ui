@@ -124,10 +124,16 @@ importers:
       '@solar/core':
         specifier: workspace:*
         version: link:../core
+      '@solar/ui':
+        specifier: workspace:*
+        version: link:../ui
       zod:
         specifier: 4.6.5
         version: 4.6.5
     devDependencies:
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.2.8)
       '@solar/config':
         specifier: workspace:*
         version: link:../config

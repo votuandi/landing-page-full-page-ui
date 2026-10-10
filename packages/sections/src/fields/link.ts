@@ -6,7 +6,8 @@ import {
 import { localized } from "./localized";
 import { fieldRegistry } from "./widget";
 
-const pageSlug = /^(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/;
+// Slug trang, tùy chọn kèm query (vd. "san-pham?category=panel"); không nhận "//", "#", khoảng trắng.
+const pageSlug = /^(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?(?:\?[^#\s]*)?$/;
 const anchorId = /^[a-z0-9-]+$/;
 
 function isHttpUrl(value: string): boolean {
