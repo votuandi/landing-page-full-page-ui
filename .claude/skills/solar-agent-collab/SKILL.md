@@ -54,6 +54,7 @@ Khi Codex xong, Claude vào từng worktree chạy `node scripts/agents/run.mjs 
 rồi `node scripts/agents/run.mjs verify <ID>` → push/PR/review theo run-story Bước 3.4–6.
 `collect` đọc trạng thái checks từ `verify.json` sau lệnh verify; chưa verify thì hiển thị `—`.
 Sau khi PR merge: `git worktree remove ../lp-worktrees/<ID>`.
+Windows báo "Filename too long" khi xóa (`node_modules` sâu) → giữ root ngắn hoặc `git config core.longpaths true`.
 `codex cloud` là tùy chọn cho story không cần Windows; không tự động hóa trong hai script.
 
 ## Review chéo và PR
