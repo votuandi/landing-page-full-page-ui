@@ -7,3 +7,4 @@ export * from "./quoteCartStore";
 export * from "./segment";
 export * from "./calculatorBus";
 export * from "./provinces";
+export * from "./lastEstimate";
