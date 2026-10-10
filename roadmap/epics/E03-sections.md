@@ -65,9 +65,9 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `segmentRatios`, `steps`, `ctaLabel` — đọc chung cho variant t12/t14/t15 (theo yêu cầu: giá điện, đơn giá/kWp, hệ số sản lượng).
 - **Target**: 7 type, mỗi type có fixture + ít nhất 1 variant.
 - **AC**:
-  - [ ] Mỗi type có `schema.ts`, `fixtures.ts`, `t15.tsx`, test parse fixture.
-  - [ ] Đổi giá điện trong dữ liệu section → kết quả dự toán thay đổi tương ứng (test `packages/core`).
-  - [ ] Không còn import `config/solar.ts` cứng từ section.
+  - [x] Mỗi type có `schema.ts`, `fixtures.ts`, `t15.tsx`, test parse fixture.
+  - [x] Đổi giá điện trong dữ liệu section → kết quả dự toán thay đổi tương ứng (test `packages/core`).
+  - [x] Không còn import `config/solar.ts` cứng từ section.
 - Phụ thuộc: S01–S03 · Agent: Codex (review Claude) · Cỡ: L
 
 ### E3-S05 · Schema + variant đợt 2 (uy tín & nội dung)
