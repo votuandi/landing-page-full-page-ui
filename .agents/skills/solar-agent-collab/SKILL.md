@@ -41,6 +41,22 @@ node scripts/agents/run.mjs commit .agent-runs/E3-S04/codex-report.md
 Claude chạy codex exec nền và chờ thông báo. Chạy tuần tự; công việc song song cần worktree
 và node_modules riêng. Không giao Codex tự commit trong sandbox khóa .git.
 
+### Chạy song song
+
+Dùng cho nhiều story cơ học mode `codex`, plan đã viết và phụ thuộc đã xong; Claude chạy ngoài sandbox Codex.
+Từ gốc repo, bash: `bash scripts/agents/spawn-codex.sh <ID…> --root ../lp-worktrees --base-port 3101`;
+PowerShell 7: `pwsh -NoProfile -File scripts/agents/spawn-codex.ps1 <ID…> --root ../lp-worktrees --base-port 3101`.
+Mỗi story có worktree/branch, `node_modules` và log `codex.log` riêng; cổng tăng từ 3101.
+Lô chạy đồng thời tiếp theo dùng `--base-port` khác; chỉ dùng `--no-install` khi không cần cài dependency.
+Thu kết quả: `bash scripts/agents/collect.sh --root ../lp-worktrees` hoặc
+`pwsh -NoProfile -File scripts/agents/collect.ps1 --root ../lp-worktrees` (chỉ đọc, không chạy checks).
+Khi Codex xong, Claude vào từng worktree chạy `node scripts/agents/run.mjs commit .agent-runs/<ID>/codex-report.md`,
+rồi `node scripts/agents/run.mjs verify <ID>` → push/PR/review theo run-story Bước 3.4–6.
+`collect` đọc trạng thái checks từ `verify.json` sau lệnh verify; chưa verify thì hiển thị `—`.
+Sau khi PR merge: `git worktree remove ../lp-worktrees/<ID>`.
+Windows báo "Filename too long" khi xóa (`node_modules` sâu) → giữ root ngắn hoặc `git config core.longpaths true`.
+`codex cloud` là tùy chọn cho story không cần Windows; không tự động hóa trong hai script.
+
 ## Review chéo và PR
 
 Reviewer lấy từ S.reviewer. Codex dùng solar-pr-review trong phiên read-only độc lập;
