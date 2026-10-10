@@ -57,8 +57,8 @@ revalidate; 0 vi phạm `lint:tokens`.
   (`packages/themes/**`, `packages/ui/brand-icons/**`) và theo comment `// token-exempt: <lý do>`.
 - **Target**: 0 vi phạm ở `packages/sections`, `packages/ui`, `apps/*`.
 - **AC**:
-  - [ ] Rule có test (ca đúng/ca sai).
-  - [ ] `pnpm lint:tokens` chạy trong CI; PR thêm `bg-[#0E7C3A]` bị fail với thông báo gợi ý token thay thế.
+  - [x] Rule có test (ca đúng/ca sai).
+  - [x] `pnpm lint:tokens` chạy trong CI; PR thêm `bg-[#0E7C3A]` bị fail với thông báo gợi ý token thay thế.
 - Phụ thuộc: E1-S01 · Agent: Codex · Cỡ: M
 
 ### E2-S05 · Kiểm tra tương phản tự động
