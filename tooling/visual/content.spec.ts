@@ -33,6 +33,8 @@ test("11 content sections render with collection data and FAQPage JSON-LD", asyn
 for (const origin of ["projects", "shorts"]) {
   test(`${origin} story CTA submits calculator lead with story-cta source`, async ({ page }) => {
     let body: Record<string, unknown> | undefined;
+    // Popup tư vấn hẹn giờ của SiteShell cũ có thể che form dự toán.
+    await page.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
     await page.route("**/api/lead", async (request) => {
       body = request.request().postDataJSON();
       await request.fulfill({ status: 200, json: { ok: true } });
