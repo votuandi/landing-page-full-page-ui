@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@solar/core": ["../../packages/core/src/index.ts"],
+      "@solar/ui": ["../../packages/ui/src/index.ts"],
+      "@solar/sections": ["../../packages/sections/src/index.ts"]
+    },
+    "jsx": "react-jsx",
+    "noEmit": false,
+    "incremental": false,
+    "outDir": ".test-dist",
+    "rootDir": "../.."
+  },
+  "include": ["src/lib/__tests__/**/*.ts"],
+  "exclude": ["node_modules", ".test-dist"]
+}
