@@ -36,8 +36,8 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `{ kind: "page"|"url"|"anchor"|"phone"|"zalo"|"calculator", value, label }`; `richText()` (JSON an toàn, không HTML thô);
   `collectionQuery("projects")` = `{ filter, sort, limit, ids? }`. Mỗi kiểu khai báo `widget` cho form tự sinh (E7-S03).
 - **AC**:
-  - [ ] `richText` render qua renderer whitelist (không `dangerouslySetInnerHTML` với dữ liệu khách).
-  - [ ] `link.kind = "calculator"` mở dự toán qua `calculatorBus` với tham số.
+  - [x] `richText` render qua renderer whitelist (không `dangerouslySetInnerHTML` với dữ liệu khách).
+  - [x] `link.kind = "calculator"` mở dự toán qua `calculatorBus` với tham số.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
 ### E3-S03 · Renderer trang từ cấu hình
