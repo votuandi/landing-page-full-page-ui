@@ -45,8 +45,8 @@ revalidate; 0 vi phạm `lint:tokens`.
   `input`, `button`), `boxShadow` dựa `--c-shadow` + `--shadow-strength`, `backdropBlur.glass`, `transitionDuration.motion*`,
   `spacing.section`, `fontFamily.sans|display`. Mọi app/package dùng preset này (content glob gồm `packages/sections`, `packages/ui`).
 - **AC**:
-  - [ ] `bg-white`, `text-slate-500`, `rounded-3xl` (nếu bị cấm) không sinh CSS.
-  - [ ] Class `/opacity` hoạt động với token (`bg-primary/20`).
+  - [x] `bg-white`, `text-slate-500`, `rounded-3xl` (nếu bị cấm) không sinh CSS.
+  - [x] Class `/opacity` hoạt động với token (`bg-primary/20`).
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: S
 
 ### E2-S04 · `lint:tokens` — chặn hard-code
