@@ -21,6 +21,8 @@ preset → ảnh so sánh với branch gốc (390/1440px) → cập nhật bản
 ### E4-S01 · Signature: t15 (hoàn thiện)
 - **Chi tiết**: t15 đã là nguồn của E3; story này hoàn tất preset đầy đủ 24 section + widget, theme light + dark, trang con.
 - **Target**: preset t15 = trang hiện tại (ảnh khớp ≤ 0,5%) — đây là nghiệm thu "trang chủ t15 render từ cấu hình" của E3.
+  Nhận thêm target của E3-S03: TTFB trang chủ render qua `PageRenderer` không tăng > 10% so với `HomePage.tsx` viết tay
+  (đo production, cùng nội dung, có lệnh tái lập).
 - Phụ thuộc: E3-S04…S08 · Agent: Claude · Cỡ: M
 
 ### E4-S02 · Signature: t12 "Sky & Sun / Emerald Dusk"

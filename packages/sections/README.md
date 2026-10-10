@@ -130,7 +130,38 @@ import Island from "./t15.client";
 
 Section chỉ dùng class token; animation phải tôn trọng `prefers-reduced-motion`.
 
-## Tra cứu và render
+## Render trang
+
+Trang là danh sách section đã parse bằng `pageConfigSchema`: `{ id, type, variant, enabled = true, anchor?, data }`.
+`id` và `anchor` không được trùng; `anchor` (`[a-z0-9-]+`) thành `id` neo, ví dụ `#du-toan`.
+
+```tsx
+import { PageRenderer, pageConfigSchema } from "@solar/sections";
+
+<PageRenderer page={pageConfigSchema.parse(raw)} site={site} canUse={(feature) => can(site, feature)} loadData={load} />;
+```
+
+`PageRenderer` là async Server Component, render theo thứ tự cấu hình:
+
+- Bỏ section `enabled: false`, type không có trong registry, và section có `meta.entitlement` mà `canUse` trả `false`.
+  Section bị bỏ vì quyền không gọi `load()` nên không tải chunk. `canUse` mặc định cho phép tới E6.
+- Chuẩn bị song song cho mọi section: gọi `loadData` với `data` thô (E5 truy vấn collection), nạp module variant, rồi
+  parse kết quả bằng schema của type — dữ liệu loader trả về sai schema cũng thành fallback. Lỗi ở bước này được log
+  `console.error("[sections] chuẩn bị section lỗi", { tenantId, sectionId, type, variant, error })` và section đó
+  thành wrapper rỗng có `data-section-fallback`.
+- Mỗi section nằm trong `<div id={anchor} data-section-id data-section-type>` → `SectionBoundary` (error boundary
+  client). Lỗi render ở client làm section rỗng và log `[sections] render section lỗi` với `tenantId`, `sectionId`; các
+  section khác vẫn hiện, trang vẫn 200.
+- Không bọc `Suspense` quanh section: island `next/dynamic` suspend khi SSR, nên Suspense sẽ stream section vào
+  `<div hidden>` và nội dung mất khi tắt JavaScript. Lazy-load dưới màn hình đầu đến từ chunk async của island (S01).
+  Hệ quả: lỗi khi render Server Component của variant trên server vẫn làm hỏng trang — đưa mọi việc có thể lỗi
+  (I/O, parse) vào `loadData`, nơi renderer bắt lỗi.
+- Wrapper giữ `id` neo nên variant không tự gắn `id` neo. Variant nên là component đồng bộ; dữ liệu và module đã chuẩn bị
+  trước nên HTML server có đủ nội dung khi tắt JavaScript.
+
+`/lab/renderer` dựng trang mẫu với registry demo: một section tắt, một lỗi `loadData`, một island ném lỗi khi hydrate.
+
+## Tra cứu thủ công
 
 ```tsx
 const resolved = sectionRegistry.getVariant(type, variant);
@@ -149,15 +180,16 @@ Lookup bằng string trộn nhiều schema, nên renderer phải parse dữ li�
 
 - `pnpm --filter @solar/sections typecheck`: gồm `@ts-expect-error` cho trường sai, loader sai type, default variant
   sai và defaults thiếu trường; các file `*.typecheck.ts` không chạy trong unit test.
-- `pnpm --filter @solar/sections test`: registry, parse trường, metadata, link/click calculator và renderer richText
-  (escape, whitelist, locale, URL độc). Cấu hình test biên dịch dependency core cùng sections; preload test trỏ
+- `pnpm --filter @solar/sections test`: registry, parse trường, metadata, link/click calculator, renderer richText
+  (escape, whitelist, locale, URL độc) và `PageRenderer` (thứ tự, bỏ section, entitlement, fallback + log). Cấu hình test biên dịch dependency core cùng sections; preload test trỏ
   `@solar/core` tới bản JS thật vừa sinh vì Node 20 không chạy trực tiếp workspace export TypeScript.
 - `pnpm --filter @solar/sections lint` và `pnpm lint:tokens`.
 - `pnpm turbo run build --filter=web` rồi `pnpm --filter @solar/visual test:sections`: production SSR, counter island
   và danh sách response JS. Spec yêu cầu marker v1 có mặt, marker v2 vắng mặt; đính kèm danh sách request và ảnh lab.
   `/lab/fields` kiểm calculatorBus nhận prefill, click/Enter không reload, fallback href không JavaScript và
-  richText độc chỉ hiện dạng chữ; ảnh trang được đính kèm vào report Playwright.
+  richText độc chỉ hiện dạng chữ; `/lab/renderer` kiểm thứ tự, HTTP 200, fallback lỗi server/client và log
+  client có `tenantId`, `sectionId`; ảnh trang được đính kèm vào report Playwright.
 
-`/lab/sections` dùng registry demo riêng gồm hai type, mỗi type hai variant, không thêm vào registry sản phẩm.
-Hai lab chỉ mở ở development hoặc production có `LAB_ENABLED=true`. `SiteContext` hiện có `tenantId`, `locale`,
+`/lab/sections` và `/lab/renderer` dùng registry demo riêng (demo-a, demo-b mỗi type hai variant, demo-crash), không
+thêm vào registry sản phẩm. Các lab chỉ mở ở development hoặc production có `LAB_ENABLED=true`. `SiteContext` hiện có `tenantId`, `locale`,
 `themeId`; E5 mở rộng ngữ cảnh tenant.
