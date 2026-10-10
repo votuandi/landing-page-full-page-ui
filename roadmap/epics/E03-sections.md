@@ -58,7 +58,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
         `sectionId`; các section khác vẫn hiện, HTTP 200.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
-### E3-S04 · Schema + variant đợt 1 (luồng chuyển đổi)
+### E3-S04 · Schema + variant đợt 1 (luồng chuyển đổi) ✅ · PR [#23](https://github.com/votuandi/landing-page-full-page-ui/pull/23)
 **Là** chủ dự án, **tôi muốn** các section tạo lead có schema trước, **để** gói Nâng cao bán được sớm.
 - **Chi tiết**: type `hero`, `calculator`, `lead-form`, `packages`, `segments`, `site-header`, `site-footer` — schema + variant
   t15 (nguồn: README t15 mục Trang chủ). `calculator` chứa `tariffs`, `vatRate`, `pricePerKwp`, `peakSunHours`,
