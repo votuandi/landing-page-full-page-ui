@@ -6,7 +6,7 @@ import { createRegistry } from "../registry";
 import { siteWidgetsSchema } from "../widgets/config";
 import { widgetRegistry } from "../widgets/registry";
 import { SiteWidgets } from "../widgets/SiteWidgets";
-import { createConsultSession } from "../widgets/consult-popup/session";
+import { createConsultSession, reachedScrollRatio } from "../widgets/consult-popup/session";
 import { createCollectionLoader } from "../collections/loader";
 import { productsFixture } from "../products/fixtures";
 
@@ -97,6 +97,20 @@ test("invalid or failing widget data is skipped with tenant log; others render a
     } });
   assert.equal(loaded, true);
   assert.equal(error.mock.callCount(), 2);
+});
+
+test("consult scroll trigger opens at or above its threshold", () => {
+  assert.equal(reachedScrollRatio(600, 1800, 800, 0.6), true);
+  assert.equal(reachedScrollRatio(601, 1800, 800, 0.6), true);
+});
+
+test("consult scroll trigger stays closed below its threshold", () => {
+  assert.equal(reachedScrollRatio(599, 1800, 800, 0.6), false);
+});
+
+test("consult scroll trigger stays closed on non-scrollable pages", () => {
+  assert.equal(reachedScrollRatio(0, 800, 800, 0.6), false);
+  assert.equal(reachedScrollRatio(0, 700, 800, 0.6), false);
 });
 
 test("consult opens at most once per session, postpones for dialogs, falls back when storage fails", () => {

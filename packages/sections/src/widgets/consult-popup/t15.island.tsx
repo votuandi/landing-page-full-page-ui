@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { onOpenConsult } from "../events";
-import { createConsultSession } from "./session";
+import { createConsultSession, reachedScrollRatio } from "./session";
 import type { ConsultDialogProps } from "./dialog";
 
 const ConsultDialog = dynamic(() => import("./dialog"), { ssr: false });
@@ -25,8 +25,7 @@ export default function ConsultPopup({ autoOpen, delayMs, scrollRatio, ...props 
       session.markShown(storage); cleanup(); setState({ open: true, withForm: false });
     };
     const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (max > 0 && window.scrollY / max >= scrollRatio) show();
+      if (reachedScrollRatio(window.scrollY, document.documentElement.scrollHeight, window.innerHeight, scrollRatio)) show();
     };
     const stopManual = onOpenConsult(() => {
       session.markShown(storage); cleanup(); setState({ open: true, withForm: true });

@@ -1,6 +1,11 @@
 type SessionStorage = Pick<Storage, "getItem" | "setItem">;
 const KEY = "t15-consult-shown";
 
+export function reachedScrollRatio(scrollY: number, scrollHeight: number, innerHeight: number, ratio: number) {
+  const max = scrollHeight - innerHeight;
+  return max > 0 && scrollY / max >= ratio;
+}
+
 /** Memory preserves the once-per-session rule when storage is blocked. */
 export function createConsultSession() {
   let shown = false;
