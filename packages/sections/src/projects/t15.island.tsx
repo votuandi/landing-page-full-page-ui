@@ -33,7 +33,7 @@ export default function Projects({ items, labels, showFilter, savingLabel, allLa
         </div>
         <div className="flex flex-1 flex-col p-3 sm:p-5"><div className="text-xs font-bold uppercase tracking-[.14em] text-secondary">{labels[item.segment]}</div><h3 className="mt-1.5 text-sm font-black leading-snug text-fg sm:text-lg">{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3><div className="mt-1 flex items-center gap-1 text-xs text-fg-muted sm:text-sm"><MapPinIcon aria-hidden className="h-4 w-4 shrink-0" />{item.location}</div>
           {item.savingPerMonth !== undefined && <div className="mt-auto pt-4"><div className="text-2xs font-bold uppercase tracking-[.12em] text-fg-subtle">{savingLabel}</div><div className="text-base font-black text-primary sm:text-lg">~{formatMoneyShort(item.savingPerMonth)}</div></div>}
-          <CalculatorLink href={link.href} prefill={link.calculator!} className="t15-button t15-button-secondary relative mt-4 text-xs">{ctaLabel}</CalculatorLink>
+          <CalculatorLink href={link.href} prefill={link.calculator!} className="t15-button t15-button-secondary relative mt-4 w-full justify-center px-3 text-center text-xs leading-snug text-balance">{ctaLabel}</CalculatorLink>
         </div>
       </article>; })}
     </div>

@@ -4,7 +4,7 @@ import type { brandsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const brandsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Thương hiệu phân phối",
+    "vi": "Thương hiệu phân phối",
     "en": "[SAMPLE DATA] Distributed brands"
   },
   "title": {

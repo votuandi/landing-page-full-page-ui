@@ -10,7 +10,7 @@ function Visual({ cert }: { cert: Cert }) {
   return <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-bg-elevated via-bg-tint to-primary-deep p-5 text-center"><div aria-hidden className="absolute inset-3 rounded-2xl border-2 border-dashed border-accent/35" /><span aria-hidden className="grid h-14 w-14 place-items-center rounded-full bg-accent/15 text-accent-ink ring-4 ring-accent/20"><ShieldCheckIcon className="h-8 w-8" /></span><span className="text-xl font-black leading-tight text-fg">{cert.title}</span><span className="text-xs font-bold text-fg-muted">{cert.subtitle}</span></div>;
 }
 function Details({ cert, labels }: { cert: Cert; labels: string[] }) {
-  return <dl className="mt-4 grid gap-3 text-sm">{[cert.issuer, cert.number, cert.validUntil, cert.scope].map((value, i) => <div key={i} className="border-b border-line/12 pb-3"><dt className="text-xs font-bold uppercase tracking-[.14em] text-fg-subtle">{labels[i]}</dt><dd className="mt-1 font-bold leading-6 text-fg">{value}</dd></div>)}</dl>;
+  return <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-line/12 pt-4 text-xs">{[cert.issuer, cert.number, cert.validUntil, cert.scope].map((value, i) => <div key={i} className={i === 0 || i === 3 ? "col-span-2" : undefined}><dt className="text-4xs font-bold uppercase tracking-[.14em] text-fg-subtle">{labels[i]}</dt><dd className="mt-0.5 font-semibold leading-5 text-fg">{value}</dd></div>)}</dl>;
 }
 function Lightbox({ items, index, setIndex, labels, locale, onClose }: { items: Cert[]; index: number; setIndex: (i: number) => void; labels: string[]; locale: Locale; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);

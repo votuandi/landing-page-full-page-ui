@@ -4,7 +4,7 @@ import type { testimonialsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const testimonialsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Khách hàng nói gì",
+    "vi": "Khách hàng nói gì",
     "en": "[SAMPLE DATA] What clients say"
   },
   "title": {
@@ -15,7 +15,7 @@ export const testimonialsFixture = {
   "ratings": [
     {
       "label": {
-        "vi": "Google [DỮ LIỆU MẪU]",
+        "vi": "Google",
         "en": "Google [SAMPLE DATA]"
       },
       "score": 4.9,

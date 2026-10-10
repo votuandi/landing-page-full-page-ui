@@ -4,7 +4,7 @@ import type { energyMonitoringSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const energyMonitoringFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Theo dõi điện năng 24/7",
+    "vi": "Theo dõi điện năng 24/7",
     "en": "[SAMPLE DATA] Energy monitoring 24/7"
   },
   "title": {
@@ -52,40 +52,24 @@ export const energyMonitoringFixture = {
       "title": {
         "vi": "Cảnh báo tức thì khi sản lượng bất thường",
         "en": "Instant alerts on unusual production"
-      },
-      "description": {
-        "vi": "Theo dõi trên ứng dụng.",
-        "en": "Available in the monitoring app."
       }
     },
     {
       "title": {
         "vi": "Báo cáo tiết kiệm theo ngày, tháng, năm",
         "en": "Daily, monthly and yearly savings reports"
-      },
-      "description": {
-        "vi": "Theo dõi trên ứng dụng.",
-        "en": "Available in the monitoring app."
       }
     },
     {
       "title": {
         "vi": "Chia sẻ quyền xem cho nhiều thành viên",
         "en": "Share access with your team"
-      },
-      "description": {
-        "vi": "Theo dõi trên ứng dụng.",
-        "en": "Available in the monitoring app."
       }
     },
     {
       "title": {
         "vi": "Ứng dụng iOS, Android và trình duyệt web",
         "en": "iOS, Android and web app"
-      },
-      "description": {
-        "vi": "Theo dõi trên ứng dụng.",
-        "en": "Available in the monitoring app."
       }
     }
   ],

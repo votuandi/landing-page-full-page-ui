@@ -4,7 +4,7 @@ import type { ctaBannerSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const ctaBannerFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Đội ngũ kỹ sư",
+    "vi": "Đội ngũ kỹ sư",
     "en": "[SAMPLE DATA] Engineering team"
   },
   "title": {

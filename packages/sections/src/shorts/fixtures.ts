@@ -4,7 +4,7 @@ import type { shortsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const shortsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Video công trình",
+    "vi": "Video công trình",
     "en": "[SAMPLE DATA] Project videos"
   },
   "title": {

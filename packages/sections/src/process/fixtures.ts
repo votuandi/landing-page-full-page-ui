@@ -4,7 +4,7 @@ import type { processSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const processFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Quy trình triển khai",
+    "vi": "Quy trình triển khai",
     "en": "[SAMPLE DATA] How we deliver"
   },
   "title": {

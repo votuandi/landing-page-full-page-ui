@@ -4,7 +4,7 @@ import type { faqSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const faqFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Câu hỏi thường gặp",
+    "vi": "Câu hỏi thường gặp",
     "en": "[SAMPLE DATA] FAQ"
   },
   "title": {

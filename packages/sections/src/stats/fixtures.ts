@@ -4,7 +4,7 @@ import type { statsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const statsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Số liệu nổi bật",
+    "vi": "Số liệu nổi bật",
     "en": "[SAMPLE DATA] Key figures"
   },
   "title": {

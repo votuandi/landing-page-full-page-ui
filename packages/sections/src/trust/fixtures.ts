@@ -4,7 +4,7 @@ import type { trustSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const trustFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Chứng chỉ & giấy phép",
+    "vi": "Chứng chỉ & giấy phép",
     "en": "[SAMPLE DATA] Certificates & licences"
   },
   "title": {

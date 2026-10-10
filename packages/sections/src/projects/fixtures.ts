@@ -4,7 +4,7 @@ import type { projectsSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const projectsFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Công trình đã thực hiện",
+    "vi": "Công trình đã thực hiện",
     "en": "[SAMPLE DATA] Completed projects"
   },
   "title": {

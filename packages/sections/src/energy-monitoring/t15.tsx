@@ -28,7 +28,7 @@ function PhoneDashboard({ data, t, sectionId }: { data: Data; t: Translate; sect
 
         <div className="px-4 pt-5">
           <div className="flex items-center justify-between">
-            <div><div className="text-4xs font-semibold text-fg-muted">[DỮ LIỆU MẪU]</div><div className="text-body-sm font-black">{t(data.title)}</div></div>
+            <div><div className="text-4xs font-semibold text-fg-muted">{t({ vi: "Xin chào,", en: "Hello," })}</div><div className="text-body-sm font-black">{t({ vi: "Hệ thống của bạn", en: "Your system" })}</div></div>
             <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-5xs font-bold text-success"><span className="h-1.5 w-1.5 animate-pulse motion-reduce:animate-none rounded-full bg-primary" />{t({ vi: "Trực tuyến", en: "Online" })}</span>
           </div>
 
@@ -115,18 +115,19 @@ export default function EnergyMonitoringT15({ data, site, sectionId }: SectionPr
           <h2 id={`${sectionId}-title`} data-reveal="left" style={delay(0.1)} className="mt-5 max-w-2xl text-4xl font-black leading-[1.08] tracking-[-.04em] sm:text-5xl">{t(data.title)}</h2>
           <p data-reveal="left" style={delay(0.2)} className="mt-5 max-w-xl leading-8 text-fg-muted">{t(data.description)}</p>
 
-          <div data-reveal-stagger="up" data-reveal-step="0.12" className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div data-reveal-stagger="up" data-reveal-step="0.12" className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
             {data.flows.map((flow, i) => { const Icon = FLOW_ICONS[i % 3]; const tone = FLOW_TONES[i % 3]; return (
-              <div key={i} className="t15-glass-dark rounded-3xl p-5 transition hover:bg-glass-strong">
-                <div className="flex items-center justify-between"><span className={`grid h-10 w-10 place-items-center rounded-2xl ${tone}`}><Icon className="h-5 w-5" /></span><span className="text-sm font-black text-fg">{flow.value} {t(flow.unit)}</span></div>
-                <div className="mt-4 font-black">{t(flow.label)}</div>
+              <div key={i} className="t15-glass-dark rounded-3xl p-3 transition hover:bg-glass-strong sm:p-5">
+                <span className={`grid h-9 w-9 place-items-center rounded-2xl sm:h-10 sm:w-10 ${tone}`}><Icon className="h-5 w-5" /></span>
+                <div className="mt-3 text-lg font-black tabular-nums text-fg sm:mt-4 sm:text-2xl">{flow.value} <span className="text-xs font-bold text-fg-muted">{t(flow.unit)}</span></div>
+                <div className="mt-0.5 text-xs font-semibold text-fg-muted sm:text-sm">{t(flow.label)}</div>
                 
               </div>
             ); })}
           </div>
 
           <ul data-reveal-stagger="left" data-reveal-step="0.08" className="mt-8 grid gap-3 sm:grid-cols-2">
-            {data.features.map((feature, i) => { const Icon = FEATURE_ICONS[i % 4]; return <li key={i} className="flex items-center gap-3 text-sm font-semibold text-fg"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-glass-strong"><Icon className="h-4 w-4 text-accent-ink" /></span><span>{t(feature.title)}<span className="block text-xs text-fg-muted">{t(feature.description)}</span></span></li>; })}
+            {data.features.map((feature, i) => { const Icon = FEATURE_ICONS[i % 4]; return <li key={i} className="flex items-center gap-3 text-sm font-semibold text-fg"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-glass-strong"><Icon className="h-4 w-4 text-accent-ink" /></span><span>{t(feature.title)}{feature.description && <span className="block text-xs font-medium text-fg-muted">{t(feature.description)}</span>}</span></li>; })}
           </ul>
 
 

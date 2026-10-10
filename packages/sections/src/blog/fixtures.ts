@@ -4,7 +4,7 @@ import type { blogSchema } from "./schema";
 /** [DỮ LIỆU MẪU] — nội dung minh họa từ template t15. */
 export const blogFixture = {
   "eyebrow": {
-    "vi": "[DỮ LIỆU MẪU] Kinh nghiệm lắp đặt",
+    "vi": "Kinh nghiệm lắp đặt",
     "en": "[SAMPLE DATA] Installation know-how"
   },
   "title": {
