@@ -15,7 +15,7 @@ export type LeadFormText = {
   fallbackPhone?: string;
 };
 export type LeadFormFields = { zalo: boolean; address: boolean; message: boolean };
-type Extra = { segment?: string; estimate?: Record<string, string | number | boolean> };
+type Extra = { segment?: string; estimate?: Record<string, string | number | boolean>; items?: { sku: string; name: string; qty: number }[] };
 
 // Chuỗi giao diện của form (không phải nội dung tenant).
 const UI = {
@@ -36,13 +36,14 @@ const UI = {
 type Status = "idle" | "sending" | "success" | "error";
 
 /** Form lead dùng chung của section: kiểm số di động VN, honeypot chống spam, POST /api/lead. */
-export function LeadForm({ locale, source, fields, text, getExtra, columns = 2, children }: {
+export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, columns = 2, children }: {
   locale: Locale;
   source: string;
   fields: LeadFormFields;
   text: LeadFormText;
   /** Đọc lúc bấm gửi (vd. kết quả dự toán). */
   getExtra?: () => Extra;
+  onSuccess?: () => void;
   columns?: 1 | 2;
   children?: ReactNode;
 }) {
@@ -69,6 +70,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, columns = 2, 
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) throw new Error(data.message || "");
       setStatus("success");
+      onSuccess?.();
     } catch (e) {
       setError((e as Error).message || ui.failed);
       setStatus("error");
