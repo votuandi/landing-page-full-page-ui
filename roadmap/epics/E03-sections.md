@@ -30,7 +30,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
         không dùng không xuất hiện trong trang. Kiểm bằng bundle analyzer + danh sách request mạng của trang có 1 variant/type.
 - Agent: Claude · Cỡ: M
 
-### E3-S02 · Kiểu dữ liệu nền: `localized`, `mediaRef`, `link`, `richText`, `collectionQuery`
+### E3-S02 · Kiểu dữ liệu nền: `localized`, `mediaRef`, `link`, `richText`, `collectionQuery` ✅ · PR [#20](https://github.com/votuandi/landing-page-full-page-ui/pull/20)
 **Là** dev, **tôi muốn** các kiểu trường chuẩn, **để** schema mọi section nhất quán và CMS biết dùng widget nào.
 - **Chi tiết**: `localized()` = `{ vi: string; en?: string }`; `mediaRef()` = `{ id, alt, focal? }`; `link()` =
   `{ kind: "page"|"url"|"anchor"|"phone"|"zalo"|"calculator", value, label }`; `richText()` (JSON an toàn, không HTML thô);
