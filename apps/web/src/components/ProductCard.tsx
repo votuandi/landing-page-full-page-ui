@@ -18,10 +18,10 @@ export default function ProductCard({ product, onQuickView, compact = false }: {
     <article className="t15-card t15-card-hover group flex h-full flex-col overflow-hidden">
       <div className="relative aspect-square overflow-hidden bg-bg-tint">
         <ProductImage src={product.images[0]} alt={product.name} fill loading="lazy" sizes="(max-width:640px) 70vw, (max-width:1024px) 33vw, 280px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
-        <span className="absolute left-3 top-3 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-[11px] font-bold text-fg-muted shadow-sm">{CATEGORY_LABEL[product.category]}</span>
+        <span className="absolute left-3 top-3 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-2xs font-bold text-fg-muted shadow-sm">{CATEGORY_LABEL[product.category]}</span>
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <div className="text-[11px] font-black uppercase tracking-[.16em] text-secondary">{product.brand}</div>
+        <div className="text-2xs font-black uppercase tracking-[.16em] text-secondary">{product.brand}</div>
         <h3 className="mt-1 line-clamp-2 min-h-[2.75rem] font-black leading-snug text-fg"><Link href={`/san-pham/${product.slug}`} className="hover:text-primary">{product.name}</Link></h3>
         {specs.length > 0 && (
           <dl className="mt-3 grid gap-1.5 text-xs">

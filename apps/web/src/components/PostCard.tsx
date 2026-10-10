@@ -10,7 +10,7 @@ export default function PostCard({ post, headingLevel = 3, priority = false }: {
     <article className="t15-card t15-card-hover group relative flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden bg-bg-tint">
         <ProductImage src={post.cover} alt="" fill {...(priority ? { priority: true } : { loading: "lazy" as const })} sizes="(max-width:768px) 100vw, 400px" className="object-cover transition duration-700 group-hover:scale-[1.05]" />
-        {post.segment && <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-black text-on-accent">{SEGMENTS[post.segment].short}</span>}
+        {post.segment && <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-1 text-2xs font-black text-on-accent">{SEGMENTS[post.segment].short}</span>}
       </div>
       <div className="flex flex-1 flex-col p-5">
         <Heading className="text-lg font-black leading-snug text-fg">

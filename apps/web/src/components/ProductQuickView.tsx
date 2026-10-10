@@ -25,7 +25,7 @@ export default function ProductQuickView({ product, onClose }: { product: Produc
     <div className="fixed inset-0 z-[85] grid place-items-center bg-scrim/50 p-3 backdrop-blur-sm sm:p-6" role="presentation">
       <button type="button" tabIndex={-1} aria-hidden className="absolute inset-0 cursor-default" onClick={onClose} />
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="qv-title" tabIndex={-1}
-        className="relative grid max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-bg-elevated shadow-2xl md:grid-cols-2">
+        className="relative grid max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-card bg-bg-elevated shadow-2xl md:grid-cols-2">
         <button type="button" onClick={onClose} className="t15-icon-button absolute right-3 top-3 z-10" aria-label={tr("Đóng xem nhanh", "Close quick view")} data-autofocus><XMarkIcon className="h-5 w-5" /></button>
         <div className="bg-bg-tint p-4 sm:p-6">
           <div className="relative aspect-square overflow-hidden rounded-2xl"><ProductImage src={product.images[active]} alt={product.name} fill sizes="(max-width:768px) 90vw, 440px" className="object-cover" /></div>

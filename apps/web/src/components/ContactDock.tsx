@@ -26,7 +26,7 @@ export default function ContactDock() {
   ].filter(Boolean) as Item[];
 
   const ext = (external: boolean) => (external ? { target: "_blank", rel: "noopener noreferrer" } : {});
-  const cls = (tone: string) => `group flex h-14 items-center gap-2 overflow-hidden rounded-full px-4 shadow-[0_18px_50px_-20px_rgb(var(--c-shadow)/.45)] transition hover:-translate-y-0.5 ${tone}`;
+  const cls = (tone: string) => `group flex h-14 items-center gap-2 overflow-hidden rounded-full px-4 shadow-float transition hover:-translate-y-0.5 ${tone}`;
   const label = "max-w-0 whitespace-nowrap text-sm font-black opacity-0 transition-all duration-300 group-hover:max-w-48 group-hover:opacity-100 group-focus-visible:max-w-48 group-focus-visible:opacity-100";
 
   return (

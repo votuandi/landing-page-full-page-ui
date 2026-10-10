@@ -35,15 +35,15 @@ export default function BranchMap() {
                     <stop offset="1" style={{ stopColor: "rgb(var(--c-primary-deep))", stopOpacity: 0.9 }} />
                   </linearGradient>
                 </defs>
-                <text x={SEA_LABEL.x} y={SEA_LABEL.y} textAnchor="middle" className="fill-fg-subtle text-[15px] font-bold italic tracking-[.3em]">BIỂN ĐÔNG</text>
+                <text x={SEA_LABEL.x} y={SEA_LABEL.y} textAnchor="middle" className="fill-fg-subtle text-body font-bold italic tracking-[.3em]">BIỂN ĐÔNG</text>
                 <path d={MAINLAND_PATH} fill="url(#vn-land)" strokeWidth="1.5" strokeLinejoin="round" className="stroke-primary" />
                 {ISLAND_PATHS.map((d, i) => <path key={i} d={d} fill="url(#vn-land)" strokeWidth="1" className="stroke-primary" />)}
                 {SMALL_ISLANDS.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.6" className="fill-primary" />)}
                 {ARCHIPELAGOS.map((a) => (
                   <g key={a.id}>
                     {a.dots.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.4" className="fill-primary" />)}
-                    <text x={a.labelAt.x} y={a.labelAt.y} textAnchor="middle" className="fill-fg text-[13px] font-black">{a.label}</text>
-                    <text x={a.labelAt.x} y={a.labelAt.y + 15} textAnchor="middle" className="fill-fg-muted text-[11px] font-bold">(Việt Nam)</text>
+                    <text x={a.labelAt.x} y={a.labelAt.y} textAnchor="middle" className="fill-fg text-body-sm font-black">{a.label}</text>
+                    <text x={a.labelAt.x} y={a.labelAt.y + 15} textAnchor="middle" className="fill-fg-muted text-2xs font-bold">(Việt Nam)</text>
                   </g>
                 ))}
               </svg>
@@ -55,7 +55,7 @@ export default function BranchMap() {
                   <button key={br.id} type="button" onClick={() => setActiveId(br.id)} aria-pressed={active} aria-label={`${tr("Chi nhánh", "Branch")} ${br.name}`}
                     className={`group absolute -translate-x-1/2 -translate-y-full ${active ? "z-10" : "hover:z-20 focus-visible:z-20"}`} style={{ left: pct(x, MAP_W), top: pct(y, MAP_H) }}>
                     <span className="relative flex flex-col items-center">
-                      <span className={`mb-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-black shadow-lg transition sm:text-xs ${active ? "bg-accent text-on-accent" : "invisible bg-bg-elevated/90 text-fg group-hover:visible group-focus-visible:visible"}`}>{br.name}</span>
+                      <span className={`mb-1 whitespace-nowrap rounded-full px-2 py-0.5 text-4xs font-black shadow-lg transition sm:text-xs ${active ? "bg-accent text-on-accent" : "invisible bg-bg-elevated/90 text-fg group-hover:visible group-focus-visible:visible"}`}>{br.name}</span>
                       <span className="relative grid h-11 w-11 place-items-center">
                         {active && <span aria-hidden className="t15-ping absolute h-6 w-6 rounded-full bg-accent" />}
                         <MapPinIcon className={`relative h-8 w-8 drop-shadow ${active ? "text-accent" : "text-on-media"}`} />

@@ -161,7 +161,7 @@ export default function StoryPlayer({ stories, startIndex, onClose }: Props) {
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Video: ${story.shortTitle}`}
       className="fixed inset-0 z-[90] flex items-center justify-center bg-scrim/95 backdrop-blur-sm"
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="relative h-full w-full overflow-hidden bg-scrim sm:h-[min(92vh,860px)] sm:w-auto sm:max-w-full sm:rounded-[28px] sm:border sm:border-on-media/15" style={{ aspectRatio: "9 / 16" }}>
+      <div className="relative h-full w-full overflow-hidden bg-scrim sm:h-[min(92vh,860px)] sm:w-auto sm:max-w-full sm:rounded-card sm:border sm:border-on-media/15" style={{ aspectRatio: "9 / 16" }}>
         <Adapter key={story.id} story={story} muted={muted} onProgress={setProgress} onEnded={onEnded} />
 
         {/* Thanh tiến trình kiểu story */}

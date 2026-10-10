@@ -28,19 +28,19 @@ export default function Hero() {
   const google = siteConfig.reviews.google;
   return (
     <section className="t15-screen relative isolate overflow-hidden !min-h-[calc(100svh-7.5rem)] bg-gradient-to-b from-bg-tint to-bg">
-      <div aria-hidden className="t15-dots pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_30%_40%,rgb(0_0_0),transparent_70%)]" />
-      <div aria-hidden className="pointer-events-none absolute -left-40 -top-40 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-leaf)/.22),transparent_65%)]" />
+      <div aria-hidden className="t15-dots pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_30%_40%,black,transparent_70%)]" />
+      <div aria-hidden className="pointer-events-none absolute -left-40 -top-40 -z-10 h-[520px] w-[520px] rounded-full bg-glow-leaf-22" />
       
       <div className="t15-container grid items-center gap-12 pb-16 pt-10 lg:grid-cols-[1.02fr_1fr] lg:gap-8 lg:py-12">
         <div className="relative z-10">
-          <div data-hero="down" className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-bg-elevated/80 py-1.5 pl-1.5 pr-4 text-[11px] font-bold text-fg-muted shadow-sm backdrop-blur sm:text-xs">
+          <div data-hero="down" className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-bg-elevated/80 py-1.5 pl-1.5 pr-4 text-2xs font-bold text-fg-muted shadow-sm backdrop-blur sm:text-xs">
             <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-on-primary"><BoltIcon className="h-4 w-4" /></span>
             <Tr vi="Năng lượng xanh • Phân phối thiết bị • Tổng thầu EPC" en="Green energy • Equipment • EPC contractor" />
           </div>
-          <h1 data-hero="left" style={delay(0.1)} className="mt-6 max-w-2xl text-[2.55rem] font-black leading-[1.06] tracking-[-.045em] text-fg sm:text-6xl lg:text-[3.9rem]">
+          <h1 data-hero="left" style={delay(0.1)} className="mt-6 max-w-2xl text-display-md font-black leading-[1.06] tracking-[-.045em] text-fg sm:text-6xl lg:text-display-xl">
             <Tr vi="Điện sạch từ" en="Clean power from" />{" "}
             <span className="t15-gradient-text"><Tr vi="mái nhà của bạn" en="your own roof" /></span>
-            <span className="mt-2 block text-[0.62em] font-black leading-[1.15] tracking-[-.03em] text-fg-muted">
+            <span className="mt-2 block text-display-relative font-black leading-[1.15] tracking-[-.03em] text-fg-muted">
               <Tr vi="thiết bị chính hãng," en="genuine equipment," />{" "}
               <span className="t15-marker text-fg"><Tr vi="lắp đặt trọn gói" en="turnkey installation" /></span>
             </span>
@@ -68,14 +68,14 @@ export default function Hero() {
             <svg viewBox="0 0 200 200" className="t15-spin-slow h-full w-full text-accent">
               {Array.from({ length: 18 }, (_, i) => <rect key={i} x="98" y="4" width="4" height="26" rx="2" fill="currentColor" opacity=".55" transform={`rotate(${i * 20} 100 100)`} />)}
             </svg>
-            <span className="absolute inset-[22%] rounded-full bg-[radial-gradient(circle_at_35%_35%,rgb(var(--c-accent-soft)),rgb(var(--c-accent))_60%)] shadow-[0_0_80px_20px_rgb(var(--c-accent)/.45)]" />
+            <span className="absolute inset-[22%] rounded-full bg-sun-disc shadow-sun" />
           </div>
           {/* Vòng quỹ đạo năng lượng */}
           <div aria-hidden className="absolute left-1/2 top-[55%] h-[112%] w-[112%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-primary/20" />
           <div aria-hidden className="absolute left-1/2 top-[55%] h-[86%] w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/15" />
 
           {/* Ảnh vòm */}
-          <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[10%] h-[88%] w-[62%] overflow-hidden rounded-b-[40px] rounded-t-full border-[6px] border-bg-elevated bg-bg-tint shadow-[0_40px_80px_-30px_rgb(var(--c-shadow)/.5)]">
+          <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[10%] h-[88%] w-[62%] overflow-hidden rounded-b-hero rounded-t-full border-6 border-bg-elevated bg-bg-tint shadow-hero">
             <Image src="/images/services/service_1772895565903.webp" alt="Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" fill priority quality={70} className="object-cover object-[72%_center]" sizes="(max-width:1024px) 62vw, 370px" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/45 to-transparent" />
           </div>
@@ -101,7 +101,7 @@ export default function Hero() {
 
           {/* Thẻ dữ liệu nổi */}
           <div data-reveal="down" style={delay(0.5)} className="t15-glass t15-float-slow absolute left-0 top-[4%] hidden w-56 rounded-3xl p-4 sm:block">
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[.12em] text-fg-muted"><Tr vi="Sản lượng hôm nay" en="Today's output" /><span className="flex items-center gap-1 text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />Live</span></div>
+            <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-[.12em] text-fg-muted"><Tr vi="Sản lượng hôm nay" en="Today's output" /><span className="flex items-center gap-1 text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />Live</span></div>
             <div className="mt-2 text-2xl font-black text-fg">1.248 <span className="text-sm font-bold text-fg-subtle">kWh</span></div>
             <div className="mt-3 flex h-10 items-end gap-1">
               {[22, 35, 48, 66, 82, 100, 92, 74, 55, 34].map((h, i) => <span key={i} className={`flex-1 rounded-full ${h > 80 ? "bg-accent" : "bg-leaf"}`} style={{ height: `${h}%` }} />)}
@@ -111,12 +111,12 @@ export default function Hero() {
           <div data-reveal="left" style={delay(0.7)} className="t15-glass t15-float absolute bottom-[12%] left-[-3%] rounded-3xl p-4 sm:left-[-2%]">
             <div className="flex items-center gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent text-on-accent"><BoltIcon className="h-6 w-6" /></span>
-              <div><div className="text-[11px] font-bold uppercase tracking-[.12em] text-fg-muted"><Tr vi="Hóa đơn giảm" en="Bill reduced" /></div><div className="text-xl font-black text-fg">−38%<span className="ml-1 text-xs font-semibold text-fg-subtle"><Tr vi="/ tháng*" en="/ month*" /></span></div></div>
+              <div><div className="text-2xs font-bold uppercase tracking-[.12em] text-fg-muted"><Tr vi="Hóa đơn giảm" en="Bill reduced" /></div><div className="text-xl font-black text-fg">−38%<span className="ml-1 text-xs font-semibold text-fg-subtle"><Tr vi="/ tháng*" en="/ month*" /></span></div></div>
             </div>
           </div>
 
           <div data-reveal="up" style={delay(0.85)} className="t15-float-delay absolute bottom-[1%] right-[0%] hidden rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-xl sm:block">
-            <div className="text-[11px] font-semibold text-on-primary/85"><Tr vi="CO₂ giảm mỗi năm" en="CO₂ avoided / year" /></div>
+            <div className="text-2xs font-semibold text-on-primary/85"><Tr vi="CO₂ giảm mỗi năm" en="CO₂ avoided / year" /></div>
             <div className="text-lg font-black">~840 <Tr vi="tấn" en="tonnes" /></div>
           </div>
         </div>

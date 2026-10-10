@@ -32,7 +32,7 @@ export default function BrandsSection() {
 
         <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_1fr]">
           <button type="button" onClick={() => setPlaying(true)} data-reveal="left" aria-label={`${tr("Xem video", "Watch video")}: ${title}`}
-            className="group relative min-h-[300px] overflow-hidden rounded-[32px] border border-glass-border text-left shadow-[0_30px_60px_-35px_rgb(var(--c-shadow)/.55)] sm:min-h-[380px]">
+            className="group relative min-h-[300px] overflow-hidden rounded-media border border-glass-border text-left shadow-feature sm:min-h-[380px]">
             <MediaImage src={signingVideo.poster} alt="" sizes="(max-width:1024px) 100vw, 52vw" className="transition duration-700 motion-safe:group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/90 via-scrim/30 to-transparent" />
             <span className="absolute left-1/2 top-1/2 grid h-20 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-accent text-on-accent shadow-2xl transition motion-safe:group-hover:scale-110">
@@ -40,7 +40,7 @@ export default function BrandsSection() {
               <PlayIcon className="relative ml-1 h-9 w-9" />
             </span>
             <span className="absolute inset-x-0 bottom-0 p-6 text-on-media sm:p-8">
-              <span className="rounded-full bg-accent/90 px-3 py-1 text-[11px] font-black uppercase tracking-[.14em] text-on-accent">{tr("Lễ ký kết", "Signing ceremony")}</span>
+              <span className="rounded-full bg-accent/90 px-3 py-1 text-2xs font-black uppercase tracking-[.14em] text-on-accent">{tr("Lễ ký kết", "Signing ceremony")}</span>
               <span className="mt-3 block text-2xl font-black leading-tight sm:text-3xl">{title}</span>
               <span className="mt-1 block text-sm text-on-media/80">{signingVideo.caption}</span>
             </span>
@@ -51,7 +51,7 @@ export default function BrandsSection() {
               const [vi, en] = GROUP_LABEL[b.group];
               const body = <>
                 <Wordmark name={b.name} src={b.logo} />
-                <span className="text-[10px] font-black uppercase tracking-[.16em] text-fg-subtle">{tr(vi, en)}</span>
+                <span className="text-4xs font-black uppercase tracking-[.16em] text-fg-subtle">{tr(vi, en)}</span>
               </>;
               const cls = "t15-card flex min-h-[112px] flex-col items-center justify-center gap-2 p-4 text-center transition hover:border-primary/50";
               const category = b.group === "lithium" ? "battery" : b.group;

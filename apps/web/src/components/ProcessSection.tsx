@@ -31,7 +31,7 @@ export default function ProcessSection() {
                 <h3 className="mt-5 text-xl font-black text-fg"><Tr vi={title[0]} en={title[1]} /></h3>
                 <p className="mt-2 text-sm leading-6 text-fg-muted"><Tr vi={desc[0]} en={desc[1]} /></p>
                 <div className="mt-auto pt-6">
-                  <div className="rounded-2xl bg-bg-tint p-3 text-xs font-bold leading-5 text-fg"><span className="mb-1 block text-[10px] uppercase tracking-[.16em] text-primary"><Tr vi="Đầu ra" en="Deliverable" /></span><Tr vi={output[0]} en={output[1]} /></div>
+                  <div className="rounded-2xl bg-bg-tint p-3 text-xs font-bold leading-5 text-fg"><span className="mb-1 block text-4xs uppercase tracking-[.16em] text-primary"><Tr vi="Đầu ra" en="Deliverable" /></span><Tr vi={output[0]} en={output[1]} /></div>
                 </div>
               </li>
             ))}

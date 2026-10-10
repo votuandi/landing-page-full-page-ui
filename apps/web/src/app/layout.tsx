@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import { t15 } from "@solar/themes";
-import { themeToCss } from "@solar/tokens";
+import { colorChannelsToHex, themeToCss } from "@solar/tokens";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
 import SiteFooter from "@/components/SiteFooter";
@@ -15,7 +15,7 @@ const { brand, branches, socials, legal } = siteConfig;
 const tagline = pickText(brand.tagline, "vi");
 const defaultTitle = `${brand.name} | Phân phối thiết bị & tổng thầu EPC điện mặt trời`;
 
-export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:brand.themeColor };
+export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:colorChannelsToHex(t15.colors.light.bg) };
 
 export const metadata: Metadata = {
   metadataBase:new URL(brand.url),

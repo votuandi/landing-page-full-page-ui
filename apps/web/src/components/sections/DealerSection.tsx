@@ -20,7 +20,7 @@ export default function DealerSection() {
 
   return (
     <section id="dai-ly" className="t15-invert t15-section relative overflow-hidden t15-ocean text-fg" aria-labelledby="dai-ly-title">
-      <div aria-hidden className="pointer-events-none absolute -left-32 top-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.18),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -left-32 top-0 h-[520px] w-[520px] rounded-full bg-glow-accent-18" />
       <div className="t15-container relative">
         <SectionHead id="dai-ly-title" eyebrow={tr("Trở thành đại lý", "Become a dealer")}
           title={tr("Cùng phân phối điện mặt trời tại địa phương của bạn.", "Distribute solar in your own region.")}
@@ -36,7 +36,7 @@ export default function DealerSection() {
         </dl>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <div data-reveal="left" className="t15-glass-dark rounded-[32px] p-5 sm:p-7">
+          <div data-reveal="left" className="t15-glass-dark rounded-media p-5 sm:p-7">
             <div role="tablist" aria-label={tr("Thông tin đại lý", "Dealer info")} className="flex gap-2">
               {([["policy", tr("Chính sách", "Policy")], ["faq", tr("Hỏi đáp", "Q&A")]] as [Tab, string][]).map(([id, label]) => (
                 <button key={id} type="button" role="tab" id={`dl-tab-${id}`} aria-controls="dl-panel" aria-selected={tab === id} onClick={() => setTab(id)} className="t15-chip">{label}</button>
@@ -75,7 +75,7 @@ export default function DealerSection() {
             </div>
             <div ref={c.ref} className="t15-no-scrollbar mt-4 flex flex-1 snap-x snap-mandatory gap-3 overflow-x-auto" aria-label={tr("Thư viện sự kiện", "Event gallery")}>
               {gallery.map((g) => (
-                <figure key={g.title} className="relative min-h-[280px] w-[88%] shrink-0 snap-start overflow-hidden rounded-[28px] border border-glass-border sm:w-[70%]">
+                <figure key={g.title} className="relative min-h-[280px] w-[88%] shrink-0 snap-start overflow-hidden rounded-card border border-glass-border sm:w-[70%]">
                   <MediaImage src={g.image} alt={g.title} sizes="(max-width:1024px) 85vw, 35vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-scrim/85 via-transparent to-transparent" />
                   <figcaption className="absolute inset-x-4 bottom-4 text-lg font-black text-on-media">{g.title}</figcaption>
@@ -85,7 +85,7 @@ export default function DealerSection() {
           </div>
         </div>
 
-        <div data-reveal="up" className="mt-8 grid gap-6 rounded-[32px] border border-glass-border bg-bg-elevated p-6 text-fg shadow-xl md:p-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+        <div data-reveal="up" className="mt-8 grid gap-6 rounded-media border border-glass-border bg-bg-elevated p-6 text-fg shadow-xl md:p-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
           <div>
             <h3 className="text-2xl font-black sm:text-3xl">{tr("Đăng ký làm đại lý", "Apply now")}</h3>
             <p className="mt-2 text-sm leading-6 text-fg-muted">{tr("Để lại thông tin — phòng kinh doanh khu vực gửi chính sách chi tiết và bảng giá đại lý.", "Leave your details — our regional team will send the full policy and dealer price list.")}</p>

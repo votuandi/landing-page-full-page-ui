@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="t15-screen relative isolate overflow-hidden bg-gradient-to-br from-bg via-bg-elevated to-bg-tint">
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.25),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 -z-10 h-[520px] w-[520px] rounded-full bg-glow-primary-25" />
       <div className="t15-container py-20 text-center">
         <div className="text-8xl font-black tracking-[-.05em] text-primary sm:text-9xl">404</div>
         <h1 className="mt-4 text-3xl font-black text-fg">Không tìm thấy trang</h1>

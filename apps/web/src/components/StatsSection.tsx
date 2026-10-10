@@ -25,7 +25,7 @@ export default function StatsSection() {
   const { tr } = useLang();
   return (
     <section className="t15-invert relative overflow-hidden t15-ocean py-16 text-fg md:py-20" aria-label="Số liệu nổi bật">
-      <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-accent)/.3),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-glow-accent-30" />
       <div className="t15-container relative">
         <dl ref={ref} data-reveal-stagger="zoom" data-reveal-step="0.1" className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           <Stat start={seen} value={yearsOfExperience()} suffix="+" label={tr("Năm kinh nghiệm", "Years of experience")} />

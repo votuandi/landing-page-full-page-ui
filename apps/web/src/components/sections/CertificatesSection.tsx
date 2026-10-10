@@ -20,7 +20,7 @@ function CertVisual({ cert, large = false }: { cert: Cert; large?: boolean }) {
       <span className="grid h-14 w-14 place-items-center rounded-full bg-accent/15 text-accent-ink ring-4 ring-accent/20"><ShieldCheckIcon className="h-8 w-8" /></span>
       <span className={`${large ? "text-3xl" : "text-xl"} font-black leading-tight text-fg`}>{tr(cert.title)}</span>
       <span className="text-xs font-bold text-fg-muted">{tr(cert.subtitle)}</span>
-      <span className="mt-2 rounded-full bg-glass-strong px-3 py-1 text-[10px] font-black uppercase tracking-[.16em] text-fg-subtle">{tr("Ảnh minh họa", "Placeholder")}</span>
+      <span className="mt-2 rounded-full bg-glass-strong px-3 py-1 text-4xs font-black uppercase tracking-[.16em] text-fg-subtle">{tr("Ảnh minh họa", "Placeholder")}</span>
     </div>
   );
 }
@@ -37,7 +37,7 @@ function Lightbox({ index, setIndex, onClose }: { index: number; setIndex: (i: n
     <div ref={ref} role="dialog" aria-modal="true" aria-label={tr(cert.title)} className="fixed inset-0 z-[90] flex items-center justify-center bg-scrim/85 p-3 backdrop-blur-sm sm:p-6"
       onKeyDown={(e) => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); }}>
       <button type="button" tabIndex={-1} aria-hidden className="absolute inset-0 cursor-default" onClick={onClose} />
-      <div className="relative grid max-h-[calc(100svh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-[32px] border border-glass-border bg-bg-elevated/95 shadow-2xl backdrop-blur-xl md:grid-cols-[1fr_1fr]">
+      <div className="relative grid max-h-[calc(100svh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-media border border-glass-border bg-bg-elevated/95 shadow-2xl backdrop-blur-xl md:grid-cols-[1fr_1fr]">
         <div className="relative aspect-[3/4] md:aspect-auto md:min-h-[520px]"><CertVisual cert={cert} large /></div>
         <div className="flex flex-col p-6 sm:p-8">
           <div className="flex items-start justify-between gap-4">
@@ -76,7 +76,7 @@ export default function CertificatesSection() {
 
   return (
     <section id="chung-chi" className="t15-section relative overflow-hidden bg-bg-elevated" aria-labelledby="chung-chi-title">
-      <div aria-hidden className="pointer-events-none absolute -left-40 top-10 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgb(var(--c-primary)/.14),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute -left-40 top-10 h-[480px] w-[480px] rounded-full bg-glow-primary-14" />
       <div className="t15-container relative">
         <SectionHead id="chung-chi-title" eyebrow={tr("Chứng chỉ & giấy phép", "Certificates & licences")}
           title={tr("Năng lực được chứng nhận, minh bạch từng giấy tờ.", "Certified capability, every document on show.")}
@@ -85,7 +85,7 @@ export default function CertificatesSection() {
         <div ref={c.ref} className="t15-no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:scroll-px-0 sm:px-0" aria-label={tr("Danh sách chứng chỉ", "Certificates")}>
           {items.map((cert, i) => (
             <button key={cert.id} type="button" onClick={() => setOpen(i)} aria-label={`${tr("Xem", "View")} ${tr(cert.title)}`}
-              className="group relative w-[68%] shrink-0 snap-start overflow-hidden rounded-[28px] border border-glass-border bg-bg-elevated text-left shadow-[0_20px_60px_-30px_rgb(var(--c-shadow)/.25)] transition motion-safe:hover:-translate-y-1.5 sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-4rem)/5)]">
+              className="group relative w-[68%] shrink-0 snap-start overflow-hidden rounded-card border border-glass-border bg-bg-elevated text-left shadow-certificate transition motion-safe:hover:-translate-y-1.5 sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-4rem)/5)]">
               <div className="relative aspect-[3/4]"><CertVisual cert={cert} /></div>
               <div className="flex items-center justify-between gap-2 border-t border-line/12 p-4">
                 <span className="min-w-0"><span className="block truncate text-sm font-black text-fg">{tr(cert.title)}</span><span className="block truncate text-xs text-fg-muted">{cert.issuer}</span></span>

@@ -91,3 +91,28 @@ Test dùng `tailwindcss/loadConfig` kiểm tra cấu hình TypeScript thật c�
 
 Kiểm tra: `pnpm --filter @solar/tokens typecheck`, `pnpm --filter @solar/tokens lint`,
 `pnpm --filter @solar/tokens test`.
+
+## Utility bổ sung cho t15 (E2-S04)
+
+Mọi giá trị giữ đúng pixel cũ ở t15; radius lớn suy từ `--radius-media`, shadow
+nhân alpha với `--shadow-strength`, glow đọc màu của theme và giữ nguyên alpha/stop.
+
+| Utility | Giá trị ở t15 |
+|---|---|
+| rounded-screen / hero / dashboard (có thể dùng rounded-b-hero) | 36 / 40 / 44px: media + 4 / 8 / 12px |
+| text-6xs / 5xs / 4xs / 3xs / 2xs | 8 / 9 / 10 / 10.5 / 11px |
+| text-body-sm / body | 13 / 15px |
+| text-display-xs / sm / md / lg / xl | 1.75 / 2 / 2.55 / 2.6 / 3.9rem |
+| text-display-relative | 0.62em |
+| border-5 / border-6 | 5 / 6px |
+
+`shadow-card`, `card-hover`, `glass`, `float`, `dashboard`, `sun`, `hero`, `bottom-nav`,
+`package`, `feature`, `certificate`, `video` giữ geometry cũ và dùng màu shadow,
+primary hoặc accent tương ứng. `bg-glow-<màu>-<phần trăm>`: accent 18/22/25/30,
+accent-soft 14/30, bg-tint 18, leaf 16/22, primary 14/25, sky 20; stop 65%, riêng
+accent-soft-30 là 68%. `bg-sun-disc` giữ gradient mặt trời ở Hero.
+Các class này thay thế arbitrary style; không dùng opacity riêng cho glow vì sẽ đổi pixel.
+
+`colorChannelsToHex(channels)` đổi token RGB đã kiểm bằng `RgbChannels` sang hex
+cho metadata (vd. viewport.themeColor); từ chối kênh sai hoặc ngoài 0–255.
+App lấy token bg từ theme đang render, thay cho màu cứng trong cấu hình công ty.
