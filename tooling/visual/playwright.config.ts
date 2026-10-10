@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 export default defineConfig({
   testDir: ".",
-  testMatch: "visual.spec.ts",
+  testMatch: ["visual.spec.ts", "lab.spec.ts"],
   fullyParallel: true,
   // Keep Playwright's default; allow constrained local machines to limit browser processes.
   workers: process.env.VISUAL_WORKERS ? Number(process.env.VISUAL_WORKERS) : undefined,
