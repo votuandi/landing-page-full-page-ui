@@ -100,8 +100,8 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `conversion.test.ts` (quét import), `quoteCartStore.test.ts` (storage fallback/event),
   `sectionCollections.test.ts` (adapter), `tooling/visual/premium.spec.ts` và `/lab/sections/t15-premium`.
   Kiểm tra: typecheck/lint/test 23/23 tasks; lint:tokens 0 vi phạm; build web PASS; sections e2e 23/23 PASS.
-  Log: `.agent-runs/E3-S06/{checks,tokens,build,visual}-resume.log`. Design pass và review Claude còn chờ theo mode split;
-  link PR sẽ được ghi sau khi Claude tạo.
+  Log: `.agent-runs/E3-S06/{checks,tokens,build,visual}-resume.log`. Design pass Claude: `.agent-runs/E3-S06/design-pass.md`; review Claude vòng 1 APPROVE.
+  PR [#26](https://github.com/votuandi/landing-page-full-page-ui/pull/26).
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: L
 
 ### E3-S07 · Widget toàn site
