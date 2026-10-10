@@ -4,8 +4,7 @@ import dynamic from "next/dynamic";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { catalogEnabled } from "@/config/site";
 import { productBySlug } from "@/data/products";
-import { addItem, clearCart, countItems, removeItem, sanitizeCart, setQty, type CartLine } from "@solar/core";
-import { STORAGE_KEYS, readJson, writeJson } from "@/lib/storage";
+import { addToQuoteCart, clearCart, countItems, removeItem, sanitizeCart, setQty, readQuoteCart, writeQuoteCart, onQuoteCartChange, onOpenQuoteCart, type CartLine } from "@solar/core";
 
 // Drawer chỉ tải khi mở lần đầu
 const QuoteCartDrawer = dynamic(() => import("@/components/QuoteCartDrawer"), { ssr: false });
@@ -27,20 +26,20 @@ const Ctx = createContext<QuoteCartApi | null>(null);
 /** Giỏ yêu cầu báo giá (không thanh toán): lưu localStorage (bọc try/catch, có fallback bộ nhớ), drawer bên phải. */
 export function QuoteCartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
-  const [loaded, setLoaded] = useState(false);
   const [isOpen, setOpen] = useState(false);
 
   useEffect(() => {
-    setLines(sanitizeCart(readJson(STORAGE_KEYS.quoteCart, []), (sku) => Boolean(productBySlug(sku))));
-    setLoaded(true);
+    const refresh = () => setLines(sanitizeCart(readQuoteCart(), (sku) => Boolean(productBySlug(sku))));
+    refresh();
+    const stopChange = onQuoteCartChange(refresh);
+    const stopOpen = onOpenQuoteCart(() => setOpen(true));
+    return () => { stopChange(); stopOpen(); };
   }, []);
 
-  useEffect(() => { if (loaded) writeJson(STORAGE_KEYS.quoteCart, lines); }, [lines, loaded]);
-
-  const add = useCallback((sku: string, qty = 1) => setLines((l) => addItem(l, sku, qty)), []);
-  const update = useCallback((sku: string, qty: number) => setLines((l) => setQty(l, sku, qty)), []);
-  const remove = useCallback((sku: string) => setLines((l) => removeItem(l, sku)), []);
-  const clear = useCallback(() => setLines(clearCart()), []);
+  const add = useCallback((sku: string, qty = 1) => addToQuoteCart(sku, qty), []);
+  const update = useCallback((sku: string, qty: number) => writeQuoteCart(setQty(readQuoteCart(), sku, qty)), []);
+  const remove = useCallback((sku: string) => writeQuoteCart(removeItem(readQuoteCart(), sku)), []);
+  const clear = useCallback(() => writeQuoteCart(clearCart()), []);
   const open = useCallback(() => setOpen(true), []);
   const close = useCallback(() => setOpen(false), []);
 

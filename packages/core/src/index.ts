@@ -3,6 +3,7 @@ export * from "./format";
 export * from "./price";
 export * from "./phone";
 export * from "./quoteCart";
+export * from "./quoteCartStore";
 export * from "./segment";
 export * from "./calculatorBus";
 export * from "./provinces";

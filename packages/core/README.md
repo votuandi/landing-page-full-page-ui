@@ -13,3 +13,12 @@ core không chứa cấu hình hay nội dung của tenant. Các hàm DOM chỉ 
 - `pnpm --filter @solar/core test:coverage` — phủ dòng tối thiểu 85%, loại test/fixture (Node ≥ 22.8, chạy ở CI).
 
 Fixture test là [DỮ LIỆU MẪU], không dùng để xuất bản biểu giá. Lựa chọn test runner: ADR D15.
+
+Giỏ báo giá dùng chung (E3-S06): quoteCartStore là API trình duyệt không phụ thuộc React.
+QUOTE_CART_KEY = "t15-quote-cart"; readQuoteCart() làm sạch dữ liệu, addToQuoteCart(sku, qty = 1)
+cộng số lượng bằng addItem(), writeQuoteCart(lines) dùng cho sửa/xóa giỏ. Đọc/ghi localStorage
+bọc try/catch, fallback bộ nhớ trong trang; gọi trên server không lưu trạng thái.
+
+onQuoteCartChange(handler) nghe "t15:quote-cart-change"; openQuoteCart()/onOpenQuoteCart(handler)
+dùng "t15:open-quote-cart". Hai listener trả hàm unsubscribe. Mọi nơi sửa giỏ phải qua store
+để drawer và section đọc cùng dữ liệu, kể cả khi storage bị chặn.
