@@ -9,6 +9,28 @@ async function seed(page: import("@playwright/test").Page, cart = false) {
   }, { sku, cart });
 }
 
+for (const attach of [true, false]) test(`quote cart ${attach ? "attaches" : "omits"} saved estimate in submitted lead`, async ({ page }) => {
+  await seed(page, true);
+  const estimate = { "Công suất đề xuất (kWp)": 12, "Tiết kiệm/tháng (đ)": "2.000.000" };
+  await page.addInitScript((estimate) => {
+    localStorage.setItem("t15-last-estimate", JSON.stringify({ savedAt: Date.now(), segment: "Trang trại", estimate }));
+  }, estimate);
+  let body: Record<string, unknown> | undefined;
+  await page.route("**/api/lead", async (request) => { body = request.request().postDataJSON(); await request.fulfill({ json: { ok: true } }); });
+  await page.goto(route, { waitUntil: "networkidle" });
+  await page.locator('[data-widget="quote-cart"]').getByRole("button", { name: "Mở giỏ báo giá" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("checkbox", { name: "Đính kèm kết quả dự toán" })).toBeChecked();
+  await expect(dialog).toContainText("Trang trại · 12 kWp · tiết kiệm ~2.000.000 đ/tháng");
+  if (!attach) await dialog.getByRole("checkbox").uncheck();
+  await dialog.getByLabel("Họ và tên").fill("Khách báo giá");
+  await dialog.getByLabel("Số điện thoại di động").fill("0901234567");
+  await dialog.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("Đã gửi yêu cầu báo giá!");
+  expect(body?.estimate).toEqual(attach ? estimate : undefined);
+  expect(body?.segment).toBe(attach ? "Trang trại" : undefined);
+});
+
 test("widgets load HTTP 200 without errors, retain inline content and capture desktop", async ({ page }, testInfo) => {
   await seed(page);
   const errors: string[] = [];

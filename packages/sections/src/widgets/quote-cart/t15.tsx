@@ -12,5 +12,6 @@ export default function QuoteCartT15({ data, site, sectionId }: SectionPropsOf<t
     labels={{ title: t(data.title), note: t(data.note), emptyText: t(data.emptyText), browseLabel: t(data.browseLabel),
       formTitle: t(data.formTitle), formDescription: t(data.formDescription), messagePlaceholder: t(data.messagePlaceholder),
       submitLabel: t(data.submitLabel), successTitle: t(data.successTitle), successMessage: t(data.successMessage),
-      continueLabel: t(data.continueLabel), buttonLabel: t(data.buttonLabel) }} />;
+      continueLabel: t(data.continueLabel), buttonLabel: t(data.buttonLabel),
+      attachEstimateLabel: t(data.attachEstimateLabel), estimateSummary: t(data.estimateSummary) }} />;
 }

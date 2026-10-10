@@ -9,9 +9,23 @@ import { SiteWidgets } from "../widgets/SiteWidgets";
 import { createConsultSession, reachedScrollRatio } from "../widgets/consult-popup/session";
 import { createCollectionLoader } from "../collections/loader";
 import { productsFixture } from "../products/fixtures";
+import { migrateQuoteCartV1 } from "../widgets/quote-cart/migrations";
 
 const site = { tenantId: "widget-test", locale: "vi" as const, themeId: "t15" };
 const keys = ["contact-dock", "consult-popup", "mobile-bottom-nav", "commitments-strip", "quote-cart", "theme-switch", "scroll-progress"];
+
+test("quote-cart v1 migration fills estimate labels, preserves custom copy and is idempotent", () => {
+  const cart = widgetRegistry.types["quote-cart"];
+  assert.equal(cart.schemaVersion, 2);
+  const { attachEstimateLabel, estimateSummary, ...v1 } = cart.defaults;
+  assert.ok(attachEstimateLabel.vi);
+  assert.match(estimateSummary.vi, /\{segment\}.*\{kwp\}.*\{saving\}/);
+  const migrated = migrateQuoteCartV1(v1);
+  assert.deepEqual(cart.schema.parse(migrated), cart.defaults);
+  assert.deepEqual(cart.schema.parse(v1), cart.defaults);
+  assert.deepEqual(migrateQuoteCartV1(migrated), migrated);
+  assert.deepEqual(migrateQuoteCartV1({ ...v1, attachEstimateLabel: { vi: "Nhãn riêng" } }).attachEstimateLabel, { vi: "Nhãn riêng" });
+});
 
 test("seven widgets have valid defaults, t15 variants and only cart needs catalog", async () => {
   assert.deepEqual(Object.keys(widgetRegistry.types).sort(), keys.sort());

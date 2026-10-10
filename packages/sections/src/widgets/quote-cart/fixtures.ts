@@ -1,5 +1,7 @@
 /** [DỮ LIỆU MẪU] — widget minh họa từ template t15. */
 export const fixture = {
+  attachEstimateLabel: { vi: "Đính kèm kết quả dự toán", en: "Attach saved estimate" },
+  estimateSummary: { vi: "{segment} · {kwp} kWp · tiết kiệm ~{saving} đ/tháng", en: "{segment} · {kwp} kWp · save ~{saving} VND/month" },
   "query": {
     "limit": 48
   },

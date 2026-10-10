@@ -6,9 +6,10 @@ import { readQuoteCart, writeQuoteCart, onQuoteCartChange, onOpenQuoteCart, sani
 import { LeadForm } from "../../shared/LeadForm";
 import type { Locale } from "../../site";
 import type { ClientLink } from "../../shared/links";
+import { readLastEstimate } from "@solar/core";
 
 type Product = { slug: string; name: string; price?: number; salePrice?: number; image: { src?: string; alt: string } };
-type Labels = Record<"title" | "note" | "emptyText" | "browseLabel" | "formTitle" | "formDescription" | "messagePlaceholder" | "submitLabel" | "successTitle" | "successMessage" | "continueLabel" | "buttonLabel", string>;
+type Labels = Record<"title" | "note" | "emptyText" | "browseLabel" | "formTitle" | "formDescription" | "messagePlaceholder" | "submitLabel" | "successTitle" | "successMessage" | "continueLabel" | "buttonLabel" | "attachEstimateLabel" | "estimateSummary", string>;
 type Props = { sectionId: string; locale: Locale; items: Product[]; labels: Labels; browseLink: Omit<ClientLink, "label"> };
 
 export default function QuoteCart(props: Props) {
@@ -34,6 +35,8 @@ export default function QuoteCart(props: Props) {
 function CartDrawer({ sectionId, locale, items, labels, browseLink, lines, onClose }: Props & { lines: CartLine[]; onClose: () => void }) {
   const ref = useRef<HTMLElement>(null);
   const [done, setDone] = useState(false);
+  const [saved] = useState(readLastEstimate);
+  const [attachEstimate, setAttachEstimate] = useState(true);
   useDialog(ref, true, onClose);
   const rows = lines.flatMap((line) => {
     const product = items.find((item) => item.slug === line.sku);
@@ -63,9 +66,20 @@ function CartDrawer({ sectionId, locale, items, labels, browseLink, lines, onClo
                 <button type="button" aria-label={`${ui.remove}: ${product.name}`} className="t15-icon-button ml-auto text-danger" onClick={() => writeQuoteCart(removeItem(readQuoteCart(), sku))}><TrashIcon aria-hidden className="h-4 w-4" /></button></div>
             </div>
           </li>)}</ul><h3 className="mt-6 text-lg font-black text-fg">{labels.formTitle}</h3><p className="mb-4 mt-1 text-sm text-fg-muted">{labels.formDescription}</p>
+            {saved && <div className="mb-4 rounded-card border border-line/10 bg-bg-tint p-3">
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-bold text-fg">
+                <input type="checkbox" checked={attachEstimate} onChange={(event) => setAttachEstimate(event.target.checked)} className="h-4 w-4 accent-primary" />
+                {labels.attachEstimateLabel}
+              </label>
+              <p className="text-xs text-fg-muted">{labels.estimateSummary.replace(/\{(segment|kwp|saving)\}/g, (_, key: string) => {
+                const values = { segment: saved.segment, kwp: saved.estimate["Công suất đề xuất (kWp)"] ?? "—", saving: saved.estimate["Tiết kiệm/tháng (đ)"] ?? "—" };
+                return String(values[key as keyof typeof values]);
+              })}</p>
+            </div>}
             <LeadForm locale={locale} source="quote-cart" columns={1} fields={{ zalo: false, address: false, message: true }}
               text={{ submit: labels.submitLabel, success: labels.successMessage, privacy: ui.privacy, messagePlaceholder: labels.messagePlaceholder }}
-              getExtra={() => ({ items: rows.map(({ sku, qty, product }) => ({ sku, name: product.name, qty })) })}
+              getExtra={() => ({ items: rows.map(({ sku, qty, product }) => ({ sku, name: product.name, qty })),
+                ...(attachEstimate && saved ? { segment: saved.segment, estimate: saved.estimate } : {}) })}
               onSuccess={() => { writeQuoteCart(clearCart()); setDone(true); }} />
           </>}
       </div>
