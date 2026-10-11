@@ -20,7 +20,7 @@ ghi rõ khác biệt cache này khi diễn giải số liệu, không coi nó l�
 
 `preset-home.spec.ts` so PNG full page legacy với `/` ngay trong cùng test ở 390/1440, ngưỡng 0,5%.
 Expected luôn lấy từ route legacy độc lập, không lấy từ trang mới. Mask chỉ marquee, iframe/video và counter;
-không che section bị lệch. JPEG q15 (4 ảnh dưới 3 MB) lưu trong `docs/evidence/E4/t15/{legacy,preset}-{390,1440}.jpg` cho design pass.
+không che section bị lệch. JPEG q15 (4 ảnh dưới 3 MB) lưu trong `roadmap/evidence/E4/t15/{legacy,preset}-{390,1440}.jpg` cho design pass.
 Spec kiểm route/theme không tồn tại, chrome không trùng, dark mode trên trang con, giỏ và menu mobile.
 
 `template-compare.mjs <id> [--port 4100] [--out <dir>] [--app <url>]` đọc `source.branch`, tạo/reuse detached

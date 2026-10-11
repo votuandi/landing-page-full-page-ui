@@ -9,7 +9,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export function options(args) {
   const [id, ...rest] = args;
   if (!id || !/^(t\d+|minwy)$/.test(id) || rest.length % 2) throw new Error("Usage: node template-compare.mjs <presetId> [--port 4100] [--out <dir>] [--app http://localhost:3000]");
-  const result = { id, port: 4100, out: join(root, "docs/evidence/E4", id), app: "http://localhost:3000" };
+  const result = { id, port: 4100, out: join(root, "roadmap/evidence/E4", id), app: "http://localhost:3000" };
   for (let i = 0; i < rest.length; i += 2) {
     const key = rest[i];
     if (!["--port", "--out", "--app"].includes(key) || !rest[i + 1]) throw new Error(`Invalid option: ${key}`);

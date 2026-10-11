@@ -25,7 +25,7 @@ for (const width of [390, 1440]) test(`preset homepage matches independent legac
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const captures: Buffer[] = [];
-  const evidence = resolve(__dirname, "../../docs/evidence/E4/t15");
+  const evidence = resolve(__dirname, "../../roadmap/evidence/E4/t15");
   mkdirSync(evidence, { recursive: true });
   for (const [label, route] of [["legacy", "/lab/legacy-home"], ["preset", "/"]]) {
     expect((await page.goto(route, { waitUntil: "networkidle" }))?.status()).toBe(200);
