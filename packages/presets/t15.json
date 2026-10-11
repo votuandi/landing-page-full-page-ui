@@ -1,0 +1,2441 @@
+{
+  "id": "t15",
+  "name": "Signature · Lumivolt Energy",
+  "group": "signature",
+  "themeId": "t15",
+  "description": "[DỮ LIỆU MẪU] Trang chủ Signature t15: thiết bị điện mặt trời và tổng thầu EPC.",
+  "source": {
+    "branch": "template-15"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "segments",
+      "type": "segments",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "phan-khuc"
+    },
+    {
+      "id": "stories",
+      "type": "shorts",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "video-cong-trinh",
+      "data": {
+        "eyebrow": {
+          "vi": "Video công trình",
+          "en": "[SAMPLE DATA] Project videos"
+        },
+        "title": {
+          "vi": "Thi công & bàn giao thực tế — xem trước khi quyết định.",
+          "en": "Real installs & handovers — watch before you decide."
+        },
+        "description": {
+          "vi": "Video ngắn từ công trình minh họa.",
+          "en": "Short videos from sample projects."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "nha-pho-binh-thanh",
+            "title": "Nhà phố 6 kWp lắp xong trong 1 ngày",
+            "location": "TP Hồ Chí Minh",
+            "kwp": 6,
+            "segment": "household",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/ho-gia-dinh-1.webp",
+              "alt": {
+                "vi": "Nhà phố 6 kWp lắp xong trong 1 ngày"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "tiem-tap-hoa-can-tho",
+            "title": "Siêu thị mini giảm 40% tiền điện mỗi tháng",
+            "location": "Cần Thơ",
+            "kwp": 15,
+            "segment": "shop",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/cua-hang-1.webp",
+              "alt": {
+                "vi": "Siêu thị mini giảm 40% tiền điện mỗi tháng"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-1.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "xuong-co-khi-dong-nai",
+            "title": "Thi công mái xưởng cơ khí không dừng máy",
+            "location": "Đồng Nai",
+            "kwp": 250,
+            "segment": "factory",
+            "kind": "progress",
+            "poster": {
+              "id": "/images/shorts/nha-xuong-1.webp",
+              "alt": {
+                "vi": "Thi công mái xưởng cơ khí không dừng máy"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "trai-ga-tay-ninh",
+            "title": "Trại gà 120 kWp chạy quạt hút bằng nắng",
+            "location": "Tây Ninh",
+            "kwp": 120,
+            "segment": "farm",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/trang-trai-1.webp",
+              "alt": {
+                "vi": "Trại gà 120 kWp chạy quạt hút bằng nắng"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "biet-thu-da-lat",
+            "title": "Biệt thự hybrid vẫn có điện khi cúp điện",
+            "location": "Lâm Đồng",
+            "kwp": 10,
+            "segment": "household",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/ho-gia-dinh-2.webp",
+              "alt": {
+                "vi": "Biệt thự hybrid vẫn có điện khi cúp điện"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "chuoi-cafe-da-nang",
+            "title": "Chuỗi cà phê lắp đồng loạt 3 chi nhánh",
+            "location": "Đà Nẵng",
+            "kwp": 30,
+            "segment": "shop",
+            "kind": "progress",
+            "poster": {
+              "id": "/images/shorts/cua-hang-2.webp",
+              "alt": {
+                "vi": "Chuỗi cà phê lắp đồng loạt 3 chi nhánh"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-2.mp4"
+            }
+          },
+          {
+            "id": "kho-lanh-long-an",
+            "title": "Kho lạnh 500 kWp bàn giao sau 6 tuần",
+            "location": "Tây Ninh",
+            "kwp": 500,
+            "segment": "factory",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/nha-xuong-2.webp",
+              "alt": {
+                "vi": "Kho lạnh 500 kWp bàn giao sau 6 tuần"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "trai-heo-dong-thap",
+            "title": "Chủ trại heo kể chuyện tiền điện giảm một nửa",
+            "location": "Đồng Tháp",
+            "kwp": 80,
+            "segment": "farm",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/trang-trai-2.webp",
+              "alt": {
+                "vi": "Chủ trại heo kể chuyện tiền điện giảm một nửa"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-2.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          }
+        ],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "kindLabels": {
+          "progress": {
+            "vi": "Đang thi công",
+            "en": "In progress"
+          },
+          "done": {
+            "vi": "Hoàn thành",
+            "en": "Completed"
+          },
+          "customer": {
+            "vi": "Khách hàng chia sẻ",
+            "en": "Client stories"
+          }
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      }
+    },
+    {
+      "id": "packages",
+      "type": "packages",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "goi-giai-phap"
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "du-toan"
+    },
+    {
+      "id": "investment-models",
+      "type": "investment-models",
+      "variant": "t15",
+      "enabled": false
+    },
+    {
+      "id": "trust",
+      "type": "trust",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "chung-nhan"
+    },
+    {
+      "id": "brands",
+      "type": "brands",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "thuong-hieu"
+    },
+    {
+      "id": "featured-projects",
+      "type": "projects",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "du-an",
+      "data": {
+        "eyebrow": {
+          "vi": "Dự án tiêu biểu",
+          "en": "Featured projects"
+        },
+        "title": {
+          "vi": "Khách hàng thật, số liệu vận hành thật.",
+          "en": "Real clients, real operating data."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "minh-phat",
+            "title": "Dệt may Minh Phát (hư cấu)",
+            "segment": "factory",
+            "location": "Bình Dương (cũ) – TP. HCM",
+            "kwp": 1200,
+            "savingPerMonth": 258333333.33333334,
+            "image": {
+              "id": "/images/illustrations/factory-solar.webp",
+              "alt": {
+                "vi": "Dệt may Minh Phát (hư cấu)"
+              }
+            },
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/hero_video.mp4"
+            }
+          },
+          {
+            "id": "an-khang-cold",
+            "title": "Kho lạnh An Khang Food (hư cấu)",
+            "segment": "factory",
+            "location": "Long An (cũ) – Tây Ninh",
+            "kwp": 620,
+            "savingPerMonth": 136666666.66666666,
+            "image": {
+              "id": "/images/illustrations/cold-storage-solar.webp",
+              "alt": {
+                "vi": "Kho lạnh An Khang Food (hư cấu)"
+              }
+            },
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/hero_video.mp4"
+            }
+          },
+          {
+            "id": "song-hong-resort",
+            "title": "Resort Sông Hồng (hư cấu)",
+            "segment": "shop",
+            "location": "Hà Nội",
+            "kwp": 250,
+            "savingPerMonth": 68333333.33333333,
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "Resort Sông Hồng (hư cấu)"
+              }
+            },
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/hero_video.mp4"
+            }
+          },
+          {
+            "id": "nong-trai-xanh",
+            "title": "Trang trại Xanh Tây Nguyên (hư cấu)",
+            "segment": "farm",
+            "location": "Đắk Lắk",
+            "kwp": 320,
+            "savingPerMonth": 80000000,
+            "image": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Trang trại Xanh Tây Nguyên (hư cấu)"
+              }
+            },
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/hero_video.mp4"
+            }
+          }
+        ],
+        "showFilter": false,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "note": "Variant gần nhất projects/t15; chờ bố cục FeaturedProjects ở projects/t14 (E4-S04)."
+    },
+    {
+      "id": "projects-gallery",
+      "type": "projects",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "cong-trinh",
+      "data": {
+        "eyebrow": {
+          "vi": "Công trình đã thực hiện",
+          "en": "[SAMPLE DATA] Completed projects"
+        },
+        "title": {
+          "vi": "Hơn 12.500 khách hàng đã dùng điện từ nắng.",
+          "en": "12,500+ clients already run on sunshine."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "nha-pho-binh-thanh",
+            "title": "Nhà phố 3 tầng Bình Thạnh",
+            "segment": "household",
+            "location": "TP Hồ Chí Minh",
+            "kwp": 6,
+            "savingPerMonth": 1650000,
+            "image": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "Nhà phố 3 tầng Bình Thạnh"
+              }
+            },
+            "href": "/cong-trinh/nha-pho-binh-thanh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "biet-thu-da-lat",
+            "title": "Biệt thự hybrid Đà Lạt",
+            "segment": "household",
+            "location": "Lâm Đồng",
+            "kwp": 10,
+            "savingPerMonth": 2300000,
+            "image": {
+              "id": "/images/solar-battery-hero.jpg",
+              "alt": {
+                "vi": "Biệt thự hybrid Đà Lạt"
+              }
+            },
+            "href": "/cong-trinh/biet-thu-da-lat",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "sieu-thi-mini-can-tho",
+            "title": "Siêu thị mini Ninh Kiều",
+            "segment": "shop",
+            "location": "Cần Thơ",
+            "kwp": 15,
+            "savingPerMonth": 4800000,
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "Siêu thị mini Ninh Kiều"
+              }
+            },
+            "href": "/cong-trinh/sieu-thi-mini-can-tho",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-1.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "chuoi-cafe-da-nang",
+            "title": "Chuỗi cà phê 3 chi nhánh",
+            "segment": "shop",
+            "location": "Đà Nẵng",
+            "kwp": 30,
+            "savingPerMonth": 9200000,
+            "image": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Chuỗi cà phê 3 chi nhánh"
+              }
+            },
+            "href": "/cong-trinh/chuoi-cafe-da-nang",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-2.mp4"
+            }
+          },
+          {
+            "id": "xuong-co-khi-dong-nai",
+            "title": "Xưởng cơ khí Biên Hòa",
+            "segment": "factory",
+            "location": "Đồng Nai",
+            "kwp": 250,
+            "savingPerMonth": 52000000,
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Xưởng cơ khí Biên Hòa"
+              }
+            },
+            "href": "/cong-trinh/xuong-co-khi-dong-nai",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "kho-lanh-tay-ninh",
+            "title": "Kho lạnh nông sản",
+            "segment": "factory",
+            "location": "Tây Ninh",
+            "kwp": 500,
+            "savingPerMonth": 98000000,
+            "image": {
+              "id": "/images/illustrations/cold-storage-solar.webp",
+              "alt": {
+                "vi": "Kho lạnh nông sản"
+              }
+            },
+            "href": "/cong-trinh/kho-lanh-tay-ninh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "trai-ga-tay-ninh",
+            "title": "Trại gà đẻ 40.000 con",
+            "segment": "farm",
+            "location": "Tây Ninh",
+            "kwp": 120,
+            "savingPerMonth": 26000000,
+            "image": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Trại gà đẻ 40.000 con"
+              }
+            },
+            "href": "/cong-trinh/trai-ga-tay-ninh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "trai-heo-dong-thap",
+            "title": "Trang trại heo Cao Lãnh",
+            "segment": "farm",
+            "location": "Đồng Tháp",
+            "kwp": 80,
+            "savingPerMonth": 17500000,
+            "image": {
+              "id": "/images/projects/project_1772874891937.webp",
+              "alt": {
+                "vi": "Trang trại heo Cao Lãnh"
+              }
+            },
+            "href": "/cong-trinh/trai-heo-dong-thap",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-2.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          }
+        ],
+        "showFilter": true,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "note": "chờ projects/t12 (E4-S02)"
+    },
+    {
+      "id": "services",
+      "type": "services",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "giai-phap"
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "san-pham"
+    },
+    {
+      "id": "stats",
+      "type": "stats",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "press",
+      "type": "press",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "energy-monitoring",
+      "type": "energy-monitoring",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "testimonials",
+      "type": "testimonials",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Khách hàng nói gì",
+          "en": "[SAMPLE DATA] What clients say"
+        },
+        "title": {
+          "vi": "Niềm tin đến từ những hóa đơn điện thật.",
+          "en": "Trust built on real electricity bills."
+        },
+        "query": {
+          "filter": {},
+          "limit": 6
+        },
+        "items": [
+          {
+            "id": "testimonial-1",
+            "name": "Anh Minh Tuấn (mẫu)",
+            "segment": "household",
+            "location": "Thủ Đức, TP HCM",
+            "kwp": 6,
+            "quote": "Tiền điện từ 2,4 triệu còn khoảng 800 nghìn. Đội thợ lắp gọn trong một ngày, dọn sạch sẽ, mái không bị dột.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-2",
+            "name": "Chị Thu Hà (mẫu)",
+            "segment": "shop",
+            "location": "Ninh Kiều, Cần Thơ",
+            "kwp": 15,
+            "quote": "Tủ mát, máy lạnh chạy cả ngày mà hóa đơn giảm gần một nửa. Ba cửa hàng theo dõi chung trên một app rất tiện.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-3",
+            "name": "Anh Văn Hùng (mẫu)",
+            "segment": "farm",
+            "location": "Tân Châu, Tây Ninh",
+            "kwp": 120,
+            "quote": "Trại gà 40.000 con, quạt hút chạy suốt. Có pin lưu trữ nên cúp điện vẫn yên tâm.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-4",
+            "name": "Chị Ngọc Lan (mẫu)",
+            "segment": "factory",
+            "location": "Biên Hòa, Đồng Nai",
+            "kwp": 250,
+            "quote": "Kỹ sư giải thích ROI và phương án thi công theo ca rất rõ. Xưởng không phải dừng máy ngày nào, hồ sơ đấu nối được lo trọn.",
+            "rating": 4.8
+          }
+        ],
+        "ratings": [
+          {
+            "label": {
+              "vi": "Google",
+              "en": "Google [SAMPLE DATA]"
+            },
+            "score": 4.9,
+            "count": 1280,
+            "url": "https://www.google.com/maps"
+          }
+        ],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      }
+    },
+    {
+      "id": "tiktok",
+      "type": "tiktok",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "dealer",
+      "type": "dealer",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "dai-ly"
+    },
+    {
+      "id": "branches",
+      "type": "branch-map",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "chi-nhanh"
+    },
+    {
+      "id": "engineer-banner",
+      "type": "cta-banner",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "process",
+      "type": "process",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "warranty",
+      "type": "warranty",
+      "variant": "t15",
+      "enabled": false
+    },
+    {
+      "id": "blog",
+      "type": "blog",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "tin-tuc",
+      "data": {
+        "eyebrow": {
+          "vi": "Kinh nghiệm lắp đặt",
+          "en": "[SAMPLE DATA] Installation know-how"
+        },
+        "title": {
+          "vi": "Đọc trước khi lắp: tình huống thực tế.",
+          "en": "Read before you install: real cases."
+        },
+        "query": {
+          "filter": {},
+          "limit": 3
+        },
+        "items": [
+          {
+            "id": "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp",
+            "title": "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?",
+            "excerpt": "Cách quy đổi hóa đơn ra kWh, tính phần điện dùng ban ngày và chọn công suất vừa đủ — không thừa, không thiếu.",
+            "segment": "household",
+            "cover": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/tien-dien-2-trieu-nen-lap-bao-nhieu-kwp"
+          },
+          {
+            "id": "dien-mat-troi-cho-trai-ga",
+            "title": "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện",
+            "excerpt": "Quạt hút, hệ làm mát, đèn chiếu sáng chạy suốt ngày — vì sao trại gà là nơi điện mặt trời hoàn vốn nhanh.",
+            "segment": "farm",
+            "cover": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện"
+              }
+            },
+            "readMinutes": 6,
+            "href": "/tin-tuc/dien-mat-troi-cho-trai-ga"
+          },
+          {
+            "id": "dien-mat-troi-cho-nha-may",
+            "title": "Điện mặt trời cho nhà máy: thi công không dừng sản xuất",
+            "excerpt": "Mái xưởng lớn, tải chạy ban ngày — những điều cần kiểm tra trước khi đầu tư hệ thống vài trăm kWp.",
+            "segment": "factory",
+            "cover": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Điện mặt trời cho nhà máy: thi công không dừng sản xuất"
+              }
+            },
+            "readMinutes": 7,
+            "href": "/tin-tuc/dien-mat-troi-cho-nha-may"
+          }
+        ],
+        "allLink": {
+          "kind": "page",
+          "value": "tin-tuc",
+          "label": {
+            "vi": "Tất cả bài viết",
+            "en": "All articles"
+          }
+        },
+        "readMinutesLabel": {
+          "vi": "phút đọc",
+          "en": "min read"
+        },
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      }
+    },
+    {
+      "id": "social",
+      "type": "social",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Câu hỏi thường gặp",
+          "en": "[SAMPLE DATA] FAQ"
+        },
+        "title": {
+          "vi": "Những điều nên rõ trước khi lắp đặt.",
+          "en": "What to know before you install."
+        },
+        "moreLink": {
+          "kind": "page",
+          "value": "cam-nang",
+          "label": {
+            "vi": "Xem cẩm nang đầy đủ",
+            "en": "Read the full guide"
+          }
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Tiền điện bao nhiêu thì nên lắp điện mặt trời?"
+            },
+            "answer": {
+              "vi": "Hộ gia đình từ khoảng 1 triệu đồng/tháng, cửa hàng và trang trại từ vài triệu đồng/tháng là đã có lợi — vì điện mặt trời cắt phần tiêu thụ ở bậc giá cao nhất. Dùng công cụ dự toán ở trên để xem công suất, chi phí và thời gian hoàn vốn cho đúng hóa đơn của bạn."
+            }
+          },
+          {
+            "question": {
+              "vi": "Có trả góp hoặc lắp 0 đồng không?"
+            },
+            "answer": {
+              "vi": "Có trả góp qua đối tác tài chính và cho thuê hệ thống. Mô hình lắp đặt 0 đồng (ESCO) dành cho doanh nghiệp có tiền điện lớn, phụ thuộc thẩm định của nhà đầu tư."
+            }
+          },
+          {
+            "question": {
+              "vi": "Điện mặt trời thường hoàn vốn bao lâu?"
+            },
+            "answer": {
+              "vi": "Thời gian hoàn vốn phụ thuộc tỷ lệ tự dùng, biểu giá điện, suất đầu tư và bức xạ tại khu vực. Công cụ dự toán trên website dùng cùng bộ tham số cấu hình để ước tính nhất quán."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mái tôn, mái ngói có lắp được không? Có bị dột không?"
+            },
+            "answer": {
+              "vi": "Lắp được cả mái tôn, mái ngói và mái bê tông. Kỹ sư khảo sát kết cấu, chọn kẹp/ke phù hợp từng loại mái và kiểm tra chống thấm khi nghiệm thu; phạm vi bảo hành chống dột ghi rõ trong hợp đồng."
+            }
+          },
+          {
+            "question": {
+              "vi": "Lắp mất bao lâu, có phải ngừng kinh doanh không?"
+            },
+            "answer": {
+              "vi": "Nhà ở và cửa hàng thường lắp trong 1–2 ngày, không cần đóng cửa. Nhà xưởng, trang trại thi công theo khu vực để không gián đoạn sản xuất, chăn nuôi."
+            }
+          },
+          {
+            "question": {
+              "vi": "Hệ thống chịu bão như thế nào?"
+            },
+            "answer": {
+              "vi": "Thiết kế khung và liên kết phải dựa trên hiện trạng công trình, vùng gió và yêu cầu kỹ thuật. Với dự án nhà xưởng nên có kiểm tra kết cấu khi cần."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mất điện lưới thì điện mặt trời có chạy không?"
+            },
+            "answer": {
+              "vi": "Hệ hòa lưới thông thường sẽ tự ngắt để bảo đảm an toàn. Muốn vẫn có điện khi mất lưới (camera, tủ đông, quạt chuồng trại…) cần hệ hybrid có pin lưu trữ."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mùa mưa có tạo ra điện không?"
+            },
+            "answer": {
+              "vi": "Có, nhưng sản lượng giảm theo bức xạ. Ước tính năm phải tính theo dữ liệu khí hậu vùng, không dựa vào ngày nắng đẹp nhất."
+            }
+          },
+          {
+            "question": {
+              "vi": "Bao lâu cần vệ sinh tấm pin?"
+            },
+            "answer": {
+              "vi": "Thường 3–6 tháng/lần, khu vực nhiều bụi (gần đường lớn, trang trại, nhà xưởng) có thể dày hơn. Dữ liệu sản lượng trên ứng dụng giúp biết lúc nào cần vệ sinh."
+            }
+          },
+          {
+            "question": {
+              "vi": "Có cần làm thủ tục với điện lực không?"
+            },
+            "answer": {
+              "vi": "Tùy công suất và mô hình (tự dùng hay có bán điện dư), hệ thống cần đăng ký/thỏa thuận đấu nối với điện lực địa phương. Chúng tôi chuẩn bị hồ sơ và hỗ trợ làm việc với EVN. [CẦN XÁC MINH theo quy định hiện hành]"
+            }
+          }
+        ],
+        "jsonLd": false
+      }
+    },
+    {
+      "id": "contact",
+      "type": "lead-form",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "lien-he"
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "Lumivolt Energy",
+          "tagline": {
+            "vi": "Nhà phân phối thiết bị & tổng thầu EPC điện mặt trời.",
+            "en": "Solar equipment distributor & EPC contractor."
+          }
+        },
+        "socials": [
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/lumivolt.demo",
+            "label": "Facebook"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@lumivolt.demo",
+            "label": "YouTube"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@lumivolt.demo",
+            "label": "TikTok"
+          },
+          {
+            "kind": "zalo",
+            "url": "https://zalo.me/0901234500",
+            "label": "Zalo OA"
+          }
+        ],
+        "legal": {
+          "legalName": "CÔNG TY CỔ PHẦN NĂNG LƯỢNG LUMIVOLT [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "Giấy CN ĐKKD số 03XXXXXXXX [MẪU] — cấp ngày 15/03/2012, Sở Kế hoạch và Đầu tư (mẫu)",
+              "en": "Business reg. no. 03XXXXXXXX [SAMPLE] — issued 15/03/2012"
+            },
+            {
+              "vi": "Chứng chỉ năng lực hoạt động xây dựng hạng II — số MẪU-0001 [HƯ CẤU]"
+            },
+            {
+              "vi": "Giấy phép hoạt động điện lực (tư vấn thiết kế) — số MẪU-0002 [HƯ CẤU]"
+            }
+          ],
+          "badges": [
+            "ISO 9001:2015",
+            "ISO 14001:2015",
+            "ISO 45001:2018"
+          ],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "complaintHotline": {
+          "label": {
+            "vi": "Hotline khiếu nại – góp ý",
+            "en": "Complaints hotline"
+          },
+          "phone": "0901 234 599"
+        },
+        "branchesTitle": {
+          "vi": "Hệ thống cửa hàng",
+          "en": "Stores"
+        },
+        "branches": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 500"
+              },
+              {
+                "name": "Showroom Quận Mẫu",
+                "address": "120 Đường Mẫu A, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 511"
+              },
+              {
+                "name": "Cửa hàng Mẫu Thủ Đức",
+                "address": "45 Đường Mẫu B, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 512"
+              }
+            ]
+          },
+          {
+            "name": "Hà Nội",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 520"
+              },
+              {
+                "name": "Showroom Mẫu Cầu Giấy",
+                "address": "18 Phố Mẫu C, Hà Nội [HƯ CẤU]",
+                "phone": "0901 234 531"
+              }
+            ]
+          },
+          {
+            "name": "Đà Nẵng",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 540"
+              },
+              {
+                "name": "Cửa hàng Mẫu Hải Châu",
+                "address": "9 Đường Mẫu E, Đà Nẵng [HƯ CẤU]",
+                "phone": "0901 234 551"
+              }
+            ]
+          },
+          {
+            "name": "Đắk Lắk",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 560"
+              },
+              {
+                "name": "Đại lý Mẫu Tây Nguyên",
+                "address": "32 Đường Mẫu G, Đắk Lắk [HƯ CẤU]",
+                "phone": "0901 234 571"
+              }
+            ]
+          },
+          {
+            "name": "Cần Thơ",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 580"
+              },
+              {
+                "name": "Showroom Mẫu Ninh Kiều",
+                "address": "15 Đường Mẫu I, Cần Thơ [HƯ CẤU]",
+                "phone": "0901 234 591"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "?phan-khuc=ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi",
+                  "en": "Shops & chains"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=nha-xuong",
+                "label": {
+                  "vi": "Nhà xưởng",
+                  "en": "Factories"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=trang-trai",
+                "label": {
+                  "vi": "Trang trại",
+                  "en": "Farms"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Dịch vụ kỹ thuật",
+                  "en": "Engineering services"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Công ty",
+              "en": "Company"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Về chúng tôi",
+                  "en": "About us"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm & thiết bị",
+                  "en": "Products"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức & kinh nghiệm",
+                  "en": "News & guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "cam-nang",
+                "label": {
+                  "vi": "Cẩm nang",
+                  "en": "Guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ",
+                  "en": "Contact"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Chính sách",
+              "en": "Policies"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Chính sách bảo hành",
+                  "en": "Warranty policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/doi-tra",
+                "label": {
+                  "vi": "Chính sách đổi trả",
+                  "en": "Returns policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/van-chuyen",
+                "label": {
+                  "vi": "Chính sách vận chuyển",
+                  "en": "Shipping policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-mat",
+                "label": {
+                  "vi": "Chính sách bảo mật",
+                  "en": "Privacy policy"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Thứ 2 – Thứ 7: 08:00 – 17:30\nlienhe@lumivolt.example",
+          "en": "Mon – Sat: 08:00 – 17:30\nlienhe@lumivolt.example"
+        },
+        "disclaimer": [
+          {
+            "vi": "Website demo — dữ liệu hư cấu.",
+            "en": "Demo website — fictional data."
+          },
+          {
+            "vi": "Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản.",
+            "en": "Names, figures, addresses, brands and licences are samples."
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {
+    "contact-dock": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "items": [
+          {
+            "kind": "consult",
+            "label": {
+              "vi": "Nhận tư vấn",
+              "en": "Get advice"
+            }
+          },
+          {
+            "kind": "call",
+            "label": {
+              "vi": "0901 234 500"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901 234 500",
+              "label": {
+                "vi": "Gọi"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Chat Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 501",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          }
+        ],
+        "mobileBar": false,
+        "ariaLabel": {
+          "vi": "Liên hệ nhanh",
+          "en": "Quick contact"
+        }
+      }
+    },
+    "consult-popup": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "delayMs": 30000,
+        "scrollRatio": 0.6,
+        "autoOpen": true,
+        "title": {
+          "vi": "Tư vấn sản phẩm & lắp đặt",
+          "en": "Product & installation advice"
+        },
+        "description": {
+          "vi": "Kỹ sư tư vấn miễn phí, gọi lại trong 2 giờ.",
+          "en": "Free advice; we call back within 2 hours."
+        },
+        "openFormLabel": {
+          "vi": "Nhận tư vấn ngay",
+          "en": "Get advice now"
+        },
+        "submitLabel": {
+          "vi": "Gọi lại cho tôi",
+          "en": "Call me back"
+        },
+        "channels": [
+          {
+            "kind": "zalo",
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 501",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          }
+        ],
+        "success": {
+          "vi": "Chúng tôi sẽ sớm liên hệ với bạn.",
+          "en": "We will contact you soon."
+        },
+        "privacy": {
+          "vi": "Thông tin chỉ dùng để tư vấn.",
+          "en": "Your details are used for advice only."
+        }
+      }
+    },
+    "mobile-bottom-nav": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "ariaLabel": {
+          "vi": "Điều hướng nhanh",
+          "en": "Quick navigation"
+        },
+        "items": [
+          {
+            "icon": "home",
+            "label": {
+              "vi": "Trang chủ",
+              "en": "Home"
+            },
+            "link": {
+              "kind": "page",
+              "value": "",
+              "label": {
+                "vi": "Trang chủ"
+              }
+            }
+          },
+          {
+            "icon": "menu",
+            "label": {
+              "vi": "Danh mục",
+              "en": "Menu"
+            }
+          },
+          {
+            "icon": "call",
+            "label": {
+              "vi": "Gọi",
+              "en": "Call"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901 234 500",
+              "label": {
+                "vi": "Gọi"
+              }
+            },
+            "emphasis": true
+          },
+          {
+            "icon": "zalo",
+            "label": {
+              "vi": "Zalo Gia đình",
+              "en": "Home Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 501",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          },
+          {
+            "icon": "zalo",
+            "label": {
+              "vi": "Zalo Nhà xưởng",
+              "en": "Factory Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 502",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "commitments-strip": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "ariaLabel": {
+          "vi": "Cam kết dịch vụ",
+          "en": "Service commitments"
+        },
+        "items": [
+          {
+            "icon": "survey",
+            "title": {
+              "vi": "Khảo sát miễn phí",
+              "en": "Free site survey"
+            },
+            "description": {
+              "vi": "Kỹ sư đến tận nơi đo mái, đọc hóa đơn",
+              "en": "Engineers measure your roof and read your bill"
+            }
+          },
+          {
+            "icon": "warranty",
+            "title": {
+              "vi": "Bảo hành dài hạn",
+              "en": "Long warranty"
+            },
+            "description": {
+              "vi": "Tấm pin tới 30 năm hiệu suất, thi công 5 năm",
+              "en": "Up to 30-year panel output, 5-year workmanship"
+            }
+          },
+          {
+            "icon": "paperwork",
+            "title": {
+              "vi": "Hỗ trợ thủ tục đấu nối EVN",
+              "en": "Grid paperwork handled"
+            },
+            "description": {
+              "vi": "Chuẩn bị hồ sơ, làm việc với điện lực",
+              "en": "We prepare documents and liaise with EVN"
+            }
+          },
+          {
+            "icon": "maintenance",
+            "title": {
+              "vi": "Bảo trì & vệ sinh định kỳ",
+              "en": "Scheduled O&M"
+            },
+            "description": {
+              "vi": "Kiểm tra, vệ sinh tấm pin theo lịch",
+              "en": "Inspection and panel cleaning on schedule"
+            }
+          }
+        ]
+      }
+    },
+    "quote-cart": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "attachEstimateLabel": {
+          "vi": "Đính kèm kết quả dự toán",
+          "en": "Attach saved estimate"
+        },
+        "estimateSummary": {
+          "vi": "{segment} · {kwp} kWp · tiết kiệm ~{saving} đ/tháng",
+          "en": "{segment} · {kwp} kWp · save ~{saving} VND/month"
+        },
+        "query": {
+          "filter": {},
+          "limit": 48
+        },
+        "items": [
+          {
+            "id": "helionyx-nova-n-590w",
+            "slug": "helionyx-nova-n-590w",
+            "name": "Tấm pin Nova N-type 590W",
+            "brand": "Helionyx",
+            "category": "panel",
+            "categoryLabel": "Tấm pin",
+            "images": [
+              {
+                "id": "/images/catalog/panel-ntype.svg",
+                "alt": {
+                  "vi": "Tấm pin Nova N-type 590W"
+                }
+              }
+            ],
+            "price": 3450000,
+            "salePrice": 3150000,
+            "unit": "tấm",
+            "warranty": "12 năm sản phẩm • 30 năm hiệu suất",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "590 W"
+              },
+              {
+                "label": "Công nghệ",
+                "value": "N-type TOPCon"
+              },
+              {
+                "label": "Hiệu suất",
+                "value": "22,8%"
+              },
+              {
+                "label": "Kích thước",
+                "value": "2278 × 1134 mm"
+              },
+              {
+                "label": "Khối lượng",
+                "value": "27,5 kg"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/helionyx-nova-n-590w"
+          },
+          {
+            "id": "helionyx-titan-bi-620w",
+            "slug": "helionyx-titan-bi-620w",
+            "name": "Tấm pin 2 mặt kính Titan 620W",
+            "brand": "Helionyx",
+            "category": "panel",
+            "categoryLabel": "Tấm pin",
+            "images": [
+              {
+                "id": "/images/catalog/panel-bifacial.svg",
+                "alt": {
+                  "vi": "Tấm pin 2 mặt kính Titan 620W"
+                }
+              }
+            ],
+            "unit": "tấm",
+            "warranty": "15 năm sản phẩm • 30 năm hiệu suất",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "620 W"
+              },
+              {
+                "label": "Công nghệ",
+                "value": "TOPCon hai mặt kính"
+              },
+              {
+                "label": "Hiệu suất",
+                "value": "22,9%"
+              },
+              {
+                "label": "Ứng dụng",
+                "value": "Nhà xưởng, trang trại, mặt đất"
+              },
+              {
+                "label": "Kiểu cell",
+                "value": "Half-cut"
+              }
+            ],
+            "href": "/san-pham/helionyx-titan-bi-620w"
+          },
+          {
+            "id": "solvane-hjt-600w",
+            "slug": "solvane-hjt-600w",
+            "name": "Tấm pin HJT Pro 600W",
+            "brand": "Solvane",
+            "category": "panel",
+            "categoryLabel": "Tấm pin",
+            "images": [
+              {
+                "id": "/images/catalog/panel-bifacial.svg",
+                "alt": {
+                  "vi": "Tấm pin HJT Pro 600W"
+                }
+              }
+            ],
+            "price": 3690000,
+            "unit": "tấm",
+            "warranty": "12 năm sản phẩm • 30 năm hiệu suất",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "600 W"
+              },
+              {
+                "label": "Công nghệ",
+                "value": "HJT"
+              },
+              {
+                "label": "Hiệu suất",
+                "value": "23,1%"
+              },
+              {
+                "label": "Ứng dụng",
+                "value": "Doanh nghiệp, nhà xưởng"
+              },
+              {
+                "label": "Kiểu cell",
+                "value": "Half-cut"
+              }
+            ],
+            "href": "/san-pham/solvane-hjt-600w"
+          },
+          {
+            "id": "lumora-mono-450w",
+            "slug": "lumora-mono-450w",
+            "name": "Tấm pin Mono Black 450W",
+            "brand": "Lumora",
+            "category": "panel",
+            "categoryLabel": "Tấm pin",
+            "images": [
+              {
+                "id": "/images/catalog/panel-mono.svg",
+                "alt": {
+                  "vi": "Tấm pin Mono Black 450W"
+                }
+              }
+            ],
+            "price": 2450000,
+            "salePrice": 2390000,
+            "unit": "tấm",
+            "warranty": "12 năm sản phẩm • 25 năm hiệu suất",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "450 W"
+              },
+              {
+                "label": "Công nghệ",
+                "value": "Mono PERC full black"
+              },
+              {
+                "label": "Hiệu suất",
+                "value": "21,3%"
+              },
+              {
+                "label": "Kích thước",
+                "value": "2094 × 1038 mm"
+              },
+              {
+                "label": "Phù hợp",
+                "value": "Nhà phố, biệt thự"
+              }
+            ],
+            "href": "/san-pham/lumora-mono-450w"
+          },
+          {
+            "id": "voltaris-vg-5k",
+            "slug": "voltaris-vg-5k",
+            "name": "Inverter hòa lưới VG-5K 1 pha",
+            "brand": "Voltaris",
+            "category": "inverter",
+            "categoryLabel": "Inverter",
+            "images": [
+              {
+                "id": "/images/catalog/inverter-grid.svg",
+                "alt": {
+                  "vi": "Inverter hòa lưới VG-5K 1 pha"
+                }
+              }
+            ],
+            "price": 16900000,
+            "unit": "bộ",
+            "warranty": "10 năm",
+            "specs": [
+              {
+                "label": "Công suất AC",
+                "value": "5 kW"
+              },
+              {
+                "label": "Pha",
+                "value": "1 pha"
+              },
+              {
+                "label": "MPPT",
+                "value": "2"
+              },
+              {
+                "label": "Hiệu suất",
+                "value": "98,4%"
+              },
+              {
+                "label": "Giám sát",
+                "value": "Wi-Fi + ứng dụng"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/voltaris-vg-5k"
+          },
+          {
+            "id": "voltaris-vh-10k",
+            "slug": "voltaris-vh-10k",
+            "name": "Inverter hybrid VH-10K 3 pha",
+            "brand": "Voltaris",
+            "category": "inverter",
+            "categoryLabel": "Inverter",
+            "images": [
+              {
+                "id": "/images/catalog/inverter-hybrid.svg",
+                "alt": {
+                  "vi": "Inverter hybrid VH-10K 3 pha"
+                }
+              },
+              {
+                "id": "/images/catalog/battery-10.svg",
+                "alt": {
+                  "vi": "Inverter hybrid VH-10K 3 pha"
+                }
+              }
+            ],
+            "price": 42500000,
+            "salePrice": 39900000,
+            "unit": "bộ",
+            "warranty": "5 năm tiêu chuẩn",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "10 kW"
+              },
+              {
+                "label": "Kiểu",
+                "value": "Hybrid 3 pha"
+              },
+              {
+                "label": "Chuyển mạch dự phòng",
+                "value": "< 10 ms"
+              },
+              {
+                "label": "MPPT",
+                "value": "2"
+              },
+              {
+                "label": "Pin tương thích",
+                "value": "LFP điện áp cao"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/voltaris-vh-10k"
+          },
+          {
+            "id": "kinetra-kx-50k",
+            "slug": "kinetra-kx-50k",
+            "name": "Inverter hòa lưới KX-50K",
+            "brand": "Kinetra",
+            "category": "inverter",
+            "categoryLabel": "Inverter",
+            "images": [
+              {
+                "id": "/images/catalog/inverter-3phase.svg",
+                "alt": {
+                  "vi": "Inverter hòa lưới KX-50K"
+                }
+              }
+            ],
+            "price": 68500000,
+            "salePrice": 69900000,
+            "unit": "bộ",
+            "warranty": "5 năm tiêu chuẩn",
+            "specs": [
+              {
+                "label": "Công suất AC",
+                "value": "50 kW"
+              },
+              {
+                "label": "Pha",
+                "value": "3 pha"
+              },
+              {
+                "label": "MPPT",
+                "value": "4"
+              },
+              {
+                "label": "Bảo vệ",
+                "value": "IP65"
+              },
+              {
+                "label": "Giám sát",
+                "value": "Cloud"
+              }
+            ],
+            "href": "/san-pham/kinetra-kx-50k"
+          },
+          {
+            "id": "kinetra-kx-110k",
+            "slug": "kinetra-kx-110k",
+            "name": "Inverter hòa lưới KX-110K",
+            "brand": "Kinetra",
+            "category": "inverter",
+            "categoryLabel": "Inverter",
+            "images": [
+              {
+                "id": "/images/catalog/inverter-3phase.svg",
+                "alt": {
+                  "vi": "Inverter hòa lưới KX-110K"
+                }
+              }
+            ],
+            "unit": "bộ",
+            "warranty": "5 năm, tùy chọn mở rộng",
+            "specs": [
+              {
+                "label": "Công suất AC",
+                "value": "110 kW"
+              },
+              {
+                "label": "MPPT",
+                "value": "10"
+              },
+              {
+                "label": "Hiệu suất cực đại",
+                "value": "98,8%"
+              },
+              {
+                "label": "Bảo vệ",
+                "value": "IP66 / C5"
+              },
+              {
+                "label": "Ứng dụng",
+                "value": "Nhà xưởng"
+              }
+            ],
+            "href": "/san-pham/kinetra-kx-110k"
+          },
+          {
+            "id": "cellora-wall-5",
+            "slug": "cellora-wall-5",
+            "name": "Pin lưu trữ PowerWall LFP 5 kWh",
+            "brand": "Cellora",
+            "category": "battery",
+            "categoryLabel": "Pin lưu trữ",
+            "images": [
+              {
+                "id": "/images/catalog/battery-5.svg",
+                "alt": {
+                  "vi": "Pin lưu trữ PowerWall LFP 5 kWh"
+                }
+              }
+            ],
+            "price": 32000000,
+            "salePrice": 29500000,
+            "unit": "khối",
+            "warranty": "10 năm",
+            "specs": [
+              {
+                "label": "Dung lượng",
+                "value": "5,12 kWh"
+              },
+              {
+                "label": "Hóa học",
+                "value": "LiFePO4"
+              },
+              {
+                "label": "Điện áp",
+                "value": "51,2 V"
+              },
+              {
+                "label": "Chu kỳ",
+                "value": "≥ 6.000"
+              },
+              {
+                "label": "Lắp đặt",
+                "value": "Treo tường / xếp chồng"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/cellora-wall-5"
+          },
+          {
+            "id": "litheon-hv-10",
+            "slug": "litheon-hv-10",
+            "name": "Pin lưu trữ HV Stack 10 kWh",
+            "brand": "Litheon",
+            "category": "battery",
+            "categoryLabel": "Pin lưu trữ",
+            "images": [
+              {
+                "id": "/images/catalog/battery-10.svg",
+                "alt": {
+                  "vi": "Pin lưu trữ HV Stack 10 kWh"
+                }
+              },
+              {
+                "id": "/images/catalog/battery-15.svg",
+                "alt": {
+                  "vi": "Pin lưu trữ HV Stack 10 kWh"
+                }
+              }
+            ],
+            "unit": "bộ",
+            "warranty": "10 năm theo điều kiện hãng",
+            "specs": [
+              {
+                "label": "Dung lượng",
+                "value": "10,24 kWh"
+              },
+              {
+                "label": "Hóa học",
+                "value": "LiFePO4"
+              },
+              {
+                "label": "Mở rộng",
+                "value": "Tới 30 kWh"
+              },
+              {
+                "label": "Điện áp",
+                "value": "High Voltage"
+              },
+              {
+                "label": "BMS",
+                "value": "Tích hợp"
+              }
+            ],
+            "href": "/san-pham/litheon-hv-10"
+          },
+          {
+            "id": "kinetra-aio-8",
+            "slug": "kinetra-aio-8",
+            "name": "Tủ All-in-one 8 kW / 10 kWh",
+            "brand": "Kinetra",
+            "category": "allinone",
+            "categoryLabel": "All-in-one",
+            "images": [
+              {
+                "id": "/images/catalog/allinone-8.svg",
+                "alt": {
+                  "vi": "Tủ All-in-one 8 kW / 10 kWh"
+                }
+              },
+              {
+                "id": "/images/catalog/battery-10.svg",
+                "alt": {
+                  "vi": "Tủ All-in-one 8 kW / 10 kWh"
+                }
+              }
+            ],
+            "price": 96000000,
+            "unit": "bộ",
+            "warranty": "5 năm inverter • 10 năm pin",
+            "specs": [
+              {
+                "label": "Inverter",
+                "value": "8 kW hybrid"
+              },
+              {
+                "label": "Pin",
+                "value": "10 kWh LiFePO4"
+              },
+              {
+                "label": "Thiết kế",
+                "value": "Tủ tích hợp"
+              },
+              {
+                "label": "Dự phòng",
+                "value": "< 10 ms"
+              },
+              {
+                "label": "Phù hợp",
+                "value": "Nhà phố, biệt thự"
+              }
+            ],
+            "href": "/san-pham/kinetra-aio-8"
+          },
+          {
+            "id": "ferrovolt-cube-215",
+            "slug": "ferrovolt-cube-215",
+            "name": "BESS Cube 100 kW / 215 kWh",
+            "brand": "Ferrovolt",
+            "category": "bess",
+            "categoryLabel": "BESS",
+            "images": [
+              {
+                "id": "/images/catalog/bess-215.svg",
+                "alt": {
+                  "vi": "BESS Cube 100 kW / 215 kWh"
+                }
+              }
+            ],
+            "unit": "tủ",
+            "warranty": "10 năm / 6.000 chu kỳ (mẫu)",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "100 kW"
+              },
+              {
+                "label": "Dung lượng",
+                "value": "215 kWh"
+              },
+              {
+                "label": "Làm mát",
+                "value": "Chất lỏng"
+              },
+              {
+                "label": "Bảo vệ",
+                "value": "IP55"
+              },
+              {
+                "label": "Ứng dụng",
+                "value": "Cắt đỉnh, dự phòng tải"
+              }
+            ],
+            "href": "/san-pham/ferrovolt-cube-215"
+          },
+          {
+            "id": "den-pha-100w",
+            "slug": "den-pha-100w",
+            "name": "Đèn pha năng lượng mặt trời 100W",
+            "brand": "Lumivolt Light",
+            "category": "light",
+            "categoryLabel": "Đèn năng lượng mặt trời",
+            "images": [
+              {
+                "id": "/images/catalog/light-flood-100.svg",
+                "alt": {
+                  "vi": "Đèn pha năng lượng mặt trời 100W"
+                }
+              }
+            ],
+            "price": 650000,
+            "salePrice": 520000,
+            "unit": "bộ",
+            "warranty": "2 năm",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "100 W"
+              },
+              {
+                "label": "Tấm pin",
+                "value": "6V 15W rời"
+              },
+              {
+                "label": "Pin",
+                "value": "LFP 10.000 mAh"
+              },
+              {
+                "label": "Thời gian sáng",
+                "value": "10–12 giờ"
+              },
+              {
+                "label": "Chống nước",
+                "value": "IP67"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/den-pha-100w"
+          },
+          {
+            "id": "den-pha-300w",
+            "slug": "den-pha-300w",
+            "name": "Đèn pha năng lượng mặt trời 300W",
+            "brand": "Lumivolt Light",
+            "category": "light",
+            "categoryLabel": "Đèn năng lượng mặt trời",
+            "images": [
+              {
+                "id": "/images/catalog/light-flood-300.svg",
+                "alt": {
+                  "vi": "Đèn pha năng lượng mặt trời 300W"
+                }
+              }
+            ],
+            "price": 1250000,
+            "salePrice": 1190000,
+            "unit": "bộ",
+            "warranty": "2 năm",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "300 W"
+              },
+              {
+                "label": "Tấm pin",
+                "value": "6V 30W rời"
+              },
+              {
+                "label": "Pin",
+                "value": "LFP 25.000 mAh"
+              },
+              {
+                "label": "Thời gian sáng",
+                "value": "12 giờ"
+              },
+              {
+                "label": "Phù hợp",
+                "value": "Sân, kho, trang trại"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/den-pha-300w"
+          },
+          {
+            "id": "den-duong-200w",
+            "slug": "den-duong-200w",
+            "name": "Đèn đường liền thể 200W",
+            "brand": "Lumivolt Light",
+            "category": "light",
+            "categoryLabel": "Đèn năng lượng mặt trời",
+            "images": [
+              {
+                "id": "/images/catalog/light-street.svg",
+                "alt": {
+                  "vi": "Đèn đường liền thể 200W"
+                }
+              }
+            ],
+            "price": 1850000,
+            "unit": "bộ",
+            "warranty": "3 năm",
+            "specs": [
+              {
+                "label": "Công suất",
+                "value": "200 W"
+              },
+              {
+                "label": "Kiểu",
+                "value": "Liền thể (pin + đèn)"
+              },
+              {
+                "label": "Cảm biến",
+                "value": "Chuyển động + ánh sáng"
+              },
+              {
+                "label": "Chiều cao lắp",
+                "value": "4–6 m"
+              },
+              {
+                "label": "Chống nước",
+                "value": "IP66"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/den-duong-200w"
+          },
+          {
+            "id": "den-san-vuon-bo-4",
+            "slug": "den-san-vuon-bo-4",
+            "name": "Đèn sân vườn cắm cỏ (bộ 4)",
+            "brand": "Lumivolt Light",
+            "category": "light",
+            "categoryLabel": "Đèn năng lượng mặt trời",
+            "images": [
+              {
+                "id": "/images/catalog/light-garden.svg",
+                "alt": {
+                  "vi": "Đèn sân vườn cắm cỏ (bộ 4)"
+                }
+              }
+            ],
+            "price": 420000,
+            "unit": "bộ",
+            "warranty": "1 năm",
+            "specs": [
+              {
+                "label": "Số đèn",
+                "value": "4"
+              },
+              {
+                "label": "Ánh sáng",
+                "value": "Vàng ấm 3000K"
+              },
+              {
+                "label": "Thời gian sáng",
+                "value": "8–10 giờ"
+              },
+              {
+                "label": "Lắp đặt",
+                "value": "Cắm đất, không đi dây"
+              },
+              {
+                "label": "Chống nước",
+                "value": "IP65"
+              }
+            ],
+            "href": "/san-pham/den-san-vuon-bo-4"
+          },
+          {
+            "id": "connecta-mc4-kit",
+            "slug": "connecta-mc4-kit",
+            "name": "Bộ cáp DC 4 mm² + đầu nối MC4",
+            "brand": "Connecta",
+            "category": "accessory",
+            "categoryLabel": "Phụ kiện",
+            "images": [
+              {
+                "id": "/images/catalog/acc-mc4.svg",
+                "alt": {
+                  "vi": "Bộ cáp DC 4 mm² + đầu nối MC4"
+                }
+              }
+            ],
+            "price": 390000,
+            "unit": "bộ",
+            "warranty": "Theo lô hàng",
+            "specs": [
+              {
+                "label": "Tiết diện",
+                "value": "4 mm²"
+              },
+              {
+                "label": "Chiều dài",
+                "value": "10 m"
+              },
+              {
+                "label": "Đầu nối",
+                "value": "MC4 IP68"
+              },
+              {
+                "label": "Chịu UV",
+                "value": "Có"
+              },
+              {
+                "label": "Ứng dụng",
+                "value": "Chuỗi DC"
+              }
+            ],
+            "featured": true,
+            "href": "/san-pham/connecta-mc4-kit"
+          },
+          {
+            "id": "connecta-pv-cable-6",
+            "slug": "connecta-pv-cable-6",
+            "name": "Cáp DC PV 6 mm² (cuộn 100 m)",
+            "brand": "Connecta",
+            "category": "accessory",
+            "categoryLabel": "Phụ kiện",
+            "images": [
+              {
+                "id": "/images/catalog/acc-mc4.svg",
+                "alt": {
+                  "vi": "Cáp DC PV 6 mm² (cuộn 100 m)"
+                }
+              }
+            ],
+            "price": 2850000,
+            "unit": "cuộn",
+            "warranty": "Theo lô hàng",
+            "specs": [
+              {
+                "label": "Tiết diện",
+                "value": "6 mm²"
+              },
+              {
+                "label": "Chuẩn",
+                "value": "EN 50618 (mẫu)"
+              },
+              {
+                "label": "Vỏ",
+                "value": "XLPO chống UV"
+              },
+              {
+                "label": "Chiều dài",
+                "value": "100 m"
+              }
+            ],
+            "href": "/san-pham/connecta-pv-cable-6"
+          },
+          {
+            "id": "khung-nhom-mai-ton",
+            "slug": "khung-nhom-mai-ton",
+            "name": "Khung nhôm mái tôn (cho 4 tấm)",
+            "brand": "Lumivolt",
+            "category": "accessory",
+            "categoryLabel": "Phụ kiện",
+            "images": [
+              {
+                "id": "/images/catalog/acc-rail.svg",
+                "alt": {
+                  "vi": "Khung nhôm mái tôn (cho 4 tấm)"
+                }
+              }
+            ],
+            "price": 1600000,
+            "salePrice": 1450000,
+            "unit": "bộ",
+            "warranty": "10 năm",
+            "specs": [
+              {
+                "label": "Vật liệu",
+                "value": "Nhôm 6005-T5"
+              },
+              {
+                "label": "Kẹp",
+                "value": "Inox SUS304"
+              },
+              {
+                "label": "Mái phù hợp",
+                "value": "Tôn sóng, tôn cliplock"
+              },
+              {
+                "label": "Tải gió",
+                "value": "Theo TCVN 2737"
+              }
+            ],
+            "href": "/san-pham/khung-nhom-mai-ton"
+          }
+        ],
+        "browseLink": {
+          "kind": "page",
+          "value": "san-pham",
+          "label": {
+            "vi": "Xem sản phẩm"
+          }
+        },
+        "title": {
+          "vi": "Giỏ yêu cầu báo giá",
+          "en": "Quote request cart"
+        },
+        "note": {
+          "vi": "Chúng tôi gửi báo giá và gọi xác nhận.",
+          "en": "[SAMPLE DATA] We send a quote and call to confirm."
+        },
+        "emptyText": {
+          "vi": "Giỏ báo giá đang trống.",
+          "en": "Your quote cart is empty."
+        },
+        "browseLabel": {
+          "vi": "Xem sản phẩm",
+          "en": "Browse products"
+        },
+        "formTitle": {
+          "vi": "Gửi yêu cầu báo giá",
+          "en": "Request a quote"
+        },
+        "formDescription": {
+          "vi": "Để lại thông tin để nhận báo giá.",
+          "en": "Leave your details for a quote."
+        },
+        "messagePlaceholder": {
+          "vi": "Ghi chú nhu cầu lắp đặt…",
+          "en": "Installation needs…"
+        },
+        "submitLabel": {
+          "vi": "Gửi yêu cầu",
+          "en": "Send request"
+        },
+        "successTitle": {
+          "vi": "Đã gửi yêu cầu báo giá!",
+          "en": "Quote request sent!"
+        },
+        "successMessage": {
+          "vi": "Chúng tôi sẽ sớm liên hệ với bạn.",
+          "en": "We will contact you soon."
+        },
+        "continueLabel": {
+          "vi": "Tiếp tục xem sản phẩm",
+          "en": "Continue browsing"
+        },
+        "buttonLabel": {
+          "vi": "Mở giỏ báo giá",
+          "en": "Open quote cart"
+        }
+      }
+    },
+    "theme-switch": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "lightLabel": {
+          "vi": "Chuyển sang giao diện sáng",
+          "en": "Switch to light mode"
+        },
+        "darkLabel": {
+          "vi": "Chuyển sang giao diện tối",
+          "en": "Switch to dark mode"
+        }
+      }
+    },
+    "scroll-progress": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {}
+    }
+  },
+  "subpages": [
+    "san-pham",
+    "giai-phap",
+    "cong-trinh",
+    "tin-tuc",
+    "cam-nang",
+    "ve-chung-toi",
+    "lien-he",
+    "chinh-sach"
+  ]
+}
