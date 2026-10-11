@@ -12,6 +12,7 @@
     "test": "turbo run test",
     "visual:test": "turbo run build --filter=web && pnpm --filter @solar/visual visual:test",
     "visual:update": "turbo run build --filter=web && pnpm --filter @solar/visual visual:update",
+    "visual:matrix": "turbo run build --filter=web && pnpm --filter @solar/visual matrix:test",
     "lint:tokens": "turbo run lint:tokens"
   },
   "devDependencies": {

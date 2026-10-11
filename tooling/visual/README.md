@@ -56,3 +56,37 @@ CI `visual.yml`:
 - Fail: artifact `visual-report` giữ 14 ngày, gồm HTML và test output. Tải artifact, mở `playwright-report/index.html`.
 
 Không chỉnh `ci.yml` cũ trong story này. CI xanh và review độc lập do playbook xác nhận trên PR.
+
+## Ma trận section
+
+Mở `/lab/sections/matrix` (production cần `LAB_ENABLED=true`) hoặc
+`/lab/sections/hero?themes=t15&variant=t15&lang=vi`. Route dùng defaults của schema và adapter collection mẫu;
+theme/variant được đọc từ registry. Query bỏ id lạ, bỏ trùng; không còn lựa chọn hợp lệ thì hiển thị tất cả.
+Trang demo `/lab/sections` vẫn dùng registry demo riêng.
+
+```sh
+pnpm turbo run build --filter=web
+pnpm --filter @solar/visual matrix:update
+pnpm --filter @solar/visual matrix:test
+pnpm --filter @solar/visual matrix:test
+pnpm --filter @solar/visual matrix:report
+```
+
+`pnpm visual:matrix` build rồi so ma trận. Windows có thể dùng `VISUAL_WORKERS=2` và server riêng như hướng dẫn ở trên;
+server riêng **phải bật `LAB_ENABLED=true`**. Hiện có 28 type × 1 theme t15 × 2 viewport × light/dark = 112 ô.
+Mục tiêu ≥ 4 theme chờ E4; không dùng theme giả. Theme/variant mới tự xuất hiện; thêm type cần cập nhật `matrixTypes`
+(test coverage báo thiếu/thừa). Project `matrix-*` có baseline riêng, không thay 48 ảnh cũ. Ô mới tạo baseline với
+`updateSnapshots: missing`; ô có baseline vẫn so bình thường. Kiểm tra ảnh mới trước khi chấp nhận baseline.
+
+Computed-style kiểm RGB với sai số ±1 và mọi alpha; transparent hợp lệ. Duyệt phần tử hiển thị và pseudo-element,
+kiểm màu chữ, nền/gradient, viền có width, outline, decoration, shadow, SVG fill/stroke. Dạng màu chưa hỗ trợ bị báo lỗi.
+Chỉ SVG trong `packages/ui/brand-icons` có `data-brand-icon` được loại trừ theo AGENTS.md §4; pixel ảnh/video không phải CSS.
+`@axe-core/playwright` 4.13.0 chỉ là devDependency để kiểm `color-contrast` (AC), phát hành 2026-08-11.
+
+`matrix-report/index.html` hiển thị type/variant × theme/viewport/mode, số màu ngoài token, thời gian wall-clock từ
+Playwright JSON reporter và node tương phản < AA. Đỏ = lỗi tương phản, cam = ngoài token, “Cần kiểm tra” = axe không
+đánh giá được; không có violation không đồng nghĩa đã chứng nhận AA. Lỗi tương phản chỉ ghi report, màu ngoài token
+và snapshot sai làm test fail. JSON từng ô ở `test-results/matrix/**/cells.json`, tổng lượt chạy ở `test-results/matrix-run.json`;
+output được Playwright làm mới mỗi lượt để không lấy kết quả cũ. Report/baseline/output không commit.
+CI chạy matrix song song với timeout 6 phút và upload `matrix-report` 14 ngày kể cả khi test fail. Thời gian CI cần
+xác nhận trên PR; timeout cấu hình chưa phải bằng chứng đạt AC thời gian.

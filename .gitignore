@@ -51,6 +51,7 @@ next-env.d.ts
 
 # unit test build
 .test-dist/
+matrix-report/
 
 
 # agent playbook runs (logs, reports, reviews)
