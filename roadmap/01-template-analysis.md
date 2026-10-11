@@ -48,6 +48,11 @@ t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. m
 24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
 Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
 
+**Đã port — t14 (E4-S04, chờ design pass):** theme `packages/themes/t14` (emerald tối mặc định, bảng thứ hai Sky & Sun),
+variant mới `projects/t14` (FeaturedProjects: tab khách hàng + số liệu năm), [`packages/presets/t14.json`](../packages/presets/t14.json)
+theo thứ tự `HomeT14`. Các khối còn lại dùng variant t15 (bản gốc t14 ≈ t15, khác ở theme); checklist EngineerBanner và
+tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua trường tùy chọn. Xem `/lab/presets/t14`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
