@@ -1,5 +1,6 @@
-import { FAQS } from "@/data/faq";
-import HomePage from "@/components/HomePage";
+import { loadPreset } from "@solar/presets";
+import { sectionRegistry } from "@solar/sections";
+import PresetPage from "@/components/PresetPage";
 import { makeMetadata } from "@/utils/solar";
 import { siteConfig } from "@/config/site.config";
 
@@ -9,22 +10,22 @@ export const metadata = makeMetadata(
   "/"
 );
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  // Chỉ gồm các câu hỏi đang hiển thị trên trang (FAQ chung + hỏi đáp đại lý)
-  mainEntity: [
-    ...(siteConfig.faq.enabled ? FAQS : []),
-    ...(siteConfig.dealer.enabled ? siteConfig.dealer.faqs : []),
-  ].map(([question, answer]) => ({
-    "@type": "Question", name: question,
-    acceptedAnswer: { "@type": "Answer", text: answer },
-  })),
-};
-
 export default function Page() {
+  const loaded = loadPreset("t15");
+  const faq = loaded.page.sections.find((section) => section.type === "faq" && section.enabled);
+  const dealer = loaded.page.sections.find((section) => section.type === "dealer" && section.enabled);
+  const items = [
+    ...(faq ? sectionRegistry.types.faq.schema.parse(faq.data).items : []),
+    ...(dealer ? sectionRegistry.types.dealer.schema.parse(dealer.data).faqs : []),
+  ];
+  const faqSchema = {
+    "@context": "https://schema.org", "@type": "FAQPage",
+    mainEntity: items.map(({ question, answer }) => ({
+      "@type": "Question", name: question.vi, acceptedAnswer: { "@type": "Answer", text: answer.vi },
+    })),
+  };
   return <>
-    {faqSchema.mainEntity.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
-    <HomePage />
+    {items.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />}
+    <PresetPage loaded={loaded} site={{ tenantId: "preset-demo", locale: "vi", themeId: loaded.theme.meta.id }} />
   </>;
 }

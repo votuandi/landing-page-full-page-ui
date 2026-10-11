@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { catalogEnabled } from "@/config/site";
 import { productBySlug } from "@/data/products";
-import { addToQuoteCart, clearCart, countItems, removeItem, sanitizeCart, setQty, readQuoteCart, writeQuoteCart, onQuoteCartChange, onOpenQuoteCart, type CartLine } from "@solar/core";
+import { addToQuoteCart, clearCart, countItems, removeItem, sanitizeCart, setQty, readQuoteCart, writeQuoteCart, onQuoteCartChange, onOpenQuoteCart, openQuoteCart, type CartLine } from "@solar/core";
 
 // Drawer chỉ tải khi mở lần đầu
 const QuoteCartDrawer = dynamic(() => import("@/components/QuoteCartDrawer"), { ssr: false });
@@ -40,7 +40,7 @@ export function QuoteCartProvider({ children, showDrawer = true }: { children: R
   const update = useCallback((sku: string, qty: number) => writeQuoteCart(setQty(readQuoteCart(), sku, qty)), []);
   const remove = useCallback((sku: string) => writeQuoteCart(removeItem(readQuoteCart(), sku)), []);
   const clear = useCallback(() => writeQuoteCart(clearCart()), []);
-  const open = useCallback(() => setOpen(true), []);
+  const open = useCallback(() => openQuoteCart(), []);
   const close = useCallback(() => setOpen(false), []);
 
   const api = useMemo(() => ({ lines, count: countItems(lines), add, setQty: update, remove, clear, open, close }), [lines, add, update, remove, clear, open, close]);
