@@ -107,6 +107,17 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
     }), /rollback/);
     assert.equal(await forTenant(db, a).project.count({ where: { slug: "transaction" } }), 0);
   });
+  test("saving draft data migrates published data and keeps one shared schemaVersion", async () => {
+    const repo = forTenant(db, a);
+    const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "migration-draft", type: "shorts", schemaVersion: 1, data: { title: "Published" } });
+    await repo.sectionContent.update(row.id, { draftData: { title: "Draft", channels: [] } });
+    const saved = await repo.sectionContent.get(row.id);
+    assert.equal(saved?.schemaVersion, 3);
+    assert.deepEqual((saved?.data as Record<string, unknown>).channels, []);
+    assert.equal((saved?.draftData as Record<string, unknown>).title, "Draft");
+    const current = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "migration-create", type: "shorts", data: {} });
+    assert.equal(current.schemaVersion, 3);
+  });
   test("platform exposes hostname lookup without weakening tenant queries", async () => {
     const hostname = `${a}.repo.localhost`;
     await forTenant(db, a).domain.create({ hostname, siteId: siteA, verificationToken: "test" });
