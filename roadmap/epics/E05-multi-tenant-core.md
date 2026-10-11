@@ -38,9 +38,12 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - **Target**: schema hỗ trợ đủ dữ liệu của 15 preset mà không cần bảng riêng theo template.
 - **AC**:
   - [ ] Migration đầu tiên chạy trên Postgres 16 sạch; `prisma migrate deploy` + seed chạy được trong image standalone (E10-S01).
-  - [ ] Seed `pnpm db:seed` tạo 2 tenant demo (t15, t12) với dữ liệu từ `src/data/*` của t15, **cố ý trùng slug** giữa 2 tenant.
-  - [ ] Test: tạo `Product` của A với `categoryId` của B → lỗi khóa ngoại; nested `connect` chéo tenant → lỗi.
-  - [ ] ERD xuất ra `packages/db/ERD.md`.
+    - Postgres 16 sạch: deploy + seed hai lần đã qua; bộ test DB qua 32/32, không skip. Phần image standalone kiểm ở E10-S01.
+  - [x] Seed `pnpm db:seed` tạo 2 tenant demo (t15, t12) với dữ liệu từ `src/data/*` của t15, **cố ý trùng slug** giữa 2 tenant.
+  - [x] Test: tạo `Product` của A với `categoryId` của B → lỗi khóa ngoại; nested `connect` chéo tenant → lỗi.
+  - [x] ERD xuất ra `packages/db/ERD.md`.
+  - Bằng chứng: `packages/db/src/__tests__/{tenant.int,tenantGuard,seed.int,erd,schema}.test.ts`; typecheck/lint/test package qua.
+    PR/review: chờ Claude tạo PR và review theo routing.
 - Agent: Claude (review Codex adversarial) · Cỡ: L
 
 ### E5-S02 · Repository bắt buộc tenant

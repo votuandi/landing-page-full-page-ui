@@ -1,0 +1,630 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TenantStatus {
+  trial
+  active
+  suspended
+}
+
+enum MembershipRole {
+  owner
+  editor
+  viewer
+}
+
+enum DomainStatus {
+  pending
+  verified
+  active
+  error
+  removed
+}
+
+enum SslProvider {
+  caddy
+  cloudflare
+}
+
+enum PageKind {
+  home
+  landing
+  system
+}
+
+enum ContentStatus {
+  draft
+  published
+}
+
+enum StorageDriver {
+  local
+  s3
+}
+
+enum MediaVisibility {
+  public
+  private
+}
+
+enum MediaStatus {
+  quarantine
+  ready
+  failed
+}
+
+enum LeadStatus {
+  new
+  contacted
+  won
+  lost
+  spam
+}
+
+enum OutboxStatus {
+  pending
+  processing
+  done
+  failed
+}
+
+enum IntegrationKind {
+  webhook
+  google_sheets
+  telegram
+}
+
+model Plan {
+  id        String   @id
+  name      String
+  features  String[]
+  limits    Json
+  syncedAt  DateTime @default(now())
+  tenants   Tenant[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tenant {
+  id                String            @id @default(uuid(7)) @db.Uuid
+  name              String
+  slug              String            @unique
+  status            TenantStatus      @default(trial)
+  planId            String
+  addons            String[]          @default([])
+  plan              Plan              @relation(fields: [planId], references: [id])
+  memberships       Membership[]
+  domains           Domain[]
+  sites             Site[]
+  pages             Page[]
+  pageVersions      PageVersion[]
+  sectionContents   SectionContent[]
+  products          Product[]
+  productCategories ProductCategory[]
+  projects          Project[]
+  storys            Story[]
+  posts             Post[]
+  faqs              Faq[]
+  testimonials      Testimonial[]
+  branchs           Branch[]
+  certificates      Certificate[]
+  brands            Brand[]
+  pressItems        PressItem[]
+  services          Service[]
+  media             Media[]
+  leads             Lead[]
+  outbox            Outbox[]
+  leadIntegrations  LeadIntegration[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model User {
+  id            String         @id @default(uuid(7)) @db.Uuid
+  email         String         @unique
+  name          String?
+  passwordHash  String?
+  memberships   Membership[]
+  platformAdmin PlatformAdmin?
+  pageVersions  PageVersion[]
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model PlatformAdmin {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @unique @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Membership {
+  id        String         @id @default(uuid(7)) @db.Uuid
+  tenantId  String         @db.Uuid
+  userId    String         @db.Uuid
+  role      MembershipRole
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+}
+
+model Domain {
+  id                String       @id @default(uuid(7)) @db.Uuid
+  tenantId          String       @db.Uuid
+  siteId            String       @db.Uuid
+  hostname          String       @unique
+  isPrimary         Boolean      @default(false)
+  status            DomainStatus @default(pending)
+  verificationToken String
+  verifiedAt        DateTime?
+  sslProvider       SslProvider  @default(caddy)
+  cfHostnameId      String?
+  site              Site         @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
+model Site {
+  id              String           @id @default(uuid(7)) @db.Uuid
+  tenantId        String           @db.Uuid
+  name            String
+  themeId         String
+  presetId        String?
+  themeOverrides  Json             @default("{}")
+  locales         String[]         @default(["vi"])
+  defaultLocale   String           @default("vi")
+  profile         Json             @default("{}")
+  widgets         Json             @default("{}")
+  seo             Json             @default("{}")
+  domains         Domain[]
+  pages           Page[]
+  sectionContents SectionContent[]
+  leads           Lead[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+}
+
+model Page {
+  id              String           @id @default(uuid(7)) @db.Uuid
+  tenantId        String           @db.Uuid
+  siteId          String           @db.Uuid
+  slug            String
+  kind            PageKind         @default(landing)
+  title           Json?
+  sections        Json
+  draftSections   Json?
+  revision        Int              @default(0)
+  publishedAt     DateTime?
+  site            Site             @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  versions        PageVersion[]
+  sectionContents SectionContent[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, siteId, slug])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
+model PageVersion {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  tenantId      String   @db.Uuid
+  pageId        String   @db.Uuid
+  revision      Int
+  snapshot      Json
+  publishedById String?  @db.Uuid
+  page          Page     @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  publishedBy   User?    @relation(fields: [publishedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, pageId, revision])
+  @@index([tenantId])
+  @@index([tenantId, pageId])
+}
+
+model SectionContent {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  tenantId      String   @db.Uuid
+  siteId        String   @db.Uuid
+  pageId        String   @db.Uuid
+  sectionId     String
+  type          String
+  schemaVersion Int
+  data          Json
+  draftData     Json?
+  revision      Int      @default(0)
+  site          Site     @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  page          Page     @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, pageId, sectionId])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+  @@index([tenantId, pageId])
+}
+
+model Product {
+  id          String           @id @default(uuid(7)) @db.Uuid
+  tenantId    String           @db.Uuid
+  slug        String
+  status      ContentStatus    @default(draft)
+  order       Int              @default(0)
+  title       Json
+  data        Json             @default("{}")
+  publishedAt DateTime?
+  categoryId  String?          @db.Uuid
+  brandId     String?          @db.Uuid
+  price       Int?
+  salePrice   Int?
+  featured    Boolean          @default(false)
+  segments    String[]         @default([])
+  category    ProductCategory? @relation(fields: [tenantId, categoryId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  brand       Brand?           @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model ProductCategory {
+  id          String            @id @default(uuid(7)) @db.Uuid
+  tenantId    String            @db.Uuid
+  slug        String
+  status      ContentStatus     @default(draft)
+  order       Int               @default(0)
+  title       Json
+  data        Json              @default("{}")
+  publishedAt DateTime?
+  parentId    String?           @db.Uuid
+  parent      ProductCategory?  @relation("CategoryTree", fields: [tenantId, parentId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  children    ProductCategory[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Project {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  tenantId     String        @db.Uuid
+  slug         String
+  status       ContentStatus @default(draft)
+  order        Int           @default(0)
+  title        Json
+  data         Json          @default("{}")
+  publishedAt  DateTime?
+  segment      String?
+  kwp          Float?
+  featured     Boolean       @default(false)
+  coverMediaId String?       @db.Uuid
+  coverMedia   Media?        @relation(fields: [tenantId, coverMediaId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Story {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  tenantId      String        @db.Uuid
+  slug          String
+  status        ContentStatus @default(draft)
+  order         Int           @default(0)
+  title         Json
+  data          Json          @default("{}")
+  publishedAt   DateTime?
+  segment       String?
+  kind          String?
+  posterMediaId String?       @db.Uuid
+  posterMedia   Media?        @relation(fields: [tenantId, posterMediaId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Post {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  tenantId     String        @db.Uuid
+  slug         String
+  status       ContentStatus @default(draft)
+  order        Int           @default(0)
+  title        Json
+  data         Json          @default("{}")
+  publishedAt  DateTime?
+  segment      String?
+  coverMediaId String?       @db.Uuid
+  tags         String[]      @default([])
+  coverMedia   Media?        @relation(fields: [tenantId, coverMediaId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Faq {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  group       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Testimonial {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  segment     String?
+  rating      Float?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Branch {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  isPrimary   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Certificate {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Brand {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  logoMediaId String?       @db.Uuid
+  logoMedia   Media?        @relation(fields: [tenantId, logoMediaId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  products    Product[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model PressItem {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Service {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @db.Uuid
+  slug        String
+  status      ContentStatus @default(draft)
+  order       Int           @default(0)
+  title       Json
+  data        Json          @default("{}")
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status, order])
+}
+
+model Media {
+  id         String          @id @default(uuid(7)) @db.Uuid
+  tenantId   String          @db.Uuid
+  key        String          @unique
+  driver     StorageDriver
+  visibility MediaVisibility @default(public)
+  status     MediaStatus     @default(quarantine)
+  mime       String
+  size       Int
+  width      Int?
+  height     Int?
+  variants   Json?
+  alt        Json?
+  projects   Project[]
+  stories    Story[]
+  posts      Post[]
+  brands     Brand[]
+  createdAt  DateTime        @default(now())
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+}
+
+model Lead {
+  id        String     @id @default(uuid(7)) @db.Uuid
+  tenantId  String     @db.Uuid
+  siteId    String?    @db.Uuid
+  source    String
+  segment   String?
+  name      String?
+  phone     String
+  email     String?
+  message   String?
+  data      Json
+  status    LeadStatus @default(new)
+  site      Site?      @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, createdAt])
+}
+
+model Outbox {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  tenantId       String?      @db.Uuid
+  topic          String
+  payload        Json
+  idempotencyKey String       @unique
+  status         OutboxStatus @default(pending)
+  attempts       Int          @default(0)
+  runAt          DateTime     @default(now())
+  lastError      String?
+  processedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  tenant         Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([status, runAt])
+}
+
+model LeadIntegration {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  tenantId        String          @db.Uuid
+  kind            IntegrationKind
+  name            String
+  enabled         Boolean         @default(true)
+  configEncrypted String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  tenantId    String?  @db.Uuid
+  actorUserId String?  @db.Uuid
+  action      String
+  entity      String
+  entityId    String?
+  data        Json?
+  actorUser   User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, createdAt])
+}
