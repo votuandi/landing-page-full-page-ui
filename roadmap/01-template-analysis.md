@@ -48,6 +48,14 @@ t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. m
 24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
 Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
 
+**Đã port — t10 (E4-S06, chờ design pass):** theme `packages/themes/t10` (Inter; navy `#0d3b78` → `primary`,
+`--solar-green #087a55` → `secondary`, mint `#b8efcc` → `accent`, `#effbf3` → `bg-tint`, `#dbe9ff` → `bg-sky`,
+`--t8-ink` → `fg`/`bg-deep`; không dark), 13 variant `t10` (`hero`, `services`, `segments` = BenefitHeroes, `brands` =
+ClientWall, `stats`, `projects`, `investment-models`, `energy-monitoring`, `process`, `testimonials`, `trust`, `faq`,
+`lead-form`) + widget `contact-dock/t10`, và [`packages/presets/t10.json`](../packages/presets/t10.json) theo thứ tự
+`src/app/page.tsx`. `SegmentContext` → `useSegment()`. Thay bằng variant gần nhất (có `note`): header/footer `t15`,
+Partners `brands/t15`, Calculator `calculator/t15`. Xem `/lab/presets/t10` (`?theme=t15`), ảnh ở `roadmap/evidence/E4/t10/`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
