@@ -1,10 +1,9 @@
-import { collectRefs, collectionSchemas, sectionRegistry } from "@solar/sections";
+import { collectRefs, collectionSchemas, migrateSectionData, sectionRegistry } from "@solar/sections";
 import type { Prisma } from "../generated/client.ts";
 import { platformDomainLookup, platformDomainResolve, type Db } from "./client.ts";
 import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 import { tenantModels } from "./tenantScope.ts";
-import { migrateSectionRow } from "./sectionContent.ts";
 import { Prisma as PrismaValues } from "../generated/client.ts";
 
 type DelegateName = Uncapitalize<(typeof tenantModels)[number]>;
@@ -25,8 +24,12 @@ type Repository<D> = {
   delete(id: string): Promise<{ count: number }>;
 };
 type SectionCreate = Omit<WriteData<Db["sectionContent"], "create">, "schemaVersion"> & { schemaVersion?: number };
+type SectionUpdate = Omit<WriteData<Db["sectionContent"], "updateMany">, "type"> & { type?: never };
 export type TenantRepo = { [K in DelegateName]: K extends "sectionContent"
-  ? Omit<Repository<Db[K]>, "create"> & { create(data: SectionCreate): Promise<Prisma.Result<Db[K], object, "create">> }
+  ? Omit<Repository<Db[K]>, "create" | "update"> & {
+    create(data: SectionCreate): Promise<Prisma.Result<Db[K], object, "create">>;
+    update(id: string, data: SectionUpdate): Promise<{ count: number }>;
+  }
   : Repository<Db[K]> };
 
 type Input = Record<string, unknown>;
@@ -73,16 +76,36 @@ export function forTenant(db: DbClient, tenantId: string): TenantRepo {
       async update(id: string, input: Input) {
         const data = clean(input);
         if (name === "sectionContent") {
-          const existing = await db.sectionContent.findFirst({ where: { id, tenantId }, select: { type: true, schemaVersion: true, data: true, draftData: true } });
-          if (!existing) return { count: 0 };
-          if (Object.hasOwn(data, "data") || Object.hasOwn(data, "draftData")) {
-            const migrated = migrateSectionRow(existing);
-            data.data = data.data === undefined ? migrated.data : data.data;
-            data.draftData = data.draftData === undefined ? migrated.draftData ?? PrismaValues.DbNull : data.draftData;
-            // Future rows keep their version during rolling deployment.
-            data.schemaVersion = migrated.schemaVersion;
+          if (Object.hasOwn(data, "type")) throw new Error("Section type is immutable; create a new section to change type");
+          for (let attempt = 0; attempt < 5; attempt++) {
+            const existing = await db.sectionContent.findFirst({ where: { id, tenantId }, select: { type: true, schemaVersion: true, data: true, draftData: true } });
+            if (!existing) return { count: 0 };
+            const next = { ...data };
+            const where: Input = { id, tenantId };
+            if (data.data !== undefined || data.draftData !== undefined) {
+              const def = sectionRegistry.getType(existing.type);
+              if (!def) throw new Error(`[sections] unknown section type ${existing.type}`);
+              // Do not relabel current/future rows from a stale caller version.
+              delete next.schemaVersion;
+              if (existing.schemaVersion < def.schemaVersion) {
+                next.schemaVersion = def.schemaVersion;
+                // Only migrate retained fields; full replacements can repair corrupt JSON.
+                if (data.data === undefined) next.data = migrateSectionData(def, existing.schemaVersion, existing.data).data;
+                if (data.draftData === undefined) next.draftData = existing.draftData == null ? PrismaValues.DbNull
+                  : migrateSectionData(def, existing.schemaVersion, existing.draftData).data;
+                // The upgraded pair must still match what we read, including concurrent content edits.
+                Object.assign(where, {
+                  schemaVersion: existing.schemaVersion,
+                  data: { equals: existing.data ?? PrismaValues.AnyNull },
+                  draftData: { equals: existing.draftData ?? PrismaValues.AnyNull },
+                });
+              }
+            }
+            await checkRefs(name, { ...existing, ...next });
+            const result = await delegate.updateMany({ where, data: next }) as { count: number };
+            if (result.count || where.schemaVersion === undefined) return result;
           }
-          await checkRefs(name, { ...existing, ...data });
+          throw new Error(`SectionContent ${id} changed during migration; retry saving`);
         } else await checkRefs(name, data);
         return delegate.updateMany({ where: { id, tenantId }, data });
       },
