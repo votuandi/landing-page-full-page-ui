@@ -11,7 +11,7 @@ import type { SiteContext } from "../site";
 
 const types = ["products", "dealer", "branch-map", "press", "tiktok", "social", "investment-models", "warranty", "about-story", "services"];
 const entitlements: Record<string, string | undefined> = {
-  "site-header": undefined, hero: undefined, services: undefined, segments: undefined, calculator: "calculator",
+  "page-hero": undefined, "site-header": undefined, hero: undefined, services: undefined, segments: undefined, calculator: "calculator",
   "lead-form": "leadForm", packages: "packages", "investment-models": "investmentModels", projects: undefined,
   shorts: "shorts", tiktok: "tiktok", stats: "stats", "energy-monitoring": "energyMonitoring", process: undefined,
   testimonials: "testimonials", trust: "trust", brands: undefined, press: "press", products: "catalog", blog: undefined,
@@ -40,7 +40,7 @@ test("social preserves total followers, validates count and migrates v1 lossless
   }
 });
 
-test("registry has exactly the 28 section types and their package entitlements", () => {
+test("registry has exactly the 29 section types and their package entitlements", () => {
   assert.deepEqual(Object.keys(sectionRegistry.types).sort(), Object.keys(entitlements).sort());
   for (const [type, entitlement] of Object.entries(entitlements)) assert.equal(sectionRegistry.getType(type)?.meta.entitlement, entitlement, type);
 });

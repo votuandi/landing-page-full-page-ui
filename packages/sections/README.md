@@ -21,6 +21,15 @@ test trình duyệt: `pnpm --filter @solar/visual exec playwright test -c playwr
 
 ## Khai báo một type
 
+E4-S10 thêm Classic: `hero/minwy,t02,t03,t04`; `brands/products/blog/about-story/warranty/site-header/site-footer/minwy`;
+`services/process/cta-banner/faq/t02`; `packages/stats/t04`. Hero schema v2 thêm `slides` tùy chọn,
+`migrateHeroV1` giữ nguyên dữ liệu v1. Slider và partners dùng scroll-snap, có nút tạm dừng, không tự chuyển khi
+reduced motion và nội dung vẫn có trong HTML server. Warranty minwy hiển thị chính sách chung, không giả lập API tra cứu.
+
+Type mới `page-hero` (v1) có `eyebrow`, `title`, `subtitle`, `media`, `breadcrumb`/`ctas` tùy chọn và variant mặc định `t03`.
+Xem `/lab/sections/page-hero?variant=t03&themes=t03,t15` hoặc `/lab/presets/t03?subpage=gioi-thieu&theme=t15`;
+không chuyển route trang con công khai. Bằng chứng browser: `pnpm --filter @solar/visual exec playwright test -c playwright.classic.config.ts`.
+
 Đặt definition ở `src/<type>/schema.ts`:
 
 ```ts

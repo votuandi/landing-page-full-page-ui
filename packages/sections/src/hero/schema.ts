@@ -39,11 +39,16 @@ export const heroSchema = z.object({
   outputCard: card.extend({ liveLabel: z.string().max(12) }).optional(),
   savingCard: card.optional(),
   co2Card: card.optional(),
+  /** Banner nhiều ảnh; vắng mặt giữ nguyên hero một ảnh của schema v1. */
+  slides: z.array(z.object({
+    badge: localized({ max: 120 }).optional(), title: localized({ max: 200 }),
+    description: localized({ multiline: true, max: 400 }), image: mediaRef(), cta: link().optional(),
+  })).min(1).max(8).optional(),
 });
 
 export const hero = defineSectionType({
   type: "hero",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: heroSchema,
   defaults: heroSchema.parse(heroFixture),
   meta: { label: { vi: "Banner chính", en: "Hero" }, icon: "image", maxPerPage: 1 },
