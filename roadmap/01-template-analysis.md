@@ -48,6 +48,12 @@ t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. m
 24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
 Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
 
+**Đã port — t13 (E4-S03, chờ design pass):** theme `packages/themes/t13` (Warm Sand, light-only), variant
+`segments/t13`, `trust/t13` (trust schema v2 thêm `logo` tùy chọn) và [`packages/presets/t13.json`](../packages/presets/t13.json)
+theo thứ tự `HomeT8`; TrustSection gốc tách thành trust → press → testimonials → brands liền nhau. Shorts, products,
+blog, FAQ, consult-popup, commitments-strip tái dùng `t15` (cùng bố cục, `note` trong preset). Ảnh before/after:
+`roadmap/evidence/E4/t13/`. Xem `/lab/presets/t13`, `?theme=t15`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
