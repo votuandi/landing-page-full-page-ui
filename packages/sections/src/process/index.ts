@@ -1,4 +1,4 @@
 import { defineVariants } from "../define";
 import { process } from "./schema";
 
-export const variants = defineVariants(process, "t15", { t15: () => import("./t15") });
+export const variants = defineVariants(process, "t15", { t15: () => import("./t15"), t07: () => import("./t07") });

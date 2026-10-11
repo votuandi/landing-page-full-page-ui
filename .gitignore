@@ -39,7 +39,8 @@ next-env.d.ts
 
 
 # assets
-/apps/web/public/images/
+/apps/web/public/images/*
+!/apps/web/public/images/t07/
 /apps/web/public/videos/
 /apps/web/public/news/
 /apps/web/public/products/
