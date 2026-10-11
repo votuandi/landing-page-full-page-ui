@@ -6,6 +6,35 @@ import { renderToStaticMarkup } from "react-dom/server";
 import SegmentsT15 from "../segments/t15";
 import { segments } from "../segments/schema";
 import { SiteStateProvider, useSegment } from "../state/SiteState";
+import { sectionRegistry } from "../registry";
+import { pickLocale } from "../fields";
+
+test("segments/t13 renders icon cards with shared content and no-JS links in both themes and locales", async () => {
+  const variant = sectionRegistry.getVariant("segments", "t13");
+  assert.ok(variant);
+  assert.equal(variant.fallback, false);
+  const Component = (await variant.load()).default;
+  const original = structuredClone(segments.defaults);
+  for (const themeId of ["t13", "t15"]) {
+    for (const locale of ["vi", "en"] as const) {
+      const cards = createElement(Component, {
+        data: segments.defaults, sectionId: "segments-t13", site: { tenantId: "state-test", locale, themeId },
+      });
+      for (const tree of [cards, <SiteStateProvider key="provider">{cards}</SiteStateProvider>]) {
+        const html = renderToStaticMarkup(tree);
+        assert.match(html, /href="\?phan-khuc=trang-trai#video-cong-trinh"/);
+        assert.match(html, /grid-cols-2.*lg:grid-cols-4/);
+        assert.equal((html.match(/<li\b/g) ?? []).length, 4);
+        assert.doesNotMatch(html, /<img\b/);
+        for (const item of segments.defaults.items) {
+          const text = renderToStaticMarkup(createElement("span", null, pickLocale(item.label, locale))).slice(6, -7);
+          assert.ok(html.includes(text));
+        }
+      }
+    }
+  }
+  assert.deepEqual(segments.defaults, original);
+});
 
 test("segment query adds, replaces and removes the filter while preserving other parameters", () => {
   assert.equal(withSegmentParam("", "farm"), "?phan-khuc=farm");

@@ -24,6 +24,41 @@ import { shorts } from "../shorts/schema";
 import { migrateShortsV1 } from "../shorts/migrations";
 import { pickLocale } from "../fields";
 import type { Locale } from "../site";
+import { trust } from "../trust/schema";
+import { migrateTrustV1 } from "../trust/migrations";
+
+test("trust v1 migration preserves content and optional tenant logos across variants", async () => {
+  const original = structuredClone(trust.defaults);
+  assert.equal(trust.schemaVersion, 2);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(original)), original);
+  const logo = { id: "/images/trust/cert-iso-9001.svg", alt: { vi: "Logo chứng chỉ", en: "Certificate logo" } };
+  const data = trust.schema.parse({ ...original, items: [{ ...original.items[0], logo }] });
+  assert.deepEqual(data.items[0].logo, logo);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(data)), data);
+  assert.deepEqual(trust.defaults, original);
+  assert.equal(sectionRegistry.getVariant("trust", "t13")?.fallback, false);
+  for (const variant of ["t13", "t15"]) {
+    const Component = (await sectionRegistry.getVariant("trust", variant)!.load()).default;
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data, site, sectionId: "trust" }));
+    assertText(html, data.items[0].title.vi);
+    if (variant === "t13") {
+      assert.match(html, /grid-cols-2.*sm:grid-cols-3.*lg:grid-cols-5/);
+      assert.match(html, /cert-iso-9001\.svg/);
+    }
+  }
+});
+
+test("trust/t13 renders defaults without logos or certificate images in VI/EN", async () => {
+  const Component = (await sectionRegistry.getVariant("trust", "t13")!.load()).default;
+  await Loadable.preloadAll();
+  const data = trust.schema.parse({ ...trust.defaults, items: trust.defaults.items.map(({ image: _image, ...item }) => item) });
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "trust" }));
+    for (const item of data.items) assertText(html, pickLocale(item.title, locale));
+    assert.doesNotMatch(html, /<img\b/);
+  }
+});
 
 const collectionItems = {
   projects: [{ id: "p", title: "Sample project", segment: "shop", location: "HCM", kwp: 10, image: { id: "/p.webp", alt: { vi: "Ảnh", en: "Project image" } } }],
