@@ -67,7 +67,8 @@ test("cta-banner/t15 renders the optional quote checklist only when present", as
     assertText(html, locale === "en" ? "For a fast quote" : "Để báo giá nhanh");
     assertText(html, locale === "en" ? "Install area" : "Khu vực lắp đặt");
   }
-  assert.doesNotMatch(renderToStaticMarkup(createElement(Component, { data: def.defaults, site, sectionId: "cta" })), /<ul/);
+  const plain = { ...def.defaults as object, checklist: undefined };
+  assert.doesNotMatch(renderToStaticMarkup(createElement(Component, { data: plain, site, sectionId: "cta" })), /<ul/);
 });
 
 test("featured projects SSR keeps every project, annual metrics and no-JS quote link in VI/EN", async () => {

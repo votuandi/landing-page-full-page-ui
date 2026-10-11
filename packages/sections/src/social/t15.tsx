@@ -14,7 +14,7 @@ export default function SocialT15({ data, site, sectionId }: SectionPropsOf<type
         <SectionHead id={sectionId + "-title"} eyebrow={t(data.eyebrow)} title={t(data.title)} desc={data.description && t(data.description)} />
         {data.totalFollowers !== undefined && <div className="mt-6">
           <Followers value={data.totalFollowers} locale={site.locale} />
-          <div className="mt-1 font-bold text-fg-muted">{data.totalFollowersLabel ? t(data.totalFollowersLabel) : site.locale === "en" ? "followers across all channels" : "người theo dõi trên tất cả kênh"}</div>
+          <div className="mt-1 font-bold text-fg-muted">{data.totalFollowersLabel && t(data.totalFollowersLabel)}</div>
         </div>}
       </div>
       <ul data-reveal-stagger="up" data-reveal-step="0.08" className="grid grid-cols-2 gap-3 sm:gap-4">{data.channels.map((channel, i) => {

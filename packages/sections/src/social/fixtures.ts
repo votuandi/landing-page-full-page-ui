@@ -11,6 +11,8 @@ export const socialFixture = {
     "vi": "Cộng đồng cùng theo dõi hành trình xanh.",
     "en": "A community following our green journey."
   },
+  "totalFollowers": 404800,
+  "totalFollowersLabel": { "vi": "người theo dõi trên tất cả kênh", "en": "followers across all channels" },
   "channels": [
     {
       "kind": "facebook",
