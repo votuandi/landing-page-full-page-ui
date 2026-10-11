@@ -5,6 +5,23 @@ import { test } from "node:test";
 import ts from "typescript";
 
 const require = createRequire(import.meta.url);
+
+test("C&I themes preserve navy, gold, Inter, square t06 and dark glass t09", () => {
+  const { getTheme } = require("../index.ts");
+  for (const id of ["t05", "t06", "t09"]) {
+    const theme = getTheme(id);
+    assert.ok(theme, id);
+    assert.equal(theme.meta.group, "pro");
+    assert.equal(theme.font.sans, "Inter");
+    assert.equal(theme.colors.light.accent, "245 185 39");
+  }
+  assert.equal(getTheme("t05").colors.light.primary, "13 59 120");
+  assert.equal(getTheme("t06").radius.card, "0px");
+  assert.equal(getTheme("t06").radius.media, "0px");
+  assert.equal(getTheme("t09").colors.light.primary, "7 27 51");
+  assert.equal(getTheme("t09").colors.light.secondary, "140 29 44");
+  assert.equal(getTheme("t09").glass.enabled, true);
+});
 // Workspace packages export TypeScript source; Node 20 needs transpilation for these tests.
 require.extensions[".ts"] = (module, filename) => {
   const { outputText } = ts.transpileModule(readFileSync(filename, "utf8"), {
