@@ -286,7 +286,7 @@ export default function CalculatorIsland({ data, locale, sectionId, layout = "in
         )}
       </div>
 
-      <div ref={resultRef} data-reveal="right" style={delay(0.2)} className={wizard ? "relative scroll-mt-24 overflow-hidden rounded-media bg-gradient-to-br from-bg-deep via-bg-tint to-primary-deep p-5 text-fg shadow-2xl sm:p-8" : "t15-invert t15-card relative scroll-mt-24 overflow-hidden !border-primary/20 bg-bg-tint p-5 sm:p-8"}>
+      <div ref={resultRef} data-reveal="right" style={delay(0.2)} className={wizard ? "relative scroll-mt-24 overflow-hidden rounded-media bg-gradient-to-br from-bg-sky via-bg-tint to-bg-tint p-5 text-fg shadow-2xl sm:p-8" : "t15-invert t15-card relative scroll-mt-24 overflow-hidden !border-primary/20 bg-bg-tint p-5 sm:p-8"}>
         <div aria-hidden className="t15-energy-line absolute inset-x-0 top-0 h-1.5" />
         <div className="relative">
           <div className="flex flex-wrap items-center justify-between gap-2">

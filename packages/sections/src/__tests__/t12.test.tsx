@@ -43,6 +43,8 @@ test("projects t12 renders a populated shared collection and preserves links, sa
   assert.match(html, /3 triệu/);
   assert.match(html, /Xem video công trình/);
   assert.match(html, /lg:grid-cols-3/);
+  assert.match(html, />Cửa hàng</);
+  assert.doesNotMatch(html, />Trang trại</); // Filter tabs only list segments that have items.
 });
 
 test("t12 wizard honors a reordered subset of shared steps", async () => {

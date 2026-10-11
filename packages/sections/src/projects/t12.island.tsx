@@ -31,13 +31,13 @@ export default function Projects({ titleId, eyebrow, title, items, labels, showF
         <div><span className="t15-eyebrow">{eyebrow}</span><h2 id={titleId} className="mt-4 max-w-3xl text-4xl font-black tracking-[-.045em] sm:text-5xl">{title}</h2></div>
         {showFilter && <div role="group" aria-label={locale === "en" ? "Filter projects by segment" : "Lọc công trình theo phân khúc"} className="flex flex-wrap gap-2">
           <button type="button" aria-pressed={!segment} onClick={() => setSegment(null)} className="t15-chip">{allLabel}</button>
-          {SEGMENT_ORDER.map((s) => <button key={s} type="button" aria-pressed={segment === s} onClick={() => setSegment(s)} className="t15-chip">{labels[s]}</button>)}
+          {SEGMENT_ORDER.filter((s) => items.some((item) => item.segment === s)).map((s) => <button key={s} type="button" aria-pressed={segment === s} onClick={() => setSegment(s)} className="t15-chip">{labels[s]}</button>)}
         </div>}
       </div>
     </div>
     <div data-reveal-stagger="up" data-reveal-step="0.1" className="grid gap-px bg-line/12 sm:grid-cols-2 lg:grid-cols-3">
-      {!list.length && <p role="status" className="col-span-full bg-bg-deep py-8 text-center text-fg-muted">{locale === "en" ? "No projects for this segment yet." : "Chưa có công trình cho phân khúc này."}</p>}
-      {list.map((item) => <article key={item.id} className="group relative flex flex-col bg-bg-deep">
+      {!list.length && <p role="status" className="col-span-full bg-bg-tint py-8 text-center text-fg-muted">{locale === "en" ? "No projects for this segment yet." : "Chưa có công trình cho phân khúc này."}</p>}
+      {list.map((item) => <article key={item.id} className="group relative flex flex-col bg-bg-tint">
         <div className="relative aspect-[4/3] overflow-hidden">
           <MediaImage src={item.imageSrc} alt={item.imageAlt} sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 34vw" className="transition duration-motion-slow motion-safe:group-hover:scale-[1.05]" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-scrim/70 to-transparent" />
