@@ -7,6 +7,11 @@ Các theme đã kiểm tra bằng `parseTheme()` của `@solar/tokens`.
 `t12/theme.ts` port Sky & Sun (light) / Emerald Dusk (dark) từ template-12, dùng font Inter có sẵn.
 Các nền nhấn ở light dùng bảng pastel của `.t12-invert` gốc; dark giữ nền emerald sâu.
 
+E4-S10 thêm bốn theme `group: "classic"`, chỉ light và dùng Inter có sẵn: `t01` Minwy (xanh lá/vàng),
+`t02` Minwy Solar (xanh rừng/vàng nắng/nền giấy), `t03` Trọng Tín Solar (ấm, đất nung/vàng),
+`t04` Solar Engineering (emerald/lime, card và media không bo). Cả bốn được export và đăng ký trong `themes`;
+test chung kiểm parse, tương phản AA và ngân sách font. Màu primary t03 tối hơn bản gốc để đạt AA cho chữ thường.
+
 ```ts
 import { t15 } from "@solar/themes";
 import { themeToCss } from "@solar/tokens";
