@@ -36,13 +36,14 @@
     "dev": {
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*"]
+      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*", "DATABASE_URL", "REDIS_URL", "MULTI_TENANT"]
     },
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "passThroughEnv": ["DATABASE_URL"] },
     "@solar/db#typecheck": { "dependsOn": ["^typecheck"], "outputs": ["generated/**", "*.tsbuildinfo"] },
     "@solar/db#test": { "dependsOn": ["^build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL"] },
+    "web#test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "cache": false, "passThroughEnv": ["DATABASE_URL", "REDIS_URL"] },
     "@solar/eslint-plugin#test": { "dependsOn": ["^build"], "outputs": [] },
     "@solar/themes#test": { "dependsOn": ["^build"], "outputs": [] },
     "@solar/presets#test": { "dependsOn": ["^build"], "outputs": [] },

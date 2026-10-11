@@ -8,10 +8,13 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/apps/web/src/lib/__tests__/registerWorkspace.js --test .test-dist/apps/web/src/lib/__tests__/sectionCollections.test.js .test-dist/apps/web/src/lib/__tests__/labMatrix.test.js",
+    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/apps/web/src/lib/__tests__/registerWorkspace.js --test .test-dist/apps/web/src/lib/__tests__/sectionCollections.test.js .test-dist/apps/web/src/lib/__tests__/labMatrix.test.js && pnpm test:tenant",
+    "test:tenant": "node scripts/test-tenant.mjs",
     "lint:tokens": "solar-lint-tokens src"
   },
   "dependencies": {
+    "@solar/db": "workspace:*",
+    "ioredis": "5.10.0",
     "@solar/presets": "workspace:*",
     "@heroicons/react": "^2.2.0",
     "next": "16.3.8",
@@ -25,6 +28,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "tsx": "4.23.15",
     "@types/node": "^20",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
