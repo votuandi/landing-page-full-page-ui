@@ -26,8 +26,8 @@ quyết định). Hạ tầng do E4-S01 dựng: `@solar/presets` (`packages/pres
    `data` chỉ ghi phần khác `defaults` cần để giống bản gốc (tiêu đề, danh sách…), nội dung hư cấu gắn `[DỮ LIỆU MẪU]`.
    Widget theo bản gốc. Test preset của `@solar/presets` phải qua.
 5. **Ảnh so sánh**: chạy app (`pnpm dev --filter web`, cổng riêng nếu chạy song song: `-- -p 30NN`), rồi
-   `node tooling/visual/template-compare.mjs <id> --app http://localhost:30NN --port 41NN` → `docs/evidence/E4/<id>/`.
-   Không chạy được (mạng/cài đặt branch gốc lỗi) → ghi lỗi nguyên văn vào báo cáo, vẫn chụp phần "after".
+   `node tooling/visual/template-compare.mjs <id> --app http://localhost:30NN --port 41NN` → `roadmap/evidence/E4/<id>/`.
+   Codex chỉ chụp "after"; Claude chạy template-compare (cần git worktree ngoài sandbox) để có "before" ở design pass.
 6. **Kiểm theme khác**: mở `/lab/presets/<id>?theme=t15` và `/lab/sections/matrix` — variant mới hiện đúng ở t15 và theme gốc.
 7. **Tài liệu**: cột "Đã port" trong `roadmap/01-template-analysis.md` (chỉ dòng của template mình — tránh sửa dòng khác).
 
@@ -44,7 +44,7 @@ quyết định). Hạ tầng do E4-S01 dựng: `@solar/presets` (`packages/pres
 | `theme.ts` parse `ThemeTokens`, AA | `pnpm --filter @solar/themes test` |
 | Variant qua `lint:tokens`, fixture chung, đúng ở t15 + theme gốc | `pnpm lint:tokens`, test render sections, ảnh `/lab/presets/<id>` và `?theme=t15` |
 | Preset đúng thứ tự gốc, `note` khi thay | `<id>.json` + test `@solar/presets` |
-| Ảnh so sánh trước/sau | `docs/evidence/E4/<id>/` |
+| Ảnh so sánh trước/sau | `roadmap/evidence/E4/<id>/` |
 
 ## Lệnh kiểm tra chung
 - `pnpm turbo run typecheck lint test`
