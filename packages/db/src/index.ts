@@ -1,5 +1,8 @@
 export { createDb, POOL_BUDGET } from "./client.ts";
 export type { Db } from "./client.ts";
+export { forTenant, forPlatform } from "./repository.ts";
+export type { DbClient, TenantRepo } from "./repository.ts";
+export { MissingTenantError } from "./tenantScope.ts";
 export { assertNoCrossTenantConnect } from "./tenantGuard.ts";
 export { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 export type { CollectionName, TenantRefs, RefDb } from "./refs.ts";

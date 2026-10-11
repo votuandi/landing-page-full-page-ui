@@ -130,6 +130,9 @@ importers:
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3)
+      '@solar/sections':
+        specifier: workspace:*
+        version: link:../sections
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -140,9 +143,6 @@ importers:
       '@solar/presets':
         specifier: workspace:*
         version: link:../presets
-      '@solar/sections':
-        specifier: workspace:*
-        version: link:../sections
       '@types/node':
         specifier: 20.19.37
         version: 20.19.37

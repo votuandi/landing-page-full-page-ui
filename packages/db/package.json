@@ -17,12 +17,12 @@
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "@solar/sections": "workspace:*"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",
     "@solar/presets": "workspace:*",
-    "@solar/sections": "workspace:*",
     "@types/node": "20.19.37",
     "@types/pg": "8.23.1",
     "eslint": "9.39.5",

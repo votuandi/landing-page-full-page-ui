@@ -89,7 +89,36 @@ phải do server tạo dạng `tenants/<tenantId>/…`. Các phép chuẩn hóa 
 Ref trong JSON không được FK bảo vệ: gọi `assertRefsBelongToTenant(db, tenantId, refs)` khi ghi.
 Hàm hỗ trợ client hoặc transaction client, gom đủ ID thiếu vào `CrossTenantRefError.missing`,
 không truy vấn UUID sai định dạng, bỏ qua media ID ảnh tĩnh `/images/…` (không bỏ qua `//host/…`).
-Repository bắt buộc tenant và trích ref theo zod thuộc E5-S02; RLS thuộc E5-S09.
+RLS thuộc E5-S09.
+
+## Repository
+
+Ứng dụng dùng `forTenant(db, tenantId)` từ `@solar/db`; nhận đủ 21 delegate tenant
+(`project`, `page`, `sectionContent`, `media`…), mỗi delegate có `list`, `first`, `get`,
+`count`, `create`, `update`, `delete`. Tenant phải là UUID. Repository tự gắn tenant,
+loại bỏ `tenantId`/`tenant` khỏi dữ liệu ghi; filter AND/OR của caller không thể bỏ scope.
+`get(id)` ngoài tenant trả `null`, `update(id, data)`/`delete(id)` trả `{ count: 0 }`.
+
+```ts
+const repo = forTenant(db, tenantId);
+const projects = await repo.project.list({ where: { status: "published" } });
+await db.$transaction(async (tx) => {
+  await forTenant(tx, tenantId).project.update(projectId, { title: { vi: "Tiêu đề mới" } });
+});
+```
+
+Create/update SectionContent (cả data/draftData) và sáu collection có schema dùng
+`collectRefs` từ `@solar/sections`, rồi kiểm ID media/collection thuộc tenant trước khi ghi.
+Ảnh tĩnh giữ quy tắc ở trên; tên collection lạ bị từ chối. Đây chỉ là kiểm tham chiếu,
+không thay thế validation nội dung của CMS. Khi cần ghi nhiều bước nguyên tử, truyền transaction
+client vào repository; kiểm ref dùng đúng client đó.
+
+`createDb` ném `MissingTenantError` ở mọi môi trường nếu model tenant thiếu scope;
+raw SQL cũng bị chặn. Outbox/AuditLog cần scope tường minh (`tenantId: null` cho tác vụ nền tảng).
+Các model Plan/Tenant/User/PlatformAdmin giữ thao tác nền tảng. Client nội bộ không scope
+không được export. `forPlatform(db).domains.findByHostname(hostname)` là ngoại lệ tra host
+được kiểm soát, nhận client gốc từ `createDb`, không nhận transaction client.
+ESLint cấm import Prisma/pg/generated client ngoài `packages/db`.
 
 ## Seed demo
 
