@@ -140,6 +140,7 @@ test("t11 follows SolarHome order with t11 variants, bill-to-calculator anchor a
   assert.equal(page.sections.find((section) => section.type === "lead-form").data.source, "home-bottom");
   assert.equal(widgets["contact-dock"].variant, "t11");
   assert.equal(widgets["mobile-bottom-nav"].enabled, false);
+});
 
 test("t08 preserves HomeT8 order, shared arch, detailed segments and populated collections", () => {
   const { loadPreset, getPreset } = require("../index.ts");
