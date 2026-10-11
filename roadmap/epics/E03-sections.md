@@ -153,6 +153,6 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   an toàn thứ hai: script đọc `getComputedStyle` của mọi phần tử, cảnh báo màu không thuộc bảng token của theme đang render.
 - **AC**:
   - [x] Script computed-style báo 0 màu ngoài token trên toàn ma trận.
-  - [ ] Ma trận chạy ≤ 6 phút trong CI (song song).
+  - [x] Ma trận chạy ≤ 6 phút trong CI (song song).
   - [x] Report HTML đánh dấu cặp variant–theme có tương phản < AA (dùng axe-core).
 - Phụ thuộc: S03, E2-S07 · Agent: Codex · Cỡ: M
