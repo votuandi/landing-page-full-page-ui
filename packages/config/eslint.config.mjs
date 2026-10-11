@@ -21,6 +21,13 @@ export const prismaBoundary = {
         message: "Dùng forTenant/forPlatform từ @solar/db",
       }],
     }],
+    "no-restricted-syntax": ["error", ...[
+      "CallExpression[callee.name='require'] > Literal.arguments",
+      "ImportExpression > Literal.source",
+    ].map((node) => ({
+      selector: `${node}[value=/^(@prisma\\/|pg($|\\/)|@solar\\/db\\/generated|.*\\/generated\\/)/]`,
+      message: "Dùng forTenant/forPlatform từ @solar/db",
+    }))],
   },
 };
 

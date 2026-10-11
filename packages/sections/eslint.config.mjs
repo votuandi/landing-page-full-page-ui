@@ -1,4 +1,4 @@
-import { nextConfig } from "@solar/config/eslint";
+import { nextConfig, prismaBoundary } from "@solar/config/eslint";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,7 +8,7 @@ const config = [
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": ["error", {
+      "no-restricted-syntax": ["error", ...prismaBoundary.rules["no-restricted-syntax"].slice(1), {
         selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
         message: "Rich text phải render qua whitelist React element.",
       }],
