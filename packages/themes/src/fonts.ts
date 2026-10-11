@@ -1,4 +1,4 @@
-import type { ThemeTokens } from "@solar/tokens";
+import { validateLabScope, type ThemeTokens } from "@solar/tokens";
 import { FONTS } from "./fonts.generated";
 
 export type FontFamily = keyof typeof FONTS;
@@ -36,7 +36,8 @@ export function themeFontFiles(theme: ThemeTokens): string[] {
     familyFiles(family, theme.font.weights).map(({ file }) => file));
 }
 
-export function themeFontCss(theme: ThemeTokens, baseUrl = "/fonts/"): string {
+export function themeFontCss(theme: ThemeTokens, baseUrl = "/fonts/", scope?: string): string {
+  const selector = scope === undefined ? ":root" : validateLabScope(scope);
   if (!/^\/[\w/-]*\/$/.test(baseUrl) || !baseUrl.endsWith("/")) {
     throw new Error("Invalid font baseUrl: expected an absolute directory path");
   }
@@ -46,5 +47,5 @@ export function themeFontCss(theme: ThemeTokens, baseUrl = "/fonts/"): string {
     const metrics = FONTS[family].fallback;
     return faces + `@font-face{font-family:"${family} Fallback";src:local("Arial");font-display:swap;ascent-override:${metrics.ascentOverride};descent-override:${metrics.descentOverride};line-gap-override:${metrics.lineGapOverride};size-adjust:${metrics.sizeAdjust};}`;
   }).join("");
-  return css + `:root{--font-sans:"${theme.font.sans}","${theme.font.sans} Fallback";--font-display:"${theme.font.display}","${theme.font.display} Fallback"}`;
+  return css + `${selector}{--font-sans:"${theme.font.sans}","${theme.font.sans} Fallback";--font-display:"${theme.font.display}","${theme.font.display} Fallback"}`;
 }

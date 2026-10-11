@@ -22,7 +22,13 @@ function colorDeclarations(colors: Partial<ColorSet>, overrides?: Partial<ColorS
   ];
 }
 
-export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides): string {
+export function validateLabScope(scope: string): string {
+  if (!/^\[data-lab-theme="[a-z0-9-]+"\]$/.test(scope)) throw new Error("Invalid lab scope");
+  return scope;
+}
+
+export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides, options?: { scope?: string }): string {
+  const scope = options?.scope === undefined ? undefined : validateLabScope(options.scope);
   const parsed = ThemeOverridesSchema.parse(overrides === undefined ? {} : overrides);
   // Easing is the only emitted free-form string in an otherwise parsed theme.
   if (/[<>{};]/.test(theme.motion.easing)) throw new Error("motion.easing chứa ký tự CSS không an toàn");
@@ -42,12 +48,13 @@ export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides): stri
     `--section-y:${({ sm: 64, md: 80, lg: 112 })[theme.density.sectionY]}px`,
     "color-scheme:light",
   ].join(";");
-  const css = `:root,[data-theme="light"]{${light}}`;
+  const css = `${scope ?? ':root,[data-theme="light"]'}{${light}}`;
   if (!theme.meta.supportsDark) return css;
 
   const dark = [
     ...colorDeclarations(theme.colors.dark ?? {}, parsed.colors?.dark),
     "color-scheme:dark",
   ].join(";");
-  return `${css}[data-theme="dark"]{${dark}}@media (prefers-color-scheme:dark){:root:not([data-theme]){${dark}}}`;
+  const suffix = scope ? ` ${scope}` : "";
+  return `${css}[data-theme="dark"]${suffix}{${dark}}@media (prefers-color-scheme:dark){:root:not([data-theme])${suffix}{${dark}}}`;
 }
