@@ -3,6 +3,47 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { calculateSolar } from "@solar/core";
+
+test("t07 variants render shared defaults in VI/EN under t07 and t15", async () => {
+  for (const type of ["hero", "segments", "energy-monitoring", "process"]) {
+    const def = sectionRegistry.getType(type)!;
+    const resolved = sectionRegistry.getVariant(type, "t07")!;
+    assert.equal(resolved.fallback, false, type);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const themeId of ["t07", "t15"]) for (const locale of ["vi", "en"] as const) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, sectionId: `${type}-test`, site: { tenantId: "test", locale, themeId } }));
+      assert.ok(html.length > 100, `${type}/${themeId}/${locale}`);
+      assert.match(html, /min-h-section/);
+    }
+  }
+});
+
+test("segments/t07 displays core estimates with declared sample assumptions and unique local anchors", async () => {
+  const { default: Component } = await sectionRegistry.getVariant("segments", "t07")!.load();
+  const props = { data: segments.defaults, sectionId: "solutions", site: { tenantId: "test", locale: "vi", themeId: "t07" } as const };
+  const html = renderToStaticMarkup(createElement(Component, props));
+  const params = toCalculatorParams(calculator.defaults);
+  const inputs = [
+    { segment: "factory", monthlyBill: 120_000_000, daytimeRatio: 45 },
+    { segment: "shop", monthlyBill: 12_000_000, daytimeRatio: 40 },
+    { segment: "household", monthlyBill: 3_000_000, daytimeRatio: 35 },
+  ] as const;
+  for (const input of inputs) {
+    const result = calculateSolar({ ...input, roofArea: 50_000, province: "TP Hồ Chí Minh" }, params);
+    const value = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 }).format(result.monthlySavings / 1_000_000);
+    assert.ok(html.includes(value), `core saving: ${input.segment}`);
+    assert.ok(html.includes(`href="#solutions-${input.segment}"`));
+    assert.ok(html.includes(`id="solutions-${input.segment}"`));
+  }
+  assert.ok(html.includes("[DỮ LIỆU MẪU]"));
+  assert.ok(html.includes("50.000"));
+  const edited = segments.schema.parse({ ...segments.defaults, items: [{ ...segments.defaults.items[0], pitch: { vi: "Nội dung của khách" }, saving: "17%" }] });
+  const custom = renderToStaticMarkup(createElement(Component, { ...props, data: edited }));
+  assert.ok(custom.includes("Nội dung của khách"));
+  assert.ok(custom.includes("17%"));
+  assert.ok(!custom.includes('id="solutions-factory"'));
+});
 import { sectionRegistry } from "../registry";
 import { calculator } from "../calculator/schema";
 import { calculatorFixture } from "../calculator/fixtures";

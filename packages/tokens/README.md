@@ -25,7 +25,7 @@ Mọi object đều từ chối trường lạ; parser không ép kiểu, đổi
 - `font.weights` chứa các số nguyên 100–900, bội 100, không trùng; nguồn là `google` hoặc `local`.
 - `radius` dùng chuỗi `px` hoặc `rem`; `shadow.tint` tham chiếu một khóa RGB.
 - Blur, reveal distance và container tính bằng px; duration tính bằng ms.
-  `density.sectionY` là `sm`, `md` hoặc `lg`; `meta.group` là `classic`, `pro` hoặc `signature`.
+  `density.sectionY` là `sm`, `md`, `lg` hoặc `screen`; `meta.group` là `classic`, `pro` hoặc `signature`.
 
 Fixture `src/__tests__/fixtures/t15.ts` giữ token thật của Fresh Energy (t15), độc lập
 với `packages/themes/t15/theme.ts`. Test đối chiếu fixture với theme và CSS sinh ra.
@@ -50,7 +50,10 @@ CSS có thứ tự màu ổn định theo `COLOR_KEYS` rồi `GLASS_COLOR_KEYS`:
 `--c-<key>`, kính dùng `--<key>`. Khối `:root,[data-theme="light"]` chứa màu light
 và các biến radius, shadow, glass blur, motion, reveal distance, container, section spacing.
 Blur/reveal distance bằng `0px` khi tắt. `--section-y` ánh xạ `density.sectionY`:
-`sm` → `64px`, `md` → `80px`, `lg` → `112px`. Font được gắn bởi cấu hình font của app.
+`sm` → `64px`, `md` → `80px`, `lg` → `112px`, `screen` → `80px`.
+`--section-min-height` là `100svh` ở mức `screen`, `0px` ở các mức cũ. Utility
+`min-h-section` áp dụng chiều cao này; section vẫn giãn theo nội dung trên màn hình nhỏ.
+Font được gắn bởi cấu hình font của app.
 
 Khi `meta.supportsDark` đúng, hàm thêm `[data-theme="dark"]` và media query
 `prefers-color-scheme:dark` cho `:root:not([data-theme])`; lựa chọn `data-theme`

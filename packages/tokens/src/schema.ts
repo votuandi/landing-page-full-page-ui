@@ -68,7 +68,7 @@ export const ThemeTokensSchema = z.strictObject({
     revealEnabled: z.boolean(),
   }),
   density: z.strictObject({
-    sectionY: z.enum(["sm", "md", "lg"]),
+    sectionY: z.enum(["sm", "md", "lg", "screen"]),
     container: z.number().int().min(640).max(1920),
   }),
   meta: z.strictObject({

@@ -45,7 +45,8 @@ export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides, optio
     `--motion-ease:${theme.motion.easing}`,
     `--reveal-distance:${theme.motion.revealEnabled ? theme.motion.revealDistance : 0}px`,
     `--container:${theme.density.container}px`,
-    `--section-y:${({ sm: 64, md: 80, lg: 112 })[theme.density.sectionY]}px`,
+    `--section-y:${({ sm: 64, md: 80, lg: 112, screen: 80 })[theme.density.sectionY]}px`,
+    `--section-min-height:${theme.density.sectionY === "screen" ? "100svh" : "0px"}`,
     "color-scheme:light",
   ].join(";");
   const css = `${scope ?? ':root,[data-theme="light"]'}{${light}}`;

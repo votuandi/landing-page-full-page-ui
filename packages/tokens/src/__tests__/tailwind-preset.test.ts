@@ -33,6 +33,11 @@ async function utilities(classes: string[]) {
   return rules;
 }
 
+test("min-h-section đọc chiều cao section từ theme", async () => {
+  const rules = await utilities(["min-h-section"]);
+  assert.equal(rules.get(".min-h-section")?.["min-height"], "var(--section-min-height)");
+});
+
 test("màu mặc định không sinh CSS; opacity và mọi màu token dùng đúng biến", async () => {
   const forbidden = ["bg-white", "text-slate-500", "bg-red-500", "border-gray-200"];
   const rules = await utilities([
