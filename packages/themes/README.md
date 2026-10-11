@@ -2,6 +2,7 @@
 
 Các theme đã kiểm tra bằng `parseTheme()` của `@solar/tokens`.
 `t15/theme.ts` giữ màu light/dark và token của Fresh Energy (template-15).
+`t13/theme.ts` giữ Warm Sand của template-13: nền kem, đất nung + teal, Inter và chỉ có light.
 
 ```ts
 import { t15 } from "@solar/themes";

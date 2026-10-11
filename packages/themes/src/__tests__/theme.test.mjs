@@ -35,6 +35,24 @@ test("mọi theme đạt WCAG AA cho cặp bắt buộc", () => {
   }
 });
 
+test("t13 giữ Warm Sand, đất nung + teal và chỉ tải Inter của bản gốc", () => {
+  const { t13, getTheme, themeFontFamilies, themeFontFiles } = require("../index.ts");
+  const { parseTheme } = require("@solar/tokens");
+  const { FONTS } = require("../fonts.generated.ts");
+  assert.ok(t13, "cần export theme t13");
+  assert.equal(getTheme("t13"), t13);
+  assert.deepEqual(parseTheme(t13), t13);
+  assert.deepEqual(t13.meta, { id: "t13", name: "Warm Sand", group: "signature", supportsDark: false });
+  assert.equal(t13.colors.dark, undefined);
+  assert.equal(t13.colors.light.bg, "251 247 241");
+  assert.equal(t13.colors.light["bg-tint"], "243 235 223");
+  assert.equal(t13.colors.light.primary, "194 65 12");
+  assert.equal(t13.colors.light.accent, "15 118 110");
+  assert.equal(t13.radius.input, "14px");
+  assert.deepEqual(themeFontFamilies(t13), ["Inter"]);
+  assert.deepEqual(themeFontFiles(t13), FONTS.Inter.files.map(({ file }) => file));
+});
+
 test("registry có id duy nhất và tra cứu đúng theme", () => {
   const { themes, getTheme, t15 } = require("../index.ts");
   assert.ok(themes.length > 0);
