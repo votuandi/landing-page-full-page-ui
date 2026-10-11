@@ -1,6 +1,7 @@
 import { collectRefs, collectionSchemas, sectionRegistry } from "@solar/sections";
 import type { Prisma } from "../generated/client.ts";
-import { platformDomainLookup, type Db } from "./client.ts";
+import { platformDomainLookup, platformDomainResolve, type Db } from "./client.ts";
+import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 import { tenantModels } from "./tenantScope.ts";
 
@@ -80,5 +81,13 @@ export function forTenant(db: DbClient, tenantId: string): TenantRepo {
 }
 
 export function forPlatform(db: Db) {
-  return { domains: { findByHostname: (hostname: string) => platformDomainLookup(db, hostname) } };
+  return { domains: {
+    findByHostname: (hostname: string) => platformDomainLookup(db, hostname),
+    resolve: (hostname: string): Promise<HostRecord | null> => platformDomainResolve(db, hostname),
+  } };
 }
+
+export type HostRecord = {
+  hostname: string; tenantId: string; siteId: string; status: DomainStatus;
+  isPrimary: boolean; tenantStatus: TenantStatus; primaryHost: string | null;
+};

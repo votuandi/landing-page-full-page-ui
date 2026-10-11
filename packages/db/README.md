@@ -126,6 +126,20 @@ không được export. `forPlatform(db).domains.findByHostname(hostname)` là n
 được kiểm soát, nhận client gốc từ `createDb`, không nhận transaction client.
 ESLint cấm import tĩnh, `require()` và `import()` với đường dẫn literal tới Prisma/pg/generated client ngoài `packages/db`.
 
+### Phân giải tên miền
+
+`forPlatform(db).domains.resolve(hostname)` trả `HostRecord | null`: chỉ các trường
+định tuyến, trạng thái tenant và `primaryHost` của cùng tenant + site có trạng thái
+`verified|active`. Tra cứu qua một lời gọi Prisma có relation select, dùng client
+nội bộ của `createDb`; không mở scope cho truy vấn nội dung. Các kiểu `HostRecord`,
+`DomainStatus`, `TenantStatus` export từ `@solar/db`. Proxy kiểm trạng thái domain
+và tenant trước khi phục vụ, kể cả chứng chỉ TLS vẫn còn hạn.
+
+Chuyển domain sang tenant khác: gỡ bản ghi cũ, tạo bản ghi `pending` với
+`verificationToken` mới rồi xác minh lại (API E8 triển khai). Invalidate toàn bộ
+host bị ảnh hưởng sau commit; đổi primary phải invalidate cả alias của site.
+Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.md).
+
 ## Giới hạn đã biết
 
 - Model nền tảng `Tenant`/`User` có thể `include`/`select` relation tới bảng tenant mà query extension

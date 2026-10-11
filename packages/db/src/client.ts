@@ -22,6 +22,25 @@ export function platformDomainLookup(db: Db, hostname: string) {
   return client.domain.findUnique({ where: { hostname } });
 }
 
+export async function platformDomainResolve(db: Db, hostname: string) {
+  const client = platformClients.get(db);
+  if (!client) throw new Error("forPlatform requires a client returned by createDb");
+  const domain = await client.domain.findUnique({
+    where: { hostname },
+    select: {
+      hostname: true, tenantId: true, siteId: true, status: true, isPrimary: true,
+      tenant: { select: { status: true } },
+      site: { select: { domains: {
+        where: { isPrimary: true, status: { in: ["verified", "active"] } },
+        select: { hostname: true }, orderBy: { hostname: "asc" }, take: 1,
+      } } },
+    },
+  });
+  if (!domain) return null;
+  const { tenant, site, ...record } = domain;
+  return { ...record, tenantStatus: tenant.status, primaryHost: site.domains[0]?.hostname ?? null };
+}
+
 // Across all instances: total < max_connections - 20 (reserve for operations).
 export const POOL_BUDGET = { web: 10, admin: 5, worker: 5 } as const;
 
