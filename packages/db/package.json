@@ -5,6 +5,7 @@
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "scripts": {
+    "build": "prisma generate",
     "generate": "prisma generate",
     "typecheck": "prisma generate && tsc --noEmit",
     "lint": "eslint .",

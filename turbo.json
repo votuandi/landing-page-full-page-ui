@@ -41,6 +41,7 @@
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "passThroughEnv": ["DATABASE_URL"] },
+    "@solar/db#build": { "dependsOn": ["^build"], "outputs": ["generated/**"] },
     "@solar/db#typecheck": { "dependsOn": ["^typecheck"], "outputs": ["generated/**", "*.tsbuildinfo"] },
     "@solar/db#test": { "dependsOn": ["^build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL"] },
     "web#test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "cache": false, "passThroughEnv": ["DATABASE_URL", "REDIS_URL"] },
