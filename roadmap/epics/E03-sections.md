@@ -145,7 +145,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   - [ ] App bản cũ đọc được dữ liệu đã migrate trong lúc rolling deploy (migration chỉ thêm trường tùy chọn — expand/contract).
 - Phụ thuộc: phần 1 — S01; phần 2 — E5-S01 · Agent: Codex · Cỡ: M
 
-### E3-S10 · Trang `/lab/sections` — ma trận variant × theme
+### E3-S10 · Trang `/lab/sections` — ma trận variant × theme ✅ · PR [#29](https://github.com/votuandi/landing-page-full-page-ui/pull/29)
 **Là** designer/dev, **tôi muốn** thấy mọi variant với mọi theme, **để** kiểm "trộn module" trông liền mạch.
 - **Chi tiết**: `/lab/sections/[type]?themes=t08,t12,t15&variant=…`; dùng fixture; chụp ảnh tự động ma trận
   (variant × 4 theme đại diện × 2 viewport) trong CI, so baseline.
