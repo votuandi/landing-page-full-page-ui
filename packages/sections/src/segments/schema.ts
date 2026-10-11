@@ -5,6 +5,7 @@ import { segmentEnum, uniqueBy } from "../shared/schema";
 import { segmentsFixture } from "./fixtures";
 
 export const segmentsSchema = z.object({
+  solarProfile: z.array(z.number().min(0).max(100)).length(24).optional(),
   eyebrow: localized({ max: 80 }),
   title: localized({ max: 160 }),
   description: localized({ multiline: true, max: 400 }),
@@ -18,12 +19,19 @@ export const segmentsSchema = z.object({
     image: mediaRef(),
     /** Mức giảm hóa đơn tham khảo, vd. "50–90%". */
     saving: z.string().max(20),
+    comparison: z.object({
+      title: localized({ max: 160 }).optional(),
+      consumption: z.array(z.number().min(0).max(100)).length(24),
+      advantages: z.object({ "hoa-luoi": localized({ max: 600 }), hybrid: localized({ max: 600 }) }),
+      limitations: z.object({ "hoa-luoi": localized({ max: 600 }), hybrid: localized({ max: 600 }) }),
+      recommendation: localized({ max: 600 }),
+    }).optional(),
   })).min(1).max(4).refine(uniqueBy("segment"), { message: "Phân khúc bị trùng" }),
 });
 
 export const segments = defineSectionType({
   type: "segments",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: segmentsSchema,
   defaults: segmentsSchema.parse(segmentsFixture),
   meta: { label: { vi: "Lưới phân khúc", en: "Segments" }, icon: "squares", maxPerPage: 1 },

@@ -5,6 +5,47 @@ import { CALCULATOR_PARAMS, TARIFFS } from "./fixtures";
 import { formatMoneyShort, formatNumber, parseNumber } from "../format";
 import { isVnMobile, normalizeVnPhone } from "../phone";
 import { discountPercent, priceView, resolvePrice } from "../price";
+import { estimatePackage, installment, packagesForBill, suggestKwp, summarizePackageEstimates } from "../solarPackages";
+
+const packageAssumptions = { electricityPrice: 3000, pr: 0.8, selfUse: { "hoa-luoi": 0.7, hybrid: 0.9 }, years: 20, monthlyFactors: Array(12).fill(1) };
+const samplePackage = { type: "hoa-luoi" as const, kwp: 5, price: 65_000_000, minBill: 1_500_000, maxBill: 3_000_000 };
+
+test("project evidence totals follow the filtered rows and convert kWh/carbon to MWh/tonnes", () => {
+  assert.deepEqual(summarizePackageEstimates([{ kwp: 5, annualKwh: 6000, annualSaving: 12_000_000 }, { kwp: 10, annualKwh: 12000, annualSaving: 24_000_000 }], 0.6), { kwp: 15, mwh: 18, saving: 36_000_000, co2: 10.8 });
+  assert.deepEqual(summarizePackageEstimates([], 0.6), { kwp: 0, mwh: 0, saving: 0, co2: 0 });
+});
+
+test("t11 package simulation preserves PVout, self-use, monthly yield and cumulative cash flow", () => {
+  const result = estimatePackage(samplePackage, { pvout: 4.6 }, packageAssumptions);
+  close(result.dailyKwh, 18.4);
+  close(result.monthlySaving, 1_159_200);
+  close(result.paybackYears!, 65_000_000 / (1_159_200 * 12));
+  assert.equal(result.monthly.length, 12);
+  close(result.monthly[0].kwh, 552);
+  assert.equal(result.cumulative[0].net, -65_000_000);
+  close(result.cumulative[20].net, 1_159_200 * 12 * 20 - 65_000_000);
+  close(suggestKwp(3_000_000, "money", "hoa-luoi", { pvout: 4.6 }, packageAssumptions),
+    suggestKwp(1000, "kwh", "hoa-luoi", { pvout: 4.6 }, packageAssumptions));
+  const zero = estimatePackage(samplePackage, { pvout: 4.6 }, { ...packageAssumptions, selfUse: { "hoa-luoi": 0, hybrid: 0.9 } });
+  assert.equal(zero.paybackYears, null);
+});
+
+test("package bill ranges include the lower bound, exclude upper bound, and support kWh", () => {
+  const open = { ...samplePackage, minBill: 3_000_000, maxBill: null };
+  assert.deepEqual(packagesForBill([samplePackage, open], 1_500_000, "money", packageAssumptions), [samplePackage]);
+  assert.deepEqual(packagesForBill([samplePackage, open], 1000, "kwh", packageAssumptions), [open]);
+  for (const amount of [0, -1, NaN, Infinity]) assert.throws(() => packagesForBill([open], amount, "money", packageAssumptions), RangeError);
+});
+
+test("installment preserves flat interest and signed extra cash flow, rejects invalid inputs", () => {
+  assert.deepEqual(installment(60_000_000, 60, 1_200_000), { payment: 1_000_000, monthlySaving: 1_200_000, extra: -200_000 });
+  assert.deepEqual(installment(60_000_000, 60, 1_200_000, 0.01), { payment: 1_600_000, monthlySaving: 1_200_000, extra: 400_000 });
+  for (const months of [0, -1, 1.5, Infinity]) assert.throws(() => installment(60_000_000, months, 1), RangeError);
+  for (const rate of [-0.1, NaN, Infinity]) assert.throws(() => installment(60_000_000, 60, 1, rate), RangeError);
+  for (const savings of [-1, NaN, Infinity]) assert.throws(() => installment(60_000_000, 60, savings), RangeError);
+  assert.throws(() => estimatePackage(samplePackage, { pvout: 4.6 }, { ...packageAssumptions, monthlyFactors: [1] }), RangeError);
+  assert.throws(() => suggestKwp(1, "money", "hoa-luoi", { pvout: 4.6 }, { ...packageAssumptions, selfUse: { "hoa-luoi": 0, hybrid: 1 } }), RangeError);
+});
 
 const close = (actual: number, expected: number, tolerance = 0.01) =>
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} ≉ ${expected}`);

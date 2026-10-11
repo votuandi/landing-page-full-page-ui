@@ -7,6 +7,9 @@ Các theme đã kiểm tra bằng `parseTheme()` của `@solar/tokens`.
 `t12/theme.ts` port Sky & Sun (light) / Emerald Dusk (dark) từ template-12, dùng font Inter có sẵn.
 Các nền nhấn ở light dùng bảng pastel của `.t12-invert` gốc; dark giữ nền emerald sâu.
 
+`t11/theme.ts` port bảng màu `--solar-*` của template-11, nhóm Pro, Be Vietnam Pro + Manrope.
+Theme dùng weight 400/600/800 có sẵn trong FONTS; màu `accent-ink` được làm tối để đạt AA.
+
 ```ts
 import { t15 } from "@solar/themes";
 import { themeToCss } from "@solar/tokens";

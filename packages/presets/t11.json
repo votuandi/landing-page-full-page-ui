@@ -1,0 +1,4078 @@
+{
+  "id": "t11",
+  "name": "Pro · Hóa đơn → gói",
+  "group": "pro",
+  "themeId": "t11",
+  "description": "[DỮ LIỆU MẪU] Trang chủ Pro t11: bắt đầu từ hóa đơn điện, gợi ý gói cố định, so sánh hòa lưới/hybrid.",
+  "source": {
+    "branch": "template-11"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Variant gần nhất site-header/t15 (SiteShell gốc: logo, menu, nút sáng/tối, giỏ báo giá); khác ở theme.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Website mẫu · giá, sản lượng và câu chuyện khách hàng là dữ liệu mô phỏng."
+          }
+        ],
+        "pricingMenu": {
+          "label": {
+            "vi": "Bảng giá lắp đặt",
+            "en": "Pricing"
+          },
+          "hint": {
+            "vi": "Chọn mức → điền sẵn vào dự toán",
+            "en": "Pick a range → prefilled estimate"
+          },
+          "categories": [
+            {
+              "id": "ho-gia-dinh",
+              "label": {
+                "vi": "Hộ gia đình",
+                "en": "Households"
+              },
+              "hint": {
+                "vi": "Theo tiền điện/tháng",
+                "en": "By monthly bill"
+              },
+              "segment": "household",
+              "groups": [
+                {
+                  "title": {
+                    "vi": "Không lưu trữ",
+                    "en": "Grid-tied"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 – 2 triệu",
+                        "en": "1 – 2M VND"
+                      },
+                      "bill": 1500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                },
+                {
+                  "title": {
+                    "vi": "Có lưu trữ",
+                    "en": "With battery"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "doanh-nghiep",
+              "label": {
+                "vi": "Doanh nghiệp",
+                "en": "Businesses"
+              },
+              "hint": {
+                "vi": "Văn phòng, cửa hàng, khách sạn",
+                "en": "Offices, shops, hotels"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "5 – 15 triệu",
+                        "en": "5 – 15M VND"
+                      },
+                      "bill": 10000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "15 – 30 triệu",
+                        "en": "15 – 30M VND"
+                      },
+                      "bill": 22000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "30 – 60 triệu",
+                        "en": "30 – 60M VND"
+                      },
+                      "bill": 45000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 60 triệu",
+                        "en": "Over 60M VND"
+                      },
+                      "bill": 80000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "nha-xuong",
+              "label": {
+                "vi": "Nhà xưởng",
+                "en": "Factories"
+              },
+              "hint": {
+                "vi": "Sản xuất, kho lạnh, trang trại",
+                "en": "Manufacturing, cold storage, farms"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "50 – 150 triệu",
+                        "en": "50 – 150M VND"
+                      },
+                      "bill": 100000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "150 – 300 triệu",
+                        "en": "150 – 300M VND"
+                      },
+                      "bill": 220000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "300 – 600 triệu",
+                        "en": "300 – 600M VND"
+                      },
+                      "bill": 450000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 600 triệu",
+                        "en": "Over 600M VND"
+                      },
+                      "bill": 800000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "bom-nuoc",
+              "label": {
+                "vi": "Bơm nước",
+                "en": "Water pumps"
+              },
+              "hint": {
+                "vi": "Theo công suất bơm (HP)",
+                "en": "By pump power (HP)"
+              },
+              "segment": "farm",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 HP",
+                        "en": "1 HP"
+                      },
+                      "bill": 500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 HP",
+                        "en": "2 HP"
+                      },
+                      "bill": 1000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 HP",
+                        "en": "3 HP"
+                      },
+                      "bill": 1500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "5 HP",
+                        "en": "5 HP"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "7,5 HP",
+                        "en": "7.5 HP"
+                      },
+                      "bill": 3800000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 HP",
+                        "en": "10 HP"
+                      },
+                      "bill": 5000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "om",
+              "label": {
+                "vi": "O&M"
+              },
+              "hint": {
+                "vi": "Vận hành & bảo trì theo MWp",
+                "en": "Operation & maintenance by MWp"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 0,5 MWp",
+                        "en": "< 0.5 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "0,5 – 1 MWp",
+                        "en": "0.5 – 1 MWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "1 – 3 MWp",
+                        "en": "1 – 3 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 3 MWp",
+                        "en": "> 3 MWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ve-sinh",
+              "label": {
+                "vi": "Vệ sinh",
+                "en": "Cleaning"
+              },
+              "hint": {
+                "vi": "Vệ sinh tấm pin định kỳ",
+                "en": "Periodic panel cleaning"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 10 kWp",
+                        "en": "< 10 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 – 50 kWp",
+                        "en": "10 – 50 kWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "50 – 200 kWp",
+                        "en": "50 – 200 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 200 kWp",
+                        "en": "> 200 kWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "menus": [
+          {
+            "label": {
+              "vi": "Thiết bị",
+              "en": "Equipment"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Tấm pin",
+                  "en": "Solar panels"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=panel",
+                  "label": {
+                    "vi": "Tấm pin",
+                    "en": "Solar panels"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=N-type+TOPCon",
+                    "label": {
+                      "vi": "N-type TOPCon",
+                      "en": "N-type TOPCon"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=Bifacial",
+                    "label": {
+                      "vi": "Hai mặt kính",
+                      "en": "Bifacial"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&minPower=0.6",
+                    "label": {
+                      "vi": "≥ 600 W",
+                      "en": "≥ 600 W"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Inverter"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=inverter",
+                  "label": {
+                    "vi": "Inverter",
+                    "en": "Inverter"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=On-grid",
+                    "label": {
+                      "vi": "Hòa lưới",
+                      "en": "On-grid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=Hybrid",
+                    "label": {
+                      "vi": "Hybrid",
+                      "en": "Hybrid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&minPower=50",
+                    "label": {
+                      "vi": "≥ 50 kW",
+                      "en": "≥ 50 kW"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Lithium"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=battery",
+                  "label": {
+                    "vi": "Lithium",
+                    "en": "Lithium"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=LiFePO4",
+                    "label": {
+                      "vi": "LiFePO4",
+                      "en": "LiFePO4"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=High+Voltage",
+                    "label": {
+                      "vi": "Điện áp cao",
+                      "en": "High voltage"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&minPower=10",
+                    "label": {
+                      "vi": "≥ 10 kWh",
+                      "en": "≥ 10 kWh"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "BESS"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=bess",
+                  "label": {
+                    "vi": "BESS",
+                    "en": "BESS"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&tech=Outdoor+cabinet",
+                    "label": {
+                      "vi": "Tủ ngoài trời",
+                      "en": "Outdoor cabinet"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&minPower=200",
+                    "label": {
+                      "vi": "≥ 200 kWh",
+                      "en": "≥ 200 kWh"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": {
+              "vi": "Cẩm nang",
+              "en": "Guides"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Thuật ngữ",
+                  "en": "Glossary"
+                },
+                "description": {
+                  "vi": "kWp, PR, MPPT, hybrid… giải thích dễ hiểu",
+                  "en": "kWp, PR, MPPT, hybrid… explained"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Thuật ngữ",
+                    "en": "Glossary"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Biểu giá điện",
+                  "en": "Electricity tariffs"
+                },
+                "description": {
+                  "vi": "Bậc thang sinh hoạt, kinh doanh, sản xuất",
+                  "en": "Residential, commercial and industrial rates"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Biểu giá điện",
+                    "en": "Electricity tariffs"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Hỏi đáp",
+                  "en": "FAQ"
+                },
+                "description": {
+                  "vi": "Câu hỏi thường gặp trước khi lắp",
+                  "en": "Common questions before installing"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Hỏi đáp",
+                    "en": "FAQ"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Kinh nghiệm lắp đặt",
+                  "en": "Blog"
+                },
+                "description": {
+                  "vi": "Bài viết theo tình huống thực tế",
+                  "en": "Real-life use cases"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "tin-tuc",
+                  "label": {
+                    "vi": "Kinh nghiệm lắp đặt",
+                    "en": "Blog"
+                  }
+                },
+                "links": []
+              }
+            ]
+          }
+        ],
+        "links": [
+          {
+            "kind": "anchor",
+            "value": "du-an",
+            "label": {
+              "vi": "Dự án",
+              "en": "Projects"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "dai-ly",
+            "label": {
+              "vi": "Đại lý",
+              "en": "Dealers"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức",
+              "en": "News"
+            }
+          }
+        ],
+        "mobileLinks": [
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm & thiết bị",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Về chúng tôi",
+              "en": "About us"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ",
+              "en": "Contact"
+            }
+          }
+        ],
+        "hotlineLabel": {
+          "vi": "Hotline theo chi nhánh",
+          "en": "Hotlines by branch"
+        },
+        "hotlines": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "main": "0901 234 500",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 501"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 502"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=10.7865,106.699",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Hà Nội",
+            "main": "0901 234 520",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 521"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 522"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=21.03,105.8",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Đà Nẵng",
+            "main": "0901 234 540",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 541"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 542"
+              }
+            ]
+          }
+        ],
+        "cta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Báo giá",
+            "en": "Get a quote"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "calculator",
+            "value": "",
+            "label": {
+              "vi": "Nhận tư vấn miễn phí",
+              "en": "Free consultation"
+            }
+          },
+          {
+            "kind": "zalo",
+            "value": "0901 234 502",
+            "label": {
+              "vi": "Zalo Nhà xưởng",
+              "en": "Zalo Factory"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t11",
+      "enabled": true,
+      "data": {
+        "packageSimulation": {
+          "defaultBill": 2200000,
+          "defaultProvince": "ho-chi-minh",
+          "packages": [
+            {
+              "id": "compact-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 0,
+              "maxBill": 1500000,
+              "kwp": 3,
+              "price": 42000000,
+              "storageKwh": 0,
+              "phases": 1,
+              "roofM2": 18,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "compact-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 0,
+              "maxBill": 1500000,
+              "kwp": 3,
+              "price": 69000000,
+              "storageKwh": 5,
+              "phases": 1,
+              "roofM2": 18,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "comfort-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 1500000,
+              "maxBill": 3000000,
+              "kwp": 5,
+              "price": 65000000,
+              "storageKwh": 0,
+              "phases": 1,
+              "roofM2": 30,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "comfort-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 1500000,
+              "maxBill": 3000000,
+              "kwp": 5,
+              "price": 98000000,
+              "storageKwh": 7,
+              "phases": 1,
+              "roofM2": 30,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "retail-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 3000000,
+              "maxBill": 6000000,
+              "kwp": 10,
+              "price": 125000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 60,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "retail-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 3000000,
+              "maxBill": 6000000,
+              "kwp": 10,
+              "price": 185000000,
+              "storageKwh": 15,
+              "phases": 3,
+              "roofM2": 60,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "chain-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 6000000,
+              "maxBill": 15000000,
+              "kwp": 20,
+              "price": 240000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 120,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "chain-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 6000000,
+              "maxBill": 15000000,
+              "kwp": 20,
+              "price": 360000000,
+              "storageKwh": 30,
+              "phases": 3,
+              "roofM2": 120,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "factory-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 15000000,
+              "maxBill": 50000000,
+              "kwp": 50,
+              "price": 575000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 300,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "factory-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 15000000,
+              "maxBill": 50000000,
+              "kwp": 50,
+              "price": 850000000,
+              "storageKwh": 60,
+              "phases": 3,
+              "roofM2": 300,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "farm-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 50000000,
+              "maxBill": null,
+              "kwp": 100,
+              "price": 1100000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 600,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "farm-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 50000000,
+              "maxBill": null,
+              "kwp": 100,
+              "price": 1650000000,
+              "storageKwh": 120,
+              "phases": 3,
+              "roofM2": 600,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            }
+          ],
+          "provinces": [
+            {
+              "id": "ha-noi",
+              "name": {
+                "vi": "Hà Nội"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hue",
+              "name": {
+                "vi": "Huế"
+              },
+              "pvout": 4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hai-phong",
+              "name": {
+                "vi": "Hải Phòng"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "da-nang",
+              "name": {
+                "vi": "Đà Nẵng"
+              },
+              "pvout": 4.3,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ho-chi-minh",
+              "name": {
+                "vi": "TP. Hồ Chí Minh"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "can-tho",
+              "name": {
+                "vi": "Cần Thơ"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "cao-bang",
+              "name": {
+                "vi": "Cao Bằng"
+              },
+              "pvout": 3.3,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "tuyen-quang",
+              "name": {
+                "vi": "Tuyên Quang"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lao-cai",
+              "name": {
+                "vi": "Lào Cai"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dien-bien",
+              "name": {
+                "vi": "Điện Biên"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lai-chau",
+              "name": {
+                "vi": "Lai Châu"
+              },
+              "pvout": 3.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "son-la",
+              "name": {
+                "vi": "Sơn La"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lang-son",
+              "name": {
+                "vi": "Lạng Sơn"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "thai-nguyen",
+              "name": {
+                "vi": "Thái Nguyên"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "phu-tho",
+              "name": {
+                "vi": "Phú Thọ"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "bac-ninh",
+              "name": {
+                "vi": "Bắc Ninh"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-ninh",
+              "name": {
+                "vi": "Quảng Ninh"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hung-yen",
+              "name": {
+                "vi": "Hưng Yên"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ninh-binh",
+              "name": {
+                "vi": "Ninh Bình"
+              },
+              "pvout": 3.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "thanh-hoa",
+              "name": {
+                "vi": "Thanh Hóa"
+              },
+              "pvout": 3.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "nghe-an",
+              "name": {
+                "vi": "Nghệ An"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ha-tinh",
+              "name": {
+                "vi": "Hà Tĩnh"
+              },
+              "pvout": 3.9,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-tri",
+              "name": {
+                "vi": "Quảng Trị"
+              },
+              "pvout": 4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-ngai",
+              "name": {
+                "vi": "Quảng Ngãi"
+              },
+              "pvout": 4.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "gia-lai",
+              "name": {
+                "vi": "Gia Lai"
+              },
+              "pvout": 4.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "khanh-hoa",
+              "name": {
+                "vi": "Khánh Hòa"
+              },
+              "pvout": 4.9,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lam-dong",
+              "name": {
+                "vi": "Lâm Đồng"
+              },
+              "pvout": 4.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dak-lak",
+              "name": {
+                "vi": "Đắk Lắk"
+              },
+              "pvout": 4.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dong-nai",
+              "name": {
+                "vi": "Đồng Nai"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "tay-ninh",
+              "name": {
+                "vi": "Tây Ninh"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dong-thap",
+              "name": {
+                "vi": "Đồng Tháp"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "vinh-long",
+              "name": {
+                "vi": "Vĩnh Long"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "an-giang",
+              "name": {
+                "vi": "An Giang"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ca-mau",
+              "name": {
+                "vi": "Cà Mau"
+              },
+              "pvout": 4.4,
+              "source": "https://globalsolaratlas.info/map"
+            }
+          ],
+          "assumptions": {
+            "electricityPrice": 3000,
+            "pr": 0.8,
+            "selfUse": {
+              "hoa-luoi": 0.7,
+              "hybrid": 0.9
+            },
+            "years": 20,
+            "monthlyFactors": [
+              0.9,
+              0.95,
+              1.08,
+              1.12,
+              1.1,
+              1.02,
+              0.98,
+              0.96,
+              0.94,
+              0.95,
+              0.98,
+              1.02
+            ],
+            "installment": {
+              "minMonths": 6,
+              "maxMonths": 24,
+              "defaultMonths": 12,
+              "interestPerMonth": 0
+            },
+            "source": {
+              "vi": "[DỮ LIỆU MẪU] Giả định mô phỏng nội bộ; không phải biểu giá điện, chỉ số phát thải hay đề nghị tín dụng."
+            }
+          }
+        },
+        "badge": {
+          "vi": "Đầu tư có căn cứ"
+        },
+        "title": {
+          "lead": {
+            "vi": "Đừng để mái nhà chỉ che nắng."
+          },
+          "highlight": {
+            "vi": "Hãy để nắng tạo giá trị."
+          },
+          "sub": {
+            "vi": ""
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "Biến diện tích sẵn có thành nguồn điện cho công việc và cuộc sống. Bắt đầu từ hóa đơn của bạn, so sánh từng phương án, rồi quyết định bằng số liệu."
+        },
+        "primaryCta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "So sánh gói cho hóa đơn này"
+          }
+        },
+        "stats": [
+          {
+            "value": 34,
+            "decimals": 0,
+            "unit": {
+              "vi": "tỉnh"
+            },
+            "label": {
+              "vi": "Tỉnh để tra sản lượng"
+            }
+          },
+          {
+            "value": 12,
+            "decimals": 0,
+            "unit": {
+              "vi": "gói"
+            },
+            "label": {
+              "vi": "Gói mẫu để đối chiếu"
+            }
+          },
+          {
+            "value": 80,
+            "decimals": 0,
+            "suffix": "%",
+            "unit": {
+              "vi": "PR"
+            },
+            "label": {
+              "vi": "Hệ số PR giả định"
+            }
+          }
+        ],
+        "image": {
+          "id": "/images/services/service_1772895565903.webp",
+          "alt": {
+            "vi": "Kỹ sư kiểm tra hệ thống điện mặt trời áp mái",
+            "en": "Engineer inspecting a rooftop solar system"
+          },
+          "focal": {
+            "x": 0.72,
+            "y": 0.5
+          }
+        },
+        "chips": []
+      }
+    },
+    {
+      "id": "problems",
+      "type": "process",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Khối '01 Hiểu bài toán' (3 thẻ vấn đề) chưa có type riêng; dùng process/t15, output là gợi ý cần làm rõ.",
+      "data": {
+        "eyebrow": {
+          "vi": "Hiểu bài toán"
+        },
+        "title": {
+          "vi": "Tiền điện đang lấy đi cơ hội nào?"
+        },
+        "steps": [
+          {
+            "title": {
+              "vi": "Hóa đơn tăng, ngân sách bị động"
+            },
+            "description": {
+              "vi": "Bắt đầu bằng mức tiêu thụ và giờ dùng điện để biết phần nào có thể thay bằng điện mặt trời."
+            },
+            "output": {
+              "vi": "Mức tiêu thụ và giờ dùng điện"
+            }
+          },
+          {
+            "title": {
+              "vi": "Mái có nắng, điện chưa tạo giá trị"
+            },
+            "description": {
+              "vi": "Diện tích, hướng mái và bóng che quyết định quy mô khả thi; không phải mái nào cũng giống nhau."
+            },
+            "output": {
+              "vi": "Diện tích, hướng mái, bóng che"
+            }
+          },
+          {
+            "title": {
+              "vi": "Nhiều gói, khó so sánh"
+            },
+            "description": {
+              "vi": "Đặt giá, lưu trữ, thiết bị và tiết kiệm cạnh nhau để hiểu chi phí đổi lấy điều gì."
+            },
+            "output": {
+              "vi": "Giá, lưu trữ, thiết bị, tiết kiệm"
+            }
+          }
+        ],
+        "outputLabel": {
+          "vi": "Cần làm rõ"
+        }
+      }
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t11",
+      "enabled": true,
+      "anchor": "du-toan",
+      "data": {
+        "packageSimulation": {
+          "defaultBill": 2200000,
+          "defaultProvince": "ho-chi-minh",
+          "packages": [
+            {
+              "id": "compact-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 0,
+              "maxBill": 1500000,
+              "kwp": 3,
+              "price": 42000000,
+              "storageKwh": 0,
+              "phases": 1,
+              "roofM2": 18,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "compact-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 0,
+              "maxBill": 1500000,
+              "kwp": 3,
+              "price": 69000000,
+              "storageKwh": 5,
+              "phases": 1,
+              "roofM2": 18,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "comfort-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 1500000,
+              "maxBill": 3000000,
+              "kwp": 5,
+              "price": 65000000,
+              "storageKwh": 0,
+              "phases": 1,
+              "roofM2": 30,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "comfort-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 1500000,
+              "maxBill": 3000000,
+              "kwp": 5,
+              "price": 98000000,
+              "storageKwh": 7,
+              "phases": 1,
+              "roofM2": 30,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "retail-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 3000000,
+              "maxBill": 6000000,
+              "kwp": 10,
+              "price": 125000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 60,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "retail-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 3000000,
+              "maxBill": 6000000,
+              "kwp": 10,
+              "price": 185000000,
+              "storageKwh": 15,
+              "phases": 3,
+              "roofM2": 60,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "chain-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 6000000,
+              "maxBill": 15000000,
+              "kwp": 20,
+              "price": 240000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 120,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "chain-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 6000000,
+              "maxBill": 15000000,
+              "kwp": 20,
+              "price": 360000000,
+              "storageKwh": 30,
+              "phases": 3,
+              "roofM2": 120,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "factory-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 15000000,
+              "maxBill": 50000000,
+              "kwp": 50,
+              "price": 575000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 300,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "factory-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 15000000,
+              "maxBill": 50000000,
+              "kwp": 50,
+              "price": 850000000,
+              "storageKwh": 60,
+              "phases": 3,
+              "roofM2": 300,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "farm-hoa-luoi",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại · Hòa lưới"
+              },
+              "type": "hoa-luoi",
+              "minBill": 50000000,
+              "maxBill": null,
+              "kwp": 100,
+              "price": 1100000000,
+              "storageKwh": 0,
+              "phases": 3,
+              "roofM2": 600,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hòa lưới"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            },
+            {
+              "id": "farm-hybrid",
+              "name": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại · Hybrid"
+              },
+              "type": "hybrid",
+              "minBill": 50000000,
+              "maxBill": null,
+              "kwp": 100,
+              "price": 1650000000,
+              "storageKwh": 120,
+              "phases": 3,
+              "roofM2": 600,
+              "equipment": [
+                {
+                  "vi": "Tấm pin đơn tinh thể"
+                },
+                {
+                  "vi": "Inverter hybrid + pin lưu trữ LFP"
+                },
+                {
+                  "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                }
+              ],
+              "warranty": {
+                "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+              }
+            }
+          ],
+          "provinces": [
+            {
+              "id": "ha-noi",
+              "name": {
+                "vi": "Hà Nội"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hue",
+              "name": {
+                "vi": "Huế"
+              },
+              "pvout": 4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hai-phong",
+              "name": {
+                "vi": "Hải Phòng"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "da-nang",
+              "name": {
+                "vi": "Đà Nẵng"
+              },
+              "pvout": 4.3,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ho-chi-minh",
+              "name": {
+                "vi": "TP. Hồ Chí Minh"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "can-tho",
+              "name": {
+                "vi": "Cần Thơ"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "cao-bang",
+              "name": {
+                "vi": "Cao Bằng"
+              },
+              "pvout": 3.3,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "tuyen-quang",
+              "name": {
+                "vi": "Tuyên Quang"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lao-cai",
+              "name": {
+                "vi": "Lào Cai"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dien-bien",
+              "name": {
+                "vi": "Điện Biên"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lai-chau",
+              "name": {
+                "vi": "Lai Châu"
+              },
+              "pvout": 3.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "son-la",
+              "name": {
+                "vi": "Sơn La"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lang-son",
+              "name": {
+                "vi": "Lạng Sơn"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "thai-nguyen",
+              "name": {
+                "vi": "Thái Nguyên"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "phu-tho",
+              "name": {
+                "vi": "Phú Thọ"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "bac-ninh",
+              "name": {
+                "vi": "Bắc Ninh"
+              },
+              "pvout": 3.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-ninh",
+              "name": {
+                "vi": "Quảng Ninh"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "hung-yen",
+              "name": {
+                "vi": "Hưng Yên"
+              },
+              "pvout": 3.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ninh-binh",
+              "name": {
+                "vi": "Ninh Bình"
+              },
+              "pvout": 3.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "thanh-hoa",
+              "name": {
+                "vi": "Thanh Hóa"
+              },
+              "pvout": 3.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "nghe-an",
+              "name": {
+                "vi": "Nghệ An"
+              },
+              "pvout": 3.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ha-tinh",
+              "name": {
+                "vi": "Hà Tĩnh"
+              },
+              "pvout": 3.9,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-tri",
+              "name": {
+                "vi": "Quảng Trị"
+              },
+              "pvout": 4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "quang-ngai",
+              "name": {
+                "vi": "Quảng Ngãi"
+              },
+              "pvout": 4.4,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "gia-lai",
+              "name": {
+                "vi": "Gia Lai"
+              },
+              "pvout": 4.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "khanh-hoa",
+              "name": {
+                "vi": "Khánh Hòa"
+              },
+              "pvout": 4.9,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "lam-dong",
+              "name": {
+                "vi": "Lâm Đồng"
+              },
+              "pvout": 4.8,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dak-lak",
+              "name": {
+                "vi": "Đắk Lắk"
+              },
+              "pvout": 4.7,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dong-nai",
+              "name": {
+                "vi": "Đồng Nai"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "tay-ninh",
+              "name": {
+                "vi": "Tây Ninh"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "dong-thap",
+              "name": {
+                "vi": "Đồng Tháp"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "vinh-long",
+              "name": {
+                "vi": "Vĩnh Long"
+              },
+              "pvout": 4.5,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "an-giang",
+              "name": {
+                "vi": "An Giang"
+              },
+              "pvout": 4.6,
+              "source": "https://globalsolaratlas.info/map"
+            },
+            {
+              "id": "ca-mau",
+              "name": {
+                "vi": "Cà Mau"
+              },
+              "pvout": 4.4,
+              "source": "https://globalsolaratlas.info/map"
+            }
+          ],
+          "assumptions": {
+            "electricityPrice": 3000,
+            "pr": 0.8,
+            "selfUse": {
+              "hoa-luoi": 0.7,
+              "hybrid": 0.9
+            },
+            "years": 20,
+            "monthlyFactors": [
+              0.9,
+              0.95,
+              1.08,
+              1.12,
+              1.1,
+              1.02,
+              0.98,
+              0.96,
+              0.94,
+              0.95,
+              0.98,
+              1.02
+            ],
+            "installment": {
+              "minMonths": 6,
+              "maxMonths": 24,
+              "defaultMonths": 12,
+              "interestPerMonth": 0
+            },
+            "source": {
+              "vi": "[DỮ LIỆU MẪU] Giả định mô phỏng nội bộ; không phải biểu giá điện, chỉ số phát thải hay đề nghị tín dụng."
+            }
+          }
+        },
+        "eyebrow": {
+          "vi": "Tính trước khi chọn"
+        },
+        "title": {
+          "lead": {
+            "vi": "Hóa đơn của bạn phù hợp"
+          },
+          "highlight": {
+            "vi": "công suất nào?"
+          }
+        },
+        "description": {
+          "vi": "Công suất phù hợp phụ thuộc nơi lắp đặt và thời điểm dùng điện. Hóa đơn giúp xác định quy mô để bắt đầu cuộc trao đổi kỹ thuật."
+        },
+        "segments": [
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Hộ gia đình",
+              "en": "Households"
+            },
+            "short": {
+              "vi": "Hộ gia đình",
+              "en": "Homes"
+            }
+          },
+          {
+            "segment": "shop",
+            "label": {
+              "vi": "Cửa hàng & chuỗi",
+              "en": "Shops & chains"
+            },
+            "short": {
+              "vi": "Cửa hàng",
+              "en": "Shops"
+            }
+          },
+          {
+            "segment": "factory",
+            "label": {
+              "vi": "Nhà xưởng",
+              "en": "Factories"
+            },
+            "short": {
+              "vi": "Nhà xưởng",
+              "en": "Factories"
+            }
+          },
+          {
+            "segment": "farm",
+            "label": {
+              "vi": "Trang trại",
+              "en": "Farms"
+            },
+            "short": {
+              "vi": "Trang trại",
+              "en": "Farms"
+            }
+          }
+        ],
+        "tariffs": {
+          "household": {
+            "kind": "tiered",
+            "tiers": [
+              {
+                "upTo": 50,
+                "price": 1984
+              },
+              {
+                "upTo": 100,
+                "price": 2050
+              },
+              {
+                "upTo": 200,
+                "price": 2380
+              },
+              {
+                "upTo": 300,
+                "price": 2998
+              },
+              {
+                "upTo": 400,
+                "price": 3350
+              },
+              {
+                "upTo": null,
+                "price": 3460
+              }
+            ]
+          },
+          "shop": {
+            "kind": "flat",
+            "averageRate": 3300,
+            "solarOffsetRate": 3150
+          },
+          "factory": {
+            "kind": "flat",
+            "averageRate": 2050,
+            "solarOffsetRate": 1900
+          },
+          "farm": {
+            "kind": "flat",
+            "averageRate": 2250,
+            "solarOffsetRate": 2100
+          }
+        },
+        "vatRate": 0.08,
+        "pricePerKwp": {
+          "household": 12000000,
+          "shop": 11000000,
+          "factory": 9500000,
+          "farm": 10000000
+        },
+        "peakSunHours": {
+          "bac-bo": 3.5,
+          "bac-trung-bo": 4,
+          "nam-trung-bo": 4.8,
+          "tay-nguyen": 4.8,
+          "nam-bo": 4.6
+        },
+        "segmentRatios": {
+          "household": 40,
+          "shop": 70,
+          "factory": 80,
+          "farm": 70
+        },
+        "system": {
+          "performanceRatio": 0.8,
+          "m2PerKwp": 5.5,
+          "panelWatt": 580,
+          "kwpStep": 0.5,
+          "minKwp": 1,
+          "minRoofArea": 16
+        },
+        "inputs": {
+          "household": {
+            "bill": {
+              "min": 500000,
+              "max": 20000000,
+              "step": 100000,
+              "default": 2000000
+            },
+            "roof": {
+              "default": 50,
+              "max": 500
+            }
+          },
+          "shop": {
+            "bill": {
+              "min": 1000000,
+              "max": 100000000,
+              "step": 500000,
+              "default": 8000000
+            },
+            "roof": {
+              "default": 120,
+              "max": 2000
+            }
+          },
+          "factory": {
+            "bill": {
+              "min": 10000000,
+              "max": 2000000000,
+              "step": 5000000,
+              "default": 80000000
+            },
+            "roof": {
+              "default": 2000,
+              "max": 50000
+            }
+          },
+          "farm": {
+            "bill": {
+              "min": 3000000,
+              "max": 500000000,
+              "step": 1000000,
+              "default": 25000000
+            },
+            "roof": {
+              "default": 1200,
+              "max": 30000
+            }
+          }
+        },
+        "defaultProvince": "TP Hồ Chí Minh",
+        "steps": [
+          "segment",
+          "bill",
+          "roof",
+          "province",
+          "ratio"
+        ],
+        "tips": [
+          {
+            "vi": "Khảo sát tận nơi miễn phí",
+            "en": "Free on-site survey"
+          },
+          {
+            "vi": "Báo giá chi tiết trong 24 giờ",
+            "en": "Detailed quote in 24h"
+          },
+          {
+            "vi": "Trả góp 0% / lắp 0 đồng (ESCO)",
+            "en": "0% instalments / ESCO"
+          }
+        ],
+        "resultTitle": {
+          "vi": "Kết quả sơ bộ",
+          "en": "Preliminary result"
+        },
+        "disclaimer": {
+          "vi": "[DỮ LIỆU MẪU] Hoàn vốn chưa gồm bảo trì, thay pin, suy giảm, lãi vay hoặc thay đổi giá điện."
+        },
+        "formTitle": {
+          "vi": "Tiếp tục từ phương án bạn vừa chọn."
+        },
+        "formDescription": {
+          "vi": "Chia sẻ thông tin gói để đội kỹ thuật trao đổi về mái và phụ tải của bạn."
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá"
+        },
+        "successText": {
+          "vi": "Kỹ sư sẽ gọi lại trong 2 giờ (trong giờ làm việc).",
+          "en": "An engineer will call you back within 2 hours (business hours)."
+        },
+        "privacyNote": {
+          "vi": "Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.",
+          "en": "Your details are only used for consultation and quotes, never shared."
+        },
+        "leadSource": "calculator"
+      }
+    },
+    {
+      "id": "segments",
+      "type": "segments",
+      "variant": "t11",
+      "enabled": true,
+      "anchor": "phan-khuc",
+      "data": {
+        "solarProfile": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          20,
+          45,
+          65,
+          85,
+          95,
+          100,
+          95,
+          80,
+          60,
+          35,
+          10,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "eyebrow": {
+          "vi": "Theo cách dùng điện"
+        },
+        "title": {
+          "vi": "Hòa lưới hay hybrid phù hợp với bạn?"
+        },
+        "description": {
+          "vi": "Hòa lưới tận dụng điện ban ngày, hybrid bổ sung lưu trữ. Lựa chọn cần đối chiếu giờ dùng điện, nhu cầu dự phòng và vốn đầu tư."
+        },
+        "targetAnchor": "video-cong-trinh",
+        "savingLabel": {
+          "vi": "Giảm đến",
+          "en": "Save up to"
+        },
+        "items": [
+          {
+            "segment": "factory",
+            "label": {
+              "vi": "Nhà xưởng / trang trại"
+            },
+            "pitch": {
+              "vi": "Hòa lưới phù hợp để đối chiếu trước khi phụ tải tập trung ban ngày; hybrid cần cân nhắc nếu có tải thiết yếu ngoài giờ nắng."
+            },
+            "image": {
+              "id": "/images/illustrations/factory-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Nhà xưởng / trang trại"
+              }
+            },
+            "saving": "",
+            "comparison": {
+              "title": {
+                "vi": "Nhà xưởng nên chọn hệ nào?"
+              },
+              "consumption": [
+                20,
+                20,
+                20,
+                20,
+                20,
+                25,
+                40,
+                65,
+                85,
+                95,
+                100,
+                100,
+                80,
+                95,
+                100,
+                95,
+                85,
+                65,
+                40,
+                30,
+                25,
+                20,
+                20,
+                20
+              ],
+              "advantages": {
+                "hoa-luoi": {
+                  "vi": "Vốn đầu tư thấp hơn, tận dụng tải ban ngày."
+                },
+                "hybrid": {
+                  "vi": "Có thể cấp tải thiết yếu khi thiết kế mạch dự phòng phù hợp."
+                }
+              },
+              "limitations": {
+                "hoa-luoi": {
+                  "vi": "Không tự duy trì cấp điện khi mất lưới."
+                },
+                "hybrid": {
+                  "vi": "Cần tính công suất xả, dung lượng pin và chi phí thay thế."
+                }
+              },
+              "recommendation": {
+                "vi": "Lấy biểu đồ phụ tải thực tế làm cơ sở, đặc biệt với bơm và động cơ công suất lớn."
+              }
+            }
+          },
+          {
+            "segment": "shop",
+            "label": {
+              "vi": "Cửa hàng / chuỗi"
+            },
+            "pitch": {
+              "vi": "Hòa lưới là lựa chọn để so sánh cho cửa hàng mở ban ngày; hybrid đáng cân nhắc khi điện buổi tối và yêu cầu liên tục cao."
+            },
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng / chuỗi"
+              }
+            },
+            "saving": "",
+            "comparison": {
+              "title": {
+                "vi": "Cửa hàng có cần pin lưu trữ?"
+              },
+              "consumption": [
+                10,
+                10,
+                10,
+                10,
+                10,
+                10,
+                20,
+                40,
+                65,
+                80,
+                85,
+                90,
+                90,
+                90,
+                95,
+                95,
+                95,
+                100,
+                100,
+                90,
+                70,
+                40,
+                20,
+                10
+              ],
+              "advantages": {
+                "hoa-luoi": {
+                  "vi": "Giảm phần điện mua cho điều hòa và thiết bị giờ nắng."
+                },
+                "hybrid": {
+                  "vi": "Chuyển một phần sản lượng sang giờ mở cửa buổi tối."
+                }
+              },
+              "limitations": {
+                "hoa-luoi": {
+                  "vi": "Phần điện dư ban trưa không tự dùng được ban đêm."
+                },
+                "hybrid": {
+                  "vi": "Hiệu quả phụ thuộc lịch vận hành và chu kỳ sử dụng pin."
+                }
+              },
+              "recommendation": {
+                "vi": "Với chuỗi cửa hàng, tính riêng từng điểm thay vì nhân một cấu hình cho cả chuỗi."
+              }
+            }
+          },
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Hộ gia đình"
+            },
+            "pitch": {
+              "vi": "Hybrid có thể giúp tăng điện tự dùng buổi tối; hòa lưới vẫn nên so sánh nếu nhà có người sử dụng điện ban ngày."
+            },
+            "image": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Hộ gia đình"
+              }
+            },
+            "saving": "",
+            "comparison": {
+              "title": {
+                "vi": "Gia đình dùng điện ban đêm chọn gì?"
+              },
+              "consumption": [
+                20,
+                15,
+                15,
+                15,
+                15,
+                25,
+                60,
+                80,
+                35,
+                25,
+                25,
+                40,
+                50,
+                35,
+                30,
+                30,
+                40,
+                70,
+                100,
+                100,
+                85,
+                65,
+                45,
+                30
+              ],
+              "advantages": {
+                "hoa-luoi": {
+                  "vi": "Cấu hình đơn giản, chi phí khởi đầu thấp hơn."
+                },
+                "hybrid": {
+                  "vi": "Lưu trữ cho buổi tối và tải dự phòng được chọn."
+                }
+              },
+              "limitations": {
+                "hoa-luoi": {
+                  "vi": "Tiết kiệm giảm khi vắng nhà toàn bộ giờ nắng."
+                },
+                "hybrid": {
+                  "vi": "Không đồng nghĩa cấp điện cho mọi thiết bị khi mất lưới."
+                }
+              },
+              "recommendation": {
+                "vi": "Liệt kê thiết bị thiết yếu và số giờ dự phòng mong muốn trước khi chọn pin."
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "projects",
+      "type": "projects",
+      "variant": "t11",
+      "enabled": true,
+      "anchor": "du-an",
+      "data": {
+        "evidence": {
+          "simulation": {
+            "defaultBill": 2200000,
+            "defaultProvince": "ho-chi-minh",
+            "packages": [
+              {
+                "id": "compact-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 0,
+                "maxBill": 1500000,
+                "kwp": 3,
+                "price": 42000000,
+                "storageKwh": 0,
+                "phases": 1,
+                "roofM2": 18,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "compact-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Mái nhỏ · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 0,
+                "maxBill": 1500000,
+                "kwp": 3,
+                "price": 69000000,
+                "storageKwh": 5,
+                "phases": 1,
+                "roofM2": 18,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "comfort-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 1500000,
+                "maxBill": 3000000,
+                "kwp": 5,
+                "price": 65000000,
+                "storageKwh": 0,
+                "phases": 1,
+                "roofM2": 30,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "comfort-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Tổ ấm · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 1500000,
+                "maxBill": 3000000,
+                "kwp": 5,
+                "price": 98000000,
+                "storageKwh": 7,
+                "phases": 1,
+                "roofM2": 30,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "retail-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 3000000,
+                "maxBill": 6000000,
+                "kwp": 10,
+                "price": 125000000,
+                "storageKwh": 0,
+                "phases": 3,
+                "roofM2": 60,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "retail-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Cửa hàng · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 3000000,
+                "maxBill": 6000000,
+                "kwp": 10,
+                "price": 185000000,
+                "storageKwh": 15,
+                "phases": 3,
+                "roofM2": 60,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "chain-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 6000000,
+                "maxBill": 15000000,
+                "kwp": 20,
+                "price": 240000000,
+                "storageKwh": 0,
+                "phases": 3,
+                "roofM2": 120,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "chain-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Chuỗi cửa hàng · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 6000000,
+                "maxBill": 15000000,
+                "kwp": 20,
+                "price": 360000000,
+                "storageKwh": 30,
+                "phases": 3,
+                "roofM2": 120,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "factory-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 15000000,
+                "maxBill": 50000000,
+                "kwp": 50,
+                "price": 575000000,
+                "storageKwh": 0,
+                "phases": 3,
+                "roofM2": 300,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "factory-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Nhà xưởng · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 15000000,
+                "maxBill": 50000000,
+                "kwp": 50,
+                "price": 850000000,
+                "storageKwh": 60,
+                "phases": 3,
+                "roofM2": 300,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "farm-hoa-luoi",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Trang trại · Hòa lưới"
+                },
+                "type": "hoa-luoi",
+                "minBill": 50000000,
+                "maxBill": null,
+                "kwp": 100,
+                "price": 1100000000,
+                "storageKwh": 0,
+                "phases": 3,
+                "roofM2": 600,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hòa lưới"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              },
+              {
+                "id": "farm-hybrid",
+                "name": {
+                  "vi": "[DỮ LIỆU MẪU] Trang trại · Hybrid"
+                },
+                "type": "hybrid",
+                "minBill": 50000000,
+                "maxBill": null,
+                "kwp": 100,
+                "price": 1650000000,
+                "storageKwh": 120,
+                "phases": 3,
+                "roofM2": 600,
+                "equipment": [
+                  {
+                    "vi": "Tấm pin đơn tinh thể"
+                  },
+                  {
+                    "vi": "Inverter hybrid + pin lưu trữ LFP"
+                  },
+                  {
+                    "vi": "Khung đỡ, tủ bảo vệ, giám sát sản lượng"
+                  }
+                ],
+                "warranty": {
+                  "vi": "Mẫu: tấm pin 12 năm, inverter 5 năm, thi công 2 năm; xác nhận theo thiết bị và hợp đồng."
+                }
+              }
+            ],
+            "provinces": [
+              {
+                "id": "ha-noi",
+                "name": {
+                  "vi": "Hà Nội"
+                },
+                "pvout": 3.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "hue",
+                "name": {
+                  "vi": "Huế"
+                },
+                "pvout": 4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "hai-phong",
+                "name": {
+                  "vi": "Hải Phòng"
+                },
+                "pvout": 3.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "da-nang",
+                "name": {
+                  "vi": "Đà Nẵng"
+                },
+                "pvout": 4.3,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "ho-chi-minh",
+                "name": {
+                  "vi": "TP. Hồ Chí Minh"
+                },
+                "pvout": 4.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "can-tho",
+                "name": {
+                  "vi": "Cần Thơ"
+                },
+                "pvout": 4.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "cao-bang",
+                "name": {
+                  "vi": "Cao Bằng"
+                },
+                "pvout": 3.3,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "tuyen-quang",
+                "name": {
+                  "vi": "Tuyên Quang"
+                },
+                "pvout": 3.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "lao-cai",
+                "name": {
+                  "vi": "Lào Cai"
+                },
+                "pvout": 3.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "dien-bien",
+                "name": {
+                  "vi": "Điện Biên"
+                },
+                "pvout": 3.8,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "lai-chau",
+                "name": {
+                  "vi": "Lai Châu"
+                },
+                "pvout": 3.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "son-la",
+                "name": {
+                  "vi": "Sơn La"
+                },
+                "pvout": 3.8,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "lang-son",
+                "name": {
+                  "vi": "Lạng Sơn"
+                },
+                "pvout": 3.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "thai-nguyen",
+                "name": {
+                  "vi": "Thái Nguyên"
+                },
+                "pvout": 3.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "phu-tho",
+                "name": {
+                  "vi": "Phú Thọ"
+                },
+                "pvout": 3.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "bac-ninh",
+                "name": {
+                  "vi": "Bắc Ninh"
+                },
+                "pvout": 3.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "quang-ninh",
+                "name": {
+                  "vi": "Quảng Ninh"
+                },
+                "pvout": 3.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "hung-yen",
+                "name": {
+                  "vi": "Hưng Yên"
+                },
+                "pvout": 3.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "ninh-binh",
+                "name": {
+                  "vi": "Ninh Bình"
+                },
+                "pvout": 3.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "thanh-hoa",
+                "name": {
+                  "vi": "Thanh Hóa"
+                },
+                "pvout": 3.7,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "nghe-an",
+                "name": {
+                  "vi": "Nghệ An"
+                },
+                "pvout": 3.8,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "ha-tinh",
+                "name": {
+                  "vi": "Hà Tĩnh"
+                },
+                "pvout": 3.9,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "quang-tri",
+                "name": {
+                  "vi": "Quảng Trị"
+                },
+                "pvout": 4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "quang-ngai",
+                "name": {
+                  "vi": "Quảng Ngãi"
+                },
+                "pvout": 4.4,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "gia-lai",
+                "name": {
+                  "vi": "Gia Lai"
+                },
+                "pvout": 4.7,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "khanh-hoa",
+                "name": {
+                  "vi": "Khánh Hòa"
+                },
+                "pvout": 4.9,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "lam-dong",
+                "name": {
+                  "vi": "Lâm Đồng"
+                },
+                "pvout": 4.8,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "dak-lak",
+                "name": {
+                  "vi": "Đắk Lắk"
+                },
+                "pvout": 4.7,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "dong-nai",
+                "name": {
+                  "vi": "Đồng Nai"
+                },
+                "pvout": 4.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "tay-ninh",
+                "name": {
+                  "vi": "Tây Ninh"
+                },
+                "pvout": 4.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "dong-thap",
+                "name": {
+                  "vi": "Đồng Tháp"
+                },
+                "pvout": 4.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "vinh-long",
+                "name": {
+                  "vi": "Vĩnh Long"
+                },
+                "pvout": 4.5,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "an-giang",
+                "name": {
+                  "vi": "An Giang"
+                },
+                "pvout": 4.6,
+                "source": "https://globalsolaratlas.info/map"
+              },
+              {
+                "id": "ca-mau",
+                "name": {
+                  "vi": "Cà Mau"
+                },
+                "pvout": 4.4,
+                "source": "https://globalsolaratlas.info/map"
+              }
+            ],
+            "assumptions": {
+              "electricityPrice": 3000,
+              "pr": 0.8,
+              "selfUse": {
+                "hoa-luoi": 0.7,
+                "hybrid": 0.9
+              },
+              "years": 20,
+              "monthlyFactors": [
+                0.9,
+                0.95,
+                1.08,
+                1.12,
+                1.1,
+                1.02,
+                0.98,
+                0.96,
+                0.94,
+                0.95,
+                0.98,
+                1.02
+              ],
+              "installment": {
+                "minMonths": 6,
+                "maxMonths": 24,
+                "defaultMonths": 12,
+                "interestPerMonth": 0
+              },
+              "source": {
+                "vi": "[DỮ LIỆU MẪU] Giả định mô phỏng nội bộ; không phải biểu giá điện, chỉ số phát thải hay đề nghị tín dụng."
+              }
+            }
+          },
+          "carbonKgPerKwh": 0.6,
+          "cases": [
+            {
+              "projectId": "factory",
+              "packageId": "factory-hoa-luoi",
+              "provinceId": "dong-nai",
+              "description": {
+                "vi": "[DỮ LIỆU MẪU] Doanh nghiệp chế biến — tình huống minh họa. Ưu tiên điện cho dây chuyền hoạt động ban ngày; kiểm tra kết cấu mái trước khi thiết kế."
+              }
+            },
+            {
+              "projectId": "farm",
+              "packageId": "farm-hybrid",
+              "provinceId": "tay-ninh",
+              "description": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại — tình huống minh họa. Phân tách tải thiết yếu; dung lượng pin và thời gian dự phòng cần khảo sát riêng."
+              }
+            },
+            {
+              "projectId": "shop",
+              "packageId": "retail-hoa-luoi",
+              "provinceId": "ho-chi-minh",
+              "description": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng bán lẻ — tình huống minh họa. Kết hợp điện cho điều hòa, chiếu sáng và thiết bị trong khung giờ mở cửa."
+              }
+            },
+            {
+              "projectId": "home",
+              "packageId": "comfort-hybrid",
+              "provinceId": "dong-thap",
+              "description": {
+                "vi": "[DỮ LIỆU MẪU] Hộ gia đình — tình huống minh họa. Dịch chuyển một phần điện mặt trời sang buổi tối bằng lưu trữ phù hợp phụ tải."
+              }
+            }
+          ]
+        },
+        "eyebrow": {
+          "vi": "Từ bài toán đến phương án"
+        },
+        "title": {
+          "vi": "Dự án tương tự có thể tiết kiệm bao nhiêu?"
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "factory",
+            "title": "[DỮ LIỆU MẪU] Mái xưởng chế biến",
+            "segment": "factory",
+            "location": "Đồng Nai",
+            "kwp": 50,
+            "image": {
+              "id": "/images/illustrations/factory-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Mái xưởng chế biến"
+              }
+            }
+          },
+          {
+            "id": "farm",
+            "title": "[DỮ LIỆU MẪU] Trang trại có lưu trữ",
+            "segment": "factory",
+            "location": "Tây Ninh",
+            "kwp": 100,
+            "image": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Trang trại có lưu trữ"
+              }
+            }
+          },
+          {
+            "id": "shop",
+            "title": "[DỮ LIỆU MẪU] Cửa hàng hoạt động cả ngày",
+            "segment": "shop",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 10,
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Cửa hàng hoạt động cả ngày"
+              }
+            }
+          },
+          {
+            "id": "home",
+            "title": "[DỮ LIỆU MẪU] Ngôi nhà dùng điện buổi tối",
+            "segment": "household",
+            "location": "Đồng Tháp",
+            "kwp": 5,
+            "image": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "[DỮ LIỆU MẪU] Ngôi nhà dùng điện buổi tối"
+              }
+            }
+          }
+        ],
+        "showFilter": true,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      }
+    },
+    {
+      "id": "trust",
+      "type": "trust",
+      "variant": "t11",
+      "enabled": true,
+      "anchor": "phap-ly",
+      "data": {
+        "legalItems": [
+          {
+            "id": "process",
+            "question": {
+              "vi": "Lắp điện mặt trời cần chuẩn bị hồ sơ gì?"
+            },
+            "answer": {
+              "vi": "[CẦN XÁC MINH] Xác định loại công trình, quyền sử dụng mái và phương án đấu nối trước. Danh mục hồ sơ, thông báo/đăng ký và yêu cầu nghiệm thu phải được đơn vị chuyên môn xác nhận theo quy định có hiệu lực tại địa phương."
+            },
+            "source": "https://chinhphu.vn/he-thong-van-ban",
+            "verified": false
+          },
+          {
+            "id": "penalty",
+            "question": {
+              "vi": "Có những mức phạt nào cần lưu ý?"
+            },
+            "answer": {
+              "vi": "[CẦN XÁC MINH] Chưa đưa mức phạt vào dữ liệu mẫu. Cần đối chiếu hành vi, chủ thể, thời điểm và văn bản có hiệu lực về điện lực, xây dựng, an toàn trước khi công bố con số cụ thể."
+            },
+            "source": "https://chinhphu.vn/he-thong-van-ban",
+            "verified": false
+          },
+          {
+            "id": "surplus",
+            "question": {
+              "vi": "Điện dư có được bán lại không?"
+            },
+            "answer": {
+              "vi": "[CẦN XÁC MINH] Điều kiện mua bán, giới hạn và giá điện dư cần xác nhận với đơn vị điện lực và quy định đang áp dụng. Bộ tính này chỉ tính tiết kiệm từ điện tự dùng, không cộng doanh thu điện dư."
+            },
+            "source": "https://chinhphu.vn/he-thong-van-ban",
+            "verified": false
+          }
+        ],
+        "eyebrow": {
+          "vi": "Minh bạch từ đầu"
+        },
+        "title": {
+          "vi": "Cần kiểm tra gì trước khi ký hợp đồng?"
+        },
+        "description": {
+          "vi": "Cần đối chiếu pháp nhân, phạm vi công việc, thiết bị, bảo hành và yêu cầu pháp lý của công trình. Thông tin chưa xác nhận không nên được coi là cam kết."
+        },
+        "items": [
+          {
+            "id": "business",
+            "title": {
+              "vi": "[DỮ LIỆU MẪU] Đăng ký doanh nghiệp"
+            },
+            "subtitle": {
+              "vi": "Chưa có hồ sơ để tra cứu"
+            },
+            "issuer": {
+              "vi": ""
+            },
+            "number": {
+              "vi": ""
+            },
+            "validUntil": {
+              "vi": ""
+            },
+            "scope": {
+              "vi": ""
+            }
+          },
+          {
+            "id": "safety",
+            "title": {
+              "vi": "[DỮ LIỆU MẪU] Hồ sơ năng lực và an toàn"
+            },
+            "subtitle": {
+              "vi": "Chưa có hồ sơ để tra cứu"
+            },
+            "issuer": {
+              "vi": ""
+            },
+            "number": {
+              "vi": ""
+            },
+            "validUntil": {
+              "vi": ""
+            },
+            "scope": {
+              "vi": ""
+            }
+          }
+        ],
+        "issuerLabel": {
+          "vi": "Cấp bởi",
+          "en": "Issuer"
+        },
+        "numberLabel": {
+          "vi": "Số chứng chỉ",
+          "en": "Certificate number"
+        },
+        "validLabel": {
+          "vi": "Hiệu lực",
+          "en": "Valid until"
+        },
+        "scopeLabel": {
+          "vi": "Phạm vi",
+          "en": "Scope"
+        }
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Accordion FAQ gốc (06) giống faq/t15, khác ở theme.",
+      "data": {
+        "eyebrow": {
+          "vi": "Gỡ vướng mắc"
+        },
+        "title": {
+          "vi": "Bạn còn băn khoăn điều gì?"
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Bộ tính có phải báo giá cuối cùng không?"
+            },
+            "answer": {
+              "vi": "Không. Đây là mô phỏng từ dữ liệu mẫu; giá thực tế cần khảo sát mái, phụ tải, đấu nối và lựa chọn thiết bị."
+            }
+          },
+          {
+            "question": {
+              "vi": "Hoàn vốn đã gồm chi phí bảo trì chưa?"
+            },
+            "answer": {
+              "vi": "Chưa. Hoàn vốn đơn giản bằng giá gói chia tiết kiệm điện hằng năm; chưa gồm bảo trì, thay pin, suy giảm, lãi vay hoặc thay đổi giá điện."
+            }
+          },
+          {
+            "question": {
+              "vi": "Hybrid có cấp điện khi mất điện lưới không?"
+            },
+            "answer": {
+              "vi": "Khả năng dự phòng phụ thuộc thiết kế, inverter, pin và mạch tải thiết yếu. Cần xác nhận cấu hình cụ thể trước khi đặt mua."
+            }
+          },
+          {
+            "question": {
+              "vi": "Nhận tư vấn thì cần thông tin gì?"
+            },
+            "answer": {
+              "vi": "Bạn có thể chuẩn bị hóa đơn, lịch dùng điện, diện tích và ảnh mái. Đội kỹ thuật sẽ trao đổi để xác định phương án khảo sát."
+            }
+          }
+        ],
+        "jsonLd": true
+      }
+    },
+    {
+      "id": "contact",
+      "type": "lead-form",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "lien-he",
+      "note": "LeadForm source=home-bottom gốc (07) dùng lead-form/t15.",
+      "data": {
+        "title": {
+          "vi": "Muốn biết mái của bạn có phù hợp?"
+        },
+        "points": [
+          {
+            "vi": "Chuẩn bị hóa đơn và ảnh mái"
+          },
+          {
+            "vi": "Trao đổi kỹ thuật để làm rõ phương án khảo sát"
+          },
+          {
+            "vi": "[DỮ LIỆU MẪU] Website mẫu · giá, sản lượng là dữ liệu mô phỏng"
+          }
+        ],
+        "image": {
+          "id": "/images/solar-installation-hero.jpg",
+          "alt": {
+            "vi": "Hệ thống điện mặt trời dưới bầu trời nắng",
+            "en": "Solar array under a sunny sky"
+          }
+        },
+        "formTitle": {
+          "vi": "Để lại thông tin, kỹ sư sẽ gọi lại",
+          "en": "Leave your details — an engineer will call"
+        },
+        "fields": {
+          "zalo": true,
+          "address": true,
+          "message": true
+        },
+        "submitLabel": {
+          "vi": "Nhận báo giá chi tiết",
+          "en": "Get a detailed quote"
+        },
+        "successText": {
+          "vi": "Kỹ sư sẽ gọi lại trong 2 giờ (trong giờ làm việc).",
+          "en": "An engineer will call you back within 2 hours (business hours)."
+        },
+        "privacyNote": {
+          "vi": "Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.",
+          "en": "Your details are only used for consultation and quotes, never shared."
+        },
+        "fallbackPhone": "0708699808",
+        "source": "home-bottom"
+      }
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Variant gần nhất site-footer/t15; khác ở theme.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Mái nhà tạo điện. Dòng tiền tạo tương lai."
+          }
+        },
+        "socials": [
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/lumivolt.demo",
+            "label": "Facebook"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@lumivolt.demo",
+            "label": "YouTube"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@lumivolt.demo",
+            "label": "TikTok"
+          },
+          {
+            "kind": "zalo",
+            "url": "https://zalo.me/0901234500",
+            "label": "Zalo OA"
+          }
+        ],
+        "legal": {
+          "legalName": "CÔNG TY CỔ PHẦN NĂNG LƯỢNG LUMIVOLT [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "Giấy CN ĐKKD số 03XXXXXXXX [MẪU] — cấp ngày 15/03/2012, Sở Kế hoạch và Đầu tư (mẫu)",
+              "en": "Business reg. no. 03XXXXXXXX [SAMPLE] — issued 15/03/2012"
+            },
+            {
+              "vi": "Chứng chỉ năng lực hoạt động xây dựng hạng II — số MẪU-0001 [HƯ CẤU]"
+            },
+            {
+              "vi": "Giấy phép hoạt động điện lực (tư vấn thiết kế) — số MẪU-0002 [HƯ CẤU]"
+            }
+          ],
+          "badges": [
+            "ISO 9001:2015",
+            "ISO 14001:2015",
+            "ISO 45001:2018"
+          ],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "complaintHotline": {
+          "label": {
+            "vi": "Hotline khiếu nại – góp ý",
+            "en": "Complaints hotline"
+          },
+          "phone": "0901 234 599"
+        },
+        "branchesTitle": {
+          "vi": "Hệ thống cửa hàng",
+          "en": "Stores"
+        },
+        "branches": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 500"
+              },
+              {
+                "name": "Showroom Quận Mẫu",
+                "address": "120 Đường Mẫu A, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 511"
+              },
+              {
+                "name": "Cửa hàng Mẫu Thủ Đức",
+                "address": "45 Đường Mẫu B, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 512"
+              }
+            ]
+          },
+          {
+            "name": "Hà Nội",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 520"
+              },
+              {
+                "name": "Showroom Mẫu Cầu Giấy",
+                "address": "18 Phố Mẫu C, Hà Nội [HƯ CẤU]",
+                "phone": "0901 234 531"
+              }
+            ]
+          },
+          {
+            "name": "Đà Nẵng",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 540"
+              },
+              {
+                "name": "Cửa hàng Mẫu Hải Châu",
+                "address": "9 Đường Mẫu E, Đà Nẵng [HƯ CẤU]",
+                "phone": "0901 234 551"
+              }
+            ]
+          },
+          {
+            "name": "Cần Thơ",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 580"
+              },
+              {
+                "name": "Showroom Mẫu Ninh Kiều",
+                "address": "15 Đường Mẫu I, Cần Thơ [HƯ CẤU]",
+                "phone": "0901 234 591"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "?phan-khuc=ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi",
+                  "en": "Shops & chains"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=nha-xuong",
+                "label": {
+                  "vi": "Nhà xưởng",
+                  "en": "Factories"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=trang-trai",
+                "label": {
+                  "vi": "Trang trại",
+                  "en": "Farms"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Dịch vụ kỹ thuật",
+                  "en": "Engineering services"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Công ty",
+              "en": "Company"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Về chúng tôi",
+                  "en": "About us"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm & thiết bị",
+                  "en": "Products"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức & kinh nghiệm",
+                  "en": "News & guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "cam-nang",
+                "label": {
+                  "vi": "Cẩm nang",
+                  "en": "Guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ",
+                  "en": "Contact"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Chính sách",
+              "en": "Policies"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Chính sách bảo hành",
+                  "en": "Warranty policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/doi-tra",
+                "label": {
+                  "vi": "Chính sách đổi trả",
+                  "en": "Returns policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/van-chuyen",
+                "label": {
+                  "vi": "Chính sách vận chuyển",
+                  "en": "Shipping policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-mat",
+                "label": {
+                  "vi": "Chính sách bảo mật",
+                  "en": "Privacy policy"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Thứ 2 – Thứ 7: 08:00 – 17:30\nlienhe@lumivolt.example",
+          "en": "Mon – Sat: 08:00 – 17:30\nlienhe@lumivolt.example"
+        },
+        "disclaimer": [
+          {
+            "vi": "Website demo — dữ liệu hư cấu.",
+            "en": "Demo website — fictional data."
+          },
+          {
+            "vi": "Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản.",
+            "en": "Names, figures, addresses, brands and licences are samples."
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {
+    "contact-dock": {
+      "enabled": true,
+      "variant": "t11",
+      "data": {
+        "items": [
+          {
+            "kind": "call",
+            "label": {
+              "vi": "Gọi",
+              "en": "Call"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901234567",
+              "label": {
+                "vi": "Gọi"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Zalo Gia đình",
+              "en": "Zalo · Home"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901234567",
+              "label": {
+                "vi": "Zalo Gia đình"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Zalo Doanh nghiệp",
+              "en": "Zalo · Business"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901234567",
+              "label": {
+                "vi": "Zalo Doanh nghiệp"
+              }
+            }
+          }
+        ],
+        "mobileBar": true,
+        "ariaLabel": {
+          "vi": "Liên hệ nhanh",
+          "en": "Quick contact"
+        }
+      }
+    },
+    "consult-popup": {
+      "enabled": false,
+      "variant": "t15"
+    },
+    "mobile-bottom-nav": {
+      "enabled": false,
+      "variant": "t15"
+    },
+    "commitments-strip": {
+      "enabled": false,
+      "variant": "t15"
+    },
+    "quote-cart": {
+      "enabled": true,
+      "variant": "t15"
+    },
+    "theme-switch": {
+      "enabled": true,
+      "variant": "t15"
+    },
+    "scroll-progress": {
+      "enabled": false,
+      "variant": "t15"
+    }
+  }
+}

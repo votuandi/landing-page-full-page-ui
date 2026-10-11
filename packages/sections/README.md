@@ -361,3 +361,21 @@ nội bộ như `/bang-gia` điều hướng tới trang đó với prefill, `nu
 Thiếu provider, hook phân khúc dùng state cục bộ và đọc URL; calculator vẫn dùng bus/fallback trang chủ.
 Lab `/lab/sections/*` có provider; `/lab/sections/t15?an=segments` hoặc `?an=calculator` kiểm các section vắng mặt.
 Store quote cart của core giữ nguyên; dự toán lưu qua `saveLastEstimate`/`readLastEstimate`.
+
+## Variant t11 (E4-S05, Giai đoạn 1)
+
+`hero`, `calculator`, `segments`, `projects`, `trust` và widget `contact-dock` có variant t11.
+`t11-fixtures.ts` theo từng type giữ nội dung mẫu của template-11; defaults chung vẫn dùng được cho mọi variant.
+Hero/calculator có `packageSimulation` tùy chọn dùng cùng schema (gói, tỉnh và giả định), mặc định t11 dùng
+fixture mô phỏng đã gắn `[DỮ LIỆU MẪU]`. Calculator có `quoteCta` tùy chọn; thiếu thì liên kết tới `#lien-he`.
+Hero gửi hóa đơn qua calculator bus khi submit. Form GET dùng `hoa-don`, `nguon` và `#du-toan` để giữ fallback
+khi tắt JavaScript; HTML calculator vẫn hiện gói mặc định, URL được áp dụng khi island hydrate.
+
+Segments bổ sung `solarProfile` và `items[].comparison` tùy chọn cho phụ tải 24 giờ; tất cả panel có nội dung
+trong HTML server, sau hydrate mới chuyển thành tabs. Projects có `evidence` tùy chọn liên kết project ID với
+gói/tỉnh; phép mô phỏng và cộng tổng nằm trong core. Trust có `items[].lookupUrl` và `legalItems` tùy chọn;
+nguồn chưa xác minh luôn có nhãn. Các type này tăng schemaVersion 1 → 2, migration ở `<type>/migrations.ts`
+giữ nguyên dữ liệu trước đây vì mọi trường mới đều tùy chọn. Widget dùng schema contact-dock có sẵn.
+
+Kiểm tương tác t11: `tooling/visual/t11.spec.ts` trong suite sections; lab từng section dùng
+`/lab/sections/<type>?variant=t11&themes=t11,t15`. Preset `packages/presets/t11.json`, ảnh so sánh ở `roadmap/evidence/E4/t11/`.

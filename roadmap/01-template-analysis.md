@@ -65,6 +65,12 @@ tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua
 `process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
 (cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
 
+**Đã port — t11 (E4-S05, chờ design pass):** theme `packages/themes/t11`; variant `t11` cho hero, calculator,
+segments, projects, trust và widget contact-dock; mô phỏng gói (`solar-calc`) gộp vào `@solar/core`
+(`solarPackages`). [`packages/presets/t11.json`](../packages/presets/t11.json) theo thứ tự `SolarHome`: header,
+hero, vấn đề (process/t15), calculator, segments, projects, trust, FAQ (faq/t15), lead-form (`home-bottom`), footer.
+Xem `/lab/presets/t11`, ảnh trước/sau ở `roadmap/evidence/E4/t11/`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
