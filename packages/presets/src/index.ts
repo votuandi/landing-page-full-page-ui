@@ -1,11 +1,12 @@
 import { pageConfigSchema, sectionRegistry } from "@solar/sections";
 import { getTheme } from "@solar/themes";
+import t12 from "../t12.json";
 import t15 from "../t15.json";
 import { presetSchema } from "./schema";
 
 export { presetSchema };
 export type { Preset } from "./schema";
-export const presets = [presetSchema.parse(t15)];
+export const presets = [presetSchema.parse(t15), presetSchema.parse(t12)];
 
 export function getPreset(id: string) {
   return presets.find((preset) => preset.id === id);
