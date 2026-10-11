@@ -62,6 +62,11 @@ export const heroSchema = z.object({
   }).optional(),
   /** Biểu đồ dữ liệu tùy chọn cho hero kỹ thuật; dùng cùng chuỗi 24 điểm của giám sát. */
   chart: energyMonitoringSchema.shape.chart.extend({ unit: localized({ max: 60 }) }).optional(),
+  /** Banner nhiều ảnh; vắng mặt giữ nguyên hero một ảnh của schema v1. */
+  slides: z.array(z.object({
+    badge: localized({ max: 120 }).optional(), title: localized({ max: 200 }),
+    description: localized({ multiline: true, max: 400 }), image: mediaRef(), cta: link().optional(),
+  })).min(1).max(8).optional(),
 });
 
 export const hero = defineSectionType({

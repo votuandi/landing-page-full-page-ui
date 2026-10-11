@@ -30,6 +30,18 @@ require.extensions[".ts"] = (module, filename) => {
   module._compile(outputText, filename);
 };
 
+test("four Classic themes use Inter, light mode and their source identities", () => {
+  const { getTheme, themeFontFamilies } = require("../index.ts");
+  for (const [id, primary] of [["t01", "21 128 61"], ["t02", "20 83 45"], ["t03", "194 65 12"], ["t04", "27 94 69"]]) {
+    const theme = getTheme(id);
+    assert.ok(theme, id);
+    assert.equal(theme.meta.group, "classic");
+    assert.equal(theme.meta.supportsDark, false);
+    assert.equal(theme.colors.light.primary, primary);
+    assert.deepEqual(themeFontFamilies(theme), ["Inter"]);
+  }
+});
+
 test("export t15 parse thành công và khớp fixture chuẩn, gồm màu dark partial", () => {
   const { t15 } = require("../index.ts");
   const { parseTheme, themeToCss } = require("@solar/tokens");

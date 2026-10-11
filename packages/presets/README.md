@@ -47,3 +47,12 @@ Xem `/lab/presets/t05|t06|t09`, đổi theme bằng `?theme=t15`.
 
 App dev cổng 3005: `pnpm --filter @solar/visual exec playwright test -c playwright.ci-presets.config.ts` kiểm
 390/1440, theme gốc/t15, không JavaScript và matrix; lưu JPEG ở `roadmap/evidence/E4/<id>/`.
+
+E4-S10 thêm `t01`–`t04` (Classic) và `BASIC_SECTION_TYPES`, lấy đúng cột gói Cơ bản tại
+`roadmap/01-template-analysis.md` §3. Hằng này là bảng tạm, E6 thay bằng `@solar/plans`; `lead-form` chỉ thuộc Cơ bản
+khi là liên hệ đơn giản. Classic dùng CTA điện thoại, giữ form lead nâng cao, catalog, calculator, packages, stats,
+FAQ và testimonials ở trạng thái tắt. Các khối tắt vẫn giữ dữ liệu và vị trí gốc để nâng gói sau này.
+
+Collection dùng trong lab có `data.items` trực tiếp trong JSON. `?theme=t15` kiểm khả năng đổi theme;
+`/lab/presets/t03?subpage=gioi-thieu` và `?subpage=dich-vu` xem `page-hero/t03` với header/footer preset.
+Query trang con phải có trong `subpages`, giá trị khác trả 404; không thay route tenant công khai.

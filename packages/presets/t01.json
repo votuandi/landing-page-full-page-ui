@@ -1,0 +1,951 @@
+{
+  "id": "t01",
+  "name": "Classic · Minwy Solar",
+  "group": "classic",
+  "themeId": "t01",
+  "description": "[DỮ LIỆU MẪU] Preset Classic gói Cơ bản; khối gói cao hơn tắt mặc định.",
+  "source": {
+    "branch": "minwy"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "[DỮ LIỆU MẪU] Minwy Solar"
+        },
+        "topBar": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tư vấn, cung cấp thiết bị và thi công điện mặt trời"
+          }
+        ],
+        "menus": [],
+        "links": [
+          {
+            "kind": "page",
+            "value": "",
+            "label": {
+              "vi": "Trang chủ"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Giới thiệu"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "giai-phap",
+            "label": {
+              "vi": "Giải pháp"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "projects",
+            "label": {
+              "vi": "Dự án"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline tư vấn"
+        },
+        "hotlines": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "main": "0901234567",
+            "lines": []
+          }
+        ],
+        "cta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Nhận tư vấn"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "phone",
+            "value": "0901234567",
+            "label": {
+              "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "badge": {
+          "vi": "Thiết bị điện mặt trời"
+        },
+        "title": {
+          "lead": {
+            "vi": "Tấm pin hiệu suất cao"
+          },
+          "highlight": {
+            "vi": "Tối ưu sản lượng điện mỗi ngày"
+          },
+          "sub": {
+            "vi": ""
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "Giải pháp tấm pin chất lượng cao, phù hợp cho nhà ở và doanh nghiệp."
+        },
+        "primaryCta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Nhận tư vấn"
+          }
+        },
+        "secondaryCta": {
+          "kind": "phone",
+          "value": "0901234567",
+          "label": {
+            "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+          }
+        },
+        "stats": [],
+        "image": {
+          "id": "/images/solar-panels-hero.jpg",
+          "alt": {
+            "vi": "Tấm pin năng lượng mặt trời"
+          }
+        },
+        "chips": [],
+        "slides": [
+          {
+            "badge": {
+              "vi": "TẤM PIN HIỆU SUẤT CAO"
+            },
+            "title": {
+              "vi": "Tối ưu sản lượng điện mỗi ngày"
+            },
+            "description": {
+              "vi": "Giải pháp tấm pin chất lượng cao, phù hợp cho nhà ở và doanh nghiệp."
+            },
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Tấm pin năng lượng mặt trời"
+              }
+            },
+            "cta": {
+              "kind": "page",
+              "value": "san-pham",
+              "label": {
+                "vi": "Xem sản phẩm"
+              }
+            }
+          },
+          {
+            "badge": {
+              "vi": "BIẾN TẦN THÔNG MINH"
+            },
+            "title": {
+              "vi": "Vận hành ổn định, giám sát thuận tiện"
+            },
+            "description": {
+              "vi": "Thiết bị inverter đáp ứng nhiều quy mô hệ thống và nhu cầu sử dụng."
+            },
+            "image": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Biến tần điện mặt trời"
+              }
+            },
+            "cta": {
+              "kind": "page",
+              "value": "san-pham",
+              "label": {
+                "vi": "Khám phá sản phẩm"
+              }
+            }
+          },
+          {
+            "badge": {
+              "vi": "THI CÔNG TRỌN GÓI"
+            },
+            "title": {
+              "vi": "Từ khảo sát đến vận hành hệ thống"
+            },
+            "description": {
+              "vi": "Đội ngũ kỹ thuật đồng hành từ tư vấn, thiết kế, thi công đến bảo trì."
+            },
+            "image": {
+              "id": "/images/solar-installation-hero.jpg",
+              "alt": {
+                "vi": "Thi công điện mặt trời"
+              }
+            },
+            "cta": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem dịch vụ"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "introduction",
+      "type": "about-story",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Năng lượng sạch • Hiệu quả bền vững"
+        },
+        "title": {
+          "vi": "Giải pháp năng lượng mặt trời cho mọi công trình"
+        },
+        "body": {
+          "vi": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Tư vấn, cung cấp thiết bị và thi công hệ thống điện mặt trời cho gia đình và doanh nghiệp, tối ưu hiệu suất và chi phí vận hành."
+                }
+              ]
+            }
+          ]
+        },
+        "image": {
+          "id": "/images/solar-installation-hero.jpg",
+          "alt": {
+            "vi": "Thi công hệ thống điện mặt trời"
+          }
+        },
+        "stats": [
+          {
+            "value": 10,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Năm kinh nghiệm"
+            }
+          },
+          {
+            "value": 1000,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Công trình"
+            }
+          },
+          {
+            "value": 50,
+            "suffix": {
+              "vi": " MWp"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Công suất"
+            }
+          }
+        ],
+        "milestones": [],
+        "values": [],
+        "ctas": [
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Tư vấn miễn phí"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "giai-phap",
+            "label": {
+              "vi": "Quy trình lắp đặt"
+            }
+          }
+        ]
+      },
+      "note": "Hero giới thiệu sau SliderBanner map sang about-story để giữ giới hạn một hero/trang."
+    },
+    {
+      "id": "partners",
+      "type": "brands",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Đồng hành cùng năng lượng sạch"
+        },
+        "title": {
+          "vi": "Đối tác của chúng tôi"
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Logo đối tác minh họa từ template gốc; cần xác nhận trước khi xuất bản."
+        },
+        "groups": [
+          {
+            "id": "partners",
+            "label": {
+              "vi": "Đối tác"
+            }
+          }
+        ],
+        "items": [
+          {
+            "name": {
+              "vi": "An Khang Pharmacy"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/Logo-Nha-Thuoc-An-Khang-.webp",
+              "alt": {
+                "vi": "An Khang Pharmacy"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Thế Giới Di Động"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/logo-the-gioi-di-dong-2.jpg",
+              "alt": {
+                "vi": "Thế Giới Di Động"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Bách Hóa Xanh"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/logo-bach-hoa-xanh-compressed.jpg",
+              "alt": {
+                "vi": "Bách Hóa Xanh"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 1"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/1-4748-hinh.png",
+              "alt": {
+                "vi": "Đối tác 1"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 2"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/3-1114-hinh.jpg",
+              "alt": {
+                "vi": "Đối tác 2"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 3"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/4-7734-hinh.png",
+              "alt": {
+                "vi": "Đối tác 3"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 4"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/images.jpg",
+              "alt": {
+                "vi": "Đối tác 4"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "variant": "minwy",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "Cửa hàng thiết bị",
+          "en": "[SAMPLE DATA] Cửa hàng thiết bị"
+        },
+        "title": {
+          "vi": "Sản phẩm năng lượng mặt trời"
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Danh mục thiết bị, giá và thông số minh họa."
+        },
+        "query": {
+          "filter": {
+            "featured": true
+          },
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "growatt-3kw",
+            "slug": "growatt-3kw",
+            "name": "[DỮ LIỆU MẪU] Biến tần Growatt MIN 3000TL-XE",
+            "category": "inverter",
+            "categoryLabel": "Biến tần Inverter",
+            "brand": "Growatt",
+            "images": [
+              {
+                "id": "/images/product-1.jpg",
+                "alt": {
+                  "vi": "Biến tần Growatt MIN 3000TL-XE"
+                }
+              }
+            ],
+            "price": 8500000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "3 kW"
+              }
+            ],
+            "href": "/san-pham/growatt-3kw",
+            "featured": true
+          },
+          {
+            "id": "huawei-5kw",
+            "slug": "huawei-5kw",
+            "name": "[DỮ LIỆU MẪU] Biến tần Huawei SUN2000-5KTL-L1",
+            "category": "inverter",
+            "categoryLabel": "Biến tần Inverter",
+            "brand": "Huawei",
+            "images": [
+              {
+                "id": "/images/product-1.jpg",
+                "alt": {
+                  "vi": "Biến tần Huawei SUN2000-5KTL-L1"
+                }
+              }
+            ],
+            "price": 12800000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "5 kW"
+              }
+            ],
+            "href": "/san-pham/huawei-5kw",
+            "featured": true
+          },
+          {
+            "id": "pylontech-355",
+            "slug": "pylontech-355",
+            "name": "[DỮ LIỆU MẪU] Pin Lithium Pylontech US3000C",
+            "category": "battery",
+            "categoryLabel": "Pin lưu trữ Lithium",
+            "brand": "Pylontech",
+            "images": [
+              {
+                "id": "/images/product-2.jpg",
+                "alt": {
+                  "vi": "Pin Lithium Pylontech US3000C"
+                }
+              }
+            ],
+            "price": 18500000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "3,55 kWh"
+              }
+            ],
+            "href": "/san-pham/pylontech-355",
+            "featured": true
+          },
+          {
+            "id": "byd-4kwh",
+            "slug": "byd-4kwh",
+            "name": "[DỮ LIỆU MẪU] Pin Lithium BYD Battery-Box",
+            "category": "battery",
+            "categoryLabel": "Pin lưu trữ Lithium",
+            "brand": "BYD",
+            "images": [
+              {
+                "id": "/images/product-2.jpg",
+                "alt": {
+                  "vi": "Pin Lithium BYD Battery-Box"
+                }
+              }
+            ],
+            "price": 45800000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "4 kWh"
+              }
+            ],
+            "href": "/san-pham/byd-4kwh",
+            "featured": true
+          },
+          {
+            "id": "canadian-580w",
+            "slug": "canadian-580w",
+            "name": "[DỮ LIỆU MẪU] Tấm pin Canadian Solar 580W",
+            "category": "panel",
+            "categoryLabel": "Tấm pin năng lượng mặt trời",
+            "brand": "Canadian Solar",
+            "images": [
+              {
+                "id": "/images/product-3.jpg",
+                "alt": {
+                  "vi": "Tấm pin Canadian Solar 580W"
+                }
+              }
+            ],
+            "price": 3200000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "580 W"
+              }
+            ],
+            "href": "/san-pham/canadian-580w",
+            "featured": true
+          },
+          {
+            "id": "jinko-575w",
+            "slug": "jinko-575w",
+            "name": "[DỮ LIỆU MẪU] Tấm pin JinkoSolar Tiger Neo 575W",
+            "category": "panel",
+            "categoryLabel": "Tấm pin năng lượng mặt trời",
+            "brand": "JinkoSolar",
+            "images": [
+              {
+                "id": "/images/product-3.jpg",
+                "alt": {
+                  "vi": "Tấm pin JinkoSolar Tiger Neo 575W"
+                }
+              }
+            ],
+            "price": 3450000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "575 W"
+              }
+            ],
+            "href": "/san-pham/jinko-575w",
+            "featured": true
+          }
+        ],
+        "allLink": {
+          "kind": "page",
+          "value": "san-pham",
+          "label": {
+            "vi": "Xem tất cả",
+            "en": "View all"
+          }
+        },
+        "quickViewLabel": {
+          "vi": "Xem nhanh",
+          "en": "Quick view"
+        },
+        "addLabel": {
+          "vi": "Thêm vào yêu cầu báo giá",
+          "en": "Add to quote request"
+        },
+        "addedLabel": {
+          "vi": "Đã thêm",
+          "en": "Added"
+        },
+        "compactAddLabel": {
+          "vi": "Thêm báo giá",
+          "en": "Add to quote"
+        },
+        "viewCartLabel": {
+          "vi": "Xem giỏ báo giá",
+          "en": "View quote cart"
+        },
+        "detailsLabel": {
+          "vi": "Trang chi tiết",
+          "en": "Details"
+        },
+        "warrantyLabel": {
+          "vi": "Bảo hành",
+          "en": "Warranty"
+        },
+        "contactPriceLabel": {
+          "vi": "Liên hệ",
+          "en": "Contact"
+        }
+      },
+      "note": "ProductSection giữ vị trí gốc; catalog thuộc Cao cấp nên tắt mặc định. Danh mục rút gọn trong giới hạn schema."
+    },
+    {
+      "id": "projects",
+      "type": "projects",
+      "variant": "t12",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Dự án tiêu biểu"
+        },
+        "title": {
+          "vi": "Hiệu quả được kể bằng công trình"
+        },
+        "query": {
+          "limit": 3
+        },
+        "items": [
+          {
+            "id": "xuong-an-phat",
+            "title": "[DỮ LIỆU MẪU] Nhà xưởng An Phát",
+            "segment": "factory",
+            "location": "Bình Dương",
+            "kwp": 320,
+            "image": {
+              "id": "/images/news-1.jpg",
+              "alt": {
+                "vi": "Nhà xưởng An Phát"
+              }
+            },
+            "href": "/cong-trinh/xuong-an-phat"
+          },
+          {
+            "id": "biet-thu-riverside",
+            "title": "[DỮ LIỆU MẪU] Biệt thự Riverside",
+            "segment": "household",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 12,
+            "image": {
+              "id": "/images/news-2.jpg",
+              "alt": {
+                "vi": "Biệt thự Riverside"
+              }
+            },
+            "href": "/cong-trinh/biet-thu-riverside"
+          },
+          {
+            "id": "kho-lanh-minh-thanh",
+            "title": "[DỮ LIỆU MẪU] Kho lạnh Minh Thành",
+            "segment": "factory",
+            "location": "Long An",
+            "kwp": 180,
+            "image": {
+              "id": "/images/news-4.jpg",
+              "alt": {
+                "vi": "Kho lạnh Minh Thành"
+              }
+            },
+            "href": "/cong-trinh/kho-lanh-minh-thanh"
+          }
+        ],
+        "showFilter": false,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "note": "ProjectsSection dùng lưới projects/t12 gần nhất; dữ liệu collection mẫu có sẵn cho lab.",
+      "anchor": "projects"
+    },
+    {
+      "id": "news",
+      "type": "blog",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Kinh nghiệm lắp đặt",
+          "en": "[SAMPLE DATA] Installation know-how"
+        },
+        "title": {
+          "vi": "Tin tức mới nhất"
+        },
+        "query": {
+          "limit": 6
+        },
+        "items": [
+          {
+            "id": "thiet-ke",
+            "title": "[DỮ LIỆU MẪU] Thiết kế hệ thống điện mặt trời phù hợp với mái nhà",
+            "excerpt": "Kiến thức lựa chọn, lắp đặt và vận hành hệ thống điện mặt trời theo nhu cầu thực tế.",
+            "cover": {
+              "id": "/images/solar-installation-hero.jpg",
+              "alt": {
+                "vi": "Thiết kế hệ thống điện mặt trời phù hợp với mái nhà"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/thiet-ke"
+          },
+          {
+            "id": "tam-pin",
+            "title": "[DỮ LIỆU MẪU] Tìm hiểu tấm pin năng lượng mặt trời hiệu suất cao",
+            "excerpt": "Kiến thức lựa chọn, lắp đặt và vận hành hệ thống điện mặt trời theo nhu cầu thực tế.",
+            "cover": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Tìm hiểu tấm pin năng lượng mặt trời hiệu suất cao"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/tam-pin"
+          },
+          {
+            "id": "inverter",
+            "title": "[DỮ LIỆU MẪU] Chọn biến tần cho hệ thống điện mặt trời",
+            "excerpt": "Kiến thức lựa chọn, lắp đặt và vận hành hệ thống điện mặt trời theo nhu cầu thực tế.",
+            "cover": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Chọn biến tần cho hệ thống điện mặt trời"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/inverter"
+          },
+          {
+            "id": "luu-tru",
+            "title": "[DỮ LIỆU MẪU] Khi nào nên dùng pin lưu trữ?",
+            "excerpt": "Kiến thức lựa chọn, lắp đặt và vận hành hệ thống điện mặt trời theo nhu cầu thực tế.",
+            "cover": {
+              "id": "/images/solar-battery-hero.jpg",
+              "alt": {
+                "vi": "Khi nào nên dùng pin lưu trữ?"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/luu-tru"
+          }
+        ],
+        "allLink": {
+          "kind": "page",
+          "value": "tin-tuc",
+          "label": {
+            "vi": "Tất cả bài viết",
+            "en": "All articles"
+          }
+        },
+        "readMinutesLabel": {
+          "vi": "phút đọc",
+          "en": "min read"
+        },
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      }
+    },
+    {
+      "id": "warranty-policy",
+      "type": "warranty",
+      "variant": "minwy",
+      "enabled": false,
+      "note": "Khối trang con bảo hành, không thuộc trang chủ gốc; không port API đăng ký/tra cứu mô phỏng."
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "[DỮ LIỆU MẪU] Minwy Solar",
+          "tagline": {
+            "vi": "Giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp."
+          }
+        },
+        "socials": [],
+        "legal": {
+          "legalName": "[DỮ LIỆU MẪU] Minwy Solar",
+          "lines": [
+            {
+              "vi": "[DỮ LIỆU MẪU] Thông tin doanh nghiệp cần được thay trước khi xuất bản."
+            }
+          ],
+          "badges": [],
+          "moitBadge": {
+            "enabled": false
+          }
+        },
+        "branchesTitle": {
+          "vi": "Liên hệ"
+        },
+        "branches": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "stores": [
+              {
+                "name": "Tư vấn điện mặt trời",
+                "phone": "0901234567",
+                "address": "[DỮ LIỆU MẪU] Việt Nam"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Về chúng tôi"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Giới thiệu"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Giải pháp"
+                }
+              },
+              {
+                "kind": "anchor",
+                "value": "projects",
+                "label": {
+                  "vi": "Dự án"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Hỗ trợ"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Bảo hành"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Khảo sát và tư vấn theo nhu cầu thực tế."
+        },
+        "disclaimer": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tên công ty, số điện thoại và số liệu chỉ để minh họa."
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {}
+}

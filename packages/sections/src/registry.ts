@@ -1,4 +1,5 @@
 import { variants as loadProfile } from "./load-profile";
+import { variants as pageHero } from "./page-hero";
 import { variants as services } from "./services";
 import { variants as aboutStory } from "./about-story";
 import { variants as warranty } from "./warranty";
@@ -65,6 +66,7 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 }
 
 export const sectionRegistry = createRegistry({
+  "page-hero": pageHero,
   "products": products,
   "dealer": dealer,
   "branch-map": branchMap,

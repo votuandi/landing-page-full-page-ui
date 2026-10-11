@@ -12,6 +12,11 @@ Các nền nhấn ở light dùng bảng pastel của `.t12-invert` gốc; dark 
 `t11/theme.ts` port bảng màu `--solar-*` của template-11, nhóm Pro, Be Vietnam Pro + Manrope.
 Theme dùng weight 400/600/800 có sẵn trong FONTS; màu `accent-ink` được làm tối để đạt AA.
 
+E4-S10 thêm bốn theme `group: "classic"`, chỉ light và dùng Inter có sẵn: `t01` Minwy (xanh lá/vàng),
+`t02` Minwy Solar (xanh rừng/vàng nắng/nền giấy), `t03` Trọng Tín Solar (ấm, đất nung/vàng),
+`t04` Solar Engineering (emerald/lime, card và media không bo). Cả bốn được export và đăng ký trong `themes`;
+test chung kiểm parse, tương phản AA và ngân sách font. Màu primary t03 tối hơn bản gốc để đạt AA cho chữ thường.
+
 ```ts
 import { t15 } from "@solar/themes";
 import { themeToCss } from "@solar/tokens";

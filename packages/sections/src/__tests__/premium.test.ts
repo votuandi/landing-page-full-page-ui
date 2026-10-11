@@ -114,3 +114,8 @@ test("all premium variants render locale-aware content; product and map links su
     }
   }
 });
+
+test("registry has exactly the 29 section types and their package entitlements", () => {
+  assert.deepEqual(Object.keys(sectionRegistry.types).sort(), Object.keys(entitlements).sort());
+  for (const [type, entitlement] of Object.entries(entitlements)) assert.equal(sectionRegistry.getType(type)?.meta.entitlement, entitlement, type);
+});
