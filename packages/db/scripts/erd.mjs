@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const schema = readFileSync(new URL("../prisma/schema.prisma", import.meta.url), "utf8");
+const schema = readFileSync(new URL("../prisma/schema.prisma", import.meta.url), "utf8").replaceAll("\r\n", "\n");
 const models = [...schema.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)];
 const entities = new Set(models.map(([, name]) => name));
 const lines = ["# Mô hình dữ liệu tenant", "", "Sinh từ `prisma/schema.prisma` bằng `pnpm --filter @solar/db db:erd`.", "", "Khóa ngoại giữa bảng tenant luôn ghép `(tenantId, xxxId) → (tenantId, id)`.", "`Outbox` và `AuditLog` cho phép `tenantId = null` cho tác vụ nền tảng.", "", "```mermaid", "erDiagram"];
