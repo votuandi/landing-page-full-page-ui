@@ -74,3 +74,17 @@ test("t15 keeps legacy order, two projects and disabled optional sections", () =
   assert.equal(widgets["theme-switch"].enabled, true);
   assert.equal(page.sections.find((section) => section.type === "warranty").enabled, false);
 });
+
+test("t11 follows SolarHome order with t11 variants, bill-to-calculator anchor and home-bottom lead source", () => {
+  const { loadPreset } = require("../index.ts");
+  const { page, widgets, theme } = loadPreset("t11");
+  assert.equal(theme.meta.id, "t11");
+  assert.deepEqual(page.sections.map((section) => `${section.type}/${section.variant}`), [
+    "site-header/t15", "hero/t11", "process/t15", "calculator/t11", "segments/t11", "projects/t11",
+    "trust/t11", "faq/t15", "lead-form/t15", "site-footer/t15",
+  ]);
+  assert.equal(page.sections.find((section) => section.type === "calculator").anchor, "du-toan");
+  assert.equal(page.sections.find((section) => section.type === "lead-form").data.source, "home-bottom");
+  assert.equal(widgets["contact-dock"].variant, "t11");
+  assert.equal(widgets["mobile-bottom-nav"].enabled, false);
+});

@@ -362,4 +362,4 @@ nguồn chưa xác minh luôn có nhãn. Các type này tăng schemaVersion 1 �
 giữ nguyên dữ liệu trước đây vì mọi trường mới đều tùy chọn. Widget dùng schema contact-dock có sẵn.
 
 Kiểm tương tác t11: `tooling/visual/t11.spec.ts` trong suite sections; lab từng section dùng
-`/lab/sections/<type>?variant=t11&themes=t11,t15`. Preset và ảnh so sánh được thực hiện sau E4-S01.
+`/lab/sections/<type>?variant=t11&themes=t11,t15`. Preset `packages/presets/t11.json`, ảnh so sánh ở `roadmap/evidence/E4/t11/`.
