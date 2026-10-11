@@ -28,9 +28,10 @@ type RuntimeDelegate = Record<"findMany" | "findFirst" | "count" | "create" | "u
 const collectionNames = {
   project: "projects", story: "stories", testimonial: "testimonials", post: "posts", product: "products", branch: "branches",
 } as const;
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function forTenant(db: DbClient, tenantId: string): TenantRepo {
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId)) throw new Error("tenantId must be a UUID");
+  if (!uuid.test(tenantId)) throw new Error("tenantId must be a UUID");
   tenantId = tenantId.toLowerCase();
   const clean = (data: Input): Input => {
     const { tenantId: _tenantId, tenant: _tenant, ...rest } = data;
@@ -53,7 +54,7 @@ export function forTenant(db: DbClient, tenantId: string): TenantRepo {
     return {
       list: (args?: Input) => delegate.findMany(scoped(args)),
       first: (args?: Input) => delegate.findFirst(scoped(args)),
-      get: (id: string) => delegate.findFirst({ where: { id, tenantId } }),
+      get: (id: string) => uuid.test(id) ? delegate.findFirst({ where: { id, tenantId } }) : Promise.resolve(null),
       count: (args?: Input) => delegate.count(scoped(args)),
       async create(input: Input) {
         const data = clean(input);
