@@ -1,0 +1,1844 @@
+{
+  "id": "t10",
+  "name": "Pro · Xanh lá – dương",
+  "group": "pro",
+  "themeId": "t10",
+  "description": "[DỮ LIỆU MẪU] Trang chủ Pro t10: điện mặt trời cho nhà máy, cửa hàng, gia đình — chọn phân khúc ngay hero.",
+  "source": {
+    "branch": "template-10"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Header gốc (SiteShell t10: logo, menu, nút khảo sát) chưa có variant riêng; dùng site-header/t15 với dữ liệu t10.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [],
+        "menus": [],
+        "links": [
+          {
+            "kind": "page",
+            "value": "giai-phap",
+            "label": {
+              "vi": "Giải pháp"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Thiết bị"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "du-an",
+            "label": {
+              "vi": "Dự án"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Về chúng tôi"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline theo chi nhánh",
+          "en": "Hotlines by branch"
+        },
+        "hotlines": [],
+        "cta": {
+          "kind": "anchor",
+          "value": "lien-he",
+          "label": {
+            "vi": "Khảo sát miễn phí"
+          }
+        },
+        "drawerActions": []
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "badge": {
+          "vi": "Điện mặt trời cho nhà máy • cửa hàng • gia đình"
+        },
+        "title": {
+          "lead": {
+            "vi": "Biến điện năng thành"
+          },
+          "highlight": {
+            "vi": "giá trị"
+          },
+          "sub": {
+            "vi": "cho mỗi công trình."
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "Một mái nhà, một bài toán riêng. Chọn giải pháp phù hợp để giảm chi phí điện, chủ động năng lượng và nhìn rõ hiệu quả đầu tư."
+        },
+        "primaryCta": {
+          "kind": "anchor",
+          "value": "lien-he",
+          "label": {
+            "vi": "Nhận khảo sát miễn phí"
+          }
+        },
+        "secondaryCta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Tính tiền tiết kiệm"
+          }
+        },
+        "stats": [],
+        "image": {
+          "id": "/images/t10/factory.webp",
+          "alt": {
+            "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+          }
+        },
+        "chips": [],
+        "savingCard": {
+          "label": {
+            "vi": "Điện tự dùng"
+          },
+          "value": "Ưu tiên tải ban ngày",
+          "unit": {
+            "vi": "Theo phụ tải thực tế"
+          }
+        },
+        "highlights": [
+          {
+            "vi": "Khảo sát theo nhu cầu thực tế"
+          },
+          {
+            "vi": "Báo cáo hiệu quả minh bạch"
+          },
+          {
+            "vi": "Đồng hành sau bàn giao"
+          }
+        ],
+        "note": {
+          "vi": "* Số liệu và điều kiện minh họa; hiệu quả thực tế phụ thuộc khảo sát, phụ tải, thiết bị và hợp đồng."
+        },
+        "segmentViews": {
+          "label": {
+            "vi": "Bạn là:"
+          },
+          "items": [
+            {
+              "segment": "factory",
+              "label": {
+                "vi": "Nhà máy"
+              },
+              "title": {
+                "vi": "Biến mái nhà xưởng thành lợi thế về chi phí điện."
+              },
+              "description": {
+                "vi": "Từ nhà máy phân bón, kho lạnh đến trang trại gà: thiết kế theo phụ tải, có báo cáo tài chính và trách nhiệm vận hành rõ ràng."
+              },
+              "highlights": [
+                {
+                  "vi": "Giảm 20–40% chi phí điện*"
+                },
+                {
+                  "vi": "Hoàn vốn khoảng 4–6 năm*"
+                },
+                {
+                  "vi": "ESCO: 0 đồng đầu tư ban đầu*"
+                }
+              ],
+              "image": {
+                "id": "/images/t10/factory.webp",
+                "alt": {
+                  "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+                }
+              },
+              "ctaLabel": {
+                "vi": "Nhận khảo sát & báo cáo tài chính miễn phí"
+              }
+            },
+            {
+              "segment": "shop",
+              "label": {
+                "vi": "Cửa hàng"
+              },
+              "title": {
+                "vi": "Một giải pháp điện mặt trời. Đồng bộ cả chuỗi cửa hàng."
+              },
+              "description": {
+                "vi": "Bách hóa, cà phê, nhà thuốc: tận dụng nắng trong giờ kinh doanh, quản lý điện năng tập trung và bảo trì qua một đầu mối."
+              },
+              "highlights": [
+                {
+                  "vi": "Phát điện đúng giờ kinh doanh"
+                },
+                {
+                  "vi": "Giám sát tập trung toàn chuỗi"
+                },
+                {
+                  "vi": "Một đầu mối triển khai & bảo trì"
+                }
+              ],
+              "image": {
+                "id": "/images/t10/retail.webp",
+                "alt": {
+                  "vi": "Ảnh minh họa cửa hàng tiện lợi Việt Nam với pin trên mái"
+                }
+              },
+              "ctaLabel": {
+                "vi": "Tư vấn giải pháp cho chuỗi"
+              }
+            },
+            {
+              "segment": "household",
+              "label": {
+                "vi": "Gia đình"
+              },
+              "title": {
+                "vi": "Nhà đón nắng. Gia đình nhẹ hóa đơn điện."
+              },
+              "description": {
+                "vi": "Điện mặt trời áp mái và hệ hybrid có pin lưu trữ, giúp dùng điện chủ động hơn, theo dõi dễ dàng qua ứng dụng."
+              },
+              "highlights": [
+                {
+                  "vi": "Giảm hóa đơn điện bậc thang"
+                },
+                {
+                  "vi": "Hybrid dự phòng khi cúp điện"
+                },
+                {
+                  "vi": "Trả góp 0% theo chương trình*"
+                }
+              ],
+              "image": {
+                "id": "/images/t10/home.webp",
+                "alt": {
+                  "vi": "Ảnh minh họa nhà phố Việt Nam có điện mặt trời áp mái"
+                }
+              },
+              "ctaLabel": {
+                "vi": "Tính tiền tiết kiệm ngay"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "solutions",
+      "type": "services",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "giai-phap",
+      "data": {
+        "eyebrow": {
+          "vi": "Giải pháp theo nhu cầu"
+        },
+        "title": {
+          "vi": "Cùng một nguồn nắng. Ba bài toán khác nhau."
+        },
+        "description": {
+          "vi": "Đi thẳng vào nhu cầu của công trình, từ vận hành đến dòng tiền."
+        },
+        "items": [
+          {
+            "id": "factory",
+            "title": {
+              "vi": "Nhà máy, xí nghiệp & trang trại"
+            },
+            "image": {
+              "id": "/images/t10/factory.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+              }
+            },
+            "points": [
+              {
+                "vi": "Từ nhà máy phân bón, kho lạnh đến trang trại gà: thiết kế theo phụ tải, có báo cáo tài chính và trách nhiệm vận hành rõ ràng."
+              }
+            ],
+            "segment": "factory",
+            "link": {
+              "kind": "page",
+              "value": "giai-phap/nha-xuong",
+              "label": {
+                "vi": "Khám phá giải pháp"
+              }
+            }
+          },
+          {
+            "id": "shop",
+            "title": {
+              "vi": "Cửa hàng & chuỗi cửa hàng"
+            },
+            "image": {
+              "id": "/images/t10/retail.webp",
+              "alt": {
+                "vi": "Ảnh minh họa cửa hàng tiện lợi Việt Nam với pin trên mái"
+              }
+            },
+            "points": [
+              {
+                "vi": "Bách hóa, cà phê, nhà thuốc: tận dụng nắng trong giờ kinh doanh, quản lý điện năng tập trung và bảo trì qua một đầu mối."
+              }
+            ],
+            "segment": "shop",
+            "link": {
+              "kind": "page",
+              "value": "giai-phap/cua-hang",
+              "label": {
+                "vi": "Khám phá giải pháp"
+              }
+            }
+          },
+          {
+            "id": "household",
+            "title": {
+              "vi": "Hộ gia đình & khu dân cư"
+            },
+            "image": {
+              "id": "/images/t10/home.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà phố Việt Nam có điện mặt trời áp mái"
+              }
+            },
+            "points": [
+              {
+                "vi": "Điện mặt trời áp mái và hệ hybrid có pin lưu trữ, giúp dùng điện chủ động hơn, theo dõi dễ dàng qua ứng dụng."
+              }
+            ],
+            "segment": "household",
+            "link": {
+              "kind": "page",
+              "value": "giai-phap/ho-gia-dinh",
+              "label": {
+                "vi": "Khám phá giải pháp"
+              }
+            }
+          }
+        ],
+        "videos": [],
+        "ctaLabel": {
+          "vi": "Dự toán cho phân khúc này"
+        }
+      }
+    },
+    {
+      "id": "benefit-heroes",
+      "type": "segments",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "loi-ich",
+      "data": {
+        "eyebrow": {
+          "vi": "Lợi ích theo công trình"
+        },
+        "title": {
+          "vi": "Mỗi mái nhà một lợi ích riêng"
+        },
+        "description": {
+          "vi": "* Số liệu và điều kiện minh họa; hiệu quả thực tế phụ thuộc khảo sát, phụ tải, thiết bị và hợp đồng."
+        },
+        "targetAnchor": "lien-he",
+        "savingLabel": {
+          "vi": "Giảm đến"
+        },
+        "items": [
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Điện mặt trời cho hộ gia đình"
+            },
+            "pitch": {
+              "vi": "Mái nhà đón nắng. Cả nhà an tâm dùng điện."
+            },
+            "image": {
+              "id": "/images/t10/home.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà phố Việt Nam có điện mặt trời áp mái"
+              }
+            },
+            "saving": "Điện tự dùng",
+            "intro": {
+              "vi": "Biến khoảng mái thành nguồn điện cho sinh hoạt: giảm hóa đơn, theo dõi qua ứng dụng và chủ động dự phòng cho thiết bị thiết yếu."
+            },
+            "tag": {
+              "vi": "Sống xanh từ chính mái nhà"
+            },
+            "benefits": [
+              {
+                "value": {
+                  "vi": "Điện tự dùng"
+                },
+                "title": {
+                  "vi": "Giảm hóa đơn bậc thang"
+                },
+                "text": {
+                  "vi": "Giảm điện mua từ lưới vào ban ngày. Máy tính dùng giá bình quân demo, không thay cách tính hóa đơn bậc thang thực tế."
+                }
+              },
+              {
+                "value": {
+                  "vi": "Hybrid"
+                },
+                "title": {
+                  "vi": "Dự phòng khi cúp điện"
+                },
+                "text": {
+                  "vi": "Hệ có pin lưu trữ và mạch dự phòng cấp điện cho tải ưu tiên theo dung lượng thiết kế."
+                }
+              },
+              {
+                "value": {
+                  "vi": "0%*"
+                },
+                "title": {
+                  "vi": "Trả góp linh hoạt"
+                },
+                "text": {
+                  "vi": "Lãi suất 0% chỉ theo chương trình đối tác và điều kiện hồ sơ; cần làm rõ phí, kỳ hạn và tổng chi phí."
+                }
+              },
+              {
+                "value": {
+                  "vi": "25 năm*"
+                },
+                "title": {
+                  "vi": "Bảo hành hiệu suất tấm pin"
+                },
+                "text": {
+                  "vi": "Theo chính sách thiết bị được chọn; bảo hành sản phẩm, inverter, pin lưu trữ và thi công có thời hạn riêng."
+                }
+              }
+            ],
+            "ctaLabel": {
+              "vi": "Tính tiền tiết kiệm ngay"
+            },
+            "detailLink": {
+              "kind": "page",
+              "value": "giai-phap/ho-gia-dinh",
+              "label": {
+                "vi": "Khám phá giải pháp gia đình"
+              }
+            }
+          },
+          {
+            "segment": "shop",
+            "label": {
+              "vi": "Điện mặt trời cho cửa hàng"
+            },
+            "pitch": {
+              "vi": "Giờ có nắng cũng là giờ cửa hàng kinh doanh."
+            },
+            "image": {
+              "id": "/images/t10/coffee.webp",
+              "alt": {
+                "vi": "Ảnh minh họa quán cà phê có mái lắp điện mặt trời"
+              }
+            },
+            "saving": "Ban ngày",
+            "intro": {
+              "vi": "Để điện mặt trời cùng vận hành điều hòa, tủ mát và quầy hàng. Một giải pháp đồng bộ giúp kiểm soát điện năng tại từng điểm bán và toàn chuỗi."
+            },
+            "tag": {
+              "vi": "Kinh doanh hiệu quả · thương hiệu xanh"
+            },
+            "benefits": [
+              {
+                "value": {
+                  "vi": "Ban ngày"
+                },
+                "title": {
+                  "vi": "Trùng giờ kinh doanh"
+                },
+                "text": {
+                  "vi": "Sản lượng điện mặt trời ưu tiên cấp cho điều hòa, tủ mát và thiết bị tại điểm bán."
+                }
+              },
+              {
+                "value": {
+                  "vi": "24/7"
+                },
+                "title": {
+                  "vi": "Giám sát toàn chuỗi"
+                },
+                "text": {
+                  "vi": "Theo dõi sản lượng, trạng thái và cảnh báo trên một giao diện; phụ thuộc kết nối mạng."
+                }
+              },
+              {
+                "value": {
+                  "vi": "1 đầu mối"
+                },
+                "title": {
+                  "vi": "Triển khai & bảo trì"
+                },
+                "text": {
+                  "vi": "Kế hoạch đồng loạt, thiết bị và quy trình thống nhất; giảm việc điều phối nhiều nhà thầu."
+                }
+              },
+              {
+                "value": {
+                  "vi": "Thương hiệu xanh"
+                },
+                "title": {
+                  "vi": "Hiệu quả dễ truyền thông"
+                },
+                "text": {
+                  "vi": "Minh bạch dữ liệu năng lượng tại điểm bán, củng cố hình ảnh kinh doanh có trách nhiệm."
+                }
+              }
+            ],
+            "ctaLabel": {
+              "vi": "Tư vấn giải pháp cho chuỗi"
+            },
+            "detailLink": {
+              "kind": "page",
+              "value": "giai-phap/cua-hang",
+              "label": {
+                "vi": "Khám phá giải pháp cửa hàng"
+              }
+            }
+          },
+          {
+            "segment": "factory",
+            "label": {
+              "vi": "Điện mặt trời cho nhà máy, xưởng sản xuất"
+            },
+            "pitch": {
+              "vi": "Mái xưởng tạo điện. Chi phí vận hành nhẹ hơn."
+            },
+            "image": {
+              "id": "/images/t10/factory.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+              }
+            },
+            "saving": "20–40%",
+            "intro": {
+              "vi": "Tận dụng mái nhà máy, kho lạnh và trang trại để tối ưu tải ban ngày, xây dựng phương án tài chính và theo dõi hiệu quả bằng dữ liệu."
+            },
+            "tag": {
+              "vi": "Tối ưu năng lượng cho sản xuất"
+            },
+            "benefits": [
+              {
+                "value": {
+                  "vi": "20–40%"
+                },
+                "title": {
+                  "vi": "Giảm chi phí điện"
+                },
+                "text": {
+                  "vi": "Ưu tiên điện tự dùng vào giờ cao điểm của phụ tải; phụ thuộc lịch vận hành và biểu giá."
+                }
+              },
+              {
+                "value": {
+                  "vi": "0 đồng*"
+                },
+                "title": {
+                  "vi": "Lựa chọn thuê mái–ESCO"
+                },
+                "text": {
+                  "vi": "Đối tác đầu tư theo hợp đồng, phù hợp mái lớn và phụ tải ổn định; cần xét điều kiện dự án."
+                }
+              },
+              {
+                "value": {
+                  "vi": "4–6 năm*"
+                },
+                "title": {
+                  "vi": "Hoàn vốn có cơ sở"
+                },
+                "text": {
+                  "vi": "Báo cáo dòng tiền, sản lượng, chi phí bảo trì và giả định đầu tư trước khi quyết định."
+                }
+              },
+              {
+                "value": {
+                  "vi": "CO₂"
+                },
+                "title": {
+                  "vi": "Hỗ trợ báo cáo ESG"
+                },
+                "text": {
+                  "vi": "Ước tính giảm phát thải và xuất dữ liệu phục vụ yêu cầu đối tác xuất khẩu; không thay chứng nhận độc lập."
+                }
+              }
+            ],
+            "ctaLabel": {
+              "vi": "Nhận khảo sát & báo cáo tài chính miễn phí"
+            },
+            "detailLink": {
+              "kind": "page",
+              "value": "giai-phap/nha-xuong",
+              "label": {
+                "vi": "Khám phá giải pháp nhà máy"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "client-wall",
+      "type": "brands",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "khach-hang",
+      "data": {
+        "eyebrow": {
+          "vi": "Khách hàng minh họa"
+        },
+        "title": {
+          "vi": "Phù hợp từ mái nhà xưởng đến từng điểm bán."
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Tên bên dưới là tên hư cấu theo kịch bản demo; không biểu thị quan hệ với doanh nghiệp có cùng tên ngoài đời."
+        },
+        "groups": [
+          {
+            "id": "san-xuat",
+            "label": {
+              "vi": "Sản xuất"
+            }
+          },
+          {
+            "id": "nong-nghiep",
+            "label": {
+              "vi": "Nông nghiệp"
+            }
+          },
+          {
+            "id": "kho-lanh",
+            "label": {
+              "vi": "Kho lạnh"
+            }
+          },
+          {
+            "id": "ban-le",
+            "label": {
+              "vi": "Bán lẻ"
+            }
+          },
+          {
+            "id": "khu-dan-cu",
+            "label": {
+              "vi": "Khu dân cư"
+            }
+          }
+        ],
+        "items": [
+          {
+            "name": {
+              "vi": "Nhà máy Phân bón Đồng Xanh"
+            },
+            "group": "san-xuat",
+            "logo": {
+              "id": "/images/t10/clients/dong-xanh.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Nhà máy Phân bón Đồng Xanh"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Trang trại gà công nghiệp Phú An"
+            },
+            "group": "nong-nghiep",
+            "logo": {
+              "id": "/images/t10/clients/phu-an.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Trang trại gà công nghiệp Phú An"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Nhà máy Chế biến gỗ Tân Phát"
+            },
+            "group": "san-xuat",
+            "logo": {
+              "id": "/images/t10/clients/tan-phat.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Nhà máy Chế biến gỗ Tân Phát"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Kho lạnh Thủy sản Biển Bạc"
+            },
+            "group": "kho-lanh",
+            "logo": {
+              "id": "/images/t10/clients/bien-bac.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Kho lạnh Thủy sản Biển Bạc"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Xưởng May Hòa Bình"
+            },
+            "group": "san-xuat",
+            "logo": {
+              "id": "/images/t10/clients/hoa-binh.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Xưởng May Hòa Bình"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Chuỗi Bách hóa Cam"
+            },
+            "group": "ban-le",
+            "logo": {
+              "id": "/images/t10/clients/cam.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Chuỗi Bách hóa Cam"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Chuỗi cà phê Drinking"
+            },
+            "group": "ban-le",
+            "logo": {
+              "id": "/images/t10/clients/drinking.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Chuỗi cà phê Drinking"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Chuỗi Nhà thuốc An Tâm"
+            },
+            "group": "ban-le",
+            "logo": {
+              "id": "/images/t10/clients/an-tam.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Chuỗi Nhà thuốc An Tâm"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Siêu thị Mini Gạo Vàng"
+            },
+            "group": "ban-le",
+            "logo": {
+              "id": "/images/t10/clients/gao-vang.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Siêu thị Mini Gạo Vàng"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Khu dân cư Vườn Sen"
+            },
+            "group": "khu-dan-cu",
+            "logo": {
+              "id": "/images/t10/clients/vuon-sen.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Khu dân cư Vườn Sen"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Khu đô thị Phú Gia Garden"
+            },
+            "group": "khu-dan-cu",
+            "logo": {
+              "id": "/images/t10/clients/phu-gia.svg",
+              "alt": {
+                "vi": "Logo hư cấu: Khu đô thị Phú Gia Garden"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "counters",
+      "type": "stats",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Năng lực triển khai"
+        },
+        "title": {
+          "vi": "[DỮ LIỆU MẪU] Số liệu năng lực minh họa, cần thay bằng hồ sơ dự án có thể xác minh."
+        },
+        "items": [
+          {
+            "value": 38.6,
+            "decimals": 1,
+            "suffix": {
+              "vi": "MWp"
+            },
+            "label": {
+              "vi": "Công suất đã lắp đặt"
+            }
+          },
+          {
+            "value": 286,
+            "decimals": 0,
+            "suffix": {
+              "vi": "dự án"
+            },
+            "label": {
+              "vi": "Công trình triển khai"
+            }
+          },
+          {
+            "value": 28500,
+            "decimals": 0,
+            "suffix": {
+              "vi": "tấn CO₂/năm"
+            },
+            "label": {
+              "vi": "Phát thải giảm ước tính"
+            }
+          },
+          {
+            "value": 18,
+            "decimals": 0,
+            "suffix": {
+              "vi": "tỉnh thành"
+            },
+            "label": {
+              "vi": "Phạm vi phục vụ"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "case-studies",
+      "type": "projects",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "du-an",
+      "data": {
+        "eyebrow": {
+          "vi": "Câu chuyện triển khai"
+        },
+        "title": {
+          "vi": "Mỗi công trình có một cách tạo giá trị."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "phan-bon-dong-xanh",
+            "title": "[DỮ LIỆU MẪU] Nhà máy Phân bón Đồng Xanh",
+            "segment": "factory",
+            "location": "Long An",
+            "kwp": 1200,
+            "image": {
+              "id": "/images/t10/factory.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+              }
+            }
+          },
+          {
+            "id": "trang-trai-phu-an",
+            "title": "[DỮ LIỆU MẪU] Trang trại gà công nghiệp Phú An",
+            "segment": "farm",
+            "location": "Bình Phước",
+            "kwp": 850,
+            "image": {
+              "id": "/images/t10/farm.webp",
+              "alt": {
+                "vi": "Ảnh minh họa trang trại gà có pin điện mặt trời trên mái chuồng"
+              }
+            }
+          },
+          {
+            "id": "bach-hoa-cam",
+            "title": "[DỮ LIỆU MẪU] Chuỗi Bách hóa Cam",
+            "segment": "shop",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 350,
+            "image": {
+              "id": "/images/t10/retail.webp",
+              "alt": {
+                "vi": "Ảnh minh họa cửa hàng tiện lợi Việt Nam với pin trên mái"
+              }
+            }
+          },
+          {
+            "id": "ca-phe-drinking",
+            "title": "[DỮ LIỆU MẪU] Chuỗi cà phê Drinking",
+            "segment": "shop",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 180,
+            "image": {
+              "id": "/images/t10/coffee.webp",
+              "alt": {
+                "vi": "Ảnh minh họa quán cà phê có mái lắp điện mặt trời"
+              }
+            }
+          },
+          {
+            "id": "nha-pho-vuon-sen",
+            "title": "[DỮ LIỆU MẪU] Nhà phố mẫu tại Vườn Sen",
+            "segment": "household",
+            "location": "Đồng Tháp",
+            "kwp": 6,
+            "image": {
+              "id": "/images/t10/home.webp",
+              "alt": {
+                "vi": "Ảnh minh họa nhà phố Việt Nam có điện mặt trời áp mái"
+              }
+            }
+          },
+          {
+            "id": "khu-dan-cu-vuon-sen",
+            "title": "[DỮ LIỆU MẪU] Khu dân cư Vườn Sen",
+            "segment": "household",
+            "location": "Đồng Tháp",
+            "kwp": 600,
+            "image": {
+              "id": "/images/t10/neighborhood.webp",
+              "alt": {
+                "vi": "Ảnh minh họa khu dân cư nhìn từ trên cao với pin trên mái nhà"
+              }
+            }
+          }
+        ],
+        "showFilter": false,
+        "segmentLabels": {
+          "household": {
+            "vi": "Gia đình"
+          },
+          "shop": {
+            "vi": "Cửa hàng"
+          },
+          "factory": {
+            "vi": "Nhà máy"
+          },
+          "farm": {
+            "vi": "Trang trại"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Xem dự án minh họa"
+        }
+      }
+    },
+    {
+      "id": "partners",
+      "type": "brands",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Partners gốc chỉ là 8 ô logo giữ chỗ (không đủ giá trị thành variant); dùng brands/t15, khác ở theme.",
+      "data": {
+        "eyebrow": {
+          "vi": "Đối tác"
+        },
+        "title": {
+          "vi": "Đối tác thiết bị & tài chính"
+        },
+        "description": {
+          "vi": "Ô nhận diện mẫu, chưa thể hiện quan hệ hợp tác thực tế."
+        },
+        "groups": [
+          {
+            "id": "thiet-bi",
+            "label": {
+              "vi": "Thiết bị"
+            }
+          },
+          {
+            "id": "tai-chinh",
+            "label": {
+              "vi": "Tài chính"
+            }
+          }
+        ],
+        "items": [
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "thiet-bi"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "thiet-bi"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "thiet-bi"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "thiet-bi"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "thiet-bi"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "tai-chinh"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "tai-chinh"
+          },
+          {
+            "name": {
+              "vi": "Logo đối tác"
+            },
+            "group": "tai-chinh"
+          }
+        ]
+      }
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "du-toan",
+      "note": "Calculator t10 nằm ngoài phạm vi E4-S06; dùng calculator/t15 (cùng segment state qua useSegment)."
+    },
+    {
+      "id": "finance",
+      "type": "investment-models",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "tai-chinh",
+      "data": {
+        "eyebrow": {
+          "vi": "Phương án tài chính"
+        },
+        "title": {
+          "vi": "Chọn cách đầu tư phù hợp với dòng tiền."
+        },
+        "description": {
+          "vi": "* Số liệu và điều kiện minh họa; hiệu quả thực tế phụ thuộc khảo sát, phụ tải, thiết bị và hợp đồng."
+        },
+        "models": [
+          {
+            "id": "mua-dut",
+            "title": {
+              "vi": "Mua đứt"
+            },
+            "summary": {
+              "vi": "Chi phí theo hiện trạng mái, công suất và thiết bị."
+            },
+            "highlight": false,
+            "points": [
+              {
+                "vi": "Vốn ban đầu: Thanh toán theo tiến độ"
+              },
+              {
+                "vi": "Sở hữu: Khách hàng sở hữu hệ thống"
+              },
+              {
+                "vi": "Lợi ích: Chủ động thiết bị và toàn bộ điện tự dùng"
+              },
+              {
+                "vi": "Phù hợp: Có ngân sách và mục tiêu đầu tư dài hạn"
+              }
+            ]
+          },
+          {
+            "id": "tra-gop",
+            "title": {
+              "vi": "Trả góp"
+            },
+            "summary": {
+              "vi": "Xác nhận lãi suất, phí, kỳ hạn và tổng chi phí với đối tác."
+            },
+            "highlight": true,
+            "points": [
+              {
+                "vi": "Vốn ban đầu: Chia khoản đầu tư theo kỳ"
+              },
+              {
+                "vi": "Sở hữu: Theo hợp đồng tài chính"
+              },
+              {
+                "vi": "Lợi ích: Chương trình lãi suất 0% nếu đủ điều kiện"
+              },
+              {
+                "vi": "Phù hợp: Gia đình hoặc doanh nghiệp cần cân đối dòng tiền"
+              }
+            ]
+          },
+          {
+            "id": "esco",
+            "title": {
+              "vi": "Thuê mái–ESCO"
+            },
+            "summary": {
+              "vi": "Cần thẩm định mái, phụ tải, quyền sử dụng và thời hạn hợp đồng."
+            },
+            "highlight": false,
+            "points": [
+              {
+                "vi": "Vốn ban đầu: Có thể 0 đồng đầu tư ban đầu"
+              },
+              {
+                "vi": "Sở hữu: Đối tác đầu tư theo thỏa thuận"
+              },
+              {
+                "vi": "Lợi ích: Sử dụng điện theo hợp đồng, giảm áp lực vốn"
+              },
+              {
+                "vi": "Phù hợp: Nhà máy, trang trại, mái lớn và phụ tải ổn định"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "monitoring",
+      "type": "energy-monitoring",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Theo dõi điện năng 24/7"
+        },
+        "title": {
+          "vi": "Mọi chỉ số năng lượng đều nằm trong tầm mắt"
+        },
+        "description": {
+          "vi": "Sản lượng, tiêu thụ và lưu trữ trên một giao diện. Theo dõi từng nhà máy hoặc toàn chuỗi, nhận cảnh báo để đội kỹ thuật xử lý kịp thời. [DỮ LIỆU MẪU] Giao diện minh họa."
+        },
+        "flows": [
+          {
+            "label": {
+              "vi": "Sản lượng hôm nay"
+            },
+            "value": 1248,
+            "unit": {
+              "vi": "kWh"
+            }
+          },
+          {
+            "label": {
+              "vi": "Tự dùng"
+            },
+            "value": 91,
+            "unit": {
+              "vi": "%"
+            }
+          },
+          {
+            "label": {
+              "vi": "Pin lưu trữ"
+            },
+            "value": 78,
+            "unit": {
+              "vi": "%"
+            }
+          }
+        ],
+        "features": [
+          {
+            "title": {
+              "vi": "Điểm vận hành 01"
+            },
+            "description": {
+              "vi": "Vận hành ổn định"
+            }
+          },
+          {
+            "title": {
+              "vi": "Điểm vận hành 02"
+            },
+            "description": {
+              "vi": "Vận hành ổn định"
+            }
+          },
+          {
+            "title": {
+              "vi": "Điểm vận hành 03"
+            },
+            "description": {
+              "vi": "Đã lên lịch kiểm tra"
+            }
+          }
+        ],
+        "chart": {
+          "production": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            8,
+            24,
+            52,
+            90,
+            125,
+            160,
+            182,
+            186,
+            175,
+            148,
+            106,
+            66,
+            28,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "consumption": [
+            32,
+            30,
+            28,
+            30,
+            34,
+            42,
+            70,
+            110,
+            148,
+            155,
+            165,
+            158,
+            142,
+            153,
+            162,
+            158,
+            147,
+            128,
+            86,
+            64,
+            55,
+            45,
+            39,
+            34
+          ],
+          "productionLabel": {
+            "vi": "Điện mặt trời"
+          },
+          "consumptionLabel": {
+            "vi": "Tiêu thụ"
+          }
+        }
+      }
+    },
+    {
+      "id": "process",
+      "type": "process",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Quy trình 6 bước"
+        },
+        "title": {
+          "vi": "Rõ từng bước. Yên tâm cả hành trình."
+        },
+        "outputLabel": {
+          "vi": "Đầu ra",
+          "en": "Deliverable"
+        },
+        "steps": [
+          {
+            "title": {
+              "vi": "Khảo sát"
+            },
+            "description": {
+              "vi": "Hóa đơn, phụ tải, kết cấu mái và điều kiện thi công."
+            },
+            "output": {
+              "vi": "Biên bản khảo sát"
+            }
+          },
+          {
+            "title": {
+              "vi": "Thiết kế & báo giá"
+            },
+            "description": {
+              "vi": "Mô phỏng sản lượng, lựa chọn thiết bị và phân tích tài chính."
+            },
+            "output": {
+              "vi": "Hồ sơ thiết kế & báo giá"
+            }
+          },
+          {
+            "title": {
+              "vi": "Ký hợp đồng"
+            },
+            "description": {
+              "vi": "Chốt phạm vi, tiến độ, thanh toán và trách nhiệm bảo hành."
+            },
+            "output": {
+              "vi": "Hợp đồng"
+            }
+          },
+          {
+            "title": {
+              "vi": "Lắp đặt"
+            },
+            "description": {
+              "vi": "Thi công theo kế hoạch an toàn và kiểm tra từng hạng mục."
+            },
+            "output": {
+              "vi": "Nhật ký thi công"
+            }
+          },
+          {
+            "title": {
+              "vi": "Đấu nối & nghiệm thu"
+            },
+            "description": {
+              "vi": "Đo kiểm, cấu hình hệ thống, hướng dẫn và bàn giao hồ sơ."
+            },
+            "output": {
+              "vi": "Biên bản nghiệm thu"
+            }
+          },
+          {
+            "title": {
+              "vi": "Giám sát & bảo trì"
+            },
+            "description": {
+              "vi": "Theo dõi sản lượng, cảnh báo, vệ sinh và bảo trì định kỳ."
+            },
+            "output": {
+              "vi": "Báo cáo vận hành"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "reviews",
+      "type": "testimonials",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Trải nghiệm khách hàng"
+        },
+        "title": {
+          "vi": "Đồng hành từ khảo sát đến vận hành."
+        },
+        "query": {
+          "filter": {},
+          "limit": 6
+        },
+        "items": [
+          {
+            "id": "khang",
+            "name": "[DỮ LIỆU MẪU] Nguyễn Minh Khang",
+            "segment": "factory",
+            "location": "Long An",
+            "kwp": 1200,
+            "quote": "Báo cáo tải theo ca giúp chúng tôi hiểu rõ hiệu quả trước khi quyết định.",
+            "rating": 5
+          },
+          {
+            "id": "linh",
+            "name": "[DỮ LIỆU MẪU] Trần Ngọc Linh",
+            "segment": "shop",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 350,
+            "quote": "Một bảng giám sát cho cả chuỗi giúp đội vận hành chủ động hơn.",
+            "rating": 5
+          },
+          {
+            "id": "nam",
+            "name": "[DỮ LIỆU MẪU] Võ Hoàng Nam",
+            "segment": "household",
+            "location": "Đồng Tháp",
+            "kwp": 6,
+            "quote": "Xem được lượng điện mỗi ngày trên điện thoại nên gia đình dễ điều chỉnh thói quen.",
+            "rating": 5
+          },
+          {
+            "id": "son",
+            "name": "[DỮ LIỆU MẪU] Lê Quốc Sơn",
+            "segment": "farm",
+            "location": "Bình Phước",
+            "kwp": 850,
+            "quote": "Điện tự dùng cấp cho quạt và làm mát, đội bảo trì có lịch làm việc rõ ràng.",
+            "rating": 5
+          },
+          {
+            "id": "mai-anh",
+            "name": "[DỮ LIỆU MẪU] Phạm Mai Anh",
+            "segment": "shop",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 180,
+            "quote": "Giờ có nắng cũng là giờ điều hòa và thiết bị phục vụ khách chạy nhiều.",
+            "rating": 5
+          },
+          {
+            "id": "phuc",
+            "name": "[DỮ LIỆU MẪU] Trần Hữu Phúc",
+            "segment": "household",
+            "location": "Đồng Tháp",
+            "kwp": 600,
+            "quote": "Quy trình khảo sát và bàn giao thống nhất giúp các hộ dân dễ theo dõi hệ thống.",
+            "rating": 5
+          }
+        ],
+        "ratings": [],
+        "segmentLabels": {
+          "household": {
+            "vi": "Gia đình"
+          },
+          "shop": {
+            "vi": "Cửa hàng"
+          },
+          "factory": {
+            "vi": "Nhà máy"
+          },
+          "farm": {
+            "vi": "Trang trại"
+          }
+        }
+      }
+    },
+    {
+      "id": "trust",
+      "type": "trust",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Cam kết"
+        },
+        "title": {
+          "vi": "Cam kết cần đi cùng hồ sơ"
+        },
+        "items": [
+          {
+            "id": "bao-hanh",
+            "title": {
+              "vi": "Bảo hành 25 năm*"
+            },
+            "subtitle": {
+              "vi": "Hiệu suất tấm pin theo chính sách thiết bị."
+            },
+            "issuer": {
+              "vi": "Theo hồ sơ dự án"
+            },
+            "number": {
+              "vi": "—"
+            },
+            "validUntil": {
+              "vi": "—"
+            },
+            "scope": {
+              "vi": "Hiệu suất tấm pin theo chính sách thiết bị."
+            }
+          },
+          {
+            "id": "tier-1",
+            "title": {
+              "vi": "Thiết bị Tier 1*"
+            },
+            "subtitle": {
+              "vi": "Lựa chọn theo hồ sơ và yêu cầu dự án."
+            },
+            "issuer": {
+              "vi": "Theo hồ sơ dự án"
+            },
+            "number": {
+              "vi": "—"
+            },
+            "validUntil": {
+              "vi": "—"
+            },
+            "scope": {
+              "vi": "Lựa chọn theo hồ sơ và yêu cầu dự án."
+            }
+          },
+          {
+            "id": "bao-hiem",
+            "title": {
+              "vi": "Bảo hiểm công trình*"
+            },
+            "subtitle": {
+              "vi": "Phạm vi và mức bảo hiểm theo hợp đồng."
+            },
+            "issuer": {
+              "vi": "Theo hồ sơ dự án"
+            },
+            "number": {
+              "vi": "—"
+            },
+            "validUntil": {
+              "vi": "—"
+            },
+            "scope": {
+              "vi": "Phạm vi và mức bảo hiểm theo hợp đồng."
+            }
+          },
+          {
+            "id": "ky-thuat",
+            "title": {
+              "vi": "Đội kỹ thuật được chứng nhận*"
+            },
+            "subtitle": {
+              "vi": "Hồ sơ chứng nhận cần được cung cấp khi báo giá."
+            },
+            "issuer": {
+              "vi": "Theo hồ sơ dự án"
+            },
+            "number": {
+              "vi": "—"
+            },
+            "validUntil": {
+              "vi": "—"
+            },
+            "scope": {
+              "vi": "Hồ sơ chứng nhận cần được cung cấp khi báo giá."
+            }
+          }
+        ],
+        "issuerLabel": {
+          "vi": "Cấp bởi",
+          "en": "Issuer"
+        },
+        "numberLabel": {
+          "vi": "Số chứng chỉ",
+          "en": "Certificate number"
+        },
+        "validLabel": {
+          "vi": "Hiệu lực",
+          "en": "Valid until"
+        },
+        "scopeLabel": {
+          "vi": "Phạm vi",
+          "en": "Scope"
+        }
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t10",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Câu hỏi thường gặp"
+        },
+        "title": {
+          "vi": "Hiểu rõ trước khi quyết định."
+        },
+        "jsonLd": true,
+        "items": [
+          {
+            "question": {
+              "vi": "Công suất nào phù hợp với công trình của tôi?"
+            },
+            "answer": {
+              "vi": "Cần đối chiếu hóa đơn, tải ban ngày, diện tích và kết cấu mái. Máy tính chỉ giúp ước tính ban đầu, khảo sát sẽ xác định cấu hình thực tế."
+            }
+          },
+          {
+            "question": {
+              "vi": "Có thể bán điện dư lên lưới không?"
+            },
+            "answer": {
+              "vi": "Khả năng áp dụng và điều kiện bán điện dư cần được kiểm tra theo cơ chế đang có hiệu lực tại thời điểm triển khai. Máy tính ở đây không tính doanh thu điện dư."
+            }
+          },
+          {
+            "question": {
+              "vi": "Bao lâu cần vệ sinh và bảo trì?"
+            },
+            "answer": {
+              "vi": "Tùy môi trường, góc mái và dữ liệu sản lượng. Lịch bảo trì và trách nhiệm xử lý cần được ghi rõ trong hợp đồng."
+            }
+          },
+          {
+            "question": {
+              "vi": "Các số liệu trên website có phải dự án thật không?"
+            },
+            "answer": {
+              "vi": "Không. Tên khách hàng, nhận xét, công suất, tài chính và hình ảnh đều là dữ liệu demo hoặc ảnh minh họa, cần thay bằng hồ sơ có thể xác minh."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "type": "lead-form",
+      "variant": "t10",
+      "enabled": true,
+      "anchor": "lien-he",
+      "data": {
+        "title": {
+          "vi": "Bắt đầu từ mái nhà và hóa đơn của bạn."
+        },
+        "points": [
+          {
+            "vi": "Chia sẻ nhu cầu, đội dự án sẽ chuẩn bị phương án cho buổi khảo sát."
+          }
+        ],
+        "image": {
+          "id": "/images/t10/factory.webp",
+          "alt": {
+            "vi": "Ảnh minh họa nhà máy có tấm pin điện mặt trời phủ trên mái"
+          }
+        },
+        "formTitle": {
+          "vi": "Khảo sát miễn phí"
+        },
+        "fields": {
+          "zalo": false,
+          "address": true,
+          "message": true
+        },
+        "submitLabel": {
+          "vi": "Nhận tư vấn & khảo sát"
+        },
+        "successText": {
+          "vi": "Đã gửi thông tin thành công. Đội dự án sẽ liên hệ theo thông tin bạn đã cung cấp."
+        },
+        "privacyNote": {
+          "vi": "Dữ liệu demo • tên hư cấu • ảnh minh họa. Thông tin chỉ dùng để liên hệ về yêu cầu khảo sát."
+        },
+        "fallbackPhone": "0901 234 500",
+        "source": "home-bottom",
+        "messageLabel": {
+          "vi": "Nhu cầu"
+        }
+      }
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Footer gốc (nền mực, 3 cột) chưa có variant riêng; dùng site-footer/t15 với dữ liệu t10.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Giảm chi phí điện. Tăng hiệu quả vận hành."
+          }
+        },
+        "socials": [],
+        "legal": {
+          "legalName": "Minwy Solar",
+          "lines": [],
+          "badges": [],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "complaintHotline": {
+          "label": {
+            "vi": "Hotline"
+          },
+          "phone": "0901 234 500"
+        },
+        "branchesTitle": {
+          "vi": "Hệ thống cửa hàng",
+          "en": "Stores"
+        },
+        "branches": [],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "giai-phap/nha-xuong",
+                "label": {
+                  "vi": "Nhà máy, xí nghiệp & trang trại"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap/cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi cửa hàng"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap/ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình & khu dân cư"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Góc tư vấn"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Ảnh do AI tạo. Dự án, số liệu và nhận xét là minh họa; hiệu quả thực tế cần khảo sát."
+        },
+        "disclaimer": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Bản mẫu điện mặt trời — Minwy Solar"
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {
+    "contact-dock": {
+      "enabled": true,
+      "variant": "t10",
+      "data": {
+        "ariaLabel": {
+          "vi": "Liên hệ nhanh với Minwy Solar"
+        },
+        "mobileBar": true,
+        "items": [
+          {
+            "kind": "consult",
+            "label": {
+              "vi": "Điền form khảo sát"
+            }
+          },
+          {
+            "kind": "call",
+            "label": {
+              "vi": "Gọi điện"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901 234 500",
+              "label": {
+                "vi": "Gọi điện"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Chat Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 500",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "consult-popup": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "delayMs": 30000,
+        "scrollRatio": 0.6,
+        "autoOpen": false,
+        "title": {
+          "vi": "Đăng ký tư vấn & khảo sát"
+        },
+        "description": {
+          "vi": "Kỹ sư tư vấn miễn phí, gọi lại trong 24 giờ.",
+          "en": "[SAMPLE DATA] Free advice; we call back within 24 hours."
+        },
+        "openFormLabel": {
+          "vi": "Nhận tư vấn ngay",
+          "en": "Get advice now"
+        },
+        "submitLabel": {
+          "vi": "Gọi lại cho tôi",
+          "en": "Call me back"
+        },
+        "channels": [
+          {
+            "kind": "zalo",
+            "link": {
+              "kind": "zalo",
+              "value": "0901 234 500",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          }
+        ],
+        "success": {
+          "vi": "Chúng tôi sẽ sớm liên hệ với bạn.",
+          "en": "We will contact you soon."
+        },
+        "privacy": {
+          "vi": "Thông tin chỉ dùng để tư vấn.",
+          "en": "Your details are used for advice only."
+        }
+      }
+    }
+  }
+}

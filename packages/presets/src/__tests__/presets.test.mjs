@@ -74,3 +74,17 @@ test("t15 keeps legacy order, two projects and disabled optional sections", () =
   assert.equal(widgets["theme-switch"].enabled, true);
   assert.equal(page.sections.find((section) => section.type === "warranty").enabled, false);
 });
+
+test("t10 keeps template-10 home order with t10 variants and notes on replacements", () => {
+  const { loadPreset, getPreset } = require("../index.ts");
+  const { page, widgets, theme } = loadPreset("t10");
+  assert.equal(theme.meta.id, "t10");
+  assert.deepEqual(page.sections.map((section) => `${section.type}/${section.variant}`), [
+    "site-header/t15", "hero/t10", "services/t10", "segments/t10", "brands/t10", "stats/t10", "projects/t10", "brands/t15",
+    "calculator/t15", "investment-models/t10", "energy-monitoring/t10", "process/t10", "testimonials/t10", "trust/t10",
+    "faq/t10", "lead-form/t10", "site-footer/t15",
+  ]);
+  for (const section of getPreset("t10").sections) if (section.variant !== "t10") assert.ok(section.note, section.id);
+  assert.equal(widgets["contact-dock"].variant, "t10");
+  assert.equal(widgets["consult-popup"].data.autoOpen, false);
+});
