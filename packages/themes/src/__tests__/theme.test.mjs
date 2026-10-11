@@ -76,6 +76,21 @@ test("registry có id duy nhất và tra cứu đúng theme", () => {
   assert.equal(getTheme("khong-co"), undefined);
 });
 
+test("t08 đăng ký Pro navy, vàng, sky/beige và kính mạnh với Inter", () => {
+  const { getTheme, themeFontFamilies } = require("../index.ts");
+  const theme = getTheme("t08");
+  assert.ok(theme);
+  assert.equal(theme.meta.group, "pro");
+  assert.equal(theme.colors.light.primary, "13 59 120");
+  assert.equal(theme.colors.light.accent, "247 185 40");
+  assert.equal(theme.colors.light["bg-sky"], "219 233 255");
+  assert.equal(theme.colors.light["bg-sun"], "248 242 231");
+  assert.deepEqual(themeFontFamilies(theme), ["Inter"]);
+  assert.equal(theme.glass.enabled, true);
+  assert.equal(theme.glass.blur, 24);
+  assert.equal(theme.radius.pill, "9999px");
+});
+
 test("t14 mặc định emerald tối, kính và font Inter của template-14", () => {
   const { getTheme, t14 } = require("../index.ts");
   const { parseTheme, themeToCss } = require("@solar/tokens");
