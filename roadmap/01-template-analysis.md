@@ -65,6 +65,32 @@ tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua
 `process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
 (cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
 
+**Đã port — t01 (E4-S10, chờ design pass):** theme `packages/themes/t01` (Minwy, Inter), variant
+`hero/minwy` (slider), `brands/minwy`, `products/minwy` (danh mục), `blog/minwy`, `about-story/minwy`,
+`warranty/minwy`, `site-header/minwy`, `site-footer/minwy` và [`packages/presets/t01.json`](../packages/presets/t01.json).
+Giữ thứ tự trang chủ minwy, Hero giới thiệu map sang about-story; projects dùng t12 gần nhất. Catalog tắt theo gói
+Cơ bản; warranty là khối trang con tắt trên homepage. Hero schema v2 thêm slides tùy chọn + migration giữ dữ liệu cũ.
+Ảnh after 390/1440 và theme t15 ở `roadmap/evidence/E4/t01/`; xem `/lab/presets/t01`, `?theme=t15`.
+
+**Đã port — t02 (E4-S10, chờ design pass):** theme `packages/themes/t02` (xanh rừng, vàng nắng, nền giấy, Inter),
+variant `hero/t02`, `services/t02`, `process/t02`, `cta-banner/t02`, `faq/t02` (details không JS) và
+[`packages/presets/t02.json`](../packages/presets/t02.json) theo thứ tự HOME_CONTENT. Header/footer dùng minwy,
+equipment dùng products/minwy gần nhất; equipment và FAQ tắt theo gói Cơ bản. Ảnh after:
+`roadmap/evidence/E4/t02/`; xem `/lab/presets/t02`, `?theme=t15`.
+
+**Đã port — t03 (E4-S10, chờ design pass):** theme `packages/themes/t03` (ấm, đất nung/vàng, Inter), `hero/t03`,
+type mới `page-hero` v1 + variant `t03` (WarmPageHero) và [`packages/presets/t03.json`](../packages/presets/t03.json).
+Slider cùng bố cục minwy; SolarBenefits/SolarExpertise dùng services/t02 và about-story/minwy với note, giữ nội dung
+gốc. Catalog tắt. Trang con chỉ preview trong lab: `/lab/presets/t03?subpage=gioi-thieu` hoặc `subpage=dich-vu`;
+không đổi route công khai. Ảnh after ở `roadmap/evidence/E4/t03/`; kiểm theme bằng `?theme=t15`.
+
+**Đã port — t04 (E4-S10, chờ design pass):** theme `packages/themes/t04` (emerald, lime, hình khối thẳng, Inter),
+`hero/t04`, `packages/t04`, `stats/t04` và [`packages/presets/t04.json`](../packages/presets/t04.json) theo thứ tự
+HomeExperience. Services/process/brands/projects dùng variant gần nhất có note; calculator, packages, stats,
+testimonials, FAQ, lead-form tắt theo gói Cơ bản, CTA liên hệ đơn giản thay lối vào form đang tắt. Bốn Classic
+được kiểm bằng `BASIC_SECTION_TYPES` trong @solar/presets (bảng tạm đến E6). Ảnh after:
+`roadmap/evidence/E4/t04/`; xem `/lab/presets/t04`, `?theme=t15`. Ảnh before chờ Claude design pass.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
