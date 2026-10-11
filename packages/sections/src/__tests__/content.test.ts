@@ -179,6 +179,69 @@ function assertText(html: string, text: string) {
 const types = ["projects", "shorts", "stats", "energy-monitoring", "process", "testimonials", "trust", "brands", "faq", "blog", "cta-banner"];
 const site = { tenantId: "test", locale: "vi", themeId: "t15" } as const;
 
+test("C&I variants render shared defaults in VI/EN without a schema fork", async () => {
+  for (const [type, variant] of [["hero", "t06"], ["load-profile", "t06"], ["energy-monitoring", "t06"], ["services", "t06"], ["investment-models", "t05"], ["trust", "t05"], ["process", "t05"], ["faq", "t05"], ["lead-form", "t05"]]) {
+    const def = sectionRegistry.getType(type)!;
+    assert.ok(def, type);
+    const resolved = sectionRegistry.getVariant(type, variant)!;
+    assert.equal(resolved.fallback, false);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const locale of ["vi", "en"] as const) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, site: { ...site, locale }, sectionId: type }));
+      assert.ok(html.includes(`id="${type}-title"`), `${type}/${locale}`);
+      assertText(html, type === "hero" ? pickLocale((def.defaults as { badge: { vi: string } }).badge, locale) : pickLocale((def.defaults as { title: { vi: string } }).title, locale));
+      if (type === "services") for (const item of (def.defaults as { items: { title: { vi: string; en?: string } }[] }).items) assertText(html, pickLocale(item.title, locale));
+    }
+  }
+});
+
+test("load profile rejects invalid daily data and scales both series on a shared axis", async () => {
+  const def = sectionRegistry.getType("load-profile")!;
+  assert.ok(def);
+  const data = def.defaults as { chart: { production: number[]; consumption: number[] } };
+  for (const key of ["production", "consumption"]) for (const series of [Array(23).fill(0), Array(25).fill(0), [...Array(23).fill(0), -1], [...Array(23).fill(0), Infinity]]) {
+    assert.equal(def.schema.safeParse({ ...data, chart: { ...data.chart, [key]: series } }).success, false);
+  }
+  const { powerChartPoints } = await import("../shared/" + "PowerChart");
+  const values = Array(24).fill(0); values[23] = 200;
+  const points = powerChartPoints(values, 200).split(" ");
+  assert.equal(points.length, 24);
+  assert.equal(points[0], "48,194");
+  assert.equal(points[23], "576,18");
+  assert.equal(powerChartPoints(Array(24).fill(0), 0).includes("NaN"), false);
+  const { default: Component } = await sectionRegistry.getVariant("load-profile", "t06")!.load();
+  const html = renderToStaticMarkup(createElement(Component, { data: def.schema.parse({ ...data, chart: { ...data.chart, production: values, consumption: Array(24).fill(100) } }), site, sectionId: "daily" }));
+  assert.match(html, /23:00/);
+  assert.match(html, /role="img"/);
+  assert.equal((html.match(/<polyline/g) ?? []).length, 2);
+  assert.match(html, /points="48,106 [^"]*576,106"/);
+});
+
+test("hero v2 preserves old content and optional daily chart through migration and variant swaps", async () => {
+  const def = sectionRegistry.types.hero;
+  assert.equal(def.schemaVersion, 2);
+  const { migrateHeroV1 } = await import("../hero/" + "migrations");
+  const before = structuredClone(def.defaults);
+  assert.deepEqual(def.schema.parse(migrateHeroV1(def.defaults)), before);
+  const { chart, unit } = sectionRegistry.getType("load-profile")!.defaults as { chart: object; unit: { vi: string } };
+  const custom = def.schema.parse({ ...def.defaults as object, chart: { ...chart, unit } });
+  assert.deepEqual(def.schema.parse(migrateHeroV1(custom)), custom);
+  assert.deepEqual(def.defaults, before);
+  assert.equal(def.schema.safeParse({ ...custom, chart: { ...chart, unit, production: Array(23).fill(0) } }).success, false);
+  for (const variant of ["t06", "t15"]) {
+    const { default: Component } = await sectionRegistry.getVariant("hero", variant)!.load();
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data: custom, site, sectionId: "hero" }));
+    assertText(html, custom.title.highlight.vi);
+    if (variant === "t06") {
+      assert.ok(html.includes('id="hero-title"'));
+      assert.equal((html.match(/<polyline/g) ?? []).length, 2);
+    }
+    assert.deepEqual(def.schema.parse(custom), custom);
+  }
+});
+
 test("11 content types have valid fixtures, files and registry variants", async () => {
   for (const type of types) {
     const def = sectionRegistry.getType(type);

@@ -4,6 +4,7 @@ import { link, localized, mediaRef } from "../fields";
 import { segmentEnum, uniqueBy } from "../shared/schema";
 import { heroFixture } from "./fixtures";
 import { packageSimulationSchema } from "../shared/packageSimulation";
+import { energyMonitoringSchema } from "../energy-monitoring/schema";
 
 const card = z.object({ label: localized({ max: 60 }), value: z.string().max(20), unit: localized({ max: 20 }).optional() });
 
@@ -59,6 +60,8 @@ export const heroSchema = z.object({
       ctaLabel: localized({ max: 80 }).optional(),
     })).min(2).max(4).refine(uniqueBy("segment"), { message: "Phân khúc bị trùng" }),
   }).optional(),
+  /** Biểu đồ dữ liệu tùy chọn cho hero kỹ thuật; dùng cùng chuỗi 24 điểm của giám sát. */
+  chart: energyMonitoringSchema.shape.chart.extend({ unit: localized({ max: 60 }) }).optional(),
 });
 
 export const hero = defineSectionType({

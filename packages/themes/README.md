@@ -3,6 +3,8 @@
 Các theme đã kiểm tra bằng `parseTheme()` của `@solar/tokens`.
 `t15/theme.ts` giữ màu light/dark và token của Fresh Energy (template-15).
 `t13/theme.ts` giữ Warm Sand của template-13: nền kem, đất nung + teal, Inter và chỉ có light.
+`t05`, `t06`, `t09` là nhóm Pro C&I, dùng Inter và vàng: t05 navy, radius 14px; t06 navy/burgundy,
+card/media vuông; t09 navy/burgundy với kính tối. Cả ba chỉ có light như cấu hình mặc định của trang gốc.
 
 `t12/theme.ts` port Sky & Sun (light) / Emerald Dusk (dark) từ template-12, dùng font Inter có sẵn.
 Các nền nhấn ở light dùng bảng pastel của `.t12-invert` gốc; dark giữ nền emerald sâu.

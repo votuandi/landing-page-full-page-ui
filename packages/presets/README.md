@@ -39,3 +39,11 @@ Dự án/phản hồi có `items` inline để `/lab/presets/t07` render đầy 
 `note` ghi rõ các khối dùng variant gần nhất. Ảnh after và theme swap nằm ở
 `roadmap/evidence/E4/t07/`; chạy kiểm tra runtime bằng
 `pnpm --filter @solar/visual exec playwright test -c playwright.t07.config.ts` (cổng 3007).
+
+E4-S09 thêm `t05`, `t06`, `t09` thuộc nhóm Pro, cùng bộ variant C&I. Thứ tự section bật theo trang gốc;
+khối tùy chọn không có trên trang gốc được tắt và ghi `note`. Test tỷ lệ giao/hợp đếm `type/variant` của toàn bộ
+section đã cấu hình, gồm khối tùy chọn. Projects/testimonials có dữ liệu collection trong JSON để hiện ở lab.
+Xem `/lab/presets/t05|t06|t09`, đổi theme bằng `?theme=t15`.
+
+App dev cổng 3005: `pnpm --filter @solar/visual exec playwright test -c playwright.ci-presets.config.ts` kiểm
+390/1440, theme gốc/t15, không JavaScript và matrix; lưu JPEG ở `roadmap/evidence/E4/<id>/`.

@@ -1,3 +1,4 @@
+import { variants as loadProfile } from "./load-profile";
 import { variants as services } from "./services";
 import { variants as aboutStory } from "./about-story";
 import { variants as warranty } from "./warranty";
@@ -78,6 +79,7 @@ export const sectionRegistry = createRegistry({
   "shorts": shorts,
   "stats": stats,
   "energy-monitoring": energyMonitoring,
+  "load-profile": loadProfile,
   "process": process,
   "testimonials": testimonials,
   "trust": trust,

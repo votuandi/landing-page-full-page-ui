@@ -23,6 +23,45 @@ test("t07 keeps SolarHomePage order, original segments and populated projects", 
   assert.equal(page.sections.find((s) => s.type === "lead-form").data.source, "solar-home");
   for (const type of ["site-header", "calculator", "investment-models", "projects", "brands", "faq", "lead-form", "site-footer"]) {
     assert.ok(preset.sections.find((s) => s.type === type).note, type);
+});
+
+test("C&I presets share at least 80% of their configured type/variant set", () => {
+  const { loadPreset } = require("../index.ts");
+  const sets = ["t05", "t06", "t09"].map((id) => {
+    const { preset, page } = loadPreset(id);
+    assert.equal(preset.source.branch, `template-${Number(id.slice(1))}`);
+    assert.equal(preset.group, "pro");
+    for (const section of page.sections) {
+      if (!section.enabled) assert.ok(preset.sections.find((item) => item.id === section.id).note);
+      if (["projects", "testimonials", "shorts", "blog"].includes(section.type) && section.enabled) {
+        assert.ok(section.data.items.length > 0, `${id}/${section.id} needs lab collection data`);
+      }
+    }
+    return new Set(page.sections.map((section) => `${section.type}/${section.variant}`));
+  });
+  // Jaccard over the complete configured library (including explicitly optional, disabled blocks).
+  const union = new Set(sets.flatMap((set) => [...set]));
+  const intersection = [...union].filter((key) => sets.every((set) => set.has(key)));
+  assert.ok(intersection.length / union.size >= 0.8, `${intersection.length}/${union.size}`);
+});
+
+test("C&I presets preserve source homepage order and resolve every in-page CTA", () => {
+  const { loadPreset } = require("../index.ts");
+  for (const id of ["t05", "t06", "t09"]) {
+    const { page } = loadPreset(id);
+    const sections = page.sections.filter((section) => section.enabled);
+    assert.deepEqual(sections.map((section) => section.type), id === "t05" ? [
+      "site-header", "hero", "services", "calculator", "projects", "process", "investment-models", "warranty", "trust", "testimonials", "brands", "faq", "lead-form", "site-footer",
+    ] : [
+      "site-header", "hero", "load-profile", "services", "energy-monitoring", "energy-monitoring", "process", "calculator", "investment-models", "projects", "lead-form", "site-footer",
+    ]);
+    const anchors = new Set(sections.flatMap((section) => section.anchor ? [section.anchor] : []));
+    const visit = (value) => {
+      if (!value || typeof value !== "object") return;
+      if (value.kind === "anchor") assert.ok(anchors.has(value.value), `${id}: missing #${value.value}`);
+      Object.values(value).forEach(visit);
+    };
+    sections.forEach((section) => visit(section.data));
   }
 });
 // Same Node 20 source transpilation as @solar/themes; variants remain lazy.
