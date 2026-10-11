@@ -58,3 +58,17 @@ test("database errors are propagated", async () => {
   db.media.findMany = (() => { throw failure; }) as typeof db.media.findMany;
   await assert.rejects(assertRefsBelongToTenant(db, "A", { media: [own] }), failure);
 });
+
+test("unknown collection names fail closed even with empty IDs or inherited property names", async () => {
+  const { db, queries } = fixture();
+  for (const name of ["unknown", "media", "__proto__", "constructor"]) {
+    for (const ids of [[], [own]]) {
+      await assert.rejects(assertRefsBelongToTenant(db, "A", { collections: { [name]: ids } }), (error: unknown) => {
+        assert.ok(error instanceof CrossTenantRefError);
+        assert.deepEqual(error.missing, [{ kind: name, ids }]);
+        return true;
+      });
+    }
+  }
+  assert.deepEqual(queries, []);
+});

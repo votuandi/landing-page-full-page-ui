@@ -13,12 +13,31 @@ export const ignores = [
   "**/.*/*",
 ];
 
+export const prismaBoundary = {
+  rules: {
+    "no-restricted-imports": ["error", {
+      patterns: [{
+        group: ["@prisma/*", "pg", "pg/*", "**/generated/**", "@solar/db/generated*"],
+        message: "Dùng forTenant/forPlatform từ @solar/db",
+      }],
+    }],
+    "no-restricted-syntax": ["error", ...[
+      "CallExpression[callee.name='require'] > Literal.arguments",
+      "ImportExpression > Literal.source",
+    ].map((node) => ({
+      selector: `${node}[value=/^(@prisma\\/|pg($|\\/)|@solar\\/db\\/generated|.*\\/generated\\/)/]`,
+      message: "Dùng forTenant/forPlatform từ @solar/db",
+    }))],
+  },
+};
+
 /** @param {string} appDirectory */
 export function nextConfig(appDirectory) {
   return [
     { ignores },
     { files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"] },
     ...nextVitals,
+    prismaBoundary,
     { settings: { next: { rootDir: appDirectory } } },
     // Luật React Compiler mới của react-hooks v7 (đi kèm eslint-config-next 16): code hiện có còn vi phạm,
     // để ở mức warn tới khi sửa riêng — xem D2 trong roadmap/02-decisions.md.
@@ -35,4 +54,5 @@ export function nextConfig(appDirectory) {
 export default [
   { ignores },
   { ...js.configs.recommended, files: ["**/*.mjs"] },
+  prismaBoundary,
 ];

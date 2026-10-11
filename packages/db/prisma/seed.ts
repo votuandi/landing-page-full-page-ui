@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import { createDb, POOL_BUDGET, type Db } from "../src/client.ts";
 import type { Prisma } from "../generated/client.ts";
 import { buildDemo } from "./seed-data.ts";
+import { forPlatform } from "../src/repository.ts";
 
 // Strip undefined optional fields and serialize schema-parsed objects to Prisma JSON.
 const json = (value: unknown): Prisma.InputJsonValue => JSON.parse(JSON.stringify(value));
@@ -14,6 +15,8 @@ export async function seedDemo(db: Db) {
   }
   for (const id of ["t15", "t12"] as const) {
     const demo = buildDemo(id);
+    const hostname = `${id}.localhost`;
+    const domain = await forPlatform(db).domains.findByHostname(hostname);
     await db.$transaction(async (tx) => {
       const tenantData = { name: demo.name, status: "active" as const, planId: id === "t15" ? "premium" : "pro" };
       const tenant = await tx.tenant.upsert({ where: { slug: `demo-${id}` }, update: tenantData, create: { slug: `demo-${id}`, ...tenantData } });
@@ -24,11 +27,9 @@ export async function seedDemo(db: Db) {
         ? await tx.site.update({ where: { tenantId_id: { tenantId, id: existing.id } }, data: siteData })
         : await tx.site.create({ data: { tenantId, ...siteData } });
       const siteId = site.id;
-      const hostname = `${id}.localhost`;
-      const domain = await tx.domain.findUnique({ where: { hostname } });
       if (domain && domain.tenantId !== tenantId) throw new Error(`Demo hostname already belongs to another tenant: ${hostname}`);
       const domainData = { siteId, isPrimary: true, status: "active" as const, sslProvider: "caddy" as const };
-      await tx.domain.upsert({ where: { hostname }, update: domainData, create: { tenantId, hostname, verificationToken: randomUUID(), ...domainData } });
+      await tx.domain.upsert({ where: { hostname, tenantId }, update: domainData, create: { tenantId, hostname, verificationToken: randomUUID(), ...domainData } });
 
       const pageData = { kind: "home" as const, title: { vi: demo.name }, sections: json(demo.pageSections), revision: 1 };
       const page = await tx.page.upsert({

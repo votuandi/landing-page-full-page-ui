@@ -21,9 +21,13 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function assertRefsBelongToTenant(db: RefDb, tenantId: string, refs: TenantRefs): Promise<void> {
   const missing: MissingRefs = [];
+  const collections = Object.entries(refs.collections ?? {});
+  for (const [kind, ids] of collections) {
+    if (!Object.hasOwn(collectionModels, kind)) missing.push({ kind, ids });
+  }
   const groups: [string, keyof RefDb, string[]][] = [
     ["media", "media", (refs.media ?? []).filter((id) => !(id.startsWith("/") && !id.startsWith("//")))],
-    ...Object.entries(refs.collections ?? {}).map(([kind, ids]): [string, keyof RefDb, string[]] => [
+    ...collections.filter(([kind]) => Object.hasOwn(collectionModels, kind)).map(([kind, ids]): [string, keyof RefDb, string[]] => [
       kind, collectionModels[kind as CollectionName], ids,
     ]),
   ];
