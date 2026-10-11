@@ -13,6 +13,64 @@ for (const ext of [".ts", ".tsx"]) require.extensions[ext] = (module, filename) 
   module._compile(outputText, filename);
 };
 
+test("Classic presets only enable Basic types and keep higher-plan variants disabled", () => {
+  const { presets, BASIC_SECTION_TYPES, loadPreset } = require("../index.ts");
+  const basic = ["site-header", "hero", "segments", "services", "lead-form", "projects", "process", "brands", "blog", "warranty", "cta-banner", "about-story", "site-footer"];
+  assert.deepEqual([...BASIC_SECTION_TYPES].sort(), basic.sort());
+  const classic = presets.filter((preset) => preset.group === "classic");
+  assert.ok(classic.length >= 4);
+  for (const preset of classic) {
+    assert.ok(preset.sections.length > 2);
+    for (const section of preset.sections.filter((entry) => entry.enabled !== false)) {
+      assert.ok(BASIC_SECTION_TYPES.includes(section.type), `${preset.id}: ${section.type}`);
+      assert.notEqual(section.type, "lead-form", "simple contact uses a CTA; advanced lead form stays disabled");
+    }
+    for (const section of loadPreset(preset.id).page.sections) {
+      if (["projects", "blog", "testimonials", "shorts"].includes(section.type)) assert.ok(section.data.items.length, `${preset.id}: ${section.type} needs lab collection data`);
+    }
+  }
+  for (const [id, type, variant] of [["t01", "products", "minwy"], ["t02", "faq", "t02"], ["t04", "packages", "t04"], ["t04", "stats", "t04"]]) {
+    const section = loadPreset(id).page.sections.find((entry) => entry.type === type && entry.variant === variant);
+    assert.ok(section, `${id}: ${type}/${variant}`);
+    assert.equal(section.enabled, false);
+  }
+});
+
+test("Classic presets preserve source homepage order, including disabled paid sections", () => {
+  const { loadPreset } = require("../index.ts");
+  const order = {
+    t01: ["site-header", "hero", "about-story", "brands", "products", "projects", "blog", "warranty", "site-footer"],
+    t02: ["site-header", "hero", "services", "products", "process", "faq", "cta-banner", "site-footer"],
+    t03: ["site-header", "hero", "about-story", "services", "products", "about-story", "brands", "projects", "blog", "site-footer"],
+    t04: ["site-header", "hero", "stats", "calculator", "packages", "services", "process", "projects", "testimonials", "brands", "faq", "lead-form", "cta-banner", "site-footer"],
+  };
+  for (const [id, types] of Object.entries(order)) {
+    const { preset, page, widgets } = loadPreset(id);
+    assert.deepEqual(page.sections.map((section) => section.type), types, id);
+    assert.equal(preset.source.branch, id === "t01" ? "minwy" : `template-${Number(id.slice(1))}`);
+    assert.deepEqual(widgets, {}, "Classic source layouts do not have floating widgets");
+    assert.equal(page.sections.filter((section) => section.type === "hero").length, 1);
+  }
+  assert.ok(loadPreset("t03").preset.subpages.includes("gioi-thieu"));
+});
+
+test("Classic page links use existing canonical routes and project anchors resolve", () => {
+  const { loadPreset } = require("../index.ts");
+  const routes = ["", "ve-chung-toi", "giai-phap", "san-pham", "tin-tuc", "lien-he", "chinh-sach/bao-hanh"];
+  for (const id of ["t01", "t02", "t03", "t04"]) {
+    const { page } = loadPreset(id);
+    function visit(value) {
+      if (!value || typeof value !== "object") return;
+      if (value.kind === "page") assert.ok(routes.includes(value.value), `${id}: /${value.value}`);
+      if (value.kind === "anchor" && value.value === "projects") {
+        assert.ok(page.sections.some((section) => section.anchor === "projects" && section.enabled !== false), id);
+      }
+      for (const child of Object.values(value)) visit(child);
+    }
+    visit(page.sections);
+  }
+});
+
 test("every preset JSON is registered and loads with real theme, variants and typed data", () => {
   const { presets, loadPreset, getPreset, presetSchema } = require("../index.ts");
   const { sectionRegistry, widgetRegistry } = require("@solar/sections");

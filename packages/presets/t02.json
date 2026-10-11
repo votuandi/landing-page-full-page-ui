@@ -1,0 +1,737 @@
+{
+  "id": "t02",
+  "name": "Classic · Minwy Solar",
+  "group": "classic",
+  "themeId": "t02",
+  "description": "[DỮ LIỆU MẪU] Preset Classic gói Cơ bản; khối gói cao hơn tắt mặc định.",
+  "source": {
+    "branch": "template-2"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "[DỮ LIỆU MẪU] Minwy Solar"
+        },
+        "topBar": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tư vấn, cung cấp thiết bị và thi công điện mặt trời"
+          }
+        ],
+        "menus": [],
+        "links": [
+          {
+            "kind": "page",
+            "value": "",
+            "label": {
+              "vi": "Trang chủ"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Giới thiệu"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "giai-phap",
+            "label": {
+              "vi": "Giải pháp"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline tư vấn"
+        },
+        "hotlines": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "main": "0901234567",
+            "lines": []
+          }
+        ],
+        "cta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Nhận tư vấn"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "phone",
+            "value": "0901234567",
+            "label": {
+              "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+            }
+          }
+        ]
+      },
+      "note": "Header gần nhất: site-header/minwy; menu đơn giản theo nội dung Classic."
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "badge": {
+          "vi": "MINWY SOLAR / NĂNG LƯỢNG SẠCH"
+        },
+        "title": {
+          "lead": {
+            "vi": "Đón ánh nắng."
+          },
+          "highlight": {
+            "vi": "Mở tương lai xanh."
+          },
+          "sub": {
+            "vi": ""
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "Biến mái nhà thành nguồn năng lượng của riêng bạn. Đồng hành từ tư vấn thiết bị đến lắp đặt và bảo trì hệ thống điện mặt trời."
+        },
+        "primaryCta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Tư vấn giải pháp ↗"
+          }
+        },
+        "secondaryCta": {
+          "kind": "page",
+          "value": "san-pham",
+          "label": {
+            "vi": "Khám phá sản phẩm →"
+          }
+        },
+        "rating": {
+          "score": 4.9,
+          "count": 312,
+          "url": "https://www.google.com/maps",
+          "label": {
+            "vi": "đánh giá Google",
+            "en": "Google reviews"
+          }
+        },
+        "stats": [],
+        "image": {
+          "id": "/images/solar-installation-hero.jpg",
+          "alt": {
+            "vi": "Nguồn năng lượng từ thiên nhiên. Giải pháp dành riêng cho bạn."
+          }
+        },
+        "chips": [
+          {
+            "label": {
+              "vi": "Tư vấn theo nhu cầu"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Thiết bị phù hợp"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Lắp đặt đồng bộ"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Hỗ trợ sau bàn giao"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          }
+        ],
+        "outputCard": {
+          "label": {
+            "vi": "Sản lượng hôm nay",
+            "en": "Today's output"
+          },
+          "value": "1.248",
+          "unit": {
+            "vi": "kWh"
+          },
+          "liveLabel": "Live"
+        },
+        "savingCard": {
+          "label": {
+            "vi": "Hóa đơn giảm",
+            "en": "Bill reduced"
+          },
+          "value": "−38%",
+          "unit": {
+            "vi": "/ tháng*",
+            "en": "/ month*"
+          }
+        },
+        "co2Card": {
+          "label": {
+            "vi": "CO₂ giảm mỗi năm",
+            "en": "CO₂ avoided / year"
+          },
+          "value": "~840",
+          "unit": {
+            "vi": "tấn",
+            "en": "tonnes"
+          }
+        }
+      }
+    },
+    {
+      "id": "solutions",
+      "type": "services",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "01 / GIẢI PHÁP"
+        },
+        "title": {
+          "vi": "Một nguồn năng lượng. Nhiều khả năng."
+        },
+        "items": [
+          {
+            "id": "home",
+            "title": {
+              "vi": "Cho ngôi nhà của bạn"
+            },
+            "image": {
+              "id": "/images/solar-battery-hero.jpg",
+              "alt": {
+                "vi": "Cho ngôi nhà của bạn"
+              }
+            },
+            "points": [
+              {
+                "vi": "Thiết kế theo nhu cầu sử dụng điện, diện tích mái và ngân sách của gia đình."
+              }
+            ],
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          },
+          {
+            "id": "business",
+            "title": {
+              "vi": "Cho doanh nghiệp"
+            },
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Cho doanh nghiệp"
+              }
+            },
+            "points": [
+              {
+                "vi": "Giải pháp điện mặt trời giúp chủ động nguồn năng lượng cho hoạt động sản xuất."
+              }
+            ],
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          },
+          {
+            "id": "care",
+            "title": {
+              "vi": "Chăm sóc hệ thống"
+            },
+            "image": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Chăm sóc hệ thống"
+              }
+            },
+            "points": [
+              {
+                "vi": "Kiểm tra, bảo trì và hỗ trợ kỹ thuật để hệ thống vận hành ổn định lâu dài."
+              }
+            ],
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          }
+        ],
+        "videos": [],
+        "ctaLabel": {
+          "vi": "Dự toán cho phân khúc này",
+          "en": "Estimate for this segment"
+        },
+        "description": {
+          "vi": "Bắt đầu từ nhu cầu thực tế để tìm giải pháp phù hợp với không gian và cách bạn sử dụng điện."
+        }
+      }
+    },
+    {
+      "id": "equipment",
+      "type": "products",
+      "variant": "minwy",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "Cửa hàng thiết bị",
+          "en": "[SAMPLE DATA] Cửa hàng thiết bị"
+        },
+        "title": {
+          "vi": "Kết nối một hệ thống hoàn chỉnh."
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Danh mục thiết bị, giá và thông số minh họa."
+        },
+        "query": {
+          "filter": {
+            "featured": true
+          },
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "canadian-580w",
+            "slug": "canadian-580w",
+            "name": "[DỮ LIỆU MẪU] Tấm pin Canadian Solar 580W",
+            "category": "panel",
+            "categoryLabel": "Tấm pin năng lượng mặt trời",
+            "brand": "Canadian Solar",
+            "images": [
+              {
+                "id": "/images/product-3.jpg",
+                "alt": {
+                  "vi": "Tấm pin Canadian Solar 580W"
+                }
+              }
+            ],
+            "price": 3200000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "580 W"
+              }
+            ],
+            "href": "/san-pham/canadian-580w",
+            "featured": true
+          },
+          {
+            "id": "growatt-3kw",
+            "slug": "growatt-3kw",
+            "name": "[DỮ LIỆU MẪU] Biến tần Growatt MIN 3000TL-XE",
+            "category": "inverter",
+            "categoryLabel": "Biến tần Inverter",
+            "brand": "Growatt",
+            "images": [
+              {
+                "id": "/images/product-1.jpg",
+                "alt": {
+                  "vi": "Biến tần Growatt MIN 3000TL-XE"
+                }
+              }
+            ],
+            "price": 8500000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "3 kW"
+              }
+            ],
+            "href": "/san-pham/growatt-3kw",
+            "featured": true
+          },
+          {
+            "id": "pylontech-355",
+            "slug": "pylontech-355",
+            "name": "[DỮ LIỆU MẪU] Pin Lithium Pylontech US3000C",
+            "category": "battery",
+            "categoryLabel": "Pin lưu trữ Lithium",
+            "brand": "Pylontech",
+            "images": [
+              {
+                "id": "/images/product-2.jpg",
+                "alt": {
+                  "vi": "Pin Lithium Pylontech US3000C"
+                }
+              }
+            ],
+            "price": 18500000,
+            "warranty": "[DỮ LIỆU MẪU] Theo chính sách nhà sản xuất",
+            "specs": [
+              {
+                "label": "Công suất / dung lượng",
+                "value": "3,55 kWh"
+              }
+            ],
+            "href": "/san-pham/pylontech-355",
+            "featured": true
+          }
+        ],
+        "allLink": {
+          "kind": "page",
+          "value": "san-pham",
+          "label": {
+            "vi": "Xem tất cả",
+            "en": "View all"
+          }
+        },
+        "quickViewLabel": {
+          "vi": "Xem nhanh",
+          "en": "Quick view"
+        },
+        "addLabel": {
+          "vi": "Thêm vào yêu cầu báo giá",
+          "en": "Add to quote request"
+        },
+        "addedLabel": {
+          "vi": "Đã thêm",
+          "en": "Added"
+        },
+        "compactAddLabel": {
+          "vi": "Thêm báo giá",
+          "en": "Add to quote"
+        },
+        "viewCartLabel": {
+          "vi": "Xem giỏ báo giá",
+          "en": "View quote cart"
+        },
+        "detailsLabel": {
+          "vi": "Trang chi tiết",
+          "en": "Details"
+        },
+        "warrantyLabel": {
+          "vi": "Bảo hành",
+          "en": "Warranty"
+        },
+        "contactPriceLabel": {
+          "vi": "Liên hệ",
+          "en": "Contact"
+        }
+      },
+      "note": "Equipment-grid dùng catalog/minwy gần nhất và tắt theo gói Cơ bản."
+    },
+    {
+      "id": "process",
+      "type": "process",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "03 / CÁCH CHÚNG TÔI LÀM VIỆC"
+        },
+        "title": {
+          "vi": "Từ ý tưởng đến năng lượng thực tế."
+        },
+        "outputLabel": {
+          "vi": "Đầu ra"
+        },
+        "steps": [
+          {
+            "title": {
+              "vi": "Lắng nghe nhu cầu"
+            },
+            "description": {
+              "vi": "Trao đổi về mức tiêu thụ điện, ngân sách và mục tiêu sử dụng."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Khảo sát & thiết kế"
+            },
+            "description": {
+              "vi": "Đánh giá vị trí, lựa chọn thiết bị và đề xuất cấu hình phù hợp."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Lắp đặt & bàn giao"
+            },
+            "description": {
+              "vi": "Thi công hệ thống, kiểm tra vận hành và hướng dẫn sử dụng."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Đồng hành lâu dài"
+            },
+            "description": {
+              "vi": "Hỗ trợ kỹ thuật, kiểm tra và bảo trì theo nhu cầu thực tế."
+            },
+            "output": {
+              "vi": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t02",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "04 / CÂU HỎI THƯỜNG GẶP"
+        },
+        "title": {
+          "vi": "Bạn hỏi. Chúng tôi giải đáp."
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Mái nhà của tôi có phù hợp để lắp điện mặt trời?"
+            },
+            "answer": {
+              "vi": "Cần khảo sát diện tích, kết cấu mái, hướng nắng và vật cản. Minwy Solar sẽ tư vấn cấu hình sau khi đánh giá điều kiện thực tế."
+            }
+          },
+          {
+            "question": {
+              "vi": "Tôi nên chọn hệ hòa lưới hay có lưu trữ?"
+            },
+            "answer": {
+              "vi": "Lựa chọn phụ thuộc vào thời điểm sử dụng điện và nhu cầu dự phòng. Pin lưu trữ có thể hỗ trợ sử dụng năng lượng vào buổi tối; công suất và chi phí cần được tính theo nhu cầu cụ thể."
+            }
+          },
+          {
+            "question": {
+              "vi": "Làm sao để nhận báo giá?"
+            },
+            "answer": {
+              "vi": "Gọi 0901 234 567 hoặc gửi email tới sample@example.com với thông tin hóa đơn điện, diện tích mái và nhu cầu sử dụng. Chúng tôi sẽ trao đổi phương án phù hợp."
+            }
+          }
+        ],
+        "jsonLd": true
+      },
+      "note": "FAQ thuộc Nâng cao theo bảng §3; giữ nội dung và vị trí gốc, tắt mặc định."
+    },
+    {
+      "id": "contact",
+      "type": "cta-banner",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "SẴN SÀNG CHO MỘT KHỞI ĐẦU XANH?"
+        },
+        "title": {
+          "vi": "Cùng đón nguồn năng lượng mới."
+        },
+        "description": {
+          "vi": ""
+        },
+        "image": {
+          "id": "/images/services/service_1772898001151.webp",
+          "alt": {
+            "vi": ""
+          }
+        },
+        "primaryCta": {
+          "kind": "phone",
+          "value": "0901234567",
+          "label": {
+            "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+          }
+        },
+        "checklistTitle": {
+          "vi": "Để báo giá nhanh, hãy gửi:",
+          "en": "For a fast quote, send us:"
+        },
+        "checklist": [
+          {
+            "icon": "location",
+            "label": {
+              "vi": "Khu vực lắp đặt",
+              "en": "Installation area"
+            }
+          },
+          {
+            "icon": "power",
+            "label": {
+              "vi": "Công suất mong muốn (kWp) hoặc thiết bị cần dùng",
+              "en": "Desired capacity (kWp) or loads"
+            }
+          },
+          {
+            "icon": "document",
+            "label": {
+              "vi": "Ảnh hóa đơn tiền điện 1–3 tháng gần nhất",
+              "en": "Photo of your last 1–3 electricity bills"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "[DỮ LIỆU MẪU] Minwy Solar",
+          "tagline": {
+            "vi": "Giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp."
+          }
+        },
+        "socials": [],
+        "legal": {
+          "legalName": "[DỮ LIỆU MẪU] Minwy Solar",
+          "lines": [
+            {
+              "vi": "[DỮ LIỆU MẪU] Thông tin doanh nghiệp cần được thay trước khi xuất bản."
+            }
+          ],
+          "badges": [],
+          "moitBadge": {
+            "enabled": false
+          }
+        },
+        "branchesTitle": {
+          "vi": "Liên hệ"
+        },
+        "branches": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "stores": [
+              {
+                "name": "Tư vấn điện mặt trời",
+                "phone": "0901234567",
+                "address": "[DỮ LIỆU MẪU] Việt Nam"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Về chúng tôi"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Giới thiệu"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Giải pháp"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm",
+                  "en": "Products"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Hỗ trợ"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Bảo hành"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Khảo sát và tư vấn theo nhu cầu thực tế."
+        },
+        "disclaimer": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tên công ty, số điện thoại và số liệu chỉ để minh họa."
+          }
+        ]
+      },
+      "note": "Footer cổ điển dùng minwy; khác nhận diện ở theme."
+    }
+  ],
+  "widgets": {}
+}

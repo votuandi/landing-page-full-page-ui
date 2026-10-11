@@ -9,6 +9,7 @@ export default function PresetsLabPage() {
         <Link href={`/lab/presets/${preset.id}`} className="text-lg font-black text-primary">{preset.name}</Link>
         <p className="mt-2 text-fg-muted">{preset.description}</p>
         <p className="mt-3 text-sm text-fg-subtle">{preset.group} · {preset.themeId}</p>
+        {preset.subpages?.map((slug) => <Link key={slug} href={`/lab/presets/${preset.id}?subpage=${encodeURIComponent(slug)}`} className="mt-3 block text-sm text-primary underline">{slug}</Link>)}
       </li>)}
     </ul>
   </main>;

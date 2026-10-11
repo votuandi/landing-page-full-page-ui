@@ -31,3 +31,12 @@ Thêm preset (E4-S02–S10):
 
 API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route preset bật; việc phục vụ tenant,
 entitlement và route theo DB triển khai ở các epic sau.
+
+E4-S10 thêm `t01`–`t04` (Classic) và `BASIC_SECTION_TYPES`, lấy đúng cột gói Cơ bản tại
+`roadmap/01-template-analysis.md` §3. Hằng này là bảng tạm, E6 thay bằng `@solar/plans`; `lead-form` chỉ thuộc Cơ bản
+khi là liên hệ đơn giản. Classic dùng CTA điện thoại, giữ form lead nâng cao, catalog, calculator, packages, stats,
+FAQ và testimonials ở trạng thái tắt. Các khối tắt vẫn giữ dữ liệu và vị trí gốc để nâng gói sau này.
+
+Collection dùng trong lab có `data.items` trực tiếp trong JSON. `?theme=t15` kiểm khả năng đổi theme;
+`/lab/presets/t03?subpage=gioi-thieu` và `?subpage=dich-vu` xem `page-hero/t03` với header/footer preset.
+Query trang con phải có trong `subpages`, giá trị khác trả 404; không thay route tenant công khai.
