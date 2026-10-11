@@ -26,6 +26,9 @@ importers:
       '@solar/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@solar/presets':
+        specifier: workspace:*
+        version: link:../../packages/presets
       '@solar/sections':
         specifier: workspace:*
         version: link:../../packages/sections
@@ -105,6 +108,31 @@ importers:
         version: 5.9.3
 
   packages/core:
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/presets:
+    dependencies:
+      '@solar/sections':
+        specifier: workspace:*
+        version: link:../sections
+      '@solar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@solar/config':
         specifier: workspace:*
