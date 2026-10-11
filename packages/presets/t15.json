@@ -12,7 +12,797 @@
       "id": "header",
       "type": "site-header",
       "variant": "t15",
-      "enabled": true
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "Lumivolt Energy"
+        },
+        "topBar": [
+          {
+            "vi": "Đầy đủ chứng từ VAT, CO, CQ cho mọi lô hàng",
+            "en": "Full VAT invoice, CO & CQ for every shipment"
+          },
+          {
+            "vi": "Cam kết hàng chính hãng 100%",
+            "en": "100% genuine products guaranteed"
+          },
+          {
+            "vi": "Hệ thống quản lý ISO 9001 · 14001 · 45001",
+            "en": "ISO 9001 · 14001 · 45001 management system"
+          },
+          {
+            "vi": "Chính sách đại lý chiết khấu tới 18%",
+            "en": "Dealer discounts up to 18%"
+          },
+          {
+            "vi": "Kỹ sư khảo sát miễn phí trong 48 giờ",
+            "en": "Free engineer site survey within 48 hours"
+          }
+        ],
+        "pricingMenu": {
+          "label": {
+            "vi": "Bảng giá lắp đặt",
+            "en": "Pricing"
+          },
+          "hint": {
+            "vi": "Chọn mức → điền sẵn vào dự toán",
+            "en": "Pick a range → prefilled estimate"
+          },
+          "categories": [
+            {
+              "id": "ho-gia-dinh",
+              "label": {
+                "vi": "Hộ gia đình",
+                "en": "Households"
+              },
+              "hint": {
+                "vi": "Theo tiền điện/tháng",
+                "en": "By monthly bill"
+              },
+              "segment": "household",
+              "groups": [
+                {
+                  "title": {
+                    "vi": "Không lưu trữ",
+                    "en": "Grid-tied"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 – 2 triệu",
+                        "en": "1 – 2M VND"
+                      },
+                      "bill": 1500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                },
+                {
+                  "title": {
+                    "vi": "Có lưu trữ",
+                    "en": "With battery"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "doanh-nghiep",
+              "label": {
+                "vi": "Doanh nghiệp",
+                "en": "Businesses"
+              },
+              "hint": {
+                "vi": "Văn phòng, cửa hàng, khách sạn",
+                "en": "Offices, shops, hotels"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "5 – 15 triệu",
+                        "en": "5 – 15M VND"
+                      },
+                      "bill": 10000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "15 – 30 triệu",
+                        "en": "15 – 30M VND"
+                      },
+                      "bill": 22000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "30 – 60 triệu",
+                        "en": "30 – 60M VND"
+                      },
+                      "bill": 45000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 60 triệu",
+                        "en": "Over 60M VND"
+                      },
+                      "bill": 80000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "nha-xuong",
+              "label": {
+                "vi": "Nhà xưởng",
+                "en": "Factories"
+              },
+              "hint": {
+                "vi": "Sản xuất, kho lạnh, trang trại",
+                "en": "Manufacturing, cold storage, farms"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "50 – 150 triệu",
+                        "en": "50 – 150M VND"
+                      },
+                      "bill": 100000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "150 – 300 triệu",
+                        "en": "150 – 300M VND"
+                      },
+                      "bill": 220000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "300 – 600 triệu",
+                        "en": "300 – 600M VND"
+                      },
+                      "bill": 450000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 600 triệu",
+                        "en": "Over 600M VND"
+                      },
+                      "bill": 800000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "bom-nuoc",
+              "label": {
+                "vi": "Bơm nước",
+                "en": "Water pumps"
+              },
+              "hint": {
+                "vi": "Theo công suất bơm (HP)",
+                "en": "By pump power (HP)"
+              },
+              "segment": "farm",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 HP",
+                        "en": "1 HP"
+                      },
+                      "bill": 500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 HP",
+                        "en": "2 HP"
+                      },
+                      "bill": 1000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 HP",
+                        "en": "3 HP"
+                      },
+                      "bill": 1500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "5 HP",
+                        "en": "5 HP"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "7,5 HP",
+                        "en": "7.5 HP"
+                      },
+                      "bill": 3800000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 HP",
+                        "en": "10 HP"
+                      },
+                      "bill": 5000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "om",
+              "label": {
+                "vi": "O&M"
+              },
+              "hint": {
+                "vi": "Vận hành & bảo trì theo MWp",
+                "en": "Operation & maintenance by MWp"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 0,5 MWp",
+                        "en": "< 0.5 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "0,5 – 1 MWp",
+                        "en": "0.5 – 1 MWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "1 – 3 MWp",
+                        "en": "1 – 3 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 3 MWp",
+                        "en": "> 3 MWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ve-sinh",
+              "label": {
+                "vi": "Vệ sinh",
+                "en": "Cleaning"
+              },
+              "hint": {
+                "vi": "Vệ sinh tấm pin định kỳ",
+                "en": "Periodic panel cleaning"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 10 kWp",
+                        "en": "< 10 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 – 50 kWp",
+                        "en": "10 – 50 kWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "50 – 200 kWp",
+                        "en": "50 – 200 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 200 kWp",
+                        "en": "> 200 kWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "menus": [
+          {
+            "label": {
+              "vi": "Thiết bị",
+              "en": "Equipment"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Tấm pin",
+                  "en": "Solar panels"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=panel",
+                  "label": {
+                    "vi": "Tấm pin",
+                    "en": "Solar panels"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=N-type+TOPCon",
+                    "label": {
+                      "vi": "N-type TOPCon",
+                      "en": "N-type TOPCon"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=Bifacial",
+                    "label": {
+                      "vi": "Hai mặt kính",
+                      "en": "Bifacial"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&minPower=0.6",
+                    "label": {
+                      "vi": "≥ 600 W",
+                      "en": "≥ 600 W"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Inverter"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=inverter",
+                  "label": {
+                    "vi": "Inverter",
+                    "en": "Inverter"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=On-grid",
+                    "label": {
+                      "vi": "Hòa lưới",
+                      "en": "On-grid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=Hybrid",
+                    "label": {
+                      "vi": "Hybrid",
+                      "en": "Hybrid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&minPower=50",
+                    "label": {
+                      "vi": "≥ 50 kW",
+                      "en": "≥ 50 kW"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Lithium"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=battery",
+                  "label": {
+                    "vi": "Lithium",
+                    "en": "Lithium"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=LiFePO4",
+                    "label": {
+                      "vi": "LiFePO4",
+                      "en": "LiFePO4"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=High+Voltage",
+                    "label": {
+                      "vi": "Điện áp cao",
+                      "en": "High voltage"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&minPower=10",
+                    "label": {
+                      "vi": "≥ 10 kWh",
+                      "en": "≥ 10 kWh"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "BESS"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=bess",
+                  "label": {
+                    "vi": "BESS",
+                    "en": "BESS"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&tech=Outdoor+cabinet",
+                    "label": {
+                      "vi": "Tủ ngoài trời",
+                      "en": "Outdoor cabinet"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&minPower=200",
+                    "label": {
+                      "vi": "≥ 200 kWh",
+                      "en": "≥ 200 kWh"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": {
+              "vi": "Cẩm nang",
+              "en": "Guides"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Thuật ngữ",
+                  "en": "Glossary"
+                },
+                "description": {
+                  "vi": "kWp, PR, MPPT, hybrid… giải thích dễ hiểu",
+                  "en": "kWp, PR, MPPT, hybrid… explained"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Thuật ngữ",
+                    "en": "Glossary"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Biểu giá điện",
+                  "en": "Electricity tariffs"
+                },
+                "description": {
+                  "vi": "Bậc thang sinh hoạt, kinh doanh, sản xuất",
+                  "en": "Residential, commercial and industrial rates"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Biểu giá điện",
+                    "en": "Electricity tariffs"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Hỏi đáp",
+                  "en": "FAQ"
+                },
+                "description": {
+                  "vi": "Câu hỏi thường gặp trước khi lắp",
+                  "en": "Common questions before installing"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Hỏi đáp",
+                    "en": "FAQ"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Kinh nghiệm lắp đặt",
+                  "en": "Blog"
+                },
+                "description": {
+                  "vi": "Bài viết theo tình huống thực tế",
+                  "en": "Real-life use cases"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "tin-tuc",
+                  "label": {
+                    "vi": "Kinh nghiệm lắp đặt",
+                    "en": "Blog"
+                  }
+                },
+                "links": []
+              }
+            ]
+          }
+        ],
+        "links": [
+          {
+            "kind": "anchor",
+            "value": "du-an",
+            "label": {
+              "vi": "Dự án",
+              "en": "Projects"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "dai-ly",
+            "label": {
+              "vi": "Đại lý",
+              "en": "Dealers"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức",
+              "en": "News"
+            }
+          }
+        ],
+        "mobileLinks": [
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm & thiết bị",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Về chúng tôi",
+              "en": "About us"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ",
+              "en": "Contact"
+            }
+          }
+        ],
+        "hotlineLabel": {
+          "vi": "Hotline theo chi nhánh",
+          "en": "Hotlines by branch"
+        },
+        "hotlines": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "main": "0901 234 500",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 501"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 502"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=10.7865,106.699",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Hà Nội",
+            "main": "0901 234 520",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 521"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 522"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=21.03,105.8",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Đà Nẵng",
+            "main": "0901 234 540",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 541"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 542"
+              }
+            ]
+          }
+        ],
+        "cta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Báo giá",
+            "en": "Get a quote"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "calculator",
+            "value": "",
+            "label": {
+              "vi": "Nhận tư vấn miễn phí",
+              "en": "Free consultation"
+            }
+          },
+          {
+            "kind": "zalo",
+            "value": "0901 234 502",
+            "label": {
+              "vi": "Zalo Nhà xưởng",
+              "en": "Zalo Factory"
+            }
+          }
+        ],
+        "controls": {
+          "language": true,
+          "theme": true,
+          "cart": true
+        }
+      }
     },
     {
       "id": "hero",
@@ -43,8 +833,8 @@
           "en": "Real installs & handovers — watch before you decide."
         },
         "description": {
-          "vi": "Video ngắn từ công trình minh họa.",
-          "en": "Short videos from sample projects."
+          "vi": "Video ngắn từ kênh @lumivolt.demo",
+          "en": "Short videos from @lumivolt.demo"
         },
         "query": {
           "filter": {},
@@ -238,7 +1028,24 @@
         "ctaLabel": {
           "vi": "Nhận báo giá công trình tương tự",
           "en": "Get a quote for a similar project"
-        }
+        },
+        "channels": [
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@lumivolt.demo",
+            "label": "TikTok"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@lumivolt.demo",
+            "label": "YouTube"
+          },
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/lumivolt.demo",
+            "label": "Facebook"
+          }
+        ]
       }
     },
     {
@@ -266,7 +1073,299 @@
       "type": "trust",
       "variant": "t15",
       "enabled": true,
-      "anchor": "chung-nhan"
+      "anchor": "chung-nhan",
+      "data": {
+        "eyebrow": {
+          "vi": "Chứng chỉ & giấy phép",
+          "en": "[SAMPLE DATA] Certificates & licences"
+        },
+        "title": {
+          "vi": "Năng lực được chứng nhận, minh bạch từng giấy tờ.",
+          "en": "Certified capability, every document on show."
+        },
+        "items": [
+          {
+            "id": "iso9001",
+            "title": {
+              "vi": "ISO 9001:2015"
+            },
+            "subtitle": {
+              "vi": "Hệ thống quản lý chất lượng",
+              "en": "Quality management"
+            },
+            "issuer": {
+              "vi": "Tổ chức chứng nhận Mẫu QA (hư cấu)"
+            },
+            "number": {
+              "vi": "QA-MẪU-9001"
+            },
+            "validUntil": {
+              "vi": "12/2027"
+            },
+            "scope": {
+              "vi": "Phân phối thiết bị điện mặt trời; tư vấn thiết kế, thi công lắp đặt hệ thống điện mặt trời."
+            },
+            "image": {
+              "id": "/images/trust/cert-iso-9001-full.svg",
+              "alt": {
+                "vi": "ISO 9001:2015"
+              }
+            }
+          },
+          {
+            "id": "iso14001",
+            "title": {
+              "vi": "ISO 14001:2015"
+            },
+            "subtitle": {
+              "vi": "Quản lý môi trường",
+              "en": "Environmental management"
+            },
+            "issuer": {
+              "vi": "Tổ chức chứng nhận Mẫu QA (hư cấu)"
+            },
+            "number": {
+              "vi": "QA-MẪU-14001"
+            },
+            "validUntil": {
+              "vi": "12/2027"
+            },
+            "scope": {
+              "vi": "Hoạt động kho bãi, thi công và thu hồi vật tư tại các chi nhánh."
+            },
+            "image": {
+              "id": "/images/trust/cert-iso-14001-full.svg",
+              "alt": {
+                "vi": "ISO 14001:2015"
+              }
+            }
+          },
+          {
+            "id": "iso45001",
+            "title": {
+              "vi": "ISO 45001:2018"
+            },
+            "subtitle": {
+              "vi": "An toàn sức khỏe nghề nghiệp",
+              "en": "Occupational health & safety"
+            },
+            "issuer": {
+              "vi": "Tổ chức chứng nhận Mẫu QA (hư cấu)"
+            },
+            "number": {
+              "vi": "QA-MẪU-45001"
+            },
+            "validUntil": {
+              "vi": "06/2028"
+            },
+            "scope": {
+              "vi": "Thi công trên mái, làm việc trên cao và đấu nối điện."
+            },
+            "image": {
+              "id": "/images/trust/cert-iso-45001-full.svg",
+              "alt": {
+                "vi": "ISO 45001:2018"
+              }
+            }
+          },
+          {
+            "id": "xd-hang-2",
+            "title": {
+              "vi": "Chứng chỉ năng lực XD hạng II",
+              "en": "Construction capability – Class II"
+            },
+            "subtitle": {
+              "vi": "Thi công công trình năng lượng",
+              "en": "Energy construction works"
+            },
+            "issuer": {
+              "vi": "Sở Xây dựng (mẫu)"
+            },
+            "number": {
+              "vi": "MẪU-0001"
+            },
+            "validUntil": {
+              "vi": "03/2030"
+            },
+            "scope": {
+              "vi": "Thi công lắp đặt thiết bị công trình năng lượng; tư vấn giám sát."
+            },
+            "image": {
+              "id": "/images/trust/cert-xd-hang-2-full.svg",
+              "alt": {
+                "vi": "Chứng chỉ năng lực XD hạng II",
+                "en": "Construction capability – Class II"
+              }
+            }
+          },
+          {
+            "id": "gp-dien-luc",
+            "title": {
+              "vi": "Giấy phép hoạt động điện lực",
+              "en": "Electricity operation licence"
+            },
+            "subtitle": {
+              "vi": "Tư vấn thiết kế",
+              "en": "Design consulting"
+            },
+            "issuer": {
+              "vi": "Cơ quan cấp phép (mẫu)"
+            },
+            "number": {
+              "vi": "MẪU-0002"
+            },
+            "validUntil": {
+              "vi": "09/2029"
+            },
+            "scope": {
+              "vi": "Tư vấn thiết kế công trình đường dây và trạm biến áp đến 35 kV."
+            },
+            "image": {
+              "id": "/images/trust/cert-gp-dien-luc-full.svg",
+              "alt": {
+                "vi": "Giấy phép hoạt động điện lực",
+                "en": "Electricity operation licence"
+              }
+            }
+          },
+          {
+            "id": "phan-phoi",
+            "title": {
+              "vi": "Nhà phân phối ủy quyền",
+              "en": "Authorised distributor"
+            },
+            "subtitle": {
+              "vi": "Helionyx · Voltaris · Litheon"
+            },
+            "issuer": {
+              "vi": "Các hãng thiết bị (hư cấu)"
+            },
+            "number": {
+              "vi": "AUTH-2026-VN"
+            },
+            "validUntil": {
+              "vi": "12/2026"
+            },
+            "scope": {
+              "vi": "Phân phối chính hãng tại Việt Nam, bảo hành trực tiếp qua Lumivolt."
+            },
+            "image": {
+              "id": "/images/trust/cert-phan-phoi-full.svg",
+              "alt": {
+                "vi": "Nhà phân phối ủy quyền",
+                "en": "Authorised distributor"
+              }
+            }
+          },
+          {
+            "id": "lap-dat",
+            "title": {
+              "vi": "Đối tác lắp đặt được chứng nhận",
+              "en": "Certified installer"
+            },
+            "subtitle": {
+              "vi": "Inverter & pin lưu trữ",
+              "en": "Inverters & storage"
+            },
+            "issuer": {
+              "vi": "Các hãng thiết bị (hư cấu)"
+            },
+            "number": {
+              "vi": "PV-MẪU-0315"
+            },
+            "validUntil": {
+              "vi": "06/2027"
+            },
+            "scope": {
+              "vi": "Lắp đặt, cấu hình và bảo hành inverter hybrid, pin lưu trữ."
+            },
+            "image": {
+              "id": "/images/trust/cert-lap-dat-full.svg",
+              "alt": {
+                "vi": "Đối tác lắp đặt được chứng nhận",
+                "en": "Certified installer"
+              }
+            }
+          },
+          {
+            "id": "an-toan-dien",
+            "title": {
+              "vi": "Chứng chỉ an toàn điện",
+              "en": "Electrical safety"
+            },
+            "subtitle": {
+              "vi": "Cho kỹ thuật viên",
+              "en": "For technicians"
+            },
+            "issuer": {
+              "vi": "[CẦN XÁC MINH]"
+            },
+            "number": {
+              "vi": "ATĐ-MẪU-2026"
+            },
+            "validUntil": {
+              "vi": "12/2026"
+            },
+            "scope": {
+              "vi": "Toàn bộ kỹ thuật viên thi công và bảo trì."
+            },
+            "image": {
+              "id": "/images/trust/cert-an-toan-dien-full.svg",
+              "alt": {
+                "vi": "Chứng chỉ an toàn điện",
+                "en": "Electrical safety"
+              }
+            }
+          },
+          {
+            "id": "pccc",
+            "title": {
+              "vi": "Đủ điều kiện thi công PCCC",
+              "en": "Fire-safety works"
+            },
+            "subtitle": {
+              "vi": "Hệ PV và BESS",
+              "en": "PV and BESS systems"
+            },
+            "issuer": {
+              "vi": "[CẦN XÁC MINH]"
+            },
+            "number": {
+              "vi": "PCCC-MẪU-07"
+            },
+            "validUntil": {
+              "vi": "08/2028"
+            },
+            "scope": {
+              "vi": "Thiết kế, thi công giải pháp PCCC cho hệ điện mặt trời và lưu trữ."
+            },
+            "image": {
+              "id": "/images/trust/cert-pccc-full.svg",
+              "alt": {
+                "vi": "Đủ điều kiện thi công PCCC",
+                "en": "Fire-safety works"
+              }
+            }
+          }
+        ],
+        "issuerLabel": {
+          "vi": "Cấp bởi",
+          "en": "Issuer"
+        },
+        "numberLabel": {
+          "vi": "Số chứng chỉ",
+          "en": "Certificate number"
+        },
+        "validLabel": {
+          "vi": "Hiệu lực",
+          "en": "Valid until"
+        },
+        "scopeLabel": {
+          "vi": "Phạm vi",
+          "en": "Scope"
+        },
+        "cardDetails": false
+      }
     },
     {
       "id": "brands",
@@ -634,7 +1733,53 @@
       "id": "stats",
       "type": "stats",
       "variant": "t15",
-      "enabled": true
+      "enabled": true,
+      "note": "Bản gốc không có tiêu đề cho dải số liệu: bỏ eyebrow/title.",
+      "data": {
+        "items": [
+          {
+            "sinceYear": 2012,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "Năm kinh nghiệm",
+              "en": "Years of experience"
+            }
+          },
+          {
+            "value": 186.4,
+            "decimals": 1,
+            "suffix": {
+              "vi": " MWp"
+            },
+            "label": {
+              "vi": "Đã cung cấp & lắp đặt",
+              "en": "Supplied & installed"
+            }
+          },
+          {
+            "value": 4200,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "Công trình",
+              "en": "Projects"
+            }
+          },
+          {
+            "value": 85,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "Kỹ sư & kỹ thuật viên",
+              "en": "Engineers & technicians"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "press",
