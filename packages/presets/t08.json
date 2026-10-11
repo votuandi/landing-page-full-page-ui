@@ -1,0 +1,2442 @@
+{
+  "id": "t08",
+  "name": "Pro · Glass & Arch",
+  "group": "pro",
+  "themeId": "t08",
+  "description": "[DỮ LIỆU MẪU] Minwy Solar: navy + vàng, sky/beige, glass và hero vòm; preset theo HomeT8.",
+  "source": {
+    "branch": "template-8"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Dùng chrome chung site-header/t15 thay menu gốc của SiteShell.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [
+          {
+            "vi": "Đầy đủ chứng từ VAT, CO, CQ cho mọi lô hàng",
+            "en": "Full VAT invoice, CO & CQ for every shipment"
+          },
+          {
+            "vi": "Cam kết hàng chính hãng 100%",
+            "en": "100% genuine products guaranteed"
+          },
+          {
+            "vi": "Hệ thống quản lý ISO 9001 · 14001 · 45001",
+            "en": "ISO 9001 · 14001 · 45001 management system"
+          },
+          {
+            "vi": "Chính sách đại lý chiết khấu tới 18%",
+            "en": "Dealer discounts up to 18%"
+          },
+          {
+            "vi": "Kỹ sư khảo sát miễn phí trong 48 giờ",
+            "en": "Free engineer site survey within 48 hours"
+          }
+        ],
+        "pricingMenu": {
+          "label": {
+            "vi": "Bảng giá lắp đặt",
+            "en": "Pricing"
+          },
+          "hint": {
+            "vi": "Chọn mức → điền sẵn vào dự toán",
+            "en": "Pick a range → prefilled estimate"
+          },
+          "categories": [
+            {
+              "id": "ho-gia-dinh",
+              "label": {
+                "vi": "Hộ gia đình",
+                "en": "Households"
+              },
+              "hint": {
+                "vi": "Theo tiền điện/tháng",
+                "en": "By monthly bill"
+              },
+              "segment": "household",
+              "groups": [
+                {
+                  "title": {
+                    "vi": "Không lưu trữ",
+                    "en": "Grid-tied"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 – 2 triệu",
+                        "en": "1 – 2M VND"
+                      },
+                      "bill": 1500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                },
+                {
+                  "title": {
+                    "vi": "Có lưu trữ",
+                    "en": "With battery"
+                  },
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "2 – 3 triệu",
+                        "en": "2 – 3M VND"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 – 5 triệu",
+                        "en": "3 – 5M VND"
+                      },
+                      "bill": 4000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 5 triệu",
+                        "en": "Over 5M VND"
+                      },
+                      "bill": 6500000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "doanh-nghiep",
+              "label": {
+                "vi": "Doanh nghiệp",
+                "en": "Businesses"
+              },
+              "hint": {
+                "vi": "Văn phòng, cửa hàng, khách sạn",
+                "en": "Offices, shops, hotels"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "5 – 15 triệu",
+                        "en": "5 – 15M VND"
+                      },
+                      "bill": 10000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "15 – 30 triệu",
+                        "en": "15 – 30M VND"
+                      },
+                      "bill": 22000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "30 – 60 triệu",
+                        "en": "30 – 60M VND"
+                      },
+                      "bill": 45000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 60 triệu",
+                        "en": "Over 60M VND"
+                      },
+                      "bill": 80000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "nha-xuong",
+              "label": {
+                "vi": "Nhà xưởng",
+                "en": "Factories"
+              },
+              "hint": {
+                "vi": "Sản xuất, kho lạnh, trang trại",
+                "en": "Manufacturing, cold storage, farms"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "50 – 150 triệu",
+                        "en": "50 – 150M VND"
+                      },
+                      "bill": 100000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "150 – 300 triệu",
+                        "en": "150 – 300M VND"
+                      },
+                      "bill": 220000000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "300 – 600 triệu",
+                        "en": "300 – 600M VND"
+                      },
+                      "bill": 450000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "Trên 600 triệu",
+                        "en": "Over 600M VND"
+                      },
+                      "bill": 800000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "bom-nuoc",
+              "label": {
+                "vi": "Bơm nước",
+                "en": "Water pumps"
+              },
+              "hint": {
+                "vi": "Theo công suất bơm (HP)",
+                "en": "By pump power (HP)"
+              },
+              "segment": "farm",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "1 HP",
+                        "en": "1 HP"
+                      },
+                      "bill": 500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "2 HP",
+                        "en": "2 HP"
+                      },
+                      "bill": 1000000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "3 HP",
+                        "en": "3 HP"
+                      },
+                      "bill": 1500000,
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "5 HP",
+                        "en": "5 HP"
+                      },
+                      "bill": 2500000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "7,5 HP",
+                        "en": "7.5 HP"
+                      },
+                      "bill": 3800000,
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 HP",
+                        "en": "10 HP"
+                      },
+                      "bill": 5000000,
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "om",
+              "label": {
+                "vi": "O&M"
+              },
+              "hint": {
+                "vi": "Vận hành & bảo trì theo MWp",
+                "en": "Operation & maintenance by MWp"
+              },
+              "segment": "factory",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 0,5 MWp",
+                        "en": "< 0.5 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "0,5 – 1 MWp",
+                        "en": "0.5 – 1 MWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "1 – 3 MWp",
+                        "en": "1 – 3 MWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 3 MWp",
+                        "en": "> 3 MWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ve-sinh",
+              "label": {
+                "vi": "Vệ sinh",
+                "en": "Cleaning"
+              },
+              "hint": {
+                "vi": "Vệ sinh tấm pin định kỳ",
+                "en": "Periodic panel cleaning"
+              },
+              "segment": "shop",
+              "groups": [
+                {
+                  "chips": [
+                    {
+                      "label": {
+                        "vi": "< 10 kWp",
+                        "en": "< 10 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "10 – 50 kWp",
+                        "en": "10 – 50 kWp"
+                      },
+                      "popular": true
+                    },
+                    {
+                      "label": {
+                        "vi": "50 – 200 kWp",
+                        "en": "50 – 200 kWp"
+                      },
+                      "popular": false
+                    },
+                    {
+                      "label": {
+                        "vi": "> 200 kWp",
+                        "en": "> 200 kWp"
+                      },
+                      "popular": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "menus": [
+          {
+            "label": {
+              "vi": "Thiết bị",
+              "en": "Equipment"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Tấm pin",
+                  "en": "Solar panels"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=panel",
+                  "label": {
+                    "vi": "Tấm pin",
+                    "en": "Solar panels"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=N-type+TOPCon",
+                    "label": {
+                      "vi": "N-type TOPCon",
+                      "en": "N-type TOPCon"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&tech=Bifacial",
+                    "label": {
+                      "vi": "Hai mặt kính",
+                      "en": "Bifacial"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=panel&minPower=0.6",
+                    "label": {
+                      "vi": "≥ 600 W",
+                      "en": "≥ 600 W"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Inverter"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=inverter",
+                  "label": {
+                    "vi": "Inverter",
+                    "en": "Inverter"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=On-grid",
+                    "label": {
+                      "vi": "Hòa lưới",
+                      "en": "On-grid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&tech=Hybrid",
+                    "label": {
+                      "vi": "Hybrid",
+                      "en": "Hybrid"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=inverter&minPower=50",
+                    "label": {
+                      "vi": "≥ 50 kW",
+                      "en": "≥ 50 kW"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "Lithium"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=battery",
+                  "label": {
+                    "vi": "Lithium",
+                    "en": "Lithium"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=LiFePO4",
+                    "label": {
+                      "vi": "LiFePO4",
+                      "en": "LiFePO4"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&tech=High+Voltage",
+                    "label": {
+                      "vi": "Điện áp cao",
+                      "en": "High voltage"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=battery&minPower=10",
+                    "label": {
+                      "vi": "≥ 10 kWh",
+                      "en": "≥ 10 kWh"
+                    }
+                  }
+                ]
+              },
+              {
+                "title": {
+                  "vi": "BESS"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "san-pham?category=bess",
+                  "label": {
+                    "vi": "BESS",
+                    "en": "BESS"
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&tech=Outdoor+cabinet",
+                    "label": {
+                      "vi": "Tủ ngoài trời",
+                      "en": "Outdoor cabinet"
+                    }
+                  },
+                  {
+                    "kind": "page",
+                    "value": "san-pham?category=bess&minPower=200",
+                    "label": {
+                      "vi": "≥ 200 kWh",
+                      "en": "≥ 200 kWh"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": {
+              "vi": "Cẩm nang",
+              "en": "Guides"
+            },
+            "columns": [
+              {
+                "title": {
+                  "vi": "Thuật ngữ",
+                  "en": "Glossary"
+                },
+                "description": {
+                  "vi": "kWp, PR, MPPT, hybrid… giải thích dễ hiểu",
+                  "en": "kWp, PR, MPPT, hybrid… explained"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Thuật ngữ",
+                    "en": "Glossary"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Biểu giá điện",
+                  "en": "Electricity tariffs"
+                },
+                "description": {
+                  "vi": "Bậc thang sinh hoạt, kinh doanh, sản xuất",
+                  "en": "Residential, commercial and industrial rates"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Biểu giá điện",
+                    "en": "Electricity tariffs"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Hỏi đáp",
+                  "en": "FAQ"
+                },
+                "description": {
+                  "vi": "Câu hỏi thường gặp trước khi lắp",
+                  "en": "Common questions before installing"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "cam-nang",
+                  "label": {
+                    "vi": "Hỏi đáp",
+                    "en": "FAQ"
+                  }
+                },
+                "links": []
+              },
+              {
+                "title": {
+                  "vi": "Kinh nghiệm lắp đặt",
+                  "en": "Blog"
+                },
+                "description": {
+                  "vi": "Bài viết theo tình huống thực tế",
+                  "en": "Real-life use cases"
+                },
+                "link": {
+                  "kind": "page",
+                  "value": "tin-tuc",
+                  "label": {
+                    "vi": "Kinh nghiệm lắp đặt",
+                    "en": "Blog"
+                  }
+                },
+                "links": []
+              }
+            ]
+          }
+        ],
+        "links": [
+          {
+            "kind": "anchor",
+            "value": "du-an",
+            "label": {
+              "vi": "Dự án",
+              "en": "Projects"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "dai-ly",
+            "label": {
+              "vi": "Đại lý",
+              "en": "Dealers"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức",
+              "en": "News"
+            }
+          }
+        ],
+        "mobileLinks": [
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm & thiết bị",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Về chúng tôi",
+              "en": "About us"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ",
+              "en": "Contact"
+            }
+          }
+        ],
+        "hotlineLabel": {
+          "vi": "Hotline theo chi nhánh",
+          "en": "Hotlines by branch"
+        },
+        "hotlines": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "main": "0901 234 500",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 501"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 502"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=10.7865,106.699",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Hà Nội",
+            "main": "0901 234 520",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 521"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 522"
+              }
+            ],
+            "mapLink": {
+              "kind": "url",
+              "value": "https://www.google.com/maps/search/?api=1&query=21.03,105.8",
+              "label": {
+                "vi": "Văn phòng trên Google Maps",
+                "en": "Office on Google Maps"
+              }
+            }
+          },
+          {
+            "name": "Đà Nẵng",
+            "main": "0901 234 540",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                },
+                "phone": "0901 234 541"
+              },
+              {
+                "label": {
+                  "vi": "Dự án",
+                  "en": "Projects"
+                },
+                "phone": "0901 234 542"
+              }
+            ]
+          }
+        ],
+        "cta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Báo giá",
+            "en": "Get a quote"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "calculator",
+            "value": "",
+            "label": {
+              "vi": "Nhận tư vấn miễn phí",
+              "en": "Free consultation"
+            }
+          },
+          {
+            "kind": "zalo",
+            "value": "0901 234 502",
+            "label": {
+              "vi": "Zalo Nhà xưởng",
+              "en": "Zalo Factory"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t12",
+      "enabled": true,
+      "note": "Giống hero/t12: vòm ảnh, hotspot, chip nổi và thẻ sản lượng; khác ở theme. Không nhân đôi hero/t08.",
+      "data": {
+        "badge": {
+          "vi": "Điện mặt trời cho nhà máy • cửa hàng • gia đình",
+          "en": "Solar for factories • shops • homes"
+        },
+        "title": {
+          "lead": {
+            "vi": "Cùng biến nắng thành"
+          },
+          "highlight": {
+            "vi": "dòng tiền"
+          },
+          "sub": {
+            "vi": "cho công trình của bạn"
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Thiết kế hệ solar theo đúng phụ tải, theo dõi điện năng 24/7 trên điện thoại và tối ưu hóa đơn từ tháng đầu tiên vận hành."
+        },
+        "primaryCta": {
+          "kind": "anchor",
+          "value": "du-toan",
+          "label": {
+            "vi": "Tính tiết kiệm"
+          }
+        },
+        "secondaryCta": {
+          "kind": "anchor",
+          "value": "lien-he",
+          "label": {
+            "vi": "Đặt lịch khảo sát"
+          }
+        },
+        "stats": [
+          {
+            "value": 11,
+            "suffix": "+",
+            "unit": {
+              "vi": "năm"
+            },
+            "label": {
+              "vi": "kinh nghiệm"
+            }
+          },
+          {
+            "value": 38.6,
+            "decimals": 1,
+            "unit": {
+              "vi": "MWp"
+            },
+            "label": {
+              "vi": "đã lắp đặt"
+            }
+          },
+          {
+            "value": 286,
+            "suffix": "+",
+            "unit": {
+              "vi": "dự án"
+            },
+            "label": {
+              "vi": "đang vận hành"
+            }
+          }
+        ],
+        "image": {
+          "id": "/images/services/service_1772895565903.webp",
+          "alt": {
+            "vi": "Kỹ sư kiểm tra hệ thống điện mặt trời áp mái",
+            "en": "Engineer inspecting a rooftop solar system"
+          },
+          "focal": {
+            "x": 0.72,
+            "y": 0.5
+          }
+        },
+        "chips": [
+          {
+            "label": {
+              "vi": "Tấm pin N-type 585W"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Inverter hybrid",
+              "en": "Hybrid inverter"
+            },
+            "icon": "cpu",
+            "tone": "secondary"
+          },
+          {
+            "label": {
+              "vi": "Pin lưu trữ LFP",
+              "en": "LFP storage"
+            },
+            "icon": "battery",
+            "tone": "leaf"
+          }
+        ],
+        "outputCard": {
+          "label": {
+            "vi": "Sản lượng hôm nay",
+            "en": "Today's output"
+          },
+          "value": "1.248",
+          "unit": {
+            "vi": "kWh"
+          },
+          "liveLabel": "Live"
+        },
+        "savingCard": {
+          "label": {
+            "vi": "Hóa đơn giảm",
+            "en": "Bill reduced"
+          },
+          "value": "−38%",
+          "unit": {
+            "vi": "/ tháng*",
+            "en": "/ month*"
+          }
+        },
+        "co2Card": {
+          "label": {
+            "vi": "CO₂ giảm mỗi năm",
+            "en": "CO₂ avoided / year"
+          },
+          "value": "~840",
+          "unit": {
+            "vi": "tấn",
+            "en": "tonnes"
+          }
+        }
+      }
+    },
+    {
+      "id": "segments",
+      "type": "segments",
+      "variant": "t08",
+      "enabled": true,
+      "anchor": "tiet-kiem",
+      "note": "Lưới dùng lại segments/t12; thêm khối ảnh/chữ toàn màn hình theo SavingsBySegment. Dùng pitch, saving và image chung; schema chưa có benefits/metrics/ảnh cover riêng nên không thêm trường riêng cho t08.",
+      "data": {
+        "eyebrow": {
+          "vi": "Lợi ích theo từng công trình"
+        },
+        "title": {
+          "vi": "Mỗi mái nhà một bài toán tiết kiệm riêng."
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Cùng là điện mặt trời, nhưng nhà máy, cửa hàng và gia đình có giờ dùng điện, giá điện và mục tiêu khác nhau."
+        },
+        "targetAnchor": "du-toan",
+        "savingLabel": {
+          "vi": "Giảm hóa đơn đến",
+          "en": "Bill cut up to"
+        },
+        "items": [
+          {
+            "segment": "factory",
+            "label": {
+              "vi": "Nhà máy & nhà xưởng"
+            },
+            "pitch": {
+              "vi": "Cắt giảm chi phí điện sản xuất ngay trong giờ cao điểm ban ngày."
+            },
+            "image": {
+              "id": "/images/illustrations/factory-solar.webp",
+              "alt": {
+                "vi": "Minh họa nhà máy với hệ thống điện mặt trời áp mái"
+              }
+            },
+            "saving": "25–40%"
+          },
+          {
+            "segment": "shop",
+            "label": {
+              "vi": "Cửa hàng & kinh doanh"
+            },
+            "pitch": {
+              "vi": "Điều hòa, tủ mát, chiếu sáng — chạy bằng nắng thay vì giá điện kinh doanh."
+            },
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "Minh họa cửa hàng tiện lợi có tấm pin mặt trời trên mái"
+              }
+            },
+            "saving": "30–50%"
+          },
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Hộ gia đình"
+            },
+            "pitch": {
+              "vi": "Thoát bậc thang giá điện cao, có điện cả buổi tối với pin lưu trữ."
+            },
+            "image": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "Minh họa nhà ở có pin mặt trời, pin lưu trữ và trạm sạc xe điện"
+              }
+            },
+            "saving": "50–90%"
+          }
+        ]
+      }
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t12",
+      "enabled": true,
+      "anchor": "du-toan",
+      "note": "RoiCalculator không port (AUDIT.md); thay bằng calculator/t12 dùng @solar/core, neo du-toan.",
+      "data": {
+        "eyebrow": {
+          "vi": "Dự toán miễn phí",
+          "en": "Free estimate"
+        },
+        "title": {
+          "lead": {
+            "vi": "Dự toán chi phí lắp đặt trong",
+            "en": "Estimate your installation in"
+          },
+          "highlight": {
+            "vi": "30 giây",
+            "en": "30 seconds"
+          }
+        },
+        "description": {
+          "vi": "Trả lời 5 câu hỏi để biết công suất phù hợp, số tấm pin, tiền tiết kiệm mỗi tháng và thời gian hoàn vốn.",
+          "en": "Answer 5 questions to see system size, panel count, monthly savings and payback."
+        },
+        "segments": [
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Hộ gia đình",
+              "en": "Households"
+            },
+            "short": {
+              "vi": "Hộ gia đình",
+              "en": "Homes"
+            }
+          },
+          {
+            "segment": "shop",
+            "label": {
+              "vi": "Cửa hàng",
+              "en": "Shops"
+            },
+            "short": {
+              "vi": "Cửa hàng",
+              "en": "Shops"
+            }
+          },
+          {
+            "segment": "factory",
+            "label": {
+              "vi": "Nhà xưởng / Trang trại",
+              "en": "Factories / Farms"
+            },
+            "short": {
+              "vi": "Nhà xưởng",
+              "en": "Factories"
+            }
+          }
+        ],
+        "tariffs": {
+          "household": {
+            "kind": "tiered",
+            "tiers": [
+              {
+                "upTo": 50,
+                "price": 1984
+              },
+              {
+                "upTo": 100,
+                "price": 2050
+              },
+              {
+                "upTo": 200,
+                "price": 2380
+              },
+              {
+                "upTo": 300,
+                "price": 2998
+              },
+              {
+                "upTo": 400,
+                "price": 3350
+              },
+              {
+                "upTo": null,
+                "price": 3460
+              }
+            ]
+          },
+          "shop": {
+            "kind": "flat",
+            "averageRate": 3300,
+            "solarOffsetRate": 3150
+          },
+          "factory": {
+            "kind": "flat",
+            "averageRate": 2050,
+            "solarOffsetRate": 1900
+          },
+          "farm": {
+            "kind": "flat",
+            "averageRate": 2250,
+            "solarOffsetRate": 2100
+          }
+        },
+        "vatRate": 0.08,
+        "pricePerKwp": {
+          "household": 12000000,
+          "shop": 11000000,
+          "factory": 9500000,
+          "farm": 10000000
+        },
+        "peakSunHours": {
+          "bac-bo": 3.5,
+          "bac-trung-bo": 4,
+          "nam-trung-bo": 4.8,
+          "tay-nguyen": 4.8,
+          "nam-bo": 4.6
+        },
+        "segmentRatios": {
+          "household": 40,
+          "shop": 70,
+          "factory": 80,
+          "farm": 70
+        },
+        "system": {
+          "performanceRatio": 0.8,
+          "m2PerKwp": 5.5,
+          "panelWatt": 580,
+          "kwpStep": 0.5,
+          "minKwp": 1,
+          "minRoofArea": 16
+        },
+        "inputs": {
+          "household": {
+            "bill": {
+              "min": 500000,
+              "max": 20000000,
+              "step": 100000,
+              "default": 2000000
+            },
+            "roof": {
+              "default": 50,
+              "max": 500
+            }
+          },
+          "shop": {
+            "bill": {
+              "min": 1000000,
+              "max": 100000000,
+              "step": 500000,
+              "default": 8000000
+            },
+            "roof": {
+              "default": 120,
+              "max": 2000
+            }
+          },
+          "factory": {
+            "bill": {
+              "min": 10000000,
+              "max": 2000000000,
+              "step": 5000000,
+              "default": 80000000
+            },
+            "roof": {
+              "default": 2000,
+              "max": 50000
+            }
+          },
+          "farm": {
+            "bill": {
+              "min": 3000000,
+              "max": 500000000,
+              "step": 1000000,
+              "default": 25000000
+            },
+            "roof": {
+              "default": 1200,
+              "max": 30000
+            }
+          }
+        },
+        "defaultProvince": "TP Hồ Chí Minh",
+        "steps": [
+          "segment",
+          "bill",
+          "roof",
+          "province",
+          "ratio"
+        ],
+        "tips": [
+          {
+            "vi": "Khảo sát tận nơi miễn phí",
+            "en": "Free on-site survey"
+          },
+          {
+            "vi": "Báo giá chi tiết trong 24 giờ",
+            "en": "Detailed quote in 24h"
+          },
+          {
+            "vi": "Trả góp 0% / lắp 0 đồng (ESCO)",
+            "en": "0% instalments / ESCO"
+          }
+        ],
+        "resultTitle": {
+          "vi": "Kết quả sơ bộ",
+          "en": "Preliminary result"
+        },
+        "disclaimer": {
+          "vi": "Kết quả ước tính theo biểu giá và giờ nắng trung bình — chi phí thực tế xác định sau khảo sát.",
+          "en": "Estimate based on average tariffs and sun hours — final cost after site survey."
+        },
+        "formTitle": {
+          "vi": "Nhận báo giá chi tiết",
+          "en": "Get a detailed quote"
+        },
+        "formDescription": {
+          "vi": "Gửi kèm toàn bộ thông số trên — kỹ sư gọi lại tư vấn miễn phí.",
+          "en": "All figures above are attached — an engineer will call you back for free."
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá chi tiết",
+          "en": "Get a detailed quote"
+        },
+        "successText": {
+          "vi": "Kỹ sư sẽ gọi lại trong 2 giờ (trong giờ làm việc).",
+          "en": "An engineer will call you back within 2 hours (business hours)."
+        },
+        "privacyNote": {
+          "vi": "Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.",
+          "en": "Your details are only used for consultation and quotes, never shared."
+        },
+        "leadSource": "calculator"
+      }
+    },
+    {
+      "id": "energy-monitoring",
+      "type": "energy-monitoring",
+      "variant": "t08",
+      "enabled": true,
+      "anchor": "theo-doi-24-7",
+      "note": "Dùng lại minh họa HandHoldingPhone của t15 và schema flows/chart. Không thêm thẻ số liệu nổi hoặc CTA riêng khi schema chung chưa có dữ liệu đó.",
+      "data": {
+        "eyebrow": {
+          "vi": "Theo dõi điện năng 24/7",
+          "en": "[SAMPLE DATA] Energy monitoring 24/7"
+        },
+        "title": {
+          "vi": "Toàn bộ dòng điện của bạn, gọn trong lòng bàn tay.",
+          "en": "Your entire energy flow in the palm of your hand."
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Mỗi hệ thống được bàn giao kèm ứng dụng giám sát. Xem điện năng sinh ra, tiêu thụ và lưu trữ theo thời gian thực — biết chính xác mình đang tiết kiệm bao nhiêu, ở bất cứ đâu."
+        },
+        "flows": [
+          {
+            "label": {
+              "vi": "Sản xuất",
+              "en": "Production"
+            },
+            "value": 186,
+            "unit": {
+              "vi": "kW"
+            }
+          },
+          {
+            "label": {
+              "vi": "Tiêu thụ",
+              "en": "Consumption"
+            },
+            "value": 172,
+            "unit": {
+              "vi": "kW"
+            }
+          },
+          {
+            "label": {
+              "vi": "Lưu trữ",
+              "en": "Storage"
+            },
+            "value": 86,
+            "unit": {
+              "vi": "%"
+            }
+          }
+        ],
+        "features": [
+          {
+            "title": {
+              "vi": "Cảnh báo tức thì khi sản lượng bất thường",
+              "en": "Instant alerts on unusual production"
+            }
+          },
+          {
+            "title": {
+              "vi": "Báo cáo tiết kiệm theo ngày, tháng, năm",
+              "en": "Daily, monthly and yearly savings reports"
+            }
+          },
+          {
+            "title": {
+              "vi": "Chia sẻ quyền xem cho nhiều thành viên",
+              "en": "Share access with your team"
+            }
+          },
+          {
+            "title": {
+              "vi": "Ứng dụng iOS, Android và trình duyệt web",
+              "en": "iOS, Android and web app"
+            }
+          }
+        ],
+        "chart": {
+          "production": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            18,
+            52,
+            96,
+            138,
+            170,
+            186,
+            182,
+            168,
+            140,
+            104,
+            62,
+            24,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "consumption": [
+            38,
+            34,
+            32,
+            30,
+            32,
+            44,
+            88,
+            140,
+            162,
+            170,
+            174,
+            172,
+            150,
+            168,
+            176,
+            170,
+            158,
+            120,
+            84,
+            70,
+            62,
+            54,
+            46,
+            40
+          ],
+          "productionLabel": {
+            "vi": "Sản xuất",
+            "en": "Production"
+          },
+          "consumptionLabel": {
+            "vi": "Tiêu thụ",
+            "en": "Consumption"
+          }
+        }
+      }
+    },
+    {
+      "id": "projects-gallery",
+      "type": "projects",
+      "variant": "t12",
+      "enabled": true,
+      "anchor": "cong-trinh",
+      "note": "Lưới 3 dự án giống projects/t12, không có video/lọc; nền đọc theme chung thay nền navy cứng.",
+      "data": {
+        "eyebrow": {
+          "vi": "Case study"
+        },
+        "title": {
+          "vi": "Dữ liệu vận hành nói thay lời quảng cáo."
+        },
+        "query": {
+          "filter": {},
+          "limit": 3
+        },
+        "items": [
+          {
+            "id": "nha-may-thuc-pham-long-an",
+            "title": "Nhà máy thực phẩm Long An [DỮ LIỆU MẪU]",
+            "segment": "factory",
+            "location": "Long An",
+            "kwp": 998,
+            "savingPerMonth": 118333333.33333333,
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Nhà máy thực phẩm Long An"
+              }
+            },
+            "href": "/cong-trinh/nha-may-thuc-pham-long-an"
+          },
+          {
+            "id": "kho-lanh-binh-duong",
+            "title": "Kho lạnh Bình Dương [DỮ LIỆU MẪU]",
+            "segment": "factory",
+            "location": "Bình Dương",
+            "kwp": 620,
+            "savingPerMonth": 77500000,
+            "image": {
+              "id": "/images/illustrations/cold-storage-solar.webp",
+              "alt": {
+                "vi": "Kho lạnh Bình Dương"
+              }
+            },
+            "href": "/cong-trinh/kho-lanh-binh-duong"
+          },
+          {
+            "id": "trang-trai-dong-nai",
+            "title": "Trang trại công nghệ cao Đồng Nai [DỮ LIỆU MẪU]",
+            "segment": "factory",
+            "location": "Đồng Nai",
+            "kwp": 320,
+            "savingPerMonth": 42500000,
+            "image": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Trang trại công nghệ cao Đồng Nai"
+              }
+            },
+            "href": "/cong-trinh/trang-trai-dong-nai"
+          }
+        ],
+        "showFilter": false,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      }
+    },
+    {
+      "id": "process",
+      "type": "process",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Thay khối 5 cột toàn màn hình bằng process/t15; giữ các bước, mô tả và đầu ra của HomeT8.",
+      "data": {
+        "eyebrow": {
+          "vi": "Quy trình triển khai",
+          "en": "[SAMPLE DATA] How we deliver"
+        },
+        "title": {
+          "vi": "Mỗi bước đều có đầu ra để chủ đầu tư kiểm soát."
+        },
+        "steps": [
+          {
+            "title": {
+              "vi": "Khảo sát",
+              "en": "Survey"
+            },
+            "description": {
+              "vi": "Phụ tải, hóa đơn, mái, trạm điện và điều kiện thi công.",
+              "en": "Loads, bills, roof, substation and site conditions."
+            },
+            "output": {
+              "vi": "Biên bản khảo sát + dữ liệu đầu vào",
+              "en": "Survey report + input data"
+            }
+          },
+          {
+            "title": {
+              "vi": "Thiết kế",
+              "en": "Design"
+            },
+            "description": {
+              "vi": "Mô phỏng sản lượng, chọn thiết bị, layout và phương án đấu nối.",
+              "en": "Yield simulation, equipment, layout and grid connection."
+            },
+            "output": {
+              "vi": "Hồ sơ kỹ thuật + mô hình tài chính",
+              "en": "Technical file + financial model"
+            }
+          },
+          {
+            "title": {
+              "vi": "Thi công",
+              "en": "Installation"
+            },
+            "description": {
+              "vi": "Kế hoạch an toàn, chia khu vực, quản lý vật tư và chất lượng.",
+              "en": "Safety plan, zoned works, materials and QA."
+            },
+            "output": {
+              "vi": "Checklist thi công + nhật ký",
+              "en": "Checklist + site log"
+            }
+          },
+          {
+            "title": {
+              "vi": "Nghiệm thu",
+              "en": "Commissioning"
+            },
+            "description": {
+              "vi": "Đo kiểm, cấu hình giám sát, hướng dẫn vận hành.",
+              "en": "Testing, monitoring setup, operator training."
+            },
+            "output": {
+              "vi": "Biên bản nghiệm thu + hồ sơ bàn giao",
+              "en": "Acceptance + handover file"
+            }
+          },
+          {
+            "title": {
+              "vi": "Bảo trì",
+              "en": "O&M"
+            },
+            "description": {
+              "vi": "Theo dõi sản lượng, cảnh báo, vệ sinh và bảo trì.",
+              "en": "Output tracking, alerts, cleaning and maintenance."
+            },
+            "output": {
+              "vi": "Báo cáo hiệu suất định kỳ",
+              "en": "Periodic performance report"
+            }
+          }
+        ],
+        "outputLabel": {
+          "vi": "Đầu ra",
+          "en": "Deliverable"
+        }
+      }
+    },
+    {
+      "id": "investment-models",
+      "type": "investment-models",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "hinh-thuc-dau-tu",
+      "note": "Bảng 5 cột của HomeT8 chuyển thành thẻ investment-models/t15 trên schema chung; giữ sở hữu, CAPEX, lợi ích và đối tượng.",
+      "data": {
+        "eyebrow": {
+          "vi": "Hình thức đầu tư",
+          "en": "[SAMPLE DATA] Hình thức đầu tư"
+        },
+        "title": {
+          "vi": "Chọn cấu trúc tài chính phù hợp dòng tiền."
+        },
+        "description": {
+          "vi": "PPA/thuê mái phụ thuộc đối tác tài chính, pháp lý và điều kiện dự án. [CẦN XÁC MINH]"
+        },
+        "models": [
+          {
+            "id": "mua-dut",
+            "title": {
+              "vi": "Mua đứt"
+            },
+            "summary": {
+              "vi": "Doanh nghiệp sở hữu hệ thống"
+            },
+            "points": [
+              {
+                "vi": "CAPEX ban đầu: Cao nhất"
+              },
+              {
+                "vi": "Tiết kiệm điện trực tiếp"
+              },
+              {
+                "vi": "Phù hợp: Doanh nghiệp có ngân sách đầu tư"
+              }
+            ]
+          },
+          {
+            "id": "tra-gop",
+            "title": {
+              "vi": "Trả góp"
+            },
+            "summary": {
+              "vi": "Chia dòng tiền đầu tư"
+            },
+            "points": [
+              {
+                "vi": "CAPEX ban đầu: Trung bình"
+              },
+              {
+                "vi": "Giảm áp lực CAPEX"
+              },
+              {
+                "vi": "Phù hợp: Cần cân đối dòng tiền"
+              }
+            ]
+          },
+          {
+            "id": "ppa",
+            "title": {
+              "vi": "Thuê mái / PPA"
+            },
+            "summary": {
+              "vi": "Đối tác đầu tư hệ thống"
+            },
+            "points": [
+              {
+                "vi": "CAPEX ban đầu: Thấp / theo hợp đồng"
+              },
+              {
+                "vi": "Mua điện theo thỏa thuận"
+              },
+              {
+                "vi": "Phù hợp: Mái lớn, phụ tải ổn định"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "warranty",
+      "type": "warranty",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "bao-hanh",
+      "note": "Giống warranty/t15: giới thiệu bên trái, bảng bảo hành bên phải; khác ở theme, không nhân đôi warranty/t08.",
+      "data": {
+        "eyebrow": {
+          "vi": "Bảo hành tách bạch",
+          "en": "Clear warranties"
+        },
+        "title": {
+          "vi": "Biết rõ ai chịu trách nhiệm cho từng phần.",
+          "en": "Know who is responsible for each part."
+        },
+        "description": {
+          "vi": "Không gộp “bảo hành 25 năm” thành một câu quảng cáo. Mỗi hạng mục có thời hạn, điều kiện và đơn vị chịu trách nhiệm khác nhau."
+        },
+        "rows": [
+          {
+            "item": {
+              "vi": "Tấm pin"
+            },
+            "period": {
+              "vi": "12–15 năm sản phẩm"
+            },
+            "note": {
+              "vi": "25–30 năm hiệu suất*"
+            }
+          },
+          {
+            "item": {
+              "vi": "Inverter"
+            },
+            "period": {
+              "vi": "5 năm tiêu chuẩn"
+            },
+            "note": {
+              "vi": "Có tùy chọn mở rộng*"
+            }
+          },
+          {
+            "item": {
+              "vi": "Pin lưu trữ"
+            },
+            "period": {
+              "vi": "10 năm*"
+            },
+            "note": {
+              "vi": "Theo điều kiện chu kỳ / dung lượng"
+            }
+          },
+          {
+            "item": {
+              "vi": "Thi công & mái"
+            },
+            "period": {
+              "vi": "Theo hợp đồng"
+            },
+            "note": {
+              "vi": "Tách bạch phạm vi chống dột"
+            }
+          }
+        ],
+        "footnote": {
+          "vi": "[DỮ LIỆU MẪU] * Theo hợp đồng thực tế và chính sách hãng. [CẦN XÁC MINH]"
+        }
+      }
+    },
+    {
+      "id": "policy",
+      "type": "faq",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Chính sách mái nhà dùng faq/t15 để giữ danh sách nội dung trên schema chung, không tạo type mới. Tắt JSON-LD cho nội dung chính sách.",
+      "data": {
+        "eyebrow": {
+          "vi": "Chính sách mái nhà"
+        },
+        "title": {
+          "vi": "Tóm tắt để ra quyết định, không thay thế tư vấn pháp lý."
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Tự dùng tại công trình"
+            },
+            "answer": {
+              "vi": "Ưu tiên thiết kế hệ thống phục vụ nhu cầu tự dùng tại công trình."
+            }
+          },
+          {
+            "question": {
+              "vi": "Đấu nối và hồ sơ"
+            },
+            "answer": {
+              "vi": "Yêu cầu đấu nối, đo đếm, an toàn điện/PCCC và hồ sơ có thể thay đổi theo loại dự án. [CẦN XÁC MINH]"
+            }
+          },
+          {
+            "question": {
+              "vi": "Điện dư"
+            },
+            "answer": {
+              "vi": "Cơ chế mua bán điện dư, nếu có áp dụng, cần kiểm tra văn bản đang hiệu lực tại thời điểm ký hợp đồng. [CẦN XÁC MINH]"
+            }
+          },
+          {
+            "question": {
+              "vi": "Điều kiện nhà xưởng"
+            },
+            "answer": {
+              "vi": "Dự án nhà xưởng cần rà soát tải mái, kết cấu, quyền sử dụng mái và yêu cầu bảo hiểm của chủ tài sản."
+            }
+          }
+        ],
+        "jsonLd": false
+      },
+      "anchor": "chinh-sach"
+    },
+    {
+      "id": "testimonials",
+      "type": "testimonials",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Khách hàng nói gì",
+          "en": "[SAMPLE DATA] What clients say"
+        },
+        "title": {
+          "vi": "Niềm tin đến từ cách dự án được triển khai."
+        },
+        "query": {
+          "filter": {},
+          "limit": 2
+        },
+        "items": [
+          {
+            "id": "testimonial-1",
+            "name": "Trần Quốc H. [DỮ LIỆU MẪU]",
+            "segment": "factory",
+            "location": "Công ty Cơ khí An Phát [DỮ LIỆU MẪU]",
+            "kwp": 998,
+            "quote": "Đội kỹ thuật giải thích ROI và phương án thi công theo ca sản xuất rất rõ. Báo cáo sau bàn giao dễ theo dõi.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-2",
+            "name": "Nguyễn Thanh T. [DỮ LIỆU MẪU]",
+            "segment": "factory",
+            "location": "Kho vận Minh Thành [DỮ LIỆU MẪU]",
+            "kwp": 620,
+            "quote": "Điểm tụi tui đánh giá cao là hồ sơ kỹ thuật, kế hoạch an toàn và cách chia khu vực thi công để không ảnh hưởng kho.",
+            "rating": 4.9
+          }
+        ],
+        "ratings": [],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      }
+    },
+    {
+      "id": "brands",
+      "type": "brands",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Logo chữ của catalog demo dùng brands/t15, ngay sau testimonials như HomeT8.",
+      "data": {
+        "eyebrow": {
+          "vi": "[DỮ LIỆU MẪU] Thiết bị có trong catalog demo"
+        },
+        "title": {
+          "vi": "Thương hiệu thiết bị"
+        },
+        "description": {
+          "vi": "Ký kết trực tiếp với hãng, đủ chứng từ CO/CQ cho từng lô. Tên thương hiệu trong demo là hư cấu.",
+          "en": "Direct agreements with manufacturers, CO/CQ for every shipment. Demo brand names are fictional."
+        },
+        "groups": [
+          {
+            "id": "catalog",
+            "label": {
+              "vi": "Catalog demo"
+            }
+          }
+        ],
+        "items": [
+          {
+            "name": {
+              "vi": "JinkoSolar"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "LONGi"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "Trina Solar"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "Sungrow"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "Huawei"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "GoodWe"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "BYD"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "Pylontech"
+            },
+            "group": "catalog"
+          },
+          {
+            "name": {
+              "vi": "Staubli"
+            },
+            "group": "catalog"
+          }
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "FAQ"
+        },
+        "title": {
+          "vi": "Những câu hỏi cần rõ trước khi ký hợp đồng."
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Điện mặt trời thường hoàn vốn bao lâu?"
+            },
+            "answer": {
+              "vi": "Thời gian hoàn vốn phụ thuộc tỷ lệ tự dùng, biểu giá điện, suất đầu tư và bức xạ tại khu vực. Calculator trên website sử dụng cùng bộ tham số cấu hình để ước tính nhất quán."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mái tôn có lắp được không?"
+            },
+            "answer": {
+              "vi": "Có. Cần khảo sát kết cấu, tuổi mái, vị trí xà gồ và chọn phương án liên kết phù hợp trước khi thi công."
+            }
+          },
+          {
+            "question": {
+              "vi": "Lắp solar có làm dột mái không?"
+            },
+            "answer": {
+              "vi": "Rủi ro được kiểm soát bằng khảo sát, phương án liên kết đúng loại mái và quy trình nghiệm thu chống dột. Phạm vi bảo hành thi công phải ghi rõ trong hợp đồng."
+            }
+          },
+          {
+            "question": {
+              "vi": "Hệ thống chịu bão như thế nào?"
+            },
+            "answer": {
+              "vi": "Thiết kế khung và liên kết phải dựa trên hiện trạng công trình, vùng gió và yêu cầu kỹ thuật. Với dự án C&I nên có kiểm tra kết cấu khi cần."
+            }
+          },
+          {
+            "question": {
+              "vi": "Bao lâu nên vệ sinh tấm pin?"
+            },
+            "answer": {
+              "vi": "Tùy môi trường bụi, mưa và góc nghiêng. Nên dựa trên dữ liệu sản lượng và kiểm tra thực tế thay vì cố định một lịch cho mọi dự án."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mùa mưa có tạo ra điện không?"
+            },
+            "answer": {
+              "vi": "Có, nhưng sản lượng giảm theo bức xạ. Ước tính năm phải tính theo dữ liệu khí hậu vùng, không dựa vào ngày nắng đẹp nhất."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mất điện lưới thì solar có chạy không?"
+            },
+            "answer": {
+              "vi": "Hệ hòa lưới thông thường sẽ ngắt để bảo đảm an toàn. Muốn duy trì tải khi mất điện cần thiết kế hybrid/backup phù hợp."
+            }
+          },
+          {
+            "question": {
+              "vi": "Có cần thủ tục với điện lực hoặc cơ quan quản lý không?"
+            },
+            "answer": {
+              "vi": "Tùy mô hình, công suất, mục đích sử dụng và quy định đang có hiệu lực. Nội dung pháp lý trên website chỉ mang tính tóm tắt; hồ sơ thực tế cần được đối chiếu tại thời điểm triển khai. [CẦN XÁC MINH]"
+            }
+          }
+        ],
+        "jsonLd": true
+      },
+      "anchor": "cau-hoi"
+    },
+    {
+      "id": "contact",
+      "type": "lead-form",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "lien-he",
+      "note": "Giống lead-form/t15: nửa ảnh nửa form; dùng form chung với kiểm số điện thoại, honeypot và xử lý lỗi. Khác nền theo theme, không nhân đôi lead-form/t08.",
+      "data": {
+        "title": {
+          "vi": "Nhận phương án sơ bộ cho công trình của bạn."
+        },
+        "points": [
+          {
+            "vi": "Gửi hóa đơn điện, loại mái và nhu cầu vận hành."
+          },
+          {
+            "vi": "Đội dự án chuẩn bị cấu hình trước buổi khảo sát."
+          }
+        ],
+        "image": {
+          "id": "/images/solar-installation-hero.jpg",
+          "alt": {
+            "vi": "Hệ thống điện mặt trời dưới bầu trời nắng"
+          }
+        },
+        "formTitle": {
+          "vi": "Để lại thông tin, kỹ sư sẽ gọi lại",
+          "en": "Leave your details — an engineer will call"
+        },
+        "fields": {
+          "zalo": false,
+          "address": true,
+          "message": true
+        },
+        "submitLabel": {
+          "vi": "Nhận báo giá chi tiết",
+          "en": "Get a detailed quote"
+        },
+        "successText": {
+          "vi": "Kỹ sư sẽ gọi lại trong 2 giờ (trong giờ làm việc).",
+          "en": "An engineer will call you back within 2 hours (business hours)."
+        },
+        "privacyNote": {
+          "vi": "Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.",
+          "en": "Your details are only used for consultation and quotes, never shared."
+        },
+        "fallbackPhone": "0901 234 500",
+        "source": "home-bottom"
+      }
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Dùng site-footer/t15 với thông tin mẫu của template-8.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Giảm tiền điện cho gia đình, cửa hàng và nhà xưởng.",
+            "en": "Lower power bills for homes, shops and factories."
+          }
+        },
+        "socials": [
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/minwysolar.demo",
+            "label": "Facebook"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@minwysolar.demo",
+            "label": "YouTube"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@minwysolar.demo",
+            "label": "TikTok"
+          },
+          {
+            "kind": "zalo",
+            "url": "https://zalo.me/0901234500",
+            "label": "Zalo OA"
+          }
+        ],
+        "legal": {
+          "legalName": "CÔNG TY CỔ PHẦN NĂNG LƯỢNG MINWY SOLAR [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "Giấy CN ĐKKD số 03XXXXXXXX [MẪU] — cấp ngày 15/03/2012, Sở Kế hoạch và Đầu tư (mẫu)",
+              "en": "Business reg. no. 03XXXXXXXX [SAMPLE] — issued 15/03/2012"
+            },
+            {
+              "vi": "Chứng chỉ năng lực hoạt động xây dựng hạng II — số MẪU-0001 [HƯ CẤU]"
+            },
+            {
+              "vi": "Giấy phép hoạt động điện lực (tư vấn thiết kế) — số MẪU-0002 [HƯ CẤU]"
+            }
+          ],
+          "badges": [
+            "ISO 9001:2015",
+            "ISO 14001:2015",
+            "ISO 45001:2018"
+          ],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "complaintHotline": {
+          "label": {
+            "vi": "Hotline khiếu nại – góp ý",
+            "en": "Complaints hotline"
+          },
+          "phone": "0901 234 599"
+        },
+        "branchesTitle": {
+          "vi": "Hệ thống cửa hàng",
+          "en": "Stores"
+        },
+        "branches": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 500"
+              },
+              {
+                "name": "Showroom Quận Mẫu",
+                "address": "120 Đường Mẫu A, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 511"
+              },
+              {
+                "name": "Cửa hàng Mẫu Thủ Đức",
+                "address": "45 Đường Mẫu B, TP. Hồ Chí Minh [HƯ CẤU]",
+                "phone": "0901 234 512"
+              }
+            ]
+          },
+          {
+            "name": "Hà Nội",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 520"
+              },
+              {
+                "name": "Showroom Mẫu Cầu Giấy",
+                "address": "18 Phố Mẫu C, Hà Nội [HƯ CẤU]",
+                "phone": "0901 234 531"
+              }
+            ]
+          },
+          {
+            "name": "Đà Nẵng",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 540"
+              },
+              {
+                "name": "Cửa hàng Mẫu Hải Châu",
+                "address": "9 Đường Mẫu E, Đà Nẵng [HƯ CẤU]",
+                "phone": "0901 234 551"
+              }
+            ]
+          },
+          {
+            "name": "Đắk Lắk",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 560"
+              },
+              {
+                "name": "Đại lý Mẫu Tây Nguyên",
+                "address": "32 Đường Mẫu G, Đắk Lắk [HƯ CẤU]",
+                "phone": "0901 234 571"
+              }
+            ]
+          },
+          {
+            "name": "Cần Thơ",
+            "stores": [
+              {
+                "name": "Tổng đài chi nhánh",
+                "phone": "0901 234 580"
+              },
+              {
+                "name": "Showroom Mẫu Ninh Kiều",
+                "address": "15 Đường Mẫu I, Cần Thơ [HƯ CẤU]",
+                "phone": "0901 234 591"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "?phan-khuc=ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi",
+                  "en": "Shops & chains"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=nha-xuong",
+                "label": {
+                  "vi": "Nhà xưởng",
+                  "en": "Factories"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=trang-trai",
+                "label": {
+                  "vi": "Trang trại",
+                  "en": "Farms"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Dịch vụ kỹ thuật",
+                  "en": "Engineering services"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Công ty",
+              "en": "Company"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Về chúng tôi",
+                  "en": "About us"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm & thiết bị",
+                  "en": "Products"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức & kinh nghiệm",
+                  "en": "News & guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "cam-nang",
+                "label": {
+                  "vi": "Cẩm nang",
+                  "en": "Guides"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ",
+                  "en": "Contact"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Chính sách",
+              "en": "Policies"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Chính sách bảo hành",
+                  "en": "Warranty policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/doi-tra",
+                "label": {
+                  "vi": "Chính sách đổi trả",
+                  "en": "Returns policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/van-chuyen",
+                "label": {
+                  "vi": "Chính sách vận chuyển",
+                  "en": "Shipping policy"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-mat",
+                "label": {
+                  "vi": "Chính sách bảo mật",
+                  "en": "Privacy policy"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Thứ 2 – Thứ 7: 08:00 – 17:30\nlienhe@minwysolar.example",
+          "en": "Mon – Sat: 08:00 – 17:30\nlienhe@minwysolar.example"
+        },
+        "disclaimer": [
+          {
+            "vi": "Website demo — dữ liệu hư cấu.",
+            "en": "Demo website — fictional data."
+          },
+          {
+            "vi": "Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản.",
+            "en": "Names, figures, addresses, brands and licences are samples."
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {
+    "contact-dock": {
+      "enabled": true,
+      "variant": "t12",
+      "data": {
+        "items": [
+          {
+            "kind": "call",
+            "label": {
+              "vi": "Gọi ngay",
+              "en": "Call now"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901234567",
+              "label": {
+                "vi": "Gọi"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Chat Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901234567",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          },
+          {
+            "kind": "messenger",
+            "label": {
+              "vi": "Messenger"
+            },
+            "link": {
+              "kind": "url",
+              "value": "https://m.me/minwysolar",
+              "label": {
+                "vi": "Messenger"
+              }
+            }
+          }
+        ],
+        "mobileBar": true,
+        "ariaLabel": {
+          "vi": "Liên hệ nhanh",
+          "en": "Quick contact"
+        }
+      }
+    },
+    "quote-cart": {
+      "enabled": true,
+      "variant": "t15"
+    },
+    "theme-switch": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "lightLabel": {
+          "vi": "Chuyển sang giao diện sáng",
+          "en": "Switch to light mode"
+        },
+        "darkLabel": {
+          "vi": "Chuyển sang giao diện tối",
+          "en": "Switch to dark mode"
+        }
+      }
+    }
+  }
+}

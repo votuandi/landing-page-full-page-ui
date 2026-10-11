@@ -4,11 +4,12 @@ import t15 from "../t15.json";
 import t12 from "../t12.json";
 import t13 from "../t13.json";
 import t14 from "../t14.json";
+import t08 from "../t08.json";
 import { presetSchema } from "./schema";
 
 export { presetSchema };
 export type { Preset } from "./schema";
-export const presets = [presetSchema.parse(t15), presetSchema.parse(t12), presetSchema.parse(t13), presetSchema.parse(t14)];
+export const presets = [presetSchema.parse(t15), presetSchema.parse(t12), presetSchema.parse(t13), presetSchema.parse(t14), presetSchema.parse(t08)];
 
 export function getPreset(id: string) {
   return presets.find((preset) => preset.id === id);
