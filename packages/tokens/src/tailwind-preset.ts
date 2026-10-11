@@ -36,6 +36,9 @@ const preset: Omit<Config, "content"> = {
         "certificate": "0 20px 60px -30px rgb(var(--c-shadow) / calc(.25 * var(--shadow-strength)))",
         "video": "0 24px 50px -28px rgb(var(--c-shadow) / calc(.5 * var(--shadow-strength)))",
         sm: "0 1px 2px 0 rgb(var(--c-shadow) / calc(.12 * var(--shadow-strength)))",
+        // DEFAULT/md thay bóng đen mặc định của Tailwind (`shadow`, `shadow-md`) bằng màu token.
+        DEFAULT: "0 1px 3px 0 rgb(var(--c-shadow) / calc(.1 * var(--shadow-strength))), 0 1px 2px -1px rgb(var(--c-shadow) / calc(.1 * var(--shadow-strength)))",
+        md: "0 4px 6px -1px rgb(var(--c-shadow) / calc(.1 * var(--shadow-strength))), 0 2px 4px -2px rgb(var(--c-shadow) / calc(.1 * var(--shadow-strength)))",
         lg: "0 10px 15px -3px rgb(var(--c-shadow) / calc(.18 * var(--shadow-strength))), 0 4px 6px -4px rgb(var(--c-shadow) / calc(.18 * var(--shadow-strength)))",
         xl: "0 20px 25px -5px rgb(var(--c-shadow) / calc(.2 * var(--shadow-strength))), 0 8px 10px -6px rgb(var(--c-shadow) / calc(.2 * var(--shadow-strength)))",
         "2xl": "0 25px 50px -12px rgb(var(--c-shadow) / calc(.35 * var(--shadow-strength)))",

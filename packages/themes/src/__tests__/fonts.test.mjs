@@ -18,6 +18,15 @@ const { t15, themeFontFamilies, themeFontFiles, themeFontCss } = themes;
 const { FONTS } = require("../fonts.generated.ts");
 const t11 = { ...t15, font: { ...t15.font, display: "Manrope" } };
 
+test("font CSS scoped giữ nguyên faces, mặc định giữ root và chặn injection", () => {
+  const scope = '[data-lab-theme="t15"]';
+  assert.equal(themeFontCss(t15, undefined, scope), themeFontCss(t15).replace(':root{', `${scope}{`));
+  assert.equal(themeFontCss(t15, undefined, undefined), themeFontCss(t15));
+  for (const scope of ["", ":root", '[data-lab-theme="x"]{}', '[data-lab-theme="x\\n"]']) {
+    assert.throws(() => themeFontCss(t15, undefined, scope), /scope/i);
+  }
+});
+
 test("t11 chỉ chọn 3 file Be Vietnam Pro và 1 file Manrope", () => {
   assert.deepEqual(themeFontFamilies(t11), ["Be Vietnam Pro", "Manrope"]);
   assert.deepEqual(themeFontFiles(t11), [

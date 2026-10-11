@@ -4,6 +4,14 @@ import { createRegistry, sectionRegistry } from "../registry";
 import type { SectionTypeDef } from "../define";
 import { demo, variants, v1, v2 } from "./fixtures";
 
+test("variantsOf liệt kê đúng variant, không nhận prototype và không lộ mảng nội bộ", () => {
+  const registry = createRegistry({ demo: variants });
+  assert.deepEqual(registry.variantsOf("demo"), ["v1", "v2"]);
+  registry.variantsOf("demo")!.pop();
+  assert.deepEqual(registry.variantsOf("demo"), ["v1", "v2"]);
+  for (const type of ["missing", "constructor", "__proto__"]) assert.equal(registry.variantsOf(type), null);
+});
+
 test("registry giữ definition và nạp đúng variant mà không cảnh báo", async (t) => {
   const warn = t.mock.method(console, "warn", () => {});
   const registry = createRegistry({ demo: variants });

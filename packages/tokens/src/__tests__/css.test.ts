@@ -9,6 +9,21 @@ const lightSelector = ':root,[data-theme="light"]';
 const darkSelector = '[data-theme="dark"]';
 const mediaSelector = ':root:not([data-theme])';
 
+test("scope cô lập CSS và từ chối selector không an toàn", () => {
+  const scope = '[data-lab-theme="t15"]';
+  const css = themeToCss(t15, undefined, { scope });
+  assert.equal(css, themeToCss(t15)
+    .replace(lightSelector, scope)
+    .replace(`${darkSelector}{`, `${darkSelector} ${scope}{`)
+    .replace(`${mediaSelector}{`, `${mediaSelector} ${scope}{`));
+  assert.equal(themeToCss(t15, undefined, {}), themeToCss(t15));
+  for (const scope of ["", ":root", '[data-lab-theme="x"]{}', '[data-lab-theme="x\\n"]']) {
+    assert.throws(() => themeToCss(t15, undefined, { scope }), /scope/i);
+  }
+  const lightOnly = { ...t15, meta: { ...t15.meta, supportsDark: false } };
+  assert.equal(themeToCss(lightOnly, undefined, { scope }), themeToCss(lightOnly).replace(lightSelector, scope));
+});
+
 function block(css: string, selector: string) {
   const start = css.indexOf(`${selector}{`);
   assert.ok(start >= 0, `Thiếu selector ${selector}`);

@@ -119,7 +119,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Phần Codex hoàn tất; design pass/review Claude còn chờ theo mode split. Link PR ghi sau khi Claude tạo.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
-### E3-S08 · Trạng thái liên section (segment, calculator bus, quote cart)
+### E3-S08 · Trạng thái liên section (segment, calculator bus, quote cart) ✅ · PR [#28](https://github.com/votuandi/landing-page-full-page-ui/pull/28)
 **Là** khách truy cập, **tôi muốn** chọn phân khúc một lần mà video, gói, công trình, dự toán đều lọc theo, **để** không phải chọn lại.
 - **Chi tiết**: giữ hành vi t15 (`lib/segment.tsx`, `?phan-khuc=`, `calculatorBus`) nhưng chuyển provider lên layout của
   site; section chỉ đăng ký/đọc qua hook `useSegment()`, `openCalculator()`. Nếu trang không có section `calculator`,
@@ -152,7 +152,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
 - **Target**: mọi variant render ở ≥ 4 theme không lỗi tương phản; màu cứng bị chặn bởi `lint:tokens` (AST) — ma trận ảnh là lưới
   an toàn thứ hai: script đọc `getComputedStyle` của mọi phần tử, cảnh báo màu không thuộc bảng token của theme đang render.
 - **AC**:
-  - [ ] Script computed-style báo 0 màu ngoài token trên toàn ma trận.
-  - [ ] Ma trận chạy ≤ 6 phút trong CI (song song).
-  - [ ] Report HTML đánh dấu cặp variant–theme có tương phản < AA (dùng axe-core).
+  - [x] Script computed-style báo 0 màu ngoài token trên toàn ma trận.
+  - [x] Ma trận chạy ≤ 6 phút trong CI (song song).
+  - [x] Report HTML đánh dấu cặp variant–theme có tương phản < AA (dùng axe-core).
 - Phụ thuộc: S03, E2-S07 · Agent: Codex · Cỡ: M

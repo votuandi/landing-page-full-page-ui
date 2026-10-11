@@ -39,6 +39,9 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 
   return {
     types,
+    variantsOf(type: string): string[] | null {
+      return Object.prototype.hasOwnProperty.call(entries, type) ? Object.keys(entries[type].variants) : null;
+    },
     getType(type: string): SectionTypeDef | undefined {
       return Object.prototype.hasOwnProperty.call(entries, type) ? entries[type].def : undefined;
     },

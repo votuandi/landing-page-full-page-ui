@@ -56,16 +56,16 @@ test("màu mặc định không sinh CSS; opacity và mọi màu token dùng đ�
 
 test("utility radius, shadow, kính, motion, spacing và font đọc token", async () => {
   const radii = ["card", "pill", "media", "input", "button"];
-  const shadows = ["sm", "lg", "xl", "2xl"];
+  const shadows = ["shadow", "shadow-sm", "shadow-md", "shadow-lg", "shadow-xl", "shadow-2xl"];
   const durations = ["fast", "base", "slow"];
   const rules = await utilities([
-    ...radii.map((key) => `rounded-${key}`), ...shadows.map((key) => `shadow-${key}`),
+    ...radii.map((key) => `rounded-${key}`), ...shadows,
     ...durations.map((key) => `duration-motion-${key}`),
     "backdrop-blur-glass", "py-section", "font-sans", "font-display", "rounded-3xl",
   ]);
   for (const key of radii) assert.equal(rules.get(`.rounded-${key}`)?.["border-radius"], `var(--radius-${key})`);
   for (const key of shadows) {
-    const shadow = rules.get(`.shadow-${key}`)?.["--tw-shadow"] ?? "";
+    const shadow = rules.get(`.${key}`)?.["--tw-shadow"] ?? "";
     assert.match(shadow, /rgb\(var\(--c-shadow\) \/ calc\(/);
     assert.match(shadow, /var\(--shadow-strength\)/);
   }
