@@ -2,10 +2,12 @@ import { z } from "zod";
 import { defineSectionType } from "../define";
 import { link, localized, mediaRef } from "../fields";
 import { heroFixture } from "./fixtures";
+import { packageSimulationSchema } from "../shared/packageSimulation";
 
 const card = z.object({ label: localized({ max: 60 }), value: z.string().max(20), unit: localized({ max: 20 }).optional() });
 
 export const heroSchema = z.object({
+  packageSimulation: packageSimulationSchema.optional(),
   badge: localized({ max: 120 }),
   title: z.object({
     lead: localized({ max: 60 }),
@@ -43,7 +45,7 @@ export const heroSchema = z.object({
 
 export const hero = defineSectionType({
   type: "hero",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: heroSchema,
   defaults: heroSchema.parse(heroFixture),
   meta: { label: { vi: "Banner chính", en: "Hero" }, icon: "image", maxPerPage: 1 },

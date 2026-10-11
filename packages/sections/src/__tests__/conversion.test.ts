@@ -20,6 +20,82 @@ import { siteFooterFixture } from "../site-footer/fixtures";
 import { siteHeader } from "../site-header/schema";
 import { siteHeaderFixture } from "../site-header/fixtures";
 import { mediaSrc } from "../shared/media";
+import { packageSimulationFixture } from "../shared/packageSimulationFixture";
+import { migrateHeroV1 } from "../hero/migrations";
+import { migrateCalculatorV1 } from "../calculator/migrations";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
+import { widgetRegistry } from "../widgets/registry";
+import { migrateSegmentsV1 } from "../segments/migrations";
+import { migrateProjectsV1 } from "../projects/migrations";
+import { migrateTrustV1 } from "../trust/migrations";
+
+test("source t11 fixtures and optional-field migrations retain all data", async () => {
+  for (const type of ["hero", "calculator", "segments", "projects", "trust"]) {
+    const def = sectionRegistry.getType(type)!;
+    const { t11Fixture } = await import(`../${type}/t11-fixtures`);
+    const parsed = def.schema.safeParse(t11Fixture);
+    assert.ok(parsed.success, `${type}: ${parsed.error?.message}`);
+    const { default: Component } = await sectionRegistry.getVariant(type, "t11")!.load();
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data: parsed.data, sectionId: type, site: { tenantId: "test", locale: "vi", themeId: "t11" } }));
+    assert.ok(html.length > 100, type);
+    if (type === "segments") { assert.match(html, /stroke-chart-a/); assert.match(html, /stroke-chart-b/); assert.doesNotMatch(html, / hidden=""/); }
+    if (type === "trust") assert.match(html, /Dữ liệu pháp lý chưa xác minh/);
+    const invalid = clone(t11Fixture);
+    if (type === "segments") invalid.items[0].comparison.consumption[0] = 101;
+    else if (type === "projects") invalid.evidence.cases[0].packageId = "missing-package";
+    else if (type === "trust") invalid.items[0].lookupUrl = "javascript:alert(1)";
+    else invalid.packageSimulation.provinces.push(invalid.packageSimulation.provinces[0]);
+    assert.equal(def.schema.safeParse(invalid).success, false, `${type}: invalid simulation/content boundary`);
+  }
+  for (const [type, migrate] of [["segments", migrateSegmentsV1], ["projects", migrateProjectsV1], ["trust", migrateTrustV1]] as const) {
+    const def = sectionRegistry.getType(type)!;
+    assert.equal(def.schemaVersion, 2);
+    const previous = def.defaults as Record<string, unknown>;
+    assert.deepEqual(migrate(previous), previous);
+    assert.ok(def.schema.safeParse(migrate(previous)).success);
+  }
+});
+
+test("all t11 variants render shared defaults in t11/t15, including bill form GET fallback", async () => {
+  const entries = ["hero", "calculator", "segments", "projects", "trust"];
+  for (const type of entries) {
+    const def = sectionRegistry.getType(type)!;
+    const resolved = sectionRegistry.getVariant(type, "t11")!;
+    assert.equal(resolved.fallback, false, type);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const themeId of ["t11", "t15"]) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, sectionId: type, site: { tenantId: "test", locale: "vi", themeId } }));
+      assert.ok(html.length > 100, `${type}/${themeId}`);
+      if (type === "hero") {
+        assert.match(html, /action="#du-toan" method="get"/);
+        assert.match(html, /name="hoa-don"/);
+      }
+      if (type === "calculator") { assert.match(html, /Sao chép thông tin gói/); assert.match(html, /fill-chart-a/); assert.match(html, /stroke-chart-b/); }
+    }
+  }
+  const dock = widgetRegistry.getVariant("contact-dock", "t11")!;
+  assert.equal(dock.fallback, false);
+  const { default: Dock } = await dock.load();
+  const { t11Fixture } = await import("../widgets/contact-dock/t11-fixtures");
+  assert.ok(widgetRegistry.types["contact-dock"].schema.safeParse(t11Fixture).success);
+  assert.match(renderToStaticMarkup(createElement(Dock, { data: widgetRegistry.types["contact-dock"].defaults, sectionId: "dock", site: { tenantId: "test", locale: "vi", themeId: "t11" } })), /tel:0901234567/);
+});
+
+test("package simulation is optional shared data; migrations preserve existing tenant content", () => {
+  for (const [def, migrate] of [[hero, migrateHeroV1], [calculator, migrateCalculatorV1]] as const) {
+    assert.equal(def.schemaVersion, 2);
+    const original = { ...def.defaults, packageSimulation: packageSimulationFixture };
+    assert.deepEqual(migrate(original), original);
+    assert.deepEqual((def.schema.parse(original) as typeof original).packageSimulation, packageSimulationFixture);
+    const invalid = clone(original);
+    invalid.packageSimulation.defaultProvince = "missing";
+    assert.equal(def.schema.safeParse(invalid).success, false);
+  }
+});
 
 const SRC = resolve(__dirname, "../../../../src");
 const TYPES = [
