@@ -50,6 +50,7 @@ const warranties = [
 const Lazy = ({ children }: { children: React.ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
 
 /**
+ * Reference at /lab/legacy-home only; delete with legacy components in E5-S04.
  * Trang chủ template-15 = toàn bộ section của template-13 + template-14, thứ tự cố định.
  * Bật/tắt từng section trong src/config/site.config.ts. SegmentProvider giữ phân khúc đang chọn để
  * video, gói giải pháp, dự toán và công trình lọc / điền sẵn; StoryPlayerProvider dùng chung một trình phát video.
