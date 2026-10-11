@@ -59,6 +59,23 @@ variant mới `projects/t14` (FeaturedProjects: tab khách hàng + số liệu n
 theo thứ tự `HomeT14`. Các khối còn lại dùng variant t15 (bản gốc t14 ≈ t15, khác ở theme); checklist EngineerBanner và
 tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua trường tùy chọn. Xem `/lab/presets/t14`.
 
+**Đã port — t05 (E4-S09, chờ design pass):** theme `packages/themes/t05` (navy-vàng, Inter, radius 14px),
+[`packages/presets/t05.json`](../packages/presets/t05.json) theo thứ tự `HomeT5`. Bộ C&I dùng chung:
+`hero/t06`, `investment-models/t05`, `trust/t05`, `process/t05`, `faq/t05`, `lead-form/t05`;
+`services/t06` hiện đồng thời các giải pháp; calculator, projects, warranty, testimonials, brands, header/footer tái dùng t15 với `note`.
+Phụ tải/giám sát là tùy chọn tắt. Xem `/lab/presets/t05`, `?theme=t15`; ảnh ở `roadmap/evidence/E4/t05/`.
+
+**Đã port — t06 (E4-S09, chờ design pass):** theme `packages/themes/t06` (navy-burgundy-vàng, card/media vuông),
+[`packages/presets/t06.json`](../packages/presets/t06.json) theo thứ tự `IndustrialSolarHomepage`.
+`load-profile/t06` port khối phụ tải độc lập, `energy-monitoring/t06` dùng PowerChart 24h màu chart token.
+Sơ đồ một sợi dùng lưới bốn nút `services/t06`; dashboard tháng và hồ sơ CFO map vào schema chung, có `note`. Xem `/lab/presets/t06`, `?theme=t15`;
+ảnh ở `roadmap/evidence/E4/t06/`. Hero schema v2 thêm `chart` tùy chọn + migration giữ dữ liệu v1.
+
+**Đã port — t09 (E4-S09, chờ design pass):** theme `packages/themes/t09` (navy đậm-burgundy-vàng, kính tối),
+[`packages/presets/t09.json`](../packages/presets/t09.json) theo thứ tự `IndustrialSolarHomepage`, dùng chung bộ
+variant C&I với t05/t06. Xem `/lab/presets/t09`, `?theme=t15`; ảnh ở `roadmap/evidence/E4/t09/`.
+Ảnh before và tinh chỉnh thẩm mỹ còn chờ Claude design pass; AC chung E4 không tick ở worktree này.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
