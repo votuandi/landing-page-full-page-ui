@@ -65,6 +65,14 @@ tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua
 `process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
 (cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
 
+**Đã port — t08 (E4-S07, chờ design pass):** theme `packages/themes/t08` (Pro, navy + vàng, sky/beige, Inter,
+glass mạnh), variant `segments/t08` (lưới + khối ảnh/chữ toàn màn hình), `energy-monitoring/t08` (bố cục navy,
+tái dùng minh họa tay/điện thoại t15) và [`packages/presets/t08.json`](../packages/presets/t08.json) theo thứ tự
+`HomeT8`. Hero vòm dùng `hero/t12`; bảo hành/form chia đôi dùng `warranty/t15`, `lead-form/t15` để tránh nhân đôi.
+Calculator dùng `calculator/t12`; khối chính sách dùng `faq/t15` với JSON-LD tắt. `note` ghi các thay thế/rút gọn,
+không đổi schema chung. Ảnh after 390/1440 và đổi theme t15: `roadmap/evidence/E4/t08/`; before chờ Claude.
+Xem `/lab/presets/t08`, `?theme=t15` và `/lab/sections/matrix`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
