@@ -31,6 +31,31 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
       await assert.rejects(query, MissingTenantError);
     }
   });
+  test("required and optional model clients reject unsafe tenant filters and create data", async () => {
+    for (const tenantId of [{ not: a }, { in: [] }, {}, { equals: a, not: b }, { in: [a, null] }]) {
+      await assert.rejects(db.project.findMany({ where: { tenantId: tenantId as never } }), MissingTenantError);
+      await assert.rejects(db.outbox.deleteMany({ where: { tenantId: tenantId as never } }), MissingTenantError);
+      await assert.rejects(db.auditLog.findMany({ where: { tenantId: tenantId as never } }), MissingTenantError);
+      await assert.rejects(db.project.create({ data: { tenantId } as never }), MissingTenantError);
+      await assert.rejects(db.outbox.create({ data: { tenantId } as never }), MissingTenantError);
+      await assert.rejects(db.auditLog.create({ data: { tenantId } as never }), MissingTenantError);
+    }
+    assert.deepEqual(await db.auditLog.findMany({ where: { tenantId: { in: [a, b] } } }), []);
+  });
+  test("client updates and upserts cannot move B into A", async () => {
+    const where = { tenantId_id: { tenantId: b, id: projectB } };
+    await assert.rejects(db.project.update({ where, data: { tenantId: a } }), MissingTenantError);
+    await assert.rejects(db.project.update({ where, data: { tenant: { connect: { id: a } } } }), MissingTenantError);
+    await assert.rejects(db.project.updateMany({ where: { tenantId: { equals: b }, id: projectB }, data: { tenantId: a } }), MissingTenantError);
+    await assert.rejects(db.project.updateManyAndReturn({ where: { tenantId: { in: [b] } }, data: { tenantId: a } }), MissingTenantError);
+    await assert.rejects(db.project.upsert({ where, create: { tenantId: a, slug: "forged-upsert", title: {} }, update: {} }), MissingTenantError);
+    await assert.rejects(db.project.upsert({ where, create: { tenantId: b, slug: "forged-upsert", title: {} }, update: { tenantId: a } }), MissingTenantError);
+    await assert.rejects(db.project.upsert({ where, create: { tenantId: b, slug: "forged-upsert", title: {} }, update: { tenant: { connect: { id: a } } } }), MissingTenantError);
+    assert.equal((await db.project.update({ where, data: { tenantId: b } })).tenantId, b);
+    assert.equal((await db.project.upsert({ where, create: { tenantId: b, slug: "same-tenant", title: {} }, update: { tenant: { connect: { id: b } } } })).tenantId, b);
+    assert.deepEqual((await forTenant(db, b).project.get(projectB))?.title, { vi: "B" });
+    assert.equal(await forTenant(db, a).project.count({ where: { slug: "forged-upsert" } }), 0);
+  });
   test("A cannot read, update or delete B, including malicious filters and data", async () => {
     const repo = forTenant(db, a);
     const own = await repo.project.create({ slug: "shared", title: { vi: "A" }, tenantId: b, tenant: { connect: { id: b } } } as unknown as Parameters<typeof repo.project.create>[0]);

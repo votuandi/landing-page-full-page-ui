@@ -48,3 +48,69 @@ test("raw queries are blocked and platform model queries remain available", () =
   }
   for (const model of ["Plan", "Tenant", "User", "PlatformAdmin"]) assert.doesNotThrow(() => assertTenantScoped(model, "findMany", {}));
 });
+
+test("tenant filters reject unknown shapes in required and optional tables", () => {
+  const invalid = [undefined, "", 1, false, [], {}, { not: "B" }, { in: [] }, { in: ["A", null] },
+    { in: ["A", 1] }, { in: new Array<string>(1) }, { equals: undefined }, { equals: "A", not: "B" },
+    { in: ["A"], mode: "insensitive" }, Object.assign(Object.create({ equals: "A" }), { not: "B" })];
+  for (const model of [...tenantModels, ...optionalTenantModels]) {
+    const optional = (optionalTenantModels as readonly string[]).includes(model);
+    for (const tenantId of [...invalid, ...(optional ? [] : [null, { equals: null }])]) {
+      for (const operation of reads) {
+        assert.throws(() => assertTenantScoped(model, operation, { where: { tenantId } }), MissingTenantError, `${model}.${operation}: ${JSON.stringify(tenantId)}`);
+      }
+      for (const operation of ["create", "createMany", "createManyAndReturn"]) {
+        assert.throws(() => assertTenantScoped(model, operation, { data: { tenantId } }), MissingTenantError);
+        assert.throws(() => assertTenantScoped(model, operation, { data: { tenantId, tenant: { connect: { id: "A" } } } }), MissingTenantError);
+      }
+    }
+    for (const tenantId of ["A", { equals: "A" }, { in: ["A", "B"] }, ...(optional ? [null, { equals: null }] : [])]) {
+      assert.doesNotThrow(() => assertTenantScoped(model, "findMany", { where: { tenantId } }));
+    }
+    for (const tenantId of [{ equals: "A" }, { in: ["A"] }]) {
+      assert.throws(() => assertTenantScoped(model, "create", { data: { tenantId } }), MissingTenantError);
+    }
+  }
+});
+
+test("updates cannot change tenant through scalar data or tenant.connect", () => {
+  for (const model of [...tenantModels, ...optionalTenantModels]) {
+    for (const operation of ["update", "updateMany", "updateManyAndReturn"]) {
+      for (const where of [{ tenantId: "A" }, { tenantId: { equals: "A" } }, { tenantId: { in: ["A"] } }, { tenantId_id: { tenantId: "A", id: "id" } }]) {
+        for (const data of [{}, { tenantId: "A" }, { tenant: { connect: { id: "A" } } }]) {
+          assert.doesNotThrow(() => assertTenantScoped(model, operation, { where, data }));
+        }
+        for (const data of [{ tenantId: "B" }, { tenantId: null }, { tenantId: { set: "B" } }, { tenantId: {} },
+          { tenantId: undefined }, { tenant: { connect: { id: "B" } } }, { tenantId: "A", tenant: { connect: { id: "B" } } }]) {
+          assert.throws(() => assertTenantScoped(model, operation, { where, data }), MissingTenantError);
+        }
+      }
+      assert.throws(() => assertTenantScoped(model, operation, { where: { tenantId: { in: ["A", "B"] } }, data: { tenantId: "A" } }), MissingTenantError);
+      assert.throws(() => assertTenantScoped(model, operation, { where: { tenantId: "A", tenantId_id: { tenantId: "B", id: "id" } }, data: { tenantId: "A" } }), MissingTenantError);
+    }
+  }
+  for (const model of optionalTenantModels) {
+    assert.doesNotThrow(() => assertTenantScoped(model, "updateMany", { where: { tenantId: null }, data: { tenantId: null } }));
+    assert.throws(() => assertTenantScoped(model, "updateMany", { where: { tenantId: null }, data: { tenantId: "A" } }), MissingTenantError);
+  }
+});
+
+test("upsert create and update must match the where tenant", () => {
+  for (const model of [...tenantModels, ...optionalTenantModels]) {
+    for (const where of [{ tenantId: "A" }, { tenantId: { equals: "A" } }, { tenantId_id: { tenantId: "A", id: "id" } }]) {
+      for (const create of [{ tenantId: "A" }, { tenant: { connect: { id: "A" } } }]) {
+        assert.doesNotThrow(() => assertTenantScoped(model, "upsert", { where, create, update: { tenantId: "A" } }));
+        for (const update of [{ tenantId: "B" }, { tenant: { connect: { id: "B" } } }]) {
+          assert.throws(() => assertTenantScoped(model, "upsert", { where, create, update }), MissingTenantError);
+        }
+      }
+      for (const create of [{ tenantId: "B" }, { tenant: { connect: { id: "B" } } }, { tenantId: "A", tenant: { connect: { id: "B" } } }]) {
+        assert.throws(() => assertTenantScoped(model, "upsert", { where, create, update: {} }), MissingTenantError);
+      }
+    }
+  }
+  for (const model of optionalTenantModels) {
+    assert.doesNotThrow(() => assertTenantScoped(model, "upsert", { where: { tenantId: null }, create: { tenantId: null }, update: { tenantId: null } }));
+    assert.throws(() => assertTenantScoped(model, "upsert", { where: { tenantId: null }, create: { tenantId: "A" }, update: {} }), MissingTenantError);
+  }
+});
