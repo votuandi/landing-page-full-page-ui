@@ -4,7 +4,7 @@ import { MediaImage, CarouselNav, useDialog, useSnapCarousel } from "@solar/ui";
 import { MagnifyingGlassPlusIcon, ShieldCheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { Locale } from "../site";
 
-type Cert = { id: string; title: string; subtitle: string; issuer: string; number: string; validUntil: string; scope: string; image?: string; imageAlt: string };
+export type Cert = { id: string; title: string; subtitle: string; issuer: string; number: string; validUntil: string; scope: string; image?: string; imageAlt: string };
 function Visual({ cert }: { cert: Cert }) {
   if (cert.image) return <MediaImage src={cert.image} alt={cert.imageAlt} sizes="(max-width:768px) 90vw, 480px" className="!object-contain bg-on-media" />;
   return <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-bg-elevated via-bg-tint to-primary-deep p-5 text-center"><div aria-hidden className="absolute inset-3 rounded-2xl border-2 border-dashed border-accent/35" /><span aria-hidden className="grid h-14 w-14 place-items-center rounded-full bg-accent/15 text-accent-ink ring-4 ring-accent/20"><ShieldCheckIcon className="h-8 w-8" /></span><span className="text-xl font-black leading-tight text-fg">{cert.title}</span><span className="text-xs font-bold text-fg-muted">{cert.subtitle}</span></div>;
@@ -12,7 +12,7 @@ function Visual({ cert }: { cert: Cert }) {
 function Details({ cert, labels }: { cert: Cert; labels: string[] }) {
   return <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-line/12 pt-4 text-xs">{[cert.issuer, cert.number, cert.validUntil, cert.scope].map((value, i) => <div key={i} className={i === 0 || i === 3 ? "col-span-2" : undefined}><dt className="text-4xs font-bold uppercase tracking-[.14em] text-fg-subtle">{labels[i]}</dt><dd className="mt-0.5 font-semibold leading-5 text-fg">{value}</dd></div>)}</dl>;
 }
-function Lightbox({ items, index, setIndex, labels, locale, onClose }: { items: Cert[]; index: number; setIndex: (i: number) => void; labels: string[]; locale: Locale; onClose: () => void }) {
+export function Lightbox({ items, index, setIndex, labels, locale, onClose }: { items: Cert[]; index: number; setIndex: (i: number) => void; labels: string[]; locale: Locale; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useDialog(ref, true, onClose);
   const cert = items[index];

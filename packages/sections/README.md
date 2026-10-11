@@ -3,6 +3,14 @@
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
 (`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có đủ 28 type qua E3-S04–S06, xem mục "Type đã có".
 
+`segments/t13` port lưới bốn thẻ icon kính của template-13. Dùng chung schema/defaults với `segments/t15`
+và `SegmentLink` để đồng bộ phân khúc; link query + anchor vẫn hoạt động khi tắt JavaScript.
+Variant này giữ bố cục icon nên không hiển thị ảnh/mức giảm hóa đơn, nhưng dữ liệu vẫn được giữ khi đổi variant.
+
+`trust/t13` dùng lưới chứng chỉ 2/3/5 cột và lightbox dùng chung với t15. Schema trust v2 thêm `items[].logo`
+tùy chọn để phân biệt logo nhỏ với ảnh chứng chỉ đầy đủ; `migrateTrustV1` giữ nguyên dữ liệu v1 (logo có thể vắng).
+Các phần báo chí, đánh giá và thương hiệu trong khối uy tín gốc t13 được ghép bằng các type riêng khi tạo preset.
+
 ## Khai báo một type
 
 Đặt definition ở `src/<type>/schema.ts`:
