@@ -25,6 +25,78 @@ import { migrateShortsV1 } from "../shorts/migrations";
 import { pickLocale } from "../fields";
 import type { Locale } from "../site";
 
+test("t14 project metrics and banner checklist survive schema parsing and v1 migration", async () => {
+  const projectData = { ...sectionRegistry.getType("projects")!.defaults as object, items: [{ ...collectionItems.projects[0],
+    industry: { vi: "Sản xuất", en: "Manufacturing" }, description: { vi: "Dự án mẫu", en: "Sample description" },
+    logoText: "MX", kwhPerYear: 14000, savingPerYear: 32000000, co2PerYear: 9.2 }] };
+  const bannerData = { ...sectionRegistry.getType("cta-banner")!.defaults as object,
+    checklistTitle: { vi: "Để báo giá nhanh", en: "For a fast quote" }, checklist: [{ icon: "location", label: { vi: "Khu vực", en: "Area" } }] };
+  for (const [type, data, name] of [["projects", projectData, "migrateProjectsV1"], ["cta-banner", bannerData, "migrateCtaBannerV1"]] as const) {
+    const def = sectionRegistry.getType(type)!;
+    assert.equal(def.schemaVersion, 2);
+    assert.deepEqual(def.schema.parse(data), data);
+    const migration = await import(`../${type}/migrations`);
+    const original = structuredClone(data);
+    assert.deepEqual(def.schema.parse(migration[name](data)), data);
+    assert.deepEqual(data, original);
+    assert.deepEqual(def.schema.parse(migration[name](def.defaults)), def.defaults);
+  }
+  for (const field of ["kwhPerYear", "savingPerYear", "co2PerYear"]) {
+    assert.equal(projectsSchema.safeParse({ ...projectData, items: [{ ...projectData.items[0], [field]: -1 }] }).success, false);
+  }
+});
+
+test("projects/t14 renders defaults under t14 and t15 without registry fallback", async () => {
+  const def = sectionRegistry.getType("projects")!;
+  const variant = sectionRegistry.getVariant("projects", "t14")!;
+  assert.equal(variant.fallback, false);
+  const Component = (await variant.load()).default;
+  await Loadable.preloadAll();
+  for (const themeId of ["t14", "t15"]) {
+    assert.doesNotThrow(() => renderToStaticMarkup(createElement(Component, { data: def.defaults, site: { ...site, themeId }, sectionId: "projects" })));
+  }
+});
+
+test("cta-banner/t15 renders the optional quote checklist only when present", async () => {
+  const def = sectionRegistry.getType("cta-banner")!;
+  const Component = (await import("../cta-banner/" + "t15")).default;
+  const data = { ...def.defaults as object, checklistTitle: { vi: "Để báo giá nhanh", en: "For a fast quote" },
+    checklist: [{ icon: "location", label: { vi: "Khu vực lắp đặt", en: "Install area" } }] } as typeof def.defaults;
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "cta" }));
+    assertText(html, locale === "en" ? "For a fast quote" : "Để báo giá nhanh");
+    assertText(html, locale === "en" ? "Install area" : "Khu vực lắp đặt");
+  }
+  assert.doesNotMatch(renderToStaticMarkup(createElement(Component, { data: def.defaults, site, sectionId: "cta" })), /<ul/);
+});
+
+test("featured projects SSR keeps every project, annual metrics and no-JS quote link in VI/EN", async () => {
+  const Component = (await import("../projects/" + "t14")).default;
+  await Loadable.preloadAll();
+  for (const locale of ["vi", "en"] as const) {
+    const data = projectsSchema.parse({ ...sectionRegistry.getType("projects")!.defaults as object, showFilter: false,
+      items: [1, 2].map((id) => ({ ...collectionItems.projects[0], id: `p${id}`, title: `Sample project ${id}`,
+        industry: { vi: "Sản xuất", en: "Manufacturing" }, description: { vi: "Mô tả", en: "Description" },
+        kwhPerYear: 14000, savingPerYear: 32000000, co2PerYear: 0, video: id === 1 ? { provider: "file", idOrSrc: "/a.mp4" } : undefined })) });
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "featured" }));
+    assertText(html, "Sample project 1");
+    assertText(html, "Sample project 2");
+    assertText(html, locale === "en" ? "Manufacturing" : "Sản xuất");
+    assert.match(html, /role="tablist"/);
+    assert.match(html, /id="featured-panel-p1"/);
+    assert.match(html, /aria-controls="featured-panel-p1"/);
+    assert.match(html, /kWh/);
+    assert.match(html, /14[.,]000/);
+    assert.match(html, /CO₂/);
+    assert.match(html, /href="\?[^" ]*nguon=story-cta[^" ]*#du-toan"/);
+    assert.equal((html.match(/Watch project video:|Xem video dự án:/g) ?? []).length, 1);
+    const plain = projectsSchema.parse({ ...data, items: collectionItems.projects });
+    const plainHtml = renderToStaticMarkup(createElement(Component, { data: plain, site, sectionId: "plain" }));
+    assert.doesNotMatch(plainHtml, /CO₂|kWh\/|VNĐ\/năm|Watch project video:|Xem video dự án:/);
+    assert.equal(renderToStaticMarkup(createElement(Component, { data: { ...data, items: [] }, site, sectionId: "empty" })), "");
+  }
+});
+
 const collectionItems = {
   projects: [{ id: "p", title: "Sample project", segment: "shop", location: "HCM", kwp: 10, image: { id: "/p.webp", alt: { vi: "Ảnh", en: "Project image" } } }],
   shorts: [{ id: "s", title: "Sample video", segment: "shop", location: "HCM", kwp: 10, kind: "done", poster: { id: "/s.webp", alt: { vi: "Ảnh", en: "Poster" } }, source: { provider: "file", idOrSrc: "/s.mp4" } }],
