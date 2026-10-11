@@ -1,0 +1,22 @@
+{
+  "name": "@solar/presets",
+  "version": "0.0.0",
+  "private": true,
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --test src/__tests__/presets.test.mjs"
+  },
+  "dependencies": {
+    "@solar/sections": "workspace:*",
+    "@solar/themes": "workspace:*",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@types/node": "20.19.37",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3"
+  }
+}
