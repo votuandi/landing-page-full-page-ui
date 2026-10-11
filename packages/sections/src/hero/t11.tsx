@@ -10,7 +10,7 @@ import BillHero from "./t11.client";
 export default function HeroT11({ data, site, sectionId }: SectionPropsOf<typeof hero>) {
   const t = (v: { vi: string; en?: string }) => pickLocale(v, site.locale);
   return <section className="border-b border-line bg-gradient-to-br from-bg via-bg to-bg-sky py-14 text-fg md:py-20">
-    <div className="mx-auto grid max-w-[var(--container)] items-center gap-12 px-7 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+    <div className="mx-auto grid max-w-container items-center gap-12 px-7 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
       <div>
         <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-primary"><SunIcon aria-hidden className="h-6 w-6" />{t(data.badge)}</p>
         <h1 className="my-6 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">{t(data.title.lead)} <span className="block text-primary">{t(data.title.highlight)}</span>

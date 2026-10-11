@@ -19,6 +19,7 @@ import { presetSchema } from "./schema";
 
 export { presetSchema };
 export type { Preset } from "./schema";
+import type { Preset } from "./schema";
 export const presets = [presetSchema.parse(t15), presetSchema.parse(t01), presetSchema.parse(t02), presetSchema.parse(t03), presetSchema.parse(t04), presetSchema.parse(t05), presetSchema.parse(t06), presetSchema.parse(t07), presetSchema.parse(t08), presetSchema.parse(t09), presetSchema.parse(t10), presetSchema.parse(t11), presetSchema.parse(t12), presetSchema.parse(t13), presetSchema.parse(t14)];
 
 /** roadmap/01-template-analysis.md §3. E6 replaces this temporary table with @solar/plans.
@@ -33,10 +34,17 @@ export function getPreset(id: string) {
   return presets.find((preset) => preset.id === id);
 }
 
+// Preset là dữ liệu tĩnh trong bundle: parse một lần mỗi id rồi dùng lại (kết quả chỉ đọc).
+const loaded = new Map<string, ReturnType<typeof parsePreset>>();
+
 export function loadPreset(id: string) {
   const raw = getPreset(id);
   if (!raw) throw new Error(`Preset không tồn tại: ${id}`);
-  const preset = presetSchema.parse(raw);
+  if (!loaded.has(id)) loaded.set(id, parsePreset(raw));
+  return loaded.get(id)!;
+}
+
+function parsePreset(preset: Preset) {
   const theme = getTheme(preset.themeId)!;
   const page = pageConfigSchema.parse({ sections: preset.sections.map((section) => ({
     ...section,

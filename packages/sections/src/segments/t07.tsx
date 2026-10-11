@@ -23,7 +23,7 @@ export default function SegmentsT07({ data, site, sectionId }: SectionPropsOf<ty
   const params = toCalculatorParams(calculator.defaults);
   return <div className="text-fg">
     <section aria-labelledby={`${sectionId}-title`} className="flex min-h-section flex-col justify-center bg-bg-elevated py-section">
-      <div className="mx-auto w-full max-w-[var(--container)] px-6 sm:px-7">
+      <div className="mx-auto w-full max-w-container px-6 sm:px-7">
         <div className="grid items-end gap-5 lg:grid-cols-[1.2fr_1fr]">
           <div><p data-reveal="down" className="text-xs font-bold uppercase tracking-widest text-primary">{t(data.eyebrow)}</p><h2 data-reveal="left" id={`${sectionId}-title`} className="mt-4 whitespace-pre-line font-display text-4xl font-extrabold tracking-tight sm:text-5xl">{t(data.title)}</h2></div>
           <p data-reveal="up" className="max-w-xl text-sm leading-7 text-fg-muted">{t(data.description)}</p>
@@ -37,7 +37,7 @@ export default function SegmentsT07({ data, site, sectionId }: SectionPropsOf<ty
       const result = calculateSolar({ segment: item.segment, ...scenario, province: "TP Hồ Chí Minh", roofArea: 50_000 }, params);
       const id = `${sectionId}-${item.segment}`;
       return <section key={item.segment} id={id} aria-labelledby={`${id}-title`} className={`flex min-h-section items-center py-section ${i % 2 ? "bg-bg" : "bg-bg-sky"}`}>
-        <div className="mx-auto grid w-full max-w-[var(--container)] items-center gap-10 px-6 sm:px-7 lg:grid-cols-2">
+        <div className="mx-auto grid w-full max-w-container items-center gap-10 px-6 sm:px-7 lg:grid-cols-2">
           <div data-reveal={i % 2 ? "right" : "left"} className={`relative min-h-[320px] overflow-hidden rounded-media bg-bg-tint sm:min-h-[540px] ${i % 2 ? "lg:order-2" : ""}`}><MediaImage src={mediaSrc(item.image)} alt={t(item.image.alt)} sizes="(max-width:1023px) 100vw, 50vw" /><span className="absolute left-5 top-5 rounded-pill bg-bg-elevated px-3 py-2 text-xs font-bold">{String(i + 1).padStart(2, "0")} / {t(data.eyebrow)}</span></div>
           <div data-reveal={i % 2 ? "left" : "right"}>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">{t(item.label)}</p>

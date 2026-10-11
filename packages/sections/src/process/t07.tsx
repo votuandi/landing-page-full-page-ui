@@ -9,7 +9,7 @@ const ICONS = [ChartBarIcon, SunIcon, WrenchScrewdriverIcon, ShieldCheckIcon, De
 export default function ProcessT07({ data, site, sectionId }: SectionPropsOf<typeof process>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
   return <section aria-labelledby={`${sectionId}-title`} className="flex min-h-section flex-col justify-center bg-bg-elevated py-section text-fg">
-    <div className="mx-auto w-full max-w-[var(--container)] px-6 sm:px-7">
+    <div className="mx-auto w-full max-w-container px-6 sm:px-7">
       <div className="grid items-center gap-8 lg:grid-cols-2">
         <div><p data-reveal="down" className="text-xs font-bold uppercase tracking-widest text-primary">{t(data.eyebrow)}</p><h2 data-reveal="left" id={`${sectionId}-title`} className="mt-4 whitespace-pre-line font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{t(data.title)}</h2></div>
         <div data-reveal="right" className="mx-auto w-full max-w-md"><JourneyIllustration /></div>

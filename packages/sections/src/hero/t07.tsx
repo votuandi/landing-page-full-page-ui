@@ -14,7 +14,7 @@ export default function HeroT07({ data, site, sectionId }: SectionPropsOf<typeof
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
   const cards = [data.outputCard, data.savingCard, data.co2Card];
   return <section aria-labelledby={`${sectionId}-title`} className="flex min-h-section flex-col justify-center bg-gradient-to-br from-bg-sky to-bg px-5 py-8 text-fg sm:px-7">
-    <div className="mx-auto w-full max-w-[var(--container)]">
+    <div className="mx-auto w-full max-w-container">
       <div className="grid items-center overflow-hidden rounded-media border border-line/40 bg-glass shadow-hero lg:grid-cols-[1fr_1.05fr]">
         <div data-reveal="left" className="relative z-10 px-6 py-10 sm:p-11">
           <p className="inline-flex items-center gap-2 rounded-pill border border-line bg-bg-elevated/70 px-3 py-2 text-xs font-semibold text-fg-muted"><span aria-hidden className="h-2 w-2 rounded-pill bg-success" />{t(data.badge)}</p>

@@ -12,6 +12,7 @@ const preset: Omit<Config, "content"> = {
       inherit: "inherit",
     },
     extend: {
+      maxWidth: { container: "var(--container)" },
       borderRadius: {
         card: "var(--radius-card)",
         pill: "var(--radius-pill)",

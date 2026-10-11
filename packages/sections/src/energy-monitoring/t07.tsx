@@ -11,7 +11,7 @@ const ICONS = [SunIcon, BoltIcon, Battery50Icon];
 export default function EnergyMonitoringT07({ data, site, sectionId }: SectionPropsOf<typeof energyMonitoring>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
   return <section aria-labelledby={`${sectionId}-title`} className="flex min-h-section items-center bg-primary-deep py-section text-on-media">
-    <div className="mx-auto grid w-full max-w-[var(--container)] items-center gap-10 px-6 sm:px-7 lg:grid-cols-2">
+    <div className="mx-auto grid w-full max-w-container items-center gap-10 px-6 sm:px-7 lg:grid-cols-2">
       <div data-reveal="left">
         <p className="inline-flex rounded-pill border border-on-media/25 bg-on-media/10 px-3 py-2 text-xs font-semibold">{t(data.eyebrow)}</p>
         <h2 id={`${sectionId}-title`} className="mt-6 whitespace-pre-line font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{t(data.title)}</h2>
