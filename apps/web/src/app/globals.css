@@ -77,6 +77,8 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-header { @apply sticky top-0 z-50 border-b border-line/10 bg-bg-elevated/85 backdrop-blur-xl; }
   .t15-nav-link { @apply relative whitespace-nowrap text-sm font-bold text-fg-muted transition hover:text-primary; }
   .t15-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/12 bg-bg-elevated text-fg transition hover:border-primary/40 hover:text-primary; }
+  /* Header có nút sáng/tối thì ẩn widget nổi; nút giỏ trên header chỉ hiện khi trang có widget quote-cart (catalog bật). */
+  body:has([data-header-theme]) [data-widget="theme-switch"], body:not(:has([data-widget="quote-cart"])) [data-header-cart] { display: none; }
   .t15-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-4xs font-black text-on-accent ring-2 ring-bg-elevated; }
   .t15-demo-bar { @apply relative z-[60] bg-primary-deep text-on-media; }
   .t15-demo-link { @apply items-center border-b border-accent/70 font-black text-accent; }

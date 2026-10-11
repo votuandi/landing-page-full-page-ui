@@ -74,6 +74,7 @@ export default function SiteHeaderT15({ data, site, sectionId }: SectionPropsOf<
         }))}
         cta={link(data.cta)}
         drawerActions={data.drawerActions.map(link)}
+        controls={data.controls}
       />
     </>
   );

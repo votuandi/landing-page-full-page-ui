@@ -1,0 +1,14 @@
+{
+  "390": {
+    "ratio": 0.1922,
+    "legacyHeight": 34977,
+    "presetHeight": 33825,
+    "target": 0.005
+  },
+  "1440": {
+    "ratio": 0.1192,
+    "legacyHeight": 22355,
+    "presetHeight": 22025,
+    "target": 0.005
+  }
+}

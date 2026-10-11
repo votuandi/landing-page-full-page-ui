@@ -21,11 +21,13 @@ import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
 import StatsT15 from "../stats/t15";
 import Shorts from "../shorts/t15.island";
 import { shorts } from "../shorts/schema";
-import { migrateShortsV1 } from "../shorts/migrations";
-import { pickLocale } from "../fields";
-import type { Locale } from "../site";
+import { migrateShortsV1, migrateShortsV2 } from "../shorts/migrations";
 import { trust } from "../trust/schema";
 import { migrateTrustV1 } from "../trust/migrations";
+import { siteHeader } from "../site-header/schema";
+import { migrateSiteHeaderV1 } from "../site-header/migrations";
+import { pickLocale } from "../fields";
+import type { Locale } from "../site";
 
 test("trust v1 migration preserves content and optional tenant logos across variants", async () => {
   const original = structuredClone(trust.defaults);
@@ -335,10 +337,45 @@ for (const locale of ["vi", "en"] as const) {
 test("shorts v1 migration adds labels without changing content or overwriting tenant labels", () => {
   const { segmentLabels, ...v1 } = shorts.schema.parse({ ...shorts.defaults, items: collectionItems.shorts });
   const original = structuredClone(v1);
-  assert.equal(shorts.schemaVersion, 2);
+  assert.equal(shorts.schemaVersion, 3);
   assert.deepEqual(shorts.schema.parse(migrateShortsV1(v1)), { ...v1, segmentLabels });
   assert.deepEqual(shorts.schema.parse(v1), { ...v1, segmentLabels });
   const custom = { ...segmentLabels, shop: { vi: "Cửa hàng của khách", en: "Tenant shops" } };
   assert.deepEqual(migrateShortsV1({ ...v1, segmentLabels: custom }).segmentLabels, custom);
   assert.deepEqual(v1, original);
+});
+
+test("v2/v3 migrations keep old rendering: no channels, trust card details, no header controls", () => {
+  const { channels, ...shortsV2 } = shorts.defaults;
+  assert.deepEqual(channels, []);
+  assert.deepEqual(shorts.schema.parse(migrateShortsV2(shortsV2)), shorts.defaults);
+  const { cardDetails, ...trustV1 } = trust.defaults;
+  assert.equal(cardDetails, true);
+  assert.equal(trust.schemaVersion, 2);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(trustV1)), trust.defaults);
+  assert.equal(migrateTrustV1({ ...trustV1, cardDetails: false }).cardDetails, false);
+  const { controls, ...headerV1 } = siteHeader.defaults;
+  assert.deepEqual(controls, { language: false, theme: false, cart: false });
+  assert.equal(siteHeader.schemaVersion, 2);
+  assert.deepEqual(siteHeader.schema.parse(migrateSiteHeaderV1(headerV1)), siteHeader.defaults);
+  const migrated = migrateSiteHeaderV1(headerV1);
+  assert.deepEqual(migrateSiteHeaderV1(migrated), migrated);
+});
+
+test("shorts channels, trust compact cards and header controls render from data", async () => {
+  const channel = { kind: "tiktok", url: "https://www.tiktok.com/@sample", label: "TikTok mẫu" };
+  const shortsHtml = await renderContent("shorts", { items: collectionItems.shorts, channels: [channel] }, "vi");
+  assert.match(shortsHtml, /href="https:\/\/www\.tiktok\.com\/@sample"/);
+  assert.match(shortsHtml, /TikTok mẫu/);
+  const compact = await renderContent("trust", { cardDetails: false }, "vi");
+  const detailed = await renderContent("trust", {}, "vi");
+  const scope = pickLocale(trust.defaults.items[0].scope, "vi");
+  assert.ok(detailed.includes(scope));
+  assert.ok(!compact.includes(scope), "compact cards keep scope for the lightbox only");
+  assert.ok(compact.includes(pickLocale(trust.defaults.items[0].issuer, "vi")));
+  const header = await renderContent("site-header", { controls: { language: true, theme: true, cart: true } }, "vi");
+  assert.match(header, /data-header-theme="true"/);
+  assert.match(header, /data-header-cart/);
+  assert.match(header, /aria-label="Ngôn ngữ"/);
+  assert.doesNotMatch(await renderContent("site-header", {}, "vi"), /data-header-cart|data-header-theme/);
 });

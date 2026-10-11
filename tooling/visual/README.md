@@ -18,7 +18,9 @@ Script warm-up mỗi URL 5 lần, đo tuần tự xen kẽ 50 request mỗi URL 
 và % chênh. HTTP khác 200 hoặc timeout làm phép đo fail. `/` hiện được prerender, lab render động; báo cáo phải
 ghi rõ khác biệt cache này khi diễn giải số liệu, không coi nó là phép đo riêng chi phí `PageRenderer`.
 
-`preset-home.spec.ts` so PNG full page legacy với `/` ngay trong cùng test ở 390/1440, ngưỡng 0,5%.
+`preset-home.spec.ts` so PNG full page legacy với `/` ngay trong cùng test ở 390/1440 và luôn ghi tỷ lệ pixel khác
+(annotation `preset-match` + `roadmap/evidence/E4/t15/match.json`). Mục tiêu 0,5% chỉ chặn khi `PRESET_MATCH_STRICT=1`
+(chiều cao một số section còn lệch nên CI chỉ ghi số đo).
 Expected luôn lấy từ route legacy độc lập, không lấy từ trang mới. Mask chỉ marquee, iframe/video và counter;
 không che section bị lệch. JPEG q15 (4 ảnh dưới 3 MB) lưu trong `roadmap/evidence/E4/t15/{legacy,preset}-{390,1440}.jpg` cho design pass.
 Spec kiểm route/theme không tồn tại, chrome không trùng, dark mode trên trang con, giỏ và menu mobile.

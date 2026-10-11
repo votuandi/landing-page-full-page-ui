@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Bars3Icon, ChevronDownIcon, MapPinIcon, PhoneIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Bars3Icon, ChevronDownIcon, MapPinIcon, PhoneIcon, ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { countItems, onQuoteCartChange, openQuoteCart, readQuoteCart } from "@solar/core";
 import { Anchor } from "../shared/Anchor";
 import type { ClientLink } from "../shared/links";
 import type { Locale } from "../site";
-import { onToggleSiteMenu } from "../widgets/events";
+import { onSetSiteLocale, onToggleSiteMenu, setSiteLocale } from "../widgets/events";
+import ThemeSwitch from "../widgets/theme-switch/t15.island";
 
 type Phone = { phone: string; href: string };
 export type HeaderPricing = {
@@ -16,10 +18,13 @@ export type HeaderPricing = {
 };
 export type HeaderMenu = { label: string; columns: { title: string; description?: string; link?: ClientLink; links: ClientLink[] }[] };
 export type HeaderHotline = { name: string; main: Phone; lines: (Phone & { label: string })[]; mapLink?: ClientLink };
+export type HeaderControls = { language: boolean; theme: boolean; cart: boolean };
 
 const UI = {
-  vi: { home: "Trang chủ", nav: "Điều hướng chính", mobileNav: "Điều hướng di động", open: "Mở menu", close: "Đóng menu", menu: "Danh mục", popular: "Phổ biến", type: "Loại công trình" },
-  en: { home: "Home", nav: "Main navigation", mobileNav: "Mobile navigation", open: "Open menu", close: "Close menu", menu: "Menu", popular: "Popular", type: "Project type" },
+  vi: { home: "Trang chủ", nav: "Điều hướng chính", mobileNav: "Điều hướng di động", open: "Mở menu", close: "Đóng menu", menu: "Danh mục", popular: "Phổ biến", type: "Loại công trình",
+    lang: "Ngôn ngữ", light: "Chuyển sang giao diện sáng", dark: "Chuyển sang giao diện tối", cart: "Giỏ yêu cầu báo giá" },
+  en: { home: "Home", nav: "Main navigation", mobileNav: "Mobile navigation", open: "Open menu", close: "Close menu", menu: "Menu", popular: "Popular", type: "Project type",
+    lang: "Language", light: "Switch to light mode", dark: "Switch to dark mode", cart: "Quote request cart" },
 } as const;
 
 function PricingPanel({ pricing, ui, idPrefix, compact, onDone }: {
@@ -124,6 +129,45 @@ function HotlineList({ hotlines, onDone }: { hotlines: HeaderHotline[]; onDone?:
   );
 }
 
+type Ui = (typeof UI)[Locale];
+
+/** VI/EN: lưu lựa chọn và phát sự kiện cho app; nội dung section render ở server theo `site.locale`. */
+function LangSwitch({ locale, ui, className = "" }: { locale: Locale; ui: Ui; className?: string }) {
+  const [lang, setLang] = useState(locale);
+  useEffect(() => {
+    try { const saved = localStorage.getItem("t15-lang"); if (saved === "vi" || saved === "en") setLang(saved); } catch { /* Storage may be blocked. */ }
+    return onSetSiteLocale(setLang);
+  }, []);
+  const choose = (next: Locale) => {
+    try { localStorage.setItem("t15-lang", next); } catch { /* Storage may be blocked. */ }
+    setSiteLocale(next);
+  };
+  return (
+    <div role="group" aria-label={ui.lang} className={`flex rounded-full border border-line/15 bg-glass p-1 text-xs font-black ${className}`}>
+      {(["vi", "en"] as const).map((l) => (
+        <button key={l} type="button" aria-pressed={lang === l} onClick={() => choose(l)}
+          className={`min-h-9 min-w-9 rounded-full px-2.5 uppercase transition ${lang === l ? "bg-primary text-on-primary" : "text-fg-muted hover:text-fg"}`}>{l}</button>
+      ))}
+    </div>
+  );
+}
+
+/** Giỏ báo giá: CSS ẩn nút khi trang không có widget quote-cart (catalog tắt). */
+function CartButton({ ui, className, children, onOpen }: { ui: Ui; className: string; children?: ReactNode; onOpen?: () => void }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const refresh = () => setCount(countItems(readQuoteCart()));
+    refresh();
+    return onQuoteCartChange(refresh);
+  }, []);
+  return (
+    <button type="button" data-header-cart onClick={() => { onOpen?.(); openQuoteCart(); }} className={className} aria-label={children ? undefined : `${ui.cart} (${count})`}>
+      <ShoppingBagIcon aria-hidden className="h-5 w-5" />
+      {children ? <>{children} ({count})</> : count > 0 && <span className="t15-count" aria-hidden>{count > 99 ? "99+" : count}</span>}
+    </button>
+  );
+}
+
 type MenuId = "pricing" | "hotline" | `menu-${number}`;
 
 /** Header t15: mega menu (hover/click, Esc, click ngoài để đóng), hotline theo chi nhánh, menu mobile dạng drawer. */
@@ -140,8 +184,9 @@ export default function HeaderIsland(props: {
   hotlines: HeaderHotline[];
   cta: ClientLink;
   drawerActions: ClientLink[];
+  controls: HeaderControls;
 }) {
-  const { sectionId, pricing, menus, links, hotlines } = props;
+  const { sectionId, pricing, menus, links, hotlines, controls } = props;
   const ui = UI[props.locale];
   const [open, setOpen] = useState<MenuId | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -200,7 +245,7 @@ export default function HeaderIsland(props: {
 
   return (
     <>
-      <header ref={headerRef} className="t15-header" onPointerLeave={hoverClose} onPointerEnter={() => window.clearTimeout(closeTimer.current)}>
+      <header ref={headerRef} className="t15-header" data-header-theme={controls.theme || undefined} onPointerLeave={hoverClose} onPointerEnter={() => window.clearTimeout(closeTimer.current)}>
         <div className="t15-container flex h-20 items-center justify-between gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={`${props.brandName} – ${ui.home}`}>{props.brand}</Link>
 
@@ -229,6 +274,9 @@ export default function HeaderIsland(props: {
                 )}
               </div>
             )}
+            {controls.language && <LangSwitch locale={props.locale} ui={ui} className="hidden sm:flex" />}
+            {controls.theme && <ThemeSwitch lightLabel={ui.light} darkLabel={ui.dark} className="t15-icon-button hidden sm:inline-flex" />}
+            {controls.cart && <CartButton ui={ui} className="t15-icon-button hidden sm:inline-flex" />}
             <Anchor link={props.cta} onNavigate={() => close()} className="t15-button t15-button-accent whitespace-nowrap !px-4 sm:!px-6" />
             <button type="button" onClick={() => setDrawerOpen(!drawerOpen)} className="t15-icon-button xl:hidden" aria-expanded={drawerOpen}
               aria-controls={`${sectionId}-drawer`} aria-label={drawerOpen ? ui.close : ui.open}>
@@ -251,7 +299,7 @@ export default function HeaderIsland(props: {
   );
 }
 
-function MobileDrawer({ sectionId, pricing, menus, links, mobileLinks, hotlines, drawerActions, ui, onClose }: Parameters<typeof HeaderIsland>[0] & {
+function MobileDrawer({ sectionId, locale, pricing, menus, links, mobileLinks, hotlines, drawerActions, controls, ui, onClose }: Parameters<typeof HeaderIsland>[0] & {
   ui: (typeof UI)[Locale]; onClose: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -277,7 +325,11 @@ function MobileDrawer({ sectionId, pricing, menus, links, mobileLinks, hotlines,
     <div id={`${sectionId}-drawer`} role="dialog" aria-modal="true" aria-label={ui.menu} className="fixed inset-0 z-[75] flex justify-end bg-scrim/60 backdrop-blur-sm xl:hidden">
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label={ui.close} tabIndex={-1} />
       <aside className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-card bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {controls.language && <LangSwitch locale={locale} ui={ui} />}
+            {controls.theme && <ThemeSwitch lightLabel={ui.light} darkLabel={ui.dark} className="t15-icon-button" />}
+          </div>
           <button ref={closeRef} type="button" onClick={onClose} className="t15-icon-button" aria-label={ui.close}><XMarkIcon aria-hidden className="h-6 w-6" /></button>
         </div>
         <nav className="mt-4" aria-label={ui.mobileNav}>
@@ -291,7 +343,10 @@ function MobileDrawer({ sectionId, pricing, menus, links, mobileLinks, hotlines,
         {drawerActions.length > 0 && (
           <div className="mt-6 grid gap-3">
             {drawerActions.map((action, i) => (
-              <Anchor key={i} link={action} onNavigate={onClose} className={`t15-button ${i === 0 ? "t15-button-accent" : "t15-button-secondary"}`} />
+              <Fragment key={i}>
+                <Anchor link={action} onNavigate={onClose} className={`t15-button ${i === 0 ? "t15-button-accent" : "t15-button-secondary"}`} />
+                {i === 0 && controls.cart && <CartButton ui={ui} onOpen={onClose} className="t15-button t15-button-secondary">{ui.cart}</CartButton>}
+              </Fragment>
             ))}
           </div>
         )}

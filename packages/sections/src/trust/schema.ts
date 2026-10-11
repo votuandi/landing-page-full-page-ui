@@ -9,6 +9,8 @@ export const trustSchema = z.object({
   description: localized({ multiline: true, max: 600 }).optional(),
   items: z.array(z.object({ id: z.string().min(1), title: localized(), subtitle: localized(), issuer: localized(), number: localized(), validUntil: localized(), scope: localized({ multiline: true, max: 600 }), image: mediaRef().optional(), logo: mediaRef().optional() })).min(1).max(12).refine(uniqueBy("id"), "Duplicate certificate id"),
   issuerLabel: localized(), numberLabel: localized(), validLabel: localized(), scopeLabel: localized(),
+  /** v2: true → thẻ hiện số hiệu/hiệu lực/phạm vi; false → thẻ chỉ tên + đơn vị cấp, chi tiết trong lightbox. */
+  cardDetails: z.boolean().default(true),
 });
 
 export const trust = defineSectionType({
