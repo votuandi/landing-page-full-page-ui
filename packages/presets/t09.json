@@ -471,24 +471,24 @@
       "enabled": true,
       "data": {
         "badge": {
-          "vi": "Điện mặt trời C&I [DỮ LIỆU MẪU]"
+          "vi": "Kỹ thuật điện mặt trời công nghiệp [DỮ LIỆU MẪU]"
         },
         "title": {
           "lead": {
-            "vi": "Năng lượng mặt trời được thiết kế như một"
+            "vi": "Biến điện năng trở thành"
           },
           "highlight": {
-            "vi": "hệ thống công nghiệp."
+            "vi": "lợi nhuận"
           },
           "sub": {
-            "vi": "Tối ưu tỷ lệ tự dùng,"
+            "vi": "cho doanh nghiệp"
           },
           "subHighlight": {
-            "vi": "không chỉ số tấm pin."
+            "vi": "của bạn"
           }
         },
         "description": {
-          "vi": "Từ phụ tải, mô phỏng sản lượng đến hồ sơ tài chính — mọi quyết định đầu tư được giải thích bằng dữ liệu kỹ thuật."
+          "vi": "Từ biểu đồ phụ tải, sơ đồ một sợi, mô phỏng sản lượng đến hồ sơ tài chính — mọi quyết định đầu tư đều được giải thích bằng dữ liệu kỹ thuật."
         },
         "primaryCta": {
           "kind": "anchor",
@@ -501,39 +501,40 @@
           "kind": "anchor",
           "value": "lead-form",
           "label": {
-            "vi": "Đặt lịch khảo sát"
+            "vi": "Yêu cầu hồ sơ đề xuất"
           }
         },
         "stats": [
           {
-            "value": 92,
+            "value": 38.6,
+            "decimals": 1,
+            "unit": {
+              "vi": "MWp"
+            },
+            "label": {
+              "vi": "danh mục dự án"
+            }
+          },
+          {
+            "value": 286,
             "decimals": 0,
-            "suffix": "%",
+            "suffix": "+",
             "unit": {
               "vi": ""
             },
             "label": {
-              "vi": "tỷ lệ tự dùng mẫu"
+              "vi": "dự án"
             }
           },
           {
-            "value": 1.03,
-            "decimals": 2,
+            "value": 24,
+            "decimals": 0,
+            "suffix": "/7",
             "unit": {
-              "vi": "MW"
+              "vi": ""
             },
             "label": {
-              "vi": "phụ tải đỉnh mẫu"
-            }
-          },
-          {
-            "value": 5.8,
-            "decimals": 1,
-            "unit": {
-              "vi": "năm"
-            },
-            "label": {
-              "vi": "hoàn vốn mẫu"
+              "vi": "giám sát"
             }
           }
         ],
@@ -639,7 +640,7 @@
           }
         }
       },
-      "note": "Hero kỹ thuật dùng biểu đồ 24h trong chart tùy chọn của schema hero v2; số liệu mẫu lấy từ cùng data phụ tải."
+      "note": "Hero IndustrialSolarHomepage của template-9 (lưới + trung tâm giám sát 24h) → hero/t06 với chart tùy chọn; ô \"IEC\" không phải số nên bỏ (stats tối đa 3, kiểu số)."
     },
     {
       "id": "load-profile",
@@ -1596,7 +1597,7 @@
             "title": "Nhà máy thực phẩm Long An [DỮ LIỆU MẪU]",
             "segment": "factory",
             "location": "Long An",
-            "kwp": 998.0,
+            "kwp": 998,
             "image": {
               "id": "/preset-media/ci/solar-installation-hero.jpg",
               "alt": {
@@ -1613,7 +1614,7 @@
             "title": "Kho lạnh Bình Dương [DỮ LIỆU MẪU]",
             "segment": "factory",
             "location": "Bình Dương",
-            "kwp": 620.0,
+            "kwp": 620,
             "image": {
               "id": "/preset-media/ci/solar-panels-hero.jpg",
               "alt": {
@@ -1630,7 +1631,7 @@
             "title": "Trang trại công nghệ cao Đồng Nai [DỮ LIỆU MẪU]",
             "segment": "factory",
             "location": "Đồng Nai",
-            "kwp": 320.0,
+            "kwp": 320,
             "image": {
               "id": "/preset-media/ci/solar-battery-hero.jpg",
               "alt": {
