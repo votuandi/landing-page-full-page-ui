@@ -7,6 +7,11 @@ Các export: dự toán (`calculateSolar`, `CalculatorParams`, biểu giá/kWh),
 định dạng số/tiền, phân khúc/slug URL và calculator bus. Hệ số dự toán do bên gọi truyền qua `CalculatorParams`;
 core không chứa cấu hình hay nội dung của tenant. Các hàm DOM chỉ gọi trong trình duyệt, tôn trọng reduced motion.
 
+Mô phỏng gói cố định (t11): `estimatePackage`, `suggestKwp`, `packagesForBill`, `installment` và
+`summarizePackageEstimates` nhận giá gói, PVout, PR, tỷ lệ tự dùng và giả định từ bên gọi. Mô hình này giữ
+cách tính của template-11: tiết kiệm theo tiềm năng tự dùng, không giới hạn theo hóa đơn/phụ tải; trả góp dùng
+lãi đều trên giá ban đầu. Dùng `calculateSolar` cho dự toán theo biểu giá, diện tích mái và phụ tải ban ngày.
+
 - `pnpm --filter @solar/core typecheck`
 - `pnpm --filter @solar/core lint`
 - `pnpm --filter @solar/core test` — `node:test`, biên dịch CommonJS vào `.test-dist`, in coverage (Node 20+).
