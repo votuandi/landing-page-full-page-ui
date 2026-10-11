@@ -43,3 +43,19 @@ test("registry có id duy nhất và tra cứu đúng theme", () => {
   assert.equal(getTheme("t15"), t15);
   assert.equal(getTheme("khong-co"), undefined);
 });
+
+test("t14 mặc định emerald tối, kính và font Inter của template-14", () => {
+  const { getTheme, t14 } = require("../index.ts");
+  const { parseTheme, themeToCss } = require("@solar/tokens");
+  assert.ok(t14);
+  assert.equal(getTheme("t14"), t14);
+  assert.deepEqual(parseTheme(t14), t14);
+  assert.equal(t14.colors.light.bg, "11 31 28");
+  assert.equal(t14.colors.light.primary, "16 185 129");
+  assert.equal(t14.colors.light.accent, "245 184 61");
+  assert.equal(t14.font.sans, "Inter");
+  assert.equal(t14.glass.blur, 24);
+  assert.equal(t14.glass.enabled, true);
+  assert.equal(t14.meta.group, "signature");
+  assert.match(themeToCss(t14), /--c-bg:11 31 28/);
+});
