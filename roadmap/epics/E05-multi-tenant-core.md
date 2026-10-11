@@ -83,7 +83,9 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     Curl ba host + 308/404/403 + giả mạo qua; khóa tenant → Redis invalidate → HTTP 403 trong 107 ms.
     Bản production sau một lần build cũng qua toàn bộ curl (308 HTTPS; khóa tenant → 403 trong 58 ms).
     TTL tổng snapshot DB ≤ 60 s cả qua Redis; p95 10.000 lần trúng bộ nhớ < 0,01 ms.
-    PR/review: chờ Claude commit, tạo PR vào `mono-repo-multi-tenent` và review; merge sau PR E5-S02 #32.
+    PR [#33](https://github.com/votuandi/landing-page-full-page-ui/pull/33): review vòng 1 yêu cầu sửa CI build Prisma
+    và bổ sung test nhánh lỗi/redirect; bằng chứng sửa và kiểm tra tại `.agent-runs/E5-S03/fix-r1-report.md`.
+    Chờ review lại và CI; merge sau PR E5-S02 #32.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
 ### E5-S04 · Render site từ DB
