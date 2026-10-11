@@ -14,7 +14,7 @@ export const projectsSchema = z.object({
 });
 
 export const projects = defineSectionType({
-  type: "projects", schemaVersion: 1, schema: projectsSchema,
+  type: "projects", schemaVersion: 2, schema: projectsSchema,
   defaults: projectsSchema.parse(projectsFixture),
   meta: {"label": {"vi": "Công trình đã thực hiện", "en": "Completed projects"}, "icon": "projects", "collections": ["projects"]},
 });
