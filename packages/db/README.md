@@ -6,7 +6,11 @@
 giữ draft null và không ghi DB khi đọc. E5-S04/E7 dùng helper này khi tải nội dung.
 Repository `sectionContent.create` điền version hiện hành khi không truyền `schemaVersion`.
 Khi `sectionContent.update` nhận `data` hoặc `draftData`, payload được coi là version hiện hành;
-repository nâng cả hai trường đã lưu rồi ghép payload và ghi một version chung. Luôn truyền
+repository chỉ nâng trường cũ cần giữ lại, ghi một version chung; payload đầy đủ có thể thay
+JSON cũ bị hỏng. `type` là bất biến sau create (chặn bằng kiểu API và runtime).
+Row hiện hành chỉ ghi trường gửi lên. Khi nâng version, repository ghi có điều kiện trên
+version và JSON đã đọc, đọc lại rồi thử lại nếu có cập nhật đồng thời (tối đa 5 lần, sau đó báo lỗi để lưu lại).
+`Prisma.DbNull` xóa draft về SQL NULL; row future-version giữ version đang lưu. Luôn truyền
 JSON đầy đủ đã migrate khi sửa nội dung; giữ key lạ để không mất trường của app mới trong rolling deploy.
 
 ```sh

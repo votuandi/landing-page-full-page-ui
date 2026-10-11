@@ -4,6 +4,10 @@ import type { Db } from "../client.ts";
 // Compiled by typecheck only: callers cannot override the repository tenant.
 function repositoryTypes(db: Db, tenantId: string) {
   const repo = forTenant(db, tenantId);
+  // @ts-expect-error section type is immutable after create
+  repo.sectionContent.update("id", { type: "hero" });
+  // @ts-expect-error Prisma set operations cannot change section type either
+  repo.sectionContent.update("id", { type: { set: "hero" } });
   // @ts-expect-error tenantId belongs to the repository scope
   repo.project.create({ slug: "x", title: {}, tenantId });
   // @ts-expect-error nested tenant writes cannot replace the repository scope
