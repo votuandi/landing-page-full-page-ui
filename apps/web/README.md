@@ -59,8 +59,9 @@ curl.exe -H 'Host: t12.localhost' http://localhost:3000/lien-he
 CI job `db` chạy Postgres 16 và Redis 7, cả test DB lẫn `web test:tenant`.
 Test Redis thiếu `REDIS_URL` thì skip có lý do; URL có mà lỗi thì test fail.
 Test tenant dùng tsx để chạy source ESM của Prisma, giữ nguyên test fixture CommonJS.
-Build web trực tiếp tự chạy Prisma generate; Turbo dùng thêm task `@solar/db#build`
-với output `generated/**` để cả build mới và khôi phục cache đều có client.
+
+Client Prisma chỉ sinh ở task `@solar/db#build` (output `generated/**`); `build`, `typecheck`, `test` qua Turbo
+đều chờ task này. Chạy `next build` trực tiếp thì trước đó chạy `pnpm --filter @solar/db generate`.
 
 Nguồn: [Next proxy: Node runtime, matcher, request headers](https://nextjs.org/docs/app/api-reference/file-conventions/proxy),
 [ioredis: pub/sub, reconnect, offline queue](https://github.com/redis/ioredis).
