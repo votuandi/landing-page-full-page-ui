@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { SiteContext } from "./site";
 import type { Localized } from "./fields/localized";
+import type { SectionMigration } from "./migrate";
 
 export type LocalizedText = Localized;
 export type SectionMeta = {
@@ -15,6 +16,7 @@ export type SectionMeta = {
 export type SectionTypeDef<T extends string = string, S extends z.ZodType = z.ZodType> = {
   type: T;
   schemaVersion: number;
+  migrations?: Record<number, SectionMigration>;
   schema: S;
   defaults: z.output<S>;
   meta: SectionMeta;

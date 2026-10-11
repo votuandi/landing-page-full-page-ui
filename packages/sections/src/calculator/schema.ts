@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PROVINCES, type Region } from "@solar/core";
 import { defineSectionType } from "../define";
+import { migrateCalculatorV1 } from "./migrations";
 import { link, localized } from "../fields";
 import { SEGMENTS, segmentEnum, uniqueBy } from "../shared/schema";
 import { calculatorFixture } from "./fixtures";
@@ -71,6 +72,7 @@ export const calculatorSchema = z.object({
 });
 
 export const calculator = defineSectionType({
+  migrations: { 1: migrateCalculatorV1 },
   type: "calculator",
   schemaVersion: 2,
   schema: calculatorSchema,

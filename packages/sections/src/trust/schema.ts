@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateTrustV1 } from "./migrations";
 import { localized, mediaRef } from "../fields";
 import { uniqueBy } from "../shared/schema";
 import { trustFixture } from "./fixtures";
@@ -15,6 +16,7 @@ export const trustSchema = z.object({
 });
 
 export const trust = defineSectionType({
+  migrations: { 1: migrateTrustV1 },
   type: "trust", schemaVersion: 2, schema: trustSchema,
   defaults: trustSchema.parse(trustFixture),
   meta: {"label": {"vi": "Chứng chỉ & giấy phép", "en": "Certificates & licences"}, "icon": "trust", "entitlement": "trust"},

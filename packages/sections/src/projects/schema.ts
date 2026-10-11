@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateProjectsV1 } from "./migrations";
 import { localized, collectionQuery } from "../fields";
 import { segmentLabelsSchema } from "../shared/contentSchema";
 import { projectItem } from "../collections/schemas";
@@ -22,6 +23,7 @@ export const projectsSchema = z.object({
 });
 
 export const projects = defineSectionType({
+  migrations: { 1: migrateProjectsV1 },
   type: "projects", schemaVersion: 2, schema: projectsSchema,
   defaults: projectsSchema.parse(projectsFixture),
   meta: {"label": {"vi": "Công trình đã thực hiện", "en": "Completed projects"}, "icon": "projects", "collections": ["projects"]},

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateHeroV1 } from "./migrations";
 import { link, localized, mediaRef } from "../fields";
 import { segmentEnum, uniqueBy } from "../shared/schema";
 import { heroFixture } from "./fixtures";
@@ -70,6 +71,7 @@ export const heroSchema = z.object({
 });
 
 export const hero = defineSectionType({
+  migrations: { 1: migrateHeroV1 },
   type: "hero",
   schemaVersion: 2,
   schema: heroSchema,

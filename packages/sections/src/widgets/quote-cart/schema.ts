@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../../define";
+import { migrateQuoteCartV1 } from "./migrations";
 import { localized, link, collectionQuery } from "../../fields";
 import { productItem } from "../../collections/schemas";
 import { fieldRegistry } from "../../fields/widget";
@@ -13,6 +14,7 @@ export const quoteCartSchema = z.object({
   title: localized(), note: localized(), emptyText: localized(), browseLabel: localized(), formTitle: localized(), formDescription: localized(), messagePlaceholder: localized(), submitLabel: localized(), successTitle: localized(), successMessage: localized(), continueLabel: localized(), buttonLabel: localized(),
 });
 export const quoteCart = defineSectionType({
+  migrations: { 1: migrateQuoteCartV1 },
   type: "quote-cart", schemaVersion: 2, schema: quoteCartSchema, defaults: quoteCartSchema.parse(fixture),
   meta: {"label": {"vi": "quote-cart"}, "icon": "quote-cart", "entitlement": "catalog", "collections": ["products"]},
 });

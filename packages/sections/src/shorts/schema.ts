@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateShortsV1, migrateShortsV2 } from "./migrations";
 import { localized, collectionQuery } from "../fields";
 import { storyItem } from "../collections/schemas";
 import { segmentLabelsSchema } from "../shared/contentSchema";
@@ -18,6 +19,7 @@ export const shortsSchema = z.object({
 });
 
 export const shorts = defineSectionType({
+  migrations: { 1: migrateShortsV1, 2: migrateShortsV2 },
   type: "shorts", schemaVersion: 3, schema: shortsSchema,
   defaults: shortsSchema.parse(shortsFixture),
   meta: {"label": {"vi": "Video công trình", "en": "Project videos"}, "icon": "shorts", "entitlement": "shorts", "collections": ["stories"]},
