@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { MediaImage, CarouselNav, useDialog, useSnapCarousel } from "@solar/ui";
+import { MediaImage, CarouselNav, SectionHead, useDialog, useSnapCarousel } from "@solar/ui";
 import { MagnifyingGlassPlusIcon, ShieldCheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { Locale } from "../site";
 
@@ -22,13 +22,16 @@ function Lightbox({ items, index, setIndex, labels, locale, onClose }: { items: 
     <div className="relative grid max-h-[calc(100svh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-media border border-glass-border bg-bg-elevated/95 shadow-2xl backdrop-blur-xl md:grid-cols-2"><div className="relative aspect-[3/4] md:aspect-auto md:min-h-[520px]"><Visual cert={cert} /></div><div className="flex flex-col p-6 sm:p-8"><div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.16em] text-accent-ink">{index + 1} / {items.length}</div><h3 className="mt-2 text-2xl font-black text-fg">{cert.title}</h3><p className="mt-1 text-sm text-fg-muted">{cert.subtitle}</p></div><button data-autofocus type="button" onClick={onClose} className="t15-icon-button shrink-0" aria-label={locale === "en" ? "Close" : "Đóng"}><XMarkIcon aria-hidden className="h-5 w-5" /></button></div><Details cert={cert} labels={labels} /><div className="mt-auto flex justify-between gap-3 pt-6"><button type="button" onClick={() => go(-1)} className="t15-button t15-button-secondary">{locale === "en" ? "Previous" : "Trước"}</button><button type="button" onClick={() => go(1)} className="t15-button t15-button-secondary">{locale === "en" ? "Next" : "Tiếp"}</button></div></div></div>
   </div>;
 }
-export default function Trust({ items, labels, locale }: { items: Cert[]; labels: string[]; locale: Locale }) {
+type Head = { id: string; eyebrow: string; title: string; desc?: string };
+export default function Trust({ head, items, labels, locale, cardDetails }: { head: Head; items: Cert[]; labels: string[]; locale: Locale; cardDetails: boolean }) {
   const [open, setOpen] = useState<number | null>(null);
   const { ref, prev, next, atStart, atEnd } = useSnapCarousel();
   return <>
-    <CarouselNav prevLabel={locale === "en" ? "Previous" : "Trước"} nextLabel={locale === "en" ? "Next" : "Tiếp"} prev={prev} next={next} atStart={atStart} atEnd={atEnd} className="mt-5 justify-end" />
+    <SectionHead {...head} action={<CarouselNav prevLabel={locale === "en" ? "Previous" : "Trước"} nextLabel={locale === "en" ? "Next" : "Tiếp"} prev={prev} next={next} atStart={atStart} atEnd={atEnd} className="hidden sm:flex" />} />
     <div ref={ref} className="t15-no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:scroll-px-0 sm:px-0" aria-label={locale === "en" ? "Certificates" : "Danh sách chứng chỉ"}>
-      {items.map((cert, i) => <article key={cert.id} className="group relative w-[68%] shrink-0 snap-start overflow-hidden rounded-card border border-glass-border bg-bg-elevated text-left shadow-certificate transition motion-safe:hover:-translate-y-1.5 sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-4rem)/5)]"><button type="button" onClick={() => setOpen(i)} aria-label={`${locale === "en" ? "View" : "Xem"} ${cert.title}`} className="block w-full text-left"><div className="relative aspect-[3/4]"><Visual cert={cert} /></div><span className="flex items-center justify-between gap-2 border-t border-line/12 p-4"><span className="min-w-0"><span className="block text-sm font-black text-fg">{cert.title}</span><span className="block text-xs text-fg-muted">{cert.subtitle}</span></span><MagnifyingGlassPlusIcon aria-hidden className="h-5 w-5 shrink-0 text-primary" /></span></button><div className="px-4 pb-4"><Details cert={cert} labels={labels} /></div></article>)}
+      {items.map((cert, i) => <article key={cert.id} className="group relative w-[68%] shrink-0 snap-start overflow-hidden rounded-card border border-glass-border bg-bg-elevated text-left shadow-certificate transition motion-safe:hover:-translate-y-1.5 sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-4rem)/5)]"><button type="button" onClick={() => setOpen(i)} aria-label={`${locale === "en" ? "View" : "Xem"} ${cert.title}`} className="block w-full text-left"><div className="relative aspect-[3/4]"><Visual cert={cert} /></div><span className="flex items-center justify-between gap-2 border-t border-line/12 p-4"><span className="min-w-0">{cardDetails
+        ? <><span className="block text-sm font-black text-fg">{cert.title}</span><span className="block text-xs text-fg-muted">{cert.subtitle}</span></>
+        : <><span className="block truncate text-sm font-black text-fg">{cert.title}</span><span className="block truncate text-xs text-fg-muted">{cert.issuer}</span></>}</span><MagnifyingGlassPlusIcon aria-hidden className="h-5 w-5 shrink-0 text-primary" /></span></button>{cardDetails && <div className="px-4 pb-4"><Details cert={cert} labels={labels} /></div>}</article>)}
     </div>
     {open !== null && <Lightbox items={items} index={open} setIndex={setOpen} labels={labels} locale={locale} onClose={() => setOpen(null)} />}
   </>;
