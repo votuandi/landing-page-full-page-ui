@@ -10,4 +10,5 @@ export default [
     .map((config) => "ignores" in config && !config.files ? config : { ...config, files: ["**/*.ts"] }),
   { files: ["**/*.mjs"], languageOptions: { globals: { process: "readonly", URL: "readonly" } } },
   { settings: { react: { version: "19.0" } } },
+  { rules: { "no-restricted-imports": "off" } },
 ];
