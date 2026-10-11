@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readFile, writeFile, rename, rm } from "node:fs/promises";
+import fs from "node:fs/promises";
 import { migrateSnapshot, sectionRegistry } from "@solar/sections";
 import { Prisma, type SectionContent, type PageVersion } from "../generated/client.ts";
 import type { Db } from "./client.ts";
@@ -34,7 +34,7 @@ export async function runSectionsMigrate({ db, dryRun = false, file, log = conso
 
   if (file) {
     try {
-      const original: unknown = JSON.parse(await readFile(file, "utf8"));
+      const original: unknown = JSON.parse(await fs.readFile(file, "utf8"));
       const snapshots = Array.isArray(original) ? original : [original];
       const migrated = snapshots.map((snapshot: unknown, index: number) => {
         try {
@@ -47,9 +47,9 @@ export async function runSectionsMigrate({ db, dryRun = false, file, log = conso
       if (!dryRun && result.changed && !result.errors) {
         const temp = `${file}.${randomUUID()}.tmp`;
         try {
-          await writeFile(temp, JSON.stringify(Array.isArray(original) ? migrated : migrated[0], null, 2) + "\n", { flag: "wx" });
-          await rename(temp, file);
-        } finally { await rm(temp, { force: true }); }
+          await fs.writeFile(temp, JSON.stringify(Array.isArray(original) ? migrated : migrated[0], null, 2) + "\n", { flag: "wx" });
+          await fs.rename(temp, file);
+        } finally { await fs.rm(temp, { force: true }); }
       }
     } catch (error) { failure(file, error); }
   } else {
