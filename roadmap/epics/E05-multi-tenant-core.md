@@ -52,9 +52,13 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   gán `tenantId` + chạy `assertRefsBelongToTenant`; Prisma Client Extension chặn query trên model tenant thiếu `tenantId`
   (ném lỗi ở dev/test). ESLint cấm import client Prisma ngoài `packages/db`.
 - **AC**:
-  - [ ] Test: `prisma.project.findMany()` không có tenantId trong code ứng dụng → lỗi.
-  - [ ] Test: `update`/`delete` theo id của B qua repository A → không ảnh hưởng bản ghi (0 dòng).
-  - [ ] Mọi page/route dùng repository.
+  - [x] Test: `prisma.project.findMany()` không có tenantId trong code ứng dụng → lỗi.
+  - [x] Test: `update`/`delete` theo id của B qua repository A → không ảnh hưởng bản ghi (0 dòng).
+  - [x] Mọi page/route dùng repository.
+  - Bằng chứng E5-S02: `tenantScope.test.ts`, `repository.int.test.ts` chạy trên PostgreSQL 16.13;
+    `prismaBoundary.test.ts` kiểm ESLint cấm Prisma/pg/generated ngoài `packages/db`. `apps/*` chưa đọc DB
+    (đang dùng fixture, chuyển ở S04), không có import Prisma/`createDb`; ranh giới repository đã sẵn sàng.
+    Typecheck/lint/test toàn workspace và lint token qua; PR/review chờ Claude.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E5-S03 · Phân giải tenant theo tên miền (`proxy.ts`)
