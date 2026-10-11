@@ -11,12 +11,18 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     const missing = () => new NextResponse("Không tìm thấy website.", { status: 404, headers: { "Cache-Control": "no-store" } });
     // Next decodes paths during routing: block encoded internal paths as well.
     let decoded: string;
-    try { decoded = decodeURIComponent(pathname); } catch { return missing(); }
+    try { decoded = decodeURIComponent(pathname).toLowerCase(); } catch { return missing(); }
     if (decoded === "/sites" || decoded.startsWith("/sites/")) return missing();
     if (!enabled) return NextResponse.next({ request: { headers } });
     const host = normalizeHost(headers.get("host"));
     if (!host) return missing();
-    const record = await resolver.resolve(host);
+    let record: Awaited<ReturnType<HostLookup>>;
+    try {
+      record = await resolver.resolve(host);
+    } catch (error) {
+      console.error("Tenant resolution failed", { host }, error);
+      return new NextResponse("Website tạm thời không khả dụng.", { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
     if (!record || !["verified", "active"].includes(record.status)) return missing();
     if (record.tenantStatus === "suspended") return new NextResponse("Website tạm ngừng hoạt động.", {
       status: 403, headers: { "Cache-Control": "no-store" },
@@ -25,7 +31,10 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
       const primary = normalizeHost(record.primaryHost);
       if (!primary || primary !== record.primaryHost) return missing();
       const protocol = production ? "https:" : request.nextUrl.protocol;
-      return NextResponse.redirect(new URL(`${protocol}//${primary}${pathname}${search}`), 308);
+      const port = !production && request.nextUrl.port ? `:${request.nextUrl.port}` : "";
+      return NextResponse.redirect(new URL(`${protocol}//${primary}${port}${pathname}${search}`), {
+        status: 308, headers: { "Cache-Control": "public, max-age=300" },
+      });
     }
     headers.set("x-tenant-id", record.tenantId);
     headers.set("x-site-id", record.siteId);

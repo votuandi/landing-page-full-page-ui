@@ -16,6 +16,9 @@ Header nội bộ chỉ được proxy đặt trong **request headers**, không 
 Domain chỉ phục vụ khi `verified|active`; domain khác hoặc host lạ trả 404,
 tenant `suspended` trả 403 với `Cache-Control: no-store`. Alias trả 308 tới
 primary của cùng tenant + site, giữ path/query, dùng HTTPS trong production.
+308 có `Cache-Control: public, max-age=300`; ở dev redirect giữ cổng của request.
+Resolver lỗi (kể cả thiếu `DATABASE_URL` khi bật) trả 503 `no-store`, log chi tiết ở server
+và chỉ gửi thông báo chung cho client. Đường dẫn nội bộ bị chặn cả khi viết hoa (`/SITES/x`).
 Trang thường rewrite sang `/sites/<siteId>/…`; `/api/*` giữ route và nhận header
 tenant đã phân giải. API vẫn phải tự kiểm membership/entitlements khi các story
 tương ứng triển khai; đây là bước xác định tenant của request.
@@ -56,6 +59,8 @@ curl.exe -H 'Host: t12.localhost' http://localhost:3000/lien-he
 CI job `db` chạy Postgres 16 và Redis 7, cả test DB lẫn `web test:tenant`.
 Test Redis thiếu `REDIS_URL` thì skip có lý do; URL có mà lỗi thì test fail.
 Test tenant dùng tsx để chạy source ESM của Prisma, giữ nguyên test fixture CommonJS.
+Build web trực tiếp tự chạy Prisma generate; Turbo dùng thêm task `@solar/db#build`
+với output `generated/**` để cả build mới và khôi phục cache đều có client.
 
 Nguồn: [Next proxy: Node runtime, matcher, request headers](https://nextjs.org/docs/app/api-reference/file-conventions/proxy),
 [ioredis: pub/sub, reconnect, offline queue](https://github.com/redis/ioredis).

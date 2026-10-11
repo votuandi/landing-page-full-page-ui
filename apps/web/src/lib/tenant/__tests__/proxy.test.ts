@@ -38,8 +38,35 @@ test("spoofed tenant and forwarded host headers cannot select another site", asy
 
 test("unknown or invalid host and direct internal paths are blocked", async () => {
   for (const host of ["unknown.localhost", "a.localhost/evil", "user@a.localhost"]) assert.equal((await proxy(request(host))).status, 404);
-  for (const path of ["/sites", "/sites/x", "/sites/site-a/", "/%73ites/x", "/sites%2Fx"]) {
+  for (const path of ["/sites", "/sites/x", "/SITES/x", "/sites/site-a/", "/%73ites/x", "/sites%2Fx"]) {
     assert.equal((await proxy(request("a.localhost", path, { "x-site-id": "site-a" }))).status, 404, path);
+  }
+});
+
+test("resolver failures return an uncached 503 and log details only on the server", async (t) => {
+  const error = new Error("DATABASE_URL missing or database unavailable: private details");
+  const log = t.mock.method(console, "error", () => {});
+  const unavailable = createProxy({ resolve: async () => { throw error; } }, { enabled: true });
+  for (const path of ["/", "/api/lead"]) {
+    const response = await unavailable(request("a.localhost", path));
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(await response.text(), "Website tạm thời không khả dụng.");
+    assert.equal(response.headers.has("x-middleware-rewrite"), false);
+  }
+  assert.equal(log.mock.callCount(), 2);
+  for (const call of log.mock.calls) {
+    assert.deepEqual(call.arguments, ["Tenant resolution failed", { host: "a.localhost" }, error]);
+  }
+});
+
+test("invalid or noncanonical primary hosts are blocked instead of redirected", async () => {
+  for (const primaryHost of ["bad/host", "A.localhost", "a.localhost:3210"]) {
+    const invalid = createProxy({ resolve: async () => ({ ...records[0], isPrimary: false, primaryHost }) }, { enabled: true });
+    const response = await invalid(request("www.a.localhost"));
+    assert.equal(response.status, 404, primaryHost);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("location"), null);
   }
 });
 
@@ -62,10 +89,23 @@ test("www alias redirects 308 to canonical host with path/query and production H
     const redirect = createProxy({ resolve: async () => alias }, { enabled: true, production });
     const response = await redirect(request(alias.hostname, "/lien-he?x=1"));
     assert.equal(response.status, 308);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=300");
     assert.equal(response.headers.get("location"), `${production ? "https" : "http"}://a.localhost/lien-he?x=1`);
   }
   const orphan = createProxy({ resolve: async () => ({ ...alias, primaryHost: null }) }, { enabled: true });
   assert.ok((await orphan(request(alias.hostname))).headers.has("x-middleware-rewrite"));
+});
+
+test("canonical redirects keep the request port in development and omit it in production", async () => {
+  for (const production of [false, true]) {
+    const redirect = createProxy({ resolve: async () => ({ ...records[0], isPrimary: false }) }, { enabled: true, production });
+    const response = await redirect(new NextRequest("http://untrusted.localhost:3210/lien-he?x=1", {
+      headers: { host: "www.a.localhost:3210", "x-forwarded-host": "evil.localhost:9999" },
+    }));
+    assert.equal(response.status, 308);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=300");
+    assert.equal(response.headers.get("location"), production ? "https://a.localhost/lien-he?x=1" : "http://a.localhost:3210/lien-he?x=1");
+  }
 });
 
 test("API keeps its route and receives only the resolved tenant headers", async () => {
