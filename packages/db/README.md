@@ -97,7 +97,8 @@ RLS thuộc E5-S09.
 (`project`, `page`, `sectionContent`, `media`…), mỗi delegate có `list`, `first`, `get`,
 `count`, `create`, `update`, `delete`. Tenant phải là UUID. Repository tự gắn tenant,
 loại bỏ `tenantId`/`tenant` khỏi dữ liệu ghi; filter AND/OR của caller không thể bỏ scope.
-`get(id)` ngoài tenant trả `null`, `update(id, data)`/`delete(id)` trả `{ count: 0 }`.
+`get(id)` ngoài tenant hoặc sai định dạng UUID trả `null` (UUID sai không gửi truy vấn),
+`update(id, data)`/`delete(id)` ngoài tenant trả `{ count: 0 }`.
 
 ```ts
 const repo = forTenant(db, tenantId);
@@ -115,10 +116,30 @@ client vào repository; kiểm ref dùng đúng client đó.
 
 `createDb` ném `MissingTenantError` ở mọi môi trường nếu model tenant thiếu scope;
 raw SQL cũng bị chặn. Outbox/AuditLog cần scope tường minh (`tenantId: null` cho tác vụ nền tảng).
+Filter tenant chỉ nhận chuỗi không rỗng, `{ equals: chuỗi }`, `{ in: chuỗi[] }` không rỗng;
+Outbox/AuditLog còn nhận `null`/`{ equals: null }`. Toán tử hoặc thuộc tính khác bị từ chối.
+Tenant trong dữ liệu ghi là chuỗi (hoặc `null` ở bảng tùy chọn), hoặc `tenant.connect.id`;
+không nhận object filter/field operator. Update/updateMany và hai nhánh upsert không được đổi tenant:
+tenant ghi tường minh phải khớp mọi tenant trong where; upsert.create phải có tenant cùng where.
 Các model Plan/Tenant/User/PlatformAdmin giữ thao tác nền tảng. Client nội bộ không scope
 không được export. `forPlatform(db).domains.findByHostname(hostname)` là ngoại lệ tra host
 được kiểm soát, nhận client gốc từ `createDb`, không nhận transaction client.
-ESLint cấm import Prisma/pg/generated client ngoài `packages/db`.
+ESLint cấm import tĩnh, `require()` và `import()` với đường dẫn literal tới Prisma/pg/generated client ngoài `packages/db`.
+
+## Giới hạn đã biết
+
+- Model nền tảng `Tenant`/`User` có thể `include`/`select` relation tới bảng tenant mà query extension
+  không guard truy vấn relation đó; chỉ dùng trong thao tác nền tảng có kiểm quyền. RLS thuộc E5-S09.
+- `Page.sections`/`draftSections` chỉ chứa descriptor `{ id, type, variant, enabled, anchor, layout }`,
+  không chứa data/ref nên không rút ref riêng. `PageVersion.snapshot` là bản chụp nội dung đã kiểm khi ghi
+  SectionContent; repository chưa kiểm ref độc lập khi ghi trực tiếp snapshot. E7 phải giữ ranh giới này
+  khi thêm schema/luồng ghi CMS.
+- `Site.widgets/profile/seo/themeOverrides`, `data` của faq/brand/certificate/pressItem/service/productCategory
+  và `Media.variants` chưa có schema Zod, nên chưa kiểm ref JSONB. E7 CMS phải thêm schema và gọi `collectRefs`
+  khi ghi; hiện chỉ SectionContent và sáu collection có `collectionSchemas` được kiểm.
+- Outbox/AuditLog dùng `null` cho việc nền tảng; guard kiểm scope tường minh, không kiểm quyền gọi.
+  Kiểm ref rồi ghi chưa tự tạo transaction; truyền transaction client nếu cần nhiều bước nguyên tử.
+  Luật lint đường dẫn literal chưa kiểm module được tính động từ biến.
 
 ## Seed demo
 
