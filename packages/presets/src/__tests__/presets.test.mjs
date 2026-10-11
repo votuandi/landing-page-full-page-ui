@@ -5,6 +5,26 @@ import { test } from "node:test";
 import ts from "typescript";
 
 const require = createRequire(import.meta.url);
+
+test("t07 keeps SolarHomePage order, original segments and populated projects", () => {
+  const { loadPreset } = require("../index.ts");
+  const { preset, page, theme } = loadPreset("t07");
+  assert.equal(preset.source.branch, "template-7");
+  assert.equal(theme.density.sectionY, "screen");
+  assert.equal(theme.font.sans, "Inter");
+  assert.deepEqual(page.sections.map((s) => `${s.type}/${s.variant}`), [
+    "site-header/t15", "hero/t07", "segments/t07", "energy-monitoring/t07", "calculator/t12", "process/t07",
+    "investment-models/t15", "warranty/t15", "cta-banner/t15", "testimonials/t15", "projects/t12", "brands/t15", "faq/t15", "lead-form/t15", "site-footer/t15",
+  ]);
+  const solutions = page.sections.find((s) => s.type === "segments");
+  assert.deepEqual(solutions.data.items.map((item) => item.segment), ["factory", "shop", "household"]);
+  assert.ok(page.sections.find((s) => s.type === "projects").data.items.length >= 3);
+  assert.equal(page.sections.find((s) => s.type === "testimonials").data.items.length, 2);
+  assert.equal(page.sections.find((s) => s.type === "lead-form").data.source, "solar-home");
+  for (const type of ["site-header", "calculator", "investment-models", "projects", "brands", "faq", "lead-form", "site-footer"]) {
+    assert.ok(preset.sections.find((s) => s.type === type).note, type);
+  }
+});
 // Same Node 20 source transpilation as @solar/themes; variants remain lazy.
 for (const ext of [".ts", ".tsx"]) require.extensions[ext] = (module, filename) => {
   const { outputText } = ts.transpileModule(readFileSync(filename, "utf8"), {

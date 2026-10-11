@@ -31,3 +31,11 @@ Thêm preset (E4-S02–S10):
 
 API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route preset bật; việc phục vụ tenant,
 entitlement và route theo DB triển khai ở các epic sau.
+
+Preset Pro `t07` giữ thứ tự `SolarHomePage` của `template-7`, gồm cả mô hình đầu tư,
+bảo hành, chính sách và phản hồi trong `SolarInvestmentDetails`. Bốn variant t07
+dùng theme Inter xanh dương/vàng/be với density `screen`; calculator dùng t12.
+Dự án/phản hồi có `items` inline để `/lab/presets/t07` render đầy đủ khi chưa có collection.
+`note` ghi rõ các khối dùng variant gần nhất. Ảnh after và theme swap nằm ở
+`roadmap/evidence/E4/t07/`; chạy kiểm tra runtime bằng
+`pnpm --filter @solar/visual exec playwright test -c playwright.t07.config.ts` (cổng 3007).
