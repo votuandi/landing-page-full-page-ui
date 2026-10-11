@@ -4,9 +4,10 @@ import { t15, themeFontCss, themeFontFiles } from "@solar/themes";
 import { colorChannelsToHex, themeToCss } from "@solar/tokens";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
-import SiteFooter from "@/components/SiteFooter";
+import { loadPreset } from "@solar/presets";
+import { PageRenderer, SiteWidgets } from "@solar/sections";
 import { siteConfig } from "@/config/site.config";
-import { phoneDigits } from "@/config/site";
+import { catalogEnabled, phoneDigits } from "@/config/site";
 import { pickText } from "@/i18n/text";
 
 const { brand, branches, socials, legal } = siteConfig;
@@ -83,8 +84,12 @@ const themeScript = `(function(){try{var t=localStorage.getItem("t15-theme");if(
 const themeCss = themeToCss(t15) + themeFontCss(t15);
 
 export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
+  const loaded = loadPreset("t15");
+  const site = { tenantId: "preset-demo", locale: "vi" as const, themeId: loaded.theme.meta.id };
+  const canUse = (feature: string) => feature !== "catalog" || catalogEnabled;
+  const chrome = (type: string) => <PageRenderer page={{ sections: loaded.page.sections.filter((section) => section.type === type) }} site={site} canUse={canUse} />;
   for (const file of themeFontFiles(t15)) {
     preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   }
-  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} data-scroll-behavior="smooth" suppressHydrationWarning><head><style dangerouslySetInnerHTML={{ __html: themeCss }} /><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell footer={<SiteFooter />}>{children}</SiteShell></body></html>;
+  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} data-scroll-behavior="smooth" suppressHydrationWarning><head><style dangerouslySetInnerHTML={{ __html: themeCss }} /><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="inline" canUse={canUse} />} overlayWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="overlay" canUse={canUse} />}>{children}</SiteShell></body></html>;
 }
