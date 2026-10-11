@@ -7,7 +7,7 @@
 /* Section "nhấn" (dự án, số liệu, đại lý, theo dõi 24/7, footer…): light mode = nền pastel sáng, thẻ kính trắng,
    số liệu màu xanh lá; dark mode = nền tối sâu hơn một bậc. */
 .t15-invert {
-  --glass-strong: rgb(var(--c-on-media) / .78);
+  --glass-strong: rgb(var(--c-bg-elevated) / .78); /* = trắng ở t15; theo nền ở theme mặc định tối (t14) */
   --glass-strong-border: rgb(var(--c-primary) / .14);
   --c-accent-ink: var(--c-primary);
   color: rgb(var(--c-fg));

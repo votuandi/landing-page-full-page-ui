@@ -65,6 +65,7 @@ export default function FeaturedProjects({ items, labels, showFilter, allLabel, 
       </div>
       {list.map((item) => {
         const link = storyQuoteLink(item, locale, ctaLabel);
+        const hiddenPanel = active !== null && selected !== item.id;
         const annual = item.savingPerYear;
         const moneyScale = annual !== undefined && annual >= 1e9 ? 1e9 : 1e6;
         const moneyUnit = moneyScale === 1e9 ? tr("tỷ VNĐ/năm", "bn VND/yr") : tr("triệu VNĐ/năm", "M VND/yr");
@@ -75,7 +76,7 @@ export default function FeaturedProjects({ items, labels, showFilter, allLabel, 
         </>;
         const mediaClass = "group relative min-h-[280px] overflow-hidden rounded-media border border-glass-border sm:min-h-[400px]";
         return <div key={item.id} role="tabpanel" id={`${sectionId}-panel-${item.id}`} aria-labelledby={`${sectionId}-tab-${item.id}`} tabIndex={0}
-          hidden={active !== null && selected !== item.id} className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+          hidden={hiddenPanel} className={`mt-6 gap-6 lg:grid-cols-[1.1fr_1fr] ${hiddenPanel ? "hidden" : "grid"}`}>
           {item.video ? <button type="button" aria-label={`${tr("Xem video dự án", "Watch project video")}: ${item.title}`} className={mediaClass}
             onClick={() => setPlaying({ id: item.id, title: item.title, segment: item.segment, location: item.location, kwp: item.kwp, poster: item.imageSrc, source: item.video!, kindLabel: labels[item.segment] })}>
             {media}<span className="absolute left-1/2 top-1/2 grid h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-pill bg-accent text-on-accent shadow-2xl transition motion-safe:group-hover:scale-110"><PlayIcon aria-hidden className="ml-1 h-8 w-8" /></span>
