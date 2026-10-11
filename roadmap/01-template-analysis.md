@@ -71,6 +71,14 @@ segments, projects, trust và widget contact-dock; mô phỏng gói (`solar-calc
 hero, vấn đề (process/t15), calculator, segments, projects, trust, FAQ (faq/t15), lead-form (`home-bottom`), footer.
 Xem `/lab/presets/t11`, ảnh trước/sau ở `roadmap/evidence/E4/t11/`.
 
+**Đã port — t07 (E4-S08, chờ design pass):** theme `packages/themes/t07` (xanh dương/vàng/be, Inter, light-only),
+token `density.sectionY: "screen"`; variant `hero/t07`, `segments/t07` (giới thiệu + 3 khối toàn màn hình, tính bằng core),
+`energy-monitoring/t07`, `process/t07` và SVG minh họa theo token.
+[`packages/presets/t07.json`](../packages/presets/t07.json) theo thứ tự `SolarHomePage`, kể cả 4 khối con của
+`SolarInvestmentDetails` qua variant sẵn có có `note`; thay RoiCalculator bằng `calculator/t12`.
+Dự án và phản hồi có dữ liệu inline cho lab. Ảnh after 390/1440 và đổi sang t15:
+`roadmap/evidence/E4/t07/`. Xem `/lab/presets/t07`, `?theme=t15`; Claude chụp before ở design pass.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
