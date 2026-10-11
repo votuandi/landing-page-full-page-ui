@@ -74,3 +74,20 @@ test("t15 keeps legacy order, two projects and disabled optional sections", () =
   assert.equal(widgets["theme-switch"].enabled, true);
   assert.equal(page.sections.find((section) => section.type === "warranty").enabled, false);
 });
+
+test("t13 follows HomeT8 order with trust parts adjacent and its own certificates", () => {
+  const { loadPreset } = require("../index.ts");
+  const { page, widgets } = loadPreset("t13");
+  assert.deepEqual(page.sections.map((section) => `${section.type}/${section.variant}`), [
+    "site-header/t15", "hero/t15", "segments/t13", "shorts/t15", "packages/t15", "calculator/t15", "projects/t15",
+    "products/t15", "energy-monitoring/t15", "trust/t13", "press/t15", "testimonials/t15", "brands/t15", "blog/t15",
+    "faq/t15", "site-footer/t15",
+  ]);
+  const trust = page.sections.find((section) => section.type === "trust").data;
+  assert.equal(trust.items.length, 5);
+  assert.ok(trust.items.every((item) => item.logo && item.image));
+  assert.equal(page.sections.find((section) => section.type === "blog").data.query.limit, 3);
+  assert.equal(widgets["contact-dock"].data.mobileBar, true);
+  assert.deepEqual(Object.entries(widgets).filter(([, entry]) => entry.enabled).map(([type]) => type).sort(),
+    ["commitments-strip", "consult-popup", "contact-dock", "quote-cart"]);
+});
