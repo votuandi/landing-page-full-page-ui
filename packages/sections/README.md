@@ -1,7 +1,15 @@
 # @solar/sections
 
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
-(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có đủ 28 type qua E3-S04–S06, xem mục "Type đã có".
+(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 28 type qua E3-S04–S06 và `load-profile` từ E4-S09.
+
+Bộ C&I: `hero/t06`, `energy-monitoring/t06`, `services/t06`, `investment-models/t05`, `trust/t05`, `process/t05`, `faq/t05`,
+`lead-form/t05` dùng schema theo type. Hero v2 thêm `chart` tùy chọn dùng hai chuỗi 24 điểm và đơn vị trục;
+`migrateHeroV1` giữ nguyên toàn bộ nội dung v1, các preset hiện có không cần đổi dữ liệu.
+`load-profile/t06` là khối phân tích độc lập của t06/t09, schema v1 với hai
+chuỗi 24 điểm, nhãn trục và KPI; dùng entitlement `energyMonitoring` (Nâng cao). `shared/PowerChart.tsx` dùng
+chung trục tự co theo cả hai chuỗi, mốc giờ 00:00–23:00, màu `chart-a`/`chart-b`; dữ liệu nằm trong preset/fixture.
+Form C&I tái dùng island t15 và luồng gửi lead hiện có. FAQ và biểu đồ render trên server, hiện khi tắt JavaScript.
 
 `segments/t13` port lưới bốn thẻ icon kính của template-13. Dùng chung schema/defaults với `segments/t15`
 và `SegmentLink` để đồng bộ phân khúc; link query + anchor vẫn hoạt động khi tắt JavaScript.

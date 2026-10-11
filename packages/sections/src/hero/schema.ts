@@ -2,6 +2,7 @@ import { z } from "zod";
 import { defineSectionType } from "../define";
 import { link, localized, mediaRef } from "../fields";
 import { heroFixture } from "./fixtures";
+import { energyMonitoringSchema } from "../energy-monitoring/schema";
 
 const card = z.object({ label: localized({ max: 60 }), value: z.string().max(20), unit: localized({ max: 20 }).optional() });
 
@@ -39,11 +40,13 @@ export const heroSchema = z.object({
   outputCard: card.extend({ liveLabel: z.string().max(12) }).optional(),
   savingCard: card.optional(),
   co2Card: card.optional(),
+  /** Biểu đồ dữ liệu tùy chọn cho hero kỹ thuật; dùng cùng chuỗi 24 điểm của giám sát. */
+  chart: energyMonitoringSchema.shape.chart.extend({ unit: localized({ max: 60 }) }).optional(),
 });
 
 export const hero = defineSectionType({
   type: "hero",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: heroSchema,
   defaults: heroSchema.parse(heroFixture),
   meta: { label: { vi: "Banner chính", en: "Hero" }, icon: "image", maxPerPage: 1 },
