@@ -61,7 +61,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     Typecheck/lint/test toàn workspace và lint token qua; PR/review chờ Claude.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
-### E5-S03 · Phân giải tenant theo tên miền (`proxy.ts`)
+### E5-S03 · Phân giải tenant theo tên miền (`proxy.ts`) ✅ · PR [#33](https://github.com/votuandi/landing-page-full-page-ui/pull/33)
 **Là** khách truy cập `nangluongxanh.vn`, **tôi muốn** thấy đúng site của công ty đó, **để** tên miền riêng hoạt động.
 - **Chi tiết**:
   - **Ranh giới tin cậy**: chỉ tin `Host` (Caddy/ALB/Cloudflare ghi đè đúng); bỏ qua `X-Forwarded-Host` từ client trừ khi
