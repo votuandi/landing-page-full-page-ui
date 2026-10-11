@@ -1,5 +1,32 @@
 # @solar/db
 
+## Migration section (E3-S09)
+
+`migrateSectionRow(row)` từ `@solar/db` nâng cả `data` và `draftData` trước khi parse,
+giữ draft null và không ghi DB khi đọc. E5-S04/E7 dùng helper này khi tải nội dung.
+Repository `sectionContent.create` điền version hiện hành khi không truyền `schemaVersion`.
+Khi `sectionContent.update` nhận `data` hoặc `draftData`, payload được coi là version hiện hành;
+repository nâng cả hai trường đã lưu rồi ghép payload và ghi một version chung. Luôn truyền
+JSON đầy đủ đã migrate khi sửa nội dung; giữ key lạ để không mất trường của app mới trong rolling deploy.
+
+```sh
+pnpm sections:migrate --dry-run
+pnpm sections:migrate
+pnpm sections:migrate --file /absolute/path/backup.json --dry-run
+pnpm sections:migrate --file /absolute/path/backup.json
+```
+
+DB cần `DATABASE_URL`. Script duyệt từng tenant qua `forTenant`, đọc lô 100 bản ghi theo id,
+nâng `SectionContent.data`/`draftData` và `PageVersion.snapshot`; chỉ ghi bản ghi thay đổi.
+Dry-run in tenant, bảng, type, version và số lượng, không ghi dữ liệu. Chạy lần hai báo 0 thay đổi.
+Backup là snapshot hoặc mảng snapshot theo README sections; `--file` không cần DB,
+đường dẫn tương đối tính từ `packages/db` do pnpm filter. Ghi qua file tạm cùng thư mục rồi rename;
+backup có lỗi giữ nguyên toàn bộ file. Lỗi báo id bản ghi hoặc index snapshot, tiếp tục xử lý,
+exit 1 cuối lượt (exit 0 khi không lỗi). Dữ liệu lỗi cần sửa trước khi chạy lại.
+
+Chạy lượt ghi DB trong cửa sổ bảo trì/deploy khi CMS đã ngừng ghi: script không khóa lạc quan
+theo `revision`, nên ghi đồng thời có thể bị ghi đè. Luôn backup trước lượt ghi DB.
+
 Prisma **7.10.0**, Postgres **16**. Client sinh bằng `prisma-client` vào `generated/` (không commit).
 `prisma.config.ts` giữ cấu hình CLI; runtime dùng `@prisma/adapter-pg` và driver `pg`.
 Yêu cầu Node ≥ 20.19 (CI dùng Node 22). Tham khảo [hướng dẫn Prisma 7](https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7).
