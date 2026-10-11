@@ -1,0 +1,33 @@
+{
+  "name": "@solar/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "generate": "prisma generate",
+    "typecheck": "prisma generate && tsc --noEmit",
+    "lint": "eslint .",
+    "test": "prisma generate && node scripts/test.mjs",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma generate && prisma db seed",
+    "db:erd": "node scripts/erd.mjs"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@solar/presets": "workspace:*",
+    "@solar/sections": "workspace:*",
+    "@types/node": "20.19.37",
+    "@types/pg": "8.23.1",
+    "eslint": "9.39.5",
+    "prisma": "7.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
