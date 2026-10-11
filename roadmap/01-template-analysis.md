@@ -59,6 +59,12 @@ variant mới `projects/t14` (FeaturedProjects: tab khách hàng + số liệu n
 theo thứ tự `HomeT14`. Các khối còn lại dùng variant t15 (bản gốc t14 ≈ t15, khác ở theme); checklist EngineerBanner và
 tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua trường tùy chọn. Xem `/lab/presets/t14`.
 
+**Đã port — t12 (E4-S02, chờ design pass):** theme `packages/themes/t12` (Sky & Sun / dark Emerald Dusk), variant
+`hero/t12`, `calculator/t12` (5 bước, cùng schema với t15), `segments/t12`, `projects/t12`, widget `contact-dock/t12`;
+[`packages/presets/t12.json`](../packages/presets/t12.json) theo thứ tự `HomeT8`, khối inline cuối file map sang
+`process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
+(cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.

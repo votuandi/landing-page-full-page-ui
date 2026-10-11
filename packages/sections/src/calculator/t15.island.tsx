@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { z } from "zod";
 import {
-  BanknotesIcon, ClipboardDocumentCheckIcon, ExclamationTriangleIcon, MapPinIcon, TagIcon, XMarkIcon,
+  ArrowLeftIcon, ArrowRightIcon, BanknotesIcon, ClipboardDocumentCheckIcon, ExclamationTriangleIcon, MapPinIcon, TagIcon, XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   PROVINCES, REGION_LABELS, REGION_ORDER, calculateSolar, formatMoneyShort, formatNumber, onOpenCalculator, parseNumber,
@@ -44,14 +44,27 @@ const UI = {
 } as const;
 
 function CountUp({ value, format }: { value: number; format: (v: number) => string }) {
-  return <>{format(useCountUp(value, { duration: 700 }))}</>;
+  const [animate, setAnimate] = useState(false);
+  useLayoutEffect(() => {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setAnimate(true);
+  }, []);
+  const counted = useCountUp(value, { duration: 700, start: animate });
+  return <>{format(animate ? counted : value)}</>;
 }
 
 /**
  * Dự toán t15: ô nhập theo `steps`, kết quả cập nhật ngay, form báo giá gửi kèm thông số.
  * Mọi hệ số đến từ dữ liệu section; điền sẵn từ URL (?phan-khuc=&hoa-don=&nhu-cau=) và calculatorBus.
  */
-export default function CalculatorIsland({ data, locale, sectionId }: { data: Data; locale: Locale; sectionId: string }) {
+export default function CalculatorIsland({ data, locale, sectionId, layout = "inline" }: { data: Data; locale: Locale; sectionId: string; layout?: "inline" | "wizard" }) {
+  const wizard = layout === "wizard";
+  const [stepIndex, setStepIndex] = useState(0);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const goTo = (next: number) => {
+    setStepIndex(next);
+    requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
+  };
   const ui = UI[locale];
   const shared = useSegment();
   const t = (value: { vi: string; en?: string }) => pickLocale(value, locale);
@@ -82,6 +95,7 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
     if (s && allowed.has(s)) {
       applySegment(s);
       shared.setSegment(s, source ?? "calculator-prefill");
+      if (wizard && data.steps.includes("bill")) setStepIndex(data.steps.indexOf("bill"));
     }
     if (b) setBill(b);
     setTopic(t || "");
@@ -145,20 +159,21 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
   const edit = <T,>(setter: (v: T) => void) => (v: T) => { setTouched(true); setter(v); };
   const chooseSegment = (next: Segment) => {
     setLeadSource(data.leadSource); setTouched(true); applySegment(next); shared.setSegment(next, "calculator");
+    if (wizard) goTo(Math.min(stepIndex + 1, data.steps.length - 1));
   };
 
   const steps = {
     segment: (
       <fieldset>
         <legend className="t15-label">{ui.for}</legend>
-        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className={wizard ? "mt-5 grid gap-3" : "mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"}>
           {data.segments.map((s) => {
             const active = s.segment === segment;
             return (
-              <label key={s.segment} className={`flex min-h-[88px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 p-3 text-center text-sm font-bold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-secondary ${active ? "border-primary bg-primary/[.08] text-fg" : "border-line/10 bg-bg text-fg-muted hover:border-primary/40"}`}>
+              <label key={s.segment} className={`flex cursor-pointer items-center rounded-2xl border-2 text-sm font-bold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-secondary ${wizard ? "min-h-16 gap-4 p-4 text-left" : "min-h-[88px] flex-col justify-center gap-1.5 p-3 text-center"} ${active ? "border-primary bg-primary/[.08] text-fg" : "border-line/10 bg-bg text-fg-muted hover:border-primary/40"}`}>
                 <input type="radio" name={id("segment")} value={s.segment} checked={active} onChange={() => chooseSegment(s.segment)} className="sr-only" />
                 <span className={`grid h-9 w-9 place-items-center rounded-xl ${active ? "bg-primary text-on-primary" : "bg-bg-elevated text-primary"}`}><SegmentIcon segment={s.segment} className="h-5 w-5" /></span>
-                {t(s.short)}
+                {wizard ? <span><span className="block">{t(s.label)}</span><span className="text-xs text-fg-muted">{data.segmentRatios[s.segment]}% {ui.ratio.toLowerCase()}</span></span> : t(s.short)}
               </label>
             );
           })}
@@ -184,6 +199,11 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
         <input id={id("roof")} inputMode="numeric" className="t15-input text-xl font-black sm:text-xl" value={roofText}
           aria-invalid={!roofValid} aria-describedby={id("roof-hint")}
           onChange={(e) => edit(setRoofText)(e.target.value.replace(/[^\d]/g, "").slice(0, 6))} />
+        {wizard && <div className="mt-4 grid grid-cols-4 gap-2">
+          {[30, 60, 120, 500, 1000, 3000, 10000].filter((value) => value <= data.inputs[segment].roof.max).slice(0, 4).map((value) =>
+            <button key={value} type="button" aria-pressed={roof === value} onClick={() => edit(setRoofText)(String(value))}
+              className={`min-h-11 rounded-input border text-sm font-bold ${roof === value ? "border-primary bg-primary/15 text-fg" : "border-line/15 text-fg-muted"}`}>{formatNumber(value)}</button>)}
+        </div>}
         <p id={id("roof-hint")} className={`mt-2 text-xs ${roofValid ? "text-fg-muted" : "font-bold text-danger"}`}>
           {roofValid ? ui.roofMax(formatNumber(result.kwpRoofMax, 1), String(m2PerKwp).replace(".", ",")) : ui.roofMin(minRoofArea)}
         </p>
@@ -222,17 +242,41 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
     [ui.savings, <>~<CountUp value={result.monthlySavings} format={formatMoneyShort} /><span className="text-base">/{ui.month}</span></>],
     [ui.payback, Number.isFinite(result.paybackYears) ? <>~<CountUp value={result.paybackYears} format={(v) => formatNumber(v, 1)} /> <span className="text-base">{ui.years}</span></> : "—"],
   ] as const;
+  const stepLabels = { segment: ui.for, bill: ui.bill, roof: ui.roof, province: ui.province, ratio: ui.ratio };
+  const activeStep = data.steps[stepIndex] ?? data.steps[0];
+  const stepWord = locale === "en" ? "Step" : "Bước";
+  const invalidStep = (name: Data["steps"][number]) => name === "roof" && !roofValid;
 
   return (
-    <div className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_.95fr] lg:gap-8">
+    <div className={`mt-10 grid gap-6 lg:gap-8 ${wizard ? "t12-calculator lg:grid-cols-2" : "lg:grid-cols-[1.05fr_.95fr]"}`}>
+      {wizard && <noscript><style>{".t12-calculator [data-step-panel] { display: block; margin-top: 1.5rem; } .t12-calculator [data-step-navigation] { display: none; }"}</style></noscript>}
       <div data-reveal="left" style={delay(0.1)} className="t15-card flex flex-col gap-6 p-5 sm:p-8">
+        {wizard && <div data-step-navigation>
+          <ol className="grid gap-1.5" aria-label={locale === "en" ? "Progress" : "Tiến trình"} style={{ gridTemplateColumns: `repeat(${data.steps.length}, minmax(0, 1fr))` }}>
+            {data.steps.map((name, i) => <li key={name}>
+              <button type="button" disabled={i > stepIndex && data.steps.slice(stepIndex, i).some(invalidStep)} onClick={() => goTo(i)} aria-current={i === stepIndex ? "step" : undefined}
+                aria-label={`${stepWord} ${i + 1}: ${stepLabels[name]}`} className="block min-h-11 w-full py-2 disabled:opacity-50">
+                <span className={`block h-1.5 rounded-pill ${i <= stepIndex ? "bg-primary" : "bg-line/15"}`} />
+                <span className={`mt-2 hidden text-2xs font-bold sm:block ${i === stepIndex ? "text-fg" : "text-fg-subtle"}`}>{stepLabels[name]}</span>
+              </button>
+            </li>)}
+          </ol>
+          <div className="mt-5 text-xs font-black uppercase tracking-widest text-accent-ink">{stepWord} {stepIndex + 1}/{data.steps.length}</div>
+          <h3 ref={headingRef} tabIndex={-1} className="mt-1 text-2xl font-black text-fg">{stepLabels[activeStep]}</h3>
+        </div>}
         {/* Ô mái + tỉnh nửa cột (đứng cạnh nhau khi liền kề như t15), các ô khác cả hàng. */}
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className={wizard ? "flex-1" : "grid gap-6 sm:grid-cols-2"}>
           {data.steps.map((step) => (
-            <div key={step} className={step === "roof" || step === "province" ? "" : "sm:col-span-2"}>{steps[step]}</div>
+            <div key={step} data-step-panel={wizard ? step : undefined} className={wizard ? (step === activeStep ? "" : "hidden") : (step === "roof" || step === "province" ? "" : "sm:col-span-2")}>{steps[step]}</div>
           ))}
         </div>
-        {data.tips.length > 0 && (
+        {wizard && <div data-step-navigation className="mt-8 flex gap-3">
+          {stepIndex > 0 && <button type="button" onClick={() => goTo(stepIndex - 1)} aria-label={locale === "en" ? "Previous step" : "Bước trước"} className="t15-button t15-button-secondary min-h-12"><ArrowLeftIcon aria-hidden className="h-5 w-5" /></button>}
+          {stepIndex < data.steps.length - 1
+            ? <button type="button" disabled={invalidStep(activeStep)} onClick={() => goTo(stepIndex + 1)} className="t15-button t15-button-accent min-h-12 flex-1 text-base disabled:opacity-50">{locale === "en" ? "Continue" : "Tiếp tục"}<ArrowRightIcon aria-hidden className="h-5 w-5" /></button>
+            : <button type="button" onClick={() => resultRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" })} className="t15-button t15-button-accent min-h-12 flex-1 text-base lg:hidden">{locale === "en" ? "View result" : "Xem kết quả"}<ArrowRightIcon aria-hidden className="h-5 w-5" /></button>}
+        </div>}
+        {!wizard && data.tips.length > 0 && (
           <ul className="mt-auto grid gap-2 rounded-3xl bg-bg-tint p-4 text-sm font-semibold text-fg sm:grid-cols-3 sm:p-5">
             {data.tips.map((tip, i) => {
               const Icon = TIP_ICONS[i % TIP_ICONS.length];
@@ -242,7 +286,7 @@ export default function CalculatorIsland({ data, locale, sectionId }: { data: Da
         )}
       </div>
 
-      <div data-reveal="right" style={delay(0.2)} className="t15-invert t15-card relative scroll-mt-24 overflow-hidden !border-primary/20 bg-bg-tint p-5 sm:p-8">
+      <div ref={resultRef} data-reveal="right" style={delay(0.2)} className={wizard ? "relative scroll-mt-24 overflow-hidden rounded-media bg-gradient-to-br from-bg-sky via-bg-tint to-bg-tint p-5 text-fg shadow-2xl sm:p-8" : "t15-invert t15-card relative scroll-mt-24 overflow-hidden !border-primary/20 bg-bg-tint p-5 sm:p-8"}>
         <div aria-hidden className="t15-energy-line absolute inset-x-0 top-0 h-1.5" />
         <div className="relative">
           <div className="flex flex-wrap items-center justify-between gap-2">

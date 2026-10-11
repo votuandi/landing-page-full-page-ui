@@ -24,7 +24,7 @@ export default function Shorts({ items, labels, locale, ctaLabel }: { items: Sto
   const select = (s: Segment | null) => setSegment(s, "shorts");
   return <>
     <div className="t15-no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label={tr("Lọc video theo phân khúc", "Filter videos by segment")}>
-      <button type="button" aria-pressed={!segment} onClick={() => select(null)} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>{SEGMENT_ORDER.map((s) => <button key={s} type="button" aria-pressed={segment === s} onClick={() => select(s)} className="t15-chip shrink-0">{labels[s]}</button>)}
+      <button type="button" aria-pressed={!segment} onClick={() => select(null)} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>{SEGMENT_ORDER.filter((s) => items.some((item) => item.segment === s)).map((s) => <button key={s} type="button" aria-pressed={segment === s} onClick={() => select(s)} className="t15-chip shrink-0">{labels[s]}</button>)}
     </div>
     <div className="relative mt-6"><div ref={ref} className="t15-no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0" aria-label={tr("Danh sách video công trình", "Project video list")}>
       {!list.length && <p role="status" className="w-full py-8 text-center text-fg-muted">{tr("Chưa có video cho phân khúc này.", "No videos for this segment yet.")}</p>}

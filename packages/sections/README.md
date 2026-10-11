@@ -11,6 +11,14 @@ Variant này giữ bố cục icon nên không hiển thị ảnh/mức giảm h
 tùy chọn để phân biệt logo nhỏ với ảnh chứng chỉ đầy đủ; `migrateTrustV1` giữ nguyên dữ liệu v1 (logo có thể vắng).
 Các phần báo chí, đánh giá và thương hiệu trong khối uy tín gốc t13 được ghép bằng các type riêng khi tạo preset.
 
+E4-S02 thêm variant `t12` cho hero (ảnh vòm, quỹ đạo), calculator (5 bước), segments (thẻ ảnh + kính),
+projects (lưới toàn chiều rộng) và widget contact-dock (thanh mobile + nút nổi kính).
+Calculator t12/t15 dùng cùng schema, dữ liệu, hệ số `@solar/core`, prefill và payload lead; không cần migration.
+T12 trình bày theo `data.steps`; khi tắt JavaScript, tất cả ô nhập và kết quả đã tính vẫn hiện. Các khối packages,
+investment-models, shorts và stats tái sử dụng t15 vì cùng bố cục chính.
+Xem `/lab/sections/calculator?variant=t12&themes=t12,t15` (tương tự hero/segments/projects);
+test trình duyệt: `pnpm --filter @solar/visual exec playwright test -c playwright.t12.config.ts` (dev cổng 3012).
+
 ## Khai báo một type
 
 Đặt definition ở `src/<type>/schema.ts`:

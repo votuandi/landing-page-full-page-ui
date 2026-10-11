@@ -112,3 +112,18 @@ test("t13 follows HomeT8 order with trust parts adjacent and its own certificate
   assert.deepEqual(Object.entries(widgets).filter(([, entry]) => entry.enabled).map(([type]) => type).sort(),
     ["commitments-strip", "consult-popup", "contact-dock", "quote-cart"]);
 });
+
+test("t12 follows HomeT8 order with t12 variants and the mobile contact dock", () => {
+  const { loadPreset } = require("../index.ts");
+  const { page, widgets } = loadPreset("t12");
+  assert.deepEqual(page.sections.map((section) => `${section.type}/${section.variant}`), [
+    "site-header/t15", "hero/t12", "calculator/t12", "segments/t12", "packages/t15", "investment-models/t15",
+    "projects/t12", "shorts/t15", "stats/t15", "energy-monitoring/t15", "process/t15", "warranty/t15",
+    "testimonials/t15", "brands/t15", "faq/t15", "lead-form/t15", "site-footer/t15",
+  ]);
+  assert.deepEqual(page.sections.find((section) => section.type === "calculator").data.segments.map((s) => s.segment), ["household", "shop", "factory"]);
+  assert.equal(widgets["contact-dock"].enabled && widgets["contact-dock"].variant, "t12");
+  assert.equal(widgets["contact-dock"].data.mobileBar, true);
+  assert.equal(widgets["mobile-bottom-nav"], undefined);
+  assert.equal(loadPreset("t15").page.sections.find((section) => section.id === "projects-gallery").variant, "t12");
+});

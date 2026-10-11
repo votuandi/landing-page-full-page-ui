@@ -51,6 +51,19 @@ test("t13 giữ Warm Sand, đất nung + teal và chỉ tải Inter của bản 
   assert.equal(t13.radius.input, "14px");
   assert.deepEqual(themeFontFamilies(t13), ["Inter"]);
   assert.deepEqual(themeFontFiles(t13), FONTS.Inter.files.map(({ file }) => file));
+
+test("t12 đăng ký Sky & Sun, Emerald Dusk và font Inter", () => {
+  const { getTheme } = require("../index.ts");
+  const { parseTheme } = require("@solar/tokens");
+  const theme = getTheme("t12");
+  assert.ok(theme);
+  assert.deepEqual(parseTheme(theme), theme);
+  assert.equal(theme.meta.name, "Sky & Sun");
+  assert.equal(theme.meta.supportsDark, true);
+  assert.equal(theme.font.sans, "Inter");
+  assert.equal(theme.colors.light.primary, "14 116 144");
+  assert.equal(theme.colors.dark.bg, "11 31 28");
+  assert.equal(theme.colors.dark.primary, "16 185 129");
 });
 
 test("registry có id duy nhất và tra cứu đúng theme", () => {

@@ -1543,7 +1543,7 @@
     {
       "id": "projects-gallery",
       "type": "projects",
-      "variant": "t15",
+      "variant": "t12",
       "enabled": true,
       "anchor": "cong-trinh",
       "data": {
@@ -1751,8 +1751,7 @@
           "vi": "Nhận báo giá công trình tương tự",
           "en": "Get a quote for a similar project"
         }
-      },
-      "note": "chờ projects/t12 (E4-S02)"
+      }
     },
     {
       "id": "services",
