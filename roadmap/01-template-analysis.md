@@ -43,6 +43,11 @@ Dữ liệu lấy bằng `git ls-tree` / `git grep` trên `origin/<branch>` ngà
 Kết luận: t12–t15 port gần như **chỉ di chuyển file** (đã đọc token). t10, t11 cần map biến CSS riêng sang token.
 t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. minwy, t02 ít màu cứng nhưng ít section giá trị.
 
+**Đã port — t15 (E4-S01, chờ design pass):** theme `packages/themes/t15`, variant `t15` của E3 và
+[`packages/presets/t15.json`](../packages/presets/t15.json). Trang chủ render qua `@solar/presets` + `PageRenderer`;
+24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
+Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
