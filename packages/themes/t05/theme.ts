@@ -1,6 +1,6 @@
 import { parseTheme } from "@solar/tokens";
 
-/** Nhận diện C&I từ origin/template-5; Inter, navy và vàng. */
+/** Nhận diện C&I từ origin/template-5; Inter, navy #071b33 (--t5-primary) và vàng, bo góc 2px (--t5-radius). */
 export const t05 = parseTheme({
   colors: {
     light: {
@@ -15,7 +15,7 @@ export const t05 = parseTheme({
       "glass-strong": "rgba(255,255,255,0.08)",
       "glass-strong-border": "rgba(255,255,255,0.18)",
       "glass-tint": "7 27 51",
-      primary: "13 59 120",
+      primary: "7 27 51",
       "primary-strong": "10 46 94",
       "primary-deep": "7 27 51",
       leaf: "245 185 39",
@@ -46,7 +46,7 @@ export const t05 = parseTheme({
     },
   },
   font: { sans: "Inter", display: "Inter", weights: [400, 500, 600, 700, 800, 900], source: "local" },
-  radius: { card: "14px", pill: "9999px", media: "14px", input: "14px", button: "14px" },
+  radius: { card: "2px", pill: "9999px", media: "2px", input: "2px", button: "2px" },
   shadow: { strength: 1, tint: "shadow" },
   glass: { blur: 16, enabled: false },
   motion: {

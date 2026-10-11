@@ -1639,8 +1639,8 @@
         ],
         "maxPerSegment": 4,
         "ctaLabel": {
-          "vi": "Nhận tư vấn gói này",
-          "en": "Get advice on this package"
+          "vi": "Dự toán cho công trình của tôi",
+          "en": "Estimate for my building"
         },
         "savingLabel": {
           "vi": "Giảm tiền điện",

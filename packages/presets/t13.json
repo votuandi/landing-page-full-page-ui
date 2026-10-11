@@ -13,14 +13,286 @@
       "type": "site-header",
       "variant": "t15",
       "enabled": true,
-      "note": "Header gốc SiteShell (topbar hotline + nav + giỏ báo giá + Nhận tư vấn) là nguồn của site-header/t15."
+      "note": "Header gốc SiteShell (topbar hotline + nav + giỏ báo giá + Nhận tư vấn) là nguồn của site-header/t15. Topbar hotline theo mục đích → nhóm hotline; không có mega menu.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [],
+        "menus": [],
+        "links": [
+          {
+            "kind": "anchor",
+            "value": "goi-giai-phap",
+            "label": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "du-toan",
+            "label": {
+              "vi": "Dự toán",
+              "en": "Estimate"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "cong-trinh",
+            "label": {
+              "vi": "Công trình",
+              "en": "Projects"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức",
+              "en": "News"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ",
+              "en": "Contact"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline",
+          "en": "Hotline"
+        },
+        "hotlines": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "main": "0901 234 567",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Tư vấn lắp đặt",
+                  "en": "Installation"
+                },
+                "phone": "0901 234 567"
+              },
+              {
+                "label": {
+                  "vi": "Dự án doanh nghiệp",
+                  "en": "Business projects"
+                },
+                "phone": "0902 345 678"
+              },
+              {
+                "label": {
+                  "vi": "Bảo hành",
+                  "en": "Warranty"
+                },
+                "phone": "1900 6868"
+              }
+            ]
+          }
+        ],
+        "cta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Nhận tư vấn",
+            "en": "Get advice"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "calculator",
+            "value": "",
+            "label": {
+              "vi": "Nhận tư vấn",
+              "en": "Get advice"
+            }
+          },
+          {
+            "kind": "zalo",
+            "value": "0901 234 567",
+            "label": {
+              "vi": "Chat Zalo",
+              "en": "Chat on Zalo"
+            }
+          }
+        ],
+        "controls": {
+          "language": false,
+          "theme": false,
+          "cart": true
+        }
+      }
     },
     {
       "id": "hero",
       "type": "hero",
       "variant": "t15",
       "enabled": true,
-      "note": "HeroT8 của t13 là nguồn của hero/t15; khác ở theme."
+      "note": "HeroT8 của t13 là nguồn của hero/t15; khác ở theme. Bản gốc không có thẻ CO₂ (thay bằng thẻ đánh giá Google).",
+      "data": {
+        "badge": {
+          "vi": "Hộ gia đình • Cửa hàng • Nhà xưởng • Trang trại",
+          "en": "Homes • Shops • Factories • Farms"
+        },
+        "title": {
+          "lead": {
+            "vi": "Mỗi tháng trả",
+            "en": "Pay"
+          },
+          "highlight": {
+            "vi": "ít tiền điện",
+            "en": "less for power"
+          },
+          "sub": {
+            "vi": "hơn — nhờ chính",
+            "en": "every month — thanks to"
+          },
+          "subHighlight": {
+            "vi": "mái nhà của bạn",
+            "en": "your own roof"
+          }
+        },
+        "description": {
+          "vi": "Lắp đặt điện mặt trời trọn gói và cung cấp thiết bị, đèn năng lượng mặt trời chính hãng. Xem công trình thật, biết chi phí và số tiền tiết kiệm trước khi gọi.",
+          "en": "Turnkey solar installation plus genuine equipment and solar lights. See real projects and know the cost and savings before you call."
+        },
+        "primaryCta": {
+          "kind": "anchor",
+          "value": "du-toan",
+          "label": {
+            "vi": "Dự toán chi phí",
+            "en": "Estimate cost"
+          }
+        },
+        "secondaryCta": {
+          "kind": "anchor",
+          "value": "video-cong-trinh",
+          "label": {
+            "vi": "Xem công trình thực tế",
+            "en": "Watch real projects"
+          }
+        },
+        "rating": {
+          "score": 4.9,
+          "count": 312,
+          "url": "https://www.google.com/maps",
+          "label": {
+            "vi": "đánh giá Google",
+            "en": "Google reviews"
+          }
+        },
+        "stats": [
+          {
+            "value": 12,
+            "suffix": "+",
+            "unit": {
+              "vi": "năm",
+              "en": "yrs"
+            },
+            "label": {
+              "vi": "kinh nghiệm",
+              "en": "experience"
+            }
+          },
+          {
+            "value": 42.5,
+            "decimals": 1,
+            "unit": {
+              "vi": "MWp",
+              "en": "MWp"
+            },
+            "label": {
+              "vi": "đã lắp đặt",
+              "en": "installed"
+            }
+          },
+          {
+            "value": 3200,
+            "suffix": "+",
+            "unit": {
+              "vi": "khách",
+              "en": "clients"
+            },
+            "label": {
+              "vi": "đang dùng điện mặt trời",
+              "en": "on solar power"
+            }
+          }
+        ],
+        "image": {
+          "id": "/images/services/service_1772895565903.webp",
+          "alt": {
+            "vi": "Kỹ sư kiểm tra hệ thống điện mặt trời áp mái",
+            "en": "Engineer inspecting a rooftop solar system"
+          },
+          "focal": {
+            "x": 0.72,
+            "y": 0.5
+          }
+        },
+        "chips": [
+          {
+            "label": {
+              "vi": "Tấm pin N-type 580W",
+              "en": "N-type 580W panels"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Inverter hybrid",
+              "en": "Hybrid inverter"
+            },
+            "icon": "cpu",
+            "tone": "secondary"
+          },
+          {
+            "label": {
+              "vi": "Đèn năng lượng mặt trời",
+              "en": "Solar lights"
+            },
+            "icon": "light",
+            "tone": "primary"
+          }
+        ],
+        "outputCard": {
+          "label": {
+            "vi": "Sản lượng hôm nay",
+            "en": "Today's output"
+          },
+          "value": "48,6",
+          "unit": {
+            "vi": "kWh"
+          },
+          "liveLabel": "Live"
+        },
+        "savingCard": {
+          "label": {
+            "vi": "Hóa đơn giảm",
+            "en": "Bill reduced"
+          },
+          "value": "−1,2 triệu",
+          "unit": {
+            "vi": "/ tháng*",
+            "en": "/ month*"
+          }
+        }
+      }
     },
     {
       "id": "segments",
@@ -915,7 +1187,170 @@
       "type": "site-footer",
       "variant": "t15",
       "enabled": true,
-      "note": "Dải cam kết trước footer là widget commitments-strip."
+      "note": "Dải cam kết trước footer là widget commitments-strip.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Lắp đặt điện mặt trời & thiết bị năng lượng mặt trời chính hãng.",
+            "en": "Solar installation & genuine solar equipment."
+          }
+        },
+        "socials": [
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@minwysolar",
+            "label": "TikTok"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@minwysolar",
+            "label": "YouTube"
+          },
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/minwysolar",
+            "label": "Facebook"
+          }
+        ],
+        "legal": {
+          "legalName": "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "MST: 0312XXXXXX [DỮ LIỆU MẪU]",
+              "en": "Tax ID: 0312XXXXXX [SAMPLE]"
+            },
+            {
+              "vi": "Giấy phép/đăng ký ngành nghề: [CẦN XÁC MINH]",
+              "en": "Business licence: [TO BE VERIFIED]"
+            }
+          ],
+          "badges": [],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "branchesTitle": {
+          "vi": "Hotline",
+          "en": "Hotline"
+        },
+        "branches": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "stores": [
+              {
+                "name": "Tư vấn lắp đặt",
+                "address": "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",
+                "phone": "0901 234 567"
+              },
+              {
+                "name": "Dự án doanh nghiệp",
+                "phone": "0902 345 678"
+              },
+              {
+                "name": "Bảo hành",
+                "phone": "1900 6868"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "?phan-khuc=ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi",
+                  "en": "Shops & chains"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=nha-xuong",
+                "label": {
+                  "vi": "Nhà xưởng",
+                  "en": "Factories"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=trang-trai",
+                "label": {
+                  "vi": "Trang trại",
+                  "en": "Farms"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Công ty",
+              "en": "Company"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Về chúng tôi",
+                  "en": "About us"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm",
+                  "en": "Products"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức",
+                  "en": "News"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ",
+                  "en": "Contact"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "lienhe@minwysolar.example\nThứ 2 – Thứ 7: 7:30 – 18:00",
+          "en": "lienhe@minwysolar.example\nMon – Sat: 7:30 – 18:00"
+        },
+        "disclaimer": [
+          {
+            "vi": "Website demo — dữ liệu hư cấu.",
+            "en": "Demo website — fictional data."
+          },
+          {
+            "vi": "Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.",
+            "en": "Sample legal and brand details must be replaced before publishing."
+          }
+        ]
+      }
     }
   ],
   "widgets": {

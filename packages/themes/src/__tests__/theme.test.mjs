@@ -15,7 +15,8 @@ test("C&I themes preserve navy, gold, Inter, square t06 and dark glass t09", () 
     assert.equal(theme.font.sans, "Inter");
     assert.equal(theme.colors.light.accent, "245 185 39");
   }
-  assert.equal(getTheme("t05").colors.light.primary, "13 59 120");
+  assert.equal(getTheme("t05").colors.light.primary, "7 27 51"); // --t5-primary #071b33
+  assert.equal(getTheme("t05").radius.button, "2px");
   assert.equal(getTheme("t06").radius.card, "0px");
   assert.equal(getTheme("t06").radius.media, "0px");
   assert.equal(getTheme("t09").colors.light.primary, "7 27 51");
