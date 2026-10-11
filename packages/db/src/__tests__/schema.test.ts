@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { globalRelations, tenantRelations } from "../tenantGuard.ts";
+import { tenantModels as scopedModels, optionalTenantModels } from "../tenantScope.ts";
 
 const schema = readFileSync(new URL("../../prisma/schema.prisma", import.meta.url), "utf8");
 const models = [...schema.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)];
@@ -9,6 +10,11 @@ const platform = new Set(["Tenant", "User", "PlatformAdmin", "Plan"]);
 const optionalTenant = new Set(["Outbox", "AuditLog"]);
 const tenantModels = new Set(models.filter(([, name]) => !platform.has(name)).map(([, name]) => name));
 const migration = readFileSync(new URL("../../prisma/migrations/20261011000000_init/migration.sql", import.meta.url), "utf8");
+
+test("scope guard classifies every required and optional tenant model", () => {
+  assert.deepEqual([...scopedModels].sort(), models.filter(([, , body]) => /tenantId\s+String\s/.test(body)).map(([, name]) => name).sort());
+  assert.deepEqual([...optionalTenantModels].sort(), models.filter(([, , body]) => /tenantId\s+String\?/.test(body)).map(([, name]) => name).sort());
+});
 
 test("guard classifies every schema relation by its target model", () => {
   const expectedGlobal: Record<string, Record<string, string>> = {};
