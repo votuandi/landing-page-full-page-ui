@@ -48,6 +48,12 @@ t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. m
 24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
 Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
 
+**Đã port — t11 (E4-S05, chờ design pass):** theme `packages/themes/t11`; variant `t11` cho hero, calculator,
+segments, projects, trust và widget contact-dock; mô phỏng gói (`solar-calc`) gộp vào `@solar/core`
+(`solarPackages`). [`packages/presets/t11.json`](../packages/presets/t11.json) theo thứ tự `SolarHome`: header,
+hero, vấn đề (process/t15), calculator, segments, projects, trust, FAQ (faq/t15), lead-form (`home-bottom`), footer.
+Xem `/lab/presets/t11`, ảnh trước/sau ở `roadmap/evidence/E4/t11/`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
