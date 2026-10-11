@@ -2,6 +2,8 @@
 
 Các theme đã kiểm tra bằng `parseTheme()` của `@solar/tokens`.
 `t15/theme.ts` giữ màu light/dark và token của Fresh Energy (template-15).
+`t11/theme.ts` port bảng màu `--solar-*` của template-11, nhóm Pro, Be Vietnam Pro + Manrope.
+Theme dùng weight 400/600/800 có sẵn trong FONTS; màu `accent-ink` được làm tối để đạt AA.
 
 ```ts
 import { t15 } from "@solar/themes";
