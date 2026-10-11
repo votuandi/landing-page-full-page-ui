@@ -15,7 +15,7 @@
       "enabled": true,
       "data": {
         "brand": {
-          "name": "[DỮ LIỆU MẪU] Solar Engineering"
+          "name": "Minwy Solar"
         },
         "topBar": [
           {
@@ -373,7 +373,7 @@
       "enabled": true,
       "data": {
         "eyebrow": {
-          "vi": "01 / GIẢI PHÁP"
+          "vi": "Giải pháp theo nhu cầu"
         },
         "title": {
           "vi": "Không có một cấu hình đúng cho tất cả"
@@ -382,19 +382,20 @@
           {
             "id": "home",
             "title": {
-              "vi": "Cho ngôi nhà của bạn"
+              "vi": "Hộ gia đình"
             },
             "image": {
               "id": "/images/solar-battery-hero.jpg",
               "alt": {
-                "vi": "Cho ngôi nhà của bạn"
+                "vi": "Hộ gia đình"
               }
             },
             "points": [
               {
-                "vi": "Thiết kế theo nhu cầu sử dụng điện, diện tích mái và ngân sách của gia đình."
+                "vi": "Giảm hóa đơn, tăng chủ động, ưu tiên thẩm mỹ và vận hành đơn giản."
               }
             ],
+            "segment": "household",
             "link": {
               "kind": "page",
               "value": "giai-phap",
@@ -406,19 +407,20 @@
           {
             "id": "business",
             "title": {
-              "vi": "Cho doanh nghiệp"
+              "vi": "Doanh nghiệp – nhà xưởng"
             },
             "image": {
               "id": "/images/solar-panels-hero.jpg",
               "alt": {
-                "vi": "Cho doanh nghiệp"
+                "vi": "Doanh nghiệp – nhà xưởng"
               }
             },
             "points": [
               {
-                "vi": "Giải pháp điện mặt trời giúp chủ động nguồn năng lượng cho hoạt động sản xuất."
+                "vi": "Tối ưu điện ban ngày, theo dõi ROI và bảo đảm tiêu chuẩn kỹ thuật."
               }
             ],
+            "segment": "factory",
             "link": {
               "kind": "page",
               "value": "giai-phap",
@@ -428,19 +430,19 @@
             }
           },
           {
-            "id": "care",
+            "id": "dealer",
             "title": {
-              "vi": "Chăm sóc hệ thống"
+              "vi": "Đại lý – thợ thi công"
             },
             "image": {
               "id": "/images/solar-inverter-hero.jpg",
               "alt": {
-                "vi": "Chăm sóc hệ thống"
+                "vi": "Đại lý – thợ thi công"
               }
             },
             "points": [
               {
-                "vi": "Kiểm tra, bảo trì và hỗ trợ kỹ thuật để hệ thống vận hành ổn định lâu dài."
+                "vi": "Nguồn thiết bị, tư vấn cấu hình, tài liệu kỹ thuật và hỗ trợ sau bán."
               }
             ],
             "link": {
@@ -456,12 +458,9 @@
         "ctaLabel": {
           "vi": "Dự toán cho phân khúc này",
           "en": "Estimate for this segment"
-        },
-        "description": {
-          "vi": "Bắt đầu từ nhu cầu thực tế để tìm giải pháp phù hợp với không gian và cách bạn sử dụng điện."
         }
       },
-      "note": "Giải pháp theo nhu cầu map sang services/t02 gần nhất."
+      "note": "Giải pháp theo nhu cầu (3 thẻ icon Hộ gia đình / Doanh nghiệp – nhà xưởng / Đại lý – thợ thi công) map sang services/t02 gần nhất; variant cần ảnh nên giữ ảnh minh họa."
     },
     {
       "id": "process",
@@ -930,14 +929,14 @@
       "enabled": true,
       "data": {
         "brand": {
-          "name": "[DỮ LIỆU MẪU] Solar Engineering",
+          "name": "Minwy Solar",
           "tagline": {
             "vi": "Giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp."
           }
         },
         "socials": [],
         "legal": {
-          "legalName": "[DỮ LIỆU MẪU] Solar Engineering",
+          "legalName": "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
           "lines": [
             {
               "vi": "[DỮ LIỆU MẪU] Thông tin doanh nghiệp cần được thay trước khi xuất bản."
