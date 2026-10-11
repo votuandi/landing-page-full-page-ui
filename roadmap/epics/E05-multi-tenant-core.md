@@ -74,9 +74,16 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - Subdomain nền tảng (`<slug>.minwysoft.com`) cũng là một `Domain`. Host lạ → 404 trang nền tảng.
 - **Target**: chi phí phân giải p95 ≤ 5 ms khi trúng cache bộ nhớ.
 - **AC**:
-  - [ ] Test: 3 host → 3 tenant; host không tồn tại → 404; `www.` không phải chính → 308; `/sites/x` từ ngoài → 404.
+  - [x] Test: 3 host → 3 tenant; host không tồn tại → 404; `www.` không phải chính → 308; `/sites/x` từ ngoài → 404.
   - [ ] Test giả mạo: gửi `x-tenant-id`, `X-Forwarded-Host` của tenant B qua Caddy tới host A → vẫn ra A.
-  - [ ] Đổi tên miền chính / gỡ tên miền → cache phân giải bị xóa qua Redis pub/sub ≤ 5 s (TTL 60 s là chặn trên khi pub/sub lỡ).
+    - Proxy unit + curl HTTP thật đã kiểm header giả mạo ra A; phần qua Caddy kiểm lại ở E10 khi có `infra/caddy`, theo plan E5-S03.
+  - [x] Đổi tên miền chính / gỡ tên miền → cache phân giải bị xóa qua Redis pub/sub ≤ 5 s (TTL 60 s là chặn trên khi pub/sub lỡ).
+  - Bằng chứng E5-S03: `apps/web/src/lib/tenant/__tests__/*`, `packages/db/src/__tests__/domainResolve.int.test.ts`;
+    PostgreSQL 16, Redis 7.4.11 thật; pub/sub đổi primary/gỡ host, reconnect và cold-start invalidation đều qua.
+    Curl ba host + 308/404/403 + giả mạo qua; khóa tenant → Redis invalidate → HTTP 403 trong 107 ms.
+    Bản production sau một lần build cũng qua toàn bộ curl (308 HTTPS; khóa tenant → 403 trong 58 ms).
+    TTL tổng snapshot DB ≤ 60 s cả qua Redis; p95 10.000 lần trúng bộ nhớ < 0,01 ms.
+    PR/review: chờ Claude commit, tạo PR vào `mono-repo-multi-tenent` và review; merge sau PR E5-S02 #32.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
 ### E5-S04 · Render site từ DB
