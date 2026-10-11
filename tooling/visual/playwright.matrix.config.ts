@@ -8,7 +8,8 @@ export default defineConfig({
   ...config,
   testMatch: ["matrix.spec.ts"],
   fullyParallel: true,
-  updateSnapshots: "missing",
+  // Ô thiếu baseline được spec bỏ qua so ảnh (không fail); chỉ CLI --update-snapshots ghi ảnh.
+  updateSnapshots: "none",
   projects: config.projects?.map((project) => ({ ...project, name: `matrix-${project.name}` })),
   webServer: { ...webServer, env: { ...webServer.env, LAB_ENABLED: "true" } },
   outputDir: "test-results/matrix",

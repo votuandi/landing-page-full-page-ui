@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { existsSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { collectColorSamples, findOffTokenColors } from "./matrix-colors";
 import { matrixTypes } from "./matrix";
@@ -58,7 +59,14 @@ for (const type of matrixTypes) {
         results.push({ type, variant, theme, mode, viewport: viewport!.width, project: testInfo.project.name,
           offToken, contrast, incomplete: axe.incomplete.map(({ id, nodes }) => ({ id, nodes: nodes.length })) });
         expect.soft(offToken, `${type}/${variant}/${theme}: màu ngoài token`).toEqual([]);
-        await expect.soft(cell).toHaveScreenshot([type, `${variant}--${theme}.png`], {
+        const file = `${variant}--${theme}.png`;
+        const name = [type, file];
+        // Ô mới (PR đầu, theme/variant mới ở E4) chưa có baseline: không so ảnh; job baseline trên base tạo sau merge.
+        if (testInfo.config.updateSnapshots === "none" && !existsSync(testInfo.snapshotPath(type, file))) {
+          testInfo.annotations.push({ type: "baseline-missing", description: name.join("/") });
+          continue;
+        }
+        await expect.soft(cell).toHaveScreenshot(name, {
           mask: [cell.locator(".t15-marquee, iframe, video"), cell.locator("dd.tabular-nums, .tabular-nums")],
         });
       }

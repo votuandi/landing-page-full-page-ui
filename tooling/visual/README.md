@@ -75,8 +75,9 @@ pnpm --filter @solar/visual matrix:report
 `pnpm visual:matrix` build rồi so ma trận. Windows có thể dùng `VISUAL_WORKERS=2` và server riêng như hướng dẫn ở trên;
 server riêng **phải bật `LAB_ENABLED=true`**. Hiện có 28 type × 1 theme t15 × 2 viewport × light/dark = 112 ô.
 Mục tiêu ≥ 4 theme chờ E4; không dùng theme giả. Theme/variant mới tự xuất hiện; thêm type cần cập nhật `matrixTypes`
-(test coverage báo thiếu/thừa). Project `matrix-*` có baseline riêng, không thay 48 ảnh cũ. Ô mới tạo baseline với
-`updateSnapshots: missing`; ô có baseline vẫn so bình thường. Kiểm tra ảnh mới trước khi chấp nhận baseline.
+(test coverage báo thiếu/thừa). Project `matrix-*` có baseline riêng, không thay 48 ảnh cũ. Ô chưa có baseline (PR đầu,
+theme/variant mới) không so ảnh — chỉ ghi annotation `baseline-missing`, màu token và axe vẫn kiểm; job `baseline`
+trên base tạo ảnh sau merge. Ô có baseline vẫn so bình thường. Kiểm tra ảnh mới trước khi chấp nhận baseline.
 
 Computed-style kiểm RGB với sai số ±1 và mọi alpha; transparent hợp lệ. Duyệt phần tử hiển thị và pseudo-element,
 kiểm màu chữ, nền/gradient, viền có width, outline, decoration, shadow, SVG fill/stroke. Dạng màu chưa hỗ trợ bị báo lỗi.
