@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
-import { localized, mediaRef } from "../fields";
+import { link, localized, mediaRef } from "../fields";
 import { segmentEnum, uniqueBy } from "../shared/schema";
 import { segmentsFixture } from "./fixtures";
 
@@ -18,6 +18,12 @@ export const segmentsSchema = z.object({
     image: mediaRef(),
     /** Mức giảm hóa đơn tham khảo, vd. "50–90%". */
     saving: z.string().max(20),
+    /** Khối lợi ích toàn màn hình (t10): đoạn mở, nhãn trên ảnh, ô lợi ích, CTA và link chi tiết. */
+    intro: localized({ multiline: true, max: 400 }).optional(),
+    tag: localized({ max: 80 }).optional(),
+    benefits: z.array(z.object({ value: localized({ max: 30 }), title: localized({ max: 80 }), text: localized({ multiline: true, max: 300 }) })).max(6).optional(),
+    ctaLabel: localized({ max: 80 }).optional(),
+    detailLink: link().optional(),
   })).min(1).max(4).refine(uniqueBy("segment"), { message: "Phân khúc bị trùng" }),
 });
 
