@@ -3,6 +3,26 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { sectionRegistry } from "../registry";
+
+test("t08 variants render shared defaults and localized tenant content across themes", async () => {
+  const Loadable = (await import("next/dist/shared/lib/loadable.shared-runtime")).default;
+  for (const type of ["segments", "energy-monitoring"]) {
+    const def = sectionRegistry.getType(type)!;
+    const variant = sectionRegistry.getVariant(type, "t08")!;
+    assert.equal(variant.fallback, false);
+    const Component = (await variant.load()).default;
+    await Loadable.preloadAll();
+    for (const themeId of ["t08", "t12", "t15"]) for (const locale of ["vi", "en"] as const) {
+      const data = def.schema.parse({ ...def.defaults as object, title: { vi: "Nội dung khách hàng", en: "Tenant content" } });
+      const html = renderToStaticMarkup(createElement(Component, { data, site: { tenantId: "test", themeId, locale }, sectionId: "t08" }));
+      assert.match(html, locale === "vi" ? /Nội dung khách hàng/ : /Tenant content/);
+      if (type === "segments") {
+        assert.equal((html.match(/<section /g) ?? []).length, 1 + (data as { items: unknown[] }).items.length);
+        assert.match(html, /phan-khuc=/);
+      } else assert.match(html, /text-skin/);
+    }
+  }
+});
 import { applyCollectionQuery } from "../collections/query";
 import { createCollectionLoader } from "../collections/loader";
 import { storySource, testimonialItem } from "../collections/schemas";
