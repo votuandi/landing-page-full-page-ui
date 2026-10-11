@@ -48,6 +48,12 @@ t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. m
 24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
 Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
 
+**Đã port — t12 (E4-S02, chờ design pass):** theme `packages/themes/t12` (Sky & Sun / dark Emerald Dusk), variant
+`hero/t12`, `calculator/t12` (5 bước, cùng schema với t15), `segments/t12`, `projects/t12`, widget `contact-dock/t12`;
+[`packages/presets/t12.json`](../packages/presets/t12.json) theo thứ tự `HomeT8`, khối inline cuối file map sang
+`process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
+(cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
