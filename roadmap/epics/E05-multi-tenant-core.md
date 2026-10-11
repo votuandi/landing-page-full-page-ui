@@ -46,7 +46,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     PR/review: chờ Claude tạo PR và review theo routing.
 - Agent: Claude (review Codex adversarial) · Cỡ: L
 
-### E5-S02 · Repository bắt buộc tenant
+### E5-S02 · Repository bắt buộc tenant ✅ · PR [#32](https://github.com/votuandi/landing-page-full-page-ui/pull/32)
 **Là** dev, **tôi muốn** không thể truy vấn dữ liệu nội dung mà quên `tenantId`, **để** loại bỏ cả một lớp lỗi rò dữ liệu.
 - **Chi tiết**: `forTenant(tenantId)` trả về `{ projects: { list, get, … }, … }` đã gắn `where: { tenantId }`, và khi ghi tự
   gán `tenantId` + chạy `assertRefsBelongToTenant`; Prisma Client Extension chặn query trên model tenant thiếu `tenantId`
