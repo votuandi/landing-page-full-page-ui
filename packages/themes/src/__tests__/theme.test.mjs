@@ -51,6 +51,7 @@ test("t13 giữ Warm Sand, đất nung + teal và chỉ tải Inter của bản 
   assert.equal(t13.radius.input, "14px");
   assert.deepEqual(themeFontFamilies(t13), ["Inter"]);
   assert.deepEqual(themeFontFiles(t13), FONTS.Inter.files.map(({ file }) => file));
+});
 
 test("t12 đăng ký Sky & Sun, Emerald Dusk và font Inter", () => {
   const { getTheme } = require("../index.ts");
