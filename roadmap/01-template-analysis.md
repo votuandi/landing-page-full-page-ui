@@ -79,6 +79,14 @@ Calculator dùng `calculator/t12`; khối chính sách dùng `faq/t15` với JSO
 không đổi schema chung. Ảnh after 390/1440 và đổi theme t15: `roadmap/evidence/E4/t08/`; before chờ Claude.
 Xem `/lab/presets/t08`, `?theme=t15` và `/lab/sections/matrix`.
 
+**Đã port — t10 (E4-S06, chờ design pass):** theme `packages/themes/t10` (Inter; navy `#0d3b78` → `primary`,
+`--solar-green #087a55` → `secondary`, mint `#b8efcc` → `accent`, `#effbf3` → `bg-tint`, `#dbe9ff` → `bg-sky`,
+`--t8-ink` → `fg`/`bg-deep`; không dark), 13 variant `t10` (`hero`, `services`, `segments` = BenefitHeroes, `brands` =
+ClientWall, `stats`, `projects`, `investment-models`, `energy-monitoring`, `process`, `testimonials`, `trust`, `faq`,
+`lead-form`) + widget `contact-dock/t10`, và [`packages/presets/t10.json`](../packages/presets/t10.json) theo thứ tự
+`src/app/page.tsx`. `SegmentContext` → `useSegment()`. Thay bằng variant gần nhất (có `note`): header/footer `t15`,
+Partners `brands/t15`, Calculator `calculator/t15`. Xem `/lab/presets/t10` (`?theme=t15`), ảnh ở `roadmap/evidence/E4/t10/`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.
