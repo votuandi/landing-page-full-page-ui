@@ -147,7 +147,8 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   `sectionContent.test.ts` (lazy data/draftData, lưu nháp), `repository.int.test.ts`,
   `sectionsMigrate.int.test.ts` (Postgres: dry-run không ghi, nâng data/draftData/snapshot, chạy lại không đổi),
   `sectionsMigrate.test.ts` (backup, CLI exit code, nhiều lô/tenant, tiếp tục khi dữ liệu lỗi).
-  Báo cáo và log: `.agent-runs/E3-S09/`. Review Claude và commit/PR còn chờ theo routing.
+  Báo cáo và log: `.agent-runs/E3-S09/` (gồm `fix-r1-report.md`). PR [#34](https://github.com/votuandi/landing-page-full-page-ui/pull/34)
+  đang sửa theo review-r1, chờ review lại và CI; chưa merge.
 - Phụ thuộc: phần 1 — S01; phần 2 — E5-S01 · Agent: Codex · Cỡ: M
 
 ### E3-S10 · Trang `/lab/sections` — ma trận variant × theme ✅ · PR [#29](https://github.com/votuandi/landing-page-full-page-ui/pull/29)
