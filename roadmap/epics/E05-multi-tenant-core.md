@@ -12,7 +12,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 
 ---
 
-### E5-S01 · Mô hình dữ liệu tenant
+### E5-S01 · Mô hình dữ liệu tenant ✅ · PR [#31](https://github.com/votuandi/landing-page-full-page-ui/pull/31)
 **Là** dev, **tôi muốn** schema Postgres cho nền tảng nhiều khách, **để** mọi tính năng sau xây trên một nền thống nhất.
 - **Chi tiết** (`packages/db/prisma/schema.prisma`):
   - Nền tảng: `Tenant` (tên, trạng thái `trial|active|suspended`, `planId`, `addons[]`), `User`, `Membership`
