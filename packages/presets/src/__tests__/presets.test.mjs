@@ -73,6 +73,27 @@ test("t15 keeps legacy order, two projects and disabled optional sections", () =
   assert.equal(page.sections.filter((section) => section.enabled && !section.type.startsWith("site-")).length, 24);
   assert.equal(widgets["theme-switch"].enabled, true);
   assert.equal(page.sections.find((section) => section.type === "warranty").enabled, false);
+  assert.equal(page.sections.find((section) => section.id === "featured-projects").variant, "t14");
+});
+
+test("t14 keeps HomeT14 order, dark theme, featured projects tabs and mobile bottom nav", () => {
+  const { loadPreset } = require("../index.ts");
+  const { preset, theme, page, widgets } = loadPreset("t14");
+  assert.equal(preset.source.branch, "template-14");
+  assert.equal(theme.meta.id, "t14");
+  assert.deepEqual(page.sections.map((section) => section.type), [
+    "site-header", "hero", "calculator", "trust", "brands", "segments", "packages", "investment-models",
+    "projects", "projects", "services", "stats", "press", "tiktok", "shorts", "dealer", "branch-map", "cta-banner",
+    "energy-monitoring", "process", "warranty", "testimonials", "social", "faq", "lead-form", "site-footer",
+  ]);
+  const featured = page.sections.find((section) => section.id === "featured-projects");
+  assert.equal(featured.variant, "t14");
+  for (const item of featured.data.items) for (const field of ["industry", "description", "logoText", "kwhPerYear", "savingPerYear", "co2PerYear"]) assert.ok(item[field] !== undefined, `${item.id}.${field}`);
+  assert.deepEqual(page.sections.filter((section) => !section.enabled).map((section) => section.id),
+    ["savings-by-segment", "investment-models", "projects-gallery", "stories", "energy-monitoring", "warranty", "testimonials"]);
+  assert.equal(widgets["mobile-bottom-nav"].enabled, true);
+  assert.equal(widgets["contact-dock"].data.mobileBar, false);
+  assert.equal(widgets["consult-popup"].enabled, false);
 });
 
 test("t13 follows HomeT8 order with trust parts adjacent and its own certificates", () => {

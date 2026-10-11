@@ -54,6 +54,11 @@ theo thứ tự `HomeT8`; TrustSection gốc tách thành trust → press → te
 blog, FAQ, consult-popup, commitments-strip tái dùng `t15` (cùng bố cục, `note` trong preset). Ảnh before/after:
 `roadmap/evidence/E4/t13/`. Xem `/lab/presets/t13`, `?theme=t15`.
 
+**Đã port — t14 (E4-S04, chờ design pass):** theme `packages/themes/t14` (emerald tối mặc định, bảng thứ hai Sky & Sun),
+variant mới `projects/t14` (FeaturedProjects: tab khách hàng + số liệu năm), [`packages/presets/t14.json`](../packages/presets/t14.json)
+theo thứ tự `HomeT14`. Các khối còn lại dùng variant t15 (bản gốc t14 ≈ t15, khác ở theme); checklist EngineerBanner và
+tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua trường tùy chọn. Xem `/lab/presets/t14`.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.

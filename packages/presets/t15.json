@@ -278,7 +278,7 @@
     {
       "id": "featured-projects",
       "type": "projects",
-      "variant": "t15",
+      "variant": "t14",
       "enabled": true,
       "anchor": "du-an",
       "data": {
@@ -301,7 +301,6 @@
             "segment": "factory",
             "location": "Bình Dương (cũ) – TP. HCM",
             "kwp": 1200,
-            "savingPerMonth": 258333333.33333334,
             "image": {
               "id": "/images/illustrations/factory-solar.webp",
               "alt": {
@@ -311,7 +310,18 @@
             "video": {
               "provider": "file",
               "idOrSrc": "/videos/hero_video.mp4"
-            }
+            },
+            "logoText": "MP",
+            "industry": {
+              "vi": "Dệt may",
+              "en": "Textiles"
+            },
+            "description": {
+              "vi": "Nhà máy dệt 3 ca, tải nền lớn ban ngày. Hệ áp mái 1,2 MWp kết hợp BESS 500 kWh để cắt đỉnh giờ cao điểm; thi công theo phân khu, không dừng dây chuyền."
+            },
+            "kwhPerYear": 1650000,
+            "savingPerYear": 3100000000,
+            "co2PerYear": 1120
           },
           {
             "id": "an-khang-cold",
@@ -319,7 +329,6 @@
             "segment": "factory",
             "location": "Long An (cũ) – Tây Ninh",
             "kwp": 620,
-            "savingPerMonth": 136666666.66666666,
             "image": {
               "id": "/images/illustrations/cold-storage-solar.webp",
               "alt": {
@@ -329,7 +338,18 @@
             "video": {
               "provider": "file",
               "idOrSrc": "/videos/hero_video.mp4"
-            }
+            },
+            "logoText": "AK",
+            "industry": {
+              "vi": "Kho lạnh",
+              "en": "Cold storage"
+            },
+            "description": {
+              "vi": "Tải lạnh chạy 24/7. Hệ 620 kWp tự dùng ~95%, giám sát theo từng string, vệ sinh định kỳ hằng quý."
+            },
+            "kwhPerYear": 860000,
+            "savingPerYear": 1640000000,
+            "co2PerYear": 580
           },
           {
             "id": "song-hong-resort",
@@ -337,7 +357,6 @@
             "segment": "shop",
             "location": "Hà Nội",
             "kwp": 250,
-            "savingPerMonth": 68333333.33333333,
             "image": {
               "id": "/images/illustrations/shop-solar.webp",
               "alt": {
@@ -347,7 +366,18 @@
             "video": {
               "provider": "file",
               "idOrSrc": "/videos/hero_video.mp4"
-            }
+            },
+            "logoText": "SH",
+            "industry": {
+              "vi": "Khách sạn",
+              "en": "Hospitality"
+            },
+            "description": {
+              "vi": "Khu nghỉ dưỡng 120 phòng. Hệ hybrid 250 kWp + lưu trữ 215 kWh giữ điện cho bơm nhiệt, hồ bơi và chiếu sáng khi mất lưới."
+            },
+            "kwhPerYear": 290000,
+            "savingPerYear": 820000000,
+            "co2PerYear": 195
           },
           {
             "id": "nong-trai-xanh",
@@ -355,7 +385,6 @@
             "segment": "farm",
             "location": "Đắk Lắk",
             "kwp": 320,
-            "savingPerMonth": 80000000,
             "image": {
               "id": "/images/illustrations/farm-hybrid-solar.webp",
               "alt": {
@@ -365,7 +394,18 @@
             "video": {
               "provider": "file",
               "idOrSrc": "/videos/hero_video.mp4"
-            }
+            },
+            "logoText": "XT",
+            "industry": {
+              "vi": "Nông nghiệp",
+              "en": "Agriculture"
+            },
+            "description": {
+              "vi": "Tưới cà phê bằng bơm năng lượng mặt trời và hệ 320 kWp áp mái kho sấy, giảm chi phí dầu diesel cho máy phát."
+            },
+            "kwhPerYear": 470000,
+            "savingPerYear": 960000000,
+            "co2PerYear": 315
           }
         ],
         "showFilter": false,
@@ -396,11 +436,10 @@
           "en": "All"
         },
         "ctaLabel": {
-          "vi": "Nhận báo giá công trình tương tự",
-          "en": "Get a quote for a similar project"
+          "vi": "Dự toán công trình tương tự",
+          "en": "Estimate a similar project"
         }
-      },
-      "note": "Variant gần nhất projects/t15; chờ bố cục FeaturedProjects ở projects/t14 (E4-S04)."
+      }
     },
     {
       "id": "projects-gallery",

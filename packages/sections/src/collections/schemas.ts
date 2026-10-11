@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { mediaRef } from "../fields";
+import { mediaRef, localized } from "../fields";
 import { segmentEnum } from "../shared/schema";
 import { normalizeVnPhone } from "@solar/core";
 
@@ -26,6 +26,8 @@ const href = () => z.string().refine((value) => localPath(value) || https().safe
 export const projectItem = z.object({
   id: text(), title: text(), segment: segmentEnum(), location: text(), kwp: z.number().positive(),
   savingPerMonth: z.number().nonnegative().optional(), image: mediaRef(), href: href().optional(), video: storySource.optional(),
+  industry: localized().optional(), description: localized({ multiline: true, max: 1500 }).optional(), logoText: z.string().trim().min(1).max(12).optional(),
+  kwhPerYear: z.number().nonnegative().optional(), savingPerYear: z.number().nonnegative().optional(), co2PerYear: z.number().nonnegative().optional(),
 });
 export const storyItem = z.object({
   id: text(), title: text(), location: text(), kwp: z.number().positive(), segment: segmentEnum(),

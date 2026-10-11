@@ -35,5 +35,11 @@ export const ctaBannerFixture = {
     "label": {
       "vi": "0901 234 500"
     }
-  }
+  },
+  "checklistTitle": { "vi": "Để báo giá nhanh, hãy gửi:", "en": "For a fast quote, send us:" },
+  "checklist": [
+    { "icon": "location", "label": { "vi": "Khu vực lắp đặt", "en": "Installation area" } },
+    { "icon": "power", "label": { "vi": "Công suất mong muốn (kWp) hoặc thiết bị cần dùng", "en": "Desired capacity (kWp) or loads" } },
+    { "icon": "document", "label": { "vi": "Ảnh hóa đơn tiền điện 1–3 tháng gần nhất", "en": "Photo of your last 1–3 electricity bills" } }
+  ]
 } satisfies z.input<typeof ctaBannerSchema>;
