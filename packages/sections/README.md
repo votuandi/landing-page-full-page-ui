@@ -1,9 +1,42 @@
 # @solar/sections
 
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
-(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có đủ 28 type qua E3-S04–S06, xem mục "Type đã có".
+(`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 28 type qua E3-S04–S06 và `load-profile` từ E4-S09.
+
+Bộ C&I: `hero/t06`, `energy-monitoring/t06`, `services/t06`, `investment-models/t05`, `trust/t05`, `process/t05`, `faq/t05`,
+`lead-form/t05` dùng schema theo type. Hero v2 thêm `chart` tùy chọn dùng hai chuỗi 24 điểm và đơn vị trục;
+`migrateHeroV1` giữ nguyên toàn bộ nội dung v1, các preset hiện có không cần đổi dữ liệu.
+`load-profile/t06` là khối phân tích độc lập của t06/t09, schema v1 với hai
+chuỗi 24 điểm, nhãn trục và KPI; dùng entitlement `energyMonitoring` (Nâng cao). `shared/PowerChart.tsx` dùng
+chung trục tự co theo cả hai chuỗi, mốc giờ 00:00–23:00, màu `chart-a`/`chart-b`; dữ liệu nằm trong preset/fixture.
+Form C&I tái dùng island t15 và luồng gửi lead hiện có. FAQ và biểu đồ render trên server, hiện khi tắt JavaScript.
+
+`segments/t13` port lưới bốn thẻ icon kính của template-13. Dùng chung schema/defaults với `segments/t15`
+và `SegmentLink` để đồng bộ phân khúc; link query + anchor vẫn hoạt động khi tắt JavaScript.
+Variant này giữ bố cục icon nên không hiển thị ảnh/mức giảm hóa đơn, nhưng dữ liệu vẫn được giữ khi đổi variant.
+
+`trust/t13` dùng lưới chứng chỉ 2/3/5 cột và lightbox dùng chung với t15. Schema trust v2 thêm `items[].logo`
+tùy chọn để phân biệt logo nhỏ với ảnh chứng chỉ đầy đủ; `migrateTrustV1` giữ nguyên dữ liệu v1 (logo có thể vắng).
+Các phần báo chí, đánh giá và thương hiệu trong khối uy tín gốc t13 được ghép bằng các type riêng khi tạo preset.
+
+E4-S02 thêm variant `t12` cho hero (ảnh vòm, quỹ đạo), calculator (5 bước), segments (thẻ ảnh + kính),
+projects (lưới toàn chiều rộng) và widget contact-dock (thanh mobile + nút nổi kính).
+Calculator t12/t15 dùng cùng schema, dữ liệu, hệ số `@solar/core`, prefill và payload lead; không cần migration.
+T12 trình bày theo `data.steps`; khi tắt JavaScript, tất cả ô nhập và kết quả đã tính vẫn hiện. Các khối packages,
+investment-models, shorts và stats tái sử dụng t15 vì cùng bố cục chính.
+Xem `/lab/sections/calculator?variant=t12&themes=t12,t15` (tương tự hero/segments/projects);
+test trình duyệt: `pnpm --filter @solar/visual exec playwright test -c playwright.t12.config.ts` (dev cổng 3012).
 
 ## Khai báo một type
+
+E4-S10 thêm Classic: `hero/minwy,t02,t03,t04`; `brands/products/blog/about-story/warranty/site-header/site-footer/minwy`;
+`services/process/cta-banner/faq/t02`; `packages/stats/t04`. Hero schema v2 thêm `slides` tùy chọn,
+`migrateHeroV1` giữ nguyên dữ liệu v1. Slider và partners dùng scroll-snap, có nút tạm dừng, không tự chuyển khi
+reduced motion và nội dung vẫn có trong HTML server. Warranty minwy hiển thị chính sách chung, không giả lập API tra cứu.
+
+Type mới `page-hero` (v1) có `eyebrow`, `title`, `subtitle`, `media`, `breadcrumb`/`ctas` tùy chọn và variant mặc định `t03`.
+Xem `/lab/sections/page-hero?variant=t03&themes=t03,t15` hoặc `/lab/presets/t03?subpage=gioi-thieu&theme=t15`;
+không chuyển route trang con công khai. Bằng chứng browser: `pnpm --filter @solar/visual exec playwright test -c playwright.classic.config.ts`.
 
 Đặt definition ở `src/<type>/schema.ts`:
 
@@ -345,3 +378,21 @@ nội bộ như `/bang-gia` điều hướng tới trang đó với prefill, `nu
 Thiếu provider, hook phân khúc dùng state cục bộ và đọc URL; calculator vẫn dùng bus/fallback trang chủ.
 Lab `/lab/sections/*` có provider; `/lab/sections/t15?an=segments` hoặc `?an=calculator` kiểm các section vắng mặt.
 Store quote cart của core giữ nguyên; dự toán lưu qua `saveLastEstimate`/`readLastEstimate`.
+
+## Variant t11 (E4-S05, Giai đoạn 1)
+
+`hero`, `calculator`, `segments`, `projects`, `trust` và widget `contact-dock` có variant t11.
+`t11-fixtures.ts` theo từng type giữ nội dung mẫu của template-11; defaults chung vẫn dùng được cho mọi variant.
+Hero/calculator có `packageSimulation` tùy chọn dùng cùng schema (gói, tỉnh và giả định), mặc định t11 dùng
+fixture mô phỏng đã gắn `[DỮ LIỆU MẪU]`. Calculator có `quoteCta` tùy chọn; thiếu thì liên kết tới `#lien-he`.
+Hero gửi hóa đơn qua calculator bus khi submit. Form GET dùng `hoa-don`, `nguon` và `#du-toan` để giữ fallback
+khi tắt JavaScript; HTML calculator vẫn hiện gói mặc định, URL được áp dụng khi island hydrate.
+
+Segments bổ sung `solarProfile` và `items[].comparison` tùy chọn cho phụ tải 24 giờ; tất cả panel có nội dung
+trong HTML server, sau hydrate mới chuyển thành tabs. Projects có `evidence` tùy chọn liên kết project ID với
+gói/tỉnh; phép mô phỏng và cộng tổng nằm trong core. Trust có `items[].lookupUrl` và `legalItems` tùy chọn;
+nguồn chưa xác minh luôn có nhãn. Các type này tăng schemaVersion 1 → 2, migration ở `<type>/migrations.ts`
+giữ nguyên dữ liệu trước đây vì mọi trường mới đều tùy chọn. Widget dùng schema contact-dock có sẵn.
+
+Kiểm tương tác t11: `tooling/visual/t11.spec.ts` trong suite sections; lab từng section dùng
+`/lab/sections/<type>?variant=t11&themes=t11,t15`. Preset `packages/presets/t11.json`, ảnh so sánh ở `roadmap/evidence/E4/t11/`.

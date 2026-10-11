@@ -3,6 +3,26 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { sectionRegistry } from "../registry";
+
+test("t08 variants render shared defaults and localized tenant content across themes", async () => {
+  const Loadable = (await import("next/dist/shared/lib/loadable.shared-runtime")).default;
+  for (const type of ["segments", "energy-monitoring"]) {
+    const def = sectionRegistry.getType(type)!;
+    const variant = sectionRegistry.getVariant(type, "t08")!;
+    assert.equal(variant.fallback, false);
+    const Component = (await variant.load()).default;
+    await Loadable.preloadAll();
+    for (const themeId of ["t08", "t12", "t15"]) for (const locale of ["vi", "en"] as const) {
+      const data = def.schema.parse({ ...def.defaults as object, title: { vi: "Nội dung khách hàng", en: "Tenant content" } });
+      const html = renderToStaticMarkup(createElement(Component, { data, site: { tenantId: "test", themeId, locale }, sectionId: "t08" }));
+      assert.match(html, locale === "vi" ? /Nội dung khách hàng/ : /Tenant content/);
+      if (type === "segments") {
+        assert.equal((html.match(/<section /g) ?? []).length, 1 + (data as { items: unknown[] }).items.length);
+        assert.match(html, /phan-khuc=/);
+      } else assert.match(html, /text-skin/);
+    }
+  }
+});
 import { applyCollectionQuery } from "../collections/query";
 import { createCollectionLoader } from "../collections/loader";
 import { storySource, testimonialItem } from "../collections/schemas";
@@ -21,9 +41,119 @@ import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
 import StatsT15 from "../stats/t15";
 import Shorts from "../shorts/t15.island";
 import { shorts } from "../shorts/schema";
-import { migrateShortsV1 } from "../shorts/migrations";
+import { migrateShortsV1, migrateShortsV2 } from "../shorts/migrations";
+import { trust } from "../trust/schema";
+import { migrateTrustV1 } from "../trust/migrations";
+import { siteHeader } from "../site-header/schema";
+import { migrateSiteHeaderV1 } from "../site-header/migrations";
 import { pickLocale } from "../fields";
 import type { Locale } from "../site";
+
+test("trust v1 migration preserves content and optional tenant logos across variants", async () => {
+  const original = structuredClone(trust.defaults);
+  assert.equal(trust.schemaVersion, 2);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(original)), original);
+  const logo = { id: "/images/trust/cert-iso-9001.svg", alt: { vi: "Logo chứng chỉ", en: "Certificate logo" } };
+  const data = trust.schema.parse({ ...original, items: [{ ...original.items[0], logo }] });
+  assert.deepEqual(data.items[0].logo, logo);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(data)), data);
+  assert.deepEqual(trust.defaults, original);
+  assert.equal(sectionRegistry.getVariant("trust", "t13")?.fallback, false);
+  for (const variant of ["t13", "t15"]) {
+    const Component = (await sectionRegistry.getVariant("trust", variant)!.load()).default;
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data, site, sectionId: "trust" }));
+    assertText(html, data.items[0].title.vi);
+    if (variant === "t13") {
+      assert.match(html, /grid-cols-2.*sm:grid-cols-3.*lg:grid-cols-5/);
+      assert.match(html, /cert-iso-9001\.svg/);
+    }
+  }
+});
+
+test("trust/t13 renders defaults without logos or certificate images in VI/EN", async () => {
+  const Component = (await sectionRegistry.getVariant("trust", "t13")!.load()).default;
+  await Loadable.preloadAll();
+  const data = trust.schema.parse({ ...trust.defaults, items: trust.defaults.items.map(({ image: _image, ...item }) => item) });
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "trust" }));
+    for (const item of data.items) assertText(html, pickLocale(item.title, locale));
+    assert.doesNotMatch(html, /<img\b/);
+  }
+});
+
+test("t14 project metrics and banner checklist survive schema parsing and v1 migration", async () => {
+  const projectData = { ...sectionRegistry.getType("projects")!.defaults as object, items: [{ ...collectionItems.projects[0],
+    industry: { vi: "Sản xuất", en: "Manufacturing" }, description: { vi: "Dự án mẫu", en: "Sample description" },
+    logoText: "MX", kwhPerYear: 14000, savingPerYear: 32000000, co2PerYear: 9.2 }] };
+  const bannerData = { ...sectionRegistry.getType("cta-banner")!.defaults as object,
+    checklistTitle: { vi: "Để báo giá nhanh", en: "For a fast quote" }, checklist: [{ icon: "location", label: { vi: "Khu vực", en: "Area" } }] };
+  for (const [type, data, name] of [["projects", projectData, "migrateProjectsV1"], ["cta-banner", bannerData, "migrateCtaBannerV1"]] as const) {
+    const def = sectionRegistry.getType(type)!;
+    assert.equal(def.schemaVersion, 2);
+    assert.deepEqual(def.schema.parse(data), data);
+    const migration = await import(`../${type}/migrations`);
+    const original = structuredClone(data);
+    assert.deepEqual(def.schema.parse(migration[name](data)), data);
+    assert.deepEqual(data, original);
+    assert.deepEqual(def.schema.parse(migration[name](def.defaults)), def.defaults);
+  }
+  for (const field of ["kwhPerYear", "savingPerYear", "co2PerYear"]) {
+    assert.equal(projectsSchema.safeParse({ ...projectData, items: [{ ...projectData.items[0], [field]: -1 }] }).success, false);
+  }
+});
+
+test("projects/t14 renders defaults under t14 and t15 without registry fallback", async () => {
+  const def = sectionRegistry.getType("projects")!;
+  const variant = sectionRegistry.getVariant("projects", "t14")!;
+  assert.equal(variant.fallback, false);
+  const Component = (await variant.load()).default;
+  await Loadable.preloadAll();
+  for (const themeId of ["t14", "t15"]) {
+    assert.doesNotThrow(() => renderToStaticMarkup(createElement(Component, { data: def.defaults, site: { ...site, themeId }, sectionId: "projects" })));
+  }
+});
+
+test("cta-banner/t15 renders the optional quote checklist only when present", async () => {
+  const def = sectionRegistry.getType("cta-banner")!;
+  const Component = (await import("../cta-banner/" + "t15")).default;
+  const data = { ...def.defaults as object, checklistTitle: { vi: "Để báo giá nhanh", en: "For a fast quote" },
+    checklist: [{ icon: "location", label: { vi: "Khu vực lắp đặt", en: "Install area" } }] } as typeof def.defaults;
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "cta" }));
+    assertText(html, locale === "en" ? "For a fast quote" : "Để báo giá nhanh");
+    assertText(html, locale === "en" ? "Install area" : "Khu vực lắp đặt");
+  }
+  const plain = { ...def.defaults as object, checklist: undefined };
+  assert.doesNotMatch(renderToStaticMarkup(createElement(Component, { data: plain, site, sectionId: "cta" })), /<ul/);
+});
+
+test("featured projects SSR keeps every project, annual metrics and no-JS quote link in VI/EN", async () => {
+  const Component = (await import("../projects/" + "t14")).default;
+  await Loadable.preloadAll();
+  for (const locale of ["vi", "en"] as const) {
+    const data = projectsSchema.parse({ ...sectionRegistry.getType("projects")!.defaults as object, showFilter: false,
+      items: [1, 2].map((id) => ({ ...collectionItems.projects[0], id: `p${id}`, title: `Sample project ${id}`,
+        industry: { vi: "Sản xuất", en: "Manufacturing" }, description: { vi: "Mô tả", en: "Description" },
+        kwhPerYear: 14000, savingPerYear: 32000000, co2PerYear: 0, video: id === 1 ? { provider: "file", idOrSrc: "/a.mp4" } : undefined })) });
+    const html = renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: "featured" }));
+    assertText(html, "Sample project 1");
+    assertText(html, "Sample project 2");
+    assertText(html, locale === "en" ? "Manufacturing" : "Sản xuất");
+    assert.match(html, /role="tablist"/);
+    assert.match(html, /id="featured-panel-p1"/);
+    assert.match(html, /aria-controls="featured-panel-p1"/);
+    assert.match(html, /kWh/);
+    assert.match(html, /14[.,]000/);
+    assert.match(html, /CO₂/);
+    assert.match(html, /href="\?[^" ]*nguon=story-cta[^" ]*#du-toan"/);
+    assert.equal((html.match(/Watch project video:|Xem video dự án:/g) ?? []).length, 1);
+    const plain = projectsSchema.parse({ ...data, items: collectionItems.projects });
+    const plainHtml = renderToStaticMarkup(createElement(Component, { data: plain, site, sectionId: "plain" }));
+    assert.doesNotMatch(plainHtml, /CO₂|kWh\/|VNĐ\/năm|Watch project video:|Xem video dự án:/);
+    assert.equal(renderToStaticMarkup(createElement(Component, { data: { ...data, items: [] }, site, sectionId: "empty" })), "");
+  }
+});
 
 const collectionItems = {
   projects: [{ id: "p", title: "Sample project", segment: "shop", location: "HCM", kwp: 10, image: { id: "/p.webp", alt: { vi: "Ảnh", en: "Project image" } } }],
@@ -48,6 +178,69 @@ function assertText(html: string, text: string) {
 
 const types = ["projects", "shorts", "stats", "energy-monitoring", "process", "testimonials", "trust", "brands", "faq", "blog", "cta-banner"];
 const site = { tenantId: "test", locale: "vi", themeId: "t15" } as const;
+
+test("C&I variants render shared defaults in VI/EN without a schema fork", async () => {
+  for (const [type, variant] of [["hero", "t06"], ["load-profile", "t06"], ["energy-monitoring", "t06"], ["services", "t06"], ["investment-models", "t05"], ["trust", "t05"], ["process", "t05"], ["faq", "t05"], ["lead-form", "t05"]]) {
+    const def = sectionRegistry.getType(type)!;
+    assert.ok(def, type);
+    const resolved = sectionRegistry.getVariant(type, variant)!;
+    assert.equal(resolved.fallback, false);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const locale of ["vi", "en"] as const) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, site: { ...site, locale }, sectionId: type }));
+      assert.ok(html.includes(`id="${type}-title"`), `${type}/${locale}`);
+      assertText(html, type === "hero" ? pickLocale((def.defaults as { badge: { vi: string } }).badge, locale) : pickLocale((def.defaults as { title: { vi: string } }).title, locale));
+      if (type === "services") for (const item of (def.defaults as { items: { title: { vi: string; en?: string } }[] }).items) assertText(html, pickLocale(item.title, locale));
+    }
+  }
+});
+
+test("load profile rejects invalid daily data and scales both series on a shared axis", async () => {
+  const def = sectionRegistry.getType("load-profile")!;
+  assert.ok(def);
+  const data = def.defaults as { chart: { production: number[]; consumption: number[] } };
+  for (const key of ["production", "consumption"]) for (const series of [Array(23).fill(0), Array(25).fill(0), [...Array(23).fill(0), -1], [...Array(23).fill(0), Infinity]]) {
+    assert.equal(def.schema.safeParse({ ...data, chart: { ...data.chart, [key]: series } }).success, false);
+  }
+  const { powerChartPoints } = await import("../shared/" + "PowerChart");
+  const values = Array(24).fill(0); values[23] = 200;
+  const points = powerChartPoints(values, 200).split(" ");
+  assert.equal(points.length, 24);
+  assert.equal(points[0], "48,194");
+  assert.equal(points[23], "576,18");
+  assert.equal(powerChartPoints(Array(24).fill(0), 0).includes("NaN"), false);
+  const { default: Component } = await sectionRegistry.getVariant("load-profile", "t06")!.load();
+  const html = renderToStaticMarkup(createElement(Component, { data: def.schema.parse({ ...data, chart: { ...data.chart, production: values, consumption: Array(24).fill(100) } }), site, sectionId: "daily" }));
+  assert.match(html, /23:00/);
+  assert.match(html, /role="img"/);
+  assert.equal((html.match(/<polyline/g) ?? []).length, 2);
+  assert.match(html, /points="48,106 [^"]*576,106"/);
+});
+
+test("hero v2 preserves old content and optional daily chart through migration and variant swaps", async () => {
+  const def = sectionRegistry.types.hero;
+  assert.equal(def.schemaVersion, 2);
+  const { migrateHeroV1 } = await import("../hero/" + "migrations");
+  const before = structuredClone(def.defaults);
+  assert.deepEqual(def.schema.parse(migrateHeroV1(def.defaults)), before);
+  const { chart, unit } = sectionRegistry.getType("load-profile")!.defaults as { chart: object; unit: { vi: string } };
+  const custom = def.schema.parse({ ...def.defaults as object, chart: { ...chart, unit } });
+  assert.deepEqual(def.schema.parse(migrateHeroV1(custom)), custom);
+  assert.deepEqual(def.defaults, before);
+  assert.equal(def.schema.safeParse({ ...custom, chart: { ...chart, unit, production: Array(23).fill(0) } }).success, false);
+  for (const variant of ["t06", "t15"]) {
+    const { default: Component } = await sectionRegistry.getVariant("hero", variant)!.load();
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data: custom, site, sectionId: "hero" }));
+    assertText(html, custom.title.highlight.vi);
+    if (variant === "t06") {
+      assert.ok(html.includes('id="hero-title"'));
+      assert.equal((html.match(/<polyline/g) ?? []).length, 2);
+    }
+    assert.deepEqual(def.schema.parse(custom), custom);
+  }
+});
 
 test("11 content types have valid fixtures, files and registry variants", async () => {
   for (const type of types) {
@@ -227,10 +420,45 @@ for (const locale of ["vi", "en"] as const) {
 test("shorts v1 migration adds labels without changing content or overwriting tenant labels", () => {
   const { segmentLabels, ...v1 } = shorts.schema.parse({ ...shorts.defaults, items: collectionItems.shorts });
   const original = structuredClone(v1);
-  assert.equal(shorts.schemaVersion, 2);
+  assert.equal(shorts.schemaVersion, 3);
   assert.deepEqual(shorts.schema.parse(migrateShortsV1(v1)), { ...v1, segmentLabels });
   assert.deepEqual(shorts.schema.parse(v1), { ...v1, segmentLabels });
   const custom = { ...segmentLabels, shop: { vi: "Cửa hàng của khách", en: "Tenant shops" } };
   assert.deepEqual(migrateShortsV1({ ...v1, segmentLabels: custom }).segmentLabels, custom);
   assert.deepEqual(v1, original);
+});
+
+test("v2/v3 migrations keep old rendering: no channels, trust card details, no header controls", () => {
+  const { channels, ...shortsV2 } = shorts.defaults;
+  assert.deepEqual(channels, []);
+  assert.deepEqual(shorts.schema.parse(migrateShortsV2(shortsV2)), shorts.defaults);
+  const { cardDetails, ...trustV1 } = trust.defaults;
+  assert.equal(cardDetails, true);
+  assert.equal(trust.schemaVersion, 2);
+  assert.deepEqual(trust.schema.parse(migrateTrustV1(trustV1)), trust.defaults);
+  assert.equal(migrateTrustV1({ ...trustV1, cardDetails: false }).cardDetails, false);
+  const { controls, ...headerV1 } = siteHeader.defaults;
+  assert.deepEqual(controls, { language: false, theme: false, cart: false });
+  assert.equal(siteHeader.schemaVersion, 2);
+  assert.deepEqual(siteHeader.schema.parse(migrateSiteHeaderV1(headerV1)), siteHeader.defaults);
+  const migrated = migrateSiteHeaderV1(headerV1);
+  assert.deepEqual(migrateSiteHeaderV1(migrated), migrated);
+});
+
+test("shorts channels, trust compact cards and header controls render from data", async () => {
+  const channel = { kind: "tiktok", url: "https://www.tiktok.com/@sample", label: "TikTok mẫu" };
+  const shortsHtml = await renderContent("shorts", { items: collectionItems.shorts, channels: [channel] }, "vi");
+  assert.match(shortsHtml, /href="https:\/\/www\.tiktok\.com\/@sample"/);
+  assert.match(shortsHtml, /TikTok mẫu/);
+  const compact = await renderContent("trust", { cardDetails: false }, "vi");
+  const detailed = await renderContent("trust", {}, "vi");
+  const scope = pickLocale(trust.defaults.items[0].scope, "vi");
+  assert.ok(detailed.includes(scope));
+  assert.ok(!compact.includes(scope), "compact cards keep scope for the lightbox only");
+  assert.ok(compact.includes(pickLocale(trust.defaults.items[0].issuer, "vi")));
+  const header = await renderContent("site-header", { controls: { language: true, theme: true, cart: true } }, "vi");
+  assert.match(header, /data-header-theme="true"/);
+  assert.match(header, /data-header-cart/);
+  assert.match(header, /aria-label="Ngôn ngữ"/);
+  assert.doesNotMatch(await renderContent("site-header", {}, "vi"), /data-header-cart|data-header-theme/);
 });

@@ -151,6 +151,17 @@ test("sectionY ánh xạ đủ ba mức mật độ sang khoảng cách section"
   }
 });
 
+test("screen giữ padding md và min-height theo viewport; mức cũ không ép chiều cao", () => {
+  const screen = parseTheme({ ...t15, density: { ...t15.density, sectionY: "screen" } });
+  const css = themeToCss(screen);
+  assert.match(block(css, lightSelector), /--section-y:80px;/);
+  assert.match(block(css, lightSelector), /--section-min-height:100svh;/);
+  for (const sectionY of ["sm", "md", "lg"] as const) {
+    assert.match(themeToCss({ ...t15, density: { ...t15.density, sectionY } }), /--section-min-height:0px;/);
+  }
+  assert.doesNotMatch(block(css, darkSelector), /--section-min-height:/);
+});
+
 test("hai theme render xen kẽ không lẫn biến hay làm đổi dữ liệu", () => {
   const theme = parseTheme({
     ...t15, meta: { ...t15.meta, id: "second" },

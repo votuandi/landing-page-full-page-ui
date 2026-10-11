@@ -2,12 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Screen density also reaches reused preset variants; explicit variant heights still win. */
+:where([data-section-type]:not([data-section-type^="site-"])) > :where(section) {
+  min-height: var(--section-min-height);
+}
+
+/* Template-7 SVG motion follows the theme speed and only runs when motion is enabled. */
+@media (prefers-reduced-motion:no-preference) {
+  .t07-illustration :is(.ill-sun-rays,.ill-spin,.ill-spin-slow,.ill-pop,.ill-rise,.ill-grow,.ill-float,.ill-drift) { transform-box:fill-box; }
+  .t07-illustration :is(.ill-sun-rays,.ill-spin,.ill-spin-slow) { transform-origin:center; animation:t07-spin calc(var(--motion-base) * 52) linear infinite; }
+  .t07-illustration .ill-spin { animation-duration:calc(var(--motion-base) * 18); }
+  .t07-illustration .ill-spin-slow { animation-duration:calc(var(--motion-base) * 120); }
+  .t07-illustration .ill-flow { stroke-dasharray:6 10; animation:t07-flow calc(var(--motion-base) * 2.4) linear infinite; }
+  .t07-illustration .ill-float { animation:t07-float calc(var(--motion-base) * 10) ease-in-out infinite; animation-delay:calc(var(--i,0) * var(--motion-base) * -2.8); }
+  .t07-illustration .ill-drift { animation:t07-drift calc(var(--motion-base) * 24) ease-in-out infinite; }
+  .t07-illustration :is(.ill-blink,.ill-charge) { animation:t07-blink calc(var(--motion-base) * 4.8) ease-in-out infinite; }
+  [data-shown] .t07-illustration .ill-pop { transform-origin:center; animation:t07-pop var(--motion-slow) var(--motion-ease) both; }
+  [data-shown] .t07-illustration .ill-rise { animation:t07-rise var(--motion-slow) var(--motion-ease) both; }
+  [data-shown] .t07-illustration .ill-grow { transform-origin:50% 100%; animation:t07-grow var(--motion-slow) var(--motion-ease) both; }
+}
+@keyframes t07-spin { to { transform:rotate(360deg); } }
+@keyframes t07-flow { to { stroke-dashoffset:-32; } }
+@keyframes t07-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
+@keyframes t07-drift { 0%,100% { transform:translateX(0); } 50% { transform:translateX(14px); } }
+@keyframes t07-blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+@keyframes t07-pop { from { opacity:0; transform:scale(.4); } to { opacity:1; transform:scale(1); } }
+@keyframes t07-rise { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:none; } }
+@keyframes t07-grow { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+
 /* Biến theme sinh bởi themeToCss (@solar/tokens), inline trong layout. */
 
 /* Section "nhấn" (dự án, số liệu, đại lý, theo dõi 24/7, footer…): light mode = nền pastel sáng, thẻ kính trắng,
    số liệu màu xanh lá; dark mode = nền tối sâu hơn một bậc. */
 .t15-invert {
-  --glass-strong: rgb(var(--c-on-media) / .78);
+  --glass-strong: rgb(var(--c-bg-elevated) / .78); /* = trắng ở t15; theo nền ở theme mặc định tối (t14) */
   --glass-strong-border: rgb(var(--c-primary) / .14);
   --c-accent-ink: var(--c-primary);
   color: rgb(var(--c-fg));
@@ -42,7 +70,7 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
 
 @layer components {
   .t15-container { @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8; }
-  .t15-section { @apply py-16 md:py-24; }
+  .t15-section { @apply min-h-section py-16 md:py-24; }
   .t15-heading { @apply mt-4 max-w-4xl text-display-sm font-black leading-[1.12] tracking-[-.03em] text-fg sm:text-display-lg lg:text-5xl; }
   .t15-subheading { @apply mt-4 max-w-3xl text-base leading-7 text-fg-muted sm:text-lg sm:leading-8; }
   .t15-eyebrow { @apply inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[.08] py-1.5 pl-2 pr-3.5 text-2xs font-black uppercase tracking-[.14em] text-primary; }
@@ -77,6 +105,8 @@ main > section:not(:first-child), footer { content-visibility: auto; contain-int
   .t15-header { @apply sticky top-0 z-50 border-b border-line/10 bg-bg-elevated/85 backdrop-blur-xl; }
   .t15-nav-link { @apply relative whitespace-nowrap text-sm font-bold text-fg-muted transition hover:text-primary; }
   .t15-icon-button { @apply relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line/12 bg-bg-elevated text-fg transition hover:border-primary/40 hover:text-primary; }
+  /* Header có nút sáng/tối thì ẩn widget nổi; nút giỏ trên header chỉ hiện khi trang có widget quote-cart (catalog bật). */
+  body:has([data-header-theme]) [data-widget="theme-switch"], body:not(:has([data-widget="quote-cart"])) [data-header-cart] { display: none; }
   .t15-count { @apply absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-4xs font-black text-on-accent ring-2 ring-bg-elevated; }
   .t15-demo-bar { @apply relative z-[60] bg-primary-deep text-on-media; }
   .t15-demo-link { @apply items-center border-b border-accent/70 font-black text-accent; }

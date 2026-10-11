@@ -12,6 +12,7 @@ const preset: Omit<Config, "content"> = {
       inherit: "inherit",
     },
     extend: {
+      maxWidth: { container: "var(--container)" },
       borderRadius: {
         card: "var(--radius-card)",
         pill: "var(--radius-pill)",
@@ -50,6 +51,7 @@ const preset: Omit<Config, "content"> = {
         "motion-slow": "var(--motion-slow)",
       },
       spacing: { section: "var(--section-y)" },
+      minHeight: { section: "var(--section-min-height)" },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display, var(--font-sans))", "system-ui", "sans-serif"],

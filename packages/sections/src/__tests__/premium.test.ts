@@ -14,13 +14,35 @@ const entitlements: Record<string, string | undefined> = {
   "site-header": undefined, hero: undefined, services: undefined, segments: undefined, calculator: "calculator",
   "lead-form": "leadForm", packages: "packages", "investment-models": "investmentModels", projects: undefined,
   shorts: "shorts", tiktok: "tiktok", stats: "stats", "energy-monitoring": "energyMonitoring", process: undefined,
+  "load-profile": "energyMonitoring",
+  "page-hero": undefined,
   testimonials: "testimonials", trust: "trust", brands: undefined, press: "press", products: "catalog", blog: undefined,
   faq: "faq", warranty: undefined, dealer: "dealer", "branch-map": "branchMap", "cta-banner": undefined,
   social: "social", "about-story": undefined, "site-footer": undefined,
 };
 const site = { tenantId: "test", locale: "vi", themeId: "t15" } as const;
 
-test("registry has exactly the 28 section types and their package entitlements", () => {
+test("social preserves total followers, validates count and migrates v1 losslessly", async () => {
+  const def = sectionRegistry.getType("social")!;
+  const data = { ...def.defaults as object, totalFollowers: 120000, totalFollowersLabel: { vi: "người theo dõi", en: "followers" } };
+  assert.equal(def.schemaVersion, 2);
+  assert.deepEqual(def.schema.parse(data), data);
+  for (const value of [-1, 1.5, Infinity]) assert.equal(def.schema.safeParse({ ...data, totalFollowers: value }).success, false);
+  const migration = await import("../social/" + "migrations");
+  assert.deepEqual(def.schema.parse(migration.migrateSocialV1(data)), data);
+  const Component = (await import("../social/" + "t15")).default;
+  const Loadable = (await import("next/dist/shared/lib/loadable.shared-runtime")).default;
+  await Loadable.preloadAll();
+  for (const locale of ["vi", "en"] as const) {
+    const html = renderToStaticMarkup(createElement(Component, { data: def.schema.parse(data), site: { ...site, locale }, sectionId: "social" }));
+    assert.match(html, /120[.,]000/);
+    assert.ok(html.includes(data.totalFollowersLabel[locale]));
+    const zero = renderToStaticMarkup(createElement(Component, { data: def.schema.parse({ ...data, totalFollowers: 0 }), site, sectionId: "zero" }));
+    assert.match(zero, />0/);
+  }
+});
+
+test("registry has exactly the 30 section types and their package entitlements", () => {
   assert.deepEqual(Object.keys(sectionRegistry.types).sort(), Object.keys(entitlements).sort());
   for (const [type, entitlement] of Object.entries(entitlements)) assert.equal(sectionRegistry.getType(type)?.meta.entitlement, entitlement, type);
 });
@@ -93,3 +115,4 @@ test("all premium variants render locale-aware content; product and map links su
     }
   }
 });
+

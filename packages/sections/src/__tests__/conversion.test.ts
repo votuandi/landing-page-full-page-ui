@@ -3,6 +3,47 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { calculateSolar } from "@solar/core";
+
+test("t07 variants render shared defaults in VI/EN under t07 and t15", async () => {
+  for (const type of ["hero", "segments", "energy-monitoring", "process"]) {
+    const def = sectionRegistry.getType(type)!;
+    const resolved = sectionRegistry.getVariant(type, "t07")!;
+    assert.equal(resolved.fallback, false, type);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const themeId of ["t07", "t15"]) for (const locale of ["vi", "en"] as const) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, sectionId: `${type}-test`, site: { tenantId: "test", locale, themeId } }));
+      assert.ok(html.length > 100, `${type}/${themeId}/${locale}`);
+      assert.match(html, /min-h-section/);
+    }
+  }
+});
+
+test("segments/t07 displays core estimates with declared sample assumptions and unique local anchors", async () => {
+  const { default: Component } = await sectionRegistry.getVariant("segments", "t07")!.load();
+  const props = { data: segments.defaults, sectionId: "solutions", site: { tenantId: "test", locale: "vi", themeId: "t07" } as const };
+  const html = renderToStaticMarkup(createElement(Component, props));
+  const params = toCalculatorParams(calculator.defaults);
+  const inputs = [
+    { segment: "factory", monthlyBill: 120_000_000, daytimeRatio: 45 },
+    { segment: "shop", monthlyBill: 12_000_000, daytimeRatio: 40 },
+    { segment: "household", monthlyBill: 3_000_000, daytimeRatio: 35 },
+  ] as const;
+  for (const input of inputs) {
+    const result = calculateSolar({ ...input, roofArea: 50_000, province: "TP Hồ Chí Minh" }, params);
+    const value = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 2 }).format(result.monthlySavings / 1_000_000);
+    assert.ok(html.includes(value), `core saving: ${input.segment}`);
+    assert.ok(html.includes(`href="#solutions-${input.segment}"`));
+    assert.ok(html.includes(`id="solutions-${input.segment}"`));
+  }
+  assert.ok(html.includes("[DỮ LIỆU MẪU]"));
+  assert.ok(html.includes("50.000"));
+  const edited = segments.schema.parse({ ...segments.defaults, items: [{ ...segments.defaults.items[0], pitch: { vi: "Nội dung của khách" }, saving: "17%" }] });
+  const custom = renderToStaticMarkup(createElement(Component, { ...props, data: edited }));
+  assert.ok(custom.includes("Nội dung của khách"));
+  assert.ok(custom.includes("17%"));
+  assert.ok(!custom.includes('id="solutions-factory"'));
+});
 import { sectionRegistry } from "../registry";
 import { calculator } from "../calculator/schema";
 import { calculatorFixture } from "../calculator/fixtures";
@@ -20,6 +61,82 @@ import { siteFooterFixture } from "../site-footer/fixtures";
 import { siteHeader } from "../site-header/schema";
 import { siteHeaderFixture } from "../site-header/fixtures";
 import { mediaSrc } from "../shared/media";
+import { packageSimulationFixture } from "../shared/packageSimulationFixture";
+import { migrateHeroV1 } from "../hero/migrations";
+import { migrateCalculatorV1 } from "../calculator/migrations";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
+import { widgetRegistry } from "../widgets/registry";
+import { migrateSegmentsV1 } from "../segments/migrations";
+import { migrateProjectsV1 } from "../projects/migrations";
+import { migrateTrustV1 } from "../trust/migrations";
+
+test("source t11 fixtures and optional-field migrations retain all data", async () => {
+  for (const type of ["hero", "calculator", "segments", "projects", "trust"]) {
+    const def = sectionRegistry.getType(type)!;
+    const { t11Fixture } = await import(`../${type}/t11-fixtures`);
+    const parsed = def.schema.safeParse(t11Fixture);
+    assert.ok(parsed.success, `${type}: ${parsed.error?.message}`);
+    const { default: Component } = await sectionRegistry.getVariant(type, "t11")!.load();
+    await Loadable.preloadAll();
+    const html = renderToStaticMarkup(createElement(Component, { data: parsed.data, sectionId: type, site: { tenantId: "test", locale: "vi", themeId: "t11" } }));
+    assert.ok(html.length > 100, type);
+    if (type === "segments") { assert.match(html, /stroke-chart-a/); assert.match(html, /stroke-chart-b/); assert.doesNotMatch(html, / hidden=""/); }
+    if (type === "trust") assert.match(html, /Dữ liệu pháp lý chưa xác minh/);
+    const invalid = clone(t11Fixture);
+    if (type === "segments") invalid.items[0].comparison.consumption[0] = 101;
+    else if (type === "projects") invalid.evidence.cases[0].packageId = "missing-package";
+    else if (type === "trust") invalid.items[0].lookupUrl = "javascript:alert(1)";
+    else invalid.packageSimulation.provinces.push(invalid.packageSimulation.provinces[0]);
+    assert.equal(def.schema.safeParse(invalid).success, false, `${type}: invalid simulation/content boundary`);
+  }
+  for (const [type, migrate] of [["segments", migrateSegmentsV1], ["projects", migrateProjectsV1], ["trust", migrateTrustV1]] as const) {
+    const def = sectionRegistry.getType(type)!;
+    assert.equal(def.schemaVersion, 2);
+    const previous = def.defaults as Record<string, unknown>;
+    assert.deepEqual(migrate(previous), previous);
+    assert.ok(def.schema.safeParse(migrate(previous)).success);
+  }
+});
+
+test("all t11 variants render shared defaults in t11/t15, including bill form GET fallback", async () => {
+  const entries = ["hero", "calculator", "segments", "projects", "trust"];
+  for (const type of entries) {
+    const def = sectionRegistry.getType(type)!;
+    const resolved = sectionRegistry.getVariant(type, "t11")!;
+    assert.equal(resolved.fallback, false, type);
+    const { default: Component } = await resolved.load();
+    await Loadable.preloadAll();
+    for (const themeId of ["t11", "t15"]) {
+      const html = renderToStaticMarkup(createElement(Component, { data: def.defaults, sectionId: type, site: { tenantId: "test", locale: "vi", themeId } }));
+      assert.ok(html.length > 100, `${type}/${themeId}`);
+      if (type === "hero") {
+        assert.match(html, /action="#du-toan" method="get"/);
+        assert.match(html, /name="hoa-don"/);
+      }
+      if (type === "calculator") { assert.match(html, /Sao chép thông tin gói/); assert.match(html, /fill-chart-a/); assert.match(html, /stroke-chart-b/); }
+    }
+  }
+  const dock = widgetRegistry.getVariant("contact-dock", "t11")!;
+  assert.equal(dock.fallback, false);
+  const { default: Dock } = await dock.load();
+  const { t11Fixture } = await import("../widgets/contact-dock/t11-fixtures");
+  assert.ok(widgetRegistry.types["contact-dock"].schema.safeParse(t11Fixture).success);
+  assert.match(renderToStaticMarkup(createElement(Dock, { data: widgetRegistry.types["contact-dock"].defaults, sectionId: "dock", site: { tenantId: "test", locale: "vi", themeId: "t11" } })), /tel:0901234567/);
+});
+
+test("package simulation is optional shared data; migrations preserve existing tenant content", () => {
+  for (const [def, migrate] of [[hero, migrateHeroV1], [calculator, migrateCalculatorV1]] as const) {
+    assert.equal(def.schemaVersion, 2);
+    const original = { ...def.defaults, packageSimulation: packageSimulationFixture };
+    assert.deepEqual(migrate(original), original);
+    assert.deepEqual((def.schema.parse(original) as typeof original).packageSimulation, packageSimulationFixture);
+    const invalid = clone(original);
+    invalid.packageSimulation.defaultProvince = "missing";
+    assert.equal(def.schema.safeParse(invalid).success, false);
+  }
+});
 
 const SRC = resolve(__dirname, "../../../../src");
 const TYPES = [

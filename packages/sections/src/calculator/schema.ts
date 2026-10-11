@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { PROVINCES, type Region } from "@solar/core";
 import { defineSectionType } from "../define";
-import { localized } from "../fields";
+import { link, localized } from "../fields";
 import { SEGMENTS, segmentEnum, uniqueBy } from "../shared/schema";
 import { calculatorFixture } from "./fixtures";
+import { packageSimulationSchema } from "../shared/packageSimulation";
 
 const REGIONS = ["bac-bo", "bac-trung-bo", "nam-trung-bo", "tay-nguyen", "nam-bo"] as const satisfies readonly Region[];
 const vnd = () => z.number().positive().max(1e12);
@@ -24,6 +25,8 @@ const tariff = z.discriminatedUnion("kind", [
 export const CALCULATOR_STEPS = ["segment", "bill", "roof", "province", "ratio"] as const;
 
 export const calculatorSchema = z.object({
+  packageSimulation: packageSimulationSchema.optional(),
+  quoteCta: link().optional(),
   eyebrow: localized({ max: 60 }),
   title: z.object({ lead: localized({ max: 100 }), highlight: localized({ max: 40 }) }),
   description: localized({ multiline: true, max: 300 }),
@@ -69,7 +72,7 @@ export const calculatorSchema = z.object({
 
 export const calculator = defineSectionType({
   type: "calculator",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: calculatorSchema,
   defaults: calculatorSchema.parse(calculatorFixture),
   meta: { label: { vi: "Dự toán chi phí", en: "Cost estimator" }, icon: "calculator", entitlement: "calculator", maxPerPage: 1 },

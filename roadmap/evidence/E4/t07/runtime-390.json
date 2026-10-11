@@ -1,0 +1,58 @@
+{
+  "errors": [],
+  "consoleMessages": [
+    "Image with src \"/images/t07/solar-home-hero.webp\" was detected as the Largest Contentful Paint (LCP). Please add the `loading=\"eager\"` property if this image is above the fold.\nRead more: https://nextjs.org/docs/app/api-reference/components/image#loading",
+    "Image with src \"/images/t07/solar-home-hero.webp\" was detected as the Largest Contentful Paint (LCP). Please add the `loading=\"eager\"` property if this image is above the fold.\nRead more: https://nextjs.org/docs/app/api-reference/components/image#loading"
+  ],
+  "failedResponses": [],
+  "checks": [
+    {
+      "theme": "t07",
+      "viewport": 390,
+      "scrollWidth": 390,
+      "primary": "21 91 215",
+      "heights": [
+        {
+          "height": 844,
+          "minHeight": "844px"
+        },
+        {
+          "height": 1053,
+          "minHeight": "844px"
+        },
+        {
+          "height": 1008,
+          "minHeight": "844px"
+        },
+        {
+          "height": 1008,
+          "minHeight": "844px"
+        }
+      ]
+    },
+    {
+      "theme": "t15",
+      "viewport": 390,
+      "scrollWidth": 390,
+      "primary": "21 128 61",
+      "heights": [
+        {
+          "height": 826.296875,
+          "minHeight": "0px"
+        },
+        {
+          "height": 1053,
+          "minHeight": "0px"
+        },
+        {
+          "height": 1053,
+          "minHeight": "0px"
+        },
+        {
+          "height": 1008,
+          "minHeight": "0px"
+        }
+      ]
+    }
+  ]
+}

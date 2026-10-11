@@ -1,5 +1,41 @@
 # Hồi quy ảnh t15
 
+## Preset E4
+
+`/lab/presets` liệt kê preset; `/lab/presets/<id>?theme=<themeId>` render toàn bộ preset bằng theme chọn.
+Production cần `LAB_ENABLED=true`. `/lab/legacy-home` giữ app cũ độc lập làm mốc E4, xóa ở E5-S04.
+
+```sh
+pnpm --filter web build
+LAB_ENABLED=true pnpm --filter web start --port 3210
+pnpm --filter @solar/visual exec playwright test -c playwright.sections.config.ts
+node tooling/visual/ttfb.mjs http://localhost:3210/lab/legacy-home http://localhost:3210/ --n 50
+node tooling/visual/template-compare.mjs t15 --app http://localhost:3210
+```
+
+PowerShell: đặt `$env:LAB_ENABLED = 'true'` trước lệnh start. Giữ cùng build/máy/cấu hình khi đo TTFB.
+Script warm-up mỗi URL 5 lần, đo tuần tự xen kẽ 50 request mỗi URL tới lúc nhận response headers, in median/p90 (ms)
+và % chênh. HTTP khác 200 hoặc timeout làm phép đo fail. `/` hiện được prerender, lab render động; báo cáo phải
+ghi rõ khác biệt cache này khi diễn giải số liệu, không coi nó là phép đo riêng chi phí `PageRenderer`.
+
+`preset-home.spec.ts` so PNG full page legacy với `/` ngay trong cùng test ở 390/1440 và luôn ghi tỷ lệ pixel khác
+(annotation `preset-match` + `roadmap/evidence/E4/t15/match.json`). Mục tiêu 0,5% chỉ chặn khi `PRESET_MATCH_STRICT=1`
+(chiều cao một số section còn lệch nên CI chỉ ghi số đo).
+Expected luôn lấy từ route legacy độc lập, không lấy từ trang mới. Mask chỉ marquee, iframe/video và counter;
+không che section bị lệch. JPEG q15 (4 ảnh dưới 3 MB) lưu trong `roadmap/evidence/E4/t15/{legacy,preset}-{390,1440}.jpg` cho design pass.
+Spec kiểm route/theme không tồn tại, chrome không trùng, dark mode trên trang con, giỏ và menu mobile.
+
+`template-compare.mjs <id> [--port 4100] [--out <dir>] [--app <url>]` đọc `source.branch`, tạo/reuse detached
+worktree `../.solar-template-worktrees/<branch>`, kiểm nó khớp `origin/<branch>`, cài theo lockfile rồi chạy Next dev.
+Chụp `/` gốc và `/lab/presets/<id>` của app đang chạy ở 390/1440, reduced motion, fonts/images sẵn sàng.
+Media demo bị Git ignore được liên kết từ `apps/web/public/{images,videos,news,products}` khi worktree thiếu thư mục đó.
+Lưu JPEG q45 `before-<width>.jpg`, `after-<width>.jpg`; tổng vượt 3 MB thì chụp lại ở quality thấp hơn.
+In tổng byte/MB, đóng browser/server khi xong.
+Không chạy script này trong turbo test. Cần quyền ghi Git/worktree và thư mục ngoài repo; Codex sandbox hiện tại
+không có quyền đó, Claude chạy bước này trong design pass. Worktree được giữ để tái sử dụng.
+
+Ảnh evidence, baseline và log bị ignore, đính kèm PR qua playbook thay vì commit.
+
 `@solar/visual` là package kiểm tra dành cho dev/CI, không thêm dependency runtime.
 12 route đại diện cho toàn bộ loại trang hiện tại × 390×844 / 1440×900 × light / dark = **48 ảnh Chromium**.
 Slug cố định và nguồn dữ liệu nằm trong `routes.ts`. Catalog bật mặc định nên cả `/san-pham` và chi tiết

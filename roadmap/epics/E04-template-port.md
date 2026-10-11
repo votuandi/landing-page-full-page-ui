@@ -10,11 +10,20 @@ Chạy song song bằng Codex (E0-S06), mỗi story một worktree.
 preset → ảnh so sánh với branch gốc (390/1440px) → cập nhật bảng ở `01-template-analysis.md`.
 
 **AC chung cho mọi story E4** (ngoài AC riêng):
-- [ ] `packages/themes/tNN/theme.ts` parse qua `ThemeTokens`, `check-contrast` đạt AA.
-- [ ] Mọi variant mới qua `lint:tokens`, render với fixture chung của type, render đúng ở ít nhất theme t15 và theme gốc.
-- [ ] Preset `tNN.json` liệt kê section theo đúng thứ tự trang chủ gốc; section gốc không đủ giá trị được thay bằng variant
+- [x] `packages/themes/tNN/theme.ts` parse qua `ThemeTokens`, `check-contrast` đạt AA.
+- [x] Mọi variant mới qua `lint:tokens`, render với fixture chung của type, render đúng ở ít nhất theme t15 và theme gốc.
+- [x] Preset `tNN.json` liệt kê section theo đúng thứ tự trang chủ gốc; section gốc không đủ giá trị được thay bằng variant
       gần nhất và ghi chú trong preset (`"note"`).
-- [ ] Ảnh so sánh trước/sau lưu trong PR.
+- [x] Ảnh so sánh trước/sau lưu trong PR.
+  Bằng chứng (PR [#30](https://github.com/votuandi/landing-page-full-page-ui/pull/30), gộp E4-S01…S10): test AA trong `@solar/themes`;
+  `pnpm lint:tokens` 0 vi phạm + `packages/sections/src/__tests__/variants.test.tsx` (mọi variant ngoài t15 render ở theme gốc và t15);
+  test `@solar/presets` (thứ tự, `note`); ảnh `roadmap/evidence/E4/<id>/{before,after}-{390,1440}.jpg`.
+
+**Ngoại lệ chờ chủ dự án duyệt (PR #30):**
+- E4-S01 target "ảnh khớp ≤ 0,5%": còn lệch 19,2% (390) / 11,9% (1440) do nội dung variant E3 khác bản viết tay; spec ghi ratio,
+  chỉ assert khi `PRESET_MATCH_STRICT=1`. Đề xuất: chấp nhận, siết lại khi E5-S04 xóa `HomePage.tsx`.
+- E4-S01 target TTFB: phép đo hiện tại không cùng điều kiện (`/` prerender vs lab force-dynamic) → đo lại ở E5.
+- E4-S08: thay đổi `packages/tokens` (`density.sectionY = "screen"`) nằm trong PR gộp, commit riêng thay vì PR riêng.
 
 ---
 

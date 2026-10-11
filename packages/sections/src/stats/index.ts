@@ -1,4 +1,4 @@
 import { defineVariants } from "../define";
 import { stats } from "./schema";
 
-export const variants = defineVariants(stats, "t15", { t15: () => import("./t15") });
+export const variants = defineVariants(stats, "t15", { t15: () => import("./t15"), t10: () => import("./t10"), t04: () => import("./t04") });

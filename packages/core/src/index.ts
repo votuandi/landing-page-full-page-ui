@@ -1,4 +1,5 @@
 export * from "./solarCalculator";
+export * from "./solarPackages";
 export * from "./format";
 export * from "./price";
 export * from "./phone";

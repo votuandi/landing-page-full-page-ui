@@ -53,11 +53,15 @@ export const siteHeaderSchema = z.object({
   cta: link(),
   /** Nút cuối menu mobile (tư vấn, Zalo…). */
   drawerActions: z.array(link()).max(3),
+  /** Điều khiển trên header (v2): VI/EN, sáng/tối (thay widget theme-switch nổi), giỏ báo giá (chỉ hiện khi có widget quote-cart). */
+  controls: z.object({
+    language: z.boolean().default(false), theme: z.boolean().default(false), cart: z.boolean().default(false),
+  }).default({ language: false, theme: false, cart: false }),
 });
 
 export const siteHeader = defineSectionType({
   type: "site-header",
-  schemaVersion: 1,
+  schemaVersion: 2,
   schema: siteHeaderSchema,
   defaults: siteHeaderSchema.parse(siteHeaderFixture),
   meta: { label: { vi: "Đầu trang", en: "Site header" }, icon: "menu", maxPerPage: 1 },

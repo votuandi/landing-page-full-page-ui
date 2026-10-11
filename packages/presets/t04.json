@@ -1,0 +1,1036 @@
+{
+  "id": "t04",
+  "name": "Classic · Solar Engineering",
+  "group": "classic",
+  "themeId": "t04",
+  "description": "[DỮ LIỆU MẪU] Preset Classic gói Cơ bản; khối gói cao hơn tắt mặc định.",
+  "source": {
+    "branch": "template-4"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tư vấn, cung cấp thiết bị và thi công điện mặt trời"
+          }
+        ],
+        "menus": [],
+        "links": [
+          {
+            "kind": "page",
+            "value": "",
+            "label": {
+              "vi": "Trang chủ"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "ve-chung-toi",
+            "label": {
+              "vi": "Giới thiệu"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "giai-phap",
+            "label": {
+              "vi": "Giải pháp"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "projects",
+            "label": {
+              "vi": "Dự án"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline tư vấn"
+        },
+        "hotlines": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "main": "0901234567",
+            "lines": []
+          }
+        ],
+        "cta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Nhận tư vấn"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "phone",
+            "value": "0901234567",
+            "label": {
+              "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+            }
+          }
+        ]
+      },
+      "note": "Header gần nhất: site-header/minwy; menu đơn giản theo nội dung Classic."
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t04",
+      "enabled": true,
+      "data": {
+        "badge": {
+          "vi": "Solar engineering cho Việt Nam"
+        },
+        "title": {
+          "lead": {
+            "vi": "Giảm tiền điện hôm nay."
+          },
+          "highlight": {
+            "vi": "Chủ động năng lượng"
+          },
+          "sub": {
+            "vi": "nhiều năm tới."
+          },
+          "subHighlight": {
+            "vi": ""
+          }
+        },
+        "description": {
+          "vi": "Từ thiết bị chính hãng đến khảo sát, thiết kế và thi công trọn gói — một hệ thống solar được tính theo nhu cầu thật, không bán cấu hình dư."
+        },
+        "primaryCta": {
+          "kind": "page",
+          "value": "lien-he",
+          "label": {
+            "vi": "Tư vấn phương án tiết kiệm"
+          }
+        },
+        "secondaryCta": {
+          "kind": "anchor",
+          "value": "projects",
+          "label": {
+            "vi": "Xem dự án thực tế"
+          }
+        },
+        "rating": {
+          "score": 4.9,
+          "count": 312,
+          "url": "https://www.google.com/maps",
+          "label": {
+            "vi": "đánh giá Google",
+            "en": "Google reviews"
+          }
+        },
+        "stats": [],
+        "image": {
+          "id": "/images/solar-panels-hero.jpg",
+          "alt": {
+            "vi": "Hệ thống điện mặt trời áp mái"
+          }
+        },
+        "chips": [],
+        "outputCard": {
+          "label": {
+            "vi": "[DỮ LIỆU MẪU] Hóa đơn"
+          },
+          "value": "4,2",
+          "unit": {
+            "vi": "triệu"
+          },
+          "liveLabel": "Mẫu"
+        },
+        "savingCard": {
+          "label": {
+            "vi": "[DỮ LIỆU MẪU] Đề xuất"
+          },
+          "value": "8",
+          "unit": {
+            "vi": "kWp"
+          }
+        },
+        "co2Card": {
+          "label": {
+            "vi": "[DỮ LIỆU MẪU] Tiết kiệm"
+          },
+          "value": "2,9",
+          "unit": {
+            "vi": "triệu"
+          }
+        }
+      },
+      "note": "CTA dự toán gốc đổi thành liên hệ vì calculator bị tắt trong gói Cơ bản."
+    },
+    {
+      "id": "stats",
+      "type": "stats",
+      "variant": "t04",
+      "enabled": false,
+      "data": {
+        "items": [
+          {
+            "value": 10,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Năm kinh nghiệm"
+            }
+          },
+          {
+            "value": 1000,
+            "suffix": {
+              "vi": "+"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Dự án"
+            }
+          },
+          {
+            "value": 50,
+            "suffix": {
+              "vi": " MWp"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Công suất"
+            }
+          },
+          {
+            "value": 98,
+            "suffix": {
+              "vi": "%"
+            },
+            "label": {
+              "vi": "[DỮ LIỆU MẪU] Hài lòng"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t12",
+      "enabled": false,
+      "note": "Calculator gốc dùng logic riêng; tái dùng t12 + @solar/core, tắt theo gói Cơ bản."
+    },
+    {
+      "id": "packages",
+      "type": "packages",
+      "variant": "t04",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "Combo trọn gói"
+        },
+        "title": {
+          "vi": "Bắt đầu từ cấu hình dễ hiểu"
+        },
+        "segments": [
+          {
+            "segment": "household",
+            "label": {
+              "vi": "Hộ gia đình",
+              "en": "Households"
+            },
+            "short": {
+              "vi": "Hộ gia đình",
+              "en": "Homes"
+            },
+            "pitch": {
+              "vi": "Cắt phần điện bậc 5–6 đắt nhất, có điện buổi tối với pin lưu trữ.",
+              "en": "Cut the priciest tariff tiers; keep the lights on at night with storage."
+            },
+            "cover": {
+              "id": "/images/illustrations/home-solar-tall.webp",
+              "alt": {
+                "vi": ""
+              }
+            }
+          }
+        ],
+        "defaultSegment": "household",
+        "items": [
+          {
+            "id": "home-3",
+            "name": {
+              "vi": "[DỮ LIỆU MẪU] Home 3 kWp"
+            },
+            "kwp": 3,
+            "price": 45000000,
+            "segment": "household",
+            "suitableFor": {
+              "vi": "Hộ 2–4 người"
+            },
+            "monthlySaving": 1100000,
+            "highlights": [
+              {
+                "vi": "6 tấm pin hiệu suất cao"
+              },
+              {
+                "vi": "Inverter hòa lưới 3 kW"
+              },
+              {
+                "vi": "Giám sát qua ứng dụng"
+              }
+            ]
+          },
+          {
+            "id": "home-5",
+            "name": {
+              "vi": "[DỮ LIỆU MẪU] Home 5 kWp"
+            },
+            "kwp": 5,
+            "price": 68000000,
+            "segment": "household",
+            "suitableFor": {
+              "vi": "Gia đình dùng điện nhiều"
+            },
+            "monthlySaving": 1800000,
+            "highlights": [
+              {
+                "vi": "10 tấm pin hiệu suất cao"
+              },
+              {
+                "vi": "Inverter 5 kW"
+              },
+              {
+                "vi": "Tủ bảo vệ AC/DC"
+              }
+            ]
+          },
+          {
+            "id": "hybrid-10",
+            "name": {
+              "vi": "[DỮ LIỆU MẪU] Hybrid 10 kWp"
+            },
+            "kwp": 10,
+            "price": 165000000,
+            "segment": "household",
+            "suitableFor": {
+              "vi": "Nhà ở / cửa hàng cần dự phòng"
+            },
+            "monthlySaving": 3600000,
+            "highlights": [
+              {
+                "vi": "Hệ hybrid 10 kW"
+              },
+              {
+                "vi": "Pin lưu trữ 10 kWh"
+              },
+              {
+                "vi": "Backup tải ưu tiên"
+              }
+            ]
+          }
+        ],
+        "maxPerSegment": 3,
+        "ctaLabel": {
+          "vi": "Nhận tư vấn gói này",
+          "en": "Get advice on this package"
+        },
+        "savingLabel": {
+          "vi": "Giảm tiền điện",
+          "en": "Bill savings"
+        },
+        "popularLabel": {
+          "vi": "Chọn nhiều",
+          "en": "Popular"
+        },
+        "footnote": {
+          "vi": "[DỮ LIỆU MẪU] Giá và tiết kiệm tham khảo; cần khảo sát để báo giá."
+        }
+      }
+    },
+    {
+      "id": "solutions",
+      "type": "services",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Giải pháp theo nhu cầu"
+        },
+        "title": {
+          "vi": "Không có một cấu hình đúng cho tất cả"
+        },
+        "items": [
+          {
+            "id": "home",
+            "title": {
+              "vi": "Hộ gia đình"
+            },
+            "image": {
+              "id": "/images/solar-battery-hero.jpg",
+              "alt": {
+                "vi": "Hộ gia đình"
+              }
+            },
+            "points": [
+              {
+                "vi": "Giảm hóa đơn, tăng chủ động, ưu tiên thẩm mỹ và vận hành đơn giản."
+              }
+            ],
+            "segment": "household",
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          },
+          {
+            "id": "business",
+            "title": {
+              "vi": "Doanh nghiệp – nhà xưởng"
+            },
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Doanh nghiệp – nhà xưởng"
+              }
+            },
+            "points": [
+              {
+                "vi": "Tối ưu điện ban ngày, theo dõi ROI và bảo đảm tiêu chuẩn kỹ thuật."
+              }
+            ],
+            "segment": "factory",
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          },
+          {
+            "id": "dealer",
+            "title": {
+              "vi": "Đại lý – thợ thi công"
+            },
+            "image": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Đại lý – thợ thi công"
+              }
+            },
+            "points": [
+              {
+                "vi": "Nguồn thiết bị, tư vấn cấu hình, tài liệu kỹ thuật và hỗ trợ sau bán."
+              }
+            ],
+            "link": {
+              "kind": "page",
+              "value": "giai-phap",
+              "label": {
+                "vi": "Xem giải pháp ↗"
+              }
+            }
+          }
+        ],
+        "videos": [],
+        "ctaLabel": {
+          "vi": "Dự toán cho phân khúc này",
+          "en": "Estimate for this segment"
+        }
+      },
+      "note": "Giải pháp theo nhu cầu (3 thẻ icon Hộ gia đình / Doanh nghiệp – nhà xưởng / Đại lý – thợ thi công) map sang services/t02 gần nhất; variant cần ảnh nên giữ ảnh minh họa."
+    },
+    {
+      "id": "process",
+      "type": "process",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Quy trình kỹ thuật"
+        },
+        "title": {
+          "vi": "Từ mái nhà đến hệ thống vận hành ổn định"
+        },
+        "outputLabel": {
+          "vi": "Đầu ra"
+        },
+        "steps": [
+          {
+            "title": {
+              "vi": "Khảo sát"
+            },
+            "description": {
+              "vi": "Mái, phụ tải, hướng nắng, bóng che và nhu cầu sử dụng."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Thiết kế"
+            },
+            "description": {
+              "vi": "Cấu hình công suất, thiết bị, sơ đồ điện và dự toán sản lượng."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Thi công"
+            },
+            "description": {
+              "vi": "Lắp đặt kết cấu, DC/AC, chống sét và kiểm tra an toàn."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Nghiệm thu"
+            },
+            "description": {
+              "vi": "Đo kiểm, bàn giao ứng dụng giám sát và hướng dẫn vận hành."
+            },
+            "output": {
+              "vi": ""
+            }
+          },
+          {
+            "title": {
+              "vi": "Bảo trì"
+            },
+            "description": {
+              "vi": "Theo dõi hiệu suất và hỗ trợ kỹ thuật trong vòng đời hệ thống."
+            },
+            "output": {
+              "vi": ""
+            }
+          }
+        ]
+      },
+      "note": "Quy trình kỹ thuật map sang process/t02; lưới bước gần nhất, chờ design pass."
+    },
+    {
+      "id": "projects",
+      "type": "projects",
+      "variant": "t12",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Dự án tiêu biểu"
+        },
+        "title": {
+          "vi": "Hiệu quả được kể bằng công trình"
+        },
+        "query": {
+          "limit": 3
+        },
+        "items": [
+          {
+            "id": "xuong-an-phat",
+            "title": "[DỮ LIỆU MẪU] Nhà xưởng An Phát",
+            "segment": "factory",
+            "location": "Bình Dương",
+            "kwp": 320,
+            "savingPerMonth": 78000000,
+            "image": {
+              "id": "/images/news-1.jpg",
+              "alt": {
+                "vi": "Nhà xưởng An Phát"
+              }
+            },
+            "href": "/cong-trinh/xuong-an-phat"
+          },
+          {
+            "id": "biet-thu-riverside",
+            "title": "[DỮ LIỆU MẪU] Biệt thự Riverside",
+            "segment": "household",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 12,
+            "savingPerMonth": 4800000,
+            "image": {
+              "id": "/images/news-2.jpg",
+              "alt": {
+                "vi": "Biệt thự Riverside"
+              }
+            },
+            "href": "/cong-trinh/biet-thu-riverside"
+          },
+          {
+            "id": "kho-lanh-minh-thanh",
+            "title": "[DỮ LIỆU MẪU] Kho lạnh Minh Thành",
+            "segment": "factory",
+            "location": "Long An",
+            "kwp": 180,
+            "savingPerMonth": 43000000,
+            "image": {
+              "id": "/images/news-4.jpg",
+              "alt": {
+                "vi": "Kho lạnh Minh Thành"
+              }
+            },
+            "href": "/cong-trinh/kho-lanh-minh-thanh"
+          }
+        ],
+        "showFilter": false,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "note": "Lưới dự án gần nhất: projects/t12, giữ ảnh và số liệu HomeExperience.",
+      "anchor": "projects"
+    },
+    {
+      "id": "testimonials",
+      "type": "testimonials",
+      "variant": "t15",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "Khách hàng nói gì",
+          "en": "[SAMPLE DATA] What clients say"
+        },
+        "title": {
+          "vi": "Niềm tin đến từ những hóa đơn điện thật.",
+          "en": "Trust built on real electricity bills."
+        },
+        "query": {
+          "filter": {},
+          "limit": 6
+        },
+        "items": [
+          {
+            "id": "customer-home",
+            "name": "[DỮ LIỆU MẪU] Khách hàng gia đình",
+            "segment": "household",
+            "location": "TP. Hồ Chí Minh",
+            "kwp": 5,
+            "quote": "[DỮ LIỆU MẪU] Hệ thống được khảo sát và thiết kế theo nhu cầu thực tế.",
+            "rating": 5
+          }
+        ],
+        "ratings": [
+          {
+            "label": {
+              "vi": "Google",
+              "en": "Google [SAMPLE DATA]"
+            },
+            "score": 4.9,
+            "count": 1280,
+            "url": "https://www.google.com/maps"
+          }
+        ],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      },
+      "note": "Đánh giá khách hàng dùng t15 gần nhất; thuộc Nâng cao."
+    },
+    {
+      "id": "partners",
+      "type": "brands",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Đồng hành cùng năng lượng sạch"
+        },
+        "title": {
+          "vi": "Đối tác của chúng tôi"
+        },
+        "description": {
+          "vi": "[DỮ LIỆU MẪU] Logo đối tác minh họa từ template gốc; cần xác nhận trước khi xuất bản."
+        },
+        "groups": [
+          {
+            "id": "partners",
+            "label": {
+              "vi": "Đối tác"
+            }
+          }
+        ],
+        "items": [
+          {
+            "name": {
+              "vi": "An Khang Pharmacy"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/Logo-Nha-Thuoc-An-Khang-.webp",
+              "alt": {
+                "vi": "An Khang Pharmacy"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Thế Giới Di Động"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/logo-the-gioi-di-dong-2.jpg",
+              "alt": {
+                "vi": "Thế Giới Di Động"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Bách Hóa Xanh"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/logo-bach-hoa-xanh-compressed.jpg",
+              "alt": {
+                "vi": "Bách Hóa Xanh"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 1"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/1-4748-hinh.png",
+              "alt": {
+                "vi": "Đối tác 1"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 2"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/3-1114-hinh.jpg",
+              "alt": {
+                "vi": "Đối tác 2"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 3"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/4-7734-hinh.png",
+              "alt": {
+                "vi": "Đối tác 3"
+              }
+            }
+          },
+          {
+            "name": {
+              "vi": "Đối tác 4"
+            },
+            "group": "partners",
+            "logo": {
+              "id": "/images/partners/images.jpg",
+              "alt": {
+                "vi": "Đối tác 4"
+              }
+            }
+          }
+        ]
+      },
+      "note": "Dải thương hiệu map sang brands/minwy gần nhất."
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t02",
+      "enabled": false,
+      "data": {
+        "eyebrow": {
+          "vi": "04 / CÂU HỎI THƯỜNG GẶP"
+        },
+        "title": {
+          "vi": "Những câu hỏi trước khi lắp solar"
+        },
+        "items": [
+          {
+            "question": {
+              "vi": "Lắp điện mặt trời bao lâu thì hoàn vốn?"
+            },
+            "answer": {
+              "vi": "Tùy mức tiêu thụ, tỷ lệ tự dùng và khu vực nắng. Với hệ được thiết kế đúng tải, thời gian tham khảo thường khoảng 4–7 năm."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mái tôn có lắp được không?"
+            },
+            "answer": {
+              "vi": "Có. Đội kỹ thuật sẽ khảo sát kết cấu, hướng mái, điểm bắt rail và phương án chống thấm trước khi chốt thiết kế."
+            }
+          },
+          {
+            "question": {
+              "vi": "Mất điện thì hệ solar có dùng được không?"
+            },
+            "answer": {
+              "vi": "Hệ hòa lưới tiêu chuẩn sẽ dừng để bảo đảm an toàn. Nếu cần điện dự phòng, nên chọn hệ hybrid có pin lưu trữ."
+            }
+          },
+          {
+            "question": {
+              "vi": "Có bảo hành và theo dõi sau lắp đặt không?"
+            },
+            "answer": {
+              "vi": "Có. Thiết bị có chính sách bảo hành theo hãng, hệ thống được bàn giao kèm giám sát sản lượng và lịch bảo trì khuyến nghị."
+            }
+          }
+        ],
+        "jsonLd": true
+      },
+      "note": "FAQ dùng details t02 gần nhất; thuộc Nâng cao."
+    },
+    {
+      "id": "quote",
+      "type": "lead-form",
+      "variant": "t15",
+      "enabled": false,
+      "note": "Form 1 phút gốc chỉ mô phỏng gửi; form lead thật t15 dùng adapter hiện có, tắt theo gói."
+    },
+    {
+      "id": "contact-basic",
+      "type": "cta-banner",
+      "variant": "t02",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "SẴN SÀNG CHO MỘT KHỞI ĐẦU XANH?"
+        },
+        "title": {
+          "vi": "Trao đổi phương án cho mái nhà của bạn"
+        },
+        "description": {
+          "vi": "Gọi để trao đổi hóa đơn điện và nhu cầu sử dụng."
+        },
+        "image": {
+          "id": "/images/services/service_1772898001151.webp",
+          "alt": {
+            "vi": ""
+          }
+        },
+        "primaryCta": {
+          "kind": "phone",
+          "value": "0901234567",
+          "label": {
+            "vi": "Gọi tư vấn · [DỮ LIỆU MẪU]"
+          }
+        },
+        "checklistTitle": {
+          "vi": "Để báo giá nhanh, hãy gửi:",
+          "en": "For a fast quote, send us:"
+        },
+        "checklist": [
+          {
+            "icon": "location",
+            "label": {
+              "vi": "Khu vực lắp đặt",
+              "en": "Installation area"
+            }
+          },
+          {
+            "icon": "power",
+            "label": {
+              "vi": "Công suất mong muốn (kWp) hoặc thiết bị cần dùng",
+              "en": "Desired capacity (kWp) or loads"
+            }
+          },
+          {
+            "icon": "document",
+            "label": {
+              "vi": "Ảnh hóa đơn tiền điện 1–3 tháng gần nhất",
+              "en": "Photo of your last 1–3 electricity bills"
+            }
+          }
+        ]
+      },
+      "note": "CTA liên hệ đơn giản thay đường vào form Nâng cao đang tắt; giữ khả năng liên hệ của gói Cơ bản."
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "minwy",
+      "enabled": true,
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Giải pháp năng lượng mặt trời cho gia đình và doanh nghiệp."
+          }
+        },
+        "socials": [],
+        "legal": {
+          "legalName": "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "[DỮ LIỆU MẪU] Thông tin doanh nghiệp cần được thay trước khi xuất bản."
+            }
+          ],
+          "badges": [],
+          "moitBadge": {
+            "enabled": false
+          }
+        },
+        "branchesTitle": {
+          "vi": "Liên hệ"
+        },
+        "branches": [
+          {
+            "name": "[DỮ LIỆU MẪU] Văn phòng",
+            "stores": [
+              {
+                "name": "Tư vấn điện mặt trời",
+                "phone": "0901234567",
+                "address": "[DỮ LIỆU MẪU] Việt Nam"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Về chúng tôi"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Giới thiệu"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "giai-phap",
+                "label": {
+                  "vi": "Giải pháp"
+                }
+              },
+              {
+                "kind": "anchor",
+                "value": "projects",
+                "label": {
+                  "vi": "Dự án"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Hỗ trợ"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "chinh-sach/bao-hanh",
+                "label": {
+                  "vi": "Bảo hành"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "Khảo sát và tư vấn theo nhu cầu thực tế."
+        },
+        "disclaimer": [
+          {
+            "vi": "[DỮ LIỆU MẪU] Tên công ty, số điện thoại và số liệu chỉ để minh họa."
+          }
+        ]
+      },
+      "note": "Footer cổ điển dùng minwy; khác nhận diện ở theme."
+    }
+  ],
+  "widgets": {}
+}

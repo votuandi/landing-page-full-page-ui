@@ -43,6 +43,101 @@ Dữ liệu lấy bằng `git ls-tree` / `git grep` trên `origin/<branch>` ngà
 Kết luận: t12–t15 port gần như **chỉ di chuyển file** (đã đọc token). t10, t11 cần map biến CSS riêng sang token.
 t03–t09 cần thay 100–155 màu cứng mỗi branch → port chọn lọc. minwy, t02 ít màu cứng nhưng ít section giá trị.
 
+**Đã port — t15 (E4-S01, chờ design pass):** theme `packages/themes/t15`, variant `t15` của E3 và
+[`packages/presets/t15.json`](../packages/presets/t15.json). Trang chủ render qua `@solar/presets` + `PageRenderer`;
+24 khối bật, 2 khối tùy chọn tắt, header/footer và 7 widget. Xem `/lab/presets/t15`, mốc cũ `/lab/legacy-home`.
+Nghiệm thu ảnh ≤ 0,5% và ảnh branch gốc còn chờ Claude design pass; không đánh dấu AC chung E4 thay các preset khác.
+
+**Đã port — t13 (E4-S03, chờ design pass):** theme `packages/themes/t13` (Warm Sand, light-only), variant
+`segments/t13`, `trust/t13` (trust schema v2 thêm `logo` tùy chọn) và [`packages/presets/t13.json`](../packages/presets/t13.json)
+theo thứ tự `HomeT8`; TrustSection gốc tách thành trust → press → testimonials → brands liền nhau. Shorts, products,
+blog, FAQ, consult-popup, commitments-strip tái dùng `t15` (cùng bố cục, `note` trong preset). Ảnh before/after:
+`roadmap/evidence/E4/t13/`. Xem `/lab/presets/t13`, `?theme=t15`.
+
+**Đã port — t14 (E4-S04, chờ design pass):** theme `packages/themes/t14` (emerald tối mặc định, bảng thứ hai Sky & Sun),
+variant mới `projects/t14` (FeaturedProjects: tab khách hàng + số liệu năm), [`packages/presets/t14.json`](../packages/presets/t14.json)
+theo thứ tự `HomeT14`. Các khối còn lại dùng variant t15 (bản gốc t14 ≈ t15, khác ở theme); checklist EngineerBanner và
+tổng người theo dõi được thêm vào `cta-banner/t15`, `social/t15` qua trường tùy chọn. Xem `/lab/presets/t14`.
+
+**Đã port — t12 (E4-S02, chờ design pass):** theme `packages/themes/t12` (Sky & Sun / dark Emerald Dusk), variant
+`hero/t12`, `calculator/t12` (5 bước, cùng schema với t15), `segments/t12`, `projects/t12`, widget `contact-dock/t12`;
+[`packages/presets/t12.json`](../packages/presets/t12.json) theo thứ tự `HomeT8`, khối inline cuối file map sang
+`process`/`warranty`/`testimonials`/`faq`/`lead-form` t15. Packages, InvestmentModels, VideoStories, Stats dùng t15
+(cùng bố cục). Ảnh trước/sau: `roadmap/evidence/E4/t12/`. Xem `/lab/presets/t12`, `?theme=t15`.
+
+**Đã port — t11 (E4-S05, chờ design pass):** theme `packages/themes/t11`; variant `t11` cho hero, calculator,
+segments, projects, trust và widget contact-dock; mô phỏng gói (`solar-calc`) gộp vào `@solar/core`
+(`solarPackages`). [`packages/presets/t11.json`](../packages/presets/t11.json) theo thứ tự `SolarHome`: header,
+hero, vấn đề (process/t15), calculator, segments, projects, trust, FAQ (faq/t15), lead-form (`home-bottom`), footer.
+Xem `/lab/presets/t11`, ảnh trước/sau ở `roadmap/evidence/E4/t11/`.
+
+**Đã port — t08 (E4-S07, chờ design pass):** theme `packages/themes/t08` (Pro, navy + vàng, sky/beige, Inter,
+glass mạnh), variant `segments/t08` (lưới + khối ảnh/chữ toàn màn hình), `energy-monitoring/t08` (bố cục navy,
+tái dùng minh họa tay/điện thoại t15) và [`packages/presets/t08.json`](../packages/presets/t08.json) theo thứ tự
+`HomeT8`. Hero vòm dùng `hero/t12`; bảo hành/form chia đôi dùng `warranty/t15`, `lead-form/t15` để tránh nhân đôi.
+Calculator dùng `calculator/t12`; khối chính sách dùng `faq/t15` với JSON-LD tắt. `note` ghi các thay thế/rút gọn,
+không đổi schema chung. Ảnh after 390/1440 và đổi theme t15: `roadmap/evidence/E4/t08/`; before chờ Claude.
+Xem `/lab/presets/t08`, `?theme=t15` và `/lab/sections/matrix`.
+
+**Đã port — t10 (E4-S06, chờ design pass):** theme `packages/themes/t10` (Inter; navy `#0d3b78` → `primary`,
+`--solar-green #087a55` → `secondary`, mint `#b8efcc` → `accent`, `#effbf3` → `bg-tint`, `#dbe9ff` → `bg-sky`,
+`--t8-ink` → `fg`/`bg-deep`; không dark), 13 variant `t10` (`hero`, `services`, `segments` = BenefitHeroes, `brands` =
+ClientWall, `stats`, `projects`, `investment-models`, `energy-monitoring`, `process`, `testimonials`, `trust`, `faq`,
+`lead-form`) + widget `contact-dock/t10`, và [`packages/presets/t10.json`](../packages/presets/t10.json) theo thứ tự
+`src/app/page.tsx`. `SegmentContext` → `useSegment()`. Thay bằng variant gần nhất (có `note`): header/footer `t15`,
+Partners `brands/t15`, Calculator `calculator/t15`. Xem `/lab/presets/t10` (`?theme=t15`), ảnh ở `roadmap/evidence/E4/t10/`.
+
+**Đã port — t07 (E4-S08, chờ design pass):** theme `packages/themes/t07` (xanh dương/vàng/be, Inter, light-only),
+token `density.sectionY: "screen"`; variant `hero/t07`, `segments/t07` (giới thiệu + 3 khối toàn màn hình, tính bằng core),
+`energy-monitoring/t07`, `process/t07` và SVG minh họa theo token.
+[`packages/presets/t07.json`](../packages/presets/t07.json) theo thứ tự `SolarHomePage`, kể cả 4 khối con của
+`SolarInvestmentDetails` qua variant sẵn có có `note`; thay RoiCalculator bằng `calculator/t12`.
+Dự án và phản hồi có dữ liệu inline cho lab. Ảnh after 390/1440 và đổi sang t15:
+`roadmap/evidence/E4/t07/`. Xem `/lab/presets/t07`, `?theme=t15`; Claude chụp before ở design pass.
+
+**Đã port — t05 (E4-S09, chờ design pass):** theme `packages/themes/t05` (navy-vàng, Inter, radius 14px),
+[`packages/presets/t05.json`](../packages/presets/t05.json) theo thứ tự `HomeT5`. Bộ C&I dùng chung:
+`hero/t06`, `investment-models/t05`, `trust/t05`, `process/t05`, `faq/t05`, `lead-form/t05`;
+`services/t06` hiện đồng thời các giải pháp; calculator, projects, warranty, testimonials, brands, header/footer tái dùng t15 với `note`.
+Phụ tải/giám sát là tùy chọn tắt. Xem `/lab/presets/t05`, `?theme=t15`; ảnh ở `roadmap/evidence/E4/t05/`.
+
+**Đã port — t06 (E4-S09, chờ design pass):** theme `packages/themes/t06` (navy-burgundy-vàng, card/media vuông),
+[`packages/presets/t06.json`](../packages/presets/t06.json) theo thứ tự `IndustrialSolarHomepage`.
+`load-profile/t06` port khối phụ tải độc lập, `energy-monitoring/t06` dùng PowerChart 24h màu chart token.
+Sơ đồ một sợi dùng lưới bốn nút `services/t06`; dashboard tháng và hồ sơ CFO map vào schema chung, có `note`. Xem `/lab/presets/t06`, `?theme=t15`;
+ảnh ở `roadmap/evidence/E4/t06/`. Hero schema v2 thêm `chart` tùy chọn + migration giữ dữ liệu v1.
+
+**Đã port — t09 (E4-S09, chờ design pass):** theme `packages/themes/t09` (navy đậm-burgundy-vàng, kính tối),
+[`packages/presets/t09.json`](../packages/presets/t09.json) theo thứ tự `IndustrialSolarHomepage`, dùng chung bộ
+variant C&I với t05/t06. Xem `/lab/presets/t09`, `?theme=t15`; ảnh ở `roadmap/evidence/E4/t09/`.
+Ảnh before và tinh chỉnh thẩm mỹ còn chờ Claude design pass; AC chung E4 không tick ở worktree này.
+
+**Đã port — t01 (E4-S10, chờ design pass):** theme `packages/themes/t01` (Minwy, Inter), variant
+`hero/minwy` (slider), `brands/minwy`, `products/minwy` (danh mục), `blog/minwy`, `about-story/minwy`,
+`warranty/minwy`, `site-header/minwy`, `site-footer/minwy` và [`packages/presets/t01.json`](../packages/presets/t01.json).
+Giữ thứ tự trang chủ minwy, Hero giới thiệu map sang about-story; projects dùng t12 gần nhất. Catalog tắt theo gói
+Cơ bản; warranty là khối trang con tắt trên homepage. Hero schema v2 thêm slides tùy chọn + migration giữ dữ liệu cũ.
+Ảnh after 390/1440 và theme t15 ở `roadmap/evidence/E4/t01/`; xem `/lab/presets/t01`, `?theme=t15`.
+
+**Đã port — t02 (E4-S10, chờ design pass):** theme `packages/themes/t02` (xanh rừng, vàng nắng, nền giấy, Inter),
+variant `hero/t02`, `services/t02`, `process/t02`, `cta-banner/t02`, `faq/t02` (details không JS) và
+[`packages/presets/t02.json`](../packages/presets/t02.json) theo thứ tự HOME_CONTENT. Header/footer dùng minwy,
+equipment dùng products/minwy gần nhất; equipment và FAQ tắt theo gói Cơ bản. Ảnh after:
+`roadmap/evidence/E4/t02/`; xem `/lab/presets/t02`, `?theme=t15`.
+
+**Đã port — t03 (E4-S10, chờ design pass):** theme `packages/themes/t03` (ấm, đất nung/vàng, Inter), `hero/t03`,
+type mới `page-hero` v1 + variant `t03` (WarmPageHero) và [`packages/presets/t03.json`](../packages/presets/t03.json).
+Slider cùng bố cục minwy; SolarBenefits/SolarExpertise dùng services/t02 và about-story/minwy với note, giữ nội dung
+gốc. Catalog tắt. Trang con chỉ preview trong lab: `/lab/presets/t03?subpage=gioi-thieu` hoặc `subpage=dich-vu`;
+không đổi route công khai. Ảnh after ở `roadmap/evidence/E4/t03/`; kiểm theme bằng `?theme=t15`.
+
+**Đã port — t04 (E4-S10, chờ design pass):** theme `packages/themes/t04` (emerald, lime, hình khối thẳng, Inter),
+`hero/t04`, `packages/t04`, `stats/t04` và [`packages/presets/t04.json`](../packages/presets/t04.json) theo thứ tự
+HomeExperience. Services/process/brands/projects dùng variant gần nhất có note; calculator, packages, stats,
+testimonials, FAQ, lead-form tắt theo gói Cơ bản, CTA liên hệ đơn giản thay lối vào form đang tắt. Bốn Classic
+được kiểm bằng `BASIC_SECTION_TYPES` trong @solar/presets (bảng tạm đến E6). Ảnh after:
+`roadmap/evidence/E4/t04/`; xem `/lab/presets/t04`, `?theme=t15`. Ảnh before chờ Claude design pass.
+
 ## 3. Danh mục section type (đề xuất 28 type)
 
 Cột "Variant" liệt kê template có bản đáng làm variant. **Đậm** = bản đề xuất làm variant mặc định của type.

@@ -71,7 +71,7 @@ function PhoneDashboard({ data, t, sectionId }: { data: Data; t: Translate; sect
   );
 }
 
-function HandHoldingPhone({ data, t, sectionId }: { data: Data; t: Translate; sectionId: string }) {
+export function HandHoldingPhone({ data, t, sectionId }: { data: Data; t: Translate; sectionId: string }) {
   const mask = "linear-gradient(to bottom, black 82%, transparent)"; // mask chỉ dùng kênh alpha, không phải màu hiển thị
   const fade = { maskImage: mask, WebkitMaskImage: mask };
   return (

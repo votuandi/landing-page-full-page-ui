@@ -1,0 +1,1485 @@
+{
+  "id": "t13",
+  "name": "Signature · Warm Sand",
+  "group": "signature",
+  "themeId": "t13",
+  "description": "[DỮ LIỆU MẪU] Trang chủ Signature t13: nền cát ấm, đất nung + teal, lắp đặt điện mặt trời theo phân khúc.",
+  "source": {
+    "branch": "template-13"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "site-header",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Header gốc SiteShell (topbar hotline + nav + giỏ báo giá + Nhận tư vấn) là nguồn của site-header/t15. Topbar hotline theo mục đích → nhóm hotline; không có mega menu.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar"
+        },
+        "topBar": [],
+        "menus": [],
+        "links": [
+          {
+            "kind": "anchor",
+            "value": "goi-giai-phap",
+            "label": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "du-toan",
+            "label": {
+              "vi": "Dự toán",
+              "en": "Estimate"
+            }
+          },
+          {
+            "kind": "anchor",
+            "value": "cong-trinh",
+            "label": {
+              "vi": "Công trình",
+              "en": "Projects"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "san-pham",
+            "label": {
+              "vi": "Sản phẩm",
+              "en": "Products"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "tin-tuc",
+            "label": {
+              "vi": "Tin tức",
+              "en": "News"
+            }
+          },
+          {
+            "kind": "page",
+            "value": "lien-he",
+            "label": {
+              "vi": "Liên hệ",
+              "en": "Contact"
+            }
+          }
+        ],
+        "mobileLinks": [],
+        "hotlineLabel": {
+          "vi": "Hotline",
+          "en": "Hotline"
+        },
+        "hotlines": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "main": "0901 234 567",
+            "lines": [
+              {
+                "label": {
+                  "vi": "Tư vấn lắp đặt",
+                  "en": "Installation"
+                },
+                "phone": "0901 234 567"
+              },
+              {
+                "label": {
+                  "vi": "Dự án doanh nghiệp",
+                  "en": "Business projects"
+                },
+                "phone": "0902 345 678"
+              },
+              {
+                "label": {
+                  "vi": "Bảo hành",
+                  "en": "Warranty"
+                },
+                "phone": "1900 6868"
+              }
+            ]
+          }
+        ],
+        "cta": {
+          "kind": "calculator",
+          "value": "",
+          "label": {
+            "vi": "Nhận tư vấn",
+            "en": "Get advice"
+          }
+        },
+        "drawerActions": [
+          {
+            "kind": "calculator",
+            "value": "",
+            "label": {
+              "vi": "Nhận tư vấn",
+              "en": "Get advice"
+            }
+          },
+          {
+            "kind": "zalo",
+            "value": "0901 234 567",
+            "label": {
+              "vi": "Chat Zalo",
+              "en": "Chat on Zalo"
+            }
+          }
+        ],
+        "controls": {
+          "language": false,
+          "theme": false,
+          "cart": true
+        }
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "t15",
+      "enabled": true,
+      "note": "HeroT8 của t13 là nguồn của hero/t15; khác ở theme. Bản gốc không có thẻ CO₂ (thay bằng thẻ đánh giá Google).",
+      "data": {
+        "badge": {
+          "vi": "Hộ gia đình • Cửa hàng • Nhà xưởng • Trang trại",
+          "en": "Homes • Shops • Factories • Farms"
+        },
+        "title": {
+          "lead": {
+            "vi": "Mỗi tháng trả",
+            "en": "Pay"
+          },
+          "highlight": {
+            "vi": "ít tiền điện",
+            "en": "less for power"
+          },
+          "sub": {
+            "vi": "hơn — nhờ chính",
+            "en": "every month — thanks to"
+          },
+          "subHighlight": {
+            "vi": "mái nhà của bạn",
+            "en": "your own roof"
+          }
+        },
+        "description": {
+          "vi": "Lắp đặt điện mặt trời trọn gói và cung cấp thiết bị, đèn năng lượng mặt trời chính hãng. Xem công trình thật, biết chi phí và số tiền tiết kiệm trước khi gọi.",
+          "en": "Turnkey solar installation plus genuine equipment and solar lights. See real projects and know the cost and savings before you call."
+        },
+        "primaryCta": {
+          "kind": "anchor",
+          "value": "du-toan",
+          "label": {
+            "vi": "Dự toán chi phí",
+            "en": "Estimate cost"
+          }
+        },
+        "secondaryCta": {
+          "kind": "anchor",
+          "value": "video-cong-trinh",
+          "label": {
+            "vi": "Xem công trình thực tế",
+            "en": "Watch real projects"
+          }
+        },
+        "rating": {
+          "score": 4.9,
+          "count": 312,
+          "url": "https://www.google.com/maps",
+          "label": {
+            "vi": "đánh giá Google",
+            "en": "Google reviews"
+          }
+        },
+        "stats": [
+          {
+            "value": 12,
+            "suffix": "+",
+            "unit": {
+              "vi": "năm",
+              "en": "yrs"
+            },
+            "label": {
+              "vi": "kinh nghiệm",
+              "en": "experience"
+            }
+          },
+          {
+            "value": 42.5,
+            "decimals": 1,
+            "unit": {
+              "vi": "MWp",
+              "en": "MWp"
+            },
+            "label": {
+              "vi": "đã lắp đặt",
+              "en": "installed"
+            }
+          },
+          {
+            "value": 3200,
+            "suffix": "+",
+            "unit": {
+              "vi": "khách",
+              "en": "clients"
+            },
+            "label": {
+              "vi": "đang dùng điện mặt trời",
+              "en": "on solar power"
+            }
+          }
+        ],
+        "image": {
+          "id": "/images/services/service_1772895565903.webp",
+          "alt": {
+            "vi": "Kỹ sư kiểm tra hệ thống điện mặt trời áp mái",
+            "en": "Engineer inspecting a rooftop solar system"
+          },
+          "focal": {
+            "x": 0.72,
+            "y": 0.5
+          }
+        },
+        "chips": [
+          {
+            "label": {
+              "vi": "Tấm pin N-type 580W",
+              "en": "N-type 580W panels"
+            },
+            "icon": "sun",
+            "tone": "accent"
+          },
+          {
+            "label": {
+              "vi": "Inverter hybrid",
+              "en": "Hybrid inverter"
+            },
+            "icon": "cpu",
+            "tone": "secondary"
+          },
+          {
+            "label": {
+              "vi": "Đèn năng lượng mặt trời",
+              "en": "Solar lights"
+            },
+            "icon": "light",
+            "tone": "primary"
+          }
+        ],
+        "outputCard": {
+          "label": {
+            "vi": "Sản lượng hôm nay",
+            "en": "Today's output"
+          },
+          "value": "48,6",
+          "unit": {
+            "vi": "kWh"
+          },
+          "liveLabel": "Live"
+        },
+        "savingCard": {
+          "label": {
+            "vi": "Hóa đơn giảm",
+            "en": "Bill reduced"
+          },
+          "value": "−1,2 triệu",
+          "unit": {
+            "vi": "/ tháng*",
+            "en": "/ month*"
+          }
+        }
+      }
+    },
+    {
+      "id": "segments",
+      "type": "segments",
+      "variant": "t13",
+      "enabled": true,
+      "anchor": "phan-khuc"
+    },
+    {
+      "id": "stories",
+      "type": "shorts",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Video công trình",
+          "en": "[SAMPLE DATA] Project videos"
+        },
+        "title": {
+          "vi": "Thi công & bàn giao thực tế — xem trước khi quyết định.",
+          "en": "Real installs & handovers — watch before you decide."
+        },
+        "description": {
+          "vi": "Video ngắn từ công trình minh họa.",
+          "en": "Short videos from sample projects."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "nha-pho-binh-thanh",
+            "title": "Nhà phố 6 kWp lắp xong trong 1 ngày",
+            "location": "TP Hồ Chí Minh",
+            "kwp": 6,
+            "segment": "household",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/ho-gia-dinh-1.webp",
+              "alt": {
+                "vi": "Nhà phố 6 kWp lắp xong trong 1 ngày"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "tiem-tap-hoa-can-tho",
+            "title": "Siêu thị mini giảm 40% tiền điện mỗi tháng",
+            "location": "Cần Thơ",
+            "kwp": 15,
+            "segment": "shop",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/cua-hang-1.webp",
+              "alt": {
+                "vi": "Siêu thị mini giảm 40% tiền điện mỗi tháng"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-1.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "xuong-co-khi-dong-nai",
+            "title": "Thi công mái xưởng cơ khí không dừng máy",
+            "location": "Đồng Nai",
+            "kwp": 250,
+            "segment": "factory",
+            "kind": "progress",
+            "poster": {
+              "id": "/images/shorts/nha-xuong-1.webp",
+              "alt": {
+                "vi": "Thi công mái xưởng cơ khí không dừng máy"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "trai-ga-tay-ninh",
+            "title": "Trại gà 120 kWp chạy quạt hút bằng nắng",
+            "location": "Tây Ninh",
+            "kwp": 120,
+            "segment": "farm",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/trang-trai-1.webp",
+              "alt": {
+                "vi": "Trại gà 120 kWp chạy quạt hút bằng nắng"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "biet-thu-da-lat",
+            "title": "Biệt thự hybrid vẫn có điện khi cúp điện",
+            "location": "Lâm Đồng",
+            "kwp": 10,
+            "segment": "household",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/ho-gia-dinh-2.webp",
+              "alt": {
+                "vi": "Biệt thự hybrid vẫn có điện khi cúp điện"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "chuoi-cafe-da-nang",
+            "title": "Chuỗi cà phê lắp đồng loạt 3 chi nhánh",
+            "location": "Đà Nẵng",
+            "kwp": 30,
+            "segment": "shop",
+            "kind": "progress",
+            "poster": {
+              "id": "/images/shorts/cua-hang-2.webp",
+              "alt": {
+                "vi": "Chuỗi cà phê lắp đồng loạt 3 chi nhánh"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-2.mp4"
+            }
+          },
+          {
+            "id": "kho-lanh-long-an",
+            "title": "Kho lạnh 500 kWp bàn giao sau 6 tuần",
+            "location": "Tây Ninh",
+            "kwp": 500,
+            "segment": "factory",
+            "kind": "done",
+            "poster": {
+              "id": "/images/shorts/nha-xuong-2.webp",
+              "alt": {
+                "vi": "Kho lạnh 500 kWp bàn giao sau 6 tuần"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "trai-heo-dong-thap",
+            "title": "Chủ trại heo kể chuyện tiền điện giảm một nửa",
+            "location": "Đồng Tháp",
+            "kwp": 80,
+            "segment": "farm",
+            "kind": "customer",
+            "poster": {
+              "id": "/images/shorts/trang-trai-2.webp",
+              "alt": {
+                "vi": "Chủ trại heo kể chuyện tiền điện giảm một nửa"
+              }
+            },
+            "source": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-2.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          }
+        ],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "kindLabels": {
+          "progress": {
+            "vi": "Đang thi công",
+            "en": "In progress"
+          },
+          "done": {
+            "vi": "Hoàn thành",
+            "en": "Completed"
+          },
+          "customer": {
+            "vi": "Khách hàng chia sẻ",
+            "en": "Client stories"
+          }
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "anchor": "video-cong-trinh",
+      "note": "Tái dùng shorts/t15: VideoStories cùng carousel video dọc, lọc phân khúc, trình phát; khác ở theme."
+    },
+    {
+      "id": "packages",
+      "type": "packages",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "goi-giai-phap"
+    },
+    {
+      "id": "calculator",
+      "type": "calculator",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "du-toan",
+      "note": "SolarEstimator của t13 là nguồn của calculator/t15."
+    },
+    {
+      "id": "projects-gallery",
+      "type": "projects",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Công trình đã thực hiện",
+          "en": "[SAMPLE DATA] Completed projects"
+        },
+        "title": {
+          "vi": "Hơn 12.500 khách hàng đã dùng điện từ nắng.",
+          "en": "12,500+ clients already run on sunshine."
+        },
+        "query": {
+          "filter": {},
+          "limit": 8
+        },
+        "items": [
+          {
+            "id": "nha-pho-binh-thanh",
+            "title": "Nhà phố 3 tầng Bình Thạnh",
+            "segment": "household",
+            "location": "TP Hồ Chí Minh",
+            "kwp": 6,
+            "savingPerMonth": 1650000,
+            "image": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "Nhà phố 3 tầng Bình Thạnh"
+              }
+            },
+            "href": "/cong-trinh/nha-pho-binh-thanh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "biet-thu-da-lat",
+            "title": "Biệt thự hybrid Đà Lạt",
+            "segment": "household",
+            "location": "Lâm Đồng",
+            "kwp": 10,
+            "savingPerMonth": 2300000,
+            "image": {
+              "id": "/images/solar-battery-hero.jpg",
+              "alt": {
+                "vi": "Biệt thự hybrid Đà Lạt"
+              }
+            },
+            "href": "/cong-trinh/biet-thu-da-lat",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/ho-gia-dinh-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "sieu-thi-mini-can-tho",
+            "title": "Siêu thị mini Ninh Kiều",
+            "segment": "shop",
+            "location": "Cần Thơ",
+            "kwp": 15,
+            "savingPerMonth": 4800000,
+            "image": {
+              "id": "/images/illustrations/shop-solar.webp",
+              "alt": {
+                "vi": "Siêu thị mini Ninh Kiều"
+              }
+            },
+            "href": "/cong-trinh/sieu-thi-mini-can-tho",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-1.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "chuoi-cafe-da-nang",
+            "title": "Chuỗi cà phê 3 chi nhánh",
+            "segment": "shop",
+            "location": "Đà Nẵng",
+            "kwp": 30,
+            "savingPerMonth": 9200000,
+            "image": {
+              "id": "/images/solar-inverter-hero.jpg",
+              "alt": {
+                "vi": "Chuỗi cà phê 3 chi nhánh"
+              }
+            },
+            "href": "/cong-trinh/chuoi-cafe-da-nang",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/cua-hang-2.mp4"
+            }
+          },
+          {
+            "id": "xuong-co-khi-dong-nai",
+            "title": "Xưởng cơ khí Biên Hòa",
+            "segment": "factory",
+            "location": "Đồng Nai",
+            "kwp": 250,
+            "savingPerMonth": 52000000,
+            "image": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Xưởng cơ khí Biên Hòa"
+              }
+            },
+            "href": "/cong-trinh/xuong-co-khi-dong-nai",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "kho-lanh-tay-ninh",
+            "title": "Kho lạnh nông sản",
+            "segment": "factory",
+            "location": "Tây Ninh",
+            "kwp": 500,
+            "savingPerMonth": 98000000,
+            "image": {
+              "id": "/images/illustrations/cold-storage-solar.webp",
+              "alt": {
+                "vi": "Kho lạnh nông sản"
+              }
+            },
+            "href": "/cong-trinh/kho-lanh-tay-ninh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/nha-xuong-2.mp4",
+              "originalUrl": "https://www.youtube.com/@lumivolt.demo/shorts"
+            }
+          },
+          {
+            "id": "trai-ga-tay-ninh",
+            "title": "Trại gà đẻ 40.000 con",
+            "segment": "farm",
+            "location": "Tây Ninh",
+            "kwp": 120,
+            "savingPerMonth": 26000000,
+            "image": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Trại gà đẻ 40.000 con"
+              }
+            },
+            "href": "/cong-trinh/trai-ga-tay-ninh",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-1.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          },
+          {
+            "id": "trai-heo-dong-thap",
+            "title": "Trang trại heo Cao Lãnh",
+            "segment": "farm",
+            "location": "Đồng Tháp",
+            "kwp": 80,
+            "savingPerMonth": 17500000,
+            "image": {
+              "id": "/images/projects/project_1772874891937.webp",
+              "alt": {
+                "vi": "Trang trại heo Cao Lãnh"
+              }
+            },
+            "href": "/cong-trinh/trai-heo-dong-thap",
+            "video": {
+              "provider": "file",
+              "idOrSrc": "/videos/shorts/trang-trai-2.mp4",
+              "originalUrl": "https://www.tiktok.com/@lumivolt.demo"
+            }
+          }
+        ],
+        "showFilter": true,
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        },
+        "savingLabel": {
+          "vi": "Tiết kiệm/tháng",
+          "en": "Monthly savings"
+        },
+        "allLabel": {
+          "vi": "Tất cả",
+          "en": "All"
+        },
+        "ctaLabel": {
+          "vi": "Nhận báo giá công trình tương tự",
+          "en": "Get a quote for a similar project"
+        }
+      },
+      "anchor": "cong-trinh",
+      "note": "ProjectsGallery của t13: lưới công trình + lọc phân khúc, dùng projects/t15."
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "san-pham",
+      "note": "Tái dùng products/t15: ProductStrip cùng carousel, QuickView, giỏ báo giá; cần entitlement catalog như bản gốc catalogEnabled; khác ở theme."
+    },
+    {
+      "id": "energy-monitoring",
+      "type": "energy-monitoring",
+      "variant": "t15",
+      "enabled": true
+    },
+    {
+      "id": "trust",
+      "type": "trust",
+      "variant": "t13",
+      "enabled": true,
+      "anchor": "uy-tin",
+      "data": {
+        "eyebrow": {
+          "vi": "Vì sao khách chọn chúng tôi",
+          "en": "Why clients choose us"
+        },
+        "title": {
+          "vi": "Uy tín có giấy tờ, có người thật kể lại.",
+          "en": "Credibility on paper, told by real people."
+        },
+        "items": [
+          {
+            "id": "iso9001",
+            "title": {
+              "vi": "ISO 9001:2015"
+            },
+            "subtitle": {
+              "vi": "Hệ thống quản lý chất lượng",
+              "en": "Quality management"
+            },
+            "issuer": {
+              "vi": "Tổ chức chứng nhận Mẫu QA (hư cấu)"
+            },
+            "number": {
+              "vi": "QA-MẪU-9001"
+            },
+            "validUntil": {
+              "vi": "12/2027"
+            },
+            "scope": {
+              "vi": "Phân phối thiết bị điện mặt trời; tư vấn thiết kế, thi công lắp đặt hệ thống điện mặt trời."
+            },
+            "image": {
+              "id": "/images/trust/cert-iso-9001-full.svg",
+              "alt": {
+                "vi": "ISO 9001:2015"
+              }
+            },
+            "logo": {
+              "id": "/images/trust/cert-iso-9001.svg",
+              "alt": {
+                "vi": "ISO 9001:2015"
+              }
+            }
+          },
+          {
+            "id": "phan-phoi",
+            "title": {
+              "vi": "Nhà phân phối ủy quyền",
+              "en": "Authorised distributor"
+            },
+            "subtitle": {
+              "vi": "Helionyx · Voltaris · Litheon"
+            },
+            "issuer": {
+              "vi": "Các hãng thiết bị (hư cấu)"
+            },
+            "number": {
+              "vi": "AUTH-2026-VN"
+            },
+            "validUntil": {
+              "vi": "12/2026"
+            },
+            "scope": {
+              "vi": "Phân phối chính hãng tại Việt Nam, bảo hành trực tiếp qua Lumivolt."
+            },
+            "image": {
+              "id": "/images/trust/cert-phan-phoi-full.svg",
+              "alt": {
+                "vi": "Nhà phân phối ủy quyền",
+                "en": "Authorised distributor"
+              }
+            },
+            "logo": {
+              "id": "/images/trust/cert-phan-phoi.svg",
+              "alt": {
+                "vi": "Nhà phân phối ủy quyền",
+                "en": "Authorised distributor"
+              }
+            }
+          },
+          {
+            "id": "lap-dat",
+            "title": {
+              "vi": "Đối tác lắp đặt được chứng nhận",
+              "en": "Certified installer"
+            },
+            "subtitle": {
+              "vi": "Inverter & pin lưu trữ",
+              "en": "Inverters & storage"
+            },
+            "issuer": {
+              "vi": "Các hãng thiết bị (hư cấu)"
+            },
+            "number": {
+              "vi": "PV-MẪU-0315"
+            },
+            "validUntil": {
+              "vi": "06/2027"
+            },
+            "scope": {
+              "vi": "Lắp đặt, cấu hình và bảo hành inverter hybrid, pin lưu trữ."
+            },
+            "image": {
+              "id": "/images/trust/cert-lap-dat-full.svg",
+              "alt": {
+                "vi": "Đối tác lắp đặt được chứng nhận",
+                "en": "Certified installer"
+              }
+            },
+            "logo": {
+              "id": "/images/trust/cert-lap-dat.svg",
+              "alt": {
+                "vi": "Đối tác lắp đặt được chứng nhận",
+                "en": "Certified installer"
+              }
+            }
+          },
+          {
+            "id": "an-toan-dien",
+            "title": {
+              "vi": "Chứng chỉ an toàn điện",
+              "en": "Electrical safety"
+            },
+            "subtitle": {
+              "vi": "Cho kỹ thuật viên",
+              "en": "For technicians"
+            },
+            "issuer": {
+              "vi": "[CẦN XÁC MINH]"
+            },
+            "number": {
+              "vi": "ATĐ-MẪU-2026"
+            },
+            "validUntil": {
+              "vi": "12/2026"
+            },
+            "scope": {
+              "vi": "Toàn bộ kỹ thuật viên thi công và bảo trì."
+            },
+            "image": {
+              "id": "/images/trust/cert-an-toan-dien-full.svg",
+              "alt": {
+                "vi": "Chứng chỉ an toàn điện",
+                "en": "Electrical safety"
+              }
+            },
+            "logo": {
+              "id": "/images/trust/cert-an-toan-dien.svg",
+              "alt": {
+                "vi": "Chứng chỉ an toàn điện",
+                "en": "Electrical safety"
+              }
+            }
+          },
+          {
+            "id": "pccc",
+            "title": {
+              "vi": "Đủ điều kiện thi công PCCC",
+              "en": "Fire-safety works"
+            },
+            "subtitle": {
+              "vi": "Hệ PV và BESS",
+              "en": "PV and BESS systems"
+            },
+            "issuer": {
+              "vi": "[CẦN XÁC MINH]"
+            },
+            "number": {
+              "vi": "PCCC-MẪU-07"
+            },
+            "validUntil": {
+              "vi": "08/2028"
+            },
+            "scope": {
+              "vi": "Thiết kế, thi công giải pháp PCCC cho hệ điện mặt trời và lưu trữ."
+            },
+            "image": {
+              "id": "/images/trust/cert-pccc-full.svg",
+              "alt": {
+                "vi": "Đủ điều kiện thi công PCCC",
+                "en": "Fire-safety works"
+              }
+            },
+            "logo": {
+              "id": "/images/trust/cert-pccc.svg",
+              "alt": {
+                "vi": "Đủ điều kiện thi công PCCC",
+                "en": "Fire-safety works"
+              }
+            }
+          }
+        ],
+        "issuerLabel": {
+          "vi": "Cấp bởi",
+          "en": "Issuer"
+        },
+        "numberLabel": {
+          "vi": "Số chứng chỉ",
+          "en": "Certificate number"
+        },
+        "validLabel": {
+          "vi": "Hiệu lực",
+          "en": "Valid until"
+        },
+        "scopeLabel": {
+          "vi": "Phạm vi",
+          "en": "Scope"
+        }
+      },
+      "note": "Phần chứng chỉ của TrustSection gốc: 5 chứng chỉ t13 có logo (lưới), ảnh đầy đủ mở lightbox."
+    },
+    {
+      "id": "press",
+      "type": "press",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Phần báo chí của TrustSection gốc t13 (một section gồm chứng chỉ + review links + báo chí + đánh giá + thương hiệu); tách thành type riêng, đặt liền sau trust để giữ vị trí."
+    },
+    {
+      "id": "testimonials",
+      "type": "testimonials",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Khách hàng nói gì",
+          "en": "[SAMPLE DATA] What clients say"
+        },
+        "title": {
+          "vi": "Niềm tin đến từ những hóa đơn điện thật.",
+          "en": "Trust built on real electricity bills."
+        },
+        "query": {
+          "filter": {},
+          "limit": 6
+        },
+        "items": [
+          {
+            "id": "testimonial-1",
+            "name": "Anh Minh Tuấn (mẫu)",
+            "segment": "household",
+            "location": "Thủ Đức, TP HCM",
+            "kwp": 6,
+            "quote": "Tiền điện từ 2,4 triệu còn khoảng 800 nghìn. Đội thợ lắp gọn trong một ngày, dọn sạch sẽ, mái không bị dột.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-2",
+            "name": "Chị Thu Hà (mẫu)",
+            "segment": "shop",
+            "location": "Ninh Kiều, Cần Thơ",
+            "kwp": 15,
+            "quote": "Tủ mát, máy lạnh chạy cả ngày mà hóa đơn giảm gần một nửa. Ba cửa hàng theo dõi chung trên một app rất tiện.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-3",
+            "name": "Anh Văn Hùng (mẫu)",
+            "segment": "farm",
+            "location": "Tân Châu, Tây Ninh",
+            "kwp": 120,
+            "quote": "Trại gà 40.000 con, quạt hút chạy suốt. Có pin lưu trữ nên cúp điện vẫn yên tâm.",
+            "rating": 5
+          },
+          {
+            "id": "testimonial-4",
+            "name": "Chị Ngọc Lan (mẫu)",
+            "segment": "factory",
+            "location": "Biên Hòa, Đồng Nai",
+            "kwp": 250,
+            "quote": "Kỹ sư giải thích ROI và phương án thi công theo ca rất rõ. Xưởng không phải dừng máy ngày nào, hồ sơ đấu nối được lo trọn.",
+            "rating": 4.8
+          }
+        ],
+        "ratings": [
+          {
+            "label": {
+              "vi": "Google",
+              "en": "Google [SAMPLE DATA]"
+            },
+            "score": 4.9,
+            "count": 1280,
+            "url": "https://www.google.com/maps"
+          }
+        ],
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      },
+      "note": "Phần đánh giá khách hàng + link đánh giá Google của TrustSection gốc t13 (một section gồm chứng chỉ + review links + báo chí + đánh giá + thương hiệu); tách thành type riêng, đặt liền sau trust để giữ vị trí."
+    },
+    {
+      "id": "brands",
+      "type": "brands",
+      "variant": "t15",
+      "enabled": true,
+      "anchor": "thuong-hieu",
+      "note": "Phần thương hiệu thiết bị của TrustSection gốc t13 (một section gồm chứng chỉ + review links + báo chí + đánh giá + thương hiệu); tách thành type riêng, đặt liền sau trust để giữ vị trí."
+    },
+    {
+      "id": "blog",
+      "type": "blog",
+      "variant": "t15",
+      "enabled": true,
+      "data": {
+        "eyebrow": {
+          "vi": "Kinh nghiệm lắp đặt",
+          "en": "[SAMPLE DATA] Installation know-how"
+        },
+        "title": {
+          "vi": "Đọc trước khi lắp: tình huống thực tế.",
+          "en": "Read before you install: real cases."
+        },
+        "query": {
+          "filter": {},
+          "limit": 3
+        },
+        "items": [
+          {
+            "id": "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp",
+            "title": "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?",
+            "excerpt": "Cách quy đổi hóa đơn ra kWh, tính phần điện dùng ban ngày và chọn công suất vừa đủ — không thừa, không thiếu.",
+            "segment": "household",
+            "cover": {
+              "id": "/images/illustrations/home-solar.webp",
+              "alt": {
+                "vi": "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?"
+              }
+            },
+            "readMinutes": 5,
+            "href": "/tin-tuc/tien-dien-2-trieu-nen-lap-bao-nhieu-kwp"
+          },
+          {
+            "id": "dien-mat-troi-cho-trai-ga",
+            "title": "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện",
+            "excerpt": "Quạt hút, hệ làm mát, đèn chiếu sáng chạy suốt ngày — vì sao trại gà là nơi điện mặt trời hoàn vốn nhanh.",
+            "segment": "farm",
+            "cover": {
+              "id": "/images/illustrations/farm-hybrid-solar.webp",
+              "alt": {
+                "vi": "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện"
+              }
+            },
+            "readMinutes": 6,
+            "href": "/tin-tuc/dien-mat-troi-cho-trai-ga"
+          },
+          {
+            "id": "dien-mat-troi-cho-nha-may",
+            "title": "Điện mặt trời cho nhà máy: thi công không dừng sản xuất",
+            "excerpt": "Mái xưởng lớn, tải chạy ban ngày — những điều cần kiểm tra trước khi đầu tư hệ thống vài trăm kWp.",
+            "segment": "factory",
+            "cover": {
+              "id": "/images/solar-panels-hero.jpg",
+              "alt": {
+                "vi": "Điện mặt trời cho nhà máy: thi công không dừng sản xuất"
+              }
+            },
+            "readMinutes": 7,
+            "href": "/tin-tuc/dien-mat-troi-cho-nha-may"
+          }
+        ],
+        "allLink": {
+          "kind": "page",
+          "value": "tin-tuc",
+          "label": {
+            "vi": "Tất cả bài viết",
+            "en": "All articles"
+          }
+        },
+        "readMinutesLabel": {
+          "vi": "phút đọc",
+          "en": "min read"
+        },
+        "segmentLabels": {
+          "household": {
+            "vi": "Hộ gia đình",
+            "en": "Households"
+          },
+          "shop": {
+            "vi": "Cửa hàng",
+            "en": "Shops"
+          },
+          "factory": {
+            "vi": "Nhà xưởng",
+            "en": "Factories"
+          },
+          "farm": {
+            "vi": "Trang trại",
+            "en": "Farms"
+          }
+        }
+      },
+      "anchor": "tin-tuc",
+      "note": "Tái dùng blog/t15: BlogSection cùng lưới 3 bài; limit mặc định 3 như BlogSection limit={3}; khác ở theme."
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Tái dùng faq/t15: FaqSection cùng bố cục hai cột và details; khác ở theme."
+    },
+    {
+      "id": "footer",
+      "type": "site-footer",
+      "variant": "t15",
+      "enabled": true,
+      "note": "Dải cam kết trước footer là widget commitments-strip.",
+      "data": {
+        "brand": {
+          "name": "Minwy Solar",
+          "tagline": {
+            "vi": "Lắp đặt điện mặt trời & thiết bị năng lượng mặt trời chính hãng.",
+            "en": "Solar installation & genuine solar equipment."
+          }
+        },
+        "socials": [
+          {
+            "kind": "tiktok",
+            "url": "https://www.tiktok.com/@minwysolar",
+            "label": "TikTok"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://www.youtube.com/@minwysolar",
+            "label": "YouTube"
+          },
+          {
+            "kind": "facebook",
+            "url": "https://www.facebook.com/minwysolar",
+            "label": "Facebook"
+          }
+        ],
+        "legal": {
+          "legalName": "CÔNG TY TNHH MINWY SOLAR [DỮ LIỆU MẪU]",
+          "lines": [
+            {
+              "vi": "MST: 0312XXXXXX [DỮ LIỆU MẪU]",
+              "en": "Tax ID: 0312XXXXXX [SAMPLE]"
+            },
+            {
+              "vi": "Giấy phép/đăng ký ngành nghề: [CẦN XÁC MINH]",
+              "en": "Business licence: [TO BE VERIFIED]"
+            }
+          ],
+          "badges": [],
+          "moitBadge": {
+            "enabled": true
+          }
+        },
+        "branchesTitle": {
+          "vi": "Hotline",
+          "en": "Hotline"
+        },
+        "branches": [
+          {
+            "name": "TP. Hồ Chí Minh",
+            "stores": [
+              {
+                "name": "Tư vấn lắp đặt",
+                "address": "Khu công nghiệp Tân Tạo, TP. Hồ Chí Minh [DỮ LIỆU MẪU]",
+                "phone": "0901 234 567"
+              },
+              {
+                "name": "Dự án doanh nghiệp",
+                "phone": "0902 345 678"
+              },
+              {
+                "name": "Bảo hành",
+                "phone": "1900 6868"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "title": {
+              "vi": "Giải pháp",
+              "en": "Solutions"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "?phan-khuc=ho-gia-dinh",
+                "label": {
+                  "vi": "Hộ gia đình",
+                  "en": "Households"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=cua-hang",
+                "label": {
+                  "vi": "Cửa hàng & chuỗi",
+                  "en": "Shops & chains"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=nha-xuong",
+                "label": {
+                  "vi": "Nhà xưởng",
+                  "en": "Factories"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "?phan-khuc=trang-trai",
+                "label": {
+                  "vi": "Trang trại",
+                  "en": "Farms"
+                }
+              }
+            ]
+          },
+          {
+            "title": {
+              "vi": "Công ty",
+              "en": "Company"
+            },
+            "links": [
+              {
+                "kind": "page",
+                "value": "ve-chung-toi",
+                "label": {
+                  "vi": "Về chúng tôi",
+                  "en": "About us"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "san-pham",
+                "label": {
+                  "vi": "Sản phẩm",
+                  "en": "Products"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "tin-tuc",
+                "label": {
+                  "vi": "Tin tức",
+                  "en": "News"
+                }
+              },
+              {
+                "kind": "page",
+                "value": "lien-he",
+                "label": {
+                  "vi": "Liên hệ",
+                  "en": "Contact"
+                }
+              }
+            ]
+          }
+        ],
+        "contactNote": {
+          "vi": "lienhe@minwysolar.example\nThứ 2 – Thứ 7: 7:30 – 18:00",
+          "en": "lienhe@minwysolar.example\nMon – Sat: 7:30 – 18:00"
+        },
+        "disclaimer": [
+          {
+            "vi": "Website demo — dữ liệu hư cấu.",
+            "en": "Demo website — fictional data."
+          },
+          {
+            "vi": "Thông tin pháp lý và thương hiệu mẫu cần thay trước khi xuất bản.",
+            "en": "Sample legal and brand details must be replaced before publishing."
+          }
+        ]
+      }
+    }
+  ],
+  "widgets": {
+    "contact-dock": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "ariaLabel": {
+          "vi": "Liên hệ nhanh",
+          "en": "Quick contact"
+        },
+        "mobileBar": true,
+        "items": [
+          {
+            "kind": "call",
+            "label": {
+              "vi": "0901 234 567"
+            },
+            "link": {
+              "kind": "phone",
+              "value": "0901234567",
+              "label": {
+                "vi": "Gọi"
+              }
+            }
+          },
+          {
+            "kind": "zalo",
+            "label": {
+              "vi": "Chat Zalo"
+            },
+            "link": {
+              "kind": "zalo",
+              "value": "0901234567",
+              "label": {
+                "vi": "Zalo"
+              }
+            }
+          },
+          {
+            "kind": "messenger",
+            "label": {
+              "vi": "Messenger"
+            },
+            "link": {
+              "kind": "url",
+              "value": "https://m.me/sample-solar",
+              "label": {
+                "vi": "Messenger"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "consult-popup": {
+      "enabled": true,
+      "variant": "t15"
+    },
+    "mobile-bottom-nav": {
+      "enabled": false,
+      "variant": "t15"
+    },
+    "commitments-strip": {
+      "enabled": true,
+      "variant": "t15",
+      "data": {
+        "ariaLabel": {
+          "vi": "Cam kết dịch vụ",
+          "en": "Service commitments"
+        },
+        "items": [
+          {
+            "icon": "survey",
+            "title": {
+              "vi": "Khảo sát miễn phí"
+            },
+            "description": {
+              "vi": "Kỹ sư đến tận nơi đo mái, đọc hóa đơn"
+            }
+          },
+          {
+            "icon": "warranty",
+            "title": {
+              "vi": "Bảo hành dài hạn"
+            },
+            "description": {
+              "vi": "Tấm pin tới 25 năm hiệu suất, thi công 5 năm"
+            }
+          },
+          {
+            "icon": "paperwork",
+            "title": {
+              "vi": "Hỗ trợ thủ tục đấu nối EVN"
+            },
+            "description": {
+              "vi": "Chuẩn bị hồ sơ, làm việc với điện lực"
+            }
+          },
+          {
+            "icon": "maintenance",
+            "title": {
+              "vi": "Bảo trì & vệ sinh định kỳ"
+            },
+            "description": {
+              "vi": "Kiểm tra, vệ sinh tấm pin theo lịch"
+            }
+          }
+        ]
+      }
+    },
+    "quote-cart": {
+      "enabled": true,
+      "variant": "t15"
+    },
+    "theme-switch": {
+      "enabled": false,
+      "variant": "t15"
+    },
+    "scroll-progress": {
+      "enabled": false,
+      "variant": "t15"
+    }
+  },
+  "subpages": [
+    "san-pham",
+    "cong-trinh",
+    "tin-tuc",
+    "ve-chung-toi",
+    "lien-he"
+  ]
+}

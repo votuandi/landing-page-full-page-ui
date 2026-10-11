@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { siteConfig, type Text } from "@/config/site.config";
 import { pickText, type Lang } from "@/i18n/text";
+import { onSetSiteLocale } from "@solar/sections";
 
 export type { Lang };
 const STORAGE_KEY = "t15-lang";
@@ -36,6 +37,9 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+
+  // Nút VI/EN của header preset (packages/sections) báo qua event bus.
+  useEffect(() => onSetSiteLocale((next) => { if (siteConfig.i18n.enabled) setLangState(next); }), []);
 
   const setLang = useCallback((next: Lang) => {
     setLangState(next);
