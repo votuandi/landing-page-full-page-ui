@@ -3,11 +3,14 @@ import { getTheme } from "@solar/themes";
 import t13 from "../t13.json";
 import t15 from "../t15.json";
 import t14 from "../t14.json";
+import t05 from "../t05.json";
+import t06 from "../t06.json";
+import t09 from "../t09.json";
 import { presetSchema } from "./schema";
 
 export { presetSchema };
 export type { Preset } from "./schema";
-export const presets = [presetSchema.parse(t15), presetSchema.parse(t13), presetSchema.parse(t14)];
+export const presets = [presetSchema.parse(t15), presetSchema.parse(t13), presetSchema.parse(t14), presetSchema.parse(t05), presetSchema.parse(t06), presetSchema.parse(t09)];
 
 export function getPreset(id: string) {
   return presets.find((preset) => preset.id === id);

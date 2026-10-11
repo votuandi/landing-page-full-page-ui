@@ -31,3 +31,11 @@ Thêm preset (E4-S02–S10):
 
 API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route preset bật; việc phục vụ tenant,
 entitlement và route theo DB triển khai ở các epic sau.
+
+E4-S09 thêm `t05`, `t06`, `t09` thuộc nhóm Pro, cùng bộ variant C&I. Thứ tự section bật theo trang gốc;
+khối tùy chọn không có trên trang gốc được tắt và ghi `note`. Test tỷ lệ giao/hợp đếm `type/variant` của toàn bộ
+section đã cấu hình, gồm khối tùy chọn. Projects/testimonials có dữ liệu collection trong JSON để hiện ở lab.
+Xem `/lab/presets/t05|t06|t09`, đổi theme bằng `?theme=t15`.
+
+App dev cổng 3005: `pnpm --filter @solar/visual exec playwright test -c playwright.ci-presets.config.ts` kiểm
+390/1440, theme gốc/t15, không JavaScript và matrix; lưu JPEG ở `roadmap/evidence/E4/<id>/`.
