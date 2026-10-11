@@ -140,4 +140,25 @@ test("t11 follows SolarHome order with t11 variants, bill-to-calculator anchor a
   assert.equal(page.sections.find((section) => section.type === "lead-form").data.source, "home-bottom");
   assert.equal(widgets["contact-dock"].variant, "t11");
   assert.equal(widgets["mobile-bottom-nav"].enabled, false);
+
+test("t08 preserves HomeT8 order, shared arch, detailed segments and populated collections", () => {
+  const { loadPreset, getPreset } = require("../index.ts");
+  const { preset, theme, page, widgets } = loadPreset("t08");
+  assert.equal(preset.source.branch, "template-8");
+  assert.equal(theme.meta.group, "pro");
+  assert.deepEqual(page.sections.map((section) => `${section.type}/${section.variant}`), [
+    "site-header/t15", "hero/t12", "segments/t08", "calculator/t12", "energy-monitoring/t08",
+    "projects/t12", "process/t15", "investment-models/t15", "warranty/t15", "faq/t15",
+    "testimonials/t15", "brands/t15", "faq/t15", "lead-form/t15", "site-footer/t15",
+  ]);
+  for (const type of ["hero", "warranty", "lead-form", "calculator"]) {
+    assert.ok(getPreset("t08").sections.find((section) => section.type === type).note);
+  }
+  for (const type of ["projects", "testimonials"]) {
+    const data = page.sections.find((section) => section.type === type).data;
+    assert.ok(data.items.length > 0);
+    assert.ok(data.items.every((item) => /\[DỮ LIỆU MẪU\]/.test(item.title ?? item.name)));
+  }
+  assert.deepEqual(page.sections.find((section) => section.type === "segments").data.items.map((item) => item.segment), ["factory", "shop", "household"]);
+  assert.equal(widgets["contact-dock"].data.mobileBar, true);
 });
