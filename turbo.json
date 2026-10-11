@@ -43,6 +43,7 @@
     "test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"] },
     "@solar/eslint-plugin#test": { "dependsOn": ["^build"], "outputs": [] },
     "@solar/themes#test": { "dependsOn": ["^build"], "outputs": [] },
+    "@solar/presets#test": { "dependsOn": ["^build"], "outputs": [] },
     "lint:tokens": { "outputs": [] },
     "//#lint:root": { "dependsOn": ["@solar/config#lint"], "outputs": [] }
   }

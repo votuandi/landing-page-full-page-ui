@@ -1,0 +1,5 @@
+{
+  "extends": "@solar/config/tsconfig.base.json",
+  "include": ["src/**/*.ts", "*.json"],
+  "exclude": ["node_modules", ".test-dist"]
+}
