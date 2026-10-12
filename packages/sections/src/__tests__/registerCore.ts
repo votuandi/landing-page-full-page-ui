@@ -8,3 +8,7 @@ require.cache[require.resolve("@solar/core")] = require.cache[compiled];
 const ui = require.resolve(resolve(__dirname, "../../../ui/src/index.js"));
 require(ui);
 require.cache[require.resolve("@solar/ui")] = require.cache[ui];
+
+const plans = require.resolve(resolve(__dirname, "../../../plans/index.js"));
+require(plans);
+require.cache[require.resolve("@solar/plans")] = require.cache[plans];

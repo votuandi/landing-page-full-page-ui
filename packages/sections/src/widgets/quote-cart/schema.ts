@@ -16,5 +16,5 @@ export const quoteCartSchema = z.object({
 export const quoteCart = defineSectionType({
   migrations: { 1: migrateQuoteCartV1 },
   type: "quote-cart", schemaVersion: 2, schema: quoteCartSchema, defaults: quoteCartSchema.parse(fixture),
-  meta: {"label": {"vi": "quote-cart"}, "icon": "quote-cart", "entitlement": "catalog", "collections": ["products"]},
+  meta: {"label": {"vi": "quote-cart"}, "icon": "quote-cart", "entitlement": "quoteCart", "collections": ["products"]},
 });

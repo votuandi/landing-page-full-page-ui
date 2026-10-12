@@ -34,3 +34,9 @@ defineSectionType({
 const output: SectionPropsOf<typeof demo>["data"] = demo.schema.parse({ title: "Mẫu" });
 const count: number = output.count;
 void count;
+
+defineSectionType({
+  ...demo,
+  // @ts-expect-error Entitlement must be a declared Feature, not an arbitrary string.
+  meta: { ...demo.meta, entitlement: "unknown-feature" },
+});

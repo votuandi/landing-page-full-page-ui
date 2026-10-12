@@ -11,7 +11,7 @@ export default async function WidgetsLabPage({ searchParams }: { searchParams: P
     data: key === "consult-popup" ? { ...def.defaults, delayMs: params.popup === "scroll" ? 600000 : 1500 }
       : key === "contact-dock" ? { ...def.defaults, mobileBar } : def.defaults,
   }])));
-  const canUse = (feature: string) => params.plan !== "basic" || feature !== "catalog";
+  const canUse = (feature: string) => params.plan !== "basic" || feature !== "quoteCart";
   const page = pageConfigSchema.parse({ sections: ["site-header", "products", "process", "faq"].map((type) => ({
     id: "widget-lab-" + type, type, variant: "t15", data: sectionRegistry.getType(type)?.defaults,
   })) });

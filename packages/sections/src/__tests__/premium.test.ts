@@ -12,11 +12,11 @@ import type { SiteContext } from "../site";
 const types = ["products", "dealer", "branch-map", "press", "tiktok", "social", "investment-models", "warranty", "about-story", "services"];
 const entitlements: Record<string, string | undefined> = {
   "site-header": undefined, hero: undefined, services: undefined, segments: undefined, calculator: "calculator",
-  "lead-form": "leadForm", packages: "packages", "investment-models": "investmentModels", projects: undefined,
+  "lead-form": "quoteForm", packages: "packages", "investment-models": "investmentModels", projects: undefined,
   shorts: "shorts", tiktok: "tiktok", stats: "stats", "energy-monitoring": "energyMonitoring", process: undefined,
   "load-profile": "energyMonitoring",
   "page-hero": undefined,
-  testimonials: "testimonials", trust: "trust", brands: undefined, press: "press", products: "catalog", blog: undefined,
+  testimonials: "testimonials", trust: "trust", brands: undefined, press: "press", products: "catalog", blog: "blog",
   faq: "faq", warranty: undefined, dealer: "dealer", "branch-map": "branchMap", "cta-banner": undefined,
   social: "social", "about-story": undefined, "site-footer": undefined,
 };

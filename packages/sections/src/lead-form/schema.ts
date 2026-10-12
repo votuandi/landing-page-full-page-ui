@@ -24,5 +24,5 @@ export const leadForm = defineSectionType({
   schemaVersion: 1,
   schema: leadFormSchema,
   defaults: leadFormSchema.parse(leadFormFixture),
-  meta: { label: { vi: "Form nhận báo giá", en: "Lead form" }, icon: "inbox", entitlement: "leadForm" },
+  meta: { label: { vi: "Form nhận báo giá", en: "Lead form" }, icon: "inbox", entitlement: "quoteForm" },
 });
