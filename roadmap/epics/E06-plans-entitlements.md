@@ -23,8 +23,10 @@ bật/tắt theo gói, kiểm tra phía server.
   Ánh xạ section type → feature lấy từ `meta.entitlement` (E3-S01). Gói khớp bảng ở `roadmap/README.md` §4.
   `addons`: mua lẻ một feature (vd. `shorts` cho gói Nâng cao).
 - **AC**:
-  - [ ] Test: mọi section type có entitlement hợp lệ; mọi feature xuất hiện ở ít nhất một gói.
-  - [ ] Bảng Markdown trong README được sinh bằng `pnpm plans:table` (CI kiểm khớp).
+  - [x] Test: mọi section type có entitlement hợp lệ; mọi feature xuất hiện ở ít nhất một gói.
+  - [x] Bảng Markdown trong README được sinh bằng `pnpm plans:table` (CI kiểm khớp).
+- Bằng chứng implementation: plans tests, registry sections/widgets, `pnpm plans:table --check`, checks toàn workspace và DB PostgreSQL 16 không skip. Báo cáo `.agent-runs/E6-S01/codex-report.md`.
+- Review và link PR: chờ Claude sau commit; chưa tuyên bố DoD hoàn tất.
 - Agent: Claude · Cỡ: S
 
 ### E6-S02 · `can()` và `limit()` phía server
