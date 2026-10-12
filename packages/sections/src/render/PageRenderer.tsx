@@ -12,7 +12,7 @@ export type PageRendererProps = {
   registry?: SectionRegistry;
   /** E6 thay bằng `(feature) => can(site, feature)`. */
   canUse?: (feature: string) => boolean;
-  /** Chuẩn bị dữ liệu thô trước khi parse (E5: truy vấn collection); kết quả được parse bằng schema của type. */
+  /** Hydrate config đã parse (E5: truy vấn collection); kết quả được kiểm schema lần nữa. */
   loadData?: LoadSectionData;
 };
 
@@ -23,15 +23,22 @@ async function prepare(section: PageSection, { site, registry = sectionRegistry,
   const def = registry.getType(section.type);
   const resolved = registry.getVariant(section.type, section.variant);
   if (!def || !resolved) return null;
+  const parse = (raw: unknown) => {
+    const result = def.schema.safeParse(raw);
+    if (result.success) return result.data;
+    console.error("[sections] dùng defaults section", { tenantId: site.tenantId, sectionId: section.id, type: section.type });
+    return def.schema.parse(def.defaults);
+  };
   try {
+    const config = parse(section.data);
     const [raw, { default: Variant }] = await Promise.all([
-      loadData ? loadData({ section, data: section.data, site }) : section.data,
+      loadData ? loadData({ section, data: config, site }) : config,
       resolved.load(),
     ]);
-    return { section, Variant, data: def.schema.parse(raw) };
+    return { section, Variant, data: parse(raw) };
   } catch (error) {
     console.error("[sections] chuẩn bị section lỗi", {
-      tenantId: site.tenantId, sectionId: section.id, type: section.type, variant: resolved.variant, error,
+      tenantId: site.tenantId, sectionId: section.id, type: section.type, variant: resolved.variant, error: error instanceof Error ? error.name : "Error",
     });
     return { section };
   }

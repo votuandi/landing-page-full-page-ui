@@ -23,11 +23,18 @@ export async function SiteWidgets({ widgets, site, slot, canUse = () => true, lo
       const resolved = registry.getVariant(key, entry.variant);
       if (!resolved) return null;
       const section = { id: key, type: key, enabled: true, variant: resolved.variant, data: entry.data ?? def.defaults };
-      const [raw, module] = await Promise.all([loadData ? loadData({ section, data: section.data, site }) : section.data, resolved.load()]);
-      data = def.schema.parse(raw);
+      const parse = (raw: unknown) => {
+        const result = def.schema.safeParse(raw);
+        if (result.success) return result.data;
+        console.error("[sections] dùng defaults widget", { tenantId: site.tenantId, sectionId: key, type: key });
+        return def.schema.parse(def.defaults);
+      };
+      const config = parse(section.data);
+      const [raw, module] = await Promise.all([loadData ? loadData({ section, data: config, site }) : config, resolved.load()]);
+      data = parse(raw);
       Variant = module.default;
     } catch (error) {
-      console.error("[sections] chuẩn bị widget lỗi", { tenantId: site.tenantId, sectionId: key, type: key, error });
+      console.error("[sections] chuẩn bị widget lỗi", { tenantId: site.tenantId, sectionId: key, type: key, error: error instanceof Error ? error.name : "Error" });
       return null;
     }
     return <div key={key} data-widget={key}>

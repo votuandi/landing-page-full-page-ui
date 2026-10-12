@@ -55,7 +55,7 @@ test("section không đủ entitlement bị bỏ và không tải chunk variant"
   assert.equal(premiumLoads, 0);
 });
 
-test("lỗi chuẩn bị dữ liệu chỉ làm section đó rỗng và log tenantId, sectionId", async (t) => {
+test("I/O lỗi cô lập section; schema lỗi dùng defaults và log tenantId, sectionId", async (t) => {
   const error = t.mock.method(console, "error", () => {});
   const html = await render({
     page: page([
@@ -72,18 +72,18 @@ test("lỗi chuẩn bị dữ liệu chỉ làm section đó rỗng và log tena
   assert.equal(html,
     '<div data-section-id="ok" data-section-type="demo">OK</div>'
     + '<div data-section-id="loi-du-lieu" data-section-type="demo" data-section-fallback=""></div>'
-    + '<div data-section-id="sai-schema" data-section-type="demo" data-section-fallback=""></div>'
+    + '<div data-section-id="sai-schema" data-section-type="demo">[DỮ LIỆU MẪU] Section</div>'
     + '<div data-section-id="ok-2" data-section-type="demo">OK 2</div>');
   assert.equal(error.mock.callCount(), 2);
   for (const [index, sectionId] of ["loi-du-lieu", "sai-schema"].entries()) {
     const [message, detail] = error.mock.calls[index].arguments as [string, Record<string, unknown>];
-    assert.equal(message, "[sections] chuẩn bị section lỗi");
+    assert.ok(message.startsWith("[sections]"));
     assert.equal(detail.tenantId, "tenant-mau");
     assert.equal(detail.sectionId, sectionId);
   }
 });
 
-test("dữ liệu loadData trả về sai schema hoặc undefined thành fallback, có log", async (t) => {
+test("hydrate trả schema lỗi hoặc undefined dùng defaults và log", async (t) => {
   const error = t.mock.method(console, "error", () => {});
   const html = await render({
     page: page([
@@ -98,8 +98,8 @@ test("dữ liệu loadData trả về sai schema hoặc undefined thành fallbac
     },
   });
   assert.equal(html,
-    '<div data-section-id="sai-kieu" data-section-type="demo" data-section-fallback=""></div>'
-    + '<div data-section-id="rong" data-section-type="demo" data-section-fallback=""></div>'
+    '<div data-section-id="sai-kieu" data-section-type="demo">[DỮ LIỆU MẪU] Section</div>'
+    + '<div data-section-id="rong" data-section-type="demo">[DỮ LIỆU MẪU] Section</div>'
     + '<div data-section-id="ok" data-section-type="demo">OK</div>');
   assert.deepEqual(error.mock.calls.map(({ arguments: [, detail] }) => {
     const { tenantId, sectionId } = detail as Record<string, unknown>;
@@ -107,10 +107,13 @@ test("dữ liệu loadData trả về sai schema hoặc undefined thành fallbac
   }), [["tenant-mau", "sai-kieu"], ["tenant-mau", "rong"]]);
 });
 
-test("loadData nhận data thô, kết quả được parse rồi đưa cho variant", async () => {
+test("loadData nhận config đã parse; config hỏng dùng defaults trước hydrate", async () => {
   const html = await render({
-    page: page([{ id: "a", type: "demo", variant: "v1", data: { title: "Gốc" } }]),
-    loadData: async ({ data }) => ({ ...(data as object), title: "Đã chuẩn bị" }),
+    page: page([{ id: "a", type: "demo", variant: "v1", data: { title: 123 } }]),
+    loadData: async ({ data }) => {
+      assert.deepEqual(data, demo.defaults);
+      return { ...(data as object), title: "Đã chuẩn bị" };
+    },
   });
   assert.equal(html, '<div data-section-id="a" data-section-type="demo">Đã chuẩn bị</div>');
 });
