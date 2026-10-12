@@ -95,9 +95,14 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   slug tiếng Việt như t15: `/san-pham`, `/cong-trinh/[slug]`, `/giai-phap`, `/tin-tuc`, `/cam-nang`, `/chinh-sach/[slug]`,
   `/ve-chung-toi`, `/lien-he`). Dữ liệu section đọc qua repository, kiểm schema (parse lỗi → dùng defaults + log).
 - **AC**:
-  - [ ] Hai tenant seed hiển thị khác theme, khác nội dung trên cùng instance, kể cả ở slug trùng nhau.
-  - [ ] Mọi trang của t15 có bản tương đương dưới `sites`.
-  - [ ] `generateMetadata` theo tenant (title, description, OG image, canonical = primaryHost).
+  - [x] Hai tenant seed hiển thị khác theme, khác nội dung trên cùng instance, kể cả ở slug trùng nhau.
+  - [x] Mọi trang của t15 có bản tương đương dưới `sites`.
+  - [x] `generateMetadata` theo tenant (title, description, OG image, canonical = primaryHost).
+  - Bằng chứng E5-S04: `apps/web/src/lib/tenant/__tests__/*`, seed hai lần trên PostgreSQL 16;
+    `tooling/visual/tenant.spec.ts` qua 5/5: A/B/A/B, ma trận mọi route seed, filter/quick-view/giỏ,
+    anchor, JS off, metadata và header giả mạo; primary alias 308 qua HTTP. Báo cáo/bằng chứng:
+    `.agent-runs/E5-S04/codex-report.md`. Web tạm dùng Webpack vì Turbopack xuất manifest preload chunk thiếu;
+    production hai host và legacy/lab qua browser với 0 lỗi. PR và review Claude chờ sau commit.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
 ### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu
