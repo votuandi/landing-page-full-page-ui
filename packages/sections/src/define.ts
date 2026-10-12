@@ -1,3 +1,4 @@
+import type { Feature } from "@solar/plans";
 import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { SiteContext } from "./site";
@@ -8,7 +9,7 @@ export type LocalizedText = Localized;
 export type SectionMeta = {
   label: LocalizedText;
   icon: string;
-  entitlement?: string; // E6 thu hẹp thành Feature của @solar/plans.
+  entitlement?: Feature;
   maxPerPage?: number;
   collections?: readonly string[];
 };

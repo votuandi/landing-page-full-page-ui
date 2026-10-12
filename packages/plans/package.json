@@ -1,0 +1,21 @@
+{
+  "name": "@solar/plans",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node --test .test-dist/__tests__/plans.test.js .test-dist/__tests__/table.test.js",
+    "plans:table": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node .test-dist/scripts/table.js"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@types/node": "20.19.37",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3"
+  },
+  "type": "module"
+}

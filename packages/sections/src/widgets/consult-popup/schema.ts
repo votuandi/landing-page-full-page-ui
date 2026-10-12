@@ -10,5 +10,5 @@ export const consultPopupSchema = z.object({
 });
 export const consultPopup = defineSectionType({
   type: "consult-popup", schemaVersion: 1, schema: consultPopupSchema, defaults: consultPopupSchema.parse(fixture),
-  meta: {"label": {"vi": "consult-popup"}, "icon": "consult-popup"},
+  meta: {"label": {"vi": "consult-popup"}, "icon": "consult-popup", "entitlement": "leadForm"},
 });

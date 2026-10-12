@@ -1,3 +1,4 @@
+import { PLAN_IDS, plans } from "@solar/plans";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDb } from "../client.ts";
@@ -28,6 +29,13 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
     const first = await state();
     await seedDemo(db);
     assert.deepEqual(await state(), first);
+    for (const id of PLAN_IDS) {
+      const row = await db.plan.findUniqueOrThrow({ where: { id } });
+      assert.equal(row.name, plans[id].name);
+      assert.deepEqual(row.features, [...plans[id].features]);
+      assert.deepEqual(row.limits, plans[id].limits);
+    }
+
     assert.equal(first.tenants.length, 2);
     assert.equal(first.sites.length, 2);
     assert.equal(first.domains, 2);

@@ -1,3 +1,5 @@
+import { isFeature } from "@solar/plans";
+import { widgetRegistry } from "../widgets/registry";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createRegistry, sectionRegistry } from "../registry";
@@ -70,4 +72,25 @@ test("defaults của mọi type thật parse được bằng schema chung", () =
     assert.deepEqual(def.schema.parse(def.defaults), def.defaults);
   }
   assert.deepEqual(demo.schema.parse(demo.defaults), demo.defaults);
+});
+
+test("every section and widget has the specified Feature or explicitly free metadata", () => {
+  const expected: Record<string, string | undefined> = {
+    "site-header": undefined, hero: undefined, services: undefined, segments: undefined,
+    calculator: "calculator", "lead-form": "quoteForm", packages: "packages",
+    "investment-models": "investmentModels", projects: undefined, shorts: "shorts", tiktok: "tiktok",
+    stats: "stats", "energy-monitoring": "energyMonitoring", "load-profile": "energyMonitoring",
+    process: undefined, "page-hero": undefined, testimonials: "testimonials", trust: "trust",
+    brands: undefined, press: "press", products: "catalog", blog: "blog", faq: "faq", warranty: undefined,
+    dealer: "dealer", "branch-map": "branchMap", "cta-banner": undefined, social: "social",
+    "about-story": undefined, "site-footer": undefined,
+    "contact-dock": undefined, "consult-popup": "leadForm", "mobile-bottom-nav": undefined,
+    "commitments-strip": undefined, "quote-cart": "quoteCart", "theme-switch": undefined, "scroll-progress": undefined,
+  };
+  const definitions = [...Object.values(sectionRegistry.types), ...Object.values(widgetRegistry.types)];
+  assert.deepEqual(definitions.map(def => def.type).sort(), Object.keys(expected).sort());
+  for (const def of definitions) {
+    assert.equal(def.meta.entitlement, expected[def.type], def.type);
+    if (def.meta.entitlement !== undefined) assert.ok(isFeature(def.meta.entitlement), def.type);
+  }
 });

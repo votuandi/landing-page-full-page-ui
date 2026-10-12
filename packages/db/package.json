@@ -14,13 +14,15 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma generate && prisma db seed",
-    "db:erd": "node scripts/erd.mjs"
+    "db:erd": "node scripts/erd.mjs",
+    "plans:sync": "tsx scripts/plans-sync.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "pg": "8.23.1",
-    "@solar/sections": "workspace:*"
+    "@solar/sections": "workspace:*",
+    "@solar/plans": "workspace:*"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

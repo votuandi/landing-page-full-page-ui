@@ -139,6 +139,9 @@ importers:
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3)
+      '@solar/plans':
+        specifier: workspace:*
+        version: link:../plans
       '@solar/sections':
         specifier: workspace:*
         version: link:../sections
@@ -167,6 +170,21 @@ importers:
       tsx:
         specifier: 4.23.15
         version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/plans:
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.7.0)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -201,6 +219,9 @@ importers:
       '@solar/core':
         specifier: workspace:*
         version: link:../core
+      '@solar/plans':
+        specifier: workspace:*
+        version: link:../plans
       '@solar/ui':
         specifier: workspace:*
         version: link:../ui
@@ -6064,11 +6085,6 @@ snapshots:
       react: 19.2.8
     optionalDependencies:
       '@babel/core': 7.29.7
-
-  styled-jsx@5.1.6(react@19.2.8):
-    dependencies:
-      client-only: 0.0.1
-      react: 19.2.8
 
   sucrase@3.35.1:
     dependencies:

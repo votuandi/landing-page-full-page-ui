@@ -27,12 +27,12 @@ test("quote-cart v1 migration fills estimate labels, preserves custom copy and i
   assert.deepEqual(migrateQuoteCartV1({ ...v1, attachEstimateLabel: { vi: "Nhãn riêng" } }).attachEstimateLabel, { vi: "Nhãn riêng" });
 });
 
-test("seven widgets have valid defaults, t15 variants and only cart needs catalog", async () => {
+test("seven widgets have valid defaults, t15 variants and contact and cart have separate entitlements", async () => {
   assert.deepEqual(Object.keys(widgetRegistry.types).sort(), keys.sort());
   for (const key of keys) {
     const def = widgetRegistry.getType(key)!;
     assert.deepEqual(def.schema.parse(def.defaults), def.defaults);
-    assert.equal(def.meta.entitlement, key === "quote-cart" ? "catalog" : undefined);
+    assert.equal(def.meta.entitlement, key === "quote-cart" ? "quoteCart" : key === "consult-popup" ? "leadForm" : undefined);
     assert.equal(widgetRegistry.getVariant(key, "t15")?.fallback, false);
     const fixture = await import(`../widgets/${key}/fixtures`);
     assert.deepEqual(def.schema.parse(fixture.fixture), def.defaults);
@@ -73,7 +73,7 @@ const registry = createRegistry(Object.fromEntries(keys.map((key) => {
 const render = async (widgets: object, slot: "inline" | "overlay", canUse = (_: string) => true) =>
   renderToStaticMarkup(await SiteWidgets({ widgets: siteWidgetsSchema.parse(widgets), site, slot, canUse, registry }));
 
-test("renderer gates catalog before loading, honors enabled and slots, uses defaults and fallback", async (t) => {
+test("renderer gates quoteCart before loading, honors enabled and slots, uses defaults and fallback", async (t) => {
   t.mock.method(console, "warn", () => {});
   const widgets = { "quote-cart": { enabled: true }, "commitments-strip": { enabled: true }, "theme-switch": { enabled: false } };
   variantLoads = 0;

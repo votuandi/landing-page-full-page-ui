@@ -14,5 +14,5 @@ export const blogSchema = z.object({
 export const blog = defineSectionType({
   type: "blog", schemaVersion: 1, schema: blogSchema,
   defaults: blogSchema.parse(blogFixture),
-  meta: {"label": {"vi": "Kinh nghiệm lắp đặt", "en": "Installation know-how"}, "icon": "blog", "collections": ["posts"]},
+  meta: {"label": {"vi": "Kinh nghiệm lắp đặt", "en": "Installation know-how"}, "icon": "blog", "entitlement": "blog", "collections": ["posts"]},
 });

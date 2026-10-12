@@ -80,7 +80,7 @@ export const hero = defineSectionType({
 
 `defaults` phải đủ các trường của output, kể cả trường có zod default. Nội dung hiển thị dùng `{ vi, en? }`.
 Thay đổi schema phải tăng `schemaVersion` và kèm migration theo AGENTS.md. E3-S09 bổ sung khung migration.
-`meta.entitlement` tạm là string tới E6.
+`meta.entitlement?: Feature` dùng tên từ `@solar/plans` (E6-S01); undefined dành cho nội dung chung.
 
 ## Kiểu trường chuẩn
 
@@ -242,7 +242,7 @@ Lookup bằng string trộn nhiều schema, nên renderer phải parse dữ li�
 | `segments` | `t15` | không (thẻ là link `?phan-khuc=<slug>#<targetAnchor>`) | — |
 | `packages` | `t15` | tab phân khúc, nút mở dự toán | `packages` |
 | `calculator` | `t15` | ô nhập + kết quả + form lead | `calculator` |
-| `lead-form` | `t15` | form lead | `leadForm` |
+| `lead-form` | `t15` | form báo giá | `quoteForm` |
 | `site-footer` | `t15` | không | — |
 
 Mỗi type: `schema.ts` (export `<type>Schema` + definition, `defaults = schema.parse(fixture)`), `fixtures.ts`
@@ -358,7 +358,6 @@ và nội dung/href khi tắt JavaScript.
 thêm vào registry sản phẩm. Các lab chỉ mở ở development hoặc production có `LAB_ENABLED=true`. `SiteContext` hiện có `tenantId`, `locale`,
 `themeId`; E5 mở rộng ngữ cảnh tenant.
 
-
 ## Widget toàn site
 
 `siteWidgetsSchema` đọc cấu hình `widgets: { [key]: { enabled, variant, data } }` gồm `contact-dock`,
@@ -368,7 +367,7 @@ Bật đồng thời contact-dock `mobileBar` và mobile-bottom-nav bị từ ch
 
 Render `<SiteWidgets widgets={site.widgets} site={context} slot="inline" canUse={canUse} />` trước footer
 (`commitments-strip`) và `slot="overlay"` cuối body (các widget còn lại). Renderer kiểm entitlement trước khi
-load variant/collection; `quote-cart` yêu cầu `catalog`. E6 sẽ nối `canUse` với `can(site, feature)` ở server.
+load variant/collection; `quote-cart` yêu cầu `quoteCart` (prerequisite `catalog` trong `@solar/plans`). E6 sẽ nối `canUse` với `can(site, feature)` ở server.
 Dữ liệu lỗi bị bỏ riêng từng widget và log tenant; mọi widget được bọc SectionBoundary.
 
 `createCollectionLoader(source, widgetRegistry)` nạp catalog cho giỏ (query limit mặc định 48).
@@ -382,7 +381,7 @@ Bus: `openConsult`/`onOpenConsult` dùng `t15:open-consult`; `toggleSiteMenu`/`o
 tối đa một lần mỗi phiên, hoãn 5 giây nếu có modal khác; gọi thủ công luôn mở kèm form.
 Theme-switch lưu `t15-theme`; layout app giữ script áp theme trước khi vẽ.
 
-Lab: `/lab/sections/t15-widgets` (tất cả bật), `?plan=basic` (không catalog), `?lang=en`.
+Lab: `/lab/sections/t15-widgets` (tất cả bật), `?plan=basic` (không quoteCart), `?lang=en`.
 Widget cũ của SiteShell tạm tắt trên route này tới E4-S01. Kiểm tra: `widgets.test.tsx`,
 `tooling/visual/widgets.spec.ts` trong `pnpm --filter @solar/visual test:sections`.
 
@@ -420,3 +419,13 @@ giữ nguyên dữ liệu trước đây vì mọi trường mới đều tùy c
 
 Kiểm tương tác t11: `tooling/visual/t11.spec.ts` trong suite sections; lab từng section dùng
 `/lab/sections/<type>?variant=t11&themes=t11,t15`. Preset `packages/presets/t11.json`, ảnh so sánh ở `roadmap/evidence/E4/t11/`.
+
+## Hợp đồng entitlement E6-S01
+
+Metadata dùng `Feature` từ `@solar/plans`, không đổi schema dữ liệu hoặc schemaVersion.
+Theo quyết định Q1, `lead-form` dùng `quoteForm` Nâng cao thay `leadForm` của E3-S07;
+`consult-popup` dùng `leadForm` Cơ bản; `blog` dùng `blog` ở cả ba gói; `quote-cart` dùng
+`quoteCart` thay catalog. Catalog đơn lẻ không mở giỏ; quoteCart cần prerequisite catalog.
+Registry tests duyệt đủ section và widget, kể cả type chung có entitlement undefined.
+E6-S02 cung cấp `can(site, feature)` server; E5-S04 nối callback renderer/API/routes/provider,
+chặn trước tải chunk/collection và giữ nguyên dữ liệu ngoài gói. Callback lab chỉ là demo.
