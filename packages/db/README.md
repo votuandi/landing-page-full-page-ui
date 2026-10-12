@@ -205,3 +205,21 @@ Plans tạm có features rỗng/limits `{}`; khi plan đã tồn tại, seed gi�
 Nếu hostname demo đã thuộc tenant khác, seed báo lỗi và rollback tenant đó.
 
 ERD: [ERD.md](./ERD.md). Test ERD yêu cầu tài liệu khớp schema.
+
+## Đồng bộ gói E6-S01
+
+`@solar/plans/plans.ts` là nguồn quyền sản phẩm. `syncPlans(db)` nội bộ chạy một transaction
+upsert đúng basic/pro/premium với tên VI, features có thứ tự ổn định, limits bốn key và syncedAt.
+Lỗi rollback cả đợt; không xóa Plan lạ, không đổi Tenant.planId/addons/status hoặc nội dung.
+Plan DB là bản đồng bộ, không dùng SQL để override quyền; E6-S02 đọc định nghĩa code khi kiểm quyền.
+Nhóm theme ở code, không cần Prisma migration.
+
+```sh
+pnpm --filter @solar/db plans:sync
+```
+
+Chạy CLI này trong deploy sau migrate với DATABASE_URL phù hợp; pool 2 và disconnect trong finally.
+Seed demo gọi cùng helper trước khi tạo nội dung nên không còn quyền rỗng. **Không dùng db:seed
+trên tenant khách để đồng bộ gói**: seed là công cụ dựng demo. Demo t12 vẫn pro theo scope S01;
+E5-S04 xử lý sự khác biệt nhóm theme Signature. Test Postgres kiểm drift, idempotence, giữ tenant/addons,
+Plan lạ, rollback thật và seed hai lần giữ danh tính nội dung/quyền khớp code.

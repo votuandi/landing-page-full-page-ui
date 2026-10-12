@@ -1,3 +1,4 @@
+import { syncPlans } from "../src/plans.ts";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { createDb, POOL_BUDGET, type Db } from "../src/client.ts";
@@ -9,10 +10,7 @@ import { forPlatform } from "../src/repository.ts";
 const json = (value: unknown): Prisma.InputJsonValue => JSON.parse(JSON.stringify(value));
 
 export async function seedDemo(db: Db) {
-  for (const id of ["basic", "pro", "premium"]) {
-    // E6-S01 will own feature synchronization; rerunning this seed must preserve it.
-    await db.plan.upsert({ where: { id }, update: {}, create: { id, name: id, features: [], limits: {} } });
-  }
+  await syncPlans(db);
   for (const id of ["t15", "t12"] as const) {
     const demo = buildDemo(id);
     const hostname = `${id}.localhost`;
