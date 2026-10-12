@@ -46,7 +46,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     PR/review: chờ Claude tạo PR và review theo routing.
 - Agent: Claude (review Codex adversarial) · Cỡ: L
 
-### E5-S02 · Repository bắt buộc tenant
+### E5-S02 · Repository bắt buộc tenant ✅ · PR [#32](https://github.com/votuandi/landing-page-full-page-ui/pull/32)
 **Là** dev, **tôi muốn** không thể truy vấn dữ liệu nội dung mà quên `tenantId`, **để** loại bỏ cả một lớp lỗi rò dữ liệu.
 - **Chi tiết**: `forTenant(tenantId)` trả về `{ projects: { list, get, … }, … }` đã gắn `where: { tenantId }`, và khi ghi tự
   gán `tenantId` + chạy `assertRefsBelongToTenant`; Prisma Client Extension chặn query trên model tenant thiếu `tenantId`
@@ -61,7 +61,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     Typecheck/lint/test toàn workspace và lint token qua; PR/review chờ Claude.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
-### E5-S03 · Phân giải tenant theo tên miền (`proxy.ts`)
+### E5-S03 · Phân giải tenant theo tên miền (`proxy.ts`) ✅ · PR [#33](https://github.com/votuandi/landing-page-full-page-ui/pull/33)
 **Là** khách truy cập `nangluongxanh.vn`, **tôi muốn** thấy đúng site của công ty đó, **để** tên miền riêng hoạt động.
 - **Chi tiết**:
   - **Ranh giới tin cậy**: chỉ tin `Host` (Caddy/ALB/Cloudflare ghi đè đúng); bỏ qua `X-Forwarded-Host` từ client trừ khi

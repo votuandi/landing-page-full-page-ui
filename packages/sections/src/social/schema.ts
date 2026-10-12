@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateSocialV1 } from "./migrations";
 import { localized, link } from "../fields";
 
 import { socialFixture } from "./fixtures";
@@ -13,6 +14,7 @@ export const socialSchema = z.object({
 });
 
 export const social = defineSectionType({
+  migrations: { 1: migrateSocialV1 },
   type: "social", schemaVersion: 2, schema: socialSchema,
   defaults: socialSchema.parse(socialFixture),
   meta: {"label":{"vi":"Mạng xã hội"},"icon":"social","entitlement":"social"},

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateSiteHeaderV1 } from "./migrations";
 import { link, localized, mediaRef } from "../fields";
 import { segmentEnum } from "../shared/schema";
 import { siteHeaderFixture } from "./fixtures";
@@ -60,6 +61,7 @@ export const siteHeaderSchema = z.object({
 });
 
 export const siteHeader = defineSectionType({
+  migrations: { 1: migrateSiteHeaderV1 },
   type: "site-header",
   schemaVersion: 2,
   schema: siteHeaderSchema,

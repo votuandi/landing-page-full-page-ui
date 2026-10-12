@@ -140,9 +140,15 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   khi lưu. Phần 1 (khung migration thuần JSON + test) làm ngay sau S01; phần 2 (script `pnpm sections:migrate --dry-run` chạy
   toàn DB, gồm `data`, `draftData`, `PageVersion`, file backup) làm sau E5-S01.
 - **AC**:
-  - [ ] Test: dữ liệu v1 → v2 đúng, idempotent; áp cho cả bản nháp và snapshot phiên bản.
-  - [ ] CI fail nếu `schemaVersion` tăng mà thiếu migration.
-  - [ ] App bản cũ đọc được dữ liệu đã migrate trong lúc rolling deploy (migration chỉ thêm trường tùy chọn — expand/contract).
+  - [x] Test: dữ liệu v1 → v2 đúng, idempotent; áp cho cả bản nháp và snapshot phiên bản.
+  - [x] CI fail nếu `schemaVersion` tăng mà thiếu migration.
+  - [x] App bản cũ đọc được dữ liệu đã migrate trong lúc rolling deploy (migration chỉ thêm trường tùy chọn — expand/contract).
+- Bằng chứng triển khai: `migrations.test.ts` (chuỗi migration, CI guard, expand/contract, snapshot),
+  `sectionContent.test.ts` (lazy data/draftData, lưu nháp), `repository.int.test.ts`,
+  `sectionsMigrate.int.test.ts` (Postgres: dry-run không ghi, nâng data/draftData/snapshot, chạy lại không đổi),
+  `sectionsMigrate.test.ts` (backup, CLI exit code, nhiều lô/tenant, tiếp tục khi dữ liệu lỗi).
+  Báo cáo và log: `.agent-runs/E3-S09/` (gồm `fix-r1-report.md`). PR [#34](https://github.com/votuandi/landing-page-full-page-ui/pull/34)
+  đang sửa theo review-r1, chờ review lại và CI; chưa merge.
 - Phụ thuộc: phần 1 — S01; phần 2 — E5-S01 · Agent: Codex · Cỡ: M
 
 ### E3-S10 · Trang `/lab/sections` — ma trận variant × theme ✅ · PR [#29](https://github.com/votuandi/landing-page-full-page-ui/pull/29)

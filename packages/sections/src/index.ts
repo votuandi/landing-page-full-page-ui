@@ -1,4 +1,6 @@
 export { defineSectionType, defineVariants } from "./define";
+export { migrateSectionData, migrateSnapshot, missingMigrations } from "./migrate";
+export type { SectionMigration } from "./migrate";
 export type {
   LocalizedText, SectionMeta, SectionTypeDef, SectionPropsOf,
   SectionVariant, VariantLoader, SectionVariants,

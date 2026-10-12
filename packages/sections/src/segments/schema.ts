@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defineSectionType } from "../define";
+import { migrateSegmentsV1 } from "./migrations";
 import { link, localized, mediaRef } from "../fields";
 import { segmentEnum, uniqueBy } from "../shared/schema";
 import { segmentsFixture } from "./fixtures";
@@ -36,6 +37,7 @@ export const segmentsSchema = z.object({
 });
 
 export const segments = defineSectionType({
+  migrations: { 1: migrateSegmentsV1 },
   type: "segments",
   schemaVersion: 2,
   schema: segmentsSchema,

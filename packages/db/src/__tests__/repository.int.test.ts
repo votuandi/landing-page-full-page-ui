@@ -5,6 +5,8 @@ import { createDb, type Db } from "../client.ts";
 import { MissingTenantError } from "../tenantScope.ts";
 import { CrossTenantRefError } from "../refs.ts";
 import { forTenant, forPlatform } from "../repository.ts";
+import { Prisma } from "../../generated/client.ts";
+import { sectionRegistry } from "@solar/sections";
 
 describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16" }, () => {
   let db: Db;
@@ -107,11 +109,90 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
     }), /rollback/);
     assert.equal(await forTenant(db, a).project.count({ where: { slug: "transaction" } }), 0);
   });
+  test("saving draft data migrates published data and keeps one shared schemaVersion", async () => {
+    const repo = forTenant(db, a);
+    const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "migration-draft", type: "shorts", schemaVersion: 1, data: { title: "Published" } });
+    await repo.sectionContent.update(row.id, { draftData: { title: "Draft", channels: [] } });
+    const saved = await repo.sectionContent.get(row.id);
+    assert.equal(saved?.schemaVersion, 3);
+    assert.deepEqual((saved?.data as Record<string, unknown>).channels, []);
+    assert.equal((saved?.draftData as Record<string, unknown>).title, "Draft");
+    const current = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "migration-create", type: "shorts", data: {} });
+    assert.equal(current.schemaVersion, 3);
+  });
   test("platform exposes hostname lookup without weakening tenant queries", async () => {
     const hostname = `${a}.repo.localhost`;
     await forTenant(db, a).domain.create({ hostname, siteId: siteA, verificationToken: "test" });
     assert.equal((await forPlatform(db).domains.findByHostname(hostname))?.tenantId, a);
     await assert.rejects(db.domain.findUnique({ where: { hostname } }), MissingTenantError);
+  });
+  for (const schemaVersion of [1, 3]) {
+    test(`concurrent published/draft saves on Postgres v${schemaVersion} retain both payloads`, async () => {
+      const repo = forTenant(db, a);
+      const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: `concurrent-${schemaVersion}`, type: "shorts", schemaVersion, data: { title: "Old" }, draftData: { title: "Old draft" } });
+      let reads = 0, release!: () => void;
+      const barrier = new Promise<void>((resolve) => { release = resolve; });
+      const coordinated = new Proxy(db, { get(target, key) {
+        if (key !== "sectionContent") return Reflect.get(target, key);
+        return new Proxy(target.sectionContent, { get(delegate, method) {
+          if (method !== "findFirst") return Reflect.get(delegate, method);
+          return async (args: Parameters<typeof db.sectionContent.findFirst>[0]) => {
+            const snapshot = await delegate.findFirst(args);
+            if (++reads <= 2) { if (reads === 2) release(); await barrier; }
+            return snapshot;
+          };
+        } });
+      } });
+      const saving = forTenant(coordinated, a);
+      await Promise.all([
+        saving.sectionContent.update(row.id, { data: { title: "Published", channels: [] } }),
+        saving.sectionContent.update(row.id, { draftData: { title: "Draft", channels: [] } }),
+      ]);
+      const saved = (await repo.sectionContent.get(row.id))!;
+      assert.equal((saved.data as Record<string, unknown>).title, "Published");
+      assert.equal((saved.draftData as Record<string, unknown>).title, "Draft");
+      assert.equal(saved.schemaVersion, 3);
+      assert.equal(reads, schemaVersion === 1 ? 3 : 2);
+    });
+  }
+  test("published-only save upgrades draft and DbNull clears it to SQL NULL", async () => {
+    const repo = forTenant(db, a);
+    const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "published-migration", type: "shorts", schemaVersion: 1, data: {}, draftData: { custom: "Retain" } });
+    await repo.sectionContent.update(row.id, { data: { title: "Published", channels: [] } });
+    const saved = (await repo.sectionContent.get(row.id))!;
+    assert.equal(saved.schemaVersion, 3);
+    assert.equal((saved.draftData as Record<string, unknown>).custom, "Retain");
+    assert.deepEqual((saved.draftData as Record<string, unknown>).channels, []);
+    await repo.sectionContent.update(row.id, { draftData: Prisma.DbNull });
+    assert.equal(await repo.sectionContent.count({ where: { id: row.id, draftData: { equals: Prisma.DbNull } } }), 1);
+    assert.equal(await repo.sectionContent.count({ where: { id: row.id, draftData: { equals: Prisma.JsonNull } } }), 0);
+    const legacy = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "legacy-clear-draft", type: "shorts", schemaVersion: 1, data: {}, draftData: "broken" });
+    await repo.sectionContent.update(legacy.id, { draftData: Prisma.DbNull });
+    assert.equal(await repo.sectionContent.count({ where: { id: legacy.id, schemaVersion: 3, draftData: { equals: Prisma.DbNull } } }), 1);
+  });
+  test("repository preserves future version/keys, rejects type changes and repairs corrupt JSON", async () => {
+    const repo = forTenant(db, a);
+    const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: "future-version", type: "shorts", schemaVersion: 10, data: { unknown: "Published" }, draftData: { unknown: "Draft" } });
+    await repo.sectionContent.update(row.id, { schemaVersion: 3, data: { title: "Updated", unknown: "Published" } });
+    const saved = (await repo.sectionContent.get(row.id))!;
+    assert.equal(saved.schemaVersion, 10);
+    assert.deepEqual(saved.data, { title: "Updated", unknown: "Published" });
+    assert.deepEqual(saved.draftData, { unknown: "Draft" });
+    await assert.rejects(repo.sectionContent.update(row.id, { type: "hero", schemaVersion: 2, data: sectionRegistry.getType("hero")!.defaults } as never), /type.*immutable/);
+    assert.deepEqual(await repo.sectionContent.get(row.id), saved);
+    const defaults = sectionRegistry.getType("shorts")!.defaults as Prisma.InputJsonValue;
+    for (const [index, data, draftData, replacement] of [
+      [0, Prisma.JsonNull, "broken", { data: defaults, draftData: defaults }],
+      [1, Prisma.JsonNull, { custom: "Draft" }, { data: defaults }],
+      [2, { custom: "Published" }, "broken", { draftData: defaults }],
+    ] as const) {
+      const corrupt = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: `corrupt-${index}`, type: "shorts", schemaVersion: 1, data, draftData });
+      await repo.sectionContent.update(corrupt.id, replacement);
+      const repaired = (await repo.sectionContent.get(corrupt.id))!;
+      assert.equal(repaired.schemaVersion, 3);
+      assert.deepEqual((repaired.data as Record<string, unknown>).channels, []);
+      assert.deepEqual((repaired.draftData as Record<string, unknown>).channels, []);
+    }
   });
 });
 

@@ -1,5 +1,29 @@
 # @solar/sections
 
+## Migration dữ liệu (E3-S09)
+
+Khi tăng `schemaVersion`, thêm bước vào `<type>/migrations.ts` và nối vào
+`defineSectionType({ migrations: { 1: migrateV1, 2: migrateV2 }, ... })`.
+Khóa `n` là bước từ `n` lên `n + 1`; phải có đủ các bước từ v1 tới version hiện tại.
+`migrations.test.ts` duyệt cả registry section lẫn widget trong CI, chặn thiếu bước.
+
+`migrateSectionData(def, savedVersion, data)` chạy các bước trước khi parse schema;
+trả `{ schemaVersion, data, changed }`. Hàm không sửa input. Version đã hiện hành là
+no-op; version mới hơn app giữ nguyên dữ liệu/version và cảnh báo một lần để hỗ trợ rolling deploy.
+Khi lưu phải giữ dữ liệu JSON đã migrate; không dùng output parse của app cũ để ghi đè
+vì Zod loại bỏ những trường app cũ chưa biết.
+
+Migration dùng expand/contract: chỉ thêm trường tùy chọn hoặc có default, giữ nguyên
+mọi key và giá trị của tenant. Không đổi tên/xóa trường trong thời gian hai bản app cùng chạy.
+CI kiểm từng bước giữ dữ liệu cũ, kết quả parse được và object section chấp nhận key mới.
+Không bật `.strict()` ở object section. Việc xóa trường cần kế hoạch contract riêng sau rolling deploy.
+
+`migrateSnapshot(snapshot)` nâng `contents[].data` và `contents[].schemaVersion`, giữ
+descriptor `sections`, metadata và type chưa biết. Backup E7 phải dùng dạng snapshot
+`{ sections, contents: [{ sectionId, type, schemaVersion, data }] }` hoặc mảng snapshot;
+dùng cùng hàm với `PageVersion.snapshot`, không tạo định dạng migration riêng.
+`Site.widgets` chưa lưu version nên migration DB cho widgets nằm ngoài story này.
+
 Khung khai báo type, variant, registry và kiểu trường chuẩn. Mỗi type có một zod schema chung; các variant nhận dữ liệu đã parse
 (`z.output`), `SiteContext` và `sectionId`. Registry sản phẩm có 28 type qua E3-S04–S06 và `load-profile` từ E4-S09.
 
