@@ -3,9 +3,9 @@
 ## Phân giải tên miền (E5-S03)
 
 `MULTI_TENANT=1` bật `src/proxy.ts` (Next 16, Node runtime); cần `DATABASE_URL`.
-Mặc định tắt tới E5-S04 để site đơn và `/lab` tiếp tục dùng fixture. Dù tắt,
+Mặc định tắt để site đơn và `/lab` tiếp tục dùng fixture. Dù tắt,
 proxy vẫn xóa `x-tenant-id`/`x-site-id` từ client và chặn đường dẫn `/sites/*`.
-Route `/sites/[siteId]/[[...path]]` hiện là trang tạm có nhãn, E5-S04 thay renderer.
+Route `/sites/[siteId]/[[...path]]` render nội dung published từ DB (E5-S04).
 
 Chỉ `Host` được dùng để chọn tenant. Caddy/ALB/Cloudflare phải ghi đúng `Host`;
 web bỏ qua hoàn toàn `X-Forwarded-Host`/`Forwarded` vì Next proxy không có IP socket
@@ -66,3 +66,36 @@ Client Prisma chỉ sinh ở task `@solar/db#build` (output `generated/**`); `bu
 Nguồn: [Next proxy: Node runtime, matcher, request headers](https://nextjs.org/docs/app/api-reference/file-conventions/proxy),
 [ioredis: pub/sub, reconnect, offline queue](https://github.com/redis/ioredis).
 Phần kiểm header giả mạo qua Caddy được kiểm tiếp ở E10 khi có `infra/caddy`.
+
+## Render published từ DB (E5-S04)
+
+`dev` và `build` của web tạm dùng `--webpack`. Graph module tenant/DB/section trên Turbopack 16.3.8
+đã tạo URL preload trong react-loadable-manifest cho chunk không được xuất ra, cả dev lẫn production.
+Browser kiểm đúng hai host và giữ assertion không có console/page errors; bản Webpack qua cùng kiểm tra.
+Khôi phục mặc định Turbopack sau khi lỗi manifest này được xử lý và browser suite qua.
+
+`MULTI_TENANT=1` bật phân giải Host và render nội dung published từ PostgreSQL. Mặc định vẫn chạy bản t15/lab cũ.
+Proxy xóa header nội bộ do client gửi, đặt tenant/site đã phân giải và rewrite vào `sites/[siteId]`.
+Đường dẫn công khai `/sites/*` bị chặn. Các truy vấn nội dung dùng repository bắt buộc tenantId;
+Site, Page và SectionContent còn được giới hạn theo site/page. Draft không được render công khai.
+
+Chạy `pnpm --filter @solar/db db:deploy`, `pnpm db:seed`, rồi bật `DATABASE_URL`, tùy chọn `REDIS_URL`,
+`MULTI_TENANT=1` và `pnpm --filter web dev`. Hai host seed là `t15.localhost` (premium) và `t12.localhost` (pro).
+`TENANT_PUBLIC_PORT` chỉ dùng cho canonical HTTP trong dev, ví dụ `3211`; production dùng HTTPS và primaryHost.
+
+Các route: home/landing published (slug nhiều segment), sản phẩm, chi tiết công trình, giải pháp, tin tức,
+cẩm nang, chính sách, về chúng tôi và liên hệ. Theme/override/font/chrome/widget/SEO lấy từ site;
+header/footer lấy từ home cùng site và chỉ render một lần. Collection rỗng giữ rỗng.
+Schema lỗi dùng defaults của section/widget và log định danh; lỗi I/O/module được cô lập.
+Media UUID hiển thị placeholder tới E8; asset path/HTTPS đã kiểm được dùng trực tiếp.
+
+Hook section/widget hiện tra features của **gói cơ sở** bằng `@solar/plans`; không cộng addons/trial/limits.
+Gating quyền đầy đủ của route/metadata/CTA/provider/API thuộc E6-S02. API lead tenant trả 503 trước adapter chung,
+không lưu hoặc gửi dữ liệu; tích hợp tenant thuộc E11. Nhánh API legacy giữ hành vi hiện có.
+Robots/sitemap tenant tạm trả 404 tới E5-S08. Chưa có ISR/shared content cache/revalidate/preview;
+React cache chỉ gộp đọc trong request. Root đọc headers khiến legacy cũng render động; E5-S05/S06 xử lý cache.
+
+Kiểm thử: `pnpm --filter web test:tenant` (đặt DATABASE_URL và REDIS_URL để integration không skip).
+Sau seed chạy `pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts`.
+Suite tự chạy một Next dev port 3211 và kiểm hostname thật, metadata, route matrix, giỏ, anchor, JS off,
+header giả mạo, cùng ảnh chụp desktop/mobile. CI lưu ảnh/log/trace trong artifact `tenant-browser-evidence`.
