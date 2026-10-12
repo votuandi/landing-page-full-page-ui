@@ -39,24 +39,28 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
     assert.equal(first.tenants.length, 2);
     assert.equal(first.sites.length, 2);
     assert.equal(first.domains, 2);
-    assert.equal(first.pages, 2);
-    assert.equal(first.versions, 2);
+    assert.equal(first.pages, 10);
+    assert.equal(first.versions, 10);
     assert.equal(first.media, 0);
     for (const id of ["t15", "t12"] as const) {
       const demo = buildDemo(id);
       const tenant = first.tenants.find((tenant) => tenant.slug === `demo-${id}`)!;
       assert.deepEqual(first.products.filter((row) => row.tenantId === tenant.id).map((row) => row.slug).sort(), demo.collections.products.map((row) => row.slug).sort());
-      const page = await db.page.findFirstOrThrow({ where: { tenantId: tenant.id } });
-      assert.equal(page.revision, 1);
-      assert.ok(page.publishedAt);
-      assert.deepEqual(page.sections, demo.pageSections);
-      const sections = await db.sectionContent.findMany({ where: { tenantId: tenant.id, pageId: page.id } });
-      assert.equal(sections.length, demo.sections.length);
-      for (const section of demo.sections) {
-        const stored = sections.find((row) => row.sectionId === section.sectionId)!;
-        assert.equal(stored.schemaVersion, section.schemaVersion);
-        assert.equal(stored.revision, 1);
-        assert.deepEqual(stored.data, JSON.parse(JSON.stringify(section.data)));
+      for (const seededPage of demo.pages) {
+        const page = await db.page.findFirstOrThrow({ where: { tenantId: tenant.id, slug: seededPage.slug } });
+        assert.equal(page.revision, 1);
+        assert.ok(page.publishedAt);
+        assert.deepEqual(page.sections, seededPage.pageSections);
+        const sections = await db.sectionContent.findMany({ where: { tenantId: tenant.id, pageId: page.id } });
+        assert.equal(sections.length, seededPage.sections.length);
+        for (const section of seededPage.sections) {
+          const stored = sections.find((row) => row.sectionId === section.sectionId)!;
+          assert.equal(stored.schemaVersion, section.schemaVersion);
+          assert.equal(stored.revision, 1);
+          assert.deepEqual(stored.data, JSON.parse(JSON.stringify(section.data)));
+        }
+        const snapshot = await db.pageVersion.findFirstOrThrow({ where: { tenantId: tenant.id, pageId: page.id, revision: 1 } });
+        assert.deepEqual(snapshot.snapshot, JSON.parse(JSON.stringify({ sections: seededPage.pageSections, contents: seededPage.sections })));
       }
     }
   } finally { await db.$disconnect(); }

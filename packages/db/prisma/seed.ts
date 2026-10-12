@@ -19,7 +19,7 @@ export async function seedDemo(db: Db) {
       const tenantData = { name: demo.name, status: "active" as const, planId: id === "t15" ? "premium" : "pro" };
       const tenant = await tx.tenant.upsert({ where: { slug: `demo-${id}` }, update: tenantData, create: { slug: `demo-${id}`, ...tenantData } });
       const tenantId = tenant.id;
-      const siteData = { name: demo.name, themeId: demo.themeId, presetId: id, widgets: json(demo.widgets), profile: { name: { vi: demo.name } } };
+      const siteData = { name: demo.name, themeId: demo.themeId, presetId: id, widgets: json(demo.widgets), profile: json(demo.profile), seo: json(demo.seo) };
       const existing = await tx.site.findFirst({ where: { tenantId, presetId: id }, orderBy: { createdAt: "asc" } });
       const site = existing
         ? await tx.site.update({ where: { tenantId_id: { tenantId, id: existing.id } }, data: siteData })
@@ -29,23 +29,25 @@ export async function seedDemo(db: Db) {
       const domainData = { siteId, isPrimary: true, status: "active" as const, sslProvider: "caddy" as const };
       await tx.domain.upsert({ where: { hostname, tenantId }, update: domainData, create: { tenantId, hostname, verificationToken: randomUUID(), ...domainData } });
 
-      const pageData = { kind: "home" as const, title: { vi: demo.name }, sections: json(demo.pageSections), revision: 1 };
-      const page = await tx.page.upsert({
-        where: { tenantId_siteId_slug: { tenantId, siteId, slug: "" } }, update: pageData,
-        create: { tenantId, siteId, slug: "", publishedAt: new Date(), ...pageData },
-      });
-      const pageId = page.id;
-      for (const section of demo.sections) {
-        const data = { siteId, type: section.type, schemaVersion: section.schemaVersion, data: json(section.data), revision: 1 };
-        await tx.sectionContent.upsert({
-          where: { tenantId_pageId_sectionId: { tenantId, pageId, sectionId: section.sectionId } },
-          update: data, create: { tenantId, pageId, sectionId: section.sectionId, ...data },
+      for (const seededPage of demo.pages) {
+        const pageData = { kind: seededPage.kind, title: seededPage.title, sections: json(seededPage.pageSections), revision: 1 };
+        const page = await tx.page.upsert({
+          where: { tenantId_siteId_slug: { tenantId, siteId, slug: seededPage.slug } }, update: pageData,
+          create: { tenantId, siteId, slug: seededPage.slug, publishedAt: new Date(), ...pageData },
+        });
+        const pageId = page.id;
+        for (const section of seededPage.sections) {
+          const data = { siteId, type: section.type, schemaVersion: section.schemaVersion, data: json(section.data), revision: 1 };
+          await tx.sectionContent.upsert({
+            where: { tenantId_pageId_sectionId: { tenantId, pageId, sectionId: section.sectionId } },
+            update: data, create: { tenantId, pageId, sectionId: section.sectionId, ...data },
+          });
+        }
+        const snapshot = json({ sections: seededPage.pageSections, contents: seededPage.sections });
+        await tx.pageVersion.upsert({ where: { tenantId_pageId_revision: { tenantId, pageId, revision: 1 } },
+          update: { snapshot }, create: { tenantId, pageId, revision: 1, snapshot },
         });
       }
-      const snapshot = json({ sections: demo.pageSections, contents: demo.sections });
-      await tx.pageVersion.upsert({ where: { tenantId_pageId_revision: { tenantId, pageId, revision: 1 } },
-        update: { snapshot }, create: { tenantId, pageId, revision: 1, snapshot },
-      });
 
       const categories = new Map<string, string>(), brands = new Map<string, string>();
       const common = (item: { slug: string; title: { vi: string }; data: unknown; order: number; status: "published" }) => ({
@@ -93,6 +95,18 @@ export async function seedDemo(db: Db) {
         const data = common(item);
         await tx.faq.upsert({ where: { tenantId_slug: { tenantId, slug: item.slug } }, update: data,
           create: { tenantId, slug: item.slug, publishedAt: new Date(), ...data } });
+      }
+      for (const [delegate, items] of [
+        [tx.service, demo.collections.services], [tx.branch, demo.collections.branches],
+        [tx.certificate, demo.collections.certificates], [tx.pressItem, demo.collections.pressItems],
+      ] as const) {
+        // These four seed tables use the same slug/title/data create shape.
+        const upsert = delegate.upsert as typeof tx.service.upsert;
+        for (const item of items) {
+          const data = common(item);
+          await upsert({ where: { tenantId_slug: { tenantId, slug: item.slug } }, update: data,
+            create: { tenantId, slug: item.slug, publishedAt: new Date(), ...data } });
+        }
       }
     }, { timeout: 60_000 });
     console.log(`Seeded demo-${id}: ${demo.sections.length} sections, ${demo.collections.products.length} products`);
