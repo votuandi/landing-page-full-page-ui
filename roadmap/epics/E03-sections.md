@@ -134,7 +134,7 @@ variant của bất kỳ section nào không mất dữ liệu; 28 type có sche
   Phần triển khai Codex hoàn tất; review Claude, commit/PR và link PR còn chờ theo routing.
 - Phụ thuộc: S04 · Agent: Claude · Cỡ: M
 
-### E3-S09 · Migration dữ liệu section theo `schemaVersion`
+### E3-S09 · Migration dữ liệu section theo `schemaVersion` ✅ · PR [#34](https://github.com/votuandi/landing-page-full-page-ui/pull/34)
 **Là** dev, **tôi muốn** đổi schema mà dữ liệu cũ của khách vẫn chạy, **để** nâng cấp không phá site đang hoạt động.
 - **Chi tiết**: mỗi type có `migrations: Record<number, (old) => new>`; đọc dữ liệu → chạy migration lười (lazy) và ghi lại
   khi lưu. Phần 1 (khung migration thuần JSON + test) làm ngay sau S01; phần 2 (script `pnpm sections:migrate --dry-run` chạy
