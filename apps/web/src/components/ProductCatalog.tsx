@@ -2,17 +2,15 @@
 
 import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, productBrands, type Product, type ProductSegment } from "@/data/products";
+import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, type Product, type ProductSegment } from "@/data/products";
 import { resolvePrice } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import ProductCard from "@/components/ProductCard";
 
 const ProductQuickView = dynamic(() => import("@/components/ProductQuickView"), { ssr: false });
 
-const BRANDS = productBrands();
-const TECHS = Array.from(new Set(PRODUCTS.flatMap((p) => p.tech))).sort();
 const MIN_POWER = [["0.6", "≥ 600 W (tấm pin)"], ["1", "≥ 1 kW"], ["5", "≥ 5 kW / kWh"], ["10", "≥ 10 kW / kWh"], ["50", "≥ 50 kW"], ["100", "≥ 100 kW"], ["200", "≥ 200 kWh"]] as const;
 const KEYS = ["category", "brand", "tech", "segment", "minPower", "maxPower", "gia", "sort"] as const;
 
@@ -29,7 +27,7 @@ export function ProductGrid({ list, onQuickView }: { list: Product[]; onQuickVie
  * Catalog /san-pham. Bộ lọc nằm trên URL (?category=&brand=&tech=&segment=&minPower=&maxPower=&gia=&sort=) — mega menu "Thiết bị"
  * và thương hiệu trỏ thẳng vào đây. Chọn nhiều sản phẩm → giỏ yêu cầu báo giá (không thanh toán).
  */
-export default function ProductCatalog() {
+export default function ProductCatalog({ products = PRODUCTS, categories = CATEGORIES }: { products?: Product[]; categories?: { value: string; label: string; en?: string }[] }) {
   const { tr } = useLang();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,7 +36,9 @@ export default function ProductCatalog() {
   const [drawer, setDrawer] = useState(false);
 
   const q = Object.fromEntries(KEYS.map((k) => [k, search.get(k) || ""])) as Record<(typeof KEYS)[number], string>;
-  const category = CATEGORIES.some((c) => c.value === q.category) ? q.category : "";
+  const category = categories.some((c) => c.value === q.category) ? q.category : "";
+  const brands = [...new Set(products.map((p) => p.brand))].sort();
+  const techs = [...new Set(products.flatMap((p) => p.tech))].sort();
   const range = PRICE_RANGES.find((r) => r.value === q.gia);
   const minPower = Number(q.minPower) || 0;
   const maxPower = Number(q.maxPower) || 0;
@@ -52,8 +52,7 @@ export default function ProductCatalog() {
   const clear = () => router.replace(pathname, { scroll: false });
   const active = KEYS.filter((k) => k !== "sort" && q[k]).length;
 
-  const list = useMemo(() => {
-    let items = PRODUCTS.filter((p) => {
+  const list = products.filter((p) => {
       if (category && p.category !== category) return false;
       if (q.brand && p.brand !== q.brand) return false;
       if (q.tech && !p.tech.includes(q.tech)) return false;
@@ -65,20 +64,18 @@ export default function ProductCatalog() {
         if (current === undefined || current < range.min || current >= range.max) return false;
       }
       return true;
-    });
-    const price = (p: Product) => resolvePrice(p.price, p.salePrice).current ?? Number.MAX_SAFE_INTEGER;
-    if (sort === "price-asc") items = [...items].sort((a, b) => price(a) - price(b));
-    if (sort === "power-desc") items = [...items].sort((a, b) => b.powerKw - a.powerKw);
-    return items;
-  }, [category, q.brand, q.tech, q.segment, minPower, maxPower, range, sort]);
+  });
+  const price = (p: Product) => resolvePrice(p.price, p.salePrice).current ?? Number.MAX_SAFE_INTEGER;
+  if (sort === "price-asc") list.sort((a, b) => price(a) - price(b));
+  if (sort === "power-desc") list.sort((a, b) => b.powerKw - a.powerKw);
 
   const selects = (
     <div className="grid gap-5">
       <label className="t15-label">{tr("Hãng", "Brand")}
-        <select value={q.brand} onChange={(e) => setQuery("brand", e.target.value)} className="t15-input"><option value="">{tr("Tất cả hãng", "All brands")}</option>{BRANDS.map((b) => <option key={b}>{b}</option>)}</select>
+        <select value={q.brand} onChange={(e) => setQuery("brand", e.target.value)} className="t15-input"><option value="">{tr("Tất cả hãng", "All brands")}</option>{brands.map((b) => <option key={b}>{b}</option>)}</select>
       </label>
       <label className="t15-label">{tr("Công nghệ", "Technology")}
-        <select value={q.tech} onChange={(e) => setQuery("tech", e.target.value)} className="t15-input"><option value="">{tr("Tất cả công nghệ", "All technologies")}</option>{TECHS.map((t) => <option key={t}>{t}</option>)}</select>
+        <select value={q.tech} onChange={(e) => setQuery("tech", e.target.value)} className="t15-input"><option value="">{tr("Tất cả công nghệ", "All technologies")}</option>{techs.map((t) => <option key={t}>{t}</option>)}</select>
       </label>
       <label className="t15-label">{tr("Phân khúc", "Segment")}
         <select value={q.segment} onChange={(e) => setQuery("segment", e.target.value)} className="t15-input"><option value="">{tr("Tất cả phân khúc", "All segments")}</option>{Object.entries(PRODUCT_SEGMENT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
@@ -104,7 +101,7 @@ export default function ProductCatalog() {
             <div className="t15-filter-title" id="f-cat">{tr("Danh mục", "Category")}</div>
             <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-cat">
               <button type="button" aria-pressed={!category} onClick={() => setQuery("category", "")} className="t15-chip shrink-0">{tr("Tất cả", "All")}</button>
-              {CATEGORIES.map((c) => <button key={c.value} type="button" aria-pressed={category === c.value} onClick={() => setQuery("category", c.value)} className="t15-chip shrink-0">{tr(c.label, c.en)}</button>)}
+              {categories.map((c) => <button key={c.value} type="button" aria-pressed={category === c.value} onClick={() => setQuery("category", c.value)} className="t15-chip shrink-0">{tr(c.label, c.en)}</button>)}
             </div>
           </div>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

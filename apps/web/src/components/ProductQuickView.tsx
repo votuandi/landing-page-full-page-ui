@@ -14,7 +14,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import ProductImage from "@/components/ProductImage";
 
 /** Modal "Xem nhanh": ảnh (có ảnh phụ), thông số, giá và nút thêm vào yêu cầu báo giá. */
-export default function ProductQuickView({ product, onClose }: { product: Product; onClose: () => void }) {
+export default function ProductQuickView({ product, onClose }: { product: Product & { categoryLabel?: string }; onClose: () => void }) {
   const { tr } = useLang();
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -41,7 +41,7 @@ export default function ProductQuickView({ product, onClose }: { product: Produc
           )}
         </div>
         <div className="flex flex-col p-6 sm:p-8">
-          <div className="text-xs font-black uppercase tracking-[.16em] text-secondary">{product.brand} · {CATEGORY_LABEL[product.category]}</div>
+          <div className="text-xs font-black uppercase tracking-[.16em] text-secondary">{product.brand} · {product.categoryLabel ?? CATEGORY_LABEL[product.category]}</div>
           <h2 id="qv-title" className="mt-2 pr-10 text-2xl font-black leading-tight text-fg">{product.name}</h2>
           <div className="mt-3"><PriceTag price={product.price} salePrice={product.salePrice} className="text-2xl" />{product.unit && product.price ? <span className="text-xs text-fg-muted">/{product.unit}</span> : null}</div>
           <dl className="mt-5 divide-y divide-line/10 rounded-2xl border border-line/10 text-sm">
@@ -51,8 +51,8 @@ export default function ProductQuickView({ product, onClose }: { product: Produc
             <div className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-fg-muted">{tr("Bảo hành", "Warranty")}</dt><dd className="text-right font-bold text-fg">{product.warranty}</dd></div>
           </dl>
           <div className="mt-auto grid gap-2 pt-6 sm:grid-cols-2">
-            <AddToQuoteButton sku={product.slug} name={product.name} className="sm:col-span-2" />
-            <button type="button" onClick={() => { onClose(); cart.open(); }} className="t15-button t15-button-secondary"><ShoppingBagIcon className="h-4 w-4" />{tr("Xem giỏ báo giá", "View quote cart")}</button>
+            {cart.enabled && <><AddToQuoteButton sku={product.slug} name={product.name} className="sm:col-span-2" />
+            <button type="button" onClick={() => { onClose(); cart.open(); }} className="t15-button t15-button-secondary"><ShoppingBagIcon className="h-4 w-4" />{tr("Xem giỏ báo giá", "View quote cart")}</button></>}
             <Link href={`/san-pham/${product.slug}`} className="t15-button t15-button-secondary" onClick={onClose}>{tr("Trang chi tiết", "Details page")}</Link>
           </div>
         </div>
