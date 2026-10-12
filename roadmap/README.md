@@ -79,17 +79,55 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 
 ## 4. Gói dịch vụ ↔ code
 
-| | **Cơ bản** | **Nâng cao** | **Cao cấp** |
+<!-- plans:table:start -->
+|  | **Cơ bản** | **Nâng cao** | **Cao cấp** |
 |---|---|---|---|
-| Theme | Nhóm Classic (minwy, t02–t04) | + nhóm Pro (t05–t11) | + nhóm Signature (t12–t15), override màu/font |
-| Section | Hero, giới thiệu, dịch vụ, dự án, tin tức, liên hệ, footer | + máy tính chi phí, form "Nhận báo giá", gói giải pháp, FAQ, đánh giá, số liệu | + video Shorts, catalog + giỏ báo giá, đại lý, bản đồ chi nhánh, TikTok, song ngữ |
-| Tùy biến | Chọn 1 preset, sửa nội dung | Bật/tắt + sắp xếp section, đổi variant | **Builder kéo-thả**, nhiều trang landing, A/B CTA |
-| Tên miền riêng + SSL | 1 | 1 | 3 (đa thương hiệu) |
-| Media | 1 GB | 5 GB | 20 GB, video tự host |
-| Lead | Email + Telegram | + Webhook/Google Sheets, hộp thư lead | + phân bổ theo chi nhánh, xuất CSV, API |
-| Email tên miền | Hướng dẫn tự cài | Cài hộ (phí cài đặt) | Cài hộ + quản lý (hoa hồng Zoho/Google) |
+| Nhóm theme | Classic (minwy, t02–t04) | Classic (minwy, t02–t04), Pro (t05–t11) | Classic (minwy, t02–t04), Pro (t05–t11), Signature (t12–t15) |
+| Form liên hệ/tư vấn (`leadForm`) | Có | Có | Có |
+| Tin tức (`blog`) | Có | Có | Có |
+| Tên miền riêng + SSL (`customDomain`) | Có | Có | Có |
+| Máy tính chi phí (`calculator`) | — | Có | Có |
+| Form nhận báo giá (`quoteForm`) | — | Có | Có |
+| Gói giải pháp (`packages`) | — | Có | Có |
+| Câu hỏi thường gặp (`faq`) | — | Có | Có |
+| Đánh giá khách hàng (`testimonials`) | — | Có | Có |
+| Số liệu (`stats`) | — | Có | Có |
+| Giám sát năng lượng / biểu đồ phụ tải (`energyMonitoring`) | — | Có | Có |
+| Mô hình đầu tư (`investmentModels`) | — | Có | Có |
+| Chứng nhận / uy tín (`trust`) | — | Có | Có |
+| Mạng xã hội (`social`) | — | Có | Có |
+| Lead Webhook / Google Sheets (`leadWebhook`) | — | Có | Có |
+| Hộp thư lead (`leadInbox`) | — | Có | Có |
+| Sắp xếp section (`sectionReorder`) | — | Có | Có |
+| Đổi variant (`variantSwitch`) | — | Có | Có |
+| Video Shorts (`shorts`) | — | — | Có |
+| TikTok (`tiktok`) | — | — | Có |
+| Danh mục sản phẩm (`catalog`) | — | — | Có |
+| Giỏ báo giá (`quoteCart`) | — | — | Có |
+| Đại lý (`dealer`) | — | — | Có |
+| Bản đồ chi nhánh (`branchMap`) | — | — | Có |
+| Báo chí (`press`) | — | — | Có |
+| Song ngữ VI/EN (`bilingual`) | — | — | Có |
+| Xuất lead (`leadExport`) | — | — | Có |
+| Override màu/font (`themeOverride`) | — | — | Có |
+| Builder kéo-thả (`builder`) | — | — | Có |
+| Trang landing (`landingPages`) | — | — | Có |
+| A/B CTA (`abTest`) | — | — | Có |
+| Số tên miền | 1 | 1 | 3 |
+| Media (GB) | 1 | 5 | 20 |
+| Số trang do khách tạo | 1 | 3 | 20 |
+| Số người dùng | 1 | 3 | 10 |
+<!-- plans:table:end -->
 
-Bảng này được sinh từ `packages/plans/plans.ts` (E6) — trang bảng giá và code luôn khớp nhau.
+Bảng quyền sinh từ `packages/plans/plans.ts` bằng `pnpm plans:table`; CI kiểm bằng `pnpm plans:table --check`.
+Feature mô tả quyền sản phẩm, không xác nhận tính năng tương lai đã được triển khai. Nội dung chung gồm hero,
+giới thiệu, dịch vụ, dự án, liên hệ và footer. Limits áp dụng theo tenant; pages tính home + landing do khách tạo,
+không tính trang hệ thống hoặc từng trang chi tiết sản phẩm/tin tức.
+
+Dịch vụ lead Email/Telegram là mô tả kênh dịch vụ, không phải entitlement section mới. Webhook/Google Sheets,
+hộp thư và xuất lead có feature riêng trong bảng; phân bổ/API/video hosting sẽ cập nhật contract khi triển khai.
+Email tên miền: Cơ bản hướng dẫn tự cài; Nâng cao cài hộ (phí cài đặt); Cao cấp cài hộ + quản lý
+(hoa hồng Zoho/Google). Đây là dịch vụ cài đặt, không thêm feature flag trong E6-S01.
 
 ## 5. Lộ trình
 

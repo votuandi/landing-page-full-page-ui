@@ -15,7 +15,8 @@
     "visual:matrix": "turbo run build --filter=web && pnpm --filter @solar/visual matrix:test",
     "lint:tokens": "turbo run lint:tokens",
     "db:seed": "pnpm --filter @solar/db db:seed",
-    "sections:migrate": "pnpm --filter @solar/db sections:migrate"
+    "sections:migrate": "pnpm --filter @solar/db sections:migrate",
+    "plans:table": "pnpm --filter @solar/plans plans:table"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",
