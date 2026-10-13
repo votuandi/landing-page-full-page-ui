@@ -33,11 +33,11 @@ export const seoSchema = z.object({ title: textValue.optional(), description: te
 export const productSchema = z.object({
   powerKw: z.number().nonnegative(), images: z.array(contentImage).min(1), warranty: textValue,
   tech: z.array(z.string()), segment: z.array(z.enum(["home", "business", "project"])),
-  specs: z.record(z.string(), textValue), compatible: z.array(z.string()).optional(), unit: textValue.optional(),
+  specs: z.record(z.string(), textValue), compatible: z.array(z.string()).optional(), unit: textValue.optional(), datasheet: z.preprocess((value) => value === "#" ? undefined : value, asset.optional()),
 });
 export const projectSchema = z.object({ location: textValue, image: contentImage, detail: textValue, metrics: z.array(z.tuple([textValue, textValue])), savingPerMonth: z.number().nonnegative().optional() });
 export const postSchema = z.object({ excerpt: textValue, cover: contentImage, readMinutes: z.number().int().positive(), body: z.union([z.array(textValue), richText()]) });
-export const serviceSchema = z.object({ audience: textValue, problem: textValue, solution: textValue, image: contentImage, price: textValue, packages: z.array(z.tuple([textValue, textValue])) });
+export const serviceSchema = z.object({ audience: textValue, problem: textValue, solution: textValue, image: contentImage, price: textValue, packages: z.array(z.tuple([textValue, textValue])), segment: z.enum(["household", "shop", "factory", "farm"]).optional(), steps: z.array(textValue).optional() });
 export type Profile = z.output<typeof profileSchema>;
 export function parseContent<S extends z.ZodType>(schema: S, value: unknown, context: object): z.output<S> | null {
   const parsed = schema.safeParse(value);

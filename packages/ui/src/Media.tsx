@@ -9,7 +9,7 @@ export function MediaImage({ src, alt, sizes, className = "", priority = false, 
   src?: string; alt: string; sizes: string; className?: string; priority?: boolean; label?: string;
 }) {
   if (src) {
-    return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} loading={priority ? undefined : "lazy"} unoptimized={src.endsWith(".svg")} className={`object-cover ${className}`} />;
+    return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} loading={priority ? undefined : "lazy"} unoptimized={src.endsWith(".svg") || src.startsWith("https://")} className={`object-cover ${className}`} />;
   }
   return (
     <div role="img" aria-label={alt} className={`absolute inset-0 grid place-items-center bg-bg-tint ${className}`}>
