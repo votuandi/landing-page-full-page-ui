@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useDialog } from "@solar/ui";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, type Product, type ProductSegment } from "@/data/products";
 import { resolvePrice } from "@solar/core";
@@ -34,6 +35,8 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
   const search = useSearchParams();
   const [quick, setQuick] = useState<Product | null>(null);
   const [drawer, setDrawer] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  useDialog(drawerRef, drawer, () => setDrawer(false));
 
   const q = Object.fromEntries(KEYS.map((k) => [k, search.get(k) || ""])) as Record<(typeof KEYS)[number], string>;
   const category = categories.some((c) => c.value === q.category) ? q.category : "";
@@ -142,7 +145,7 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
       {drawer && (
         <div className="fixed inset-0 z-[80] flex justify-end bg-scrim/50 lg:hidden" role="dialog" aria-modal="true" aria-label={tr("Bộ lọc", "Filters")}>
           <button type="button" tabIndex={-1} className="absolute inset-0" onClick={() => setDrawer(false)} aria-label={tr("Đóng bộ lọc", "Close filters")} />
-          <aside className="relative h-full w-[88%] max-w-sm overflow-y-auto rounded-l-card bg-bg-elevated p-6">
+          <aside ref={drawerRef} tabIndex={-1} className="relative h-full w-[88%] max-w-sm overflow-y-auto rounded-l-card bg-bg-elevated p-6">
             <div className="flex items-center justify-between"><h2 className="text-xl font-black">{tr("Bộ lọc", "Filters")}</h2><button type="button" onClick={() => setDrawer(false)} className="t15-icon-button" aria-label={tr("Đóng bộ lọc", "Close filters")}><XMarkIcon className="h-5 w-5" /></button></div>
             <div className="mt-6">{selects}</div>
             <button type="button" onClick={() => setDrawer(false)} className="t15-button t15-button-primary mt-6 w-full">{tr(`Xem ${list.length} sản phẩm`, `Show ${list.length} products`)}</button>
