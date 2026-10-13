@@ -103,7 +103,7 @@ export async function seedDemo(db: Db) {
         // These four seed tables use the same slug/title/data create shape.
         const upsert = delegate.upsert as typeof tx.service.upsert;
         for (const item of items) {
-          const data = common(item);
+          const data = { ...common(item), ...("isPrimary" in item ? { isPrimary: item.isPrimary } : {}) };
           await upsert({ where: { tenantId_slug: { tenantId, slug: item.slug } }, update: data,
             create: { tenantId, slug: item.slug, publishedAt: new Date(), ...data } });
         }
