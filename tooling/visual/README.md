@@ -36,6 +36,12 @@ không có quyền đó, Claude chạy bước này trong design pass. Worktree 
 
 Ảnh evidence, baseline và log bị ignore, đính kèm PR qua playbook thay vì commit.
 
+Workflow compare chỉ tải baseline có `headSha` đúng merge-base. Nếu thiếu, dựng chính merge-base bằng Webpack
+và sinh baseline từ source đó với harness PR; không dùng run thành công cũ hơn. E5-S04 xác nhận baseline `aa10450`
+trước port E4 gây 48 ảnh lệch so với base `3545ab6`: `/cam-nang` mobile kỳ vọng cũ 12.726px, base đúng 12.694px.
+So nhánh S04 với baseline sinh tại `3545ab6` qua 64/64 (48 ảnh + 16 kiểm route lab), ngưỡng ảnh vẫn 0,5%.
+Không cập nhật baseline từ code mới của PR để che regression.
+
 `@solar/visual` là package kiểm tra dành cho dev/CI, không thêm dependency runtime.
 12 route đại diện cho toàn bộ loại trang hiện tại × 390×844 / 1440×900 × light / dark = **48 ảnh Chromium**.
 Slug cố định và nguồn dữ liệu nằm trong `routes.ts`. Catalog bật mặc định nên cả `/san-pham` và chi tiết

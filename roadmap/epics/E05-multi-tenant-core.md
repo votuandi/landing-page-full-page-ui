@@ -103,6 +103,9 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     anchor, JS off, metadata và header giả mạo; primary alias 308 qua HTTP. Báo cáo/bằng chứng:
     `.agent-runs/E5-S04/codex-report.md`. Web tạm dùng Webpack vì Turbopack xuất manifest preload chunk thiếu;
     production hai host và legacy/lab qua browser với 0 lỗi. PR và review Claude chờ sau commit.
+  - Sửa review r1 trên [PR #36](https://github.com/votuandi/landing-page-full-page-ui/pull/36): adapter/giỏ/nội dung/VI-EN,
+    isolation và fallback đã có regression tests; browser 9/9, DB 101/101, tenant 43/43 (0 skip), visual/lab 64/64
+    với baseline đúng merge-base. Chi tiết và commit đề xuất: `.agent-runs/E5-S04/fix-r1-report.md`; review r2/CI sau commit.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
 ### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu

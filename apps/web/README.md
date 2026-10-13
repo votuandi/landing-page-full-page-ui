@@ -74,6 +74,11 @@ Phần kiểm header giả mạo qua Caddy được kiểm tiếp ở E10 khi c�
 Browser kiểm đúng hai host và giữ assertion không có console/page errors; bản Webpack qua cùng kiểm tra.
 Khôi phục mặc định Turbopack sau khi lỗi manifest này được xử lý và browser suite qua.
 
+Metadata tạm chờ hoàn tất trước khi gửi HTML (`htmlLimitedBots: /.*/`). Next 16.3.8 đã để canonical của trang danh sách
+cùng canonical mới sau điều hướng client sang detail, kể cả chờ 20 giây; tắt streaming metadata làm test qua với
+đúng một canonical. Đánh đổi là metadata phải đọc DB xong trước response; khôi phục streaming khi lỗi này được sửa
+và case điều hướng trong tenant suite qua. [Cấu hình Next htmlLimitedBots](https://nextjs.org/docs/app/api-reference/config/next-config-js/htmlLimitedBots).
+
 `MULTI_TENANT=1` bật phân giải Host và render nội dung published từ PostgreSQL. Mặc định vẫn chạy bản t15/lab cũ.
 Proxy xóa header nội bộ do client gửi, đặt tenant/site đã phân giải và rewrite vào `sites/[siteId]`.
 Đường dẫn công khai `/sites/*` bị chặn. Các truy vấn nội dung dùng repository bắt buộc tenantId;
@@ -88,6 +93,18 @@ cẩm nang, chính sách, về chúng tôi và liên hệ. Theme/override/font/c
 header/footer lấy từ home cùng site và chỉ render một lần. Collection rỗng giữ rỗng.
 Schema lỗi dùng defaults của section/widget và log định danh; lỗi I/O/module được cô lập.
 Media UUID hiển thị placeholder tới E8; asset path/HTTPS đã kiểm được dùng trực tiếp.
+
+Adapter kiểm schema từng record trước khi hydrate: record lỗi bị bỏ riêng và log `recordId`, không làm mất record tốt.
+Cột DB là nguồn chính cho segment/kind/rating/primary; Product thiếu Brand/Category published vẫn hiển thị với nhãn trung tính.
+Giỏ tra toàn bộ SKU published, độc lập query trưng bày của widget. Datasheet, đơn vị giá, savings, CTA và form dịch vụ
+dùng dữ liệu tenant; service `data.segment` chọn công trình liên quan, `data.steps` tùy chọn thay quy trình mặc định.
+
+Locale tenant đọc cookie `solar-locale` và kiểm với `Site.locales`; không hợp lệ thì dùng defaultLocale được phép.
+Nút VI/EN cập nhật cookie rồi `router.refresh()` để DTO, server slots, chrome/widget và metadata đổi cùng nhau, kể cả
+tải lại hoặc điều hướng client. Metadata detail ưu tiên ảnh record, fallback ảnh SEO site; description fallback SEO →
+profile → tên site. Theme switch chỉ hiện khi theme hỗ trợ dark và profile bật switcher.
+Nguồn: [Next cookies](https://nextjs.org/docs/app/api-reference/functions/cookies),
+[Next router.refresh](https://nextjs.org/docs/app/api-reference/functions/use-router).
 
 Hook section/widget hiện tra features của **gói cơ sở** bằng `@solar/plans`; không cộng addons/trial/limits.
 Gating quyền đầy đủ của route/metadata/CTA/provider/API thuộc E6-S02. API lead tenant trả 503 trước adapter chung,
