@@ -1,4 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
+
+function fixture(action: string) {
+  return execFileSync(process.execPath, ["--import", "tsx", "scripts/tenant-browser-fixture.ts", action], { cwd: resolve(__dirname, "../../apps/web"), encoding: "utf8" });
+}
 
 const origin = (id: string) => `http://${id}.localhost:3211`;
 const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
@@ -25,7 +31,7 @@ test("A/B/A/B share one instance: theme, content, chrome and metadata follow the
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", origin(id) + (path === "/" ? "" : path));
       await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", origin(id) + (path === "/" ? "" : path));
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
-      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", new RegExp(id === "t15" ? "solar-panels-hero" : "solar-battery-hero"));
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", new RegExp(`^http://${id}\\.localhost:3211/images/`));
       await expect(page).toHaveTitle(new RegExp(`Demo ${id}`));
       const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
       expect(jsonLd.join(" ")).not.toMatch(/Organization|lumivolt\.vn/);
@@ -45,12 +51,27 @@ test("A/B/A/B share one instance: theme, content, chrome and metadata follow the
 
 test("every seeded t15 route has a DB equivalent; reserved, missing and internal paths return 404", async ({ page }) => {
   test.setTimeout(240_000);
+  const manifest = JSON.parse(fixture("manifest")) as Record<string, string[]>;
   for (const id of ["t15", "t12"]) {
     await page.goto(origin(id));
     const paths = new Set(["/san-pham", "/giai-phap", "/tin-tuc", "/cam-nang", "/ve-chung-toi", "/lien-he", "/uu-dai/nang-luong"]);
     for (const list of ["/san-pham", "/giai-phap", "/tin-tuc"]) {
       await page.goto(origin(id) + list);
-      for (const href of await page.locator("main a[href]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")!))) if (href.startsWith(list + "/")) paths.add(href);
+      const collection = list === "/san-pham" ? "products" : list === "/giai-phap" ? "services" : "posts";
+      await expect(page.locator("main article")).toHaveCount(manifest[collection].length);
+      if (collection !== "products") await expect(page.locator("main article img")).toHaveCount(manifest[collection].length);
+      if (collection === "posts") {
+        await expect(page.locator("main")).toContainText("phút đọc");
+        await expect(page.locator("main")).toContainText("Hộ gia đình");
+      }
+      if (collection === "services") {
+        await expect(page.locator("main article").first()).toContainText(manifest.servicePrices[0]);
+        await expect(page.locator("main article").first()).toContainText(manifest.serviceSolutions[0]);
+      }
+      for (const slug of manifest[collection]) {
+        await expect(page.locator(`main a[href="${list}/${slug}"]`).first()).toBeVisible();
+        paths.add(`${list}/${slug}`);
+      }
     }
     for (const slug of ["nha-pho-binh-thanh", "biet-thu-da-lat", "sieu-thi-mini-can-tho", "chuoi-cafe-da-nang", "xuong-co-khi-dong-nai", "kho-lanh-tay-ninh", "trai-ga-tay-ninh", "trai-heo-dong-thap"]) paths.add(`/cong-trinh/${slug}`);
     for (const slug of ["bao-hanh", "doi-tra", "van-chuyen", "bao-mat", "dai-ly"]) paths.add(`/chinh-sach/${slug}`);
@@ -58,6 +79,15 @@ test("every seeded t15 route has a DB equivalent; reserved, missing and internal
       const response = await page.goto(origin(id) + path);
       expect(response?.status(), `${id}${path}`).toBe(200);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", origin(id) + path);
+      if (path.startsWith("/tin-tuc/")) await expect(page.getByRole("link", { name: "Dự toán chi phí" })).toHaveAttribute("href", /#du-toan$/);
+      if (path.startsWith("/cong-trinh/")) {
+        await expect(page.locator("main")).toContainText("Tiết kiệm mỗi tháng");
+        await expect(page.getByRole("link", { name: "Nhận báo giá công trình tương tự" })).toHaveAttribute("href", "/lien-he");
+      }
+      if (path.startsWith("/giai-phap/")) {
+        await expect(page.locator("main ol li")).toHaveCount(5);
+        await expect(page.locator('main form input[name="phone"]')).toBeVisible();
+      }
     }
     for (const path of ["/missing", "/cong-trinh", "/tin-tuc/draft", "/robots.txt", "/sitemap.xml", "/sites/x"]) {
       const response = await page.goto(origin(id) + path);
@@ -80,6 +110,7 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
   await page.goto(`${origin("t15")}/tin-tuc`);
   await page.locator(`main a[href="/tin-tuc/${postSlug}"]`).click();
   await expect(page).toHaveURL(`${origin("t15")}/tin-tuc/${postSlug}`);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin("t15")}/tin-tuc/${postSlug}`);
   await page.goto(`${origin("t15")}/cam-nang`);
   await page.getByRole("navigation", { name: "Mục lục" }).getByRole("link", { name: "Hỏi đáp" }).click();
@@ -100,8 +131,135 @@ test("JS disabled and reduced motion preserve SSR content", async ({ browser }) 
     await expect(page.locator("main")).toContainText(`Demo ${id}`);
     await page.goto(`${origin(id)}/san-pham`);
     await expect(page.locator("main article").first()).toBeVisible();
+    for (const path of [`/san-pham/${productSlug}`, `/tin-tuc/${postSlug}`, `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh", "/cam-nang", "/ve-chung-toi", "/lien-he"]) {
+      await page.goto(origin(id) + path);
+      await expect(page.locator("main h1")).toBeVisible();
+      if (["/lien-he", "/giai-phap/solar-gia-dinh"].includes(path)) await expect(page.locator('main form input[name="phone"]')).toBeVisible();
+    }
   }
   await context.close();
+});
+
+test.describe("review fixtures: EN, complete cart lookup, mobile controls and theme configuration", () => {
+  test.beforeAll(() => { fixture("setup"); });
+  test.afterAll(() => { fixture("cleanup"); });
+  const url = "http://review.localhost:3211";
+  test("locale switch refreshes records, chrome, widgets and metadata on reload and client navigation", async ({ page }) => {
+    for (const [path, title] of [["/san-pham", "Products"], ["/tin-tuc", "News"], ["/giai-phap", "Solutions"], ["/cam-nang", "English cam-nang"], ["/ve-chung-toi", "English ve-chung-toi"], ["/lien-he", "English lien-he"], ["/uu-dai/nang-luong", "English uu-dai/nang-luong"]]) {
+      await page.goto(url + path, { waitUntil: "networkidle" });
+      await expect(page).toHaveTitle(new RegExp(title));
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English description");
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + path);
+    }
+    await page.goto(url + "/tin-tuc/review-post", { waitUntil: "networkidle" });
+    await expect(page.locator("main h1")).toHaveText("English post");
+    await expect(page.locator("main")).toContainText("English post body");
+    await expect(page.getByRole("link", { name: "Estimate costs" })).toBeVisible();
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English excerpt");
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "en_US");
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", url + "/images/illustrations/home-solar.webp");
+    await page.getByRole("button", { name: "vi", exact: true }).click();
+    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Mô tả VI");
+    await expect(page.getByRole("navigation", { name: "Điều hướng chính" })).toBeVisible();
+    await page.reload();
+    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await page.locator('header a[href="/"]').click();
+    await expect(page.locator("main")).toContainText("Tiêu đề VI");
+    await page.getByRole("button", { name: "en", exact: true }).click();
+    await expect(page.locator("main")).toContainText("English hero");
+    await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
+  });
+  test("49th SKU outside widget query stays in cart; detail content and keyboard dialogs work at 390/1440", async ({ page }, info) => {
+    test.setTimeout(180_000);
+    await page.route("https://media.example.test/**", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>' }));
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(url + "/san-pham/review-sku-48", { waitUntil: "networkidle" });
+      await expect(page.locator("main")).toContainText("/set");
+      await expect(page.getByRole("link", { name: "Download datasheet" })).toHaveAttribute("href", "/files/review.pdf");
+      await expect(page.locator('header a[href="/"]')).toHaveAttribute("aria-label", "[DỮ LIỆU MẪU] Solar energy installation company – Home");
+      const controls = page.getByRole("button", { name: "Open menu", exact: true });
+      if (width === 390) {
+        const box = await controls.boundingBox();
+        expect(box).not.toBeNull();
+        expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+        await controls.focus(); await page.keyboard.press("Enter");
+        await expect(page.getByRole("dialog", { name: "Menu", exact: true })).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(controls).toBeFocused();
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      await page.getByRole("button", { name: /Add to/ }).click();
+      await page.locator('[data-cart-count]').click();
+      const cart = page.getByRole("dialog");
+      await expect(cart).toContainText("English product 48");
+      await expect(cart.locator('img[src="https://media.example.test/product.webp"]')).toBeVisible();
+      await page.keyboard.press("Tab");
+      expect(await cart.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.goto(url + "/san-pham?category=panel", { waitUntil: "networkidle" });
+      if (width === 390) {
+        await page.getByRole("button", { name: /^Filters/ }).click();
+        const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+        await expect(drawer).toBeVisible();
+        await drawer.getByLabel("Brand", { exact: false }).selectOption("Helionyx");
+        await page.keyboard.press("Escape");
+        await expect(drawer).toHaveCount(0);
+        await expect(page.locator("main article")).toHaveCount(2);
+      }
+      const quick = page.getByRole("button", { name: /Quick view/ }).first();
+      await quick.focus(); await page.keyboard.press("Enter");
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(quick).toBeFocused();
+      for (const path of ["/tin-tuc/review-post", `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh"]) {
+        await page.goto(url + path, { waitUntil: "networkidle" });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+        if (path.includes("giai-phap")) {
+          const links = await page.locator('main a[href^="/cong-trinh/"]').count();
+          expect(links).toBe(2);
+        }
+        await page.screenshot({ path: info.outputPath(`${width}-${path.split("/")[1]}.png`), fullPage: true, caret: "initial" });
+      }
+    }
+  });
+  test("theme override, no-dark and disabled switcher, absent/disabled chrome respect configuration", async ({ page }) => {
+    await page.goto(url, { waitUntil: "networkidle" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--c-primary").trim())).toBe("90 190 120");
+    await page.getByRole("button", { name: "Switch to light mode" }).first().click();
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--c-primary").trim())).toBe("10 110 70");
+    for (const action of ["no-dark", "switcher-off"]) {
+      fixture(action);
+      await page.context().addCookies([{ name: "solar-locale", value: "vi", url }]);
+      await page.reload({ waitUntil: "networkidle" });
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.locator('[data-widget="theme-switch"]')).toHaveCount(0);
+      await expect(page.locator('[data-header-theme]')).toHaveCount(0);
+      if (action === "no-dark") await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+      await expect(page.getByRole("group", { name: "Language" })).toHaveCount(0);
+    }
+    await page.goto(url + "/giai-phap/solar-gia-dinh", { waitUntil: "networkidle" });
+    await page.getByLabel("Full name", { exact: false }).fill("Review");
+    await page.getByLabel("Mobile number", { exact: false }).fill("0901234567");
+    const response = page.waitForResponse((response) => response.url().endsWith("/api/lead"));
+    await page.getByRole("button", { name: "Get a detailed quote" }).click();
+    expect((await response).status()).toBe(503);
+    const error = page.locator("main form").getByRole("alert");
+    await expect(error).toBeVisible();
+    await expect(error.locator('a[href^="tel:"]')).toHaveCount(0);
+    for (const action of ["disabled-chrome", "no-chrome"]) {
+      fixture(action); await page.reload();
+      await expect(page.locator('header, footer')).toHaveCount(0);
+      await expect(page.locator("main h1")).toBeVisible();
+    }
+  });
+  test("secondary domain redirects to primary host with public path and query intact", async ({ request }) => {
+    const response = await request.get("http://localhost:3211/tin-tuc/review-post?q=1", { headers: { Host: "review-alt.localhost:3211" }, maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(url + "/tin-tuc/review-post?q=1");
+  });
 });
 
 test("spoofed headers cannot select B; tenant leads return 503 before the legacy adapter", async ({ request }) => {
