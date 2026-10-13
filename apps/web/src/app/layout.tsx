@@ -110,7 +110,7 @@ export default async function RootLayout({ children }: Readonly<{children:React.
     const mode = site.theme.meta.supportsDark ? site.profile.theme.default : "light";
     const script = `(function(){try{var t=localStorage.getItem("t15-theme");if(${site.theme.meta.supportsDark && site.profile.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t="${mode}";document.documentElement.dataset.theme=t;}catch(e){}})();`;
     for (const file of themeFontFiles(site.theme)) preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
-    return <html lang={site.locale} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
+    return <html lang={site.locale} data-tenant-site={site.siteId} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(site.theme) }} /><script dangerouslySetInnerHTML={{ __html: script }} /></head>
       <body>{children}</body>
     </html>;

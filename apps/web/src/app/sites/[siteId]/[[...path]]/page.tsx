@@ -23,7 +23,7 @@ const load = cache(async (siteId: string, slug: string) => {
 export async function generateMetadata({ params }: Props) {
   const { siteId, path = [] } = await params;
   const { site, page, system } = await load(siteId, path.join("/"));
-  return tenantMetadata(site, `/${path.join("/")}`, page?.title || system?.title, system?.description);
+  return tenantMetadata(site, `/${path.join("/")}`, page?.title || system?.title, system?.description, { image: system && "image" in system ? system.image : undefined });
 }
 export default async function TenantPage({ params }: Props) {
   const { siteId, path = [] } = await params;

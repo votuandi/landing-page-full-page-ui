@@ -19,3 +19,18 @@ test("content image boundary permits UUID placeholders and safe paths/HTTPS; rej
   assert.equal(contentImage.safeParse("00000000-0000-4000-8000-000000000001").success, true);
   assert.equal(asset.safeParse("https://example.com/image.webp").success, true);
 });
+
+test("EN and empty SEO fallbacks produce exact metadata at the primary host for every public route type", () => {
+  const site = { primaryHost: "primary.localhost", name: "Site", locale: "en" as const, profile: { name: { vi: "VI brand", en: "EN brand" }, description: { vi: "VI description", en: "EN description" } }, seo: {} };
+  for (const path of ["/", "/uu-dai/nang-luong", "/san-pham", "/giai-phap", "/tin-tuc", "/cam-nang", "/ve-chung-toi", "/lien-he", "/chinh-sach/bao-hanh", "/san-pham/shared", "/cong-trinh/shared", "/tin-tuc/shared", "/giai-phap/shared"]) {
+    const result = tenantMetadata(site, path + "?host=foreign.localhost", "English title", undefined, { production: true, image: "/images/detail.webp" });
+    assert.equal(result.title, "English title | EN brand");
+    assert.equal(result.description, "EN description");
+    assert.equal(result.alternates?.canonical, `https://primary.localhost${path}`);
+    assert.match(JSON.stringify(result.openGraph), /https:\/\/primary.localhost\/images\/detail.webp/);
+    assert.match(JSON.stringify(result.openGraph), /en_US/);
+    assert.doesNotMatch(JSON.stringify(result), /foreign|VI brand/);
+  }
+  assert.equal(tenantMetadata({ ...site, profile: {} }, "/").description, "Site");
+  assert.deepEqual((tenantMetadata(site, "/", undefined, undefined, { image: "javascript:alert(1)" }).openGraph as { images: unknown }).images, []);
+});

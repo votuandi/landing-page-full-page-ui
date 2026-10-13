@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { siteConfig, type Text } from "@/config/site.config";
 import { pickText, type Lang } from "@/i18n/text";
 import { onSetSiteLocale } from "@solar/sections";
+import { useRouter } from "next/navigation";
 
 export type { Lang };
 const STORAGE_KEY = "t15-lang";
@@ -26,27 +27,31 @@ const LangContext = createContext<LangContextValue>({
  * nếu người dùng đã chọn EN, chuyển sau khi hydrate. Tắt trong config → luôn là ngôn ngữ mặc định.
  */
 const legacyLocales: Lang[] = siteConfig.i18n.enabled ? ["vi", "en"] : [siteConfig.i18n.defaultLang];
-export function LangProvider({ children, defaultLocale = siteConfig.i18n.defaultLang, locales = legacyLocales }: { children: React.ReactNode; defaultLocale?: Lang; locales?: Lang[] }) {
-  const [lang, setLangState] = useState<Lang>(defaultLocale);
+export function LangProvider({ children, defaultLocale = siteConfig.i18n.defaultLang, locales = legacyLocales, serverLocale = false }: { children: React.ReactNode; defaultLocale?: Lang; locales?: Lang[]; serverLocale?: boolean }) {
+  const [legacyLang, setLangState] = useState<Lang>(defaultLocale);
+  const lang = serverLocale ? defaultLocale : legacyLang;
+  const router = useRouter();
 
   useEffect(() => {
-    if (locales.length < 2) return;
+    if (serverLocale || locales.length < 2) return;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if ((saved === "vi" || saved === "en") && locales.includes(saved)) setLangState(saved);
     } catch {}
-  }, [locales]);
+  }, [locales, serverLocale]);
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
 
-  // Nút VI/EN của header preset (packages/sections) báo qua event bus.
-  useEffect(() => onSetSiteLocale((next) => { if (locales.includes(next)) setLangState(next); }), [locales]);
-
   const setLang = useCallback((next: Lang) => {
     if (!locales.includes(next)) return;
-    setLangState(next);
+    if (!serverLocale) setLangState(next);
     try { localStorage.setItem(STORAGE_KEY, next); } catch {}
-  }, [locales]);
+    if (serverLocale) {
+      document.cookie = `solar-locale=${next}; Path=/; SameSite=Lax; Max-Age=31536000`;
+      router.refresh();
+    }
+  }, [locales, serverLocale, router]);
+  useEffect(() => onSetSiteLocale(setLang), [setLang]);
 
   const value = useMemo<LangContextValue>(() => ({ lang, setLang, tr: (text, en) => pickText(text, lang, en) }), [lang, setLang]);
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;

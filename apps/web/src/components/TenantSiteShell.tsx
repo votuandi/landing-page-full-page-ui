@@ -10,7 +10,7 @@ export default function TenantSiteShell({ children, header, footer, inlineWidget
   children: ReactNode; header: ReactNode; footer: ReactNode; inlineWidgets: ReactNode; overlayWidgets: ReactNode;
   defaultLocale: "vi" | "en"; locales: ("vi" | "en")[]; validSkus: string[]; cartEnabled: boolean; calculatorHref: string | null;
 }) {
-  return <LangProvider defaultLocale={defaultLocale} locales={locales}>
+  return <LangProvider defaultLocale={defaultLocale} locales={locales} serverLocale>
     <QuoteCartProvider showDrawer={false} validSkus={validSkus} enabled={cartEnabled}>
       <SiteStateProvider calculatorHref={calculatorHref}>
         <DragScroll /><SectionReveal />{header}{children}{inlineWidgets}{footer}{overlayWidgets}

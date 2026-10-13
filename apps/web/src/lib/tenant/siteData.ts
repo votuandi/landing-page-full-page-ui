@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { forTenant, type TenantRepo } from "@solar/db";
 import { getTheme } from "@solar/themes";
 import { ThemeOverridesSchema } from "@solar/tokens";
@@ -21,7 +22,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     const row = await repo.site.first({ where: { id: siteId }, include: { tenant: true } });
     if (!row || row.tenantId !== tenantId || row.id !== siteId) return null;
     const theme = getTheme(row.themeId);
-    if (!theme) return null;
+    if (!theme) { console.error("[tenant] theme không tồn tại", { tenantId, siteId }); return null; }
     const domain = await repo.domain.first({ where: { siteId, isPrimary: true, status: { in: ["verified", "active"] } } });
     if (!domain || normalizeHost(domain.hostname) !== domain.hostname) return null;
     const context = { tenantId, siteId };
@@ -30,7 +31,8 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     const widgets = parseContent(siteWidgetsSchema, row.widgets, context) ?? {};
     const overrides = parseContent(ThemeOverridesSchema, row.themeOverrides, context) ?? {};
     const locales = row.locales.filter((locale): locale is "vi" | "en" => locale === "vi" || locale === "en");
-    const locale = row.defaultLocale === "en" && locales.includes("en") ? "en" as const : "vi" as const;
+    if (!locales.length) locales.push("vi");
+    const locale = selectSiteLocale(locales, row.defaultLocale);
     return { tenantId, siteId, name: row.name, profile, seo, widgets, overrides, theme, primaryHost: domain.hostname,
       locales, locale, planId: row.tenant.planId, context: { tenantId, locale, themeId: theme.meta.id } };
   }
@@ -65,6 +67,15 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
 const data = createSiteData(tenantRepository);
-export const loadTenantSite = cache(data.loadTenantSite);
+export function selectSiteLocale(locales: ("vi" | "en")[], defaultLocale: string, requested?: string) {
+  if ((requested === "vi" || requested === "en") && locales.includes(requested)) return requested;
+  return locales.includes(defaultLocale as "vi" | "en") ? defaultLocale as "vi" | "en" : locales[0] ?? "vi";
+}
+export const loadTenantSite = cache(async (tenantId: string, siteId: string) => {
+  const site = await data.loadTenantSite(tenantId, siteId);
+  if (!site) return null;
+  const locale = selectSiteLocale(site.locales, site.locale, (await cookies()).get("solar-locale")?.value);
+  return { ...site, locale, context: { ...site.context, locale } };
+});
 export const loadPublishedPage = cache(data.loadPublishedPage);
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;
