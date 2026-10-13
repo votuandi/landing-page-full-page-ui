@@ -90,8 +90,10 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           snapshot_dir="$GITHUB_WORKSPACE/tooling/visual/__screenshots__/linux"
+          merge_base=$(git merge-base HEAD "origin/$BASE_REF")
+          # An older successful run may predate intentional ports already merged into the base.
           run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow visual.yml \
-            --branch mono-repo-multi-tenent --event push --status success --limit 1 \
+            --branch mono-repo-multi-tenent --event push --status success --commit "$merge_base" --limit 1 \
             --json databaseId --jq '.[0].databaseId // empty') || run_id=""
           if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
             --name visual-baseline --dir "$snapshot_dir"; then
@@ -100,13 +102,14 @@ jobs:
             echo '::notice::Baseline unavailable/expired; generating from merge-base with the PR harness.'
             # Remove any partial download before generating a complete baseline.
             rm -rf "$snapshot_dir"
-            merge_base=$(git merge-base HEAD "origin/$BASE_REF")
             baseline_root="$RUNNER_TEMP/visual-base"
             git worktree add --detach "$baseline_root" "$merge_base"
             (
               cd "$baseline_root"
               pnpm install --frozen-lockfile
-              pnpm turbo run build --filter=web
+              pnpm --filter @solar/db generate
+              # Match the PR's compiler while keeping merge-base source unchanged.
+              pnpm --filter web exec next build --webpack
             )
             # merge-base may predate tooling/visual; keep its dependencies/source untouched.
             VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update

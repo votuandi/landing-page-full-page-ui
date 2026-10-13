@@ -47,7 +47,7 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @solar/db db:deploy
-      - run: pnpm --filter @solar/db plans:sync
+      # db:seed generates the client and syncs plans before seeding tenants.
       - run: pnpm db:seed
       - run: pnpm db:seed
       - run: pnpm --filter @solar/db test
