@@ -110,16 +110,18 @@ Trang demo `/lab/sections` vẫn dùng registry demo riêng.
 pnpm turbo run build --filter=web
 pnpm --filter @solar/visual matrix:update
 pnpm --filter @solar/visual matrix:test
-pnpm --filter @solar/visual matrix:test
 pnpm --filter @solar/visual matrix:report
 ```
 
 `pnpm visual:matrix` build rồi so ma trận. Windows có thể dùng `VISUAL_WORKERS=2` và server riêng như hướng dẫn ở trên;
-server riêng **phải bật `LAB_ENABLED=true`**. Hiện có 28 type × 1 theme t15 × 2 viewport × light/dark = 112 ô.
-Mục tiêu ≥ 4 theme chờ E4; không dùng theme giả. Theme/variant mới tự xuất hiện; thêm type cần cập nhật `matrixTypes`
-(test coverage báo thiếu/thừa). Project `matrix-*` có baseline riêng, không thay 48 ảnh cũ. Ô chưa có baseline (PR đầu,
-theme/variant mới) không so ảnh — chỉ ghi annotation `baseline-missing`, màu token và axe vẫn kiểm; job `baseline`
-trên base tạo ảnh sau merge. Ô có baseline vẫn so bình thường. Kiểm tra ảnh mới trước khi chấp nhận baseline.
+server riêng **phải bật `LAB_ENABLED=true`**. Tests lấy type/variant từ registry và cả 15 theme hiện có,
+chạy ở 390/1440 × light/dark. Mỗi test chỉ render một type/theme; axe duyệt trang một lần cho các variant.
+Setup kiểm registry thực tế trước mọi project. Project `matrix-*` có baseline riêng, không thay 48 ảnh cũ.
+Thứ tự theme → type rải hero/calculator/segments vào các shard, tránh dồn mọi theme của section chậm vào một shard.
+`matrix:update` lưu registry của source baseline vào `matrix-manifest.json`; so ảnh bắt buộc cho mọi ô trong manifest,
+thiếu PNG làm fail. Chỉ ô không tồn tại trong registry exact-base được ghi `baseline-new`; màu token và axe vẫn kiểm.
+`node tooling/visual/matrix-baseline.js <snapshot-directory>` kiểm đủ PNG của manifest ở cả bốn project.
+Artifact cũ thiếu manifest hoặc snapshot được sinh lại từ exact-base, không từ app PR.
 
 Computed-style kiểm RGB với sai số ±1 và mọi alpha; transparent hợp lệ. Duyệt phần tử hiển thị và pseudo-element,
 kiểm màu chữ, nền/gradient, viền có width, outline, decoration, shadow, SVG fill/stroke. Dạng màu chưa hỗ trợ bị báo lỗi.
@@ -131,5 +133,8 @@ Playwright JSON reporter và node tương phản < AA. Đỏ = lỗi tương ph�
 đánh giá được; không có violation không đồng nghĩa đã chứng nhận AA. Lỗi tương phản chỉ ghi report, màu ngoài token
 và snapshot sai làm test fail. JSON từng ô ở `test-results/matrix/**/cells.json`, tổng lượt chạy ở `test-results/matrix-run.json`;
 output được Playwright làm mới mỗi lượt để không lấy kết quả cũ. Report/baseline/output không commit.
-CI chạy matrix song song với timeout 6 phút và upload `matrix-report` 14 ngày kể cả khi test fail. Thời gian CI cần
-xác nhận trên PR; timeout cấu hình chưa phải bằng chứng đạt AC thời gian.
+CI chạy bốn project × tám shard độc lập, ngân sách sinh baseline/so ảnh mỗi shard vẫn 6 phút; fallback exact-base sinh đúng shard
+trước so sánh. Legacy/lab và `test:sections` chạy trong job riêng để matrix không cắt mất coverage đó.
+Mỗi shard upload report/JSON/trace 14 ngày kể cả khi fail. Report giữ partial cells và ghi “Lượt chạy bị ngắt” nếu
+JSON reporter chưa hoàn tất; trạng thái test lỗi vẫn do Playwright/CI quyết định. Thời gian CI cần xác nhận trên PR.
+Push base sinh matrix baseline theo cùng shard, gộp và kiểm đủ tập PNG rồi mới xuất artifact `matrix-baseline` 90 ngày.

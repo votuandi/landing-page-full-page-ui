@@ -6,11 +6,14 @@ if (!webServer || Array.isArray(webServer)) throw new Error("matrix dùng một 
 
 export default defineConfig({
   ...config,
-  testMatch: ["matrix.spec.ts"],
+  testMatch: ["matrix.spec.ts", "matrix-setup.spec.ts"],
   fullyParallel: true,
-  // Ô thiếu baseline được spec bỏ qua so ảnh (không fail); chỉ CLI --update-snapshots ghi ảnh.
   updateSnapshots: "none",
-  projects: config.projects?.map((project) => ({ ...project, name: `matrix-${project.name}` })),
+  projects: [
+    { name: "matrix-setup", testMatch: "matrix-setup.spec.ts" },
+    ...config.projects!.map((project) => ({ ...project, name: `matrix-${project.name}`,
+      testMatch: "matrix.spec.ts", dependencies: ["matrix-setup"] })),
+  ],
   webServer: { ...webServer, env: { ...webServer.env, LAB_ENABLED: "true" } },
   outputDir: "test-results/matrix",
   reporter: [

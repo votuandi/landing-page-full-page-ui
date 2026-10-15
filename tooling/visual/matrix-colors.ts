@@ -62,7 +62,17 @@ export function collectColorSamples(cell: Element): ColorSample[] {
       if (style.outlineStyle !== "none") properties.push("outline-color");
       if (style.textDecorationLine !== "none") properties.push("text-decoration-color");
       // svg/g only pass fill to children; the painting shapes are checked individually.
-      if (element instanceof SVGElement && shapes.has(element.localName)) properties.push("fill", "stroke");
+      if (element instanceof SVGElement && shapes.has(element.localName)) {
+        // A path of single straight segments has no fill area, just like <line>.
+        const subpaths = element.getAttribute("d")?.match(/[Mm][^Mm]*/g) ?? [];
+        const straightPath = element.localName === "path" && subpaths.length > 0 && subpaths.every((part) => {
+          const tokens = part.match(/[a-z]|[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gi) ?? [];
+          return (tokens.length === 5 && /^[hv]$/i.test(tokens[3]))
+            || (tokens.length === 6 && /^[l]$/i.test(tokens[3]));
+        });
+        if (element.localName !== "line" && !straightPath) properties.push("fill");
+        properties.push("stroke");
+      }
       for (const property of properties) {
         const value = style.getPropertyValue(property);
         if (value && value !== "none") samples.push({ selector: selectorOf(element) + (pseudo ?? ""), property, value });
