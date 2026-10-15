@@ -24,13 +24,17 @@ async function main() {
         for (const item of await repo.product.list({ where: { slug: { startsWith: "review-sku-" } } })) await repo.product.delete(item.id);
         const post = await repo.post.first({ where: { slug: "review-post" } });
         if (post) await repo.post.delete(post.id);
+        const project = await repo.project.first({ where: { slug: "review-project" } });
+        if (project) await repo.project.delete(project.id);
+        const service = await repo.service.first({ where: { slug: "review-service" } });
+        if (service) await repo.service.delete(service.id);
         if (action === "cleanup") { try { unlinkSync(file); } catch {} return; }
       }
       if (action === "setup") {
         const demo = buildDemo("t15");
-        const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Review", themeId: "t15", locales: ["vi", "en"], defaultLocale: "en", seo: {},
+        const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Review", themeId: "t15", locales: ["vi", "en"], defaultLocale: "en", seo: { ogImage: "http://invalid.test/image" },
           themeOverrides: { colors: { light: { primary: "10 110 70" }, dark: { primary: "90 190 120" } } },
-          profile: { name: { vi: "[DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu", en: "[DỮ LIỆU MẪU] Solar company with a very long name for mobile menu" }, description: { vi: "Nội dung VI", en: "English description" }, hotline: "0901234567", theme: { default: "dark", switcher: true }, guide: demo.profile.guide, legal: demo.profile.legal },
+          profile: { name: { vi: "[DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu", en: "[DỮ LIỆU MẪU] Solar company with a very long name for mobile menu" }, description: { vi: "Nội dung VI", en: "English description" }, hotline: "0901234567", theme: { default: "dark", switcher: true }, guide: demo.profile.guide, legal: { policies: [...demo.profile.legal.policies, { slug: "review-policy", title: { vi: "Chính sách VI" }, summary: { vi: "" }, body: { vi: [] } }] } },
           widgets: json({ ...demo.widgets, "quote-cart": { enabled: true, variant: "t15", data: { ...widgetRegistry.getType("quote-cart")!.defaults as object, query: { collection: "products", limit: 1, ids: [] } } }, "theme-switch": { enabled: true, variant: "t15" } }) });
         const host = "review.localhost";
         await repo.domain.create({ hostname: host, siteId: site.id, isPrimary: true, status: "active", verificationToken: site.id });
@@ -50,9 +54,12 @@ async function main() {
         const products = [];
         for (let i = 0; i < 49; i++) {
           const original = demo.collections.products[0];
-          const product = await repo.product.create({ slug: `review-sku-${i}`, title: { vi: `Sản phẩm VI ${i}`, en: `English product ${i}` }, status: "published", order: 1000 + i, price: 123456, data: { ...original.data, images: i === 48 ? ["https://media.example.test/product.webp"] : original.data.images, datasheet: "/files/review.pdf", unit: { vi: "bộ", en: "set" } } });
+          const product = await repo.product.create({ slug: `review-sku-${i}`, title: { vi: `Sản phẩm VI ${i}`, en: `English product ${i}` }, status: "published", order: 1000 + i, price: i === 0 ? null : 123456, salePrice: i === 1 ? 98764 : null, data: { ...original.data, images: i === 48 ? ["https://media.example.test/product.webp"] : original.data.images, datasheet: "/files/review.pdf", unit: { vi: "bộ", en: "set" } } });
           products.push(product.id);
         }
+        await repo.product.update(products[2], { title: { vi: "Sản phẩm thiếu EN" }, data: { ...demo.collections.products[0].data, images: [site.id], warranty: { vi: "Bảo hành VI" } } });
+        await repo.project.create({ slug: "review-project", title: { vi: "Công trình thiếu EN" }, status: "published", segment: "household", kwp: demo.collections.projects[0].kwp, data: { ...demo.collections.projects[0].data, image: site.id, detail: { vi: "Mô tả công trình VI" } } });
+        await repo.service.create({ slug: "review-service", title: { vi: "Giải pháp thiếu EN" }, status: "published", data: { ...demo.collections.services[0].data, image: site.id, problem: { vi: "" } } });
         const original = demo.collections.posts[0];
         const post = await repo.post.create({ slug: "review-post", title: { vi: "Bài viết VI", en: "English post" }, status: "published", segment: "household", data: { ...original.data, excerpt: { vi: "Mô tả VI", en: "English excerpt" }, body: [{ vi: "Nội dung bài VI", en: "English post body" }] } });
         const saved = { siteId: site.id, pageId: page.id, products, postId: post.id, host };

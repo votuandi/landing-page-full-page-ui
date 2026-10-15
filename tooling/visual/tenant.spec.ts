@@ -49,32 +49,29 @@ test("A/B/A/B share one instance: theme, content, chrome and metadata follow the
   expect(errors).toEqual([]);
 });
 
-test("every seeded t15 route has a DB equivalent; reserved, missing and internal paths return 404", async ({ page }) => {
-  test.setTimeout(240_000);
-  const manifest = JSON.parse(fixture("manifest")) as Record<string, string[]>;
-  for (const id of ["t15", "t12"]) {
-    await page.goto(origin(id));
-    const paths = new Set(["/san-pham", "/giai-phap", "/tin-tuc", "/cam-nang", "/ve-chung-toi", "/lien-he", "/uu-dai/nang-luong"]);
-    for (const list of ["/san-pham", "/giai-phap", "/tin-tuc"]) {
-      await page.goto(origin(id) + list);
-      const collection = list === "/san-pham" ? "products" : list === "/giai-phap" ? "services" : "posts";
-      await expect(page.locator("main article")).toHaveCount(manifest[collection].length);
-      if (collection !== "products") await expect(page.locator("main article img")).toHaveCount(manifest[collection].length);
-      if (collection === "posts") {
+for (const id of ["t15", "t12"]) {
+for (const group of ["products", "posts", "services", "projects", "system"] as const) {
+  test(`${id}: seeded ${group} have DB equivalents`, async ({ page }) => {
+    const manifest = JSON.parse(fixture("manifest")) as Record<string, string[]>;
+    const prefix = { products: "/san-pham", posts: "/tin-tuc", services: "/giai-phap", projects: "/cong-trinh", system: "" }[group];
+    const paths = group === "system"
+      ? ["/cam-nang", "/ve-chung-toi", "/lien-he", "/uu-dai/nang-luong"]
+      : manifest[group].map((slug) => `${prefix}/${slug}`);
+    if (["products", "posts", "services"].includes(group)) {
+      await page.goto(origin(id) + prefix);
+      await expect(page.locator("main article")).toHaveCount(manifest[group].length);
+      if (group !== "products") await expect(page.locator("main article img")).toHaveCount(manifest[group].length);
+      if (group === "posts") {
         await expect(page.locator("main")).toContainText("phút đọc");
         await expect(page.locator("main")).toContainText("Hộ gia đình");
       }
-      if (collection === "services") {
+      if (group === "services") {
         await expect(page.locator("main article").first()).toContainText(manifest.servicePrices[0]);
         await expect(page.locator("main article").first()).toContainText(manifest.serviceSolutions[0]);
       }
-      for (const slug of manifest[collection]) {
-        await expect(page.locator(`main a[href="${list}/${slug}"]`).first()).toBeVisible();
-        paths.add(`${list}/${slug}`);
-      }
+      for (const path of paths) await expect(page.locator(`main a[href="${path}"]`).first()).toBeVisible();
+      paths.unshift(prefix);
     }
-    for (const slug of ["nha-pho-binh-thanh", "biet-thu-da-lat", "sieu-thi-mini-can-tho", "chuoi-cafe-da-nang", "xuong-co-khi-dong-nai", "kho-lanh-tay-ninh", "trai-ga-tay-ninh", "trai-heo-dong-thap"]) paths.add(`/cong-trinh/${slug}`);
-    for (const slug of ["bao-hanh", "doi-tra", "van-chuyen", "bao-mat", "dai-ly"]) paths.add(`/chinh-sach/${slug}`);
     for (const path of paths) {
       const response = await page.goto(origin(id) + path);
       expect(response?.status(), `${id}${path}`).toBe(200);
@@ -89,12 +86,22 @@ test("every seeded t15 route has a DB equivalent; reserved, missing and internal
         await expect(page.locator('main form input[name="phone"]')).toBeVisible();
       }
     }
+  });
+}
+test(`${id}: every policy and reserved, missing or internal path`, async ({ page }) => {
+    for (const slug of ["bao-hanh", "doi-tra", "van-chuyen", "bao-mat", "dai-ly"]) {
+      const path = `/chinh-sach/${slug}`;
+      const response = await page.goto(origin(id) + path);
+      expect(response?.status(), `${id}${path}`).toBe(200);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", origin(id) + path);
+      await expect(page.locator("main h1")).toBeVisible();
+    }
     for (const path of ["/missing", "/cong-trinh", "/tin-tuc/draft", "/robots.txt", "/sitemap.xml", "/sites/x"]) {
       const response = await page.goto(origin(id) + path);
       expect(response?.status(), path).toBe(404);
     }
-  }
 });
+}
 
 test("catalog filters, quick view, quote cart, guide anchors and client navigation keep DB data", async ({ page }) => {
   await page.goto(`${origin("t15")}/san-pham?category=panel&sort=price-asc`, { waitUntil: "networkidle" });
@@ -144,6 +151,70 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
   test.beforeAll(() => { fixture("setup"); });
   test.afterAll(() => { fixture("cleanup"); });
   const url = "http://review.localhost:3211";
+  for (const [path, from, title, description] of [
+    ["/san-pham/review-sku-2", "/san-pham", "Sản phẩm thiếu EN", "Unbranded · Bảo hành VI"],
+    ["/cong-trinh/review-project", "/giai-phap/solar-gia-dinh", "Công trình thiếu EN", "Mô tả công trình VI"],
+    ["/giai-phap/review-service", "/giai-phap", "Giải pháp thiếu EN", "English description"],
+    ["/chinh-sach/review-policy", "/chinh-sach/bao-hanh", "Chính sách VI", "English description"],
+  ]) {
+    test(`metadata dispatcher: direct and client navigation ${path}`, async ({ page }) => {
+      const fullTitle = `${title} | [DỮ LIỆU MẪU] Solar company with a very long name for mobile menu`;
+      for (const client of [false, true]) {
+        if (client) {
+          await page.goto(url + from, { waitUntil: "networkidle" });
+          await page.locator(`main a[href="${path}"]`).first().click();
+          await expect(page).toHaveURL(url + path);
+        } else expect((await page.goto(url + path))?.status()).toBe(200);
+        await expect(page.locator("main h1")).toHaveText(title);
+        await expect(page).toHaveTitle(fullTitle);
+        await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", description);
+        await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", fullTitle);
+        await expect(page.locator('meta[property="og:description"]')).toHaveAttribute("content", description);
+        await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url + path);
+        await expect(page.locator('meta[property="og:image"]')).toHaveCount(0);
+        await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + path);
+      }
+    });
+  }
+  test("filter waits for hydration, then opens on its first keyboard activation", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    let release!: () => void;
+    const scriptsReady = new Promise<void>((resolve) => { release = resolve; });
+    await page.route("**/_next/static/**/*.js", async (route) => { await scriptsReady; await route.continue(); });
+    try {
+      await page.goto(url + "/san-pham", { waitUntil: "commit" });
+      const filters = page.getByRole("button", { name: /^Filters/ });
+      const quick = page.getByRole("button", { name: /Quick view/ }).first();
+      await expect(filters).toBeDisabled();
+      await expect(quick).toBeDisabled();
+      release();
+      await expect(filters).toBeEnabled();
+      await filters.focus();
+      await page.keyboard.press("Enter");
+      const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+      await expect(drawer).toBeVisible();
+      await expect(drawer.getByRole("option", { name: "Household", exact: true })).toHaveCount(1);
+      await expect(drawer.getByRole("option", { name: "Business", exact: true })).toHaveCount(1);
+      await expect(drawer.getByRole("option", { name: "Projects / factories", exact: true })).toHaveCount(1);
+      await expect(drawer.getByRole("option", { name: "≥ 600 W (panels)", exact: true })).toHaveCount(1);
+      await page.keyboard.press("Escape");
+      await expect(filters).toBeFocused();
+      await expect(page.getByRole("button", { name: "Under 1 million VND", exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Over 50 million VND", exact: true })).toBeVisible();
+      const noPrice = page.locator("main article").filter({ has: page.getByRole("link", { name: "English product 0", exact: true }) });
+      await expect(noPrice).toContainText("Contact for price");
+      const sale = page.locator("main article").filter({ has: page.getByRole("link", { name: "English product 1", exact: true }) });
+      await expect(sale).toContainText("Save 20%");
+      await expect(sale).toContainText("Original price");
+      await expect(quick).toBeEnabled();
+      await quick.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(quick).toBeFocused();
+    } finally { release(); }
+  });
   test("locale switch refreshes records, chrome, widgets and metadata on reload and client navigation", async ({ page }) => {
     for (const [path, title] of [["/san-pham", "Products"], ["/tin-tuc", "News"], ["/giai-phap", "Solutions"], ["/cam-nang", "English cam-nang"], ["/ve-chung-toi", "English ve-chung-toi"], ["/lien-he", "English lien-he"], ["/uu-dai/nang-luong", "English uu-dai/nang-luong"]]) {
       await page.goto(url + path, { waitUntil: "networkidle" });
@@ -170,10 +241,9 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     await expect(page.locator("main")).toContainText("English hero");
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
   });
-  test("49th SKU outside widget query stays in cart; detail content and keyboard dialogs work at 390/1440", async ({ page }, info) => {
-    test.setTimeout(180_000);
+  for (const width of [390, 1440]) {
+  test(`${width}: 49th SKU stays in cart; detail content and keyboard dialogs`, async ({ page }, info) => {
     await page.route("https://media.example.test/**", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>' }));
-    for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(url + "/san-pham/review-sku-48", { waitUntil: "networkidle" });
       await expect(page.locator("main")).toContainText("/set");
@@ -209,21 +279,23 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
         await expect(page.locator("main article")).toHaveCount(2);
       }
       const quick = page.getByRole("button", { name: /Quick view/ }).first();
+      await expect(quick).toBeEnabled();
       await quick.focus(); await page.keyboard.press("Enter");
       await expect(page.getByRole("dialog")).toBeVisible();
       await page.keyboard.press("Escape");
       await expect(quick).toBeFocused();
-      for (const path of ["/tin-tuc/review-post", `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh"]) {
+      for (const path of ["/tin-tuc/review-post", `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh", "/cam-nang", "/ve-chung-toi", "/lien-he"]) {
         await page.goto(url + path, { waitUntil: "networkidle" });
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
         if (path.includes("giai-phap")) {
           const links = await page.locator('main a[href^="/cong-trinh/"]').count();
-          expect(links).toBe(2);
+          expect(links).toBe(3);
+          await expect(page.locator('main a[href="/cong-trinh/review-project"]')).toBeVisible();
         }
         await page.screenshot({ path: info.outputPath(`${width}-${path.split("/")[1]}.png`), fullPage: true, caret: "initial" });
       }
-    }
   });
+  }
   test("theme override, no-dark and disabled switcher, absent/disabled chrome respect configuration", async ({ page }) => {
     await page.goto(url, { waitUntil: "networkidle" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
