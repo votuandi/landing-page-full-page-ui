@@ -398,6 +398,12 @@ test("robots, sitemap and rich-result JSON-LD stay on each tenant's own host", a
     const jsonLd = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((value) => JSON.parse(value));
     expect(jsonLd.find((value) => value["@type"] === "Product")).toMatchObject({ name: expect.any(String), url: `${origin(id)}/san-pham/${productSlug}` });
     expect(jsonLd.find((value) => value["@type"] === "BreadcrumbList")?.itemListElement).toHaveLength(3);
+    await page.goto(`${origin(id)}/cam-nang`);
+    const faq = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((value) => JSON.parse(value)).find((value) => value["@type"] === "FAQPage");
+    expect(faq?.mainEntity?.length).toBeGreaterThan(0);
+    const about = await request.get(`${origin(id)}/about-us`, { maxRedirects: 0 });
+    expect(about.status()).toBe(308);
+    expect(about.headers().location).toMatch(/\/ve-chung-toi$/);
     const legacy = await request.get(`${origin(id)}/product/${productSlug}`, { maxRedirects: 0 });
     expect(legacy.status()).toBe(308);
     expect(legacy.headers().location).toContain(`/san-pham/${productSlug}`);
