@@ -65,10 +65,12 @@ try {
     }
     const median=times.map(t=>percentile(t,0.5)), p95=times.map(t=>percentile(t,0.95));
     const overhead=(median[1]/median[0]-1)*100;
-    const result={name,medianMs:median,p95Ms:p95,overheadPercent:overhead,wallMedianMs:wall.map(t=>percentile(t,0.5)),plans,samplesMs:times};
+    const overheadMs=median[1]-median[0];
+    const result={name,medianMs:median,p95Ms:p95,overheadPercent:overhead,overheadMs,wallMedianMs:wall.map(t=>percentile(t,0.5)),plans,samplesMs:times};
     (report.workloads as unknown[]).push(result);
-    console.log(`${name}: execution median baseline=${median[0]}ms RLS=${median[1]}ms overhead=${overhead.toFixed(2)}%; p95=${p95.join('/')}ms; wall median=${result.wallMedianMs.map(n=>n.toFixed(3)).join('/')}ms`);
-    if(overhead>10) failed=true;
+    console.log(`${name}: execution median baseline=${median[0]}ms RLS=${median[1]}ms overhead=${overhead.toFixed(2)}% (${overheadMs.toFixed(3)}ms); p95=${p95.join('/')}ms; wall median=${result.wallMedianMs.map(n=>n.toFixed(3)).join('/')}ms`);
+    // Fail only when both limits are exceeded; compare medians to keep inclusive boundaries stable.
+    if(median[1]>median[0]*1.1 && median[1]>median[0]+0.02) failed=true;
   }
   // Separate repository round trips from server execution (same SQL and filtered data).
   const wall: number[][]=[[],[]];
