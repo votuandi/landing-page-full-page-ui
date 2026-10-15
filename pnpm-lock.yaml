@@ -178,6 +178,10 @@ importers:
         version: 5.9.3
 
   packages/plans:
+    dependencies:
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@solar/config':
         specifier: workspace:*

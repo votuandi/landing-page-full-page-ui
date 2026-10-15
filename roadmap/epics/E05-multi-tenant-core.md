@@ -142,6 +142,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - **Chi tiết**: theo skill `next-cache-components-adoption`; layout tenant và section tĩnh dùng `"use cache"` +
   `cacheLife` + tag; đối số của hàm cache luôn có `siteId`, `locale` (đúng khóa ở S05); phần phụ thuộc request (draft mode,
   giỏ) nằm trong `<Suspense>`. Chính sách CSP phải tương thích render tĩnh (E14-S04 — không dùng nonce theo request).
+  Trang tenant gắn thêm `PAGE_TAGS` (`platform:entitlements`, export ở `apps/web/src/lib/tenant/entitlements.ts`, E6-S02/D19).
 - **AC**: [ ] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [ ] TTFB không kém S05 · [ ] Test cùng slug ở S05 vẫn qua.
 - Phụ thuộc: S05, E1-S03 · Agent: Codex (review Claude) · Cỡ: M
 
@@ -168,7 +169,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   (`[ngoài agent]`: JSON-LD đã có test trường bắt buộc + e2e; chạy Google Rich Results Test thật sau khi deploy tên miền công khai). PR #37.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: M
 
-### E5-S09 · Row-Level Security (lớp bảo vệ thứ hai)
+### E5-S09 · Row-Level Security (lớp bảo vệ thứ hai) ✅ · PR [#39](https://github.com/votuandi/landing-page-full-page-ui/pull/39)
 **Là** chủ dự án, **tôi muốn** Postgres tự chặn đọc/ghi chéo tenant, **để** an toàn cả khi code có lỗi.
 - **Chi tiết**:
   - Role tách biệt: `app_owner` (sở hữu bảng, chạy migration), `app_runtime` (web/admin/worker — không sở hữu bảng, không

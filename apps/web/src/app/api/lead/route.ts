@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { dispatchLead, type Lead } from "@/lib/leads";
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
+import { loadTenantSite } from "@/lib/tenant/siteData";
+import { createTenantLeadGate } from "@/lib/tenant/entitlements";
 
 const str = (value: unknown, max = 300) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
@@ -23,10 +25,10 @@ function cleanItems(value: unknown): Lead["items"] {
   return items.length ? items : undefined;
 }
 
+const tenantLead = createTenantLeadGate(loadTenantSite);
+
 export async function POST(request: Request) {
-  if (request.headers.has("x-tenant-id") || request.headers.has("x-site-id")) {
-    return NextResponse.json({ ok: false, message: "Chưa thể gửi thông tin. Vui lòng liên hệ hotline của công ty." }, { status: 503 });
-  }
+  if (request.headers.has("x-tenant-id") || request.headers.has("x-site-id")) return tenantLead(request);
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, message: "Dữ liệu không hợp lệ" }, { status: 400 }); }
 

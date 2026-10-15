@@ -103,3 +103,10 @@ export async function resolveTenantHost(db: Db | PlatformDb, hostname: string): 
   const rows = await internalClient(db).$queryRaw<HostRecord[]>`SELECT * FROM public.resolve_tenant_host(${hostname})`;
   return rows[0] ?? null;
 }
+
+// Kill switch names (D19) through the SECURITY DEFINER bridge; callers filter unknown features.
+export async function loadDisabledFeatures(db: Db | PlatformDb): Promise<string[]> {
+  await checkConnection(db);
+  const rows = await internalClient(db).$queryRaw<{ features: string[] }[]>`SELECT public.platform_disabled_features() AS features`;
+  return rows[0]?.features ?? [];
+}

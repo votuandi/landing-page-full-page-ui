@@ -1,23 +1,19 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { forTenant, type TenantRepo } from "@solar/db";
+import { forTenant, loadDisabledFeatures, type TenantRepo } from "@solar/db";
 import { getTheme } from "@solar/themes";
 import { ThemeOverridesSchema } from "@solar/tokens";
-import { getPlan, isFeature } from "@solar/plans";
+import { canUse, disabledFeaturesSchema, type EntitlementSubject } from "@solar/plans";
 import { migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistry, siteWidgetsSchema } from "@solar/sections";
 import { getWebDb } from "./db";
 import { parseContent, profileSchema, seoSchema, text } from "./contentSchemas";
 import { normalizeHost } from "./host";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export function planCanUse(planId: string, addons: readonly string[] = []) {
-  const plan = getPlan(planId);
-  if (!plan) console.error("[tenant] gói không tồn tại", { planId });
-  // Addons buy single features on top of the plan (D8); E6-S02 adds overrides and kill switches.
-  return (feature: string) => isFeature(feature) && Boolean(plan?.features.has(feature) || addons.includes(feature));
-}
-export const siteCanUse = (site: { planId: string; addons: readonly string[] }) => planCanUse(site.planId, site.addons);
-export function createSiteData(repository: (tenantId: string) => TenantRepo) {
+export type SiteEntitlements = EntitlementSubject & { disabled: readonly string[] };
+// D19 for every render/API entry point: kill switch → tenant override → plan + addons + trial.
+export const siteCanUse = (site: { entitlements: SiteEntitlements }) => canUse(site.entitlements, { disabled: site.entitlements.disabled });
+export function createSiteData(repository: (tenantId: string) => TenantRepo, loadDisabled: () => Promise<readonly string[]> = async () => []) {
   async function loadTenantSite(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
     const repo = repository(tenantId);
@@ -36,7 +32,10 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     if (!locales.length) locales.push("vi");
     const locale = selectSiteLocale(locales, row.defaultLocale);
     return { tenantId, siteId, name: row.name, profile, seo, widgets, overrides, theme, primaryHost: domain.hostname,
-      locales, locale, planId: row.tenant.planId, addons: row.tenant.addons, pageTypes: row.pageTypes,
+      locales, locale, pageTypes: row.pageTypes,
+      entitlements: { planId: row.tenant.planId, addons: row.tenant.addons, status: row.tenant.status, createdAt: row.tenant.createdAt,
+        featureOverrides: row.tenant.featureOverrides, limitOverrides: row.tenant.limitOverrides,
+        disabled: disabledFeaturesSchema.parse(await loadDisabled()) } satisfies SiteEntitlements,
       context: { tenantId, locale, themeId: theme.meta.id } };
   }
   async function loadPublishedPage(tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") {
@@ -73,7 +72,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
   return { loadTenantSite, loadPublishedPage, listPublishedPages };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
-const data = createSiteData(tenantRepository);
+const data = createSiteData(tenantRepository, cache(() => loadDisabledFeatures(getWebDb())));
 export function selectSiteLocale(locales: ("vi" | "en")[], defaultLocale: string, requested?: string) {
   if ((requested === "vi" || requested === "en") && locales.includes(requested)) return requested;
   return locales.includes(defaultLocale as "vi" | "en") ? defaultLocale as "vi" | "en" : locales[0] ?? "vi";
