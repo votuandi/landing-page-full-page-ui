@@ -108,10 +108,12 @@ test("rate limiter falls back to memory when Redis is down; storage failure → 
 });
 
 test("route wiring: tenant headers go to the tenant handler; single-site keeps the env adapters", async () => {
-  const result = await POST(new Request("http://a.localhost/api/lead", { method: "POST", headers: { "x-tenant-id": "a" }, body: lead("contact") }));
-  assert.equal(result.status, 404);
-  const legacy = await POST(new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify({ website: "bot" }) }));
-  assert.equal(legacy.status, 200);
+  // No `elapsedMs`: the tenant handler answers before the rate limiter, so no Redis connection is opened here.
+  const body = JSON.stringify({ name: "A", phone: "0901234500", source: "contact" });
+  const tenant = await POST(new Request("http://a.localhost/api/lead", { method: "POST", headers: { "x-tenant-id": "a" }, body }));
+  assert.deepEqual([tenant.status, await tenant.json()], [200, { ok: true }]);
+  const legacy = await POST(new Request("http://localhost/api/lead", { method: "POST", body }));
+  assert.deepEqual([legacy.status, await legacy.json()], [200, { ok: true, mode: "demo", delivered: [] }]);
 });
 
 test("lead sources map to the features in the packages/plans README table", () => {

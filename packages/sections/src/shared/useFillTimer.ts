@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 
 /** Ms since the form mounted; `/api/lead` of a tenant ignores submissions faster than a person can type (E11-S01). */
