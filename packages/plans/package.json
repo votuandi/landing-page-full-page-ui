@@ -8,7 +8,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node --test .test-dist/__tests__/plans.test.js .test-dist/__tests__/table.test.js",
+    "test": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node --test .test-dist/__tests__/plans.test.js .test-dist/__tests__/table.test.js .test-dist/__tests__/entitlements.test.js",
     "plans:table": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node .test-dist/scripts/table.js"
   },
   "devDependencies": {
@@ -17,5 +17,8 @@
     "eslint": "9.39.5",
     "typescript": "5.9.3"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "zod": "4.6.5"
+  }
 }
