@@ -278,5 +278,6 @@ Plan lạ, rollback thật và seed hai lần giữ danh tính nội dung/quyề
   và kiểm FORCE owner. `RLS_REQUIRED=1` làm CI db job lỗi nếu thiếu bất kỳ credential hoặc SEED_PASSWORD; unit offline được skip DB.
 - `pnpm --filter @solar/db exec tsx scripts/rls-bench.ts` tạo hai schema clone riêng, 20×1000 Product/SiteUser, 100 warmup và
   1000 mẫu xen kẽ cho get/list/join/login. EXPLAIN ANALYZE BUFFERS TIMING OFF loại chi phí bấm giờ từng node; gate mỗi median
-  execution ≤ 10%, không nới theo wall time. `RLS_BENCH_OUTPUT` lưu JSON raw samples/plans; wall autocommit/transaction báo
+  execution tăng ≤ 10% HOẶC ≤ 0,02 ms tuyệt đối (hai ngưỡng đều inclusive), không nới theo wall time.
+  `RLS_BENCH_OUTPUT` lưu JSON raw samples/plans; wall autocommit/transaction báo
   riêng cho pg round trips và production repository builder qua Prisma (baseline autocommit / RLS transaction). Script exit 1 khi bất kỳ workload vượt gate; không chạy trong test.
