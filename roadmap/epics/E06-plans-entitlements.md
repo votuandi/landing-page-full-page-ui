@@ -29,7 +29,7 @@ bật/tắt theo gói, kiểm tra phía server.
 - Review và link PR: chờ Claude sau commit; chưa tuyên bố DoD hoàn tất.
 - Agent: Claude · Cỡ: S
 
-### E6-S02 · `can()` và `limit()` phía server · PR [#40](https://github.com/votuandi/landing-page-full-page-ui/pull/40)
+### E6-S02 · `can()` và `limit()` phía server ✅ · PR [#40](https://github.com/votuandi/landing-page-full-page-ui/pull/40)
 **Là** chủ dự án, **tôi muốn** tính năng ngoài gói không chạy dù ai đó sửa cấu hình, **để** không mất doanh thu.
 - **Chi tiết**: `can(site, feature)`, `limit(site, key)`, `assertCan()` (ném `EntitlementError` 403). Dùng ở:
   PageRenderer (bỏ section không đủ quyền — không render, không tải chunk), API lead (từ chối `source` thuộc tính năng bị tắt),
