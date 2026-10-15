@@ -1,10 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { OutboxJob } from "@solar/db";
-import { PermanentError, runOnce, startWorker } from "../loop.ts";
+import { every, PermanentError, runOnce, startWorker } from "../loop.ts";
 
 const job = (topic: string, id = "1"): OutboxJob =>
   ({ id, tenantId: null, topic, payload: {}, idempotencyKey: id, attempts: 1, createdAt: new Date(0), runAt: new Date(0) });
+
+test("every runs immediately, never overlaps, recovers from errors and waits on shutdown", async t => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  t.mock.method(console, "error", () => {});
+  let calls = 0, release!: () => void;
+  const cron = every(300_000, async () => {
+    calls++;
+    if (calls === 1) throw Error("database down");
+    await new Promise<void>(resolve => { release = resolve; });
+  });
+  const flush = () => new Promise<void>(resolve => setImmediate(resolve));
+  await flush(); assert.equal(calls, 1);
+  t.mock.timers.tick(300_000); await flush(); assert.equal(calls, 2);
+  t.mock.timers.tick(900_000); await flush(); assert.equal(calls, 2);
+  let stopped = false;
+  const stopping = cron.stop().then(() => { stopped = true; });
+  await flush(); assert.equal(stopped, false);
+  release(); await stopping;
+  t.mock.timers.tick(900_000); await flush(); assert.equal(calls, 2);
+});
 function fakeOutbox(jobs: OutboxJob[]) {
   const done: string[] = [], failed: { id: string; dead?: boolean; maxAgeMs?: number }[] = [];
   let topics: readonly string[] | undefined;

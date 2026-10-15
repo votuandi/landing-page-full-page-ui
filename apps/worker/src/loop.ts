@@ -45,3 +45,15 @@ export function startWorker({ intervalMs = 1_000, ...options }: RunOptions & { i
   tick();
   return { async stop() { stopped = true; clearTimeout(timer); await running; } };
 }
+
+/** Run now, then wait after completion: slow scans never overlap and failures do not stop the schedule. */
+export function every(ms: number, task: () => Promise<unknown>) {
+  let stopped = false, timer: NodeJS.Timeout | undefined;
+  let running: Promise<unknown> = Promise.resolve();
+  const tick = () => {
+    running = Promise.resolve().then(task).catch(error => { console.error("[worker] cron lỗi", error); })
+      .then(() => { if (!stopped) timer = setTimeout(tick, ms); });
+  };
+  tick();
+  return { async stop() { stopped = true; clearTimeout(timer); await running; } };
+}

@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { createDb, createPlatformDb, forPlatform, forTenant, withTenantTransaction, enqueueInvalidate, type TenantRepo } from "@solar/db";
-import { createMemoryCache, pageTag } from "@solar/cache";
+import { createMemoryCache, pageTag, tenantTag } from "@solar/cache";
+import { can } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { createSiteData } from "../siteData";
 import Redis from "ioredis";
@@ -10,8 +11,56 @@ import { createRevalidateHandler, redisNonces } from "../revalidate";
 import { createRateLimiter } from "../rateLimit";
 import { createInvalidate } from "../../../../../worker/src/handlers/invalidate.ts";
 import { runOnce } from "../../../../../worker/src/loop.ts";
+import { createLogNotifier, createNotify } from "../../../../../worker/src/handlers/notify.ts";
 
 const skip = !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "DATABASE_URL/PLATFORM_DATABASE_URL missing: requires seeded PostgreSQL 16";
+
+test("Postgres E6-S03: cached plan → atomic plan change → worker revalidation → entitlements within 60s", { skip }, async t => {
+  const db = createDb({ pool: 2 }), platform = createPlatformDb({ pool: 2 });
+  const tenantId = randomUUID(), actorId = randomUUID();
+  const memory = createMemoryCache();
+  const logged = t.mock.method(console, "log", () => {});
+  await platform.tenant.create({ data: { id: tenantId, slug: `plan-cache-${tenantId}`, name: "[DỮ LIỆU MẪU] Gói", planId: "pro", status: "active" } });
+  try {
+    const seed = await forPlatform(db).domains.resolve("t15.localhost"); assert.ok(seed);
+    const original = await forTenant(db, seed.tenantId).site.get(seed.siteId); assert.ok(original);
+    const repo = forTenant(db, tenantId);
+    const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Gói", themeId: original.themeId });
+    await repo.domain.create({ siteId: site.id, hostname: `${tenantId}.localhost`, verificationToken: randomUUID(), status: "active", isPrimary: true });
+    const owner = await repo.siteUser.create({ name: "[DỮ LIỆU MẪU] Owner", role: "owner", email: "owner@example.invalid", contactPhone: "0901234567" });
+    const data = createSiteData(id => forTenant(db, id), undefined, memory);
+    const load = () => data.loadTenantSite(tenantId, site.id);
+    const cached = await load(); assert.ok(cached);
+    assert.equal(cached.entitlements.planId, "pro"); assert.equal(can(cached.entitlements, "calculator"), true);
+    const tags: string[] = [];
+    const post = createRevalidateHandler({ secret: () => "test-secret", invalidate: memory.invalidate, revalidateTag: tag => { tags.push(tag); }, limit: createRateLimiter() });
+    const handle = createInvalidate({ urls: () => "http://web/api/revalidate", secret: () => "test-secret", fetch: (url, init) => post(new Request(url, init)) });
+    const poll = () => runOnce({ outbox: forPlatform(platform).outbox, tenantId, topics: {
+      invalidate: { handle, maxAgeMs: Infinity }, "notify.plan-changed": { handle: createNotify({ notifier: createLogNotifier(platform) }) },
+    } });
+    const started = Date.now();
+    await forPlatform(platform).tenants.changePlan({ actorId, tenantId, changes: { planId: "basic" } });
+    assert.equal((await load())?.entitlements.planId, "pro", "old entry persists until durable invalidation is delivered");
+    assert.equal(await poll(), 2);
+    const fresh = await load(); assert.ok(fresh);
+    assert.equal(fresh.entitlements.planId, "basic"); assert.equal(can(fresh.entitlements, "calculator"), false);
+    assert.ok(Date.now() - started < 60_000);
+    assert.deepEqual(tags, [tenantTag(tenantId)]);
+    assert.equal(await repo.outbox.count({ where: { status: "done" } }), 2);
+    assert.deepEqual(logged.mock.calls[0]?.arguments, ["[notify]", { tenantId, kind: "plan-changed",
+      idempotencyKey: (await repo.outbox.first({ where: { topic: "notify.plan-changed" } }))?.idempotencyKey,
+      owners: [{ id: owner.id, hasEmail: true, hasContactPhone: true }],
+    }]);
+    // Plan changes retain site content; upgrading restores the original feature.
+    assert.deepEqual(await repo.site.get(site.id), site);
+    await forPlatform(platform).tenants.changePlan({ actorId, tenantId, changes: { planId: "pro" } });
+    await poll();
+    assert.equal(can((await load())!.entitlements, "calculator"), true);
+  } finally {
+    await platform.tenant.delete({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), platform.$disconnect()]);
+  }
+});
 test("Postgres: atomic publish → durable retry → signed revalidation → fresh hero, contact and tenant B stay cached", { skip }, async t => {
   const db = createDb({ pool: 2 }), platform = createPlatformDb({ pool: 2 });
   const created: string[] = [];
