@@ -177,8 +177,92 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     trả `NULL` → 0 dòng, không ném lỗi.
   - Repository mở transaction và `SET LOCAL app.tenant_id` (chỉ sống trong transaction → connection trả về pool không mang
     tenant cũ). Không dùng `SET` phiên.
+  - Bảng tài khoản (D17, sau S10): `SiteUser`, `SiteSession` là bảng tenant, có policy như trên. `admin` đăng nhập bằng
+    cách lấy tenant từ host, `SET LOCAL app.tenant_id`, rồi mới tìm `SiteUser`.
+  - Bảng nền tảng (`PlatformAdmin`, `PlatformSession`, `GhostGrant`, `PlatformSetting`, `Customer`): `REVOKE` toàn bộ quyền của
+    `app_runtime`. Chỉ `app_platform` (dùng bởi `apps/console` và worker) được truy cập, và chỉ qua `forPlatform()` (S10).
+    Riêng việc đổi ghost token lấy phiên ở `admin` gọi hàm `SECURITY DEFINER` `redeem_ghost_grant(token, tenant_id)`,
+    không cấp quyền đọc bảng.
 - **AC**:
   - [ ] Với role `app_runtime`: SELECT/INSERT/UPDATE/DELETE chéo tenant đều bị chặn; không đặt `app.tenant_id` → 0 dòng.
   - [ ] Test pool: transaction tenant A commit/rollback, rồi truy vấn không đặt tenant trên cùng connection → 0 dòng.
   - [ ] Overhead ≤ 10% thời gian truy vấn.
-- Phụ thuộc: S02 · Agent: Codex (review Claude adversarial) · Cỡ: M
+  - [ ] Role `app_runtime` đọc `PlatformAdmin`/`PlatformSession` → lỗi quyền; đọc `SiteUser` của tenant B khi đã đặt tenant A → 0 dòng.
+- Phụ thuộc: S02, S10 · Agent: Codex (review Claude adversarial) · Cỡ: M
+
+### E5-S10 · Tài khoản theo tenant & tách tài khoản nền tảng (nâng cấp S01/S02)
+**Là** chủ dự án, **tôi muốn** tài khoản CMS của site và tài khoản super admin là hai loại riêng, tên đăng nhập chỉ unique trong
+một site, **để** làm được hai CMS (E7, E15) mà không phải sửa lại mô hình dữ liệu sau này.
+Story nâng cấp phần đã làm ở S01/S02 theo D17–D19. Chưa có dữ liệu production (seed không tạo user), nên không cần
+chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
+- **Chi tiết** (`packages/db`):
+  - Bỏ `User`, `Membership`, `MembershipRole`. Thêm `SiteUser` (`tenantId`, `email?`, `phone?`, `name`, `passwordHash?` —
+    `null` khi chưa nhận lời mời, `role SiteRole owner|admin|editor|staff|viewer|client` (D20), `status
+    invited|unverified|active|locked|disabled`, `source invite|signup|console`, `emailVerifiedAt?`, `contactPhone?`
+    (SĐT chưa xác minh, không dùng đăng nhập), `username?` (D21), `mustChangePassword`, `tempPasswordExpiresAt?`,
+    `totpSecret?`, `lastLoginAt?`, `failedLogins`, `lockedUntil?`).
+    Unique `(tenantId, email)`, `(tenantId, phone)`, `(tenantId, username)`, CHECK có ít nhất một trong
+    `email`/`phone`/`username`; CHECK `username ~ '^[a-z0-9_]{3,40}$'` và chứa chữ cái. Email lưu dạng chữ
+    thường đã trim, SĐT lưu E.164 (`normalizeVnPhone` của `packages/core`).
+  - `SiteSession` (`tenantId`, `siteUserId?`, `kind user|ghost`, `audience admin|storefront` (D17), `ghostGrantId?`,
+    `tokenHash` unique, `expiresAt`, `lastSeenAt`, `ip`, `userAgent`) và `SiteToken` (`tenantId`, `siteUserId`,
+    `purpose invite|verify_email|reset_password|magic_link`, `tokenHash`, `expiresAt`, `usedAt?`).
+    CHECK: `kind = ghost` thì `audience = admin`.
+  - `PlatformAdmin` thành bảng độc lập: `email` unique, `name`, `passwordHash`, `totpSecret`, `status`, `lastLoginAt`.
+    Thêm `PlatformSession`, `GhostGrant` (D18), `PlatformSetting` (`key` PK, `value JSONB`, `updatedById`), `Customer`
+    (`name`, `taxCode?`, `contactName`, `contactEmail?`, `contactPhone?`, `address?`, `note?`, `status`).
+  - `Tenant`: thêm `customerId?`, `featureOverrides JSONB {}`, `limitOverrides JSONB {}`, `permissionPolicy JSONB {}`
+    (schema zod trong `packages/plans`, D19). `Site.tenantId` thêm unique (1 tenant = 1 site, D17).
+  - Người thực hiện: `AuditLog` đổi `actorUserId` → `actorType site_user|platform_admin|system`, `actorId?`, `ghostGrantId?`.
+    `PageVersion.publishedBy` → `publishedBySiteUserId?` (khóa ghép cùng tenant) + `publishedByPlatformAdminId?` (khi ghost).
+  - Slug dành riêng + định dạng subdomain (D21 §3): `RESERVED_TENANT_SLUGS` + `assertTenantSlug()` trong `packages/core`,
+    và hàm `adminUsernameFor(slug)` (`nang-luong-solar` → `nangluongsolar_admin`). Tạo/đổi tenant gọi `assertTenantSlug`;
+    thêm test để slug trong seed không trùng danh sách.
+  - Repository: `forTenant(id).siteUsers` / `.sessions` / `.tokens` (bỏ `passwordHash`, `totpSecret` khỏi kết quả mặc định).
+    `siteUsers.list` bắt buộc chọn nhóm `staff` (mọi vai trò trừ `client`) hoặc `clients`, không trộn hai nhóm.
+    `forPlatform()` trả repository cho bảng nền tảng và các truy vấn tổng hợp chéo tenant (đọc). Đây là lối đi chéo tenant
+    duy nhất, mọi lệnh ghi qua đây phải kèm `actor` để ghi `AuditLog`. Cập nhật `tenantScope`, `tenantGuard` và luật ESLint.
+  - Seed: mỗi tenant demo có `owner@demo.vn` **cùng email** + `0901234567` cùng SĐT, mật khẩu khác nhau. Thêm một
+    `PlatformAdmin` cũng dùng `owner@demo.vn` để chứng minh hai realm tách nhau. Tenant A có thêm client `khach@demo.vn`;
+    tenant B có nhân viên `khach@demo.vn` (cùng email, khác vai trò). Mật khẩu seed đọc từ biến môi trường,
+    không ghi cứng.
+  - Cập nhật `ERD.md`, `packages/db/README.md`.
+- **Target**: 0 bảng hoặc khóa ngoại nối `SiteUser` với `PlatformAdmin`; mọi bảng tenant mới đi qua `tenantGuard`.
+- **AC**:
+  - [ ] Test: hai tenant cùng tạo `SiteUser` email `a@x.vn` → thành công; cùng tenant tạo trùng email hoặc trùng SĐT
+        (kể cả khác cách viết `090…`/`+8490…`, khác hoa thường) → lỗi unique.
+  - [ ] Test: `assertTenantSlug` từ chối `-abc`, `abc-`, `a`, `xn--abc`, `Nang_Luong`, slug dành riêng; nhận `nang-luong-solar`.
+  - [ ] Test: tạo `SiteUser` không email, không SĐT, không username → lỗi CHECK; tạo `SiteSession` `kind: ghost` với `audience: storefront` → lỗi CHECK.
+  - [ ] Test: `forTenant(A).siteUsers.get(idCủaB)` → `null`; `SiteSession` của A không trỏ được tới `SiteUser` của B (khóa ghép).
+  - [ ] Test: tạo tenant slug `admin`/`console`/`preview` → lỗi; tạo `Site` thứ hai cho cùng tenant → lỗi unique.
+  - [ ] Migration mới chạy trên DB đã có `init` + seed cũ; `prisma migrate deploy` + seed chạy 2 lần liên tiếp vẫn qua.
+  - [ ] Typecheck/lint/test toàn workspace qua; `apps/web` không đổi hành vi (`tooling/visual/tenant.spec.ts` vẫn qua).
+- Phụ thuộc: S01, S02 · Agent: Codex (review Claude adversarial) · Cỡ: M
+
+### E5-S11 · Cấu trúc trang theo danh mục & preset nhiều trang (nâng cấp E4/E5-S04/E5-S08)
+**Là** chủ dự án, **tôi muốn** cấu trúc trang của site (có những trang nào) là dữ liệu được kiểm theo gói, **để** wizard
+tạo site (E13) và CMS (E7) chọn trang/section theo cùng một chính sách (D21).
+Story nâng cấp phần đã làm: preset hiện chỉ có section của trang chủ + `subpages`, seed dựng trang con bằng danh sách cứng
+(`seed-data.ts`), route `san-pham`/`giai-phap`/`tin-tuc` luôn mở với mọi site, subdomain nền tảng luôn `noindex`.
+- **Chi tiết**:
+  - `packages/presets/pages.ts`: danh mục trang theo D21 §2 (`slug`, `required`, `entitlement?`, kiểu, collection liên quan).
+  - Schema preset: `sections` + `subpages` → `pages: Record<PageTypeId, { sections: PageSection[] }>` (home bắt buộc).
+    Chuyển 15 file preset (t15 lấy từ `subpages` và seed hiện tại; preset khác có ít nhất home + giới thiệu + liên hệ +
+    chính sách, dùng variant của chính template đó, nếu không có thì dùng variant gần nhất). Test schema của E4 vẫn qua.
+  - `validateSiteStructure(config, entitlements)` + `applyPlanToPreset(preset, entitlements)` (lọc trang/section ngoài gói,
+    D21 §1). Feature mới `pageStructure` (Nâng cao, Cao cấp) trong `packages/plans`; chạy lại `pnpm plans:table`.
+    Áp dụng quyết định (a)/(b) của D21 nếu đã chốt.
+  - `Site.structure JSONB` (`{ pages: PageTypeId[] }`) hoặc suy ra từ bảng `Page`, chọn một và ghi lý do trong plan.
+    `resolveRoute` của `apps/web` chỉ mở route của trang có trong cấu trúc và không bị khóa theo gói; còn lại 404.
+    Sitemap theo cùng điều kiện.
+  - `isNoindexHost`: subdomain nền tảng đang là tên miền chính → được index; host nền tảng không phải chính → 308 (đã có);
+    `*.preview.<platform>` → luôn `noindex`.
+  - Seed dùng `applyPlanToPreset` thay danh sách trang cứng.
+- **AC**:
+  - [ ] Site không có trang Sản phẩm trong cấu trúc → `/san-pham` và `/san-pham/<slug>` trả 404, không có trong sitemap.
+  - [ ] `applyPlanToPreset(t15, basic)` không còn section/trang có entitlement ngoài gói Cơ bản; `validateSiteStructure`
+        từ chối cấu hình thiếu trang bắt buộc hoặc có trang ngoài gói.
+  - [ ] Hai tenant seed render y như trước (`tooling/visual/tenant.spec.ts` qua, ảnh hồi quy khớp).
+  - [ ] Site chỉ có subdomain nền tảng → không có `noindex`; thêm tên miền chính khác → subdomain 308.
+- Phụ thuộc: S04, S08, E6-S01 · Agent: Codex (review Claude adversarial) · Cỡ: M
+

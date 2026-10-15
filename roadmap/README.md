@@ -2,6 +2,8 @@
 
 > Branch gốc: `mono-repo-multi-tenent` (tách từ `template-15`, commit `9899660`). Ngày lập: 08/10/2026.
 > Người đọc: chủ sản phẩm + các agent (Claude Code, Codex) thực thi story. Quy ước code: [`AGENTS.md`](../AGENTS.md).
+> Cập nhật 15/10/2026: thêm hai CMS / hai realm tài khoản (D17–D19): story nâng cấp E5-S10, epic mới E15 (console super admin),
+> E7 viết lại theo tài khoản riêng từng site.
 
 ## 1. Mục tiêu
 
@@ -25,6 +27,21 @@ Section = type (schema dữ liệu chung) × variant (giao diện)             p
 Preset  = theme + danh sách section sắp sẵn ("template" cũ)              packages/presets/t08.json
 Site    = preset đã tùy biến + nội dung + tên miền + gói                 bảng Site trong Postgres
 ```
+Một site = một tenant (D17); một `Customer` (công ty khách của nền tảng) có thể có nhiều site. Khách hàng cuối của site
+có tài khoản vai trò `client`, chỉ dùng trên site công khai (D20).
+
+Hai CMS, hai loại tài khoản không dùng chéo được (D17):
+
+| | CMS site (`apps/admin`, E7) | Console nền tảng (`apps/console`, E15) |
+|---|---|---|
+| Địa chỉ | `<slug>.admin.<platform>` | `console.<platform>` |
+| Tài khoản | `SiteUser` — email/SĐT unique **trong site**, site khác được trùng | `PlatformAdmin` — email unique toàn hệ thống, 2FA bắt buộc |
+| Vai trò | `owner, admin, editor, staff, viewer` → permission. `client` **không** vào được CMS | super admin |
+| Việc chính | dashboard site, trang/section, sản phẩm, dịch vụ, collection, media, lead, lịch hẹn, tài khoản nhân viên & client | customer, site, tài khoản site admin, gói, tính năng/permission theo site, cấu hình nền tảng, thống kê section/theme |
+| Vào CMS còn lại | không | ghost login có lý do, 30 phút, audit (D18) |
+
+Tài khoản `client` (E16) cũng nằm trong bảng `SiteUser` nhưng đăng nhập trên **tên miền công khai** của site (`/dang-nhap`):
+giỏ hàng gắn tài khoản, đặt lịch dịch vụ, xem lịch sử. Không vào được CMS, không xem dashboard.
 
 Cấu hình một site (lưu trong DB, kiểm bằng zod):
 ```json
@@ -57,7 +74,8 @@ khách.vn ──DNS──▶│  hoặc Caddy on-demand TLS (VPS)  ── ask: /
            │  page = render(sections từ registry, theme CSS vars) — ISR, tag tenant:<id>
            │  /api/lead  → packages/leads (adapter theo tenant)
            ▼
-   Postgres (Prisma, tenantId mọi bảng) ◀── apps/admin (CMS, builder) ── lưu → revalidateTag(tenant:<id>…)
+   Postgres (Prisma, tenantId mọi bảng) ◀── apps/admin (<slug>.admin: CMS site, builder) ── lưu → revalidateTag(tenant:<id>…)
+                                        ◀── apps/console (console.<platform>: super admin, role app_platform) ── ghost → apps/admin
    Redis (cache handler ISR dùng chung nhiều instance, rate-limit)
    Storage driver: local SSD | S3 | R2  (khóa tenants/<id>/…)  → CDN/Caddy file_server
 ```
@@ -76,6 +94,11 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | D8 | Gói dịch vụ → entitlements kiểm tra phía server; bảng giá bán hàng sinh từ cùng một file `packages/plans` |
 | D9 | Email theo tên miền: không tự host; tích hợp hướng dẫn + kiểm tra DNS cho Zoho Mail / Google Workspace (affiliate) |
 | D10 | Builder gói Premium: kéo-thả **section** (không phải pixel), preview trực tiếp; spike Puck vs dnd-kit ở E12 |
+| D17 | Hai CMS (`admin` cho site, `console` cho nền tảng), hai bảng tài khoản `SiteUser` (unique theo tenant) / `PlatformAdmin`, phiên và cookie riêng; tenant lấy từ host trước khi đăng nhập |
+| D18 | Ghost login: grant 1 lần từ console → phiên ghost 30 phút ở admin, có lý do, banner, audit, chặn thao tác bảo mật tài khoản |
+| D19 | Tính năng hiệu lực = kill switch nền tảng → override của tenant → gói/addons; permission tenant chỉ hạ quyền |
+| D20 | Vai trò `client` cho khách hàng cuối: cùng bảng `SiteUser`, phiên `storefront` trên site công khai chỉ có quyền `storefront.*`; trang cache không bao giờ đọc cookie |
+| D21 | Tạo site từ console: subdomain → gói → theme → cấu trúc trang → section; gói Cơ bản chỉ chọn theme; `<slug>.<platform>` là địa chỉ đầu tiên, tên miền thật thành chính khi `active`; admin `<slug>_admin` mật khẩu tạm bắt buộc đổi |
 
 ## 4. Gói dịch vụ ↔ code
 
@@ -119,6 +142,7 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | Số người dùng | 1 | 3 | 10 |
 <!-- plans:table:end -->
 
+Mức tùy biến khi tạo site và trong CMS (chọn theme / cấu trúc trang / section) theo gói: xem D21 §1.
 Bảng quyền sinh từ `packages/plans/plans.ts` bằng `pnpm plans:table`; CI kiểm bằng `pnpm plans:table --check`.
 Feature mô tả quyền sản phẩm, không xác nhận tính năng tương lai đã được triển khai. Nội dung chung gồm hero,
 giới thiệu, dịch vụ, dự án, liên hệ và footer. Limits áp dụng theo tenant; pages tính home + landing do khách tạo,
@@ -136,12 +160,13 @@ Email tên miền: Cơ bản hướng dẫn tự cài; Nâng cao cài hộ (phí
 | **P0 — Nền móng** | E0, E1, E2 | Monorepo build xanh, template-15 chạy trong `apps/web` qua theme t15 | 2 tuần |
 | **P1 — Thư viện section** | E3, E4 (đợt 1: t12–t15) | `/lab` hiển thị mọi section của 4 template Signature × 4 theme | 3 tuần |
 | **P2 — Multi-tenant MVP** | E5, E6, E8, E10 (VPS) | 2 site demo khác tên miền chạy trên 1 VPS, nội dung từ DB, ISR | 3 tuần |
-| **P3 — CMS** | E7, E11 | Khách tự sửa nội dung, sắp xếp section, nhận lead; trang cập nhật ≤ 60 s | 3 tuần |
-| **P4 — Tên miền & bán hàng** | E9, E13 | Khách trỏ tên miền riêng, SSL tự động; tạo site mới từ preset ≤ 30 phút | 2 tuần |
+| **P3 — CMS** | E5-S10, E15-S01…S04, E15-S07, E7, E11 | Hai CMS: khách tự sửa nội dung, quản lý nhân viên, nhận lead; super admin tạo site, cấp tài khoản, ghost hỗ trợ; trang cập nhật ≤ 60 s | 4 tuần |
+| **P4 — Tên miền & bán hàng** | E9, E13, E15-S05, E15-S06, E15-S08 | Khách trỏ tên miền riêng, SSL tự động; tạo site mới từ preset ≤ 30 phút | 2 tuần |
+| **P4b — Khách hàng cuối** | E16 | Khách của khách đăng ký/đăng nhập trên site, giỏ gắn tài khoản, đặt lịch dịch vụ; site admin quản lý client & lịch hẹn | 2 tuần (song song P5) |
 | **P5 — Phủ template** | E4 (đợt 2–3: t05–t11, Classic) | Đủ 15 preset | 3 tuần (song song P3–P4) |
 | **P6 — Cao cấp & AWS** | E12, E10 (AWS), E14 | Builder kéo-thả; bản deploy AWS; kiểm thử tải/bảo mật | 4 tuần |
 
-Đường găng: E1 → E2 → E3 → E5 → E7. E4 (port template) chạy song song bằng Codex sau khi E3-S01…S03 xong.
+Đường găng: E1 → E2 → E3 → E5 (S10) → E15-S01 → E7. E4 (port template) chạy song song bằng Codex sau khi E3-S01…S03 xong.
 
 ## 6. Danh sách epic
 
@@ -162,6 +187,8 @@ Email tên miền: Cơ bản hướng dẫn tự cài; Nâng cao cài hộ (phí
 | E12 | Builder kéo-thả (gói Cao cấp) | [epics/E12-builder.md](epics/E12-builder.md) |
 | E13 | Khởi tạo site & quy trình bán hàng | [epics/E13-onboarding-sales.md](epics/E13-onboarding-sales.md) |
 | E14 | Chất lượng: test, bảo mật, hiệu năng, SEO | [epics/E14-quality.md](epics/E14-quality.md) |
+| E15 | Console nền tảng cho super admin | [epics/E15-platform-console.md](epics/E15-platform-console.md) |
+| E16 | Tài khoản client & đặt lịch dịch vụ trên site công khai | [epics/E16-client-accounts.md](epics/E16-client-accounts.md) |
 
 Mỗi story có: **ID**, câu chuyện người dùng, **Chi tiết**, **Target** (đo được), **AC** (tiêu chí nghiệm thu),
 phụ thuộc, agent đề xuất, cỡ (S ≤ 1 ngày, M 2–3 ngày, L 4–5 ngày).
@@ -179,5 +206,8 @@ phụ thuộc, agent đề xuất, cỡ (S ≤ 1 ngày, M 2–3 ngày, L 4–5 n
 | CSP nonce buộc render động, mất ISR | TTFB tăng mạnh | CSP tĩnh + hash cho `apps/web` (D13) |
 | Webhook/URL do khách nhập bị lợi dụng SSRF | Lộ mạng nội bộ, metadata cloud | Chặn IP nội bộ, kiểm lại IP lúc kết nối (E11-S02) |
 | Mất lead / mất lệnh revalidate khi crash | Mất khách, site cũ | Transactional outbox + worker idempotent (D14, E11-S01) |
+| Lộ tài khoản super admin / lạm dụng ghost | Truy cập mọi site | Console tách app + 2FA bắt buộc + IP allowlist tùy chọn; ghost cần lý do, nhập lại TOTP, 30 phút, audit, owner thấy được (D18) |
+| Trang cache chứa dữ liệu cá nhân của client | Lộ thông tin khách giữa người xem | Trang cache không đọc cookie; phần cá nhân là island `no-store` hoặc trang động (D20, E16-S01) |
+| Tài khoản trùng tên ở nhiều site bị lẫn | Đăng nhập nhầm site, rò dữ liệu | Tenant lấy từ host trước khi tìm user, cookie host-only, RLS cho `SiteUser` (D17, E5-S09, E14-S03) |
 
 > Kế hoạch đã được Codex review chéo (adversarial) ngày 08/10/2026; 25 góp ý (4 P0) đã được đưa vào các epic E2–E14 và ADR D3, D7, D13, D14.

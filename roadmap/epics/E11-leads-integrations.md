@@ -39,14 +39,14 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 **Là** nhân viên kinh doanh của tenant, **tôi muốn** xem, lọc và cập nhật trạng thái lead, **để** chăm sóc khách kịp thời.
 - **Chi tiết**: danh sách lead (nguồn, phân khúc, tỉnh, kết quả dự toán, sản phẩm trong giỏ), trạng thái
   `mới|đã liên hệ|báo giá|chốt|hủy`, ghi chú, gán người phụ trách/chi nhánh (gói Cao cấp), xuất CSV (gói Cao cấp),
-  thống kê theo nguồn/tuần. Dữ liệu cá nhân: chỉ owner/editor xem; xóa lead theo yêu cầu (tuân thủ Nghị định 13/2023 về
+  thống kê theo nguồn/tuần. Dữ liệu cá nhân: chỉ vai trò có permission `leads.view` xem (E7-S01); xóa lead theo yêu cầu (tuân thủ Nghị định 13/2023 về
   bảo vệ dữ liệu cá nhân — có checkbox đồng ý trên form).
 - **AC**: [ ] Lead mới hiện ≤ 5 s không cần tải lại · [ ] Xuất CSV đúng UTF-8 mở được bằng Excel.
 - Phụ thuộc: S01, E7-S02 · Agent: Claude · Cỡ: M
 
 ### E11-S04 · Email theo tên miền (Zoho Mail / Google Workspace)
 **Là** tenant, **tôi muốn** có email `ten@congty.vn` mà không phải tự lo máy chủ mail, **để** chuyên nghiệp; **là** chủ dự án, **tôi muốn** hưởng hoa hồng/phí cài đặt.
-- **Chi tiết**: trang "Email theo tên miền": so sánh Zoho Mail và Google Workspace (giá tham khảo, cập nhật được bởi super admin),
+- **Chi tiết**: trang "Email theo tên miền": so sánh Zoho Mail và Google Workspace (giá tham khảo, super admin cập nhật trong cấu hình nền tảng E15-S06),
   nút đăng ký qua link đối tác (affiliate/reseller) có gắn mã theo tenant, hoặc nút "Nhờ cài hộ" (tạo yêu cầu dịch vụ, phí cài
   đặt). Sau khi khách có tài khoản: hiển thị bản ghi MX, SPF, DKIM, DMARC cần thêm theo nhà cung cấp; nút "Kiểm tra" tra DNS
   và báo từng bản ghi đúng/sai; cảnh báo xung đột (hai SPF). Không chạy mail server trên hạ tầng nền tảng.

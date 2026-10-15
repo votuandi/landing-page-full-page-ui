@@ -1,27 +1,51 @@
-# E7 — CMS quản trị nội dung (`apps/admin`)
+# E7 — CMS quản trị nội dung của site (`apps/admin`)
 
-**Mục tiêu**: khách tự quản lý nội dung, thứ tự và bật/tắt section, media, lead; super admin quản lý tenant.
+**Mục tiêu**: khách tự quản lý nội dung, thứ tự và bật/tắt section, media, lead, tài khoản nhân viên; xem dashboard của site.
+CMS chạy ở `<slug>.admin.<platform>`, chỉ nhận tài khoản `SiteUser` của đúng site đó (D17). Super admin dùng CMS riêng (E15)
+và chỉ vào được CMS site bằng ghost login (E15-S07).
 **Target epic**: khách không rành kỹ thuật sửa xong tiêu đề hero + thêm 1 dự án trong ≤ 5 phút (thử với 3 người dùng thật);
 CMS chỉ hiện form của section có trong cấu hình.
-**Phụ thuộc**: E5-S01…S05, E3 (schema), E6-S02.
+**Phụ thuộc**: E5-S01…S05, E5-S10, E3 (schema), E6-S02, E15-S01.
+
+> E7-S09 cũ ("Super admin: quản lý tenant") đã tách sang E15-S03 và E15-S07.
 
 ---
 
-### E7-S01 · Đăng nhập & phân quyền
-**Là** chủ doanh nghiệp, **tôi muốn** đăng nhập và mời nhân viên với quyền hạn chế, **để** an toàn.
-- **Chi tiết**: email + mật khẩu (argon2/bcrypt) và magic link; phiên cookie httpOnly; vai trò `owner|editor|viewer` theo tenant;
-  `platform_admin` cho đội vận hành. Một user thuộc nhiều tenant → bộ chọn tenant. Học từ luồng JWT của branch `develop`
-  (`api/auth/*`) nhưng không lưu JWT trong localStorage. Rate-limit đăng nhập, khóa 15 phút sau 5 lần sai.
+### E7-S01 · Đăng nhập site admin & phân quyền theo site
+**Là** chủ doanh nghiệp, **tôi muốn** đăng nhập CMS của site mình bằng email hoặc số điện thoại và mời nhân viên với quyền
+hạn chế, **để** an toàn.
+- **Chi tiết** (dùng `packages/auth` của E15-S01, realm `site`):
+  - `apps/admin` nhận host `<slug>.admin.<platform>` → `Tenant` (slug không tồn tại hoặc tenant `suspended` → trang lỗi,
+    không có form đăng nhập). Không có bộ chọn tenant: một người làm cho hai site có hai tài khoản riêng.
+  - Một ô "Email, số điện thoại hoặc tên đăng nhập" + mật khẩu; tìm `SiteUser` **chỉ trong tenant của host**.
+    Tài khoản `mustChangePassword` (vd. `…_admin` vừa bàn giao, D21 §5) → mọi trang chuyển tới màn hình đổi mật khẩu,
+    sau đó gợi ý thêm email/SĐT để tự khôi phục. Magic link cho tài khoản có
+    email. Quên mật khẩu: tài khoản có email → link đặt lại; tài khoản chỉ có SĐT → owner/admin của site hoặc super admin
+    (E15-S04) tạo link đặt lại. OTP SMS/Zalo ZNS để backlog.
+  - Nhận lời mời (`SiteInvite`, hạn 72 h, dùng 1 lần) → đặt mật khẩu → `active`.
+  - Vai trò `owner|admin|editor|staff|viewer` → permission (`packages/auth/permissions.ts`); quyền hiệu lực trừ thêm
+    `permissionPolicy` của tenant (D19). Kiểm ở mọi Server Action/route bằng `requirePermission("…")`, không chỉ ẩn menu.
+  - 2FA TOTP tùy chọn cho owner/admin (super admin có thể bắt buộc qua permission policy về sau).
+  - Học từ luồng JWT của branch `develop` (`api/auth/*`) nhưng không lưu JWT trong localStorage.
 - **AC**:
-  - [ ] Editor không vào được trang Tên miền, Gói, Thành viên.
-  - [ ] Mọi Server Action kiểm membership (test cho từng action).
+  - [ ] Seed: `owner@demo.vn` ở tenant A và B là hai tài khoản, mật khẩu khác nhau; đăng nhập ở `a.admin…` bằng mật khẩu của B → thất bại.
+  - [ ] Email/mật khẩu của `PlatformAdmin` (cùng `owner@demo.vn`) → thất bại ở mọi host admin.
+  - [ ] Tài khoản vai trò `client` (đúng mật khẩu) → không vào được CMS, không có route/API admin nào trả dữ liệu (D20).
+  - [ ] Chép cookie phiên của host A sang host B → 401.
+  - [ ] Đăng nhập bằng `0901234567` và `+84901234567` cùng ra một tài khoản.
+  - [ ] `nangluongsolar_admin` đăng nhập bằng mật khẩu tạm → chỉ vào được màn hình đổi mật khẩu (Server Action khác → 403);
+        mật khẩu tạm quá 7 ngày → từ chối, hướng dẫn liên hệ hỗ trợ.
+  - [ ] Editor không vào được trang Tên miền, Gói, Tài khoản & nhân viên (UI ẩn + server 403).
+  - [ ] Mọi Server Action kiểm permission (test liệt kê tự động, fail khi có action mới chưa khai báo permission).
   - [ ] 2FA TOTP tùy chọn cho owner.
-- Agent: Claude · Cỡ: L
+- Phụ thuộc: E15-S01 · Agent: Claude · Cỡ: L
 
 ### E7-S02 · Khung admin & điều hướng
-- **Chi tiết**: layout admin dùng `packages/ui` + theme admin riêng (không theo theme tenant); menu: Tổng quan, Trang & Section,
-  Nội dung (các collection), Media, Lead, Giao diện, Tên miền, Email theo tên miền, Thành viên, Gói. Mobile dùng được.
-- **AC**: [ ] Lighthouse a11y ≥ 95 cho các trang admin chính · [ ] Menu ẩn mục ngoài quyền/ngoài gói (vẫn kiểm server).
+- **Chi tiết**: layout admin dùng `packages/ui` + theme admin riêng (không theo theme tenant), dùng chung với `apps/console`;
+  menu: Tổng quan (S11), Trang & Section, Nội dung (các collection: sản phẩm, dịch vụ, dự án…), Media, Lead, Giao diện,
+  Tên miền, Email theo tên miền, Tài khoản & nhân viên (S12), Gói. Mobile dùng được. Chừa sẵn vị trí banner cho phiên ghost
+  (E15-S07) và banner bảo trì (E15-S06).
+- **AC**: [ ] Lighthouse a11y ≥ 95 cho các trang admin chính · [ ] Menu ẩn mục ngoài quyền/ngoài gói/bị super admin tắt (vẫn kiểm server).
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
 ### E7-S03 · Form tự sinh từ schema zod
@@ -41,6 +65,8 @@ CMS chỉ hiện form của section có trong cấu hình.
 - **Chi tiết**: danh sách section của trang (tên, variant, thumbnail, công tắc), kéo thả (dnd-kit, có bàn phím), menu
   "Đổi kiểu hiển thị" liệt kê variant cùng type (ảnh thumbnail chụp sẵn với theme hiện tại), "Thêm section" từ thư viện
   (khóa theo gói, E6-S04), xóa (dữ liệu giữ 30 ngày). Gói Cơ bản: chỉ sửa nội dung, không sắp xếp.
+  Danh sách trang của site: bật/tắt trang theo danh mục (cần `pageStructure`, D21). Kiểm bằng `validateSiteStructure`
+  (E5-S11), cùng hàm với wizard tạo site. Trình sửa danh sách section đặt ở `packages/cms-ui` để wizard (E13-S06) dùng lại.
 - **AC**:
   - [ ] Đổi variant hero t08 → t15: nội dung giữ nguyên, preview cập nhật.
   - [ ] Thao tác lưu vào draft; "Xuất bản" mới revalidate.
@@ -78,14 +104,31 @@ CMS chỉ hiện form của section có trong cấu hình.
 - **AC**: [ ] Màu không đạt AA bị từ chối kèm gợi ý · [ ] Đổi theme giữ nguyên toàn bộ nội dung section.
 - Phụ thuộc: E2-S05, S02 · Agent: Claude · Cỡ: M
 
-### E7-S09 · Super admin: quản lý tenant
-- **Chi tiết**: danh sách tenant (gói, hạn, dung lượng, số lead tháng, trạng thái tên miền), tạo tenant từ preset (E13-S01),
-  đổi gói, tạm ngưng, "đăng nhập thay" (impersonate có audit, banner cảnh báo), xem audit log.
-- **AC**: [ ] Mọi thao tác ghi `AuditLog` · [ ] Impersonate hết hạn sau 30 phút.
-- Phụ thuộc: S01, E6-S03 · Agent: Codex · Cỡ: M
-
 ### E7-S10 · Sao lưu & khôi phục theo tenant
 - **Chi tiết**: học từ branch `develop` (backup JSON + zip media, lịch sử backup). Xuất toàn bộ dữ liệu một tenant
   (JSON + danh sách media) và khôi phục vào tenant mới (dùng cho nhân bản site, chuyển máy chủ). Backup toàn DB ở E10-S06.
-- **AC**: [ ] Xuất → khôi phục sang tenant mới cho site giống hệt (ảnh chụp so khớp) · [ ] Chỉ owner thực hiện được.
+- **AC**: [ ] Xuất → khôi phục sang tenant mới cho site giống hệt (ảnh chụp so khớp) · [ ] Chỉ owner (hoặc super admin qua console) thực hiện được.
+  Bản xuất **không** chứa `SiteUser`/mật khẩu/phiên; khôi phục vào tenant mới không mang theo tài khoản.
 - Phụ thuộc: E8-S01 · Agent: Codex · Cỡ: M
+
+### E7-S11 · Dashboard của site
+**Là** chủ doanh nghiệp, **tôi muốn** mở CMS là thấy ngay tình hình site, **để** biết việc cần làm hôm nay.
+- **Chi tiết**: trang Tổng quan: lead mới (hôm nay/7 ngày, theo nguồn), lead chưa xử lý quá 24 h, trang/section còn
+  `[DỮ LIỆU MẪU]` (checklist E13-S01), bản nháp chưa xuất bản, dung lượng media/giới hạn gói, trạng thái tên miền + SSL,
+  gói + ngày hết hạn, lịch hẹn sắp tới và client mới (khi có `booking`/`clientAccounts`, E16), hoạt động gần đây (AuditLog của site, gồm cả "Truy cập hỗ trợ" của E15-S07). Mỗi ô chỉ hiện khi user
+  có permission tương ứng.
+- **AC**: [ ] Tải ≤ 1 s với 10.000 lead · [ ] Viewer chỉ thấy ô được phép, không lộ số liệu lead.
+- Phụ thuộc: S02, E11-S01 · Agent: Claude · Cỡ: M
+
+### E7-S12 · Tài khoản & nhân viên của site
+**Là** owner/admin của site, **tôi muốn** thêm nhân viên, gán vai trò, khóa hoặc gỡ tài khoản, **để** tự quản lý người được vào CMS.
+- **Chi tiết**: trang này chỉ quản lý nhân viên; tài khoản `client` quản lý ở E16-S04. Danh sách `SiteUser` nhân viên (tên, email/SĐT, vai trò, trạng thái, đăng nhập gần nhất, 2FA); mời bằng email hoặc SĐT
+  (tài khoản chỉ có SĐT → link mời dùng 1 lần để gửi qua Zalo); đổi vai trò, khóa/mở, gỡ (thu hồi mọi phiên); xem phiên
+  đang mở của mình và đăng xuất các thiết bị khác. Giới hạn `users` của gói (chỉ đếm nhân viên) kiểm bằng `limit()` (E6-S02).
+  Đổi một `client` thành nhân viên (hoặc ngược lại) chỉ owner làm được, có xác nhận.
+  Kiểm trùng tên đăng nhập trong site (D17). Admin không nâng ai lên owner, không sửa owner; chỉ owner chuyển quyền owner.
+- **AC**:
+  - [ ] Mời vượt giới hạn `users` của gói → server từ chối, UI báo rõ và gợi ý nâng gói.
+  - [ ] Không gỡ/khóa được owner cuối cùng; admin không đổi được vai trò của owner (test server).
+  - [ ] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
+- Phụ thuộc: S01, S02, E6-S02, E11-S05 · Agent: Codex · Cỡ: M
