@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { POST } from "../../../app/api/lead/route";
-import { createTenantLeadGate, leadSourceFeature } from "../entitlements";
+import { createTenantLeadGate, leadFeatures, leadSourceFeature } from "../entitlements";
 import type { SiteEntitlements } from "../siteData";
 
 const tenantId = "00000000-0000-4000-8000-000000000001", siteId = "00000000-0000-4000-8000-000000000002";
@@ -20,6 +20,15 @@ test("tenant without quoteCart: POST /api/lead with source quote-cart → 403 in
   assert.equal((await createTenantLeadGate(async () => ({ entitlements: entitlements({ disabled: ["calculator"] }) }))(post(lead("calculator")))).status, 403);
 });
 
+test("payload cannot unlock features through an allowed source (E5-S04 contract)", async () => {
+  const gate = createTenantLeadGate(async () => ({ entitlements: entitlements({ planId: "basic" }) }));
+  const send = (extra: object) => gate(post(JSON.stringify({ name: "A", phone: "0901234500", source: "contact", ...extra })));
+  assert.equal((await send({})).status, 503);
+  for (const extra of [{ items: [{ sku: "x", name: "X", qty: 1 }] }, { estimate: { kWp: 5 } }, { businessType: "Đại lý" }]) assert.equal((await send(extra)).status, 403, JSON.stringify(extra));
+  assert.equal((await send({ items: [], estimate: "", businessType: null })).status, 503, "empty fields carry no feature");
+  assert.deepEqual(leadFeatures({ source: "quote-cart", items: [{}] }), ["quoteCart"]);
+});
+
 test("allowed tenant leads still stop at 503 (E11 stores them); never reach the shared adapters", async () => {
   const gate = createTenantLeadGate(async (t, s) => (t === tenantId && s === siteId ? { entitlements: entitlements({ planId: "premium" }) } : null));
   for (const source of ["quote-cart", "home-bottom", "calculator", ""]) assert.equal((await gate(post(lead(source)))).status, 503);
@@ -33,7 +42,7 @@ test("allowed tenant leads still stop at 503 (E11 stores them); never reach the 
   assert.equal(legacy.status, 200);
 });
 
-test("lead sources map to the features documented in packages/plans README", () => {
+test("lead sources map to the features in the packages/plans README table", () => {
   assert.deepEqual(["contact", "popup", "home-bottom", "calculator", "story-cta", "hero-bill", "dealer", "quote-cart", "website"].map(leadSourceFeature),
     ["leadForm", "leadForm", "quoteForm", "calculator", "calculator", "calculator", "dealer", "quoteCart", "leadForm"]);
 });
