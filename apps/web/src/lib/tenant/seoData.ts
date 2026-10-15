@@ -10,7 +10,7 @@ export async function requestSite(siteId: string) {
   if (request.get("x-site-id") !== siteId) return null;
   return loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
 }
-export async function collectSitemapPaths(site: Pick<TenantSite, "tenantId" | "siteId" | "profile" | "planId" | "addons" | "pageTypes">, collections: TenantCollections, pages: { slug: string; kind: string }[]) {
+export async function collectSitemapPaths(site: Pick<TenantSite, "tenantId" | "siteId" | "profile" | "entitlements" | "pageTypes">, collections: TenantCollections, pages: { slug: string; kind: string }[]) {
   // Same structure/plan rule as the page dispatcher (E5-S11): closed pages never reach the sitemap.
   const canUse = siteCanUse(site);
   const open = (path: string[]) => { const route = resolveRoute(path); return Boolean(route && routeEnabled(route, site.pageTypes, canUse)); };

@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { forPlatform } from "@solar/db";
+import { createPlatformDb, forPlatform } from "@solar/db";
 import { getWebDb } from "../db";
-import { createSiteData, tenantRepository } from "../siteData";
+import { createSiteData, siteCanUse, tenantRepository } from "../siteData";
 import { createCollections } from "../collections";
 import { randomUUID } from "node:crypto";
-import { createCollectionLoader, sectionRegistry } from "@solar/sections";
+import { createCollectionLoader, PageRenderer, sectionRegistry } from "@solar/sections";
 import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { loadSystemPage } from "../../../components/tenant/SystemPages";
@@ -174,6 +174,47 @@ test("Postgres: public collections and associations exclude drafts, foreign UUID
   } finally {
     globals.React = previousReact;
     for (const remove of cleanup.reverse()) await remove();
+    await db.$disconnect();
+  }
+});
+
+test("Postgres: downgrading Cao cấp → Nâng cao hides shorts, keeps its content, upgrade shows it again (E6-S02)", {
+  skip: !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "DATABASE_URL/PLATFORM_DATABASE_URL missing: requires seeded PostgreSQL 16",
+}, async () => {
+  const db = getWebDb(), platform = createPlatformDb({ pool: 1 });
+  const globals = globalThis as typeof globalThis & { React?: typeof React };
+  const previousReact = globals.React;
+  globals.React = React;
+  const domain = await forPlatform(db).domains.resolve("t15.localhost");
+  assert.ok(domain);
+  const { tenantId, siteId } = domain;
+  const original = await platform.tenant.findUniqueOrThrow({ where: { id: tenantId }, select: { planId: true, addons: true } });
+  const data = createSiteData(tenantRepository);
+  const render = async () => {
+    const site = await data.loadTenantSite(tenantId, siteId);
+    const home = await data.loadPublishedPage(tenantId, siteId, "");
+    assert.ok(site && home);
+    assert.ok(home.config.sections.some((section) => section.type === "shorts" && section.enabled), "seeded t15 home has shorts");
+    const loadData = createCollectionLoader(createCollections(tenantRepository(tenantId), tenantId).source);
+    return renderToStaticMarkup(await PageRenderer({ page: home.config, site: site.context, canUse: siteCanUse(site), loadData }));
+  };
+  const shortsContent = () => tenantRepository(tenantId).sectionContent.list({ where: { siteId, type: "shorts" }, orderBy: { sectionId: "asc" } });
+  try {
+    await platform.tenant.update({ where: { id: tenantId }, data: { planId: "premium", addons: [] } });
+    assert.match(await render(), /data-section-type="shorts"/);
+    const before = await shortsContent();
+    assert.ok(before.length);
+    await platform.tenant.update({ where: { id: tenantId }, data: { planId: "pro" } });
+    const downgraded = await render();
+    assert.doesNotMatch(downgraded, /data-section-type="shorts"/);
+    assert.match(downgraded, /data-section-type="calculator"/, "Nâng cao sections still render");
+    assert.deepEqual(await shortsContent(), before, "content is kept while hidden");
+    await platform.tenant.update({ where: { id: tenantId }, data: { planId: "premium" } });
+    assert.match(await render(), /data-section-type="shorts"/);
+  } finally {
+    await platform.tenant.update({ where: { id: tenantId }, data: original });
+    globals.React = previousReact;
+    await platform.$disconnect();
     await db.$disconnect();
   }
 });

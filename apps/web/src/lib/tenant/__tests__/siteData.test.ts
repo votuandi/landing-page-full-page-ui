@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { TenantRepo } from "@solar/db";
-import { createSiteData, planCanUse, selectSiteLocale } from "../siteData";
+import { createSiteData, selectSiteLocale, siteCanUse } from "../siteData";
 import { sectionRegistry } from "@solar/sections";
 
 const tenantId = "00000000-0000-4000-8000-000000000001";
 const siteId = "00000000-0000-4000-8000-000000000002";
 const repo = (extra: object = {}) => ({
-  site: { first: async () => ({ id: siteId, tenantId, themeId: "t15", name: "A", profile: {}, seo: {}, widgets: {}, themeOverrides: {}, locales: ["vi"], defaultLocale: "vi", pageTypes: ["home", "contact", "policy"], tenant: { planId: "premium", addons: [] } }) },
+  site: { first: async () => ({ id: siteId, tenantId, themeId: "t15", name: "A", profile: {}, seo: {}, widgets: {}, themeOverrides: {}, locales: ["vi"], defaultLocale: "vi", pageTypes: ["home", "contact", "policy"], tenant: { planId: "premium", addons: [], status: "active", createdAt: new Date("2026-01-01T00:00:00Z"), featureOverrides: {}, limitOverrides: {} } }) },
   domain: { first: async () => ({ hostname: "a.localhost" }) },
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
@@ -67,14 +67,18 @@ test("published loader scopes page and content to site/page, ignores draft and f
   assert.ok(log.mock.callCount() >= 1);
 });
 
-test("base plans deny unknown features/plans and keep premium/pro distinction", (t) => {
-  t.mock.method(console, "error", () => {});
-  assert.equal(planCanUse("premium")("catalog"), true);
-  assert.equal(planCanUse("pro")("catalog"), false);
-  assert.equal(planCanUse("premium")("unknown"), false);
-  assert.equal(planCanUse("missing")("calculator"), false);
-  assert.equal(planCanUse("pro", ["catalog"])("catalog"), true, "addons extend the plan (D8)");
-  assert.equal(planCanUse("pro", ["unknown"])("unknown"), false);
+test("site entitlements follow D19: plan downgrade, addons, overrides and platform kill switch", async () => {
+  const good = await repo().site.first({}) as unknown as { tenant: object };
+  const load = (tenant: object, disabled: string[] = []) => createSiteData(() => repo({ site: { first: async () => ({ ...good, tenant: { ...good.tenant, ...tenant } }) } }),
+    async () => disabled).loadTenantSite(tenantId, siteId).then((site) => siteCanUse(site!));
+  assert.equal((await load({}))("shorts"), true);
+  assert.equal((await load({ planId: "pro" }))("shorts"), false, "downgrade hides premium sections");
+  assert.equal((await load({ planId: "pro", addons: ["shorts"] }))("shorts"), true, "addons extend the plan (D8)");
+  assert.equal((await load({}, ["shorts", "unknown"]))("shorts"), false, "kill switch wins");
+  assert.equal((await load({ featureOverrides: { shorts: { on: false, reason: "vi phạm" } } }))("shorts"), false);
+  assert.equal((await load({ planId: "pro", featureOverrides: { shorts: { on: true, until: "2000-01-01T00:00:00Z", reason: "hết hạn" } } }))("shorts"), false);
+  assert.equal((await load({ status: "suspended" }))("leadForm"), false);
+  assert.equal((await load({}))("unknown"), false);
 });
 
 test("published v1 header migrates in memory, missing/type-mismatched rows use defaults and duplicate anchors reject page", async (t) => {
