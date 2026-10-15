@@ -159,7 +159,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - [ ] Không bao giờ có trạng thái "bố cục mới + nội dung cũ" (test xuất bản xen kẽ hai tab).
 - Phụ thuộc: S05 · Agent: Claude · Cỡ: M
 
-### E5-S08 · SEO theo tenant
+### E5-S08 · SEO theo tenant ✅ · PR [#37](https://github.com/votuandi/landing-page-full-page-ui/pull/37)
 **Là** tenant, **tôi muốn** sitemap, robots, JSON-LD, canonical đúng tên miền của tôi, **để** lên Google.
 - **Chi tiết**: `sitemap.ts`, `robots.ts` theo host; JSON-LD `Organization`/`LocalBusiness` từ thông tin công ty + chi nhánh,
   `Product`, `FAQPage`, `BreadcrumbList`; redirect 308 slug cũ (danh sách trong t15 `next.config.ts`) cấu hình được theo tenant.
