@@ -56,6 +56,7 @@ bật/tắt theo gói, kiểm tra phía server.
 - Triển khai E6-S03: `changeTenantPlan` atomic update/audit/outbox, worker override-expiry + notification adapter mặc định ghi log.
   Bằng chứng: `packages/db/src/__tests__/tenantPlan.int.test.ts` (audit actor/trước/sau, rollback bằng trigger DB, ghi đồng thời) và
   `apps/web/src/lib/tenant/__tests__/revalidate.int.test.ts` (đổi gói → worker → entitlements mới < 60 s) PASS trên PostgreSQL 16 ở lượt test cuối chuỗi.
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
 ### E6-S04 · UI khóa tính năng trong CMS
@@ -78,4 +79,5 @@ bật/tắt theo gói, kiểm tra phía server.
 - Triển khai E6-S05: ngày hết hạn nullable + migration/index, cron 14/7/1 ngày và khóa sau ân hạn 7 ngày,
   audit/outbox atomic, invalidate host khi status đổi, mở lại khi gia hạn. Unit/schema/worker kiểm offline;
   bằng chứng Postgres đồng hồ giả: `packages/db/src/__tests__/billing.int.test.ts` PASS ở lượt test cuối chuỗi (PostgreSQL 16).
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M

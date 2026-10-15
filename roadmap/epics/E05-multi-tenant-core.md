@@ -144,6 +144,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   thấy tiêu đề mới sau 261 ms, job `invalidate` `done` lần 1; đối chứng: sửa DB không invalidate → vẫn bản cache; t12 không đổi.
   Tắt web lúc xuất bản → job `pending` (retry), bật web lại → `done` ở lần 3, trang hiện bản mới. Bước "sửa ở admin" giả lập
   bằng script ghi DB (admin E7 chưa có). Test Redis nonce chỉ chạy trên CI.
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S04, E11-S01 (bảng Outbox + worker; có thể làm trước phần outbox ở story này) · Agent: Claude · Cỡ: M
 
 ### E5-S06 · Bật Cache Components (Next 16)

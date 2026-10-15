@@ -23,6 +23,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
         tới mỗi kênh (kênh hỗ trợ idempotency) hoặc ít nhất 1 lần (kênh không hỗ trợ — ghi rõ).
   - [x] Crash ngay sau khi trả 200 cho trình duyệt → lead vẫn có trong DB và outbox.
   - [x] 20 request/phút từ cùng IP → 429.
+- PR: #41 (gộp E5-S05, E6-S03, E6-S05). Bằng chứng: `apps/worker/README.md`, `leadIntake.int.test.ts`, `outbox.int.test.ts`, `leads.int.test.ts`.
 - Agent: Codex · Cỡ: M
 
 ### E11-S02 · Kênh nhận lead theo tenant
@@ -31,6 +32,8 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   HMAC), Google Sheets (Apps Script `scripts/lead-google-apps-script.gs`). Nút "Gửi thử".
   URL webhook/Sheets do tenant nhập: chỉ `https`, phân giải DNS rồi chặn IP nội bộ/loopback/link-local/metadata (169.254.169.254),
   không tự theo redirect sang host khác, kiểm lại IP lúc kết nối (chống DNS rebinding), timeout 10 s, giới hạn kích thước phản hồi.
+- **Chuyển từ E11-S01 (review PR #41, người dùng chốt 15/10/2026)**: e2e Playwright bật Turnstile (widget giả + khóa test
+  Cloudflare cho Siteverify trên CI) trên 3 form — token vào request, `503 → reset widget → token mới → 200`, giữ dữ liệu form.
 - **AC**: [ ] Mỗi kênh có test với mock · [ ] Kênh theo gói (webhook/Sheets từ gói Nâng cao) ·
   [ ] Webhook trỏ `http://127.0.0.1`, `http://169.254.169.254`, host phân giải ra IP nội bộ, hoặc redirect sang chúng → bị từ chối.
 - Phụ thuộc: S01, E10-S05 · Agent: Codex · Cỡ: M
@@ -41,6 +44,8 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   `mới|đã liên hệ|báo giá|chốt|hủy`, ghi chú, gán người phụ trách/chi nhánh (gói Cao cấp), xuất CSV (gói Cao cấp),
   thống kê theo nguồn/tuần. Dữ liệu cá nhân: chỉ vai trò có permission `leads.view` xem (E7-S01); xóa lead theo yêu cầu (tuân thủ Nghị định 13/2023 về
   bảo vệ dữ liệu cá nhân — có checkbox đồng ý trên form).
+- **Chuyển từ E11-S01 (review PR #41)**: e2e submit thật (timer ≥ 3 s) qua mọi form tenant — section LeadForm, dealer, popup,
+  giỏ báo giá — kiểm lead + outbox xuất hiện trong hộp thư đúng tenant.
 - **AC**: [ ] Lead mới hiện ≤ 5 s không cần tải lại · [ ] Xuất CSV đúng UTF-8 mở được bằng Excel.
 - Phụ thuộc: S01, E7-S02 · Agent: Claude · Cỡ: M
 
