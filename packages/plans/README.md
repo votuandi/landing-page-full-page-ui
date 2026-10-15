@@ -63,7 +63,8 @@ Dữ liệu ngoài gói giữ nguyên khi hạ gói; E6-S03 cập nhật plan/ad
 ## Đổi gói (E6-S03)
 
 Console đã xác thực PlatformAdmin gọi `forPlatform(platformDb).tenants.changePlan({ actorId, tenantId, changes, reason? })`
-trong `@solar/db`. `changes` nhận `planId`, `addons`, `featureOverrides`, `limitOverrides`, `permissionPolicy` (JSON object);
+trong `@solar/db`. `changes` nhận `planId`, `addons`, `featureOverrides`, `limitOverrides`, `permissionPolicy` (JSON object),
+`planExpiresAt` (`Date | null`), `status` (`active | suspended`);
 trường lạ bị từ chối. Caller kiểm quyền và lấy `actorId` từ phiên đã xác thực, không lấy từ client. Runtime DB không có API này.
 
 Hàm khóa tenant, chỉ cập nhật trường thực sự đổi, ghi `AuditLog` `tenant.plan.change` (actor, trước/sau, lý do) và outbox
@@ -81,4 +82,30 @@ nhiều lần quét/worker không tạo trùng. Audit hệ thống `tenant.overr
 Cửa sổ 24 giờ bù gián đoạn ngắn; gián đoạn dài hơn cần vận hành invalidate tenant (cache nội dung cũng có TTL 24 giờ).
 
 Notification mặc định tìm owner và ghi metadata `[notify]`, chưa gửi email/Telegram thật. Adapter gửi thật thuộc E11-S02;
-adapter nhận khóa idempotency để xử lý retry an toàn. Ngày hết hạn gói/status và billing cron thuộc E6-S05.
+adapter nhận khóa idempotency để xử lý retry an toàn.
+
+## Thanh toán thủ công (E6-S05)
+
+Giai đoạn đầu xuất hóa đơn thủ công. Super admin đã xác thực gán gói/ngày hết hạn qua `changePlan` ở trên;
+màn hình console thuộc E15-S03. `planExpiresAt = null` nghĩa là không có hạn thanh toán, cron không nhắc/khóa;
+trial không có ngày này vẫn theo `TRIAL_DAYS` của entitlement, không bị billing tự khóa.
+
+Worker gọi `forPlatform(platformDb).billing.run({ now })` lúc khởi động rồi mỗi giờ sau khi lượt trước hoàn tất.
+Tenant `active | trial` còn hạn nhận nhắc trước 14/7/1 ngày: mỗi lượt chỉ chọn mốc nhỏ nhất bao phủ số ngày còn lại
+(gán khi còn 5 ngày chỉ nhắc mốc 7, không gửi bù mốc 14). Outbox `notify.renewal` mang `{ tenantId, days, expiresAt }`,
+khóa `renewal:<tenantId>:<expiresAt ISO>:<days>` nên chạy lặp/nhiều worker không sinh trùng. Audit system
+`tenant.renewal.reminded` đi cùng job. Đồng hồ dùng UTC và khoảng thời gian 24 giờ, không theo ngày lịch địa phương.
+
+Tại thời điểm `planExpiresAt + 7 ngày <= now`, cron chuyển tenant sang `suspended`, ghi audit system
+`tenant.suspend.expired`, invalidate `tenant:<id>` và mọi `Domain.hostname`, enqueue `notify.suspended`
+với khóa `suspended:<tenantId>:<expiresAt ISO>`, tất cả trong một transaction. Proxy hiện có trả 403
+"Website tạm ngừng hoạt động." sau khi host cache được invalidate; nội dung vẫn giữ nguyên.
+Cron chạy mỗi giờ nên việc chuyển trạng thái xảy ra ở lượt quét đầu sau ngưỡng, không sớm hơn ngưỡng.
+
+Gia hạn bằng ngày mới trong tương lai tự chuyển `suspended → active` khi audit khóa gần nhất là do billing;
+khóa thủ công vẫn cần `status: "active"` rõ ràng. `status` chỉ định trong request luôn được ưu tiên.
+Đổi status kèm invalidate cả host cache; audit trước/sau lưu ngày ISO. Cron và thao tác console cùng khóa dòng tenant
+để không khóa nhầm gói vừa gia hạn. Ngày hết hạn mới có bộ khóa nhắc riêng.
+
+Email/Telegram thật thuộc E11-S02 (adapter hiện chỉ log metadata owner). Cổng PayOS/VNPay ở backlog;
+không thu tiền tự động trong giai đoạn này.

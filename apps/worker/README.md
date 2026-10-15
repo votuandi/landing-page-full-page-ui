@@ -1,7 +1,7 @@
 # worker
 
 Tiến trình Node (không Next) xử lý bảng `Outbox` theo D14: request chỉ ghi DB + job trong cùng transaction, worker làm
-tác dụng phụ (gửi lead, sau này revalidate cache, cron gói/gia hạn). Chạy: `pnpm --filter worker start` với
+tác dụng phụ (gửi lead, revalidate cache, cron gói/gia hạn). Chạy: `pnpm --filter worker start` với
 `PLATFORM_DATABASE_URL` (vai trò `app_platform`, pool `POOL_BUDGET.worker`).
 
 ## Vòng lặp (`src/loop.ts`)
@@ -53,3 +53,19 @@ xóa hết replica. Redis/shared cache triển khai ở E10-S03. Xem [hợp đ�
 Test Postgres đổi gói/audit/rollback/expiry ở `packages/db/src/__tests__/tenantPlan.int.test.ts`; chuỗi cache → đổi gói →
 worker → signed revalidation → quyền mới ở `apps/web/src/lib/tenant/__tests__/revalidate.int.test.ts`.
 Đặt `DATABASE_URL` + `PLATFORM_DATABASE_URL`, migrate/sync plans và seed theme `t15.localhost`; thiếu env thì test int skip.
+
+## Gia hạn thủ công (E6-S05)
+
+`startBillingCron` gọi `forPlatform(db).billing.run({ now })` ngay lúc khởi động và mỗi giờ sau lượt trước;
+không chồng lượt, lỗi được log rồi thử lại ở chu kỳ tiếp theo. SIGTERM/SIGINT chờ cả billing đang chạy.
+`notify.renewal` và `notify.suspended` dùng chung `createNotify`/adapter owner với `notify.plan-changed`.
+
+Nhắc mốc nhỏ nhất trong 14/7/1 ngày còn lại, không nhắc sau khi hết hạn. Hết hạn + 7 ngày ân hạn thì khóa
+và enqueue invalidation gồm tag tenant và mọi hostname. Transaction/row lock bảo vệ đổi gói đồng thời;
+khóa outbox theo tenant, expiry ISO và milestone chống sinh trùng qua nhiều worker/lượt quét.
+Ngày hết hạn null không bị billing xử lý. Xem [thanh toán thủ công](../../packages/plans/README.md#thanh-toán-thủ-công-e6-s05).
+
+Test đồng hồ giả cron giờ/notification chạy offline trong worker. `packages/db/src/__tests__/billing.int.test.ts`
+kiểm mốc nhắc, ân hạn, audit, host invalidation, gia hạn, no-op và chạy đồng thời trên Postgres;
+`DATABASE_URL` + `PLATFORM_DATABASE_URL` phải trỏ DB đã migrate/sync plans. Test rollback bằng trigger cần thêm
+`TEST_OWNER_DATABASE_URL` (app_owner); không mock Prisma đã extend. Thiếu env tương ứng thì skip và chưa tính là bằng chứng AC.

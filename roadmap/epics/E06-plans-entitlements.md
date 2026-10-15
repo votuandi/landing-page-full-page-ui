@@ -74,4 +74,7 @@ bật/tắt theo gói, kiểm tra phía server.
 - **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn trong console (E15-S03); cron nhắc gia hạn trước 14/7/1 ngày;
   hết hạn + 7 ngày ân hạn → `suspended`. Tích hợp cổng thanh toán VN (PayOS/VNPay) để ở backlog.
 - **AC**: [ ] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
+- Triển khai E6-S05: ngày hết hạn nullable + migration/index, cron 14/7/1 ngày và khóa sau ân hạn 7 ngày,
+  audit/outbox atomic, invalidate host khi status đổi, mở lại khi gia hạn. Unit/schema/worker kiểm offline;
+  bằng chứng Postgres đồng hồ giả: **chờ test cuối chuỗi** (chưa tick AC). Báo cáo `.agent-runs/E6-S05/codex-report.md`.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
