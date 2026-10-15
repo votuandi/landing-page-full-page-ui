@@ -34,6 +34,9 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - Khóa ngoại ghép `(tenantId, id)` để bản ghi không thể tham chiếu dữ liệu tenant khác (E5-S01).
 - Lớp 2: Postgres RLS (`ENABLE` + `FORCE`, role runtime không sở hữu bảng) với `SET LOCAL app.tenant_id` trong transaction
   (E5-S09) — bắt lỗi khi dev quên repository.
+- Gate overhead RLS E5-S09 (chủ dự án chốt 15/10/2026): median execution time mỗi workload tăng ≤ 10% **HOẶC**
+  ≤ 0,02 ms tuyệt đối; truy vấn cỡ µs có baseline quá nhỏ khiến % tăng không có ý nghĩa thực tế. Báo cáo cả % và ms;
+  wall time transaction/repository chỉ báo cáo riêng, không làm gate.
 - **Loại**: database-per-tenant (vận hành nặng, migration ×N); schema-per-tenant (Prisma hỗ trợ kém).
 - Nội dung section: cột `data JSONB` kiểm bằng zod khi ghi; collection có cấu trúc (Product, Project, Post, Story…)
   là bảng riêng để lọc/sắp xếp/SEO.
