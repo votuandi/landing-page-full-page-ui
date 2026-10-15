@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assertNoCrossTenantConnect as guard } from "../tenantGuard.ts";
+import { assertNoCrossTenantConnect as guard, assertNoPlatformTraversal } from "../tenantGuard.ts";
 import { CrossTenantRefError } from "../refs.ts";
 
 const local = { tenantId_id: { tenantId: "A", id: "category" } };
@@ -66,9 +66,29 @@ test("tenant connect agrees with data and where, including scalar set updates", 
 });
 
 test("global relations and JSON objects containing relation-like keys remain valid", () => {
-  assert.doesNotThrow(() => guard("Membership", "create", { data: { tenantId: "A", user: { connect: { id: "user" } } } }));
+  assert.doesNotThrow(() => guard("SiteSession", "create", { data: { tenantId: "A", ghostGrant: { connect: { id: "grant" } } } }));
   assert.doesNotThrow(() => guard("Tenant", "update", { where: { id: "A" }, data: { plan: { connect: { id: "premium" } } } }));
-  assert.doesNotThrow(() => guard("PageVersion", "create", { data: { tenantId: "A", publishedBy: { connect: { id: "user" } } } }));
+  assert.doesNotThrow(() => guard("PageVersion", "create", { data: { tenantId: "A", publishedByPlatformAdmin: { connect: { id: "admin" } } } }));
   assert.doesNotThrow(() => guard("Product", "create", { data: { tenantId: "A", data: { category: { connect: foreign }, tenantId: "B" }, title: { connect: { id: "text" } } } }));
-  assert.doesNotThrow(() => guard("AuditLog", "create", { data: { tenantId: null, actorUser: { connect: { id: "user" } } } }));
+  assert.doesNotThrow(() => guard("AuditLog", "create", { data: { tenantId: null, actorType: "platform_admin", actorId: "admin" } }));
+});
+
+test("site accounts cannot reference another tenant's user", () => {
+  const foreignUser = { tenantId_id: { tenantId: "B", id: "user" } };
+  assert.throws(() => guard("SiteSession", "create", { data: { tenantId: "A", siteUser: { connect: foreignUser } } }), CrossTenantRefError);
+  assert.throws(() => guard("PageVersion", "create", { data: { tenantId: "A", publishedBySiteUser: { connect: foreignUser } } }), CrossTenantRefError);
+  assert.throws(() => guard("PlatformAdmin", "update", { where: { id: "admin" }, data: { pageVersions: { connect: { tenantId_id: { tenantId: "A", id: "v" } } } } }), CrossTenantRefError);
+});
+
+test("tenant reads may follow tenant relations and `tenant`, never platform relations", () => {
+  const read = (model: string, args: unknown) => () => assertNoPlatformTraversal(model, args);
+  assert.doesNotThrow(read("SiteUser", { include: { tenant: { include: { siteUsers: true, sites: { include: { pages: true } } } }, sessions: true } }));
+  assert.doesNotThrow(read("Site", { select: { name: true, tenant: { select: { planId: true, customerId: true } } } }));
+  for (const [model, args] of [
+    ["SiteUser", { include: { tenant: { include: { customer: { include: { tenants: true } } } } } }],
+    ["Site", { include: { tenant: { include: { plan: true } } } }],
+    ["SiteSession", { include: { ghostGrant: true } }],
+    ["PageVersion", { select: { publishedByPlatformAdmin: { select: { email: true } } } }],
+    ["SiteUser", { select: { tenant: { select: { _count: { select: { ghostGrants: true } } } } } }],
+  ] as const) assert.throws(read(model, args), CrossTenantRefError, JSON.stringify(args));
 });

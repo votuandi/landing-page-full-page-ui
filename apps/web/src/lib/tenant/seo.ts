@@ -7,8 +7,9 @@ export function siteOrigin(site: OriginSite, { production = process.env.NODE_ENV
   return `${production ? "https" : "http"}://${site.primaryHost}${!production && /^\d{1,5}$/.test(port) ? `:${port}` : ""}`;
 }
 
-// Platform and preview subdomains (PLATFORM_DOMAINS, comma separated) must never be indexed.
-export function isNoindexHost(host: string, suffixes = (process.env.PLATFORM_DOMAINS ?? "").split(",")) {
+// Preview subdomains (NOINDEX_DOMAINS, comma separated, e.g. preview.minwysoft.com) must never be indexed.
+// A platform subdomain that is a site's primary host is indexed (D21); non-primary hosts already 308 (E5-S03).
+export function isNoindexHost(host: string, suffixes = (process.env.NOINDEX_DOMAINS ?? "").split(",")) {
   return suffixes.map((suffix) => suffix.trim().toLowerCase().replace(/^\.+|\.+$/g, "")).filter(Boolean)
     .some((suffix) => host === suffix || host.endsWith(`.${suffix}`));
 }

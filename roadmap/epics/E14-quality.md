@@ -24,12 +24,17 @@
 **Là** chủ dự án, **tôi muốn** bằng chứng tự động rằng khách A không bao giờ thấy dữ liệu khách B, **để** yên tâm bán.
 - **Chi tiết**: seed 2 tenant có dữ liệu trùng slug; kiểm: trang công khai, sitemap, API lead, API admin (user A gọi id của B →
   404), media (đoán khóa của B), cache (revalidate A không ảnh hưởng B), preview token A trên host B, RLS truy vấn thô.
+  Tài khoản (D17, D18): cùng tên đăng nhập ở A và B là hai tài khoản; cookie/phiên của A trên host B; phiên console ở admin
+  và ngược lại; tài khoản `PlatformAdmin` ở form admin và ngược lại; ghost token của A trên host B, dùng lại, hết hạn.
+  Client (D20): phiên storefront gọi API admin → 401; client A đọc lịch hẹn/giỏ của client B (cùng site hoặc khác site) → 404;
+  HTML trang công khai trong cache không chứa tên/email của người đã đăng nhập lúc render.
 - **Target**: 100% endpoint admin có trong ma trận kiểm.
-- **AC**: [ ] Test sinh danh sách endpoint tự động và fail khi có endpoint mới chưa vào ma trận.
-- Phụ thuộc: E5-S09, E7 · Agent: Codex (review Claude adversarial) · Cỡ: M
+- **AC**: [ ] Test sinh danh sách endpoint tự động (cả `apps/admin` và `apps/console`) và fail khi có endpoint mới chưa vào ma trận.
+- Phụ thuộc: E5-S09, E7, E15 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
 ### E14-S04 · Bảo mật ứng dụng
-- **Chi tiết**: CSP theo D13 — `apps/web` CSP tĩnh + hash script (không nonce để giữ ISR), `apps/admin` nonce; `frame-src`
+- **Chi tiết**: CSP theo D13 — `apps/web` CSP tĩnh + hash script (không nonce để giữ ISR), `apps/admin` và `apps/console` nonce;
+  console: 2FA bắt buộc, IP allowlist tùy chọn, nhập lại TOTP trước ghost (D18); `frame-src`
   cho YouTube/TikTok/Bunny theo cấu hình; chống SSRF cho mọi URL do tenant nhập (webhook, ảnh từ URL); cookie `Secure; HttpOnly;
   SameSite=Lax`; CSRF cho Server Actions (origin check mặc định của Next) và API; rate-limit đăng nhập/lead/upload; kiểm phụ thuộc
   (`pnpm audit`, Dependabot/Renovate); `/security-review` của Claude và `/codex:adversarial-review` trước mỗi release;

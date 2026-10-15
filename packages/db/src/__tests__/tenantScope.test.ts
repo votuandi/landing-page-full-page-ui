@@ -46,7 +46,7 @@ test("raw queries are blocked and platform model queries remain available", () =
       return true;
     });
   }
-  for (const model of ["Plan", "Tenant", "User", "PlatformAdmin"]) assert.doesNotThrow(() => assertTenantScoped(model, "findMany", {}));
+  for (const model of ["Plan", "Tenant", "Customer", "PlatformAdmin", "PlatformSession", "GhostGrant", "PlatformSetting"]) assert.doesNotThrow(() => assertTenantScoped(model, "findMany", {}));
 });
 
 test("tenant filters reject unknown shapes in required and optional tables", () => {

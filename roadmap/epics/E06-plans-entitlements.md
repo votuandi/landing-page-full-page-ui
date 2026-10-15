@@ -34,16 +34,21 @@ bật/tắt theo gói, kiểm tra phía server.
 - **Chi tiết**: `can(site, feature)`, `limit(site, key)`, `assertCan()` (ném `EntitlementError` 403). Dùng ở:
   PageRenderer (bỏ section không đủ quyền — không render, không tải chunk), API lead (từ chối `source` thuộc tính năng bị tắt),
   API admin (thêm section, upload vượt dung lượng, thêm tên miền), widget. Trial: toàn bộ tính năng premium 14 ngày.
+  Thứ tự phân giải theo D19: kill switch nền tảng → `Tenant.featureOverrides` (còn hạn) → gói + addons + trial;
+  `limit()` cộng `Tenant.limitOverrides`. Zod schema của override nằm trong `packages/plans`; UI chỉnh override ở E15-S05/S06.
+  Trang render gắn thêm tag `platform:entitlements`.
 - **Target**: 100% điểm vào có kiểm tra (danh sách trong test).
 - **AC**:
   - [ ] Hạ gói Cao cấp → Nâng cao: section `shorts` biến mất sau revalidate, dữ liệu vẫn giữ nguyên (nâng lại gói là hiện).
   - [ ] Gọi `POST /api/lead` với `source: "quote-cart"` trên tenant không có `quoteCart` → 403.
   - [ ] Upload vượt `mediaGb` → 413 với thông báo tiếng Việt.
-- Phụ thuộc: S01, E3-S03 · Agent: Codex · Cỡ: M
+  - [ ] Test bảng phân giải: kill switch thắng override bật; override tắt thắng gói; override hết hạn → về theo gói.
+- Phụ thuộc: S01, E3-S03, E5-S10 · Agent: Codex · Cỡ: M
 
 ### E6-S03 · Đổi gói → revalidate
-- **Chi tiết**: super admin đổi `planId`/`addons` → ghi `AuditLog`, revalidate tag `tenant:<id>`, gửi email/Telegram cho
-  chủ tenant.
+- **Chi tiết**: super admin đổi `planId`/`addons`/`featureOverrides`/`limitOverrides`/`permissionPolicy` trong console
+  (E15-S03, E15-S05) → ghi `AuditLog` + Outbox invalidate tag `tenant:<id>` trong cùng transaction, gửi email/Telegram cho
+  owner khi đổi gói. Override hết hạn: worker quét mỗi 5 phút và invalidate các tenant vừa hết hạn.
 - **AC**: [ ] Thay đổi có hiệu lực ≤ 60 s · [ ] Audit log ghi người đổi, gói cũ, gói mới.
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
@@ -54,12 +59,14 @@ bật/tắt theo gói, kiểm tra phía server.
   Quy tắc khi hạ gói (khớp E6-S02): section/theme đã có từ trước được **giữ nguyên trong cấu hình** với cờ `lockedByPlan`
   (không render, không sửa được, không mất dữ liệu); chỉ **thêm mới** hoặc **bật lại** mục ngoài gói mới bị từ chối.
   Theme ngoài gói sau khi hạ → site dùng theme mặc định của nhóm được phép cho tới khi khách chọn lại.
+  Trang ngoài gói (vd. `/san-pham` khi mất `catalog`, D21 §2) theo cùng quy tắc: giữ trong cấu trúc với `lockedByPlan`,
+  trả 404, dữ liệu collection giữ nguyên.
 - **AC**: [ ] Thêm section/theme ngoài gói → server từ chối, UI báo rõ · [ ] Lưu trang có section `lockedByPlan` không thay đổi →
   thành công · [ ] Nâng gói lại → section khóa hiện lại với nguyên dữ liệu.
 - Phụ thuộc: S02, E7-S04 · Agent: Claude · Cỡ: S
 
 ### E6-S05 · Thanh toán (giai đoạn sau)
-- **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn; cron nhắc gia hạn trước 14/7/1 ngày;
+- **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn trong console (E15-S03); cron nhắc gia hạn trước 14/7/1 ngày;
   hết hạn + 7 ngày ân hạn → `suspended`. Tích hợp cổng thanh toán VN (PayOS/VNPay) để ở backlog.
 - **AC**: [ ] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M

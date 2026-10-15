@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { PageRenderer, SiteWidgets, createCollectionLoader, type BranchItem } from "@solar/sections";
 import TenantSiteShell from "@/components/TenantSiteShell";
-import { loadPublishedPage, loadTenantSite, planCanUse } from "@/lib/tenant/siteData";
+import { loadPublishedPage, loadTenantSite, siteCanUse } from "@/lib/tenant/siteData";
 import { tenantCollections, createTenantWidgetLoader } from "@/lib/tenant/collections";
 import { organizationJsonLd, siteOrigin } from "@/lib/tenant/seo";
 import { text } from "@/lib/tenant/contentSchemas";
@@ -16,7 +16,7 @@ export default async function TenantLayout({ children, params }: { children: Rea
   if (!site) notFound();
   const home = await loadPublishedPage(site.tenantId, siteId, "", site.locale);
   if (!home) notFound();
-  const canUse = planCanUse(site.planId);
+  const canUse = siteCanUse(site);
   const collections = tenantCollections(site.tenantId, site.locale);
   const loadData = createCollectionLoader(collections.source);
   const cartEnabled = Boolean(site.widgets["quote-cart"]?.enabled && canUse("quoteCart"));

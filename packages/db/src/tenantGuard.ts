@@ -2,29 +2,38 @@ import { CrossTenantRefError } from "./refs.ts";
 
 // schema.test.ts checks every relation so new fields must be classified here.
 export const globalRelations: Record<string, Record<string, string>> = {
-  Plan: { tenants: "Tenant" }, Tenant: { plan: "Plan" }, User: { platformAdmin: "PlatformAdmin" },
-  PlatformAdmin: { user: "User" }, Membership: { user: "User", tenant: "Tenant" },
+  Plan: { tenants: "Tenant" }, Tenant: { plan: "Plan", customer: "Customer", ghostGrants: "GhostGrant" },
+  Customer: { tenants: "Tenant" },
+  PlatformAdmin: { sessions: "PlatformSession", ghostGrants: "GhostGrant", settings: "PlatformSetting" },
+  PlatformSession: { platformAdmin: "PlatformAdmin" }, GhostGrant: { platformAdmin: "PlatformAdmin", targetTenant: "Tenant" },
+  PlatformSetting: { updatedBy: "PlatformAdmin" },
+  SiteUser: { tenant: "Tenant" }, SiteSession: { ghostGrant: "GhostGrant", tenant: "Tenant" }, SiteToken: { tenant: "Tenant" },
   Domain: { tenant: "Tenant" }, Site: { tenant: "Tenant" }, Page: { tenant: "Tenant" },
-  PageVersion: { publishedBy: "User", tenant: "Tenant" }, SectionContent: { tenant: "Tenant" },
+  PageVersion: { publishedByPlatformAdmin: "PlatformAdmin", tenant: "Tenant" }, SectionContent: { tenant: "Tenant" },
   Product: { tenant: "Tenant" }, ProductCategory: { tenant: "Tenant" }, Project: { tenant: "Tenant" },
   Story: { tenant: "Tenant" }, Post: { tenant: "Tenant" }, Faq: { tenant: "Tenant" },
   Testimonial: { tenant: "Tenant" }, Branch: { tenant: "Tenant" }, Certificate: { tenant: "Tenant" },
   Brand: { tenant: "Tenant" }, PressItem: { tenant: "Tenant" }, Service: { tenant: "Tenant" },
   Media: { tenant: "Tenant" }, Lead: { tenant: "Tenant" }, Outbox: { tenant: "Tenant" },
-  LeadIntegration: { tenant: "Tenant" }, AuditLog: { actorUser: "User", tenant: "Tenant" },
+  LeadIntegration: { tenant: "Tenant" }, AuditLog: { tenant: "Tenant" },
 };
 
 export const tenantRelations: Record<string, Record<string, string>> = {
   Tenant: {
-    memberships: "Membership", domains: "Domain", sites: "Site", pages: "Page", pageVersions: "PageVersion",
+    siteUsers: "SiteUser", siteSessions: "SiteSession", siteTokens: "SiteToken",
+    domains: "Domain", sites: "Site", pages: "Page", pageVersions: "PageVersion",
     sectionContents: "SectionContent", products: "Product", productCategories: "ProductCategory", projects: "Project",
     storys: "Story", posts: "Post", faqs: "Faq", testimonials: "Testimonial", branchs: "Branch", certificates: "Certificate",
     brands: "Brand", pressItems: "PressItem", services: "Service", media: "Media", leads: "Lead", outbox: "Outbox",
     leadIntegrations: "LeadIntegration", auditLogs: "AuditLog",
   },
-  User: { memberships: "Membership", pageVersions: "PageVersion", auditLogs: "AuditLog" },
+  // Platform rows have no tenant, so nested tenant connects from them are always rejected.
+  PlatformAdmin: { pageVersions: "PageVersion" }, GhostGrant: { sessions: "SiteSession" },
+  SiteUser: { sessions: "SiteSession", tokens: "SiteToken", pageVersions: "PageVersion" },
+  SiteSession: { siteUser: "SiteUser" }, SiteToken: { siteUser: "SiteUser" },
   Domain: { site: "Site" }, Site: { domains: "Domain", pages: "Page", sectionContents: "SectionContent", leads: "Lead" },
-  Page: { site: "Site", versions: "PageVersion", sectionContents: "SectionContent" }, PageVersion: { page: "Page" },
+  Page: { site: "Site", versions: "PageVersion", sectionContents: "SectionContent" },
+  PageVersion: { page: "Page", publishedBySiteUser: "SiteUser" },
   SectionContent: { site: "Site", page: "Page" }, Product: { category: "ProductCategory", brand: "Brand" },
   ProductCategory: { parent: "ProductCategory", children: "ProductCategory", products: "Product" },
   Project: { coverMedia: "Media" }, Story: { posterMedia: "Media" }, Post: { coverMedia: "Media" },
@@ -108,5 +117,24 @@ export function assertNoCrossTenantConnect(model: string, operation: string, arg
     for (const branch of ["create", "update"]) walk(model, input[branch], object(input.where), undefined, model);
   } else if (["create", "createMany", "createManyAndReturn", "update", "updateMany", "updateManyAndReturn"].includes(operation)) {
     walk(model, input.data, object(input.where), undefined, model);
+  }
+}
+
+// Reads through a tenant model may only follow tenant relations (and `tenant` itself). Platform relations
+// such as Tenant.customer, Tenant.plan or SiteSession.ghostGrant lead to other tenants' rows (D17).
+export function assertNoPlatformTraversal(model: string, args: unknown, path = model): void {
+  const input = object(args);
+  for (const key of ["include", "select"]) visitRead(model, input[key], `${path}.${key}`);
+}
+
+function visitRead(model: string, tree: unknown, path: string) {
+  for (const [field, value] of Object.entries(object(tree))) {
+    if (!value) continue;
+    if (field === "_count") { visitRead(model, object(value).select, `${path}._count`); continue; }
+    const tenantTarget = tenantRelations[model]?.[field];
+    const target = tenantTarget ?? globalRelations[model]?.[field];
+    if (!target) continue;
+    if (!tenantTarget && !(field === "tenant" && target === "Tenant")) reject(`${path}.${field}`, field);
+    assertNoPlatformTraversal(target, value, `${path}.${field}`);
   }
 }

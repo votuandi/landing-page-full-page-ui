@@ -10,11 +10,13 @@ import { parseContent, profileSchema, seoSchema, text } from "./contentSchemas";
 import { normalizeHost } from "./host";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export function planCanUse(planId: string) {
+export function planCanUse(planId: string, addons: readonly string[] = []) {
   const plan = getPlan(planId);
   if (!plan) console.error("[tenant] gói không tồn tại", { planId });
-  return (feature: string) => isFeature(feature) && Boolean(plan?.features.has(feature));
+  // Addons buy single features on top of the plan (D8); E6-S02 adds overrides and kill switches.
+  return (feature: string) => isFeature(feature) && Boolean(plan?.features.has(feature) || addons.includes(feature));
 }
+export const siteCanUse = (site: { planId: string; addons: readonly string[] }) => planCanUse(site.planId, site.addons);
 export function createSiteData(repository: (tenantId: string) => TenantRepo) {
   async function loadTenantSite(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
@@ -34,7 +36,8 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     if (!locales.length) locales.push("vi");
     const locale = selectSiteLocale(locales, row.defaultLocale);
     return { tenantId, siteId, name: row.name, profile, seo, widgets, overrides, theme, primaryHost: domain.hostname,
-      locales, locale, planId: row.tenant.planId, context: { tenantId, locale, themeId: theme.meta.id } };
+      locales, locale, planId: row.tenant.planId, addons: row.tenant.addons, pageTypes: row.pageTypes,
+      context: { tenantId, locale, themeId: theme.meta.id } };
   }
   async function loadPublishedPage(tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
@@ -63,12 +66,11 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     const config = parseContent(pageConfigSchema, { sections }, context);
     return config ? { id: row.id, kind: row.kind, title: text(row.title, locale), config } : null;
   }
-  async function listPublishedSlugs(tenantId: string, siteId: string) {
+  async function listPublishedPages(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];
-    const rows = await repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true }, orderBy: { slug: "asc" } });
-    return rows.map((row) => row.slug);
+    return repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true, kind: true }, orderBy: { slug: "asc" } });
   }
-  return { loadTenantSite, loadPublishedPage, listPublishedSlugs };
+  return { loadTenantSite, loadPublishedPage, listPublishedPages };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
 const data = createSiteData(tenantRepository);
@@ -83,5 +85,5 @@ export const loadTenantSite = cache(async (tenantId: string, siteId: string) => 
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);
-export const listPublishedSlugs = data.listPublishedSlugs;
+export const listPublishedPages = data.listPublishedPages;
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;

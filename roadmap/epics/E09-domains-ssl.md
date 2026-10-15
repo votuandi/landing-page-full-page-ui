@@ -4,20 +4,30 @@
 (Caddy on-demand TLS) hoặc qua Cloudflare for SaaS.
 **Target epic**: từ lúc khách trỏ DNS đúng đến lúc site chạy HTTPS ≤ 10 phút; 0 chứng chỉ cấp cho tên miền không có
 trong DB; cảnh báo trước khi tên miền/SSL gặp sự cố.
-**Phụ thuộc**: E5-S03, E10-S01.
+**Phụ thuộc**: E5-S03, E10-S01. Quy trình gắn tên miền: D21 §4.
 
 ---
 
-### E9-S01 · Thêm tên miền & hướng dẫn trỏ DNS
-**Là** tenant, **tôi muốn** nhập tên miền của tôi và nhận hướng dẫn rõ ràng, **để** tự trỏ được dù không rành kỹ thuật.
-- **Chi tiết**: admin nhập `congty.vn` → chuẩn hóa (punycode, bỏ `http://`, bỏ `/`), kiểm trùng toàn hệ thống. Hiển thị bản
-  ghi cần thêm: `www` CNAME → `sites.<platform>`; tên miền gốc A → IP VPS (hoặc ALIAS/CNAME flattening nếu nhà đăng ký hỗ
-  trợ); TXT `_solar-verify.congty.vn` = token. Hướng dẫn có ảnh cho nhà đăng ký phổ biến ở VN (Mắt Bão, PA Việt Nam,
-  Nhân Hòa, iNET, Tenten, Cloudflare). Nhắc: tên miền đứng tên công ty khách, nền tảng không giữ tên miền.
+### E9-S01 · Gắn tên miền thật & hướng dẫn trỏ DNS (console)
+**Là** super admin, **tôi muốn** gắn tên miền khách đã mua (vd. `nang-luong-solar.net`) vào site đang chạy ở
+`nang-luong-solar.<platform>`, **để** tên miền thật thành địa chỉ chính và subdomain nền tảng chuyển hướng về đó.
+- **Chi tiết**:
+  - Console, tab "Tên miền" của site: danh sách `Domain` (host, chính/phụ, trạng thái `pending|verified|active|error|removed`,
+    SSL, lần kiểm gần nhất). Subdomain nền tảng luôn có, không gỡ được.
+  - Thêm tên miền: nhập `nang-luong-solar.net` → chuẩn hóa (punycode, bỏ `http://`, bỏ `/`, bỏ `www.` để lấy apex) → kiểm trùng
+    toàn hệ thống → tạo **hai** bản ghi apex + `www` (cùng `verificationToken`). Hiện bản ghi cần thêm: `www` CNAME →
+    `sites.<platform>`; apex A → IP VPS (hoặc ALIAS/CNAME flattening); TXT `_solar-verify.<apex>` = token. Hướng dẫn có ảnh
+    cho nhà đăng ký phổ biến ở VN (Mắt Bão, PA Việt Nam, Nhân Hòa, iNET, Tenten, Cloudflare), nút "Sao chép", nút "Kiểm tra ngay".
+  - Trạng thái cập nhật trực tiếp theo job xác minh (S02). Khi apex hoặc `www` thành `active`: nút "Đặt làm tên miền chính"
+    (mặc định gợi ý apex trên VPS, `www` khi dùng Cloudflare theo D7), hoặc tùy chọn "Tự đặt làm chính khi sẵn sàng".
+  - CMS site: owner thấy cùng danh sách ở chế độ chỉ đọc. Owner tự thêm tên miền khi có permission `domains.manage` (super
+    admin tắt được, E15-S05), dùng chung thành phần `packages/cms-ui`.
+  - Nhắc: tên miền đứng tên công ty khách, nền tảng không giữ tên miền.
 - **AC**:
   - [ ] Không thêm được tên miền đã thuộc tenant khác.
-  - [ ] Giới hạn số tên miền theo gói (E6).
-- Agent: Claude · Cỡ: M
+  - [ ] Giới hạn số tên miền theo gói (E6): apex + `www` tính là 1; subdomain nền tảng không tính.
+  - [ ] Nút "Đặt làm tên miền chính" bị khóa khi tên miền chưa `active`.
+- Phụ thuộc: E15-S02 · Agent: Claude · Cỡ: M
 
 ### E9-S02 · Xác minh DNS & endpoint `ask` cho Caddy
 **Là** chủ dự án, **tôi muốn** chỉ cấp SSL cho tên miền đã xác minh, **để** không bị lạm dụng và không vượt rate-limit Let's Encrypt.
@@ -35,6 +45,9 @@ trong DB; cảnh báo trước khi tên miền/SSL gặp sự cố.
   ```
   `verified → active`: job gọi thử `https://<host>/api/health` sau khi xác minh; handshake thành công → `active`.
   Gỡ tên miền: proxy (E5-S03) trả 404 ngay ở tầng HTTP; chứng chỉ còn hạn không làm site tiếp tục phục vụ.
+  Host nền tảng không đi qua `ask`: `console.<platform>` dùng cert thường; `*.<platform>`, `*.admin.<platform>`,
+  `*.preview.<platform>` dùng cert wildcard (ACME DNS-01) — Caddy định tuyến `*.admin` → `admin:3000`,
+  `console` → `console:3000`, còn lại → `web` (D17).
 - **Target**: 0 lần cấp chứng chỉ cho host lạ (kiểm bằng log Caddy).
 - **AC**:
   - [ ] Truy cập host chưa xác minh → không có handshake TLS hợp lệ, không gọi ACME.
@@ -60,9 +73,12 @@ trong DB; cảnh báo trước khi tên miền/SSL gặp sự cố.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E9-S04 · Tên miền chính, www và chuyển hướng
-- **Chi tiết**: chọn tên miền chính; tên miền khác + `www`/không `www` + subdomain nền tảng → 308 về chính; HSTS bật sau khi
-  `active` 7 ngày; HTTP → HTTPS.
-- **AC**: [ ] Đổi tên miền chính có hiệu lực ≤ 60 s · [ ] Không có vòng lặp redirect (test ma trận 4 biến thể host).
+- **Chi tiết**: chọn tên miền chính (console S01, chỉ khi `active`); tên miền khác + `www`/không `www` + subdomain nền tảng
+  → 308 về chính, giữ nguyên path và query; HSTS bật sau khi `active` 7 ngày; HTTP → HTTPS. Canonical, sitemap, OG chuyển
+  sang tên miền chính mới (E5-S08) và `noindex` của subdomain nền tảng theo D21 §3. Tên miền chính bị lỗi (`error`) quá
+  24 h → cảnh báo, **không** tự đổi lại (tránh nhảy qua lại); super admin đổi tay về subdomain nếu cần.
+- **AC**: [ ] Đổi tên miền chính có hiệu lực ≤ 60 s · [ ] Không có vòng lặp redirect (test ma trận 4 biến thể host +
+  subdomain nền tảng) · [ ] `nang-luong-solar.<platform>/san-pham?x=1` → 308 `https://nang-luong-solar.net/san-pham?x=1`.
 - Phụ thuộc: S02, E5-S03 · Agent: Codex · Cỡ: S
 
 ### E9-S05 · Giám sát tên miền & SSL

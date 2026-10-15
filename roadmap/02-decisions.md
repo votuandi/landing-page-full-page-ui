@@ -8,6 +8,8 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
   `admin.<platform>` với cookie/phiên riêng, dễ khóa IP/WAF.
 - **Loại**: Nx (nặng cho đội nhỏ); một app có route `/admin` (lẫn bundle, khó tách bảo mật); yarn workspaces (repo
   đang dùng yarn nhưng pnpm hỗ trợ workspace tốt hơn, Turborepo khuyến nghị).
+- **Cập nhật 15/10/2026 (D17)**: thêm app thứ ba `console` cho super admin. `admin` = CMS của site khách, chạy ở
+  `<slug>.admin.<platform>`; `console` = CMS nền tảng ở `console.<platform>`. Ba app, ba bundle, hai realm đăng nhập.
 
 ## D2. Next.js 16
 - Lý do: `proxy.ts` (thay `middleware.ts`) chạy Node runtime → truy vấn Redis/DB khi phân giải tenant; `cacheComponents`
@@ -128,3 +130,155 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - **OmniRoute** (`cli-setup`, `omni-auth`, `omni-mcp`): cài để sẵn nhưng không gắn vào bước nào. Skill chỉ có tác dụng
   khi chạy gateway OmniRoute (`localhost:20128`). Dự án đang gọi Claude Code và Codex trực tiếp, cân tải bằng `budget`
   trong `routing.json`. Gắn vào quy trình khi có story dựng gateway.
+
+## D17. Hai CMS, hai realm tài khoản (15/10/2026)
+Yêu cầu: CMS cho site admin và CMS cho super admin. Tài khoản của hai bên không dùng chéo được. Tên đăng nhập (email hoặc
+SĐT) chỉ unique trong một site; hai site được có tài khoản trùng tên đăng nhập.
+- **"Site" = tenant.** Mỗi tenant có đúng 1 `Site` (ràng buộc unique `Site.tenantId`, E5-S10). Mọi ranh giới tài khoản dùng
+  `tenantId`. Một công ty có nhiều website → một `Customer` (khách hàng của nền tảng) có nhiều tenant. Tên `client` dành cho
+  vai trò khách hàng cuối của site (D20), không dùng cho entity nền tảng.
+- **Hai bảng tài khoản, không có bảng `User` chung**:
+  - `SiteUser` (bảng tenant): `tenantId`, `email?`, `phone?` (dạng `0…` của `normalizeVnPhone`), `username?` (D21),
+    `passwordHash`, `role`, `status`, `totpSecret?`. Unique `(tenantId, email)`, `(tenantId, phone)`, `(tenantId, username)`;
+    có ít nhất một định danh (CHECK).
+    Thay `User` + `Membership` của E5-S01.
+  - `PlatformAdmin` (bảng nền tảng, không có `tenantId`): `email` unique toàn hệ thống, `passwordHash`, `totpSecret`
+    bắt buộc. Bỏ liên kết tới `User`.
+  - Cùng một người, cùng email ở hai realm là **hai tài khoản độc lập**, mật khẩu riêng. Không có trường hay bảng nào
+    nối hai realm, nên không thể dùng tài khoản realm này đăng nhập realm kia.
+- **Phiên tách hẳn**: `SiteSession` (tenant) và `PlatformSession`. Cookie `__Host-` (host-only, không đặt `Domain`) với tên
+  riêng, secret ký riêng (`ADMIN_SESSION_SECRET`, `CONSOLE_SESSION_SECRET`). Cookie của `a.admin.<platform>` trình duyệt
+  không gửi sang `b.admin.<platform>`. Nếu bị chép tay, server vẫn từ chối vì `session.tenantId` ≠ tenant của host.
+- **Tenant xác định trước khi đăng nhập, bằng host**: `admin` nhận `<slug>.admin.<platform>` → tra `Tenant.slug` → tenant.
+  Form đăng nhập chỉ tìm `SiteUser` trong tenant đó (đi cùng RLS `SET LOCAL app.tenant_id`, E5-S09). Không có bộ chọn tenant.
+- **Slug dành riêng**: `admin`, `console`, `preview`, `www`, `api`, `media`, `sites`, `app`, `mail`, `static`, `status`
+  không được dùng làm `Tenant.slug`, vì slug là subdomain.
+- **Vai trò site**: `owner|admin|editor|staff|viewer` (nhân viên, vào được CMS) và `client` (khách hàng cuối, chỉ dùng
+  site công khai, D20). Vai trò ánh xạ sang danh mục permission trong code (`packages/auth/permissions.ts`).
+  Quyền hiệu lực = quyền của vai trò ∩ chính sách permission của tenant (super admin tắt được, D19) ∩ tính năng của gói.
+- **Audience của phiên**: `SiteSession.audience admin|storefront`. Phiên `admin` chỉ cấp cho vai trò nhân viên, ở
+  `<slug>.admin.<platform>`. Phiên `storefront` cấp trên tên miền công khai của site cho mọi `SiteUser` đang hoạt động,
+  nhưng chỉ mang quyền `storefront.*`, kể cả khi người đăng nhập là owner. Hai loại phiên không đổi cho nhau được.
+- **Thư viện**: `packages/auth` dùng chung cho hai app, không thêm dependency runtime: mật khẩu `scrypt` của `node:crypto`,
+  TOTP (RFC 6238) tự viết bằng HMAC, phiên lưu DB và cache Redis 60 s.
+- **Loại**:
+  - Một bảng `User` toàn cục + `Membership`: email phải unique toàn hệ thống, trái yêu cầu.
+  - Một app có hai khu `/admin` và `/console`: dùng chung cookie và bundle, khó khóa riêng console (IP allowlist, 2FA bắt buộc).
+  - Admin theo đường dẫn `admin.<platform>/<slug>`: cookie dùng chung host, phải tự cô lập theo path.
+  - CMS trên tên miền khách `khach.vn/admin`: trộn với site công khai (CSP, cache, cookie). Để backlog, dạng `admin.khach.vn`.
+
+## D18. Ghost login (super admin vào CMS site)
+- Console tạo `GhostGrant` (`platformAdminId`, `tenantId`, `reason` bắt buộc, `tokenHash`, token hết hạn 60 s, dùng 1 lần),
+  rồi chuyển hướng tới `https://<slug>.admin.<platform>/auth/ghost?token=…`. Trước đó yêu cầu nhập lại TOTP nếu lần xác thực
+  gần nhất đã quá 10 phút.
+- `admin` đổi token lấy `SiteSession{kind: "ghost", ghostGrantId}` (không có `siteUserId`), thời hạn 30 phút, không gia hạn.
+  Quyền = `owner`, trừ các quyền bảo mật tài khoản (đổi/đặt lại mật khẩu, 2FA, chuyển quyền owner, xóa tài khoản).
+- Banner cố định "Đang ghost: <tên admin> — còn mm:ss — Thoát". Mỗi thao tác ghi `AuditLog` với
+  `actorType: "platform_admin"`, `actorId`, `ghostGrantId`. Owner của site thấy các lượt truy cập hỗ trợ trong nhật ký.
+- Console thu hồi grant → phiên ghost hết hiệu lực ở request kế tiếp (kiểm grant mỗi request, cache ≤ 5 s).
+- **Loại**: đăng nhập bằng tài khoản `SiteUser` dùng chung "support@…" trong mỗi tenant (lộ mật khẩu, không biết ai làm);
+  console tự gọi API admin thay người dùng (phải nhân đôi mọi kiểm quyền).
+
+## D19. Tính năng hiệu lực = nền tảng × tenant × gói
+- Thứ tự phân giải trong `can(site, feature)` (E6-S02):
+  1. Tắt toàn nền tảng (`PlatformSetting["features.disabled"]`, kill switch) → `false`.
+  2. Override của tenant (`Tenant.featureOverrides[feature] = { on, until?, reason }`, chưa hết hạn) → `on`.
+  3. Gói + `addons` + trial → như D8.
+- `limit()` tương tự với `Tenant.limitOverrides`. Permission của tenant (`Tenant.permissionPolicy.deny[]`) chỉ được hạ quyền,
+  không được nâng quyền.
+- Cấu hình nền tảng nằm ở bảng `PlatformSetting(key, value JSONB)`, mỗi key có zod schema + giá trị mặc định trong code
+  (`packages/platform`). Cache tag `platform:settings`.
+- Trang của mọi tenant gắn thêm tag `platform:entitlements`. Đổi kill switch → invalidate tag đó (hiếm khi dùng,
+  chấp nhận render lại toàn bộ). Đổi override của một tenant → invalidate `tenant:<id>` (E6-S03).
+
+## D20. Tài khoản client (khách hàng cuối của site)
+Yêu cầu: khách hàng của khách hàng đăng nhập được trên site công khai để dùng giỏ hàng, đặt lịch dịch vụ, nhưng không mở
+được CMS, không xem dashboard.
+- **Cùng bảng `SiteUser`, vai trò `client`** (D17): một tên đăng nhập là một người trong site. Nhân viên muốn tự đặt lịch thì
+  đăng nhập site công khai bằng chính tài khoản của mình, và phiên đó chỉ có quyền `storefront.*`.
+- **Đăng nhập ở `apps/web`**, trên tên miền chính của site (`/dang-nhap`, `/dang-ky`, `/quen-mat-khau`, `/tai-khoan/*`). Các
+  trang này render động, `noindex`, không có trong sitemap. Cookie `__Host-sid` host-only, phiên `audience: storefront`.
+  Đăng nhập CMS bằng tài khoản `client` → từ chối.
+- **Định danh**:
+  - Tự đăng ký bằng email, xác minh qua link (E11-S05). SĐT nhập lúc đăng ký lưu ở `contactPhone` và **chưa** dùng để đăng nhập.
+  - Trường `phone` (định danh đăng nhập, unique theo site) chỉ được đặt khi SĐT đã xác minh: nhân viên site tạo tài khoản
+    tại quầy, hoặc OTP SMS/Zalo ZNS (backlog). Nhờ vậy không ai chiếm trước được SĐT của người khác trong site.
+- **Không làm hỏng cache công khai**: trang ISR/`"use cache"` không bao giờ đọc cookie. Phần cá nhân hóa (nút tài khoản ở
+  header, giỏ đồng bộ, lịch sử) là client island gọi `/api/me` với `Cache-Control: private, no-store`, hoặc nằm trong trang
+  động `/tai-khoan/*`. Khách chưa đăng nhập vẫn dùng giỏ báo giá và đặt lịch như cũ (khách vãng lai, nhập SĐT).
+- **Gói**: thêm feature `clientAccounts` (tài khoản khách hàng) và `booking` (đặt lịch dịch vụ) vào `packages/plans`.
+  Đề xuất: `booking` cho gói Nâng cao trở lên, `clientAccounts` cho gói Cao cấp. Tắt `clientAccounts` → các trang tài khoản
+  trả 404, phiên storefront đang mở bị từ chối, dữ liệu vẫn giữ.
+- Tài khoản `client` không tính vào giới hạn `users` của gói (giới hạn đó chỉ tính nhân viên). Console chỉ hiện **số lượng**
+  client của mỗi site, không hiện danh sách (giảm phạm vi dữ liệu cá nhân theo Nghị định 13/2023).
+- **Loại**:
+  - Bảng riêng `SiteClient`: một email có thể là hai người trong cùng site, và phải nhân đôi luồng đăng nhập.
+  - Đăng nhập client qua `<slug>.admin.<platform>`: đưa khách cuối vào domain quản trị, khác tên miền họ đang mua hàng.
+
+## D21. Tạo site từ console & mức tùy biến theo gói (16/10/2026)
+Yêu cầu: super admin tạo site theo một quy trình chuẩn (subdomain → gói → theme → cấu trúc trang → section), gói thấp chỉ
+được chọn theme. Site có ngay địa chỉ `<subdomain>.<platform>`, sau đó gắn tên miền thật làm tên miền chính. Mỗi site có sẵn
+tài khoản `<subdomain-bỏ-gạch>_admin` với mật khẩu tạm, bắt buộc đổi ở lần đăng nhập đầu.
+
+**1. Mức tùy biến theo gói.** Cùng một hàm kiểm (`validateSiteStructure(config, entitlements)` trong `packages/presets`)
+dùng cho wizard ở console, CMS (E7-S04), builder (E12) và API. Super admin không tạo được cấu hình mà khách không được sửa;
+cần ngoại lệ thì bật override cho site trước (E15-S05).
+
+| Bước | Cơ bản | Nâng cao | Cao cấp |
+|---|---|---|---|
+| Subdomain, gói | có | có | có |
+| Theme (chọn preset) | nhóm Classic | Classic + Pro | mọi nhóm |
+| Cấu trúc trang (`pageStructure`) | cố định = trang của preset, lọc theo gói | chọn trang trong danh mục được phép | như Nâng cao |
+| Section từng trang (`sectionReorder`, `variantSwitch`) | cố định theo preset, lọc theo gói | bật/tắt, sắp xếp, đổi variant, thêm section trong gói | như Nâng cao, variant của mọi template |
+| Trang landing (`landingPages`, limit `pages`) | — | xem điểm cần chốt (b) | ≤ 19 landing (+ home = 20) |
+| Màu/font riêng (`themeOverride`) | — | — | có |
+
+"Lọc theo gói": section/trang có `entitlement` ngoài gói bị bỏ khỏi cấu hình lúc tạo. Khi hạ gói về sau thì giữ lại với cờ
+`lockedByPlan` (E6-S04), không xóa.
+
+**2. Danh mục trang** (`packages/presets/pages.ts`). Mỗi loại trang khai báo `slug`, `required`, `entitlement?`, kiểu
+(`page` có section / `collection` danh sách + chi tiết / `policy`). Preset khai báo section mặc định cho từng trang nó có.
+
+| Trang | Slug | Bắt buộc | Entitlement |
+|---|---|---|---|
+| Trang chủ | `/` | có | — |
+| Giới thiệu | `/ve-chung-toi` | — | — |
+| Dịch vụ / giải pháp | `/giai-phap` (+ chi tiết) | — | — |
+| Dự án | `/cong-trinh/[slug]` | — | — |
+| Sản phẩm | `/san-pham` (+ chi tiết) | — | `catalog` |
+| Tin tức, cẩm nang | `/tin-tuc`, `/cam-nang` | — | `blog` |
+| Liên hệ | `/lien-he` | có | — |
+| Chính sách | `/chinh-sach/[slug]` | có | — |
+| Đặt lịch | `/dat-lich` | — | `booking` (E16) |
+
+Trang không có trong cấu trúc site, hoặc bị khóa theo gói, trả 404 và không vào sitemap. Menu header/footer lúc tạo site
+sinh từ cấu trúc đã chọn.
+
+**3. Subdomain.** `Tenant.slug` = subdomain: nhãn DNS `^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])$` (3–63 ký tự), không chứa `--` (tránh `xn--`),
+không thuộc danh sách dành riêng (D17), unique toàn hệ thống. Wizard kiểm còn trống theo thời gian thực. Tạo site sinh:
+- `Domain{hostname: "<slug>.<platform>", isPrimary: true, status: active}` (cert wildcard, E9-S02);
+- CMS ở `<slug>.admin.<platform>`.
+Khi chưa có tên miền thật, subdomain nền tảng là tên miền chính và **được index** (sửa quy tắc `noindex` của E5-S08: chỉ
+host nền tảng không phải chính và host preview mới `noindex`).
+
+**4. Gắn tên miền thật** (E9-S01, E9-S04). Super admin nhập tên miền ở console (vd. `nang-luong-solar.net`). Hệ thống tự thêm
+apex + `www`, hướng dẫn DNS, chờ `active` (DNS + TLS đã chạy), rồi mới cho đặt làm chính. Đổi chính → `nang-luong-solar.minwysoft.com`
+và host phụ trả 308 về tên miền thật. Không bao giờ đổi chính sang tên miền chưa `active`.
+
+**5. Tài khoản admin tự tạo.** Thêm định danh `username` cho `SiteUser` (`^[a-z0-9_]{3,70}$`, phải có chữ cái để không
+lẫn với SĐT). Tạo site → `SiteUser{username: slug.replace(/-/g, "") + "_admin", role: owner, mustChangePassword: true}`,
+vd. `nangluongsolar_admin`. Mật khẩu tạm 16 ký tự ngẫu nhiên (`crypto.randomBytes`), chỉ lưu hash, hiện **một lần** trên
+màn hình bàn giao của console, hết hạn sau 7 ngày (quá hạn → super admin tạo lại ở E15-S04). Lần đăng nhập đầu: mọi trang
+chuyển tới màn hình đổi mật khẩu, kèm gợi ý thêm email để tự khôi phục mật khẩu về sau.
+
+**Điểm đã chốt** (16/10/2026, chủ sản phẩm đồng ý theo đề xuất):
+- (a) Trang Sản phẩm cần `catalog` (chỉ Cao cấp). Preset Classic t01 có section `products` nên site Cơ bản từ t01 sẽ mất
+  section này. Đề xuất: giữ như hiện tại. Phương án khác: thêm feature `productList` (danh sách đơn giản, không giỏ báo giá)
+  cho Cơ bản/Nâng cao.
+- (b) Gói Nâng cao có limit `pages: 3` nhưng không có `landingPages`, nên limit này không dùng được. Đề xuất: mở
+  `landingPages` cho Nâng cao (home + 2 landing), builder vẫn chỉ Cao cấp.
+- **Loại**:
+  - Wizard bỏ qua kiểm theo gói: site tạo ra có cấu hình khách không sửa được, và lần lưu đầu sẽ lỗi.
+  - Tên đăng nhập admin là email của khách: nhiều khách chưa có email công ty lúc bàn giao.
+  - Gửi mật khẩu qua email/Zalo dạng chữ thường: lộ trong hộp thư. Thay bằng hiện một lần + bắt buộc đổi.
+

@@ -3,8 +3,8 @@ import test from "node:test";
 import { FEATURES, PLAN_IDS, plans, getPlan, isFeature, isPlanId, featureLabels, featureDependencies, limitLabels, themeLabels, type Feature } from "../index";
 
 const basic = ["leadForm", "blog", "customDomain"];
-const pro = ["calculator", "quoteForm", "packages", "faq", "testimonials", "stats", "energyMonitoring", "investmentModels", "trust", "social", "leadWebhook", "leadInbox", "sectionReorder", "variantSwitch"];
-const premium = ["shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "themeOverride", "builder", "landingPages", "abTest"];
+const pro = ["calculator", "quoteForm", "packages", "faq", "testimonials", "stats", "energyMonitoring", "investmentModels", "trust", "social", "leadWebhook", "leadInbox", "sectionReorder", "variantSwitch", "pageStructure", "landingPages"];
+const premium = ["shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "themeOverride", "builder", "abTest"];
 
 test("plans match the independent tier matrix, themes, labels and quotas", () => {
   assert.deepEqual(PLAN_IDS, ["basic", "pro", "premium"]);
@@ -19,7 +19,7 @@ test("plans match the independent tier matrix, themes, labels and quotas", () =>
     assert.deepEqual(plan.themes, themes[i]);
     assert.deepEqual([plan.limits.domains, plan.limits.mediaGb, plan.limits.pages, plan.limits.users], limits[i]);
   });
-  assert.equal(new Set([...basic, ...pro, ...premium]).size, 30);
+  assert.equal(new Set([...basic, ...pro, ...premium]).size, 31);
   assert.equal(new Set(FEATURES).size, FEATURES.length);
   assert.deepEqual([...new Set(PLAN_IDS.flatMap(id => [...plans[id].features]))].sort(), [...FEATURES].sort());
   assert.deepEqual([...FEATURES].sort(), [...basic, ...pro, ...premium].sort());

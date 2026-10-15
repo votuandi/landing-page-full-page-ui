@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { pageSectionSchema, pageConfigSchema, sectionRegistry, siteWidgetsSchema, widgetRegistry } from "@solar/sections";
 import { getTheme } from "@solar/themes";
+import { PAGE_TYPE_IDS, type PageTypeId } from "./pages";
 
 export const presetSchema = z.object({
   id: z.string().min(1),
@@ -11,7 +12,10 @@ export const presetSchema = z.object({
   source: z.object({ branch: z.string().min(1) }),
   sections: z.array(pageSectionSchema.extend({ data: z.unknown().optional(), note: z.string().optional() })),
   widgets: siteWidgetsSchema.strict(),
+  /** Route demo của /lab theo slug của branch gốc. */
   subpages: z.array(z.string().min(1)).optional(),
+  /** Loại trang của site tạo từ preset (D21 §2); thiếu = mọi loại trang. */
+  pages: z.array(z.enum(PAGE_TYPE_IDS as [PageTypeId, ...PageTypeId[]])).optional(),
 }).superRefine((preset, ctx) => {
   if (!getTheme(preset.themeId)) ctx.addIssue({ code: "custom", path: ["themeId"], message: `Theme không tồn tại: ${preset.themeId}` });
   const page = pageConfigSchema.safeParse({ sections: preset.sections.map((section) => ({

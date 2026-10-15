@@ -295,10 +295,77 @@ test("C&I presets preserve source homepage order and resolve every in-page CTA",
     sections.forEach((section) => visit(section.data));
   }
 });
-// Same Node 20 source transpilation as @solar/themes; variants remain lazy.
-for (const ext of [".ts", ".tsx"]) require.extensions[ext] = (module, filename) => {
-  const { outputText } = ts.transpileModule(readFileSync(filename, "utf8"), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
-  });
-  module._compile(outputText, filename);
-};
+
+test("site structure policy follows D21: plan filters every page, fixed parts stay fixed, landing pages follow the plan", () => {
+  const { loadPreset, presetStructure, validateSiteStructure, presetPageTypes, pageTypeOfRoute, PAGE_TYPE_IDS } = require("../index.ts");
+  const { plans } = require("../../../plans/plans.ts");
+  const { sectionRegistry } = require("@solar/sections");
+  const canOf = (planId, addons = []) => (feature) => plans[planId].features.has(feature) || addons.includes(feature);
+  const basic = canOf("basic"), pro = canOf("pro"), premium = canOf("premium");
+  const structureOf = (id, can) => {
+    const { preset, page } = loadPreset(id);
+    return presetStructure({ id: preset.id, pages: preset.pages, sections: page.sections }, can);
+  };
+
+  // Every page of the generated structure is inside the plan, including system-page defaults (branch-map is premium).
+  for (const [id, can, planId] of [["t01", basic, "basic"], ["t12", pro, "pro"], ["t15", premium, "premium"], ["t15", basic, "basic"]]) {
+    const structure = structureOf(id, can);
+    assert.deepEqual(validateSiteStructure(structure, { can, pagesLimit: plans[planId].limits.pages, baseline: structure }), [], `${id}/${planId}`);
+    for (const page of structure.pages) for (const section of page.sections) {
+      const entitlement = sectionRegistry.getType(section.type).meta.entitlement;
+      assert.ok(!entitlement || can(entitlement), `${id}/${planId} ${page.slug}: ${section.type}`);
+    }
+  }
+  const proT15 = structureOf("t15", pro);
+  assert.ok(!proT15.pageTypes.includes("products"), "catalog is premium");
+  assert.deepEqual(proT15.pages.find((page) => page.slug === "lien-he").sections.map((section) => section.type), ["lead-form"]);
+
+  // Basic: structure, order, on/off and variants are fixed to the preset.
+  const fixed = structureOf("t01", basic);
+  const home = fixed.pages.find((page) => page.slug === "");
+  const withHome = (sections) => ({ ...fixed, pages: fixed.pages.map((page) => page.slug === "" ? { ...page, sections } : page) });
+  const changes = {
+    "Gói không cho đổi cấu trúc trang": { ...fixed, pageTypes: fixed.pageTypes.filter((type) => type !== "about"), pages: fixed.pages.filter((page) => page.slug !== "ve-chung-toi") },
+    "Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /": withHome([...home.sections].reverse()),
+    "Gói không cho đổi kiểu hiển thị section: /": withHome(home.sections.map((section, index) => index === 1 ? { ...section, variant: "t15" } : section)),
+  };
+  const toggled = withHome(home.sections.map((section, index) => index === 1 ? { ...section, enabled: !section.enabled } : section));
+  assert.ok(validateSiteStructure(toggled, { can: basic, pagesLimit: 1, baseline: fixed }).includes("Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /"));
+  for (const [message, changed] of Object.entries(changes)) {
+    assert.ok(home.sections[1].variant !== "t15" || !message.includes("kiểu"), "fixture must change a variant");
+    assert.ok(validateSiteStructure(changed, { can: basic, pagesLimit: 1, baseline: fixed }).includes(message), message);
+    assert.deepEqual(validateSiteStructure(changed, { can: pro, pagesLimit: 3, baseline: fixed }), [], `pro may: ${message}`);
+  }
+
+  // Landing pages need landingPages and count with home against the plan's page limit (home + 2 / home + 19).
+  const landings = (structure, count) => ({ ...structure, pages: [...structure.pages, ...Array.from({ length: count }, (_, index) => ({ slug: `uu-dai/${index}`, sections: [] }))] });
+  assert.ok(validateSiteStructure(landings(fixed, 1), { can: basic, pagesLimit: 1, baseline: fixed }).includes("Trang landing ngoài gói: /uu-dai/0"));
+  assert.deepEqual(validateSiteStructure(landings(proT15, 2), { can: pro, pagesLimit: plans.pro.limits.pages, baseline: proT15 }), []);
+  assert.ok(validateSiteStructure(landings(proT15, 3), { can: pro, pagesLimit: plans.pro.limits.pages, baseline: proT15 }).includes("Vượt số trang của gói: 4/3"));
+  const full = structureOf("t15", premium);
+  assert.deepEqual(validateSiteStructure(landings(full, 19), { can: premium, pagesLimit: plans.premium.limits.pages, baseline: full }), []);
+  assert.ok(validateSiteStructure(landings(full, 20), { can: premium, pagesLimit: plans.premium.limits.pages, baseline: full }).includes("Vượt số trang của gói: 21/20"));
+
+  // Dropping a Page record while keeping pageTypes is caught for every plan; a page outside pageTypes too.
+  for (const [slug, message] of [["", "Thiếu trang: /"], ["lien-he", "Thiếu trang: /lien-he"], ["ve-chung-toi", "Thiếu trang: /ve-chung-toi"]]) {
+    const dropped = { ...fixed, pages: fixed.pages.filter((page) => page.slug !== slug) };
+    for (const can of [basic, premium]) assert.ok(validateSiteStructure(dropped, { can, pagesLimit: 20, baseline: fixed }).includes(message), `${message} (${can === basic ? "basic" : "premium"})`);
+  }
+  assert.ok(validateSiteStructure(fixed, { can: basic, baseline: fixed }).some((issue) => issue.startsWith("Vượt số trang của gói")), "a missing limit is not unlimited");
+  // A missing baseline is rejected, so a reordered Basic home can never pass by omission.
+  assert.ok(validateSiteStructure(changes["Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /"], { can: basic, pagesLimit: 1 }).includes("Thiếu cấu trúc chuẩn để đối chiếu"));
+  assert.deepEqual(validateSiteStructure(landings(full, 30), { can: premium, pagesLimit: Infinity, baseline: full }), []);
+  const orphan = { ...fixed, pageTypes: fixed.pageTypes.filter((type) => type !== "about") };
+  assert.ok(validateSiteStructure(orphan, { can: premium, pagesLimit: 20, baseline: fixed }).includes("Trang không có trong cấu trúc: /ve-chung-toi"));
+
+  const issues = validateSiteStructure({ pageTypes: ["home", "products", "nope"], pages: [{ slug: "", sections: [{ id: "c", type: "calculator", variant: "t12", enabled: true }, { id: "g", type: "ghost", variant: "x", enabled: true }] }] }, { can: basic, pagesLimit: 1, baseline: fixed });
+  for (const message of ["Thiếu trang bắt buộc: contact", "Thiếu trang bắt buộc: policy", "Trang ngoài gói: products", "Loại trang không tồn tại: nope", "Section ngoài gói: calculator (trang /)", "Section không tồn tại: ghost (trang /)"]) {
+    assert.ok(issues.includes(message), message);
+  }
+  assert.deepEqual(presetPageTypes({ pages: ["about"] }), ["home", "about", "contact", "policy"]);
+  assert.deepEqual(presetPageTypes({}), PAGE_TYPE_IDS);
+  assert.equal(pageTypeOfRoute({ kind: "detail", collection: "product", slug: "x" }), "products");
+  assert.equal(pageTypeOfRoute({ kind: "page", slug: "ve-chung-toi" }), "about");
+  assert.equal(pageTypeOfRoute({ kind: "page", slug: "uu-dai/nang-luong" }), null);
+  assert.equal(pageTypeOfRoute({ kind: "policy", slug: "bao-hanh" }), "policy");
+});

@@ -22,7 +22,8 @@ gom tất cả về **một codebase, nhiều theme, nhiều khách (tenant)**:
 
 ```
 apps/web        Next.js: render site công khai theo tên miền (proxy/middleware → tenant), ISR
-apps/admin      Next.js: CMS, quản lý section, media, lead, tên miền, builder (gói Premium)
+apps/admin      Next.js: CMS của site khách ở <slug>.admin.<platform> — tài khoản SiteUser theo tenant, section, media, lead, builder
+apps/console    Next.js: CMS nền tảng của super admin ở console.<platform> — tài khoản PlatformAdmin, customer, site, gói, ghost login
 packages/tokens   schema token + sinh CSS variables + Tailwind preset (không có màu mặc định của Tailwind)
 packages/themes   t01-minwy, t02 … t15: token set + font + motion của từng template
 packages/ui       primitive dùng chung (Button, Card, Dialog, Media, carousel, reveal) — chỉ đọc token
@@ -32,7 +33,9 @@ packages/core     logic nghiệp vụ thuần: solarCalculator, price, phone, qu
 packages/db       Prisma schema + client có ràng buộc tenant
 packages/storage  driver lưu media: local (SSD VPS) | s3 | r2
 packages/leads    adapter gửi lead (webhook, Google Sheets, Telegram) cấu hình theo tenant
-packages/plans    gói dịch vụ → entitlements (cờ tính năng + giới hạn)
+packages/plans    gói dịch vụ → entitlements (cờ tính năng + giới hạn), override theo tenant
+packages/auth     hai realm đăng nhập (site / platform): mật khẩu, phiên, TOTP, permission
+packages/platform cấu hình nền tảng (PlatformSetting) có zod schema + mặc định
 infra/            docker, caddy (on-demand TLS), aws
 roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi làm xong story
 ```
@@ -63,11 +66,17 @@ của mỗi epic (`"buildPolicy": "epic-last"` trong `scripts/agents/routing.jso
 **Tenant isolation.**
 - Mọi truy vấn dữ liệu nội dung đi qua repository có `tenantId` bắt buộc; không gọi Prisma trực tiếp từ route/page.
 - Cache tag luôn có tiền tố tenant: `tenant:<id>`, `tenant:<id>:page:<slug>`, `tenant:<id>:collection:<name>`.
+  Ngoại lệ duy nhất: dữ liệu toàn nền tảng dùng `platform:settings`, `platform:entitlements` (D19).
 - Khóa lưu media có tiền tố `tenants/<tenantId>/`. Không bao giờ dùng đường dẫn do người dùng gửi lên làm khóa.
-- Mỗi API admin kiểm tra membership của user với tenant trước khi đọc/ghi.
+- Hai realm tài khoản không lẫn nhau (D17): `apps/admin` chỉ nhận phiên `SiteUser` có `tenantId` trùng tenant của host và
+  kiểm `requirePermission(...)` trên mọi Server Action/route; `apps/console` chỉ nhận phiên `PlatformAdmin`. Không thêm
+  trường hoặc bảng nối `SiteUser` với `PlatformAdmin`. Truy vấn chéo tenant chỉ qua `forPlatform()` trong console/worker, có ghi `AuditLog`.
+- Vai trò `client` (khách hàng cuối, D20) chỉ có phiên `storefront` trên `apps/web`, không bao giờ được phiên `admin`.
+  Trang/component được cache (ISR, `"use cache"`) không đọc cookie hay phiên; dữ liệu cá nhân trả với `private, no-store`.
 
 **Tính năng theo gói.** Section/tính năng có thu phí phải khai báo entitlement trong `packages/plans` và kiểm tra bằng
-`can(site, "calculator")` ở cả server render lẫn API — không chỉ ẩn ở UI.
+`can(site, "calculator")` ở cả server render lẫn API — không chỉ ẩn ở UI. Cấu trúc trang/section của site (wizard tạo site,
+CMS, builder) luôn kiểm bằng `validateSiteStructure` (D21), kể cả thao tác của super admin.
 
 **Khác.**
 - Nội dung hiển thị mặc định tiếng Việt, hỗ trợ VI/EN qua trường localizable (`{ vi, en? }`).

@@ -9,7 +9,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import LeadForm from "@/components/LeadForm";
 import { SEGMENT_SLUGS, formatMoneyShort, type Segment } from "@solar/core";
 import { tenantCollections } from "@/lib/tenant/collections";
-import { planCanUse, type TenantSite } from "@/lib/tenant/siteData";
+import { siteCanUse, type TenantSite } from "@/lib/tenant/siteData";
 import { text } from "@/lib/tenant/contentSchemas";
 import type { Route } from "@/lib/tenant/routes";
 import { breadcrumbJsonLd, faqJsonLd, productJsonLd, siteOrigin } from "@/lib/tenant/seo";
@@ -57,7 +57,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
     if (!item) return null;
     const related = items.filter((other) => other.id !== item.id && other.category === item.category);
     const compatible = items.filter((other) => item.compatible?.includes(other.slug));
-    const cartEnabled = site.widgets["quote-cart"]?.enabled && planCanUse(site.planId)("quoteCart");
+    const cartEnabled = site.widgets["quote-cart"]?.enabled && siteCanUse(site)("quoteCart");
     return { title: item.name, image: item.images[0], description: `${item.brand} · ${item.warranty}`, content: <>
       <JsonLd value={productJsonLd(origin, `/san-pham/${item.slug}`, item)} />{crumbs([t("Sản phẩm", "Products"), "/san-pham"], [item.name, `/san-pham/${item.slug}`])}
       <div className="grid gap-8 md:grid-cols-2"><div className="grid gap-4">{item.images.map((src) => <div key={src} className="relative aspect-square overflow-hidden rounded-media bg-bg-tint"><ProductImage src={src} alt={item.name} fill sizes="(max-width:768px) 100vw, 50vw" className="object-contain" /></div>)}</div>
@@ -80,7 +80,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
         const line = text(value, site.locale);
         return line.startsWith("## ") ? <h2 key={index} className="text-2xl font-heading">{line.slice(3)}</h2> : <p key={index}>{line}</p>;
       }) : <RichText value={item.body} locale={site.locale} />}</article>
-      {planCanUse(site.planId)("calculator") && <Link className="t15-button t15-button-primary" href={item.segment ? `/?phan-khuc=${SEGMENT_SLUGS[item.segment as Segment]}#du-toan` : "/#du-toan"}>{t("Dự toán chi phí", "Estimate costs")}</Link>}
+      {siteCanUse(site)("calculator") && <Link className="t15-button t15-button-primary" href={item.segment ? `/?phan-khuc=${SEGMENT_SLUGS[item.segment as Segment]}#du-toan` : "/#du-toan"}>{t("Dự toán chi phí", "Estimate costs")}</Link>}
       <h2 className="text-2xl font-heading">{t("Bài viết liên quan", "Related posts")}</h2><Links items={items.filter((other) => other.id !== item.id)} prefix="tin-tuc" />
     </> };
   }
@@ -111,7 +111,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
 export async function SystemContent({ site, slug, config }: { site: TenantSite; slug: string; config: PageConfig }) {
   const t = (vi: string, en: string) => site.locale === "en" ? en : vi;
   const collections = tenantCollections(site.tenantId, site.locale);
-  const sections = <PageRenderer page={config} site={site.context} canUse={planCanUse(site.planId)} loadData={createCollectionLoader(collections.source)} />;
+  const sections = <PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(collections.source)} />;
   if (slug === "lien-he") return <><p>{site.profile.email}</p><a className="text-primary" href={`tel:${site.profile.hotline?.replace(/\s/g, "")}`}>{site.profile.hotline}</a>{sections}</>;
   if (slug === "ve-chung-toi") return <>{sections}
     <h2 className="text-2xl font-heading">{t("Chứng chỉ", "Certificates")}</h2><div className="grid gap-5 md:grid-cols-3">{(await collections.certificates()).map((item) => <article className="t15-card p-5" key={item.id}><Picture src={item.image} alt={item.title} /><h3>{item.title}</h3><p>{item.issuer} · {item.number} · {item.validUntil}</p></article>)}</div>

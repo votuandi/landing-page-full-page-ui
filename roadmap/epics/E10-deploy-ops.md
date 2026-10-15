@@ -8,7 +8,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 
 ---
 
-### E10-S01 · Image Docker cho `web` và `admin`
+### E10-S01 · Image Docker cho `web`, `admin` và `console`
 **Là** dev vận hành, **tôi muốn** image nhỏ, build một lần chạy mọi nơi, **để** deploy nhanh và nhất quán.
 - **Chi tiết**: Dockerfile đa giai đoạn dùng `turbo prune --docker` + Next `output: "standalone"`; Prisma client gộp
   vào image; user không root; healthcheck `/api/health` (kiểm DB, Redis). Thay Dockerfile cũ (đang tham chiếu prisma
@@ -20,7 +20,8 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 ### E10-S02 · Môi trường VPS: compose + Caddy
 **Là** chủ dự án, **tôi muốn** chạy toàn bộ nền tảng trên một VPS giá rẻ, **để** chi phí thấp giai đoạn đầu.
 - **Chi tiết**: `infra/vps/docker-compose.yml`: `caddy` (on-demand TLS, phục vụ media local qua `file_server` tại
-  `media.<platform>`), `web` ×2 bản sao, `admin`, `worker` (xử lý ảnh, job DNS, cron), `postgres:16`, `redis:7`.
+  `media.<platform>`), `web` ×2 bản sao, `admin` (`*.admin.<platform>`), `console` (`console.<platform>`, D17), `worker`
+  (xử lý ảnh, job DNS, cron), `postgres:16`, `redis:7`.
   Script `infra/vps/bootstrap.sh` (Ubuntu 24.04: Docker, firewall chỉ mở 22/80/443, fail2ban, swap, unattended-upgrades).
   Deploy: `deploy.sh <sha>` kéo image, chạy migration, rolling restart từng bản `web` (Caddy health-check `lb_policy`).
 - **Target**: VPS 4 vCPU/8 GB phục vụ ≥ 200 tenant ở mức traffic SME.
@@ -50,7 +51,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 ### E10-S04 · Môi trường AWS
 **Là** chủ dự án, **tôi muốn** chạy được trên AWS khi khách lớn yêu cầu, **để** mở rộng và đáp ứng hợp đồng doanh nghiệp.
 - **Chi tiết**: IaC (AWS CDK TypeScript, cùng ngôn ngữ với repo) trong `infra/aws`: VPC, ECS Fargate (`web` autoscale 2–10,
-  `admin`, `worker`), ALB, RDS Postgres (Multi-AZ tùy chọn), ElastiCache Redis, S3 (media) + CloudFront, Secrets Manager,
+  `admin`, `console`, `worker`), ALB, RDS Postgres (Multi-AZ tùy chọn), ElastiCache Redis, S3 (media) + CloudFront, Secrets Manager,
   CloudWatch. Tên miền khách đi qua **Cloudflare for SaaS** (E9-S03) → ALB (ALB không hỗ trợ on-demand TLS).
   Tùy chọn rẻ hơn: Lightsail/EC2 + chính bộ compose của VPS.
 - **AC**:
@@ -62,6 +63,8 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 ### E10-S05 · Cấu hình & bí mật
 - **Chi tiết**: `packages/env` kiểm biến môi trường bằng zod lúc khởi động (thiếu → không start, thông báo rõ); bí mật tích hợp
   của tenant (token Telegram, webhook) mã hóa AES-GCM bằng khóa `APP_ENCRYPTION_KEY` (hỗ trợ xoay khóa). `.env.example` đầy đủ.
+  Secret phiên riêng cho từng realm (`ADMIN_SESSION_SECRET`, `CONSOLE_SESSION_SECRET`, D17); `DATABASE_URL` của console dùng
+  role `app_platform`, của web/admin dùng `app_runtime` (E5-S09).
 - **AC**: [ ] Thiếu `DATABASE_URL` → container dừng với thông báo · [ ] Không bí mật nào nằm trong log.
 - Agent: Codex · Cỡ: S
 

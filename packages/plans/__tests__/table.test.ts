@@ -22,7 +22,7 @@ test("table lists independent important permissions, themes and all four quotas"
     "| Số trang do khách tạo | 1 | 3 | 20 |", "| Số người dùng | 1 | 3 | 10 |",
   ]) assert.ok(table.includes(row), row);
   assert.ok(table.includes("Classic (minwy, t02–t04), Pro (t05–t11), Signature (t12–t15)"));
-  assert.equal(table.split("\n").filter(line => line.includes("(`")).length, 30);
+  assert.equal(table.split("\n").filter(line => line.includes("(`")).length, 31);
 });
 
 test("replacement preserves everything outside markers and handles Windows newlines", () => {

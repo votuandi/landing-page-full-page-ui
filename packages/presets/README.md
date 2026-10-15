@@ -13,7 +13,7 @@ const { preset, theme, page, widgets } = loadPreset("t15");
 ```
 
 Mỗi file `<id>.json` có `id`, `name`, `group` (`signature | pro | classic`), `themeId`, `source.branch`,
-`sections`, `widgets`; `description`, `subpages` tùy chọn. Section dùng chung `pageSectionSchema`:
+`sections`, `widgets`; `description`, `subpages`, `pages` tùy chọn. Section dùng chung `pageSectionSchema`:
 `id`, `type`, `variant`, `enabled`, `anchor`, `data`. Thiếu `data` → defaults của type; có `data` → parse toàn bộ
 qua schema của type, không merge từng field vào defaults. Widget thiếu `data` cũng dùng defaults.
 
@@ -29,7 +29,13 @@ Thêm preset (E4-S02–S10):
    theme, ID/anchor và việc đăng ký file mới. Không chấp nhận fallback kể cả section/widget tắt.
 5. Mở `/lab/presets/<id>` và `?theme=t15`, chụp ảnh bằng `tooling/visual/template-compare.mjs`.
 
-API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route preset bật; việc phục vụ tenant,
+Cấu trúc site (E5-S11, D21): `PAGE_TYPES` là danh mục trang (`home`, `about`, `services`, `projects`, `products`, `news`,
+`guides`, `contact`, `policy` — slug, trang bắt buộc, entitlement, section mặc định). `pages` của preset liệt kê loại trang
+site tạo từ preset có (thiếu = mọi loại; trang bắt buộc luôn có). `applyPlanToPreset(preset, can)` bỏ trang/section ngoài
+gói khi tạo site; `validateSiteStructure({ pageTypes, pages }, can)` trả lỗi tiếng Việt, dùng chung cho wizard, CMS,
+builder và API. `can(feature)` là quyền của site (gói + addons).
+
+API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route demo `/lab` theo slug branch gốc; việc phục vụ tenant,
 entitlement và route theo DB triển khai ở các epic sau.
 
 Preset Pro `t07` giữ thứ tự `SolarHomePage` của `template-7`, gồm cả mô hình đầu tư,
