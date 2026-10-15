@@ -132,9 +132,16 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - **AC**:
   - [ ] Test e2e: sửa tiêu đề hero ở admin → `curl` trang chủ thấy tiêu đề mới ≤ 60 s; trang `/lien-he` không bị render lại.
   - [ ] Test: hai tenant cùng slug, gọi xen kẽ A/B/A/B trên cùng instance → mỗi host luôn đúng dữ liệu của mình.
-  - [ ] Tag của A không làm mới trang của B.
+  - [x] Tag của A không làm mới trang của B.
   - [ ] Tắt web lúc xuất bản → khi web lên lại, outbox vẫn revalidate (không mất lệnh).
-  - [ ] Endpoint revalidate từ chối chữ ký sai/nonce dùng lại, có rate-limit.
+  - [x] Endpoint revalidate từ chối chữ ký sai/nonce dùng lại, có rate-limit.
+- Bằng chứng E5-S05: `packages/cache/src/__tests__/cache.test.ts` (tenant A/B, draft, TTL/LRU, single-flight,
+  render chậm, HMAC), web `revalidate.test.ts` (401/400/409/429/503, body limit, nonce), worker `invalidate.test.ts`
+  (web lỗi hai lần rồi thành công, nonce mới, retry Infinity). Typecheck/lint/unit test cache/db/web/worker qua;
+  web lint 0 error, 52 warning. Test tích hợp `revalidate.int.test.ts` đã viết, skip vì thiếu
+  `DATABASE_URL` + `PLATFORM_DATABASE_URL`/`REDIS_URL`: **chờ test cuối chuỗi** cho AC publish ≤60 s,
+  host A/B xen kẽ và outbox bền vững. Mô phỏng publish bằng repository (admin E7 chưa có); chưa có curl/Next runtime thật.
+  Chưa tick các AC này. Báo cáo `.agent-runs/E5-S05/codex-report.md`; review/PR chờ Claude.
 - Phụ thuộc: S04, E11-S01 (bảng Outbox + worker; có thể làm trước phần outbox ở story này) · Agent: Claude · Cỡ: M
 
 ### E5-S06 · Bật Cache Components (Next 16)
