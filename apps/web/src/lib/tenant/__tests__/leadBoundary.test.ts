@@ -228,12 +228,14 @@ test("verifyTurnstile aborts a hanging Siteverify call after its timeout and fai
     signal = init.signal ?? undefined;
     signal?.addEventListener("abort", () => reject(signal?.reason));
   })) as typeof fetch;
+  // AbortSignal.timeout's timer is unref'd: keep the event loop alive while the test waits for it.
+  const keepAlive = setTimeout(() => undefined, 5_000);
   try {
     const started = Date.now();
     assert.equal(await verifyTurnstile("good", "1.1.1.1", "secret", 20), false);
     assert.ok(signal?.aborted, "request was aborted by the timeout signal");
     assert.ok(Date.now() - started < 2_000);
-  } finally { globalThis.fetch = original; }
+  } finally { globalThis.fetch = original; clearTimeout(keepAlive); }
 });
 
 test("rate-limit keys are per tenant: A exhausting its IP and phone quota does not block B", async () => {
