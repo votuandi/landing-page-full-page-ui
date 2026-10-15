@@ -42,6 +42,6 @@ test("100% of entry points check entitlements; nobody resolves plans directly", 
   const tenantEntries = files(join(src, "app")).map((path) => path.slice(src.length + 1).replaceAll("\\", "/"))
     .filter((path) => path.startsWith("app/sites/") || path.startsWith("app/api/"));
   assert.deepEqual(tenantEntries.filter((path) => !(path in ENTRY_POINTS)).sort(),
-    ["app/sites/[siteId]/robots.txt/route.ts", "app/sites/[siteId]/sitemap.xml/route.ts"], "robots has no gated content; sitemap delegates to seoData");
+    ["app/api/revalidate/route.ts", "app/sites/[siteId]/robots.txt/route.ts", "app/sites/[siteId]/sitemap.xml/route.ts"], "revalidate and robots have no gated content; sitemap delegates to seoData");
   for (const path of files(src)) assert.doesNotMatch(readFileSync(path, "utf8"), /\bgetPlan\(|\.features\.has\(|planCanUse/, path);
 });

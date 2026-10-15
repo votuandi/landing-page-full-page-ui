@@ -23,5 +23,5 @@ export async function collectSitemapPaths(site: Pick<TenantSite, "tenantId" | "s
     policies: site.profile.legal.policies.map((policy) => policy.slug) });
 }
 export async function tenantSitemapPaths(site: TenantSite) {
-  return collectSitemapPaths(site, tenantCollections(site.tenantId, site.locale), await listPublishedPages(site.tenantId, site.siteId));
+  return collectSitemapPaths(site, tenantCollections(site.tenantId, site.locale, site.siteId), await listPublishedPages(site.tenantId, site.siteId));
 }

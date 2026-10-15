@@ -13,6 +13,7 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     let decoded: string;
     try { decoded = decodeURIComponent(pathname).toLowerCase(); } catch { return missing(); }
     if (decoded === "/sites" || decoded.startsWith("/sites/")) return missing();
+    if (pathname === "/api/revalidate") return NextResponse.next({ request: { headers } });
     if (!enabled) return NextResponse.next({ request: { headers } });
     const host = normalizeHost(headers.get("host"));
     if (!host) return missing();

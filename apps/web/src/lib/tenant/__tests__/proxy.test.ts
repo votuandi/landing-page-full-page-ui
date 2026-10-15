@@ -133,3 +133,12 @@ test("matcher excludes shared assets while protecting APIs, robots and internal 
     assert.equal(unstable_doesMiddlewareMatch({ config, url }), false, url);
   }
 });
+
+test("internal revalidation bypasses host lookup and strips spoofed tenant headers", async () => {
+  const bypass = createProxy({ resolve: async () => { throw Error("must not resolve"); } }, { enabled: true });
+  const response = await bypass(request("internal-web", "/api/revalidate", { "x-tenant-id": "spoof", "x-site-id": "spoof" }));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-middleware-next"), "1");
+  assert.equal(response.headers.get("x-middleware-request-x-tenant-id"), null);
+  assert.equal(response.headers.get("x-middleware-request-x-site-id"), null);
+});

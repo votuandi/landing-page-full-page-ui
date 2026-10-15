@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@solar/db": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.5",
+    "@solar/cache": "workspace:*"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

@@ -26,3 +26,13 @@ tác dụng phụ (gửi lead, sau này revalidate cache, cron gói/gia hạn). 
 config, chặn SSRF) thuộc E11-S02; hiện kênh chưa có sender sẽ dead ngay với lỗi "chưa hỗ trợ kênh".
 
 Kiểm thử: `pnpm --filter worker test` (đặt `DATABASE_URL` + `PLATFORM_DATABASE_URL` để test Postgres không skip).
+
+## Cache invalidation (E5-S05)
+
+Topic `invalidate` gọi `POST /api/revalidate` tới mọi URL trong `WEB_REVALIDATE_URLS` (phân tách dấu phẩy).
+Đặt `REVALIDATE_SECRET` giống web; không đưa secret vào URL. Mỗi request/attempt tạo nonce mới, ký HMAC-SHA256 raw JSON,
+đính `x-idempotency-key` của job. Timeout 10 giây, không đi theo redirect. Mọi URL phải trả 2xx mới hoàn tất.
+
+Topic có `maxAgeMs: Infinity`: web tắt rồi bật lại vẫn nhận invalidation. Job trễ >5 phút log cảnh báo mỗi lần thất bại.
+Retry theo backoff E11-S01. Khi dùng cache bộ nhớ, URL phải trỏ từng tiến trình web; URL load balancer không bảo đảm
+xóa hết replica. Redis/shared cache triển khai ở E10-S03. Xem [hợp đồng cache](../../packages/cache/README.md).

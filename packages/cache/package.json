@@ -1,0 +1,21 @@
+{
+  "name": "@solar/cache",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --import tsx --test src/__tests__/cache.test.ts"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@types/node": "20.19.37",
+    "eslint": "9.39.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

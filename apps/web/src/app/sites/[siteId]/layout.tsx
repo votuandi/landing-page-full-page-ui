@@ -17,7 +17,7 @@ export default async function TenantLayout({ children, params }: { children: Rea
   const home = await loadPublishedPage(site.tenantId, siteId, "", site.locale);
   if (!home) notFound();
   const canUse = siteCanUse(site);
-  const collections = tenantCollections(site.tenantId, site.locale);
+  const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
   const loadData = createCollectionLoader(collections.source);
   const cartEnabled = Boolean(site.widgets["quote-cart"]?.enabled && canUse("quoteCart"));
   const chrome = (type: string) => <PageRenderer site={site.context} canUse={canUse} loadData={loadData}

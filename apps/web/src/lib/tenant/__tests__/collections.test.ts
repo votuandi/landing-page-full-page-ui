@@ -135,3 +135,19 @@ test("cart lookup retains all 49 published SKUs despite a filtered one-item widg
   assert.deepEqual(loaded.items.map((item) => item.slug), (await adapter.products()).map((item) => item.slug));
   assert.equal(loaded.items[48].slug, "sku-48");
 });
+
+test("published collection cache isolates site/locale and invalidates only its collection", async () => {
+  const { createMemoryCache, collectionTag } = await import("@solar/cache");
+  const memory = createMemoryCache();
+  const tenantId = "00000000-0000-4000-8000-000000000001", other = "00000000-0000-4000-8000-000000000002";
+  let reads = 0;
+  const repo = repository({ post: [row("post", postData)] });
+  const counted = { ...repo, post: { ...repo.post, list: async () => { reads++; return [row("post", postData)]; } } } as unknown as TenantRepo;
+  const load = (id = tenantId, locale: "vi" | "en" = "vi") => createCollections(counted, id, locale, memory, id).posts();
+  await load(); await load(); assert.equal(reads, 1);
+  await load(other); await load(tenantId, "en"); assert.equal(reads, 3);
+  await memory.invalidate([collectionTag(tenantId, "project")]); await load(); assert.equal(reads, 3);
+  await memory.invalidate([collectionTag(tenantId, "post")]);
+  await load(other); assert.equal(reads, 3);
+  await load(); await load(tenantId, "en"); assert.equal(reads, 5);
+});

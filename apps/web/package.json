@@ -26,7 +26,8 @@
     "@solar/tokens": "workspace:*",
     "@solar/sections": "workspace:*",
     "zod": "4.6.5",
-    "@solar/plans": "workspace:*"
+    "@solar/plans": "workspace:*",
+    "@solar/cache": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.15",

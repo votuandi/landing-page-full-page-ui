@@ -16,3 +16,5 @@ export { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 export type { CollectionName, TenantRefs, RefDb } from "./refs.ts";
 export { Prisma } from "../generated/client.ts";
 export type { PrismaClient } from "../generated/client.ts";
+
+export { enqueueInvalidate } from "./invalidate.ts";

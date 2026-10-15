@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "agentGuidance": false,
+  "globalPassThroughEnv": ["REVALIDATE_SECRET", "WEB_REVALIDATE_URLS"],
   "globalDependencies": [
     "packages/config/package.json",
     "packages/config/tsconfig.base.json",

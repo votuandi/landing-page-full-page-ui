@@ -1,3 +1,4 @@
+import { cached, cacheKey, tenantTag, collectionTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
 import { z } from "zod";
 import { collectionSchemas, createCollectionLoader, widgetRegistry, type CollectionSource, type LoadSectionData } from "@solar/sections";
@@ -12,17 +13,21 @@ const segment = z.enum(["household", "shop", "factory", "farm"]);
 const media = (id: string, title: string) => ({ id, alt: { vi: title } });
 const object = (value: unknown) => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 
-export function createCollections(repo: TenantRepo, tenantId: string, locale: "vi" | "en" = "vi") {
-  // These promises live in the request-scoped adapter, never in a process-wide content cache.
+export function createCollections(repo: TenantRepo, tenantId: string, locale: "vi" | "en" = "vi", contentCache?: Pick<ContentCache, "cached">, siteId = tenantId) {
+  // Request dedupe surrounds the optional process cache of published records.
   const reads = new Map<Collection, Promise<RecordRow[]>>();
   function records(name: Collection) {
     // Prisma's generated generic signatures differ by model; all these repositories support this read shape.
     const list = repo[name].list as (args: { where: { status: "published" }; orderBy: ({ order: "asc" } | { id: "asc" })[] }) => Promise<RecordRow[]>;
-    if (!reads.has(name)) reads.set(name, list({ where: { status: "published" }, orderBy: [{ order: "asc" }, { id: "asc" }] }).then((rows) => rows.filter((row) => {
+    const load = () => list({ where: { status: "published" }, orderBy: [{ order: "asc" }, { id: "asc" }] }).then((rows) => rows.filter((row) => {
       if (label(row.title).trim()) return true;
       console.error("[tenant] title collection lỗi", { tenantId, collection: name, recordId: row.id });
       return false;
-    })));
+    }));
+    if (!reads.has(name)) reads.set(name, contentCache ? contentCache.cached(load, {
+      keyParts: cacheKey({ siteId, locale, mode: "published", parts: ["collection", name] }),
+      tags: [tenantTag(tenantId), collectionTag(tenantId, name)],
+    }) : load());
     return reads.get(name)!;
   }
   const context = (name: string, row: RecordRow) => ({ tenantId, collection: name, recordId: row.id });
@@ -111,7 +116,7 @@ export function createCollections(repo: TenantRepo, tenantId: string, locale: "v
   }
   return { source, products, posts, projects, services, faqs, certificates, press };
 }
-export const tenantCollections = cache((tenantId: string, locale: "vi" | "en") => createCollections(tenantRepository(tenantId), tenantId, locale));
+export const tenantCollections = cache((tenantId: string, locale: "vi" | "en", siteId: string) => createCollections(tenantRepository(tenantId), tenantId, locale, { cached }, siteId));
 export type TenantCollections = ReturnType<typeof createCollections>;
 
 // A cart lookup covers every accepted SKU, independent of display filters and pagination.
