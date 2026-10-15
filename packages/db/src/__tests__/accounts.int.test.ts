@@ -4,6 +4,7 @@ import { after, before, describe, test } from "node:test";
 import { normalizeVnPhone } from "../../../core/src/phone.ts";
 import { createDb, type Db } from "../client.ts";
 import { forPlatform, forTenant } from "../repository.ts";
+import { CrossTenantRefError } from "../refs.ts";
 
 // E5-S10 / D17: SiteUser logins are unique per tenant only; platform accounts live in their own tables.
 describe("tenant-scoped accounts", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16" }, () => {
@@ -43,19 +44,66 @@ describe("tenant-scoped accounts", { skip: !process.env.DATABASE_URL && "DATABAS
     await assert.rejects(user(a, { username: "0901234567" }), /SiteUser_username_check/);
   });
 
-  test("an account needs an identifier; ghost sessions are admin-only", async () => {
+  test("an account needs an identifier; session kinds, audiences and grants are checked", async () => {
     await assert.rejects(user(a, {}), /SiteUser_identifier_check/);
     const admin = await forPlatform(db).platformAdmin.create({ data: { email: adminEmail, name: "Ops", passwordHash: "x" } });
-    const grant = await forPlatform(db).ghostGrant.create({ data: {
-      platformAdminId: admin.id, targetTenantId: a, reason: "test", tokenHash: randomUUID(),
+    const grantFor = (targetTenantId: string) => forPlatform(db).ghostGrant.create({ data: {
+      platformAdminId: admin.id, targetTenantId, reason: "test", tokenHash: randomUUID(),
       expiresAt: new Date(Date.now() + 60_000), sessionExpiresAt: new Date(Date.now() + 1_800_000),
     } });
+    const [grant, grantB] = [await grantFor(a), await grantFor(b)];
+    const member = await user(a, { email: `member-${tag}@x.vn` });
     const session = (data: Record<string, unknown>) => forTenant(db, a).siteSession.create({
       tokenHash: randomUUID(), expiresAt: new Date(Date.now() + 60_000), ...data,
     } as never);
-    await assert.rejects(session({ kind: "ghost", audience: "storefront", ghostGrantId: grant.id }), /SiteSession_kind_check/);
-    await assert.rejects(session({ kind: "user", audience: "admin" }), /SiteSession_kind_check/);
-    assert.ok(await session({ kind: "ghost", audience: "admin", ghostGrantId: grant.id }));
+    for (const invalid of [
+      { kind: "ghost", audience: "storefront", ghostGrantId: grant.id },
+      { kind: "ghost", audience: "admin" },
+      { kind: "ghost", audience: "admin", ghostGrantId: grant.id, siteUserId: member.id },
+      { kind: "user", audience: "admin" },
+      { kind: "user", audience: "admin", siteUserId: member.id, ghostGrantId: grant.id },
+    ]) await assert.rejects(session(invalid), /SiteSession_kind_check/, JSON.stringify(invalid));
+    for (const audience of ["admin", "storefront"]) assert.ok(await session({ kind: "user", audience, siteUserId: member.id }));
+    const ghost = await session({ kind: "ghost", audience: "admin", ghostGrantId: grant.id }) as { id: string };
+    // A grant only opens sessions in its own target tenant (D18), on create and on update.
+    await assert.rejects(session({ kind: "ghost", audience: "admin", ghostGrantId: grantB.id }), /Foreign key constraint/);
+    await assert.rejects(forTenant(db, a).siteSession.update(ghost.id, { ghostGrantId: grantB.id }), /Foreign key constraint/);
+  });
+
+  test("tokens and page versions cannot point at another tenant's account", async () => {
+    const foreign = await user(b, { email: `token-${tag}@x.vn` });
+    const own = await user(a, { email: `token-${tag}@x.vn` });
+    const token = (siteUserId: string) => forTenant(db, a).siteToken.create({
+      siteUserId, purpose: "invite", tokenHash: randomUUID(), expiresAt: new Date(Date.now() + 60_000),
+    } as never) as Promise<{ id: string }>;
+    await assert.rejects(token(foreign.id), /Foreign key constraint/);
+    const ownToken = await token(own.id);
+    await assert.rejects(forTenant(db, a).siteToken.update(ownToken.id, { siteUserId: foreign.id }), /Foreign key constraint/);
+    const site = await forTenant(db, a).site.first();
+    const page = await forTenant(db, a).page.create({ siteId: site!.id, slug: `v-${tag}`, sections: [] });
+    const version = (data: Record<string, unknown>) => forTenant(db, a).pageVersion.create({ pageId: page.id, snapshot: {}, ...data } as never) as Promise<{ id: string }>;
+    await assert.rejects(version({ revision: 1, publishedBySiteUserId: foreign.id }), /Foreign key constraint/);
+    const saved = await version({ revision: 2, publishedBySiteUserId: own.id });
+    await assert.rejects(forTenant(db, a).pageVersion.update(saved.id, { publishedBySiteUserId: foreign.id }), /Foreign key constraint/);
+  });
+
+  test("reads cannot hop through platform relations into another tenant (customer, plan, ghost grants)", async () => {
+    const customer = await forPlatform(db).customer.create({ data: { name: "[DỮ LIỆU MẪU] Customer", contactName: "x" } });
+    await db.tenant.updateMany({ where: { id: { in: [a, b] } }, data: { customerId: customer.id } });
+    const repo = forTenant(db, a);
+    for (const include of [
+      { tenant: { include: { customer: { include: { tenants: { include: { siteUsers: true } } } } } } },
+      { tenant: { include: { plan: { include: { tenants: true } } } } },
+      { tenant: { select: { ghostGrants: true } } },
+    ]) await assert.rejects(async () => repo.siteUser.first({ include } as never), CrossTenantRefError, JSON.stringify(include));
+    await assert.rejects(async () => repo.siteSession.first({ include: { ghostGrant: { include: { platformAdmin: { include: { ghostGrants: true } } } } } } as never), CrossTenantRefError);
+    await assert.rejects(async () => repo.siteUser.first({ select: { tenant: { select: { _count: { select: { ghostGrants: true } } } } } } as never), CrossTenantRefError);
+    // The tenant itself and its own rows stay readable.
+    const row = await repo.siteUser.first({ include: { tenant: { include: { siteUsers: true } } } });
+    assert.ok(row);
+    assert.ok(row.tenant.siteUsers.every((item) => item.tenantId === a));
+    await db.tenant.updateMany({ where: { id: { in: [a, b] } }, data: { customerId: null } });
+    await forPlatform(db).customer.delete({ where: { id: customer.id } });
   });
 
   test("tenant repositories never cross tenants and hide secrets by default", async () => {

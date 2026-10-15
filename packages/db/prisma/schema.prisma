@@ -245,6 +245,7 @@ model GhostGrant {
   sessions         SiteSession[]
   createdAt        DateTime      @default(now())
 
+  @@unique([targetTenantId, id])
   @@index([targetTenantId])
 }
 
@@ -302,7 +303,7 @@ model SiteSession {
   ip           String?
   userAgent    String?
   siteUser     SiteUser?       @relation(fields: [tenantId, siteUserId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
-  ghostGrant   GhostGrant?     @relation(fields: [ghostGrantId], references: [id], onDelete: Cascade)
+  ghostGrant   GhostGrant?     @relation(fields: [tenantId, ghostGrantId], references: [targetTenantId, id], onDelete: Cascade, onUpdate: Restrict)
   createdAt    DateTime        @default(now())
   tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

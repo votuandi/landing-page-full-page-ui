@@ -32,9 +32,13 @@ test("sitemap leaves out pages missing from the site structure or plan (E5-S11)"
   const collections = { products: items("products"), services: items("services"), projects: items("projects"), posts: items("posts") } as unknown as TenantCollections;
   const site = { tenantId: "t", siteId: "s", profile: { legal: { policies: [{ slug: "bao-hanh" }] } }, planId: "basic", addons: [],
     pageTypes: ["home", "services", "news", "contact", "policy", "products"] } as unknown as Parameters<typeof collectSitemapPaths>[0];
-  const paths = await collectSitemapPaths(site, collections, ["", "lien-he", "ve-chung-toi", "uu-dai/nang-luong"]);
+  const pages = [{ slug: "", kind: "home" }, { slug: "lien-he", kind: "system" }, { slug: "ve-chung-toi", kind: "system" }, { slug: "uu-dai/nang-luong", kind: "landing" }];
+  const paths = await collectSitemapPaths(site, collections, pages);
   assert.deepEqual(loaded.sort(), ["posts", "services"], "products need catalog; projects are not in the structure");
-  assert.deepEqual(paths, ["/", "/lien-he", "/uu-dai/nang-luong", "/giai-phap", "/giai-phap/services-1", "/tin-tuc", "/tin-tuc/posts-1", "/chinh-sach/bao-hanh"]);
+  // Basic has no landingPages: a published landing page stays out of the sitemap (D21).
+  assert.deepEqual(paths, ["/", "/lien-he", "/giai-phap", "/giai-phap/services-1", "/tin-tuc", "/tin-tuc/posts-1", "/chinh-sach/bao-hanh"]);
+  const pro = await collectSitemapPaths({ ...site, planId: "pro" }, collections, pages);
+  assert.ok(pro.includes("/uu-dai/nang-luong"));
 });
 
 test("redirect rules match exact paths and one-segment params; reject off-site targets", () => {

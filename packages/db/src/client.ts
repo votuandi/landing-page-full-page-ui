@@ -1,7 +1,9 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/client.ts";
-import { assertNoCrossTenantConnect } from "./tenantGuard.ts";
-import { assertTenantScoped } from "./tenantScope.ts";
+import { assertNoCrossTenantConnect, assertNoPlatformTraversal } from "./tenantGuard.ts";
+import { assertTenantScoped, optionalTenantModels, tenantModels } from "./tenantScope.ts";
+
+const scopedModels = new Set<string>([...tenantModels, ...optionalTenantModels]);
 
 // Internal only: no unscoped client is exposed through the package exports.
 const platformClients = new WeakMap<object, ReturnType<typeof connectClient>>();
@@ -63,6 +65,7 @@ export function createDb({ url = process.env.DATABASE_URL, pool }: { url?: strin
       $allOperations({ model, operation, args, query }) {
         assertTenantScoped(model, operation, args);
         if (model) assertNoCrossTenantConnect(model, operation, args);
+        if (model && scopedModels.has(model)) assertNoPlatformTraversal(model, args);
         return query(args);
       },
     },

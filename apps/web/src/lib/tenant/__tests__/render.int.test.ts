@@ -45,14 +45,14 @@ test("Postgres: both seeded sites render distinct published content at shared sl
     assert.equal(await data.loadTenantSite(results[0].domain.tenantId, results[1].domain.siteId), null);
     // E5-S08: each sitemap is built from its own tenant repo and host only.
     const maps = await Promise.all(results.map(async ({ domain, site }) => sitemapXml(siteOrigin(site), await collectSitemapPaths(site,
-      createCollections(tenantRepository(domain.tenantId), domain.tenantId), await data.listPublishedSlugs(domain.tenantId, domain.siteId)))));
+      createCollections(tenantRepository(domain.tenantId), domain.tenantId), await data.listPublishedPages(domain.tenantId, domain.siteId)))));
     for (const [index, xml] of maps.entries()) {
       const own = results[index].site.primaryHost, other = results[1 - index].site.primaryHost;
       assert.ok(xml.includes(`<loc>${siteOrigin(results[index].site)}/</loc>`));
       assert.ok(xml.includes(`/tin-tuc/${results[index].posts[0].slug}<`));
       assert.ok(!xml.includes(other));
     }
-    assert.deepEqual(await data.listPublishedSlugs(results[0].domain.tenantId, results[1].domain.siteId), []);
+    assert.deepEqual(await data.listPublishedPages(results[0].domain.tenantId, results[1].domain.siteId), []);
     assert.equal(await data.loadPublishedPage(results[0].domain.tenantId, results[1].domain.siteId, ""), null);
     const a = results[0].domain;
     const repo = tenantRepository(a.tenantId);

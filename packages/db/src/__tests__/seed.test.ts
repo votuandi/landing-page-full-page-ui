@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyPlanToPreset, loadPreset } from "@solar/presets";
+import { applyPlanToPreset, loadPreset, presetStructure, validateSiteStructure } from "@solar/presets";
 import { plans } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { PRODUCTS } from "../../../../apps/web/src/data/products.ts";
@@ -45,6 +45,10 @@ test("preset data is separated from page descriptors without losing versions, wi
     const applied = applyPlanToPreset({ pages: loaded.preset.pages, sections: loaded.page.sections }, can);
     assert.deepEqual(demo.pageSections, applied.sections.map(({ data: _data, ...descriptor }) => descriptor));
     assert.deepEqual(demo.pageTypes, applied.pageTypes);
+    // The whole seeded site (home, system pages and the landing page) passes the same D21 policy as the wizard.
+    const baseline = presetStructure({ id: loaded.preset.id, pages: loaded.preset.pages, sections: loaded.page.sections }, can);
+    const structure = { pageTypes: demo.pageTypes, pages: demo.pages.map((page) => ({ slug: page.slug, sections: page.pageSections })) };
+    assert.deepEqual(validateSiteStructure(structure, { can, pagesLimit: plans[demo.planId].limits.pages, baseline }), []);
     assert.ok(demo.pageSections.every((section) => !("data" in section)));
     for (const section of demo.sections) {
       assert.equal(section.schemaVersion, sectionRegistry.getType(section.type)!.schemaVersion);

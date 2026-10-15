@@ -5,6 +5,8 @@ import type { Preset } from "./schema";
 /** Kiểm quyền theo gói của site (plan + addons + override, E6-S02). */
 export type Can = (feature: string) => boolean;
 const allowed = (entitlement: string | undefined, can: Can) => !entitlement || can(entitlement);
+/** Section trang hệ thống dùng variant chuẩn t15 (tự khoác theme, E2-S07), giống bản seed trước E5-S11. */
+const SYSTEM_SECTION_VARIANT = "t15";
 
 /** Trang của preset: khai báo trong `pages`, thiếu thì mọi loại trang; trang bắt buộc luôn có. */
 export function presetPageTypes(preset: Pick<Preset, "pages">): PageTypeId[] {
@@ -20,13 +22,40 @@ export function applyPlanToPreset<S extends { type: string }>(preset: { pages?: 
   };
 }
 
-export type SiteStructure = {
-  pageTypes: readonly string[];
-  pages: readonly { slug: string; sections: readonly { type: string }[] }[];
+export type StructureSection = { id: string; type: string; variant: string; enabled: boolean };
+export type SitePage = { slug: string; sections: readonly StructureSection[] };
+export type SiteStructure = { pageTypes: readonly string[]; pages: readonly SitePage[] };
+
+/**
+ * Cấu trúc đầy đủ của site tạo từ preset theo gói: home lấy section của preset, trang hệ thống lấy section mặc định
+ * trong danh mục; mọi trang đều bỏ section ngoài gói. Đây cũng là cấu trúc cố định khi gói không cho tùy biến.
+ */
+export function presetStructure<S extends StructureSection>(preset: { id: string; pages?: Preset["pages"]; sections: readonly S[] }, can: Can) {
+  const { pageTypes, sections } = applyPlanToPreset(preset, can);
+  const system = (type: PageTypeId) => (PAGE_TYPES[type].sections ?? [])
+    .filter((section) => allowed(sectionRegistry.getType(section)?.meta.entitlement, can))
+    .map((section, index) => ({ id: `${preset.id}-${section}-${index}`, type: section, variant: SYSTEM_SECTION_VARIANT, enabled: true }));
+  const pages = pageTypes.filter((type) => PAGE_TYPES[type].kind === "page")
+    .map((type) => ({ type, slug: PAGE_TYPES[type].slug, sections: type === "home" ? sections : system(type) }));
+  return { pageTypes, pages };
+}
+
+const catalogPageSlugs = new Set(PAGE_TYPE_IDS.filter((id) => PAGE_TYPES[id].kind === "page").map((id) => PAGE_TYPES[id].slug));
+/** Trang landing = Page có slug ngoài danh mục trang (D21). */
+export const isLandingSlug = (slug: string) => !catalogPageSlugs.has(slug);
+
+export type StructurePolicy = {
+  can: Can;
+  /** Limit `pages` của gói: home + landing (E6). */
+  pagesLimit?: number;
+  /** Cấu trúc chuẩn (`presetStructure`) — bắt buộc giữ nguyên phần gói không cho tùy biến. */
+  baseline?: SiteStructure;
 };
 
+const order = (page: SitePage) => page.sections.map(({ id, type, enabled }) => `${id}:${type}:${enabled}`).join("|");
+
 /** Một chính sách cho wizard, CMS, builder và API (D21): trả danh sách lỗi tiếng Việt, rỗng = hợp lệ. */
-export function validateSiteStructure({ pageTypes, pages }: SiteStructure, can: Can): string[] {
+export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can, pagesLimit, baseline }: StructurePolicy): string[] {
   const issues: string[] = [];
   for (const id of PAGE_TYPE_IDS) {
     if (PAGE_TYPES[id].required === true && !pageTypes.includes(id)) issues.push(`Thiếu trang bắt buộc: ${id}`);
@@ -36,11 +65,27 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, can: 
     else if (!allowed(PAGE_TYPES[id].entitlement, can)) issues.push(`Trang ngoài gói: ${id}`);
   }
   for (const page of pages) {
+    if (isLandingSlug(page.slug) && !can("landingPages")) issues.push(`Trang landing ngoài gói: /${page.slug}`);
     for (const { type } of page.sections) {
       const def = sectionRegistry.getType(type);
       if (!def) issues.push(`Section không tồn tại: ${type} (trang /${page.slug})`);
       else if (!allowed(def.meta.entitlement, can)) issues.push(`Section ngoài gói: ${type} (trang /${page.slug})`);
     }
+  }
+  const counted = pages.filter((page) => page.slug === "" || isLandingSlug(page.slug)).length;
+  if (pagesLimit !== undefined && counted > pagesLimit) issues.push(`Vượt số trang của gói: ${counted}/${pagesLimit}`);
+  if (!baseline) return issues;
+  if (!can("pageStructure") && [...pageTypes].sort().join() !== [...baseline.pageTypes].sort().join()) {
+    issues.push("Gói không cho đổi cấu trúc trang");
+  }
+  for (const base of baseline.pages) {
+    const page = pages.find((item) => item.slug === base.slug);
+    if (!page) continue;
+    if (!can("sectionReorder") && order(page) !== order(base)) issues.push(`Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /${base.slug}`);
+    if (!can("variantSwitch") && page.sections.some((section) => {
+      const original = base.sections.find((item) => item.id === section.id);
+      return original !== undefined && original.variant !== section.variant;
+    })) issues.push(`Gói không cho đổi kiểu hiển thị section: /${base.slug}`);
   }
   return issues;
 }

@@ -1,9 +1,18 @@
 import { PLAN_IDS, plans } from "@solar/plans";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { scryptSync, timingSafeEqual, randomUUID } from "node:crypto";
 import { createDb } from "../client.ts";
-import { seedDemo } from "../../prisma/seed-demo.ts";
+import { forPlatform } from "../repository.ts";
+import { seedDemo, seedDemoTenant } from "../../prisma/seed-demo.ts";
 import { buildDemo } from "../../prisma/seed-data.ts";
+
+function verify(password: string, stored: string) {
+  const [, n, r, p, salt, hash] = stored.split("$");
+  const expected = Buffer.from(hash, "base64url");
+  const actual = scryptSync(password, Buffer.from(salt, "base64url"), expected.length, { N: Number(n), r: Number(r), p: Number(p), maxmem: 64 * 1024 * 1024 });
+  return timingSafeEqual(actual, expected);
+}
 
 test("seed twice keeps counts and identities, splits section data and reuses product slugs across tenants", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
@@ -52,9 +61,19 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
       assert.equal(users.find((user) => user.email === "owner@demo.vn")?.username, `${tenant.slug.replace(/-/g, "")}_admin`);
       assert.equal(users.find((user) => user.email === "khach@demo.vn")?.role, tenant.slug === "demo-t15" ? "client" : "staff");
     }
-    const hashes = await db.siteUser.findMany({ where: { email: "owner@demo.vn", tenantId: { in: first.tenants.map((tenant) => tenant.id) } }, omit: { passwordHash: false } });
-    assert.notEqual(hashes[0].passwordHash, hashes[1].passwordHash);
-    assert.match(hashes[0].passwordHash ?? "", /^scrypt\$32768\$8\$1\$/);
+    // Each realm verifies only its own password (D17): t15, t12 and the platform account are three separate logins.
+    const owners = await db.siteUser.findMany({ where: { email: "owner@demo.vn", tenantId: { in: first.tenants.map((tenant) => tenant.id) } }, omit: { passwordHash: false } });
+    const platform = await forPlatform(db).platformAdmin.findMany({ where: { email: "owner@demo.vn" }, omit: { passwordHash: false } });
+    assert.equal(platform.length, 1, "platform account is upserted, not duplicated");
+    const realms = [
+      ...owners.map((owner) => [first.tenants.find((tenant) => tenant.id === owner.tenantId)!.slug.replace("demo-", ""), owner.passwordHash ?? ""]),
+      ["platform", platform[0].passwordHash],
+    ];
+    for (const [realm, hash] of realms) {
+      for (const other of ["t15", "t12", "platform"]) assert.equal(verify(`${password}-${other}`, hash), other === realm, `${realm} vs ${other}`);
+    }
+    const shown = await forPlatform(db).platformAdmin.findUnique({ where: { email: "owner@demo.vn" } });
+    assert.equal(shown && "passwordHash" in shown, false, "platform secrets are omitted by default");
     for (const id of ["t15", "t12"] as const) {
       const demo = buildDemo(id);
       const tenant = first.tenants.find((tenant) => tenant.slug === `demo-${id}`)!;
@@ -77,4 +96,19 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
       }
     }
   } finally { await db.$disconnect(); }
+});
+
+test("without SEED_PASSWORD a demo tenant gets content but no accounts", {
+  skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
+}, async () => {
+  const db = createDb({ pool: 2 });
+  const slug = `nopass-${randomUUID().slice(0, 8)}`;
+  try {
+    const tenantId = await seedDemoTenant(db, { id: "t12", slug, hostname: `${slug}.localhost` });
+    assert.equal(await db.siteUser.count({ where: { tenantId } }), 0);
+    assert.ok(await db.page.count({ where: { tenantId } }) > 0);
+  } finally {
+    await db.tenant.deleteMany({ where: { slug } });
+    await db.$disconnect();
+  }
 });

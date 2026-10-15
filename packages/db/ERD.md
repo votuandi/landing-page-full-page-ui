@@ -435,7 +435,7 @@ erDiagram
   PlatformAdmin |o--o{ PlatformSetting : "updatedById"
   Tenant ||--o{ SiteUser : "tenantId"
   SiteUser |o--o{ SiteSession : "tenantId, siteUserId"
-  GhostGrant |o--o{ SiteSession : "ghostGrantId"
+  GhostGrant |o--o{ SiteSession : "tenantId, ghostGrantId"
   Tenant ||--o{ SiteSession : "tenantId"
   SiteUser ||--o{ SiteToken : "tenantId, siteUserId"
   Tenant ||--o{ SiteToken : "tenantId"

@@ -207,6 +207,9 @@ CREATE UNIQUE INDEX "GhostGrant_tokenHash_key" ON "GhostGrant"("tokenHash");
 CREATE INDEX "GhostGrant_targetTenantId_idx" ON "GhostGrant"("targetTenantId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "GhostGrant_targetTenantId_id_key" ON "GhostGrant"("targetTenantId", "id");
+
+-- CreateIndex
 CREATE INDEX "SiteUser_tenantId_idx" ON "SiteUser"("tenantId");
 
 -- CreateIndex
@@ -273,7 +276,7 @@ ALTER TABLE "SiteUser" ADD CONSTRAINT "SiteUser_tenantId_fkey" FOREIGN KEY ("ten
 ALTER TABLE "SiteSession" ADD CONSTRAINT "SiteSession_tenantId_siteUserId_fkey" FOREIGN KEY ("tenantId", "siteUserId") REFERENCES "SiteUser"("tenantId", "id") ON DELETE CASCADE ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "SiteSession" ADD CONSTRAINT "SiteSession_ghostGrantId_fkey" FOREIGN KEY ("ghostGrantId") REFERENCES "GhostGrant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "SiteSession" ADD CONSTRAINT "SiteSession_tenantId_ghostGrantId_fkey" FOREIGN KEY ("tenantId", "ghostGrantId") REFERENCES "GhostGrant"("targetTenantId", "id") ON DELETE CASCADE ON UPDATE RESTRICT;
 
 -- AddForeignKey
 ALTER TABLE "SiteSession" ADD CONSTRAINT "SiteSession_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -289,7 +292,6 @@ ALTER TABLE "PageVersion" ADD CONSTRAINT "PageVersion_tenantId_publishedBySiteUs
 
 -- AddForeignKey
 ALTER TABLE "PageVersion" ADD CONSTRAINT "PageVersion_publishedByPlatformAdminId_fkey" FOREIGN KEY ("publishedByPlatformAdminId") REFERENCES "PlatformAdmin"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
 
 -- Checks Prisma cannot express (D17, D21). Keep in sync with packages/core tenantSlug.ts.
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_slug_check" CHECK (

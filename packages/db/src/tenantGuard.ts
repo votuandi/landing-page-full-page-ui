@@ -119,3 +119,22 @@ export function assertNoCrossTenantConnect(model: string, operation: string, arg
     walk(model, input.data, object(input.where), undefined, model);
   }
 }
+
+// Reads through a tenant model may only follow tenant relations (and `tenant` itself). Platform relations
+// such as Tenant.customer, Tenant.plan or SiteSession.ghostGrant lead to other tenants' rows (D17).
+export function assertNoPlatformTraversal(model: string, args: unknown, path = model): void {
+  const input = object(args);
+  for (const key of ["include", "select"]) visitRead(model, input[key], `${path}.${key}`);
+}
+
+function visitRead(model: string, tree: unknown, path: string) {
+  for (const [field, value] of Object.entries(object(tree))) {
+    if (!value) continue;
+    if (field === "_count") { visitRead(model, object(value).select, `${path}._count`); continue; }
+    const tenantTarget = tenantRelations[model]?.[field];
+    const target = tenantTarget ?? globalRelations[model]?.[field];
+    if (!target) continue;
+    if (!tenantTarget && !(field === "tenant" && target === "Tenant")) reject(`${path}.${field}`, field);
+    assertNoPlatformTraversal(target, value, `${path}.${field}`);
+  }
+}

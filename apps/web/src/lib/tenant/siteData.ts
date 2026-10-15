@@ -66,12 +66,11 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     const config = parseContent(pageConfigSchema, { sections }, context);
     return config ? { id: row.id, kind: row.kind, title: text(row.title, locale), config } : null;
   }
-  async function listPublishedSlugs(tenantId: string, siteId: string) {
+  async function listPublishedPages(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];
-    const rows = await repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true }, orderBy: { slug: "asc" } });
-    return rows.map((row) => row.slug);
+    return repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true, kind: true }, orderBy: { slug: "asc" } });
   }
-  return { loadTenantSite, loadPublishedPage, listPublishedSlugs };
+  return { loadTenantSite, loadPublishedPage, listPublishedPages };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
 const data = createSiteData(tenantRepository);
@@ -86,5 +85,5 @@ export const loadTenantSite = cache(async (tenantId: string, siteId: string) => 
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);
-export const listPublishedSlugs = data.listPublishedSlugs;
+export const listPublishedPages = data.listPublishedPages;
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;

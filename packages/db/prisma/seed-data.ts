@@ -1,4 +1,4 @@
-import { applyPlanToPreset, loadPreset, PAGE_TYPES } from "@solar/presets";
+import { applyPlanToPreset, loadPreset, presetStructure } from "@solar/presets";
 import { plans } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { CATEGORIES, PRODUCTS } from "../../../apps/web/src/data/products.ts";
@@ -26,10 +26,12 @@ export function buildDemo(id: "t15" | "t12") {
   const { preset, page, widgets } = loadPreset(id);
   const { planId, addons } = demoPlans[id];
   const can = (feature: string) => (plans[planId].features as ReadonlySet<string>).has(feature) || (addons as readonly string[]).includes(feature);
-  const structure = applyPlanToPreset({ pages: preset.pages, sections: page.sections }, can);
+  // Same plan policy as the site wizard (D21): every page, including system-page defaults, is filtered by plan.
+  const structure = presetStructure({ id: preset.id, pages: preset.pages, sections: page.sections }, can);
+  const homeSections = applyPlanToPreset({ pages: preset.pages, sections: page.sections }, can).sections;
   const name = `[DỮ LIỆU MẪU] Demo ${id}`;
   const localized = (value: string) => ({ vi: value });
-  const sections = structure.sections.map((section) => {
+  const sections = homeSections.map((section) => {
     const data = structuredClone(section.data) as Record<string, unknown>;
     if (section.type === "site-header") data.brand = { ...(data.brand as object), name };
     if (section.type === "site-footer") {
@@ -48,12 +50,11 @@ export function buildDemo(id: "t15" | "t12") {
     sections: contents.map((section) => ({ sectionId: section.id, type: section.type,
       schemaVersion: sectionRegistry.getType(section.type)!.schemaVersion, data: section.data })),
   });
-  const system = (types: string[]) => types.map((type, index) => ({ id: `${id}-${type}-${index}`, type, variant: "t15", enabled: true, anchor: type, data: sectionRegistry.getType(type)!.defaults as Record<string, unknown> }));
-  const titles: Partial<Record<keyof typeof PAGE_TYPES, string>> = { about: `Về ${name}`, contact: `Liên hệ ${name}`, guides: `Cẩm nang ${name}` };
+  const titles: Record<string, string> = { "ve-chung-toi": `Về ${name}`, "lien-he": `Liên hệ ${name}`, "cam-nang": `Cẩm nang ${name}` };
   const pages = [
     makePage("", "home", name, sections),
-    ...structure.pageTypes.filter((type) => type !== "home" && PAGE_TYPES[type].kind === "page")
-      .map((type) => makePage(PAGE_TYPES[type].slug, "system", titles[type] ?? name, system([...PAGE_TYPES[type].sections ?? []]))),
+    ...structure.pages.filter((item) => item.slug !== "").map((item) => makePage(item.slug, "system", titles[item.slug] ?? name,
+      item.sections.map((section) => ({ ...section, anchor: section.type, data: sectionRegistry.getType(section.type)!.defaults as Record<string, unknown> })))),
     makePage("uu-dai/nang-luong", "landing", `Ưu đãi ${name}`, sections.filter((section) => section.type === "hero")),
   ];
   return {
@@ -72,7 +73,7 @@ export function buildDemo(id: "t15" | "t12") {
       redirects: [["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"], ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],
         ["/project/:slug", "/cong-trinh/:slug"], ["/product", "/san-pham"], ["/product/:slug", "/san-pham/:slug"], ["/news", "/tin-tuc"], ["/news/:slug", "/tin-tuc/:slug"]]
         .map(([from, to]) => ({ from, to })) },
-    pageSections: structure.sections.map(({ data: _data, ...descriptor }) => descriptor),
+    pageSections: homeSections.map(({ data: _data, ...descriptor }) => descriptor),
     sections: sections.map((section) => ({
       sectionId: section.id, type: section.type,
       schemaVersion: sectionRegistry.getType(section.type)!.schemaVersion, data: section.data,

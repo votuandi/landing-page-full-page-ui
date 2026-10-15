@@ -17,8 +17,11 @@ const load = cache(async (siteId: string, slug: string) => {
   if (!site) notFound();
   const route = resolveRoute(slug ? slug.split("/") : []);
   // Pages outside the site structure or plan are not served at all (E5-S11), not even via legacy redirects.
-  if (route && !routeEnabled(route, site.pageTypes, siteCanUse(site))) notFound();
-  const page = route?.kind === "page" ? await loadPublishedPage(site.tenantId, siteId, slug, site.locale) : null;
+  const canUse = siteCanUse(site);
+  if (route && !routeEnabled(route, site.pageTypes, canUse)) notFound();
+  const loaded = route?.kind === "page" ? await loadPublishedPage(site.tenantId, siteId, slug, site.locale) : null;
+  // Landing pages need landingPages (D21); without it they act as missing, so legacy redirects below still apply.
+  const page = loaded?.kind === "landing" && !canUse("landingPages") ? null : loaded;
   const system = route && route.kind !== "page" ? await loadSystemPage(site, route) : null;
   if (!page && !system) {
     // Legacy slugs configured per tenant (Site.seo.redirects) → 308.
