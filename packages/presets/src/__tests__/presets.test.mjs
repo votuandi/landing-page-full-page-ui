@@ -330,23 +330,33 @@ test("site structure policy follows D21: plan filters every page, fixed parts st
     "Gói không cho đổi kiểu hiển thị section: /": withHome(home.sections.map((section, index) => index === 1 ? { ...section, variant: "t15" } : section)),
   };
   const toggled = withHome(home.sections.map((section, index) => index === 1 ? { ...section, enabled: !section.enabled } : section));
-  assert.ok(validateSiteStructure(toggled, { can: basic, baseline: fixed }).includes("Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /"));
+  assert.ok(validateSiteStructure(toggled, { can: basic, pagesLimit: 1, baseline: fixed }).includes("Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /"));
   for (const [message, changed] of Object.entries(changes)) {
     assert.ok(home.sections[1].variant !== "t15" || !message.includes("kiểu"), "fixture must change a variant");
-    assert.ok(validateSiteStructure(changed, { can: basic, baseline: fixed }).includes(message), message);
-    assert.deepEqual(validateSiteStructure(changed, { can: pro, baseline: fixed }), [], `pro may: ${message}`);
+    assert.ok(validateSiteStructure(changed, { can: basic, pagesLimit: 1, baseline: fixed }).includes(message), message);
+    assert.deepEqual(validateSiteStructure(changed, { can: pro, pagesLimit: 3, baseline: fixed }), [], `pro may: ${message}`);
   }
 
   // Landing pages need landingPages and count with home against the plan's page limit (home + 2 / home + 19).
   const landings = (structure, count) => ({ ...structure, pages: [...structure.pages, ...Array.from({ length: count }, (_, index) => ({ slug: `uu-dai/${index}`, sections: [] }))] });
-  assert.ok(validateSiteStructure(landings(fixed, 1), { can: basic, pagesLimit: 1 }).includes("Trang landing ngoài gói: /uu-dai/0"));
-  assert.deepEqual(validateSiteStructure(landings(proT15, 2), { can: pro, pagesLimit: plans.pro.limits.pages }), []);
-  assert.ok(validateSiteStructure(landings(proT15, 3), { can: pro, pagesLimit: plans.pro.limits.pages }).includes("Vượt số trang của gói: 4/3"));
+  assert.ok(validateSiteStructure(landings(fixed, 1), { can: basic, pagesLimit: 1, baseline: fixed }).includes("Trang landing ngoài gói: /uu-dai/0"));
+  assert.deepEqual(validateSiteStructure(landings(proT15, 2), { can: pro, pagesLimit: plans.pro.limits.pages, baseline: proT15 }), []);
+  assert.ok(validateSiteStructure(landings(proT15, 3), { can: pro, pagesLimit: plans.pro.limits.pages, baseline: proT15 }).includes("Vượt số trang của gói: 4/3"));
   const full = structureOf("t15", premium);
-  assert.deepEqual(validateSiteStructure(landings(full, 19), { can: premium, pagesLimit: plans.premium.limits.pages }), []);
-  assert.ok(validateSiteStructure(landings(full, 20), { can: premium, pagesLimit: plans.premium.limits.pages }).includes("Vượt số trang của gói: 21/20"));
+  assert.deepEqual(validateSiteStructure(landings(full, 19), { can: premium, pagesLimit: plans.premium.limits.pages, baseline: full }), []);
+  assert.ok(validateSiteStructure(landings(full, 20), { can: premium, pagesLimit: plans.premium.limits.pages, baseline: full }).includes("Vượt số trang của gói: 21/20"));
 
-  const issues = validateSiteStructure({ pageTypes: ["home", "products", "nope"], pages: [{ slug: "", sections: [{ id: "c", type: "calculator", variant: "t12", enabled: true }, { id: "g", type: "ghost", variant: "x", enabled: true }] }] }, { can: basic });
+  // Dropping a Page record while keeping pageTypes is caught for every plan; a page outside pageTypes too.
+  for (const [slug, message] of [["", "Thiếu trang: /"], ["lien-he", "Thiếu trang: /lien-he"], ["ve-chung-toi", "Thiếu trang: /ve-chung-toi"]]) {
+    const dropped = { ...fixed, pages: fixed.pages.filter((page) => page.slug !== slug) };
+    for (const can of [basic, premium]) assert.ok(validateSiteStructure(dropped, { can, pagesLimit: 20, baseline: fixed }).includes(message), `${message} (${can === basic ? "basic" : "premium"})`);
+  }
+  assert.ok(validateSiteStructure(fixed, { can: basic, baseline: fixed }).some((issue) => issue.startsWith("Vượt số trang của gói")), "a missing limit is not unlimited");
+  assert.deepEqual(validateSiteStructure(landings(full, 30), { can: premium, pagesLimit: Infinity, baseline: full }), []);
+  const orphan = { ...fixed, pageTypes: fixed.pageTypes.filter((type) => type !== "about") };
+  assert.ok(validateSiteStructure(orphan, { can: premium, pagesLimit: 20, baseline: fixed }).includes("Trang không có trong cấu trúc: /ve-chung-toi"));
+
+  const issues = validateSiteStructure({ pageTypes: ["home", "products", "nope"], pages: [{ slug: "", sections: [{ id: "c", type: "calculator", variant: "t12", enabled: true }, { id: "g", type: "ghost", variant: "x", enabled: true }] }] }, { can: basic, pagesLimit: 1, baseline: fixed });
   for (const message of ["Thiếu trang bắt buộc: contact", "Thiếu trang bắt buộc: policy", "Trang ngoài gói: products", "Loại trang không tồn tại: nope", "Section ngoài gói: calculator (trang /)", "Section không tồn tại: ghost (trang /)"]) {
     assert.ok(issues.includes(message), message);
   }

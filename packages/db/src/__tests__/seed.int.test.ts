@@ -112,3 +112,24 @@ test("without SEED_PASSWORD a demo tenant gets content but no accounts", {
     await db.$disconnect();
   }
 });
+
+test("seedDemo without SEED_PASSWORD in the environment seeds content but creates no new accounts", {
+  skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
+}, async () => {
+  const db = createDb({ pool: 2 });
+  const previous = process.env.SEED_PASSWORD;
+  delete process.env.SEED_PASSWORD;
+  try {
+    const tenantIds = async () => (await db.tenant.findMany({ where: { slug: { in: ["demo-t15", "demo-t12"] } }, select: { id: true } })).map((tenant) => tenant.id);
+    const accounts = async () => [await db.siteUser.count({ where: { tenantId: { in: await tenantIds() } } }), await forPlatform(db).platformAdmin.count()];
+    const before = await accounts();
+    await seedDemo(db);
+    assert.deepEqual(await accounts(), before);
+    assert.equal(await db.tenant.count({ where: { slug: { in: ["demo-t15", "demo-t12"] } } }), 2);
+    assert.equal(await db.page.count({ where: { tenantId: { in: await tenantIds() } } }), 10);
+  } finally {
+    if (previous === undefined) delete process.env.SEED_PASSWORD;
+    else process.env.SEED_PASSWORD = previous;
+    await db.$disconnect();
+  }
+});

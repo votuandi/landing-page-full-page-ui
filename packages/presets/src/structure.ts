@@ -44,12 +44,13 @@ const catalogPageSlugs = new Set(PAGE_TYPE_IDS.filter((id) => PAGE_TYPES[id].kin
 /** Trang landing = Page có slug ngoài danh mục trang (D21). */
 export const isLandingSlug = (slug: string) => !catalogPageSlugs.has(slug);
 
+// Every field is required so a caller cannot skip a check by omission; no page limit = Infinity.
 export type StructurePolicy = {
   can: Can;
   /** Limit `pages` của gói: home + landing (E6). */
-  pagesLimit?: number;
+  pagesLimit: number;
   /** Cấu trúc chuẩn (`presetStructure`) — bắt buộc giữ nguyên phần gói không cho tùy biến. */
-  baseline?: SiteStructure;
+  baseline: SiteStructure;
 };
 
 const order = (page: SitePage) => page.sections.map(({ id, type, enabled }) => `${id}:${type}:${enabled}`).join("|");
@@ -64,7 +65,15 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can
     if (!isPageType(id)) issues.push(`Loại trang không tồn tại: ${id}`);
     else if (!allowed(PAGE_TYPES[id].entitlement, can)) issues.push(`Trang ngoài gói: ${id}`);
   }
+  // Page types with sections need their Page record; catalog pages need their type in the structure.
+  for (const id of pageTypes) {
+    if (isPageType(id) && PAGE_TYPES[id].kind === "page" && !pages.some((page) => page.slug === PAGE_TYPES[id].slug)) {
+      issues.push(`Thiếu trang: /${PAGE_TYPES[id].slug}`);
+    }
+  }
   for (const page of pages) {
+    const type = PAGE_TYPE_IDS.find((id) => PAGE_TYPES[id].kind === "page" && PAGE_TYPES[id].slug === page.slug);
+    if (type && !pageTypes.includes(type)) issues.push(`Trang không có trong cấu trúc: /${page.slug}`);
     if (isLandingSlug(page.slug) && !can("landingPages")) issues.push(`Trang landing ngoài gói: /${page.slug}`);
     for (const { type } of page.sections) {
       const def = sectionRegistry.getType(type);
@@ -73,8 +82,8 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can
     }
   }
   const counted = pages.filter((page) => page.slug === "" || isLandingSlug(page.slug)).length;
-  if (pagesLimit !== undefined && counted > pagesLimit) issues.push(`Vượt số trang của gói: ${counted}/${pagesLimit}`);
-  if (!baseline) return issues;
+  // `!(a <= b)` also rejects a missing or NaN limit instead of silently skipping the check.
+  if (!(counted <= pagesLimit)) issues.push(`Vượt số trang của gói: ${counted}/${pagesLimit}`);
   if (!can("pageStructure") && [...pageTypes].sort().join() !== [...baseline.pageTypes].sort().join()) {
     issues.push("Gói không cho đổi cấu trúc trang");
   }
