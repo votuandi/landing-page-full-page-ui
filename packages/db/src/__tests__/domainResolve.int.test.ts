@@ -1,18 +1,20 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, before, describe, test } from "node:test";
-import { createDb, type Db } from "../client.ts";
+import { createDb, createPlatformDb, type Db } from "../client.ts";
 import { forPlatform, forTenant } from "../repository.ts";
 
 describe("platform domain resolution", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires Postgres 16" }, () => {
   let db: Db;
+  let ops: ReturnType<typeof createPlatformDb>;
   const tenantId = randomUUID(), otherTenant = randomUUID(), siteTenant = randomUUID(), siteId = randomUUID(), otherSite = randomUUID();
   const planId = `resolve-${randomUUID()}`;
   const host = `${randomUUID()}.localhost`, primary = `www.${host}`;
   before(async () => {
     db = createDb({ pool: 2 });
-    await db.plan.create({ data: { id: planId, name: "Test", features: [], limits: {} } });
-    for (const id of [tenantId, otherTenant, siteTenant]) await db.tenant.create({ data: { id, slug: id, name: "[DỮ LIỆU MẪU]", planId } });
+    ops = createPlatformDb({ pool: 2 });
+    await ops.plan.create({ data: { id: planId, name: "Test", features: [], limits: {} } });
+    for (const id of [tenantId, otherTenant, siteTenant]) await ops.tenant.create({ data: { id, slug: id, name: "[DỮ LIỆU MẪU]", planId } });
     // One site per tenant: the second site (and its primary) lives in its own tenant.
     await forTenant(db, tenantId).site.create({ id: siteId, name: "[DỮ LIỆU MẪU]", themeId: "t15" });
     await forTenant(db, siteTenant).site.create({ id: otherSite, name: "[DỮ LIỆU MẪU]", themeId: "t15" });
@@ -24,16 +26,16 @@ describe("platform domain resolution", { skip: !process.env.DATABASE_URL && "DAT
   after(async () => {
     if (!db) return;
     try {
-      await db.tenant.deleteMany({ where: { id: { in: [tenantId, otherTenant, siteTenant] } } });
-      await db.plan.delete({ where: { id: planId } });
-    } finally { await db.$disconnect(); }
+      await ops.tenant.deleteMany({ where: { id: { in: [tenantId, otherTenant, siteTenant] } } });
+      await ops.plan.delete({ where: { id: planId } });
+    } finally { await Promise.all([db.$disconnect(), ops.$disconnect()]); }
   });
   test("returns only routing fields, tenant status and the primary of the same site", async () => {
     assert.deepEqual(await forPlatform(db).domains.resolve(host), {
       hostname: host, tenantId, siteId, status: "active", isPrimary: false, tenantStatus: "trial", primaryHost: primary,
     });
     assert.equal(await forPlatform(db).domains.resolve(`missing.${host}`), null);
-    await db.tenant.update({ where: { id: tenantId }, data: { status: "suspended" } });
+    await ops.tenant.update({ where: { id: tenantId }, data: { status: "suspended" } });
     assert.equal((await forPlatform(db).domains.resolve(host))?.tenantStatus, "suspended");
   });
   test("removed and pending primaries cannot become redirect targets; reassigned pending host stays pending", async () => {

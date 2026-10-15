@@ -1,6 +1,6 @@
 import { syncPlans } from "../src/plans.ts";
 import { randomBytes, randomUUID, scryptSync } from "node:crypto";
-import type { Db } from "../src/client.ts";
+import type { PlatformDb } from "../src/client.ts";
 import type { Prisma } from "../generated/client.ts";
 import { buildDemo } from "./seed-data.ts";
 import { forPlatform } from "../src/repository.ts";
@@ -22,7 +22,7 @@ const demoUsers = (id: "t15" | "t12", slug: string) => [
     source: id === "t15" ? "signup" as const : "invite" as const },
 ];
 
-export async function seedDemo(db: Db, { password = process.env.SEED_PASSWORD } = {}) {
+export async function seedDemo(db: PlatformDb, { password = process.env.SEED_PASSWORD } = {}) {
   if (!password) console.warn("SEED_PASSWORD missing: demo accounts skipped, content still seeded");
   await syncPlans(db);
   if (password) {
@@ -33,7 +33,7 @@ export async function seedDemo(db: Db, { password = process.env.SEED_PASSWORD } 
 }
 
 /** One demo tenant with one site and one primary host; browser fixtures reuse it for extra tenants. */
-export async function seedDemoTenant(db: Db, { id, slug, hostname, password }: { id: "t15" | "t12"; slug: string; hostname: string; password?: string }) {
+export async function seedDemoTenant(db: PlatformDb, { id, slug, hostname, password }: { id: "t15" | "t12"; slug: string; hostname: string; password?: string }) {
   {
     const demo = buildDemo(id);
     const domain = await forPlatform(db).domains.findByHostname(hostname);

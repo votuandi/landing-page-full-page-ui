@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { PLAN_IDS, plans } from "@solar/plans";
 import { syncPlans } from "../plans.ts";
-import type { Db } from "../client.ts";
+import type { PlatformDb } from "../client.ts";
 
 test("sync uses one transaction and only three Plan upserts with fresh serialization", async () => {
   const calls: { where: { id: string }; create: Record<string, unknown>; update: Record<string, unknown> }[] = [];
@@ -10,7 +10,7 @@ test("sync uses one transaction and only three Plan upserts with fresh serializa
   const db = { $transaction: async (operation: (tx: unknown) => Promise<void>) => {
     transactions++;
     await operation({ plan: { upsert: async (args: typeof calls[number]) => { calls.push(args); } } });
-  } } as unknown as Db;
+  } } as unknown as PlatformDb;
   await syncPlans(db);
   assert.equal(transactions, 1);
   assert.deepEqual(calls.map(call => call.where.id), PLAN_IDS);
@@ -31,7 +31,7 @@ test("upsert failure rejects the transaction without continuing", async () => {
   let writes = 0;
   const db = { $transaction: async (operation: (tx: unknown) => Promise<void>) => operation({
     plan: { upsert: async () => { if (++writes === 2) throw new Error("upsert failed"); } },
-  }) } as unknown as Db;
+  }) } as unknown as PlatformDb;
   await assert.rejects(syncPlans(db), /upsert failed/);
   assert.equal(writes, 2);
 });

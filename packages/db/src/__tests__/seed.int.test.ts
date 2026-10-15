@@ -2,7 +2,7 @@ import { PLAN_IDS, plans } from "@solar/plans";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { scryptSync, timingSafeEqual, randomUUID } from "node:crypto";
-import { createDb } from "../client.ts";
+import { createPlatformDb } from "../client.ts";
 import { forPlatform } from "../repository.ts";
 import { seedDemo, seedDemoTenant } from "../../prisma/seed-demo.ts";
 import { buildDemo } from "../../prisma/seed-data.ts";
@@ -17,7 +17,7 @@ function verify(password: string, stored: string) {
 test("seed twice keeps counts and identities, splits section data and reuses product slugs across tenants", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
 }, async () => {
-  const db = createDb({ pool: 2 });
+  const db = createPlatformDb({ pool: 2 });
   try {
     const password = "seed-test-password";
     await seedDemo(db, { password });
@@ -101,7 +101,7 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
 test("without SEED_PASSWORD a demo tenant gets content but no accounts", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
 }, async () => {
-  const db = createDb({ pool: 2 });
+  const db = createPlatformDb({ pool: 2 });
   const slug = `nopass-${randomUUID().slice(0, 8)}`;
   try {
     const tenantId = await seedDemoTenant(db, { id: "t12", slug, hostname: `${slug}.localhost` });
@@ -116,7 +116,7 @@ test("without SEED_PASSWORD a demo tenant gets content but no accounts", {
 test("seedDemo without SEED_PASSWORD in the environment seeds content but creates no new accounts", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
 }, async () => {
-  const db = createDb({ pool: 2 });
+  const db = createPlatformDb({ pool: 2 });
   const previous = process.env.SEED_PASSWORD;
   delete process.env.SEED_PASSWORD;
   try {

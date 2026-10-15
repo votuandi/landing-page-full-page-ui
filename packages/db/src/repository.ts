@@ -1,18 +1,20 @@
 import { collectRefs, collectionSchemas, migrateSectionData, sectionRegistry } from "@solar/sections";
 import type { Prisma } from "../generated/client.ts";
-import { platformClient, platformDomainLookup, platformDomainResolve, type Db } from "./client.ts";
+import { platformClient, resolveTenantHost, isPlatformDb, type Db, type PlatformDb } from "./client.ts";
+import { withTenantTransaction } from "./tenantTransaction.ts";
 import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
-import { tenantModels } from "./tenantScope.ts";
+import { tenantModels, optionalTenantModels } from "./tenantScope.ts";
 import { Prisma as PrismaValues } from "../generated/client.ts";
 
-type DelegateName = Uncapitalize<(typeof tenantModels)[number]>;
+const repositoryModels = [...tenantModels, ...optionalTenantModels];
+type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
 // Transaction delegates retain the extensions; client lifecycle methods are not required.
-export type DbClient = Pick<Db, DelegateName>;
+type DbClient = Pick<Db, DelegateName>;
 type WithoutTenant<A> = Omit<A, "tenantId" | "tenant"> & { tenantId?: never; tenant?: never };
 type ScopedArgs<A> = Omit<A, "where"> & { where?: WithoutTenant<A extends { where?: infer W } ? W : never> };
 type WriteData<D, O extends "create" | "updateMany"> = WithoutTenant<O extends "create"
-  ? Extract<Prisma.Args<D, O>["data"], { tenantId: string }>
+  ? Extract<Prisma.Args<D, O>["data"], { tenantId?: string | null }>
   : Prisma.Args<D, O>["data"]>;
 type Repository<D> = {
   list<A extends ScopedArgs<Prisma.Args<D, "findMany">>>(args?: A): Promise<Prisma.Result<D, A, "findMany">>;
@@ -30,7 +32,7 @@ export type TenantRepo = { [K in DelegateName]: K extends "sectionContent"
     create(data: SectionCreate): Promise<Prisma.Result<Db[K], object, "create">>;
     update(id: string, data: SectionUpdate): Promise<{ count: number }>;
   }
-  : Repository<Db[K]> };
+  : K extends "auditLog" ? Omit<Repository<Db[K]>, "update" | "delete"> : Repository<Db[K]> };
 
 type Input = Record<string, unknown>;
 type RuntimeDelegate = Record<"findMany" | "findFirst" | "count" | "create" | "updateMany" | "deleteMany", (args: Input) => Promise<unknown>>;
@@ -39,7 +41,22 @@ const collectionNames = {
 } as const;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function forTenant(db: DbClient, tenantId: string): TenantRepo {
+export function forTenant(db: Db | PlatformDb, tenantId: string): TenantRepo {
+  if (!uuid.test(tenantId)) throw new Error("tenantId must be a UUID");
+  return Object.fromEntries(repositoryModels.map(model => {
+    const name = (model[0].toLowerCase() + model.slice(1)) as DelegateName;
+    return [name, Object.fromEntries(["list", "first", "get", "count", "create", "update", "delete"].map(method => [method,
+      (...args: unknown[]) => method === "get" && !uuid.test(String(args[0])) ? Promise.resolve(null)
+        : withTenantTransaction(db, tenantId, repo => {
+          const call = (repo[name] as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>)[method];
+          return call(...args);
+        }),
+    ]))];
+  })) as unknown as TenantRepo;
+}
+
+// Internal builder: only tenantTransaction can bind delegates to initialized context.
+export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
   if (!uuid.test(tenantId)) throw new Error("tenantId must be a UUID");
   tenantId = tenantId.toLowerCase();
   const clean = (data: Input): Input => {
@@ -112,19 +129,25 @@ export function forTenant(db: DbClient, tenantId: string): TenantRepo {
       delete: (id: string) => delegate.deleteMany({ where: { id, tenantId } }),
     };
   }
-  return Object.fromEntries(tenantModels.map((model) => {
+  return Object.fromEntries(repositoryModels.map((model) => {
     const name = (model[0].toLowerCase() + model.slice(1)) as DelegateName;
     return [name, repository(name)];
-  })) as TenantRepo;
+  })) as unknown as TenantRepo;
 }
 
 // Platform tables (D17–D19). Console writes must also record AuditLog (enforced with the console actor in E15-S02).
-export function forPlatform(db: Db) {
+export function forPlatform(db: PlatformDb): ReturnType<typeof platformRepository>;
+export function forPlatform(db: Db): { domains: { resolve(hostname: string): Promise<HostRecord | null> } };
+export function forPlatform(db: Db | PlatformDb) {
+  if (!isPlatformDb(db)) return { domains: { resolve: (hostname: string) => resolveTenantHost(db, hostname) } };
+  return platformRepository(db);
+}
+function platformRepository(db: PlatformDb) {
   const client = platformClient(db);
   return {
     domains: {
-      findByHostname: (hostname: string) => platformDomainLookup(db, hostname),
-      resolve: (hostname: string): Promise<HostRecord | null> => platformDomainResolve(db, hostname),
+      findByHostname: (hostname: string) => client.domain.findUnique({ where: { hostname } }),
+      resolve: (hostname: string): Promise<HostRecord | null> => resolveTenantHost(db, hostname),
     },
     customer: client.customer, platformAdmin: client.platformAdmin, platformSession: client.platformSession,
     ghostGrant: client.ghostGrant, platformSetting: client.platformSetting,

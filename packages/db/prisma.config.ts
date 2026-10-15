@@ -6,6 +6,6 @@ export default defineConfig({
     path: "prisma/migrations",
     seed: "tsx prisma/seed.ts",
   },
-  // generate/validate/diff work without a DB; DB commands require DATABASE_URL.
-  datasource: { url: process.env.DATABASE_URL },
+  // No fallback to runtime credentials. generate/validate still work offline.
+  datasource: { url: process.env.MIGRATION_DATABASE_URL },
 });

@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import { migrateSnapshot, sectionRegistry } from "@solar/sections";
 import { Prisma, type SectionContent, type PageVersion } from "../generated/client.ts";
-import type { Db } from "./client.ts";
-import { forTenant } from "./repository.ts";
+import type { PlatformDb } from "./client.ts";
+import { createTenantRepo } from "./repository.ts";
 import { migrateSectionRow } from "./sectionContent.ts";
 
-type Options = { db?: Db; dryRun?: boolean; file?: string; log?: (line: string) => void };
+type Options = { db?: PlatformDb; dryRun?: boolean; file?: string; log?: (line: string) => void };
 
 export async function runSectionsMigrate({ db, dryRun = false, file, log = console.log }: Options) {
   const result = { changed: 0, errors: 0 };
@@ -56,7 +56,7 @@ export async function runSectionsMigrate({ db, dryRun = false, file, log = conso
     if (!db) throw new Error("Database client is required unless --file is used");
     const tenants = await db.tenant.findMany({ select: { id: true }, orderBy: { id: "asc" } });
     for (const tenant of tenants) {
-      const repo = forTenant(db, tenant.id);
+      const repo = createTenantRepo(db, tenant.id);
       let after: string | undefined;
       while (true) {
         const rows: SectionContent[] = await repo.sectionContent.list({ where: after ? { id: { gt: after } } : {}, orderBy: { id: "asc" }, take: 100 });

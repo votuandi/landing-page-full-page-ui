@@ -1,8 +1,10 @@
-export { createDb, POOL_BUDGET } from "./client.ts";
-export type { Db } from "./client.ts";
+export { createDb, createPlatformDb, POOL_BUDGET } from "./client.ts";
+export type { Db, PlatformDb } from "./client.ts";
+export { withTenantTransaction } from "./tenantTransaction.ts";
+export { redeemGhostGrant } from "./ghost.ts";
 export { forTenant, forPlatform } from "./repository.ts";
 export { migrateSectionRow } from "./sectionContent.ts";
-export type { DbClient, TenantRepo, HostRecord } from "./repository.ts";
+export type { TenantRepo, HostRecord } from "./repository.ts";
 export type { DomainStatus, TenantStatus, SiteRole, SiteUserStatus, SessionAudience, SessionKind, SiteTokenPurpose, AuditActorType } from "../generated/enums.ts";
 export { MissingTenantError } from "./tenantScope.ts";
 export { assertNoCrossTenantConnect } from "./tenantGuard.ts";
