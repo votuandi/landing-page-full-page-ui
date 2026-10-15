@@ -10,6 +10,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { loadSystemPage } from "../../../components/tenant/SystemPages";
 import type { Collection } from "../collections";
+import { collectSitemapPaths } from "../seoData";
+import { siteOrigin, sitemapXml } from "../seo";
 
 test("Postgres: both seeded sites render distinct published content at shared slugs with scoped associations", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires seeded PostgreSQL 16",
@@ -41,6 +43,16 @@ test("Postgres: both seeded sites render distinct published content at shared sl
     assert.equal(results[0].posts[0].slug, results[1].posts[0].slug);
     assert.notEqual(results[0].posts[0].title, results[1].posts[0].title);
     assert.equal(await data.loadTenantSite(results[0].domain.tenantId, results[1].domain.siteId), null);
+    // E5-S08: each sitemap is built from its own tenant repo and host only.
+    const maps = await Promise.all(results.map(async ({ domain, site }) => sitemapXml(siteOrigin(site), await collectSitemapPaths(site,
+      createCollections(tenantRepository(domain.tenantId), domain.tenantId), await data.listPublishedSlugs(domain.tenantId, domain.siteId)))));
+    for (const [index, xml] of maps.entries()) {
+      const own = results[index].site.primaryHost, other = results[1 - index].site.primaryHost;
+      assert.ok(xml.includes(`<loc>${siteOrigin(results[index].site)}/</loc>`));
+      assert.ok(xml.includes(`/tin-tuc/${results[index].posts[0].slug}<`));
+      assert.ok(!xml.includes(other));
+    }
+    assert.deepEqual(await data.listPublishedSlugs(results[0].domain.tenantId, results[1].domain.siteId), []);
     assert.equal(await data.loadPublishedPage(results[0].domain.tenantId, results[1].domain.siteId, ""), null);
     const a = results[0].domain;
     const repo = tenantRepository(a.tenantId);

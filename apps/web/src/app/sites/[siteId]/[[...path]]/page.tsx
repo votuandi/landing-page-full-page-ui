@@ -1,11 +1,12 @@
 import { cache } from "react";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { PageRenderer, createCollectionLoader } from "@solar/sections";
 import { loadTenantSite, loadPublishedPage, planCanUse } from "@/lib/tenant/siteData";
 import { tenantCollections } from "@/lib/tenant/collections";
 import { resolveRoute } from "@/lib/tenant/routes";
 import { tenantMetadata } from "@/lib/tenant/metadata";
+import { matchRedirect } from "@/lib/tenant/seo";
 import { loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
 
 type Props = { params: Promise<{ siteId: string; path?: string[] }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -13,11 +14,16 @@ const load = cache(async (siteId: string, slug: string) => {
   const request = await headers();
   if (request.get("x-site-id") !== siteId) notFound();
   const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
+  if (!site) notFound();
   const route = resolveRoute(slug ? slug.split("/") : []);
-  if (!site || !route) notFound();
-  const page = route.kind === "page" ? await loadPublishedPage(site.tenantId, siteId, slug, site.locale) : null;
-  const system = route.kind !== "page" ? await loadSystemPage(site, route) : null;
-  if (!page && !system) notFound();
+  const page = route?.kind === "page" ? await loadPublishedPage(site.tenantId, siteId, slug, site.locale) : null;
+  const system = route && route.kind !== "page" ? await loadSystemPage(site, route) : null;
+  if (!page && !system) {
+    // Legacy slugs configured per tenant (Site.seo.redirects) → 308.
+    const target = matchRedirect(site.seo.redirects, `/${slug}`);
+    if (target) permanentRedirect(target);
+    notFound();
+  }
   return { site, page, system };
 });
 export async function generateMetadata({ params }: Props) {

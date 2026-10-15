@@ -16,6 +16,7 @@ export { SectionLink } from "./render/SectionLink";
 export { PageRenderer } from "./render/PageRenderer";
 export type { PageRendererProps, LoadSectionData } from "./render/PageRenderer";
 export { mediaSrc } from "./shared/media";
+export { serializeJsonLd } from "./shared/jsonLd";
 export { toCalculatorParams } from "./calculator/params";
 export { createCollectionLoader } from "./collections/loader";
 export type { CollectionSource } from "./collections/loader";
