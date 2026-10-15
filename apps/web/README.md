@@ -94,8 +94,13 @@ Chạy `pnpm --filter @solar/db db:deploy`, `pnpm db:seed`, rồi bật `DATABAS
   published của chính tenant; URL luôn ở primaryHost.
 - JSON-LD: Organization + LocalBusiness (chi nhánh) ở mọi trang, Product + BreadcrumbList ở chi tiết sản phẩm,
   BreadcrumbList ở chi tiết tin/công trình/giải pháp/chính sách, FAQPage ở `/cam-nang`.
-- `PLATFORM_DOMAINS` (phân tách dấu phẩy, vd. `solarweb.vn,preview.solarweb.vn`): primaryHost là domain đó hoặc subdomain
-  của nó → meta `noindex`, robots không có `Sitemap`, `/sitemap.xml` 404.
+- `NOINDEX_DOMAINS` (phân tách dấu phẩy, vd. `preview.solarweb.vn`): primaryHost là domain đó hoặc subdomain của nó →
+  meta `noindex`, robots không có `Sitemap`, `/sitemap.xml` 404. Chỉ liệt kê hậu tố preview: subdomain nền tảng
+  (`<slug>.solarweb.vn`) đang là tên miền chính của site thì **được index** (D21); host phụ đã 308 về tên miền chính.
+- Cấu trúc trang (E5-S11): route `/ve-chung-toi`, `/giai-phap`, `/cong-trinh/*`, `/san-pham`, `/tin-tuc`, `/cam-nang`
+  chỉ mở khi loại trang có trong `Site.pageTypes` và gói cho phép (`routeEnabled`, danh mục `PAGE_TYPES` của
+  `@solar/presets`); không mở → 404 và không vào sitemap. Trang chủ, `/lien-he`, `/chinh-sach/*` luôn có; slug landing
+  theo bản ghi `Page`. Quyền = gói + `addons` của tenant (`siteCanUse`).
 - Slug cũ: `Site.seo.redirects` (`[{ from: "/product/:slug", to: "/san-pham/:slug" }]`) → 308. Redirect toàn cục trong
   `next.config.ts` chỉ áp khi `MULTI_TENANT` tắt.
 

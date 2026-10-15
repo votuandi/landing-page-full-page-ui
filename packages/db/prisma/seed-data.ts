@@ -1,4 +1,5 @@
-import { loadPreset } from "@solar/presets";
+import { applyPlanToPreset, loadPreset, PAGE_TYPES } from "@solar/presets";
+import { plans } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { CATEGORIES, PRODUCTS } from "../../../apps/web/src/data/products.ts";
 import { PROJECTS } from "../../../apps/web/src/data/projects.ts";
@@ -18,11 +19,17 @@ const row = <T>(slug: string, title: string, data: T, order: number) => ({
   slug, title: { vi: title }, data, order, status: "published" as const,
 });
 
+// t12 is Pro plus the catalog addon so both demos keep the product routes (D8, D21).
+const demoPlans = { t15: { planId: "premium", addons: [] }, t12: { planId: "pro", addons: ["catalog"] } } as const;
+
 export function buildDemo(id: "t15" | "t12") {
   const { preset, page, widgets } = loadPreset(id);
+  const { planId, addons } = demoPlans[id];
+  const can = (feature: string) => (plans[planId].features as ReadonlySet<string>).has(feature) || (addons as readonly string[]).includes(feature);
+  const structure = applyPlanToPreset({ pages: preset.pages, sections: page.sections }, can);
   const name = `[DỮ LIỆU MẪU] Demo ${id}`;
   const localized = (value: string) => ({ vi: value });
-  const sections = page.sections.map((section) => {
+  const sections = structure.sections.map((section) => {
     const data = structuredClone(section.data) as Record<string, unknown>;
     if (section.type === "site-header") data.brand = { ...(data.brand as object), name };
     if (section.type === "site-footer") {
@@ -42,15 +49,15 @@ export function buildDemo(id: "t15" | "t12") {
       schemaVersion: sectionRegistry.getType(section.type)!.schemaVersion, data: section.data })),
   });
   const system = (types: string[]) => types.map((type, index) => ({ id: `${id}-${type}-${index}`, type, variant: "t15", enabled: true, anchor: type, data: sectionRegistry.getType(type)!.defaults as Record<string, unknown> }));
+  const titles: Partial<Record<keyof typeof PAGE_TYPES, string>> = { about: `Về ${name}`, contact: `Liên hệ ${name}`, guides: `Cẩm nang ${name}` };
   const pages = [
     makePage("", "home", name, sections),
-    makePage("ve-chung-toi", "system", `Về ${name}`, system(["about-story", "stats", "trust", "warranty"])),
-    makePage("lien-he", "system", `Liên hệ ${name}`, system(["lead-form", "branch-map"])),
-    makePage("cam-nang", "system", `Cẩm nang ${name}`, system([])),
+    ...structure.pageTypes.filter((type) => type !== "home" && PAGE_TYPES[type].kind === "page")
+      .map((type) => makePage(PAGE_TYPES[type].slug, "system", titles[type] ?? name, system([...PAGE_TYPES[type].sections ?? []]))),
     makePage("uu-dai/nang-luong", "landing", `Ưu đãi ${name}`, sections.filter((section) => section.type === "hero")),
   ];
   return {
-    id, name, themeId: preset.themeId, widgets, pages,
+    id, name, themeId: preset.themeId, widgets, pages, planId, addons: [...addons], pageTypes: structure.pageTypes,
     profile: {
       name: localized(name), description: localized(`${name} — Đồng hành cùng từng mái nhà.`),
       email: siteConfig.brand.email, hotline: siteConfig.branches[0].hotline.main, theme: siteConfig.theme,
@@ -65,7 +72,7 @@ export function buildDemo(id: "t15" | "t12") {
       redirects: [["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"], ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],
         ["/project/:slug", "/cong-trinh/:slug"], ["/product", "/san-pham"], ["/product/:slug", "/san-pham/:slug"], ["/news", "/tin-tuc"], ["/news/:slug", "/tin-tuc/:slug"]]
         .map(([from, to]) => ({ from, to })) },
-    pageSections: page.sections.map(({ data: _data, ...descriptor }) => descriptor),
+    pageSections: structure.sections.map(({ data: _data, ...descriptor }) => descriptor),
     sections: sections.map((section) => ({
       sectionId: section.id, type: section.type,
       schemaVersion: sectionRegistry.getType(section.type)!.schemaVersion, data: section.data,

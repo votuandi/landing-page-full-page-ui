@@ -123,6 +123,8 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | Hộp thư lead (`leadInbox`) | — | Có | Có |
 | Sắp xếp section (`sectionReorder`) | — | Có | Có |
 | Đổi variant (`variantSwitch`) | — | Có | Có |
+| Chọn cấu trúc trang (`pageStructure`) | — | Có | Có |
+| Trang landing (`landingPages`) | — | Có | Có |
 | Video Shorts (`shorts`) | — | — | Có |
 | TikTok (`tiktok`) | — | — | Có |
 | Danh mục sản phẩm (`catalog`) | — | — | Có |
@@ -134,7 +136,6 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | Xuất lead (`leadExport`) | — | — | Có |
 | Override màu/font (`themeOverride`) | — | — | Có |
 | Builder kéo-thả (`builder`) | — | — | Có |
-| Trang landing (`landingPages`) | — | — | Có |
 | A/B CTA (`abTest`) | — | — | Có |
 | Số tên miền | 1 | 1 | 3 |
 | Media (GB) | 1 | 5 | 20 |

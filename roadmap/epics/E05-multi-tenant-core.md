@@ -245,18 +245,19 @@ Story nâng cấp phần đã làm: preset hiện chỉ có section của trang 
 (`seed-data.ts`), route `san-pham`/`giai-phap`/`tin-tuc` luôn mở với mọi site, subdomain nền tảng luôn `noindex`.
 - **Chi tiết**:
   - `packages/presets/pages.ts`: danh mục trang theo D21 §2 (`slug`, `required`, `entitlement?`, kiểu, collection liên quan).
-  - Schema preset: `sections` + `subpages` → `pages: Record<PageTypeId, { sections: PageSection[] }>` (home bắt buộc).
-    Chuyển 15 file preset (t15 lấy từ `subpages` và seed hiện tại; preset khác có ít nhất home + giới thiệu + liên hệ +
-    chính sách, dùng variant của chính template đó, nếu không có thì dùng variant gần nhất). Test schema của E4 vẫn qua.
+  - Schema preset: giữ `sections` (trang chủ) và `subpages` (route demo `/lab`), thêm `pages?: PageTypeId[]` (thiếu = mọi
+    loại trang, trang bắt buộc luôn có); section của trang hệ thống lấy từ `sections` mặc định trong danh mục. Không phải
+    sửa 15 file preset; test schema của E4 vẫn qua.
   - `validateSiteStructure(config, entitlements)` + `applyPlanToPreset(preset, entitlements)` (lọc trang/section ngoài gói,
     D21 §1). Feature mới `pageStructure` (Nâng cao, Cao cấp) trong `packages/plans`; chạy lại `pnpm plans:table`.
     Áp dụng quyết định (a)/(b) của D21 nếu đã chốt.
-  - `Site.structure JSONB` (`{ pages: PageTypeId[] }`) hoặc suy ra từ bảng `Page`, chọn một và ghi lý do trong plan.
+  - `Site.pageTypes String[]` (site cũ được đặt đủ mọi loại trang trong migration để không đổi hành vi).
     `resolveRoute` của `apps/web` chỉ mở route của trang có trong cấu trúc và không bị khóa theo gói; còn lại 404.
     Sitemap theo cùng điều kiện.
-  - `isNoindexHost`: subdomain nền tảng đang là tên miền chính → được index; host nền tảng không phải chính → 308 (đã có);
-    `*.preview.<platform>` → luôn `noindex`.
-  - Seed dùng `applyPlanToPreset` thay danh sách trang cứng.
+  - `isNoindexHost` đọc `NOINDEX_DOMAINS` (chỉ hậu tố preview, thay `PLATFORM_DOMAINS`): subdomain nền tảng đang là tên
+    miền chính → được index; host nền tảng không phải chính → 308 (đã có); `*.preview.<platform>` → luôn `noindex`.
+  - Seed dùng `applyPlanToPreset` + `PAGE_TYPES` thay danh sách trang cứng; t12 (gói Nâng cao) có addon `catalog` để giữ
+    route sản phẩm của demo; quyền của site = gói + `addons`.
 - **AC**:
   - [ ] Site không có trang Sản phẩm trong cấu trúc → `/san-pham` và `/san-pham/<slug>` trả 404, không có trong sitemap.
   - [ ] `applyPlanToPreset(t15, basic)` không còn section/trang có entitlement ngoài gói Cơ bản; `validateSiteStructure`

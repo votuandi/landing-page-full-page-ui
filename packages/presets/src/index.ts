@@ -18,6 +18,10 @@ import t14 from "../t14.json";
 import { presetSchema } from "./schema";
 
 export { presetSchema };
+export { PAGE_TYPES, PAGE_TYPE_IDS, isPageType, pageTypeOfRoute } from "./pages";
+export type { PageTypeDef, PageTypeId } from "./pages";
+export { applyPlanToPreset, presetPageTypes, validateSiteStructure } from "./structure";
+export type { Can, SiteStructure } from "./structure";
 export type { Preset } from "./schema";
 import type { Preset } from "./schema";
 export const presets = [presetSchema.parse(t15), presetSchema.parse(t01), presetSchema.parse(t02), presetSchema.parse(t03), presetSchema.parse(t04), presetSchema.parse(t05), presetSchema.parse(t06), presetSchema.parse(t07), presetSchema.parse(t08), presetSchema.parse(t09), presetSchema.parse(t10), presetSchema.parse(t11), presetSchema.parse(t12), presetSchema.parse(t13), presetSchema.parse(t14)];

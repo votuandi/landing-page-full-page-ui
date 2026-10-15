@@ -1,7 +1,7 @@
 # @solar/plans
 
 Nguồn quyền sản phẩm duy nhất là `plans.ts`: ba gói Cơ bản / Nâng cao / Cao cấp, nhóm theme,
-30 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
+31 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
 `isPlanId` / `isFeature` kiểm tên cả ở biên DB. Package không phụ thuộc DB, React, Next hoặc sections.
 
 ```sh

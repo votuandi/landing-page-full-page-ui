@@ -35,10 +35,10 @@ export async function seedDemo(db: Db, { password = process.env.SEED_PASSWORD } 
     const hostname = `${id}.localhost`;
     const domain = await forPlatform(db).domains.findByHostname(hostname);
     await db.$transaction(async (tx) => {
-      const tenantData = { name: demo.name, status: "active" as const, planId: id === "t15" ? "premium" : "pro" };
+      const tenantData = { name: demo.name, status: "active" as const, planId: demo.planId, addons: demo.addons };
       const tenant = await tx.tenant.upsert({ where: { slug: `demo-${id}` }, update: tenantData, create: { slug: `demo-${id}`, ...tenantData } });
       const tenantId = tenant.id;
-      const siteData = { name: demo.name, themeId: demo.themeId, presetId: id, widgets: json(demo.widgets), profile: json(demo.profile), seo: json(demo.seo) };
+      const siteData = { name: demo.name, themeId: demo.themeId, presetId: id, pageTypes: demo.pageTypes, widgets: json(demo.widgets), profile: json(demo.profile), seo: json(demo.seo) };
       const existing = await tx.site.findFirst({ where: { tenantId, presetId: id }, orderBy: { createdAt: "asc" } });
       const site = existing
         ? await tx.site.update({ where: { tenantId_id: { tenantId, id: existing.id } }, data: siteData })
@@ -62,6 +62,8 @@ export async function seedDemo(db: Db, { password = process.env.SEED_PASSWORD } 
           create: { tenantId, siteId, slug: seededPage.slug, publishedAt: new Date(), ...pageData },
         });
         const pageId = page.id;
+        // Sections dropped by the plan policy (E5-S11) must not linger from an older seed.
+        await tx.sectionContent.deleteMany({ where: { tenantId, pageId, sectionId: { notIn: seededPage.sections.map((section) => section.sectionId) } } });
         for (const section of seededPage.sections) {
           const data = { siteId, type: section.type, schemaVersion: section.schemaVersion, data: json(section.data), revision: 1 };
           await tx.sectionContent.upsert({

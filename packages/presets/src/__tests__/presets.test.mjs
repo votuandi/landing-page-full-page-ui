@@ -302,3 +302,30 @@ for (const ext of [".ts", ".tsx"]) require.extensions[ext] = (module, filename) 
   });
   module._compile(outputText, filename);
 };
+
+test("site structure policy filters presets by plan and rejects pages/sections outside it (D21)", () => {
+  const { loadPreset, applyPlanToPreset, validateSiteStructure, presetPageTypes, pageTypeOfRoute, PAGE_TYPE_IDS } = require("../index.ts");
+  const { sectionRegistry } = require("@solar/sections");
+  const basic = new Set(["leadForm", "blog", "customDomain"]);
+  const can = (feature) => basic.has(feature);
+  const { preset } = loadPreset("t15");
+  const applied = applyPlanToPreset(preset, can);
+  assert.ok(!applied.pageTypes.includes("products"), "catalog is premium");
+  assert.ok(applied.pageTypes.includes("news") && applied.pageTypes.includes("contact"));
+  for (const section of applied.sections) {
+    const entitlement = sectionRegistry.getType(section.type).meta.entitlement;
+    assert.ok(!entitlement || basic.has(entitlement), section.type);
+  }
+  const home = { slug: "", sections: applied.sections };
+  assert.deepEqual(validateSiteStructure({ pageTypes: applied.pageTypes, pages: [home] }, can), []);
+  const issues = validateSiteStructure({ pageTypes: ["home", "products", "nope"], pages: [{ slug: "", sections: [{ type: "calculator" }, { type: "ghost" }] }] }, can);
+  for (const message of ["Thiếu trang bắt buộc: contact", "Thiếu trang bắt buộc: policy", "Trang ngoài gói: products", "Loại trang không tồn tại: nope", "Section ngoài gói: calculator (trang /)", "Section không tồn tại: ghost (trang /)"]) {
+    assert.ok(issues.includes(message), message);
+  }
+  assert.deepEqual(presetPageTypes({ pages: ["about"] }), ["home", "about", "contact", "policy"]);
+  assert.deepEqual(presetPageTypes({}), PAGE_TYPE_IDS);
+  assert.equal(pageTypeOfRoute({ kind: "detail", collection: "product", slug: "x" }), "products");
+  assert.equal(pageTypeOfRoute({ kind: "page", slug: "ve-chung-toi" }), "about");
+  assert.equal(pageTypeOfRoute({ kind: "page", slug: "uu-dai/nang-luong" }), null);
+  assert.equal(pageTypeOfRoute({ kind: "policy", slug: "bao-hanh" }), "policy");
+});

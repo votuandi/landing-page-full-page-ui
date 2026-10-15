@@ -2,9 +2,9 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { PageRenderer, createCollectionLoader } from "@solar/sections";
-import { loadTenantSite, loadPublishedPage, planCanUse } from "@/lib/tenant/siteData";
+import { loadTenantSite, loadPublishedPage, siteCanUse } from "@/lib/tenant/siteData";
 import { tenantCollections } from "@/lib/tenant/collections";
-import { resolveRoute } from "@/lib/tenant/routes";
+import { resolveRoute, routeEnabled } from "@/lib/tenant/routes";
 import { tenantMetadata } from "@/lib/tenant/metadata";
 import { matchRedirect } from "@/lib/tenant/seo";
 import { loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
@@ -16,6 +16,8 @@ const load = cache(async (siteId: string, slug: string) => {
   const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
   if (!site) notFound();
   const route = resolveRoute(slug ? slug.split("/") : []);
+  // Pages outside the site structure or plan are not served at all (E5-S11), not even via legacy redirects.
+  if (route && !routeEnabled(route, site.pageTypes, siteCanUse(site))) notFound();
   const page = route?.kind === "page" ? await loadPublishedPage(site.tenantId, siteId, slug, site.locale) : null;
   const system = route && route.kind !== "page" ? await loadSystemPage(site, route) : null;
   if (!page && !system) {
@@ -39,5 +41,5 @@ export default async function TenantPage({ params }: Props) {
   if (!page) notFound();
   const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
   if (page.kind === "system") return <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>;
-  return <main><PageRenderer page={config} site={site.context} canUse={planCanUse(site.planId)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale).source)} /></main>;
+  return <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale).source)} /></main>;
 }

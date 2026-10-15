@@ -356,6 +356,8 @@ model Site {
   themeId         String
   presetId        String?
   themeOverrides  Json             @default("{}")
+  /// Loại trang của site (D21, @solar/presets PAGE_TYPES).
+  pageTypes       String[]         @default(["home", "contact", "policy"])
   locales         String[]         @default(["vi"])
   defaultLocale   String           @default("vi")
   profile         Json             @default("{}")

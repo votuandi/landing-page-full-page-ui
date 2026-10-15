@@ -3,22 +3,38 @@ import test from "node:test";
 import { breadcrumbJsonLd, faqJsonLd, isNoindexHost, matchRedirect, organizationJsonLd, productJsonLd, redirectRule, robotsTxt, siteOrigin, sitemapPaths, sitemapXml } from "../seo";
 import { seoSchema } from "../contentSchemas";
 import { tenantMetadata } from "../metadata";
+import { collectSitemapPaths } from "../seoData";
+import type { TenantCollections } from "../collections";
 
-test("platform and preview subdomains are noindex; custom domains are not", () => {
-  const suffixes = ["solarweb.vn", " .preview.example "];
-  for (const host of ["solarweb.vn", "a.solarweb.vn", "x.preview.example"]) assert.equal(isNoindexHost(host, suffixes), true);
-  for (const host of ["solarweb.vn.evil.com", "notsolarweb.vn", "congty.vn"]) assert.equal(isNoindexHost(host, suffixes), false);
-  assert.equal(isNoindexHost("a.solarweb.vn", [""]), false);
+test("only preview subdomains (NOINDEX_DOMAINS) are noindex", () => {
+  const suffixes = ["preview.solarweb.vn", " .preview.example "];
+  for (const host of ["preview.solarweb.vn", "a.preview.solarweb.vn", "x.preview.example"]) assert.equal(isNoindexHost(host, suffixes), true);
+  for (const host of ["a.solarweb.vn", "preview.solarweb.vn.evil.com", "congty.vn"]) assert.equal(isNoindexHost(host, suffixes), false);
+  assert.equal(isNoindexHost("a.preview.solarweb.vn", [""]), false);
 });
 
-test("metadata adds robots noindex only for platform hosts", () => {
-  const site = { primaryHost: "a.solarweb.vn", name: "A", profile: {}, seo: {} };
-  const previous = process.env.PLATFORM_DOMAINS;
-  process.env.PLATFORM_DOMAINS = "solarweb.vn";
+test("a platform subdomain that is the primary host is indexed; preview hosts are not (D21)", () => {
+  const site = { primaryHost: "nang-luong-solar.solarweb.vn", name: "A", profile: {}, seo: {} };
+  const previous = process.env.NOINDEX_DOMAINS;
+  process.env.NOINDEX_DOMAINS = "preview.solarweb.vn";
   try {
-    assert.deepEqual(tenantMetadata(site, "/").robots, { index: false, follow: false });
-    assert.equal(tenantMetadata({ ...site, primaryHost: "congty.vn" }, "/").robots, undefined);
-  } finally { process.env.PLATFORM_DOMAINS = previous; }
+    assert.equal(tenantMetadata(site, "/").robots, undefined);
+    assert.deepEqual(tenantMetadata({ ...site, primaryHost: "a.preview.solarweb.vn" }, "/").robots, { index: false, follow: false });
+  } finally {
+    if (previous === undefined) delete process.env.NOINDEX_DOMAINS;
+    else process.env.NOINDEX_DOMAINS = previous;
+  }
+});
+
+test("sitemap leaves out pages missing from the site structure or plan (E5-S11)", async () => {
+  const loaded: string[] = [];
+  const items = (name: string) => async () => { loaded.push(name); return [{ slug: `${name}-1` }]; };
+  const collections = { products: items("products"), services: items("services"), projects: items("projects"), posts: items("posts") } as unknown as TenantCollections;
+  const site = { tenantId: "t", siteId: "s", profile: { legal: { policies: [{ slug: "bao-hanh" }] } }, planId: "basic", addons: [],
+    pageTypes: ["home", "services", "news", "contact", "policy", "products"] } as unknown as Parameters<typeof collectSitemapPaths>[0];
+  const paths = await collectSitemapPaths(site, collections, ["", "lien-he", "ve-chung-toi", "uu-dai/nang-luong"]);
+  assert.deepEqual(loaded.sort(), ["posts", "services"], "products need catalog; projects are not in the structure");
+  assert.deepEqual(paths, ["/", "/lien-he", "/uu-dai/nang-luong", "/giai-phap", "/giai-phap/services-1", "/tin-tuc", "/tin-tuc/posts-1", "/chinh-sach/bao-hanh"]);
 });
 
 test("redirect rules match exact paths and one-segment params; reject off-site targets", () => {

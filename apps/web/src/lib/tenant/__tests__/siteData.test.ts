@@ -7,7 +7,7 @@ import { sectionRegistry } from "@solar/sections";
 const tenantId = "00000000-0000-4000-8000-000000000001";
 const siteId = "00000000-0000-4000-8000-000000000002";
 const repo = (extra: object = {}) => ({
-  site: { first: async () => ({ id: siteId, tenantId, themeId: "t15", name: "A", profile: {}, seo: {}, widgets: {}, themeOverrides: {}, locales: ["vi"], defaultLocale: "vi", tenant: { planId: "premium" } }) },
+  site: { first: async () => ({ id: siteId, tenantId, themeId: "t15", name: "A", profile: {}, seo: {}, widgets: {}, themeOverrides: {}, locales: ["vi"], defaultLocale: "vi", pageTypes: ["home", "contact", "policy"], tenant: { planId: "premium", addons: [] } }) },
   domain: { first: async () => ({ hostname: "a.localhost" }) },
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
@@ -73,6 +73,8 @@ test("base plans deny unknown features/plans and keep premium/pro distinction", 
   assert.equal(planCanUse("pro")("catalog"), false);
   assert.equal(planCanUse("premium")("unknown"), false);
   assert.equal(planCanUse("missing")("calculator"), false);
+  assert.equal(planCanUse("pro", ["catalog"])("catalog"), true, "addons extend the plan (D8)");
+  assert.equal(planCanUse("pro", ["unknown"])("unknown"), false);
 });
 
 test("published v1 header migrates in memory, missing/type-mismatched rows use defaults and duplicate anchors reject page", async (t) => {

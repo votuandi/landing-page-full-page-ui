@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadPreset } from "@solar/presets";
+import { applyPlanToPreset, loadPreset } from "@solar/presets";
+import { plans } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { PRODUCTS } from "../../../../apps/web/src/data/products.ts";
 import { PROJECTS } from "../../../../apps/web/src/data/projects.ts";
@@ -40,7 +41,10 @@ test("preset data is separated from page descriptors without losing versions, wi
     assert.ok(demo.collections.services.length);
     assert.ok(demo.collections.branches.length);
     assert.ok(demo.collections.certificates.length);
-    assert.deepEqual(demo.pageSections, loaded.page.sections.map(({ data: _data, ...descriptor }) => descriptor));
+    const can = (feature: string) => (plans[demo.planId].features as ReadonlySet<string>).has(feature) || (demo.addons as string[]).includes(feature);
+    const applied = applyPlanToPreset({ pages: loaded.preset.pages, sections: loaded.page.sections }, can);
+    assert.deepEqual(demo.pageSections, applied.sections.map(({ data: _data, ...descriptor }) => descriptor));
+    assert.deepEqual(demo.pageTypes, applied.pageTypes);
     assert.ok(demo.pageSections.every((section) => !("data" in section)));
     for (const section of demo.sections) {
       assert.equal(section.schemaVersion, sectionRegistry.getType(section.type)!.schemaVersion);

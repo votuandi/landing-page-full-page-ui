@@ -149,6 +149,7 @@ erDiagram
     String themeId
     String presetId
     Json themeOverrides
+    String_array pageTypes
     String_array locales
     String defaultLocale
     Json profile
