@@ -106,6 +106,10 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - Sửa review r1 trên [PR #36](https://github.com/votuandi/landing-page-full-page-ui/pull/36): adapter/giỏ/nội dung/VI-EN,
     isolation và fallback đã có regression tests; browser 9/9, DB 101/101, tenant 43/43 (0 skip), visual/lab 64/64
     với baseline đúng merge-base. Chi tiết và commit đề xuất: `.agent-runs/E5-S04/fix-r1-report.md`; review r2/CI sau commit.
+  - Sửa review r2: nhãn filter/giá EN, chặn control catalog trước hydration; tách route theo tenant/collection,
+    thêm metadata fallback qua dispatcher và keyboard/overflow 390/1440. Matrix probe đủ 30 type trên t15 ở bốn
+    project: 129/129, so 344 ô với exact base; shard cân tải 57/57 trong 2,9 phút. Full matrix 15 theme và CI/review
+    sau commit vẫn cần xác nhận; báo cáo `.agent-runs/E5-S04/fix-r2-report.md` ghi phạm vi kiểm chứng cụ thể.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
 ### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu
