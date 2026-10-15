@@ -88,7 +88,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     Chờ review lại và CI; merge sau PR E5-S02 #32.
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
-### E5-S04 · Render site từ DB
+### E5-S04 · Render site từ DB ✅ · PR [#36](https://github.com/votuandi/landing-page-full-page-ui/pull/36)
 **Là** tenant, **tôi muốn** site hiển thị nội dung tôi nhập trong CMS với theme tôi chọn, **để** không cần dev.
 - **Chi tiết**: `app/sites/[siteId]/layout.tsx` nạp `Site` → `themeToCss` + font + widget + header/footer;
   `[[...path]]/page.tsx` ánh xạ path → `Page` (home, landing) hoặc trang hệ thống (danh sách/chi tiết collection —
