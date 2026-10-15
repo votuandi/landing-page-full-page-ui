@@ -2,24 +2,24 @@
 
 import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDialog } from "@solar/ui";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, type Product, type ProductSegment } from "@/data/products";
+import { CATEGORIES, PRICE_RANGES, PRODUCTS, PRODUCT_SEGMENT_LABELS, PRODUCT_SEGMENT_LABELS_EN, type Product, type ProductSegment } from "@/data/products";
 import { resolvePrice } from "@solar/core";
 import { useLang } from "@/i18n/LangProvider";
 import ProductCard from "@/components/ProductCard";
 
 const ProductQuickView = dynamic(() => import("@/components/ProductQuickView"), { ssr: false });
 
-const MIN_POWER = [["0.6", "≥ 600 W (tấm pin)"], ["1", "≥ 1 kW"], ["5", "≥ 5 kW / kWh"], ["10", "≥ 10 kW / kWh"], ["50", "≥ 50 kW"], ["100", "≥ 100 kW"], ["200", "≥ 200 kWh"]] as const;
+const MIN_POWER = [["0.6", "≥ 600 W (tấm pin)", "≥ 600 W (panels)"], ["1", "≥ 1 kW"], ["5", "≥ 5 kW / kWh"], ["10", "≥ 10 kW / kWh"], ["50", "≥ 50 kW"], ["100", "≥ 100 kW"], ["200", "≥ 200 kWh"]] as const;
 const KEYS = ["category", "brand", "tech", "segment", "minPower", "maxPower", "gia", "sort"] as const;
 
 /** Lưới sản phẩm (không có bộ lọc) — dùng làm nội dung render sẵn phía server trước khi đọc tham số URL. */
-export function ProductGrid({ list, onQuickView }: { list: Product[]; onQuickView: (p: Product) => void }) {
+export function ProductGrid({ list, onQuickView, ready = true }: { list: Product[]; onQuickView: (p: Product) => void; ready?: boolean }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-      {list.map((p) => <ProductCard key={p.slug} product={p} onQuickView={onQuickView} />)}
+      {list.map((p) => <ProductCard key={p.slug} product={p} onQuickView={onQuickView} quickViewReady={ready} />)}
     </div>
   );
 }
@@ -35,6 +35,8 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
   const search = useSearchParams();
   const [quick, setQuick] = useState<Product | null>(null);
   const [drawer, setDrawer] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
   const drawerRef = useRef<HTMLElement>(null);
   useDialog(drawerRef, drawer, () => setDrawer(false));
 
@@ -81,13 +83,13 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
         <select value={q.tech} onChange={(e) => setQuery("tech", e.target.value)} className="t15-input"><option value="">{tr("Tất cả công nghệ", "All technologies")}</option>{techs.map((t) => <option key={t}>{t}</option>)}</select>
       </label>
       <label className="t15-label">{tr("Phân khúc", "Segment")}
-        <select value={q.segment} onChange={(e) => setQuery("segment", e.target.value)} className="t15-input"><option value="">{tr("Tất cả phân khúc", "All segments")}</option>{Object.entries(PRODUCT_SEGMENT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+        <select value={q.segment} onChange={(e) => setQuery("segment", e.target.value)} className="t15-input"><option value="">{tr("Tất cả phân khúc", "All segments")}</option>{Object.entries(PRODUCT_SEGMENT_LABELS).map(([v, l]) => <option key={v} value={v}>{tr(l, PRODUCT_SEGMENT_LABELS_EN[v as ProductSegment])}</option>)}</select>
       </label>
       <label className="t15-label">{tr("Công suất / dung lượng tối thiểu", "Minimum power / capacity")}
         <select value={q.minPower} onChange={(e) => setQuery("minPower", e.target.value)} className="t15-input">
           <option value="">{tr("Không giới hạn", "Any")}</option>
           {q.minPower && !MIN_POWER.some(([v]) => v === q.minPower) && <option value={q.minPower}>≥ {q.minPower}</option>}
-          {MIN_POWER.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {MIN_POWER.map(([v, l, en]) => <option key={v} value={v}>{tr(l, en)}</option>)}
         </select>
       </label>
       {maxPower > 0 && <button type="button" onClick={() => setQuery("maxPower", "")} className="t15-chip justify-between" aria-label={tr("Bỏ giới hạn công suất tối đa", "Clear max power")}>{tr("Tối đa", "Max")} {maxPower} kW <XMarkIcon className="h-4 w-4" /></button>}
@@ -112,11 +114,11 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
               <div className="t15-filter-title" id="f-price">{tr("Khoảng giá", "Price range")}</div>
               <div className="t15-no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-labelledby="f-price">
                 <button type="button" aria-pressed={!range} onClick={() => setQuery("gia", "")} className="t15-chip shrink-0">{tr("Mọi mức giá", "Any price")}</button>
-                {PRICE_RANGES.map((r) => <button key={r.value} type="button" aria-pressed={range?.value === r.value} onClick={() => setQuery("gia", r.value)} className="t15-chip shrink-0">{r.label}</button>)}
+                {PRICE_RANGES.map((r) => <button key={r.value} type="button" aria-pressed={range?.value === r.value} onClick={() => setQuery("gia", r.value)} className="t15-chip shrink-0">{tr(r.label, r.en)}</button>)}
               </div>
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => setDrawer(true)} className="t15-button t15-button-secondary lg:hidden"><AdjustmentsHorizontalIcon className="h-5 w-5" />{tr("Bộ lọc", "Filters")}{active > 0 && ` (${active})`}</button>
+              <button type="button" disabled={!ready} onClick={() => setDrawer(true)} className="t15-button t15-button-secondary lg:hidden"><AdjustmentsHorizontalIcon className="h-5 w-5" />{tr("Bộ lọc", "Filters")}{active > 0 && ` (${active})`}</button>
               <label className="sr-only" htmlFor="catalog-sort">{tr("Sắp xếp", "Sort")}</label>
               <select id="catalog-sort" value={sort} onChange={(e) => setQuery("sort", e.target.value === "featured" ? "" : e.target.value)} className="t15-input !mt-0 !w-auto">
                 <option value="featured">{tr("Đề xuất", "Recommended")}</option>
@@ -131,7 +133,7 @@ export default function ProductCatalog({ products = PRODUCTS, categories = CATEG
           <aside className="hidden lg:block">{selects}</aside>
           <div>
             <p className="mb-5 text-sm text-fg-muted" aria-live="polite"><strong className="text-fg">{list.length}</strong> {tr("sản phẩm", "products")}{range ? tr(" (không gồm sản phẩm giá liên hệ)", " (excluding contact-for-price items)") : ""}</p>
-            {list.length ? <ProductGrid list={list} onQuickView={setQuick} /> : (
+            {list.length ? <ProductGrid list={list} onQuickView={setQuick} ready={ready} /> : (
               <div className="t15-card p-10 text-center">
                 <div className="text-xl font-black text-fg">{tr("Không có sản phẩm phù hợp", "No matching products")}</div>
                 <p className="mt-2 text-fg-muted">{tr("Hãy nới công suất, khoảng giá hoặc chọn lại hãng.", "Try a wider power or price range, or another brand.")}</p>

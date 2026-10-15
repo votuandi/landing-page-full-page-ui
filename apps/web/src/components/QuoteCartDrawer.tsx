@@ -20,7 +20,7 @@ type SavedEstimate = { savedAt: number; segment: string; estimate: Record<string
 
 /** Drawer bên phải: danh sách sản phẩm, chỉnh số lượng, xóa, form gửi yêu cầu báo giá (không thanh toán). */
 export default function QuoteCartDrawer({ onClose }: { onClose: () => void }) {
-  const { tr } = useLang();
+  const { tr, lang } = useLang();
   const cart = useQuoteCart();
   const ref = useRef<HTMLDivElement>(null);
   const [done, setDone] = useState(false);
@@ -70,7 +70,7 @@ export default function QuoteCartDrawer({ onClose }: { onClose: () => void }) {
                     <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-bg-tint"><ProductImage src={product!.images[0]} alt="" fill sizes="80px" className="object-cover" /></div>
                     <div className="min-w-0 flex-1">
                       <div className="line-clamp-2 text-sm font-black leading-snug text-fg">{product!.name}</div>
-                      <PriceTag price={product!.price} salePrice={product!.salePrice} className="text-sm" />
+                      <PriceTag locale={lang} price={product!.price} salePrice={product!.salePrice} className="text-sm" />
                       <div className="mt-2 flex items-center justify-between gap-2">
                         <div className="flex items-center rounded-full border border-line/15 bg-bg-elevated" role="group" aria-label={`${tr("Số lượng", "Quantity")} ${product!.name}`}>
                           <button type="button" onClick={() => cart.setQty(sku, qty - 1)} aria-label={tr("Giảm số lượng", "Decrease")} className="grid h-11 w-11 place-items-center text-fg"><MinusIcon className="h-4 w-4" /></button>

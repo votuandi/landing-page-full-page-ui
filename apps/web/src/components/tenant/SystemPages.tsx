@@ -52,7 +52,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
     const cartEnabled = site.widgets["quote-cart"]?.enabled && planCanUse(site.planId)("quoteCart");
     return { title: item.name, image: item.images[0], description: `${item.brand} · ${item.warranty}`, content: <>
       <div className="grid gap-8 md:grid-cols-2"><div className="grid gap-4">{item.images.map((src) => <div key={src} className="relative aspect-square overflow-hidden rounded-media bg-bg-tint"><ProductImage src={src} alt={item.name} fill sizes="(max-width:768px) 100vw, 50vw" className="object-contain" /></div>)}</div>
-        <div className="t15-card p-6"><p>{item.brand} · {item.categoryLabel}</p><div className="my-4 flex items-baseline gap-2"><PriceTag price={item.price} salePrice={item.salePrice} className="text-2xl" />{item.unit && <span>/{item.unit}</span>}</div>
+        <div className="t15-card p-6"><p>{item.brand} · {item.categoryLabel}</p><div className="my-4 flex items-baseline gap-2"><PriceTag locale={site.locale} price={item.price} salePrice={item.salePrice} className="text-2xl" />{item.unit && <span>/{item.unit}</span>}</div>
           <dl>{Object.entries(item.specs).map(([key, value]) => <div className="flex justify-between gap-4 border-b border-line/10 py-3" key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>
           <p className="my-5">{t("Bảo hành", "Warranty")}: {item.warranty}</p>{item.datasheet && <a href={item.datasheet} className="t15-button t15-button-secondary" target="_blank" rel="noopener noreferrer">{t("Tải datasheet", "Download datasheet")}</a>}{cartEnabled && <AddToQuoteButton sku={item.slug} name={item.name} />}
         </div></div>

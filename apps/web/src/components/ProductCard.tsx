@@ -12,8 +12,8 @@ import ProductImage from "@/components/ProductImage";
 import { useQuoteCart } from "@/lib/quoteCartContext";
 
 /** Thẻ sản phẩm: ảnh, hãng, tên, 2 thông số, giá (theo quy tắc chung), "Xem nhanh" và "Thêm vào yêu cầu báo giá". */
-export default function ProductCard({ product, onQuickView, compact = false }: { product: Product & { categoryLabel?: string }; onQuickView: (p: Product) => void; compact?: boolean }) {
-  const { tr } = useLang();
+export default function ProductCard({ product, onQuickView, compact = false, quickViewReady = true }: { product: Product & { categoryLabel?: string }; onQuickView: (p: Product) => void; compact?: boolean; quickViewReady?: boolean }) {
+  const { tr, lang } = useLang();
   const cart = useQuoteCart();
   const specs = Object.entries(product.specs).slice(0, compact ? 0 : 2);
   return (
@@ -30,9 +30,9 @@ export default function ProductCard({ product, onQuickView, compact = false }: {
             {specs.map(([k, v]) => <div key={k} className="flex justify-between gap-3 border-b border-line/10 pb-1.5"><dt className="text-fg-muted">{k}</dt><dd className="text-right font-bold text-fg">{v}</dd></div>)}
           </dl>
         )}
-        <div className="mt-3"><PriceTag price={product.price} salePrice={product.salePrice} className={compact ? "text-base" : "text-lg"} /></div>
+        <div className="mt-3"><PriceTag locale={lang} price={product.price} salePrice={product.salePrice} className={compact ? "text-base" : "text-lg"} /></div>
         <div className={`mt-auto grid gap-2 pt-4 ${compact ? "grid-cols-[auto_1fr]" : "grid-cols-[auto_1fr]"}`}>
-          <button type="button" onClick={() => onQuickView(product)} className="t15-button t15-button-secondary !px-4" aria-label={`${tr("Xem nhanh", "Quick view")} ${product.name}`}><EyeIcon className="h-4 w-4" /></button>
+          <button type="button" disabled={!quickViewReady} onClick={() => onQuickView(product)} className="t15-button t15-button-secondary !px-4" aria-label={`${tr("Xem nhanh", "Quick view")} ${product.name}`}><EyeIcon className="h-4 w-4" /></button>
           {cart.enabled && <AddToQuoteButton sku={product.slug} name={product.name} compact />}
         </div>
       </div>
