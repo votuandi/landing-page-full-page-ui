@@ -1,0 +1,2137 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - region "Cam kết của chúng tôi" [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - list [ref=f1e6]:
+          - listitem [ref=f1e7]: Đầy đủ chứng từ VAT, CO, CQ cho mọi lô hàng
+          - listitem [ref=f1e10]: Cam kết hàng chính hãng 100%
+          - listitem [ref=f1e13]: Hệ thống quản lý ISO 9001 · 14001 · 45001
+          - listitem [ref=f1e16]: Chính sách đại lý chiết khấu tới 18%
+          - listitem [ref=f1e19]: Kỹ sư khảo sát miễn phí trong 48 giờ
+        - list [aria-hidden] [ref=f1e22]:
+          - listitem [ref=f1e23]: Đầy đủ chứng từ VAT, CO, CQ cho mọi lô hàng
+          - listitem [ref=f1e26]: Cam kết hàng chính hãng 100%
+          - listitem [ref=f1e29]: Hệ thống quản lý ISO 9001 · 14001 · 45001
+          - listitem [ref=f1e32]: Chính sách đại lý chiết khấu tới 18%
+          - listitem [ref=f1e35]: Kỹ sư khảo sát miễn phí trong 48 giờ
+    - banner [ref=f1e38]:
+      - generic [ref=f1e39]:
+        - link "Lumivolt Energy – Trang chủ" [ref=f1e40] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f1e47]:
+            - text: Lumivolt
+            - generic [ref=f1e48]: Energy
+        - generic [ref=f1e49]:
+          - link "Báo giá" [ref=f1e50] [cursor=pointer]:
+            - /url: /#du-toan
+          - button "Mở menu" [ref=f1e51] [cursor=pointer]
+  - main [ref=f1e54]:
+    - generic [ref=f1e57]:
+      - generic [ref=f1e58]:
+        - generic [ref=f1e59]: Năng lượng xanh • Phân phối thiết bị • Tổng thầu EPC
+        - heading "Điện sạch từ mái nhà của bạn thiết bị chính hãng, lắp đặt trọn gói" [level=1] [ref=f1e63]:
+          - text: Điện sạch từ mái nhà của bạn
+          - generic [ref=f1e64]: thiết bị chính hãng, lắp đặt trọn gói
+        - paragraph [ref=f1e65]: Phân phối tấm pin, inverter, pin lưu trữ, BESS, đèn năng lượng mặt trời đủ CO/CQ — và thi công trọn gói cho hộ gia đình, cửa hàng, nhà xưởng, trang trại. Xem công trình thật, biết chi phí và tiền tiết kiệm trước khi gọi.
+        - generic [ref=f1e66]:
+          - link "Dự toán chi phí" [ref=f1e67] [cursor=pointer]:
+            - /url: "#du-toan"
+          - link "Xem công trình thực tế" [ref=f1e70] [cursor=pointer]:
+            - /url: "#video-cong-trinh"
+        - link [ref=f1e73] [cursor=pointer]:
+          - /url: https://www.google.com/maps
+          - generic [ref=f1e85]:
+            - strong [ref=f1e86]: 4,9/5
+            - text: · 312 đánh giá Google
+        - generic [ref=f1e87]:
+          - generic [ref=f1e88]:
+            - term [ref=f1e90]: kinh nghiệm
+            - definition [ref=f1e91]: 14+năm
+            - definition [ref=f1e92]: kinh nghiệm
+          - generic [ref=f1e93]:
+            - term [ref=f1e95]: đã cung cấp & lắp đặt
+            - definition [ref=f1e96]: 186,4MWp
+            - definition [ref=f1e97]: đã cung cấp & lắp đặt
+          - generic [ref=f1e98]:
+            - term [ref=f1e100]: dùng điện mặt trời
+            - definition [ref=f1e101]: 12.500+khách
+            - definition [ref=f1e102]: dùng điện mặt trời
+      - generic [ref=f1e103]:
+        - img "Kỹ sư kiểm tra hệ thống điện mặt trời áp mái" [ref=f1e128]
+        - generic [ref=f1e130]: Tấm pin N-type 590W
+        - generic [ref=f1e135]: Inverter hybrid
+        - generic [ref=f1e140]: Pin lưu trữ LFP
+        - generic [ref=f1e145]: Đèn năng lượng mặt trời
+        - generic [ref=f1e150]:
+          - generic [ref=f1e151]:
+            - text: Sản lượng hôm nay
+            - generic [ref=f1e152]: Live
+          - generic [ref=f1e154]: 1.248 kWh
+        - generic [ref=f1e171]:
+          - generic [ref=f1e172]: Hóa đơn giảm
+          - generic [ref=f1e173]: −38%/ tháng*
+        - generic [ref=f1e174]:
+          - generic [ref=f1e175]: CO₂ giảm mỗi năm
+          - generic [ref=f1e176]: ~840 tấn
+    - region [ref=f1e178]:
+      - generic [ref=f1e179]:
+        - generic [ref=f1e181]:
+          - generic [ref=f1e182]: Giải pháp theo công trình
+          - heading "Bạn cần lắp cho công trình nào?" [level=2] [ref=f1e183]
+          - paragraph [ref=f1e184]: Chọn một mục — video, gói giải pháp, dự toán và công trình bên dưới sẽ hiển thị đúng nhu cầu của bạn.
+        - list [ref=f1e185]:
+          - listitem [ref=f1e186]:
+            - link "Giảm đến 50–90% Hộ gia đình Cắt phần điện bậc thang đắt nhất" [ref=f1e187] [cursor=pointer]:
+              - /url: "?phan-khuc=ho-gia-dinh#video-cong-trinh"
+              - generic [ref=f1e188]: Giảm đến 50–90%
+              - generic [ref=f1e191]:
+                - generic [ref=f1e192]: Hộ gia đình
+                - generic [ref=f1e197]: Cắt phần điện bậc thang đắt nhất
+          - listitem [ref=f1e201]:
+            - link "Giảm đến 30–50% Cửa hàng & chuỗi Điều hòa, tủ mát chạy bằng nắng" [ref=f1e202] [cursor=pointer]:
+              - /url: "?phan-khuc=cua-hang#video-cong-trinh"
+              - generic [ref=f1e203]: Giảm đến 30–50%
+              - generic [ref=f1e206]:
+                - generic [ref=f1e207]: Cửa hàng & chuỗi
+                - generic [ref=f1e212]: Điều hòa, tủ mát chạy bằng nắng
+          - listitem [ref=f1e216]:
+            - link "Giảm đến 25–40% Nhà xưởng Mái xưởng thành nhà máy điện riêng" [ref=f1e217] [cursor=pointer]:
+              - /url: "?phan-khuc=nha-xuong#video-cong-trinh"
+              - generic [ref=f1e218]: Giảm đến 25–40%
+              - generic [ref=f1e221]:
+                - generic [ref=f1e222]: Nhà xưởng
+                - generic [ref=f1e227]: Mái xưởng thành nhà máy điện riêng
+          - listitem [ref=f1e231]:
+            - link "Giảm đến 30–60% Trang trại Quạt hút, bơm, sưởi cho trại gà, heo" [ref=f1e232] [cursor=pointer]:
+              - /url: "?phan-khuc=trang-trai#video-cong-trinh"
+              - generic [ref=f1e233]: Giảm đến 30–60%
+              - generic [ref=f1e236]:
+                - generic [ref=f1e237]: Trang trại
+                - generic [ref=f1e246]: Quạt hút, bơm, sưởi cho trại gà, heo
+    - region [ref=f1e251]:
+      - generic [ref=f1e252]:
+        - generic [ref=f1e254]:
+          - generic [ref=f1e255]: Video công trình
+          - heading "Thi công & bàn giao thực tế — xem trước khi quyết định." [level=2] [ref=f1e256]
+          - paragraph [ref=f1e257]: Video ngắn từ công trình minh họa.
+        - group "Lọc video theo phân khúc" [ref=f1e258]:
+          - button "Tất cả" [pressed] [ref=f1e259] [cursor=pointer]
+          - button "Hộ gia đình" [ref=f1e260] [cursor=pointer]
+          - button "Cửa hàng" [ref=f1e261] [cursor=pointer]
+          - button "Nhà xưởng" [ref=f1e262] [cursor=pointer]
+          - button "Trang trại" [ref=f1e263] [cursor=pointer]
+        - generic "Danh sách video công trình" [ref=f1e264]:
+          - 'button "Phát video: Hoàn thành Nhà phố 6 kWp lắp xong trong 1 ngày 📍 TP Hồ Chí Minh · 6 kWp" [ref=f1e265] [cursor=pointer]':
+            - generic [ref=f1e267]: "Phát video:"
+            - generic [ref=f1e268]: Hoàn thành
+            - generic [ref=f1e272]:
+              - generic [ref=f1e273]: Nhà phố 6 kWp lắp xong trong 1 ngày
+              - generic [ref=f1e274]: 📍 TP Hồ Chí Minh · 6 kWp
+          - 'button "Phát video: Khách hàng chia sẻ Siêu thị mini giảm 40% tiền điện mỗi tháng 📍 Cần Thơ · 15 kWp" [ref=f1e275] [cursor=pointer]':
+            - generic [ref=f1e277]: "Phát video:"
+            - generic [ref=f1e278]: Khách hàng chia sẻ
+            - generic [ref=f1e282]:
+              - generic [ref=f1e283]: Siêu thị mini giảm 40% tiền điện mỗi tháng
+              - generic [ref=f1e284]: 📍 Cần Thơ · 15 kWp
+          - 'button "Phát video: Đang thi công Thi công mái xưởng cơ khí không dừng máy 📍 Đồng Nai · 250 kWp" [ref=f1e285] [cursor=pointer]':
+            - generic [ref=f1e287]: "Phát video:"
+            - generic [ref=f1e288]: Đang thi công
+            - generic [ref=f1e292]:
+              - generic [ref=f1e293]: Thi công mái xưởng cơ khí không dừng máy
+              - generic [ref=f1e294]: 📍 Đồng Nai · 250 kWp
+          - 'button "Phát video: Hoàn thành Trại gà 120 kWp chạy quạt hút bằng nắng 📍 Tây Ninh · 120 kWp" [ref=f1e295] [cursor=pointer]':
+            - generic [ref=f1e297]: "Phát video:"
+            - generic [ref=f1e298]: Hoàn thành
+            - generic [ref=f1e302]:
+              - generic [ref=f1e303]: Trại gà 120 kWp chạy quạt hút bằng nắng
+              - generic [ref=f1e304]: 📍 Tây Ninh · 120 kWp
+          - 'button "Phát video: Khách hàng chia sẻ Biệt thự hybrid vẫn có điện khi cúp điện 📍 Lâm Đồng · 10 kWp" [ref=f1e305] [cursor=pointer]':
+            - generic [ref=f1e307]: "Phát video:"
+            - generic [ref=f1e308]: Khách hàng chia sẻ
+            - generic [ref=f1e312]:
+              - generic [ref=f1e313]: Biệt thự hybrid vẫn có điện khi cúp điện
+              - generic [ref=f1e314]: 📍 Lâm Đồng · 10 kWp
+          - 'button "Phát video: Đang thi công Chuỗi cà phê lắp đồng loạt 3 chi nhánh 📍 Đà Nẵng · 30 kWp" [ref=f1e315] [cursor=pointer]':
+            - generic [ref=f1e317]: "Phát video:"
+            - generic [ref=f1e318]: Đang thi công
+            - generic [ref=f1e322]:
+              - generic [ref=f1e323]: Chuỗi cà phê lắp đồng loạt 3 chi nhánh
+              - generic [ref=f1e324]: 📍 Đà Nẵng · 30 kWp
+          - 'button "Phát video: Hoàn thành Kho lạnh 500 kWp bàn giao sau 6 tuần 📍 Tây Ninh · 500 kWp" [ref=f1e325] [cursor=pointer]':
+            - generic [ref=f1e327]: "Phát video:"
+            - generic [ref=f1e328]: Hoàn thành
+            - generic [ref=f1e332]:
+              - generic [ref=f1e333]: Kho lạnh 500 kWp bàn giao sau 6 tuần
+              - generic [ref=f1e334]: 📍 Tây Ninh · 500 kWp
+          - 'button "Phát video: Khách hàng chia sẻ Chủ trại heo kể chuyện tiền điện giảm một nửa 📍 Đồng Tháp · 80 kWp" [ref=f1e335] [cursor=pointer]':
+            - generic [ref=f1e337]: "Phát video:"
+            - generic [ref=f1e338]: Khách hàng chia sẻ
+            - generic [ref=f1e342]:
+              - generic [ref=f1e343]: Chủ trại heo kể chuyện tiền điện giảm một nửa
+              - generic [ref=f1e344]: 📍 Đồng Tháp · 80 kWp
+        - generic [ref=f1e345]:
+          - button "Xem video trước" [disabled] [ref=f1e346]
+          - button "Xem video tiếp theo" [ref=f1e349] [cursor=pointer]
+    - region [ref=f1e353]:
+      - generic [ref=f1e354]:
+        - generic [ref=f1e355]:
+          - generic [ref=f1e356]:
+            - generic [ref=f1e357]: Gói giải pháp
+            - heading "Chọn gói theo công trình, biết ngay tiền điện giảm bao nhiêu." [level=2] [ref=f1e360]
+          - group "Gói giải pháp" [ref=f1e361]:
+            - button "Hộ gia đình" [pressed] [ref=f1e362] [cursor=pointer]
+            - button "Cửa hàng" [ref=f1e365] [cursor=pointer]
+            - button "Nhà xưởng" [ref=f1e368] [cursor=pointer]
+            - button "Trang trại" [ref=f1e371] [cursor=pointer]
+        - generic [ref=f1e379]:
+          - article [ref=f1e380]:
+            - heading "Gói Tiết kiệm" [level=3] [ref=f1e382]
+            - generic [ref=f1e383]: 3kWp
+            - generic [ref=f1e384]:
+              - generic [ref=f1e385]: Giảm tiền điện
+              - generic [ref=f1e386]:
+                - text: ~1,2 triệu
+                - generic [ref=f1e387]: /tháng
+            - list [ref=f1e388]:
+              - listitem [ref=f1e389]: Tiền điện 1–1,5 triệu/tháng
+              - listitem [ref=f1e390]: 6 tấm pin 580W
+              - listitem [ref=f1e393]: Inverter hòa lưới 3 kW
+              - listitem [ref=f1e396]: Theo dõi qua app
+            - generic [ref=f1e399]:
+              - generic [ref=f1e400]:
+                - generic [ref=f1e401]: 36 triệu
+                - generic [ref=f1e402]:
+                  - generic [ref=f1e403]: Giá gốc
+                  - text: 39 triệu
+                - generic [ref=f1e404]: Giảm 8%
+              - button "Nhận tư vấn gói này" [ref=f1e405] [cursor=pointer]
+          - article [ref=f1e408]:
+            - generic [ref=f1e410]: Chọn nhiều
+            - heading "Gói Gia đình" [level=3] [ref=f1e411]
+            - generic [ref=f1e412]: 5,5kWp
+            - generic [ref=f1e413]:
+              - generic [ref=f1e414]: Giảm tiền điện
+              - generic [ref=f1e415]:
+                - text: ~2,3 triệu
+                - generic [ref=f1e416]: /tháng
+            - list [ref=f1e417]:
+              - listitem [ref=f1e418]: Tiền điện 2–3 triệu/tháng
+              - listitem [ref=f1e419]: 10 tấm pin 580W
+              - listitem [ref=f1e422]: Inverter hybrid 5 kW
+              - listitem [ref=f1e425]: Sẵn sàng gắn pin lưu trữ
+            - generic [ref=f1e428]:
+              - generic [ref=f1e429]: 66 triệu
+              - button "Nhận tư vấn gói này" [ref=f1e431] [cursor=pointer]
+          - article [ref=f1e434]:
+            - heading "Gói Hybrid" [level=3] [ref=f1e436]
+            - generic [ref=f1e437]: 8kWp
+            - generic [ref=f1e438]:
+              - generic [ref=f1e439]: Giảm tiền điện
+              - generic [ref=f1e440]:
+                - text: ~3,3 triệu
+                - generic [ref=f1e441]: /tháng
+            - list [ref=f1e442]:
+              - listitem [ref=f1e443]: Nhà phố, biệt thự 3–5 triệu/tháng
+              - listitem [ref=f1e444]: 14 tấm pin 580W
+              - listitem [ref=f1e447]: Pin lưu trữ LFP 10 kWh
+              - listitem [ref=f1e450]: Có điện khi mất điện lưới
+            - generic [ref=f1e453]:
+              - generic [ref=f1e454]:
+                - generic [ref=f1e455]: 125 triệu
+                - generic [ref=f1e456]:
+                  - generic [ref=f1e457]: Giá gốc
+                  - text: 128 triệu
+              - button "Nhận tư vấn gói này" [ref=f1e458] [cursor=pointer]
+          - article [ref=f1e461]:
+            - heading "Gói Biệt thự" [level=3] [ref=f1e463]
+            - generic [ref=f1e464]: 12kWp
+            - generic [ref=f1e465]:
+              - generic [ref=f1e466]: Giảm tiền điện
+              - generic [ref=f1e467]:
+                - text: ~5 triệu
+                - generic [ref=f1e468]: /tháng
+            - list [ref=f1e469]:
+              - listitem [ref=f1e470]: Tiền điện từ 5 triệu/tháng
+              - listitem [ref=f1e471]: 21 tấm pin 580W
+              - listitem [ref=f1e474]: Inverter 3 pha 12 kW
+              - listitem [ref=f1e477]: Sạc xe điện ban ngày
+            - generic [ref=f1e480]:
+              - generic [ref=f1e481]: Liên hệ
+              - button "Nhận tư vấn gói này" [ref=f1e482] [cursor=pointer]
+        - paragraph [ref=f1e485]: "* Tiết kiệm ước tính tại TP Hồ Chí Minh, giá trọn gói gồm thiết bị và thi công; báo giá chính thức sau khảo sát."
+    - region [ref=f1e487]:
+      - generic [ref=f1e488]:
+        - generic [ref=f1e489]:
+          - generic [ref=f1e490]: Dự toán miễn phí
+          - heading "Dự toán chi phí lắp đặt trong 30 giây." [level=2] [ref=f1e493]
+          - paragraph [ref=f1e494]: Nhập tiền điện và diện tích mái để biết công suất phù hợp, số tấm pin, tiền tiết kiệm mỗi tháng và thời gian hoàn vốn.
+        - generic [ref=f1e495]:
+          - generic [ref=f1e496]:
+            - generic [ref=f1e497]:
+              - group "Bạn lắp cho" [ref=f1e499]:
+                - generic [ref=f1e501]:
+                  - generic [ref=f1e502] [cursor=pointer]:
+                    - radio "Hộ gia đình" [checked] [ref=f1e503]
+                    - text: Hộ gia đình
+                  - generic [ref=f1e507] [cursor=pointer]:
+                    - radio "Cửa hàng" [ref=f1e508]
+                    - text: Cửa hàng
+                  - generic [ref=f1e512] [cursor=pointer]:
+                    - radio "Nhà xưởng" [ref=f1e513]
+                    - text: Nhà xưởng
+                  - generic [ref=f1e517] [cursor=pointer]:
+                    - radio "Trang trại" [ref=f1e518]
+                    - text: Trang trại
+              - generic [ref=f1e527]:
+                - generic [ref=f1e528]: Tiền điện trung bình mỗi tháng
+                - generic [ref=f1e529]:
+                  - textbox "Tiền điện trung bình mỗi tháng" [ref=f1e530]: 2.000.000
+                  - generic [aria-hidden]: đ
+                - slider "Kéo để chọn tiền điện mỗi tháng" [ref=f1e531]: "2000000"
+                - paragraph [ref=f1e532]:
+                  - text: ≈
+                  - strong [ref=f1e533]: 625 kWh
+                  - text: /tháng
+              - generic [ref=f1e535]:
+                - generic [ref=f1e536]: Diện tích mái (m²)
+                - textbox "Diện tích mái (m²)" [ref=f1e537]: "50"
+                - paragraph [ref=f1e538]: Lắp tối đa khoảng 9 kWp (5,5 m²/kWp).
+              - generic [ref=f1e540]:
+                - generic [ref=f1e541]: Tỉnh/thành
+                - combobox "Tỉnh/thành" [ref=f1e542]:
+                  - option "Hà Nội"
+                  - option "Hải Phòng"
+                  - option "Quảng Ninh"
+                  - option "Cao Bằng"
+                  - option "Lạng Sơn"
+                  - option "Lai Châu"
+                  - option "Điện Biên"
+                  - option "Sơn La"
+                  - option "Tuyên Quang"
+                  - option "Lào Cai"
+                  - option "Thái Nguyên"
+                  - option "Phú Thọ"
+                  - option "Bắc Ninh"
+                  - option "Hưng Yên"
+                  - option "Ninh Bình"
+                  - option "Thanh Hóa"
+                  - option "Nghệ An"
+                  - option "Hà Tĩnh"
+                  - option "Quảng Trị"
+                  - option "Huế"
+                  - option "Đà Nẵng"
+                  - option "Quảng Ngãi"
+                  - option "Khánh Hòa"
+                  - option "Gia Lai"
+                  - option "Đắk Lắk"
+                  - option "Lâm Đồng"
+                  - option "TP Hồ Chí Minh" [selected]
+                  - option "Đồng Nai"
+                  - option "Tây Ninh"
+                  - option "Cần Thơ"
+                  - option "Vĩnh Long"
+                  - option "Đồng Tháp"
+                  - option "Cà Mau"
+                  - option "An Giang"
+                - paragraph [ref=f1e543]: "Nam Bộ: ~4,6 giờ nắng/ngày."
+              - generic [ref=f1e545]:
+                - generic [ref=f1e546]:
+                  - text: "Điện dùng vào ban ngày:"
+                  - strong [ref=f1e547]: 40%
+                - 'slider "Điện dùng vào ban ngày: 40%" [ref=f1e548]': "40"
+                - generic [ref=f1e549]:
+                  - generic [ref=f1e550]: Chủ yếu buổi tối
+                  - generic [ref=f1e551]: Cả ngày
+            - list [ref=f1e552]:
+              - listitem [ref=f1e553]: Khảo sát tận nơi miễn phí
+              - listitem [ref=f1e558]: Báo giá chi tiết trong 24 giờ
+              - listitem [ref=f1e562]: Trả góp 0% / lắp 0 đồng (ESCO)
+          - generic [ref=f1e568]:
+            - generic [ref=f1e569]:
+              - heading "Kết quả sơ bộ" [level=3] [ref=f1e570]
+              - generic [ref=f1e571]: Hộ gia đình • TP Hồ Chí Minh
+            - generic [ref=f1e572]:
+              - generic [ref=f1e573]:
+                - generic [ref=f1e574]: Công suất
+                - generic [ref=f1e575]: 0 kWp
+              - generic [ref=f1e576]:
+                - generic [ref=f1e577]: Số tấm pin
+                - generic [ref=f1e578]: 0 tấm
+              - generic [ref=f1e579]:
+                - generic [ref=f1e580]: Tiết kiệm
+                - generic [ref=f1e581]:
+                  - text: ~0 đ
+                  - generic [ref=f1e582]: /tháng
+              - generic [ref=f1e583]:
+                - generic [ref=f1e584]: Hoàn vốn
+                - generic [ref=f1e585]: ~0 năm
+            - generic [ref=f1e586]:
+              - term [ref=f1e587]: Chi phí ước tính
+              - definition [ref=f1e588]: 30 triệu
+              - term [ref=f1e589]: Sản lượng/tháng
+              - definition [ref=f1e590]: 276 kWh
+            - paragraph [ref=f1e591]: Kết quả ước tính theo biểu giá và giờ nắng trung bình — chi phí thực tế xác định sau khảo sát.
+            - generic [ref=f1e592]:
+              - heading "Nhận báo giá chi tiết" [level=3] [ref=f1e593]
+              - paragraph [ref=f1e594]: Gửi kèm toàn bộ thông số trên — kỹ sư gọi lại tư vấn miễn phí.
+              - generic [ref=f1e595]:
+                - generic [ref=f1e596]:
+                  - text: Họ và tên *
+                  - textbox "Họ và tên *" [ref=f1e597]:
+                    - /placeholder: Nguyễn Văn A
+                - generic [ref=f1e598]:
+                  - text: Số điện thoại di động *
+                  - textbox "Số điện thoại di động *" [ref=f1e599]:
+                    - /placeholder: 09xx xxx xxx
+                - generic [ref=f1e600]:
+                  - text: Zalo
+                  - generic [ref=f1e601]: (tùy chọn)
+                  - textbox "Zalo (tùy chọn)" [ref=f1e602]:
+                    - /placeholder: Nếu khác số điện thoại
+                - generic [ref=f1e603]:
+                  - text: Địa chỉ lắp đặt
+                  - generic [ref=f1e604]: (tùy chọn)
+                  - textbox "Địa chỉ lắp đặt (tùy chọn)" [ref=f1e605]:
+                    - /placeholder: Phường/xã, tỉnh/thành
+                - generic [ref=f1e607]:
+                  - text: Website
+                  - textbox [ref=f1e608]
+                - button "Nhận báo giá chi tiết" [ref=f1e609] [cursor=pointer]
+                - paragraph [ref=f1e610]: Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.
+    - region [ref=f1e612]:
+      - generic [ref=f1e613]:
+        - generic [ref=f1e615]:
+          - generic [ref=f1e616]: Chứng chỉ & giấy phép
+          - heading "Năng lực được chứng nhận, minh bạch từng giấy tờ." [level=2] [ref=f1e617]
+        - generic [ref=f1e618]:
+          - button "Trước" [disabled] [ref=f1e619]
+          - button "Tiếp" [ref=f1e622] [cursor=pointer]
+        - generic "Danh sách chứng chỉ" [ref=f1e625]:
+          - article [ref=f1e626]:
+            - button "Xem ISO 9001:2015" [ref=f1e627] [cursor=pointer]:
+              - img "ISO 9001:2015" [ref=f1e629]
+              - generic [ref=f1e631]:
+                - generic [ref=f1e632]: ISO 9001:2015
+                - generic [ref=f1e633]: Hệ thống quản lý chất lượng
+            - generic [ref=f1e637]:
+              - generic [ref=f1e638]:
+                - term [ref=f1e639]: Cấp bởi
+                - definition [ref=f1e640]: Tổ chức chứng nhận Mẫu QA (hư cấu)
+              - generic [ref=f1e641]:
+                - term [ref=f1e642]: Số chứng chỉ
+                - definition [ref=f1e643]: QA-MẪU-9001
+              - generic [ref=f1e644]:
+                - term [ref=f1e645]: Hiệu lực
+                - definition [ref=f1e646]: 12/2027
+              - generic [ref=f1e647]:
+                - term [ref=f1e648]: Phạm vi
+                - definition [ref=f1e649]: Phân phối thiết bị điện mặt trời; tư vấn thiết kế, thi công lắp đặt hệ thống điện mặt trời.
+          - article [ref=f1e650]:
+            - button "Xem ISO 14001:2015" [ref=f1e651] [cursor=pointer]:
+              - img "ISO 14001:2015" [ref=f1e653]
+              - generic [ref=f1e655]:
+                - generic [ref=f1e656]: ISO 14001:2015
+                - generic [ref=f1e657]: Quản lý môi trường
+            - generic [ref=f1e661]:
+              - generic [ref=f1e662]:
+                - term [ref=f1e663]: Cấp bởi
+                - definition [ref=f1e664]: Tổ chức chứng nhận Mẫu QA (hư cấu)
+              - generic [ref=f1e665]:
+                - term [ref=f1e666]: Số chứng chỉ
+                - definition [ref=f1e667]: QA-MẪU-14001
+              - generic [ref=f1e668]:
+                - term [ref=f1e669]: Hiệu lực
+                - definition [ref=f1e670]: 12/2027
+              - generic [ref=f1e671]:
+                - term [ref=f1e672]: Phạm vi
+                - definition [ref=f1e673]: Hoạt động kho bãi, thi công và thu hồi vật tư tại các chi nhánh.
+          - article [ref=f1e674]:
+            - button "Xem ISO 45001:2018" [ref=f1e675] [cursor=pointer]:
+              - img "ISO 45001:2018" [ref=f1e677]
+              - generic [ref=f1e679]:
+                - generic [ref=f1e680]: ISO 45001:2018
+                - generic [ref=f1e681]: An toàn sức khỏe nghề nghiệp
+            - generic [ref=f1e685]:
+              - generic [ref=f1e686]:
+                - term [ref=f1e687]: Cấp bởi
+                - definition [ref=f1e688]: Tổ chức chứng nhận Mẫu QA (hư cấu)
+              - generic [ref=f1e689]:
+                - term [ref=f1e690]: Số chứng chỉ
+                - definition [ref=f1e691]: QA-MẪU-45001
+              - generic [ref=f1e692]:
+                - term [ref=f1e693]: Hiệu lực
+                - definition [ref=f1e694]: 06/2028
+              - generic [ref=f1e695]:
+                - term [ref=f1e696]: Phạm vi
+                - definition [ref=f1e697]: Thi công trên mái, làm việc trên cao và đấu nối điện.
+          - article [ref=f1e698]:
+            - button "Xem Chứng chỉ năng lực XD hạng II" [ref=f1e699] [cursor=pointer]:
+              - img "Chứng chỉ năng lực XD hạng II" [ref=f1e701]
+              - generic [ref=f1e703]:
+                - generic [ref=f1e704]: Chứng chỉ năng lực XD hạng II
+                - generic [ref=f1e705]: Thi công công trình năng lượng
+            - generic [ref=f1e709]:
+              - generic [ref=f1e710]:
+                - term [ref=f1e711]: Cấp bởi
+                - definition [ref=f1e712]: Sở Xây dựng (mẫu)
+              - generic [ref=f1e713]:
+                - term [ref=f1e714]: Số chứng chỉ
+                - definition [ref=f1e715]: MẪU-0001
+              - generic [ref=f1e716]:
+                - term [ref=f1e717]: Hiệu lực
+                - definition [ref=f1e718]: 03/2030
+              - generic [ref=f1e719]:
+                - term [ref=f1e720]: Phạm vi
+                - definition [ref=f1e721]: Thi công lắp đặt thiết bị công trình năng lượng; tư vấn giám sát.
+          - article [ref=f1e722]:
+            - button "Xem Giấy phép hoạt động điện lực" [ref=f1e723] [cursor=pointer]:
+              - img "Giấy phép hoạt động điện lực" [ref=f1e725]
+              - generic [ref=f1e727]:
+                - generic [ref=f1e728]: Giấy phép hoạt động điện lực
+                - generic [ref=f1e729]: Tư vấn thiết kế
+            - generic [ref=f1e733]:
+              - generic [ref=f1e734]:
+                - term [ref=f1e735]: Cấp bởi
+                - definition [ref=f1e736]: Cơ quan cấp phép (mẫu)
+              - generic [ref=f1e737]:
+                - term [ref=f1e738]: Số chứng chỉ
+                - definition [ref=f1e739]: MẪU-0002
+              - generic [ref=f1e740]:
+                - term [ref=f1e741]: Hiệu lực
+                - definition [ref=f1e742]: 09/2029
+              - generic [ref=f1e743]:
+                - term [ref=f1e744]: Phạm vi
+                - definition [ref=f1e745]: Tư vấn thiết kế công trình đường dây và trạm biến áp đến 35 kV.
+          - article [ref=f1e746]:
+            - button "Xem Nhà phân phối ủy quyền" [ref=f1e747] [cursor=pointer]:
+              - img "Nhà phân phối ủy quyền" [ref=f1e749]
+              - generic [ref=f1e751]:
+                - generic [ref=f1e752]: Nhà phân phối ủy quyền
+                - generic [ref=f1e753]: Helionyx · Voltaris · Litheon
+            - generic [ref=f1e757]:
+              - generic [ref=f1e758]:
+                - term [ref=f1e759]: Cấp bởi
+                - definition [ref=f1e760]: Các hãng thiết bị (hư cấu)
+              - generic [ref=f1e761]:
+                - term [ref=f1e762]: Số chứng chỉ
+                - definition [ref=f1e763]: AUTH-2026-VN
+              - generic [ref=f1e764]:
+                - term [ref=f1e765]: Hiệu lực
+                - definition [ref=f1e766]: 12/2026
+              - generic [ref=f1e767]:
+                - term [ref=f1e768]: Phạm vi
+                - definition [ref=f1e769]: Phân phối chính hãng tại Việt Nam, bảo hành trực tiếp qua Lumivolt.
+          - article [ref=f1e770]:
+            - button "Xem Đối tác lắp đặt được chứng nhận" [ref=f1e771] [cursor=pointer]:
+              - img "Đối tác lắp đặt được chứng nhận" [ref=f1e773]
+              - generic [ref=f1e775]:
+                - generic [ref=f1e776]: Đối tác lắp đặt được chứng nhận
+                - generic [ref=f1e777]: Inverter & pin lưu trữ
+            - generic [ref=f1e781]:
+              - generic [ref=f1e782]:
+                - term [ref=f1e783]: Cấp bởi
+                - definition [ref=f1e784]: Các hãng thiết bị (hư cấu)
+              - generic [ref=f1e785]:
+                - term [ref=f1e786]: Số chứng chỉ
+                - definition [ref=f1e787]: PV-MẪU-0315
+              - generic [ref=f1e788]:
+                - term [ref=f1e789]: Hiệu lực
+                - definition [ref=f1e790]: 06/2027
+              - generic [ref=f1e791]:
+                - term [ref=f1e792]: Phạm vi
+                - definition [ref=f1e793]: Lắp đặt, cấu hình và bảo hành inverter hybrid, pin lưu trữ.
+          - article [ref=f1e794]:
+            - button "Xem Chứng chỉ an toàn điện" [ref=f1e795] [cursor=pointer]:
+              - img "Chứng chỉ an toàn điện" [ref=f1e797]
+              - generic [ref=f1e799]:
+                - generic [ref=f1e800]: Chứng chỉ an toàn điện
+                - generic [ref=f1e801]: Cho kỹ thuật viên
+            - generic [ref=f1e805]:
+              - generic [ref=f1e806]:
+                - term [ref=f1e807]: Cấp bởi
+                - definition [ref=f1e808]: "[CẦN XÁC MINH]"
+              - generic [ref=f1e809]:
+                - term [ref=f1e810]: Số chứng chỉ
+                - definition [ref=f1e811]: ATĐ-MẪU-2026
+              - generic [ref=f1e812]:
+                - term [ref=f1e813]: Hiệu lực
+                - definition [ref=f1e814]: 12/2026
+              - generic [ref=f1e815]:
+                - term [ref=f1e816]: Phạm vi
+                - definition [ref=f1e817]: Toàn bộ kỹ thuật viên thi công và bảo trì.
+          - article [ref=f1e818]:
+            - button "Xem Đủ điều kiện thi công PCCC" [ref=f1e819] [cursor=pointer]:
+              - img "Đủ điều kiện thi công PCCC" [ref=f1e821]
+              - generic [ref=f1e823]:
+                - generic [ref=f1e824]: Đủ điều kiện thi công PCCC
+                - generic [ref=f1e825]: Hệ PV và BESS
+            - generic [ref=f1e829]:
+              - generic [ref=f1e830]:
+                - term [ref=f1e831]: Cấp bởi
+                - definition [ref=f1e832]: "[CẦN XÁC MINH]"
+              - generic [ref=f1e833]:
+                - term [ref=f1e834]: Số chứng chỉ
+                - definition [ref=f1e835]: PCCC-MẪU-07
+              - generic [ref=f1e836]:
+                - term [ref=f1e837]: Hiệu lực
+                - definition [ref=f1e838]: 08/2028
+              - generic [ref=f1e839]:
+                - term [ref=f1e840]: Phạm vi
+                - definition [ref=f1e841]: Thiết kế, thi công giải pháp PCCC cho hệ điện mặt trời và lưu trữ.
+    - region [ref=f1e843]:
+      - generic [ref=f1e844]:
+        - generic [ref=f1e846]:
+          - generic [ref=f1e847]: Thương hiệu phân phối
+          - heading "Nhà phân phối ủy quyền — hàng chính hãng, bảo hành tại Việt Nam." [level=2] [ref=f1e848]
+          - paragraph [ref=f1e849]: Ký kết trực tiếp với hãng, đủ chứng từ CO/CQ cho từng lô. Tên thương hiệu trong demo là hư cấu.
+        - generic [ref=f1e850]:
+          - 'button "Xem video: Lễ ký kết hợp tác phân phối 2026" [ref=f1e851] [cursor=pointer]':
+            - generic [ref=f1e857]:
+              - text: Lễ ký kết
+              - generic [ref=f1e858]: Lễ ký kết hợp tác phân phối 2026
+              - generic [ref=f1e859]: Lumivolt × Helionyx × Voltaris (hư cấu)
+          - generic [ref=f1e860]:
+            - generic [ref=f1e861]:
+              - img "Helionyx" [ref=f1e862]:
+                - generic [aria-hidden] [ref=f1e863]: H
+                - generic [aria-hidden] [ref=f1e864]: Helionyx
+              - generic [ref=f1e865]: Tấm pin
+            - generic [ref=f1e866]:
+              - img "Solvane" [ref=f1e867]:
+                - generic [aria-hidden] [ref=f1e868]: S
+                - generic [aria-hidden] [ref=f1e869]: Solvane
+              - generic [ref=f1e870]: Tấm pin
+            - generic [ref=f1e871]:
+              - img "Lumora" [ref=f1e872]:
+                - generic [aria-hidden] [ref=f1e873]: L
+                - generic [aria-hidden] [ref=f1e874]: Lumora
+              - generic [ref=f1e875]: Tấm pin
+            - generic [ref=f1e876]:
+              - img "Voltaris" [ref=f1e877]:
+                - generic [aria-hidden] [ref=f1e878]: V
+                - generic [aria-hidden] [ref=f1e879]: Voltaris
+              - generic [ref=f1e880]: Inverter
+            - generic [ref=f1e881]:
+              - img "Kinetra" [ref=f1e882]:
+                - generic [aria-hidden] [ref=f1e883]: K
+                - generic [aria-hidden] [ref=f1e884]: Kinetra
+              - generic [ref=f1e885]: Inverter
+            - generic [ref=f1e886]:
+              - img "Ohmora" [ref=f1e887]:
+                - generic [aria-hidden] [ref=f1e888]: O
+                - generic [aria-hidden] [ref=f1e889]: Ohmora
+              - generic [ref=f1e890]: Inverter
+            - generic [ref=f1e891]:
+              - img "Litheon" [ref=f1e892]:
+                - generic [aria-hidden] [ref=f1e893]: L
+                - generic [aria-hidden] [ref=f1e894]: Litheon
+              - generic [ref=f1e895]: Lithium
+            - generic [ref=f1e896]:
+              - img "Cellora" [ref=f1e897]:
+                - generic [aria-hidden] [ref=f1e898]: C
+                - generic [aria-hidden] [ref=f1e899]: Cellora
+              - generic [ref=f1e900]: Lithium
+            - generic [ref=f1e901]:
+              - img "Ferrovolt" [ref=f1e902]:
+                - generic [aria-hidden] [ref=f1e903]: F
+                - generic [aria-hidden] [ref=f1e904]: Ferrovolt
+              - generic [ref=f1e905]: BESS
+    - region [ref=f1e907]:
+      - generic [ref=f1e908]:
+        - generic [ref=f1e910]:
+          - generic [ref=f1e911]: Dự án tiêu biểu
+          - heading "Khách hàng thật, số liệu vận hành thật." [level=2] [ref=f1e912]
+        - tablist "Chọn khách hàng" [ref=f1e913]:
+          - tab "Dệt may Minh Phát (hư cấu) Dệt may" [selected] [ref=f1e914] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e915]: MP
+            - generic [ref=f1e916]:
+              - generic [ref=f1e917]: Dệt may Minh Phát (hư cấu)
+              - generic [ref=f1e918]: Dệt may
+          - tab "Kho lạnh An Khang Food (hư cấu) Kho lạnh" [ref=f1e919] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e920]: AK
+            - generic [ref=f1e921]:
+              - generic [ref=f1e922]: Kho lạnh An Khang Food (hư cấu)
+              - generic [ref=f1e923]: Kho lạnh
+          - tab "Resort Sông Hồng (hư cấu) Khách sạn" [ref=f1e924] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e925]: SH
+            - generic [ref=f1e926]:
+              - generic [ref=f1e927]: Resort Sông Hồng (hư cấu)
+              - generic [ref=f1e928]: Khách sạn
+          - tab "Trang trại Xanh Tây Nguyên (hư cấu) Nông nghiệp" [ref=f1e929] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e930]: XT
+            - generic [ref=f1e931]:
+              - generic [ref=f1e932]: Trang trại Xanh Tây Nguyên (hư cấu)
+              - generic [ref=f1e933]: Nông nghiệp
+        - tabpanel "Dệt may Minh Phát (hư cấu) Dệt may" [ref=f1e934]:
+          - 'button "Xem video dự án: Dệt may Minh Phát (hư cấu)" [ref=f1e935] [cursor=pointer]':
+            - img "Dệt may Minh Phát (hư cấu)" [ref=f1e936]
+            - generic [ref=f1e938]: Bình Dương (cũ) – TP. HCM
+          - generic [ref=f1e945]:
+            - generic [ref=f1e946]: Dệt may
+            - heading "Dệt may Minh Phát (hư cấu)" [level=3] [ref=f1e947]
+            - paragraph [ref=f1e948]: Nhà máy dệt 3 ca, tải nền lớn ban ngày. Hệ áp mái 1,2 MWp kết hợp BESS 500 kWh để cắt đỉnh giờ cao điểm; thi công theo phân khu, không dừng dây chuyền.
+            - generic [ref=f1e949]:
+              - generic [ref=f1e950]:
+                - term [ref=f1e951]: Công suất · kWp
+                - definition [ref=f1e952]: "1.200"
+              - generic [ref=f1e953]:
+                - term [ref=f1e954]: Sản lượng · kWh/năm
+                - definition [ref=f1e955]: 1.650.000
+              - generic [ref=f1e956]:
+                - term [ref=f1e957]: Tiết kiệm · tỷ VNĐ/năm
+                - definition [ref=f1e958]: 3,1
+              - generic [ref=f1e959]:
+                - term [ref=f1e960]: Giảm CO₂ · tấn/năm
+                - definition [ref=f1e961]: "1.120"
+            - link "Dự toán công trình tương tự" [ref=f1e962] [cursor=pointer]:
+              - /url: "?phan-khuc=factory&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+D%E1%BB%87t+may+Minh+Ph%C3%A1t+%28h%C6%B0+c%E1%BA%A5u%29&nguon=story-cta#du-toan"
+        - tabpanel "Kho lạnh An Khang Food (hư cấu) Kho lạnh" [ref=f1e965]:
+          - 'button "Xem video dự án: Kho lạnh An Khang Food (hư cấu)" [ref=f1e966] [cursor=pointer]':
+            - img "Kho lạnh An Khang Food (hư cấu)" [ref=f1e967]
+            - generic [ref=f1e969]: Long An (cũ) – Tây Ninh
+          - generic [ref=f1e976]:
+            - generic [ref=f1e977]: Kho lạnh
+            - heading "Kho lạnh An Khang Food (hư cấu)" [level=3] [ref=f1e978]
+            - paragraph [ref=f1e979]: Tải lạnh chạy 24/7. Hệ 620 kWp tự dùng ~95%, giám sát theo từng string, vệ sinh định kỳ hằng quý.
+            - generic [ref=f1e980]:
+              - generic [ref=f1e981]:
+                - term [ref=f1e982]: Công suất · kWp
+                - definition [ref=f1e983]: "620"
+              - generic [ref=f1e984]:
+                - term [ref=f1e985]: Sản lượng · kWh/năm
+                - definition [ref=f1e986]: "860.000"
+              - generic [ref=f1e987]:
+                - term [ref=f1e988]: Tiết kiệm · tỷ VNĐ/năm
+                - definition [ref=f1e989]: 1,64
+              - generic [ref=f1e990]:
+                - term [ref=f1e991]: Giảm CO₂ · tấn/năm
+                - definition [ref=f1e992]: "580"
+            - link "Dự toán công trình tương tự" [ref=f1e993] [cursor=pointer]:
+              - /url: "?phan-khuc=factory&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Kho+l%E1%BA%A1nh+An+Khang+Food+%28h%C6%B0+c%E1%BA%A5u%29&nguon=story-cta#du-toan"
+        - tabpanel "Resort Sông Hồng (hư cấu) Khách sạn" [ref=f1e996]:
+          - 'button "Xem video dự án: Resort Sông Hồng (hư cấu)" [ref=f1e997] [cursor=pointer]':
+            - img "Resort Sông Hồng (hư cấu)" [ref=f1e998]
+            - generic [ref=f1e1000]: Hà Nội
+          - generic [ref=f1e1007]:
+            - generic [ref=f1e1008]: Khách sạn
+            - heading "Resort Sông Hồng (hư cấu)" [level=3] [ref=f1e1009]
+            - paragraph [ref=f1e1010]: Khu nghỉ dưỡng 120 phòng. Hệ hybrid 250 kWp + lưu trữ 215 kWh giữ điện cho bơm nhiệt, hồ bơi và chiếu sáng khi mất lưới.
+            - generic [ref=f1e1011]:
+              - generic [ref=f1e1012]:
+                - term [ref=f1e1013]: Công suất · kWp
+                - definition [ref=f1e1014]: "250"
+              - generic [ref=f1e1015]:
+                - term [ref=f1e1016]: Sản lượng · kWh/năm
+                - definition [ref=f1e1017]: "290.000"
+              - generic [ref=f1e1018]:
+                - term [ref=f1e1019]: Tiết kiệm · triệu VNĐ/năm
+                - definition [ref=f1e1020]: "820"
+              - generic [ref=f1e1021]:
+                - term [ref=f1e1022]: Giảm CO₂ · tấn/năm
+                - definition [ref=f1e1023]: "195"
+            - link "Dự toán công trình tương tự" [ref=f1e1024] [cursor=pointer]:
+              - /url: "?phan-khuc=shop&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Resort+S%C3%B4ng+H%E1%BB%93ng+%28h%C6%B0+c%E1%BA%A5u%29&nguon=story-cta#du-toan"
+        - tabpanel "Trang trại Xanh Tây Nguyên (hư cấu) Nông nghiệp" [ref=f1e1027]:
+          - 'button "Xem video dự án: Trang trại Xanh Tây Nguyên (hư cấu)" [ref=f1e1028] [cursor=pointer]':
+            - img "Trang trại Xanh Tây Nguyên (hư cấu)" [ref=f1e1029]
+            - generic [ref=f1e1031]: Đắk Lắk
+          - generic [ref=f1e1038]:
+            - generic [ref=f1e1039]: Nông nghiệp
+            - heading "Trang trại Xanh Tây Nguyên (hư cấu)" [level=3] [ref=f1e1040]
+            - paragraph [ref=f1e1041]: Tưới cà phê bằng bơm năng lượng mặt trời và hệ 320 kWp áp mái kho sấy, giảm chi phí dầu diesel cho máy phát.
+            - generic [ref=f1e1042]:
+              - generic [ref=f1e1043]:
+                - term [ref=f1e1044]: Công suất · kWp
+                - definition [ref=f1e1045]: "320"
+              - generic [ref=f1e1046]:
+                - term [ref=f1e1047]: Sản lượng · kWh/năm
+                - definition [ref=f1e1048]: "470.000"
+              - generic [ref=f1e1049]:
+                - term [ref=f1e1050]: Tiết kiệm · triệu VNĐ/năm
+                - definition [ref=f1e1051]: "960"
+              - generic [ref=f1e1052]:
+                - term [ref=f1e1053]: Giảm CO₂ · tấn/năm
+                - definition [ref=f1e1054]: "315"
+            - link "Dự toán công trình tương tự" [ref=f1e1055] [cursor=pointer]:
+              - /url: "?phan-khuc=farm&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Trang+tr%E1%BA%A1i+Xanh+T%C3%A2y+Nguy%C3%AAn+%28h%C6%B0+c%E1%BA%A5u%29&nguon=story-cta#du-toan"
+    - region [ref=f1e1059]:
+      - generic [ref=f1e1060]:
+        - generic [ref=f1e1062]:
+          - generic [ref=f1e1063]: Công trình đã thực hiện
+          - heading "Hơn 12.500 khách hàng đã dùng điện từ nắng." [level=2] [ref=f1e1064]
+        - group "Lọc công trình theo phân khúc" [ref=f1e1065]:
+          - button "Tất cả" [pressed] [ref=f1e1066] [cursor=pointer]
+          - button "Hộ gia đình" [ref=f1e1067] [cursor=pointer]
+          - button "Cửa hàng" [ref=f1e1068] [cursor=pointer]
+          - button "Nhà xưởng" [ref=f1e1069] [cursor=pointer]
+          - button "Trang trại" [ref=f1e1070] [cursor=pointer]
+        - generic [ref=f1e1071]:
+          - article [ref=f1e1072]:
+            - generic [ref=f1e1073]:
+              - img "Nhà phố 3 tầng Bình Thạnh" [ref=f1e1074]
+              - generic [ref=f1e1075]: 6 kWp
+              - 'button "Xem video công trình: Nhà phố 3 tầng Bình Thạnh" [ref=f1e1076] [cursor=pointer]'
+            - generic [ref=f1e1079]:
+              - generic [ref=f1e1080]: Hộ gia đình
+              - heading [level=3] [ref=f1e1081]:
+                - link "Nhà phố 3 tầng Bình Thạnh" [ref=f1e1082] [cursor=pointer]:
+                  - /url: /cong-trinh/nha-pho-binh-thanh
+              - generic [ref=f1e1083]: TP Hồ Chí Minh
+              - generic [ref=f1e1087]:
+                - generic [ref=f1e1088]: Tiết kiệm/tháng
+                - generic [ref=f1e1089]: ~1,6 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1090] [cursor=pointer]:
+                - /url: "?phan-khuc=household&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Nh%C3%A0+ph%E1%BB%91+3+t%E1%BA%A7ng+B%C3%ACnh+Th%E1%BA%A1nh&nguon=story-cta#du-toan"
+          - article [ref=f1e1091]:
+            - generic [ref=f1e1092]:
+              - img "Biệt thự hybrid Đà Lạt" [ref=f1e1093]
+              - generic [ref=f1e1094]: 10 kWp
+              - 'button "Xem video công trình: Biệt thự hybrid Đà Lạt" [ref=f1e1095] [cursor=pointer]'
+            - generic [ref=f1e1098]:
+              - generic [ref=f1e1099]: Hộ gia đình
+              - heading [level=3] [ref=f1e1100]:
+                - link "Biệt thự hybrid Đà Lạt" [ref=f1e1101] [cursor=pointer]:
+                  - /url: /cong-trinh/biet-thu-da-lat
+              - generic [ref=f1e1102]: Lâm Đồng
+              - generic [ref=f1e1106]:
+                - generic [ref=f1e1107]: Tiết kiệm/tháng
+                - generic [ref=f1e1108]: ~2,3 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1109] [cursor=pointer]:
+                - /url: "?phan-khuc=household&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Bi%E1%BB%87t+th%E1%BB%B1+hybrid+%C4%90%C3%A0+L%E1%BA%A1t&nguon=story-cta#du-toan"
+          - article [ref=f1e1110]:
+            - generic [ref=f1e1111]:
+              - img "Siêu thị mini Ninh Kiều" [ref=f1e1112]
+              - generic [ref=f1e1113]: 15 kWp
+              - 'button "Xem video công trình: Siêu thị mini Ninh Kiều" [ref=f1e1114] [cursor=pointer]'
+            - generic [ref=f1e1117]:
+              - generic [ref=f1e1118]: Cửa hàng
+              - heading [level=3] [ref=f1e1119]:
+                - link "Siêu thị mini Ninh Kiều" [ref=f1e1120] [cursor=pointer]:
+                  - /url: /cong-trinh/sieu-thi-mini-can-tho
+              - generic [ref=f1e1121]: Cần Thơ
+              - generic [ref=f1e1125]:
+                - generic [ref=f1e1126]: Tiết kiệm/tháng
+                - generic [ref=f1e1127]: ~4,8 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1128] [cursor=pointer]:
+                - /url: "?phan-khuc=shop&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Si%C3%AAu+th%E1%BB%8B+mini+Ninh+Ki%E1%BB%81u&nguon=story-cta#du-toan"
+          - article [ref=f1e1129]:
+            - generic [ref=f1e1130]:
+              - img "Chuỗi cà phê 3 chi nhánh" [ref=f1e1131]
+              - generic [ref=f1e1132]: 30 kWp
+              - 'button "Xem video công trình: Chuỗi cà phê 3 chi nhánh" [ref=f1e1133] [cursor=pointer]'
+            - generic [ref=f1e1136]:
+              - generic [ref=f1e1137]: Cửa hàng
+              - heading [level=3] [ref=f1e1138]:
+                - link "Chuỗi cà phê 3 chi nhánh" [ref=f1e1139] [cursor=pointer]:
+                  - /url: /cong-trinh/chuoi-cafe-da-nang
+              - generic [ref=f1e1140]: Đà Nẵng
+              - generic [ref=f1e1144]:
+                - generic [ref=f1e1145]: Tiết kiệm/tháng
+                - generic [ref=f1e1146]: ~9,2 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1147] [cursor=pointer]:
+                - /url: "?phan-khuc=shop&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Chu%E1%BB%97i+c%C3%A0+ph%C3%AA+3+chi+nh%C3%A1nh&nguon=story-cta#du-toan"
+          - article [ref=f1e1148]:
+            - generic [ref=f1e1149]:
+              - img "Xưởng cơ khí Biên Hòa" [ref=f1e1150]
+              - generic [ref=f1e1151]: 250 kWp
+              - 'button "Xem video công trình: Xưởng cơ khí Biên Hòa" [ref=f1e1152] [cursor=pointer]'
+            - generic [ref=f1e1155]:
+              - generic [ref=f1e1156]: Nhà xưởng
+              - heading [level=3] [ref=f1e1157]:
+                - link "Xưởng cơ khí Biên Hòa" [ref=f1e1158] [cursor=pointer]:
+                  - /url: /cong-trinh/xuong-co-khi-dong-nai
+              - generic [ref=f1e1159]: Đồng Nai
+              - generic [ref=f1e1163]:
+                - generic [ref=f1e1164]: Tiết kiệm/tháng
+                - generic [ref=f1e1165]: ~52 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1166] [cursor=pointer]:
+                - /url: "?phan-khuc=factory&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+X%C6%B0%E1%BB%9Fng+c%C6%A1+kh%C3%AD+Bi%C3%AAn+H%C3%B2a&nguon=story-cta#du-toan"
+          - article [ref=f1e1167]:
+            - generic [ref=f1e1168]:
+              - img "Kho lạnh nông sản" [ref=f1e1169]
+              - generic [ref=f1e1170]: 500 kWp
+              - 'button "Xem video công trình: Kho lạnh nông sản" [ref=f1e1171] [cursor=pointer]'
+            - generic [ref=f1e1174]:
+              - generic [ref=f1e1175]: Nhà xưởng
+              - heading [level=3] [ref=f1e1176]:
+                - link "Kho lạnh nông sản" [ref=f1e1177] [cursor=pointer]:
+                  - /url: /cong-trinh/kho-lanh-tay-ninh
+              - generic [ref=f1e1178]: Tây Ninh
+              - generic [ref=f1e1182]:
+                - generic [ref=f1e1183]: Tiết kiệm/tháng
+                - generic [ref=f1e1184]: ~98 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1185] [cursor=pointer]:
+                - /url: "?phan-khuc=factory&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Kho+l%E1%BA%A1nh+n%C3%B4ng+s%E1%BA%A3n&nguon=story-cta#du-toan"
+          - article [ref=f1e1186]:
+            - generic [ref=f1e1187]:
+              - img "Trại gà đẻ 40.000 con" [ref=f1e1188]
+              - generic [ref=f1e1189]: 120 kWp
+              - 'button "Xem video công trình: Trại gà đẻ 40.000 con" [ref=f1e1190] [cursor=pointer]'
+            - generic [ref=f1e1193]:
+              - generic [ref=f1e1194]: Trang trại
+              - heading [level=3] [ref=f1e1195]:
+                - link "Trại gà đẻ 40.000 con" [ref=f1e1196] [cursor=pointer]:
+                  - /url: /cong-trinh/trai-ga-tay-ninh
+              - generic [ref=f1e1197]: Tây Ninh
+              - generic [ref=f1e1201]:
+                - generic [ref=f1e1202]: Tiết kiệm/tháng
+                - generic [ref=f1e1203]: ~26 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1204] [cursor=pointer]:
+                - /url: "?phan-khuc=farm&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Tr%E1%BA%A1i+g%C3%A0+%C4%91%E1%BA%BB+40.000+con&nguon=story-cta#du-toan"
+          - article [ref=f1e1205]:
+            - generic [ref=f1e1206]:
+              - img "Trang trại heo Cao Lãnh" [ref=f1e1207]
+              - generic [ref=f1e1208]: 80 kWp
+              - 'button "Xem video công trình: Trang trại heo Cao Lãnh" [ref=f1e1209] [cursor=pointer]'
+            - generic [ref=f1e1212]:
+              - generic [ref=f1e1213]: Trang trại
+              - heading [level=3] [ref=f1e1214]:
+                - link "Trang trại heo Cao Lãnh" [ref=f1e1215] [cursor=pointer]:
+                  - /url: /cong-trinh/trai-heo-dong-thap
+              - generic [ref=f1e1216]: Đồng Tháp
+              - generic [ref=f1e1220]:
+                - generic [ref=f1e1221]: Tiết kiệm/tháng
+                - generic [ref=f1e1222]: ~17,5 triệu
+              - link "Nhận báo giá công trình tương tự" [ref=f1e1223] [cursor=pointer]:
+                - /url: "?phan-khuc=farm&nhu-cau=C%C3%B4ng+tr%C3%ACnh+t%C6%B0%C6%A1ng+t%E1%BB%B1%3A+Trang+tr%E1%BA%A1i+heo+Cao+L%C3%A3nh&nguon=story-cta#du-toan"
+    - region [ref=f1e1225]:
+      - generic [ref=f1e1226]:
+        - generic [ref=f1e1228]:
+          - generic [ref=f1e1229]: Giải pháp điện mặt trời
+          - heading "Thiết kế theo cách bạn dùng điện." [level=2] [ref=f1e1230]
+        - tablist "Giải pháp" [ref=f1e1231]:
+          - tab "Hộ gia đình" [selected] [ref=f1e1232] [cursor=pointer]
+          - tab "Doanh nghiệp" [ref=f1e1233] [cursor=pointer]
+          - tab "Nhà xưởng" [ref=f1e1234] [cursor=pointer]
+          - tab "Nông nghiệp" [ref=f1e1235] [cursor=pointer]
+        - generic [ref=f1e1236]:
+          - generic [ref=f1e1237]:
+            - tabpanel "Hộ gia đình" [ref=f1e1238]:
+              - img "Hộ gia đình" [ref=f1e1239]
+              - generic [ref=f1e1241]:
+                - heading "Hộ gia đình" [level=3] [ref=f1e1242]
+                - list [ref=f1e1243]:
+                  - listitem [ref=f1e1244]: Hòa lưới hoặc hybrid có lưu trữ
+                  - listitem [ref=f1e1247]: Theo dõi sản lượng trên điện thoại
+                  - listitem [ref=f1e1250]: Trả góp 0% qua đối tác (mẫu)
+                - link "Dự toán cho phân khúc này" [ref=f1e1253] [cursor=pointer]:
+                  - /url: /?phan-khuc=household#du-toan
+            - tabpanel "Doanh nghiệp" [ref=f1e1254]:
+              - img "Doanh nghiệp" [ref=f1e1255]
+              - generic [ref=f1e1257]:
+                - heading "Doanh nghiệp" [level=3] [ref=f1e1258]
+                - list [ref=f1e1259]:
+                  - listitem [ref=f1e1260]: Giờ kinh doanh trùng giờ nắng
+                  - listitem [ref=f1e1263]: Báo cáo tiết kiệm hằng tháng
+                  - listitem [ref=f1e1266]: Thi công ngoài giờ, không gián đoạn
+                - link "Dự toán cho phân khúc này" [ref=f1e1269] [cursor=pointer]:
+                  - /url: /?phan-khuc=shop#du-toan
+            - tabpanel "Nhà xưởng" [ref=f1e1270]:
+              - img "Nhà xưởng" [ref=f1e1271]
+              - generic [ref=f1e1273]:
+                - heading "Nhà xưởng" [level=3] [ref=f1e1274]
+                - list [ref=f1e1275]:
+                  - listitem [ref=f1e1276]: EPC trọn gói từ hồ sơ tới đấu nối
+                  - listitem [ref=f1e1279]: BESS cắt đỉnh, dự phòng tải
+                  - listitem [ref=f1e1282]: Mô hình ESCO 0 đồng (mẫu)
+                - link "Dự toán cho phân khúc này" [ref=f1e1285] [cursor=pointer]:
+                  - /url: /?phan-khuc=factory#du-toan
+            - tabpanel "Nông nghiệp" [ref=f1e1286]:
+              - img "Nông nghiệp" [ref=f1e1287]
+              - generic [ref=f1e1289]:
+                - heading "Nông nghiệp" [level=3] [ref=f1e1290]
+                - list [ref=f1e1291]:
+                  - listitem [ref=f1e1292]: Bơm nước năng lượng mặt trời
+                  - listitem [ref=f1e1295]: Khung chống ăn mòn chuồng trại
+                  - listitem [ref=f1e1298]: Thay thế máy phát diesel
+                - link "Dự toán cho phân khúc này" [ref=f1e1301] [cursor=pointer]:
+                  - /url: /?phan-khuc=farm#du-toan
+          - generic [ref=f1e1302]:
+            - generic [ref=f1e1303]:
+              - heading "Video công trình thực tế" [level=3] [ref=f1e1304]
+              - generic [ref=f1e1305]:
+                - button "Trước" [disabled] [ref=f1e1306]
+                - button "Tiếp" [ref=f1e1309] [cursor=pointer]
+            - generic [ref=f1e1312]:
+              - 'button "Phát video: Thi công 1,2 MWp nhà máy dệt" [ref=f1e1313] [cursor=pointer]':
+                - generic [ref=f1e1318]:
+                  - generic [ref=f1e1319]: Thi công 1,2 MWp nhà máy dệt
+                  - generic [ref=f1e1320]: TP. HCM
+              - 'button "Phát video: Lắp BESS 500 kWh ngoài trời" [ref=f1e1321] [cursor=pointer]':
+                - generic [ref=f1e1326]:
+                  - generic [ref=f1e1327]: Lắp BESS 500 kWh ngoài trời
+                  - generic [ref=f1e1328]: TP. HCM
+              - 'button "Phát video: Nhà phố hybrid 10 kWp" [ref=f1e1329] [cursor=pointer]':
+                - generic [ref=f1e1334]:
+                  - generic [ref=f1e1335]: Nhà phố hybrid 10 kWp
+                  - generic [ref=f1e1336]: Hà Nội
+              - 'button "Phát video: Bơm tưới cà phê 7,5 HP" [ref=f1e1337] [cursor=pointer]':
+                - generic [ref=f1e1342]:
+                  - generic [ref=f1e1343]: Bơm tưới cà phê 7,5 HP
+                  - generic [ref=f1e1344]: Đắk Lắk
+              - 'button "Phát video: Kho lạnh 620 kWp bàn giao" [ref=f1e1345] [cursor=pointer]':
+                - generic [ref=f1e1350]:
+                  - generic [ref=f1e1351]: Kho lạnh 620 kWp bàn giao
+                  - generic [ref=f1e1352]: Tây Ninh
+    - region [ref=f1e1354]:
+      - generic [ref=f1e1355]:
+        - generic [ref=f1e1356]:
+          - generic [ref=f1e1357]:
+            - generic [ref=f1e1358]: Cửa hàng thiết bị
+            - heading "Thiết bị & sản phẩm năng lượng mặt trời chính hãng." [level=2] [ref=f1e1359]
+            - paragraph [ref=f1e1360]: Thêm vào giỏ yêu cầu báo giá — chúng tôi gọi lại báo giá và tư vấn lắp đặt.
+          - link "Xem tất cả" [ref=f1e1362] [cursor=pointer]:
+            - /url: /san-pham
+        - generic [ref=f1e1364]:
+          - button "Trước" [disabled] [ref=f1e1365]
+          - button "Tiếp" [ref=f1e1368] [cursor=pointer]
+        - generic [ref=f1e1371]:
+          - article [ref=f1e1372]:
+            - link [ref=f1e1373] [cursor=pointer]:
+              - /url: /san-pham/helionyx-nova-n-590w
+              - img "Tấm pin Nova N-type 590W" [ref=f1e1374]
+            - generic [ref=f1e1375]:
+              - generic [ref=f1e1376]: Tấm pin · Helionyx
+              - heading [level=3] [ref=f1e1377]:
+                - link "Tấm pin Nova N-type 590W" [ref=f1e1378] [cursor=pointer]:
+                  - /url: /san-pham/helionyx-nova-n-590w
+              - generic [ref=f1e1380]:
+                - generic [ref=f1e1381]: 3.150.000 ₫
+                - generic [ref=f1e1382]:
+                  - generic [ref=f1e1383]: Giá gốc
+                  - text: 3.450.000 ₫
+                - generic [ref=f1e1384]: Giảm 9%
+              - 'button "Xem nhanh : Tấm pin Nova N-type 590W" [ref=f1e1385] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1386]: ": Tấm pin Nova N-type 590W"
+              - generic [ref=f1e1387]:
+                - button "Thêm báo giá" [ref=f1e1388] [cursor=pointer]
+                - status [ref=f1e1391]
+          - article [ref=f1e1392]:
+            - link [ref=f1e1393] [cursor=pointer]:
+              - /url: /san-pham/voltaris-vg-5k
+              - img "Inverter hòa lưới VG-5K 1 pha" [ref=f1e1394]
+            - generic [ref=f1e1395]:
+              - generic [ref=f1e1396]: Inverter · Voltaris
+              - heading [level=3] [ref=f1e1397]:
+                - link "Inverter hòa lưới VG-5K 1 pha" [ref=f1e1398] [cursor=pointer]:
+                  - /url: /san-pham/voltaris-vg-5k
+              - generic [ref=f1e1399]: 16.900.000 ₫
+              - 'button "Xem nhanh : Inverter hòa lưới VG-5K 1 pha" [ref=f1e1402] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1403]: ": Inverter hòa lưới VG-5K 1 pha"
+              - generic [ref=f1e1404]:
+                - button "Thêm báo giá" [ref=f1e1405] [cursor=pointer]
+                - status [ref=f1e1408]
+          - article [ref=f1e1409]:
+            - link [ref=f1e1410] [cursor=pointer]:
+              - /url: /san-pham/voltaris-vh-10k
+              - img "Inverter hybrid VH-10K 3 pha" [ref=f1e1411]
+            - generic [ref=f1e1412]:
+              - generic [ref=f1e1413]: Inverter · Voltaris
+              - heading [level=3] [ref=f1e1414]:
+                - link "Inverter hybrid VH-10K 3 pha" [ref=f1e1415] [cursor=pointer]:
+                  - /url: /san-pham/voltaris-vh-10k
+              - generic [ref=f1e1417]:
+                - generic [ref=f1e1418]: 39.900.000 ₫
+                - generic [ref=f1e1419]:
+                  - generic [ref=f1e1420]: Giá gốc
+                  - text: 42.500.000 ₫
+                - generic [ref=f1e1421]: Giảm 6%
+              - 'button "Xem nhanh : Inverter hybrid VH-10K 3 pha" [ref=f1e1422] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1423]: ": Inverter hybrid VH-10K 3 pha"
+              - generic [ref=f1e1424]:
+                - button "Thêm báo giá" [ref=f1e1425] [cursor=pointer]
+                - status [ref=f1e1428]
+          - article [ref=f1e1429]:
+            - link [ref=f1e1430] [cursor=pointer]:
+              - /url: /san-pham/cellora-wall-5
+              - img "Pin lưu trữ PowerWall LFP 5 kWh" [ref=f1e1431]
+            - generic [ref=f1e1432]:
+              - generic [ref=f1e1433]: Pin lưu trữ · Cellora
+              - heading [level=3] [ref=f1e1434]:
+                - link "Pin lưu trữ PowerWall LFP 5 kWh" [ref=f1e1435] [cursor=pointer]:
+                  - /url: /san-pham/cellora-wall-5
+              - generic [ref=f1e1437]:
+                - generic [ref=f1e1438]: 29.500.000 ₫
+                - generic [ref=f1e1439]:
+                  - generic [ref=f1e1440]: Giá gốc
+                  - text: 32.000.000 ₫
+                - generic [ref=f1e1441]: Giảm 8%
+              - 'button "Xem nhanh : Pin lưu trữ PowerWall LFP 5 kWh" [ref=f1e1442] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1443]: ": Pin lưu trữ PowerWall LFP 5 kWh"
+              - generic [ref=f1e1444]:
+                - button "Thêm báo giá" [ref=f1e1445] [cursor=pointer]
+                - status [ref=f1e1448]
+          - article [ref=f1e1449]:
+            - link [ref=f1e1450] [cursor=pointer]:
+              - /url: /san-pham/den-pha-100w
+              - img "Đèn pha năng lượng mặt trời 100W" [ref=f1e1451]
+            - generic [ref=f1e1452]:
+              - generic [ref=f1e1453]: Đèn năng lượng mặt trời · Lumivolt Light
+              - heading [level=3] [ref=f1e1454]:
+                - link "Đèn pha năng lượng mặt trời 100W" [ref=f1e1455] [cursor=pointer]:
+                  - /url: /san-pham/den-pha-100w
+              - generic [ref=f1e1457]:
+                - generic [ref=f1e1458]: 520.000 ₫
+                - generic [ref=f1e1459]:
+                  - generic [ref=f1e1460]: Giá gốc
+                  - text: 650.000 ₫
+                - generic [ref=f1e1461]: Giảm 20%
+              - 'button "Xem nhanh : Đèn pha năng lượng mặt trời 100W" [ref=f1e1462] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1463]: ": Đèn pha năng lượng mặt trời 100W"
+              - generic [ref=f1e1464]:
+                - button "Thêm báo giá" [ref=f1e1465] [cursor=pointer]
+                - status [ref=f1e1468]
+          - article [ref=f1e1469]:
+            - link [ref=f1e1470] [cursor=pointer]:
+              - /url: /san-pham/den-pha-300w
+              - img "Đèn pha năng lượng mặt trời 300W" [ref=f1e1471]
+            - generic [ref=f1e1472]:
+              - generic [ref=f1e1473]: Đèn năng lượng mặt trời · Lumivolt Light
+              - heading [level=3] [ref=f1e1474]:
+                - link "Đèn pha năng lượng mặt trời 300W" [ref=f1e1475] [cursor=pointer]:
+                  - /url: /san-pham/den-pha-300w
+              - generic [ref=f1e1477]:
+                - generic [ref=f1e1478]: 1.190.000 ₫
+                - generic [ref=f1e1479]:
+                  - generic [ref=f1e1480]: Giá gốc
+                  - text: 1.250.000 ₫
+                - generic [ref=f1e1481]: Giảm 5%
+              - 'button "Xem nhanh : Đèn pha năng lượng mặt trời 300W" [ref=f1e1482] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1483]: ": Đèn pha năng lượng mặt trời 300W"
+              - generic [ref=f1e1484]:
+                - button "Thêm báo giá" [ref=f1e1485] [cursor=pointer]
+                - status [ref=f1e1488]
+          - article [ref=f1e1489]:
+            - link [ref=f1e1490] [cursor=pointer]:
+              - /url: /san-pham/den-duong-200w
+              - img "Đèn đường liền thể 200W" [ref=f1e1491]
+            - generic [ref=f1e1492]:
+              - generic [ref=f1e1493]: Đèn năng lượng mặt trời · Lumivolt Light
+              - heading [level=3] [ref=f1e1494]:
+                - link "Đèn đường liền thể 200W" [ref=f1e1495] [cursor=pointer]:
+                  - /url: /san-pham/den-duong-200w
+              - generic [ref=f1e1496]: 1.850.000 ₫
+              - 'button "Xem nhanh : Đèn đường liền thể 200W" [ref=f1e1499] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1500]: ": Đèn đường liền thể 200W"
+              - generic [ref=f1e1501]:
+                - button "Thêm báo giá" [ref=f1e1502] [cursor=pointer]
+                - status [ref=f1e1505]
+          - article [ref=f1e1506]:
+            - link [ref=f1e1507] [cursor=pointer]:
+              - /url: /san-pham/connecta-mc4-kit
+              - img "Bộ cáp DC 4 mm² + đầu nối MC4" [ref=f1e1508]
+            - generic [ref=f1e1509]:
+              - generic [ref=f1e1510]: Phụ kiện · Connecta
+              - heading [level=3] [ref=f1e1511]:
+                - link "Bộ cáp DC 4 mm² + đầu nối MC4" [ref=f1e1512] [cursor=pointer]:
+                  - /url: /san-pham/connecta-mc4-kit
+              - generic [ref=f1e1513]: 390.000 ₫
+              - 'button "Xem nhanh : Bộ cáp DC 4 mm² + đầu nối MC4" [ref=f1e1516] [cursor=pointer]':
+                - text: Xem nhanh
+                - generic [ref=f1e1517]: ": Bộ cáp DC 4 mm² + đầu nối MC4"
+              - generic [ref=f1e1518]:
+                - button "Thêm báo giá" [ref=f1e1519] [cursor=pointer]
+                - status [ref=f1e1522]
+    - region [ref=f1e1524]:
+      - generic [ref=f1e1525]:
+        - generic [ref=f1e1526]: Số liệu nổi bật
+        - heading "Năng lực triển khai" [level=2] [ref=f1e1527]
+        - generic [ref=f1e1528]:
+          - generic [ref=f1e1529]:
+            - term [ref=f1e1530]: Năm kinh nghiệm
+            - definition [ref=f1e1531]: 14+
+          - generic [ref=f1e1532]:
+            - term [ref=f1e1533]: Đã cung cấp & lắp đặt
+            - definition [ref=f1e1534]: 186,4 MWp
+          - generic [ref=f1e1535]:
+            - term [ref=f1e1536]: Công trình
+            - definition [ref=f1e1537]: 4.200+
+          - generic [ref=f1e1538]:
+            - term [ref=f1e1539]: Kỹ sư & kỹ thuật viên
+            - definition [ref=f1e1540]: 85+
+    - region [ref=f1e1542]:
+      - generic [ref=f1e1543]:
+        - generic [ref=f1e1545]:
+          - generic [ref=f1e1546]: Báo chí & truyền hình
+          - heading "Truyền thông nói về chúng tôi." [level=2] [ref=f1e1547]
+        - list [ref=f1e1548]:
+          - listitem [ref=f1e1549]:
+            - img "Nhật báo Mặt Trời" [ref=f1e1550]:
+              - generic [aria-hidden] [ref=f1e1551]: NMT
+              - generic [aria-hidden] [ref=f1e1552]: Nhật báo Mặt Trời
+          - listitem [ref=f1e1553]:
+            - img "Tạp chí Năng Lượng Mẫu" [ref=f1e1554]:
+              - generic [aria-hidden] [ref=f1e1555]: NLM
+              - generic [aria-hidden] [ref=f1e1556]: Tạp chí Năng Lượng Mẫu
+          - listitem [ref=f1e1557]:
+            - img "Kênh Kinh Tế Xanh TV" [ref=f1e1558]:
+              - generic [aria-hidden] [ref=f1e1559]: KTX
+              - generic [aria-hidden] [ref=f1e1560]: Kênh Kinh Tế Xanh TV
+          - listitem [ref=f1e1561]:
+            - img "Bản tin Công Nghiệp Số" [ref=f1e1562]:
+              - generic [aria-hidden] [ref=f1e1563]: CNS
+              - generic [aria-hidden] [ref=f1e1564]: Bản tin Công Nghiệp Số
+          - listitem [ref=f1e1565]:
+            - img "Đài Truyền hình Mẫu" [ref=f1e1566]:
+              - generic [aria-hidden] [ref=f1e1567]: PTM
+              - generic [aria-hidden] [ref=f1e1568]: Đài Truyền hình Mẫu
+          - listitem [ref=f1e1569]:
+            - img "Doanh Nhân Việt Mẫu" [ref=f1e1570]:
+              - generic [aria-hidden] [ref=f1e1571]: DNV
+              - generic [aria-hidden] [ref=f1e1572]: Doanh Nhân Việt Mẫu
+        - generic [ref=f1e1573]:
+          - article [ref=f1e1574]:
+            - generic [ref=f1e1575]:
+              - img "Nhật báo Mặt Trời" [ref=f1e1576]:
+                - generic [aria-hidden] [ref=f1e1577]: NMT
+                - generic [aria-hidden] [ref=f1e1578]: Nhật báo Mặt Trời
+              - time [ref=f1e1579]: 18/09/2026
+            - heading "Lumivolt khánh thành hệ BESS 500 kWh cho nhà máy dệt" [level=3] [ref=f1e1580]
+            - paragraph [ref=f1e1581]: Hệ lưu trữ giúp nhà máy cắt đỉnh phụ tải giờ cao điểm, giảm khoảng 12% chi phí điện hằng tháng.
+            - link "Đọc bài gốc ↗" [ref=f1e1582] [cursor=pointer]:
+              - /url: https://example.com/bai-viet-1
+          - article [ref=f1e1583]:
+            - generic [ref=f1e1584]:
+              - img "Kênh Kinh Tế Xanh TV" [ref=f1e1585]:
+                - generic [aria-hidden] [ref=f1e1586]: KTX
+                - generic [aria-hidden] [ref=f1e1587]: Kênh Kinh Tế Xanh TV
+              - time [ref=f1e1588]: 02/08/2026
+            - 'heading "Phóng sự: Một ngày cùng đội kỹ sư lắp điện mặt trời áp mái" [level=3] [ref=f1e1589]'
+            - paragraph [ref=f1e1590]: Từ khảo sát kết cấu đến nghiệm thu chống dột — quy trình 5 bước được ghi lại trên công trường.
+            - link "Đọc bài gốc ↗" [ref=f1e1591] [cursor=pointer]:
+              - /url: https://example.com/bai-viet-2
+          - article [ref=f1e1592]:
+            - generic [ref=f1e1593]:
+              - img "Tạp chí Năng Lượng Mẫu" [ref=f1e1594]:
+                - generic [aria-hidden] [ref=f1e1595]: NLM
+                - generic [aria-hidden] [ref=f1e1596]: Tạp chí Năng Lượng Mẫu
+              - time [ref=f1e1597]: 21/06/2026
+            - heading "Nhà phân phối nội địa và bài toán chứng từ CO, CQ" [level=3] [ref=f1e1598]
+            - paragraph [ref=f1e1599]: Minh bạch nguồn gốc thiết bị trở thành tiêu chí đầu tiên khi doanh nghiệp chọn tổng thầu EPC.
+            - link "Đọc bài gốc ↗" [ref=f1e1600] [cursor=pointer]:
+              - /url: https://example.com/bai-viet-3
+          - article [ref=f1e1601]:
+            - generic [ref=f1e1602]:
+              - img "Bản tin Công Nghiệp Số" [ref=f1e1603]:
+                - generic [aria-hidden] [ref=f1e1604]: CNS
+                - generic [aria-hidden] [ref=f1e1605]: Bản tin Công Nghiệp Số
+              - time [ref=f1e1606]: 10/04/2026
+            - 'heading "Mô hình đại lý điện mặt trời cấp tỉnh: cơ hội và rủi ro" [level=3] [ref=f1e1607]'
+            - paragraph [ref=f1e1608]: Hơn 300 đại lý trong hệ thống được đào tạo kỹ thuật và hỗ trợ bảo hành trực tiếp.
+            - link "Đọc bài gốc ↗" [ref=f1e1609] [cursor=pointer]:
+              - /url: https://example.com/bai-viet-4
+          - article [ref=f1e1610]:
+            - generic [ref=f1e1611]:
+              - img "Đài Truyền hình Mẫu" [ref=f1e1612]:
+                - generic [aria-hidden] [ref=f1e1613]: PTM
+                - generic [aria-hidden] [ref=f1e1614]: Đài Truyền hình Mẫu
+              - time [ref=f1e1615]: 15/02/2026
+            - heading "Bơm nước năng lượng mặt trời giúp nông dân Tây Nguyên giảm chi phí" [level=3] [ref=f1e1616]
+            - paragraph [ref=f1e1617]: Hệ bơm 7,5 HP thay thế máy dầu, hoàn vốn sau khoảng 3 mùa tưới.
+            - link "Đọc bài gốc ↗" [ref=f1e1618] [cursor=pointer]:
+              - /url: https://example.com/bai-viet-5
+    - region [ref=f1e1620]:
+      - generic [ref=f1e1622]:
+        - generic [ref=f1e1623]:
+          - generic [ref=f1e1624]: Theo dõi điện năng 24/7
+          - heading "Toàn bộ dòng điện của bạn, gọn trong lòng bàn tay." [level=2] [ref=f1e1626]
+          - paragraph [ref=f1e1627]: Mỗi hệ thống được bàn giao kèm ứng dụng giám sát. Xem điện năng sinh ra, tiêu thụ và lưu trữ theo thời gian thực.
+          - generic [ref=f1e1628]:
+            - generic [ref=f1e1629]:
+              - generic [ref=f1e1633]: 186 kW
+              - generic [ref=f1e1634]: Sản xuất
+            - generic [ref=f1e1635]:
+              - generic [ref=f1e1639]: 172 kW
+              - generic [ref=f1e1640]: Tiêu thụ
+            - generic [ref=f1e1641]:
+              - generic [ref=f1e1645]: 86 %
+              - generic [ref=f1e1646]: Lưu trữ
+          - list [ref=f1e1647]:
+            - listitem [ref=f1e1648]:
+              - generic [ref=f1e1652]: Cảnh báo tức thì khi sản lượng bất thường
+            - listitem [ref=f1e1653]:
+              - generic [ref=f1e1657]: Báo cáo tiết kiệm theo ngày, tháng, năm
+            - listitem [ref=f1e1658]:
+              - generic [ref=f1e1662]: Chia sẻ quyền xem cho nhiều thành viên
+            - listitem [ref=f1e1663]:
+              - generic [ref=f1e1667]: Ứng dụng iOS, Android và trình duyệt web
+        - img "Toàn bộ dòng điện của bạn, gọn trong lòng bàn tay." [ref=f1e1673]:
+          - generic [ref=f1e1680]:
+            - generic [ref=f1e1682]:
+              - generic [ref=f1e1683]: 9:41
+              - generic [ref=f1e1684]: ●●● ▮
+            - generic [ref=f1e1685]:
+              - generic [ref=f1e1686]:
+                - generic [ref=f1e1687]:
+                  - generic [ref=f1e1688]: Xin chào,
+                  - generic [ref=f1e1689]: Hệ thống của bạn
+                - generic [ref=f1e1690]: Trực tuyến
+              - generic [ref=f1e1694]:
+                - generic [ref=f1e1695]: Sản xuất
+                - generic [ref=f1e1696]: 186 kW
+              - generic [ref=f1e1700]:
+                - generic [ref=f1e1701]:
+                  - generic [ref=f1e1705]: 186 kW
+                  - generic [ref=f1e1706]: Sản xuất
+                - generic [ref=f1e1707]:
+                  - generic [ref=f1e1711]: 172 kW
+                  - generic [ref=f1e1712]: Tiêu thụ
+                - generic [ref=f1e1713]:
+                  - generic [ref=f1e1717]: 86 %
+                  - generic [ref=f1e1718]: Lưu trữ
+              - generic [ref=f1e1719]:
+                - generic [ref=f1e1720]:
+                  - generic [ref=f1e1721]: Sản xuất / Tiêu thụ
+                  - generic [ref=f1e1722]: 24h
+                - generic [ref=f1e1727]:
+                  - generic [ref=f1e1728]: Sản xuất
+                  - generic [ref=f1e1730]: Tiêu thụ
+    - region [ref=f1e1742]:
+      - generic [ref=f1e1743]:
+        - generic [ref=f1e1744]:
+          - generic [ref=f1e1745]:
+            - generic [ref=f1e1746]: Khách hàng nói gì
+            - heading "Niềm tin đến từ những hóa đơn điện thật." [level=2] [ref=f1e1747]
+          - link "4.9/5 4.9/5 · 1.280 Google" [ref=f1e1750] [cursor=pointer]:
+            - /url: https://www.google.com/maps
+            - img "4.9/5" [ref=f1e1751]
+            - generic [ref=f1e1762]: 4.9/5 · 1.280 Google
+        - generic [ref=f1e1765]:
+          - figure "Anh Minh Tuấn (mẫu) Hộ gia đình Thủ Đức, TP HCM 6 kWp" [ref=f1e1766]:
+            - generic [aria-hidden] [ref=f1e1767]: “
+            - img "5/5" [ref=f1e1768]
+            - blockquote [ref=f1e1779]: “Tiền điện từ 2,4 triệu còn khoảng 800 nghìn. Đội thợ lắp gọn trong một ngày, dọn sạch sẽ, mái không bị dột.”
+            - generic [ref=f1e1780]:
+              - generic [ref=f1e1781]: Anh Minh Tuấn (mẫu)
+              - generic [ref=f1e1782]:
+                - generic [ref=f1e1783]: Hộ gia đình
+                - generic [ref=f1e1786]: Thủ Đức, TP HCM
+                - generic [ref=f1e1790]: 6 kWp
+          - figure "Chị Thu Hà (mẫu) Cửa hàng Ninh Kiều, Cần Thơ 15 kWp" [ref=f1e1791]:
+            - generic [aria-hidden] [ref=f1e1792]: “
+            - img "5/5" [ref=f1e1793]
+            - blockquote [ref=f1e1804]: “Tủ mát, máy lạnh chạy cả ngày mà hóa đơn giảm gần một nửa. Ba cửa hàng theo dõi chung trên một app rất tiện.”
+            - generic [ref=f1e1805]:
+              - generic [ref=f1e1806]: Chị Thu Hà (mẫu)
+              - generic [ref=f1e1807]:
+                - generic [ref=f1e1808]: Cửa hàng
+                - generic [ref=f1e1811]: Ninh Kiều, Cần Thơ
+                - generic [ref=f1e1815]: 15 kWp
+          - figure "Anh Văn Hùng (mẫu) Trang trại Tân Châu, Tây Ninh 120 kWp" [ref=f1e1816]:
+            - generic [aria-hidden] [ref=f1e1817]: “
+            - img "5/5" [ref=f1e1818]
+            - blockquote [ref=f1e1829]: “Trại gà 40.000 con, quạt hút chạy suốt. Có pin lưu trữ nên cúp điện vẫn yên tâm.”
+            - generic [ref=f1e1830]:
+              - generic [ref=f1e1831]: Anh Văn Hùng (mẫu)
+              - generic [ref=f1e1832]:
+                - generic [ref=f1e1833]: Trang trại
+                - generic [ref=f1e1840]: Tân Châu, Tây Ninh
+                - generic [ref=f1e1844]: 120 kWp
+          - figure "Chị Ngọc Lan (mẫu) Nhà xưởng Biên Hòa, Đồng Nai 250 kWp" [ref=f1e1845]:
+            - generic [aria-hidden] [ref=f1e1846]: “
+            - img "4.8/5" [ref=f1e1847]
+            - blockquote [ref=f1e1858]: “Kỹ sư giải thích ROI và phương án thi công theo ca rất rõ. Xưởng không phải dừng máy ngày nào, hồ sơ đấu nối được lo trọn.”
+            - generic [ref=f1e1859]:
+              - generic [ref=f1e1860]: Chị Ngọc Lan (mẫu)
+              - generic [ref=f1e1861]:
+                - generic [ref=f1e1862]: Nhà xưởng
+                - generic [ref=f1e1865]: Biên Hòa, Đồng Nai
+                - generic [ref=f1e1869]: 250 kWp
+    - region [ref=f1e1871]:
+      - generic [ref=f1e1872]:
+        - generic [ref=f1e1873]:
+          - generic [ref=f1e1874]:
+            - generic [ref=f1e1875]: TikTok
+            - heading "Thi công thực tế mỗi ngày." [level=2] [ref=f1e1876]
+          - link "@lumivolt.demo" [ref=f1e1878] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@lumivolt.demo
+        - generic [ref=f1e1882]:
+          - button "Trước" [disabled] [ref=f1e1883]
+          - button "Tiếp" [ref=f1e1886] [cursor=pointer]
+        - generic [ref=f1e1889]:
+          - 'button "Phát video: Lắp 6 kWp nhà phố trong 1 ngày — @lumivolt.demo" [ref=f1e1890] [cursor=pointer]':
+            - generic [ref=f1e1892]: TikTok
+            - generic [ref=f1e1898]:
+              - generic [ref=f1e1899]: "@lumivolt.demo"
+              - generic [ref=f1e1900]: Lắp 6 kWp nhà phố trong 1 ngày
+          - 'button "Phát video: Kiểm tra string bằng camera nhiệt — @kysu.nang" [ref=f1e1901] [cursor=pointer]':
+            - generic [ref=f1e1903]: TikTok
+            - generic [ref=f1e1909]:
+              - generic [ref=f1e1910]: "@kysu.nang"
+              - generic [ref=f1e1911]: Kiểm tra string bằng camera nhiệt
+          - 'button "Phát video: Cửa hàng giảm 40% tiền điện — @lumivolt.demo" [ref=f1e1912] [cursor=pointer]':
+            - generic [ref=f1e1914]: TikTok
+            - generic [ref=f1e1920]:
+              - generic [ref=f1e1921]: "@lumivolt.demo"
+              - generic [ref=f1e1922]: Cửa hàng giảm 40% tiền điện
+          - 'button "Phát video: Trại gà chạy quạt hút bằng nắng — @daily.mientay" [ref=f1e1923] [cursor=pointer]':
+            - generic [ref=f1e1925]: TikTok
+            - generic [ref=f1e1931]:
+              - generic [ref=f1e1932]: "@daily.mientay"
+              - generic [ref=f1e1933]: Trại gà chạy quạt hút bằng nắng
+          - 'button "Phát video: Hybrid có điện khi mất lưới — @lumivolt.demo" [ref=f1e1934] [cursor=pointer]':
+            - generic [ref=f1e1936]: TikTok
+            - generic [ref=f1e1942]:
+              - generic [ref=f1e1943]: "@lumivolt.demo"
+              - generic [ref=f1e1944]: Hybrid có điện khi mất lưới
+          - 'button "Phát video: Kho lạnh 500 kWp bàn giao — @kysu.nang" [ref=f1e1945] [cursor=pointer]':
+            - generic [ref=f1e1947]: TikTok
+            - generic [ref=f1e1953]:
+              - generic [ref=f1e1954]: "@kysu.nang"
+              - generic [ref=f1e1955]: Kho lạnh 500 kWp bàn giao
+    - region [ref=f1e1957]:
+      - generic [ref=f1e1958]:
+        - generic [ref=f1e1960]:
+          - generic [ref=f1e1961]: Trở thành đại lý
+          - heading "Cùng phân phối điện mặt trời tại địa phương của bạn." [level=2] [ref=f1e1962]
+          - paragraph [ref=f1e1963]: Hàng chính hãng, đủ chứng từ, đào tạo kỹ thuật và bảo hành tại chi nhánh gần nhất.
+        - generic [ref=f1e1964]:
+          - generic [ref=f1e1965]:
+            - term [ref=f1e1966]: Đại lý toàn quốc
+            - definition [ref=f1e1967]: 320+
+          - generic [ref=f1e1968]:
+            - term [ref=f1e1969]: Tỉnh/thành phủ sóng
+            - definition [ref=f1e1970]: "34"
+          - generic [ref=f1e1971]:
+            - term [ref=f1e1972]: Chiết khấu tối đa
+            - definition [ref=f1e1973]: 18%
+        - generic [ref=f1e1974]:
+          - generic [ref=f1e1975]:
+            - tablist "Thông tin đại lý" [ref=f1e1976]:
+              - tab "Chính sách" [selected] [ref=f1e1977] [cursor=pointer]
+              - tab "Hỏi đáp" [ref=f1e1978] [cursor=pointer]
+            - tabpanel "Chính sách" [ref=f1e1979]:
+              - list [ref=f1e1980]:
+                - listitem [ref=f1e1981]:
+                  - generic [ref=f1e1984]:
+                    - heading "Chiết khấu theo bậc doanh số" [level=3] [ref=f1e1985]
+                    - paragraph [ref=f1e1986]: Từ 8% đến 18% theo doanh số quý; thưởng thêm khi đạt mục tiêu năm. [DỮ LIỆU MẪU]
+                - listitem [ref=f1e1987]:
+                  - generic [ref=f1e1990]:
+                    - heading "Hàng chính hãng, đủ chứng từ" [level=3] [ref=f1e1991]
+                    - paragraph [ref=f1e1992]: Mọi lô hàng có hóa đơn VAT, CO, CQ; hỗ trợ hồ sơ nghiệm thu cho công trình của đại lý.
+                - listitem [ref=f1e1993]:
+                  - generic [ref=f1e1996]:
+                    - heading "Đào tạo kỹ thuật miễn phí" [level=3] [ref=f1e1997]
+                    - paragraph [ref=f1e1998]: Khóa thiết kế, lắp đặt, cấu hình inverter/pin lưu trữ định kỳ tại 5 chi nhánh.
+                - listitem [ref=f1e1999]:
+                  - generic [ref=f1e2002]:
+                    - heading "Bảo hành 1 đổi 1 tại chi nhánh" [level=3] [ref=f1e2003]
+                    - paragraph [ref=f1e2004]: Đại lý gửi bảo hành trực tiếp tại kho gần nhất, không phải gửi về hãng.
+                - listitem [ref=f1e2005]:
+                  - generic [ref=f1e2008]:
+                    - heading "Hỗ trợ marketing" [level=3] [ref=f1e2009]
+                    - paragraph [ref=f1e2010]: Biển hiệu, catalogue, nội dung mạng xã hội và lead khách hàng theo khu vực.
+            - tabpanel "Hỏi đáp" [ref=f1e2011]:
+              - generic [ref=f1e2012]:
+                - group [ref=f1e2013]:
+                  - generic "Điều kiện trở thành đại lý là gì?" [ref=f1e2014] [cursor=pointer]
+                - group [ref=f1e2015]:
+                  - generic "Có cần ký quỹ không?" [ref=f1e2016] [cursor=pointer]
+                - group [ref=f1e2017]:
+                  - generic "Thời gian giao hàng bao lâu?" [ref=f1e2018] [cursor=pointer]
+                - group [ref=f1e2019]:
+                  - generic "Đại lý có được hỗ trợ thi công dự án lớn?" [ref=f1e2020] [cursor=pointer]
+          - generic [ref=f1e2021]:
+            - generic [ref=f1e2022]:
+              - heading "Hoạt động & sự kiện" [level=3] [ref=f1e2023]
+              - generic [ref=f1e2024]:
+                - button "Trước" [disabled] [ref=f1e2025]
+                - button "Tiếp" [ref=f1e2028] [cursor=pointer]
+            - generic [ref=f1e2031]:
+              - figure "Hội nghị đại lý 2026" [ref=f1e2032]:
+                - img "Hội nghị đại lý 2026" [ref=f1e2033]
+              - figure "Đào tạo kỹ thuật inverter hybrid" [ref=f1e2036]:
+                - img "Đào tạo kỹ thuật inverter hybrid" [ref=f1e2037]
+              - figure "Tham quan nhà máy đối tác" [ref=f1e2040]:
+                - img "Tham quan nhà máy đối tác" [ref=f1e2041]
+              - figure "Khai trương đại lý Tây Nguyên" [ref=f1e2044]:
+                - img "Khai trương đại lý Tây Nguyên" [ref=f1e2045]
+              - figure "Workshop BESS cho nhà xưởng" [ref=f1e2048]:
+                - img "Workshop BESS cho nhà xưởng" [ref=f1e2049]
+        - generic [ref=f1e2052]:
+          - generic [ref=f1e2053]:
+            - heading "Đăng ký làm đại lý" [level=3] [ref=f1e2054]
+            - paragraph [ref=f1e2055]: Để lại thông tin — phòng kinh doanh khu vực gửi chính sách chi tiết và bảng giá đại lý.
+          - generic [ref=f1e2056]:
+            - generic [ref=f1e2057]:
+              - text: Họ và tên *
+              - textbox "Họ và tên *" [ref=f1e2058]
+            - generic [ref=f1e2059]:
+              - text: Số điện thoại *
+              - textbox "Số điện thoại *" [ref=f1e2060]
+            - generic [ref=f1e2061]:
+              - text: Tỉnh/thành *
+              - combobox "Tỉnh/thành *" [ref=f1e2062]:
+                - option "Chọn tỉnh/thành" [disabled] [selected]
+                - option "Hà Nội"
+                - option "Hải Phòng"
+                - option "Quảng Ninh"
+                - option "Cao Bằng"
+                - option "Lạng Sơn"
+                - option "Lai Châu"
+                - option "Điện Biên"
+                - option "Sơn La"
+                - option "Tuyên Quang"
+                - option "Lào Cai"
+                - option "Thái Nguyên"
+                - option "Phú Thọ"
+                - option "Bắc Ninh"
+                - option "Hưng Yên"
+                - option "Ninh Bình"
+                - option "Thanh Hóa"
+                - option "Nghệ An"
+                - option "Hà Tĩnh"
+                - option "Quảng Trị"
+                - option "Huế"
+                - option "Đà Nẵng"
+                - option "Quảng Ngãi"
+                - option "Khánh Hòa"
+                - option "Gia Lai"
+                - option "Đắk Lắk"
+                - option "Lâm Đồng"
+                - option "TP Hồ Chí Minh"
+                - option "Đồng Nai"
+                - option "Tây Ninh"
+                - option "Cần Thơ"
+                - option "Vĩnh Long"
+                - option "Đồng Tháp"
+                - option "Cà Mau"
+                - option "An Giang"
+            - generic [ref=f1e2063]:
+              - text: Loại hình kinh doanh *
+              - combobox "Loại hình kinh doanh *" [ref=f1e2064]:
+                - option "Chọn loại hình" [disabled] [selected]
+                - option "Cửa hàng điện / vật tư"
+                - option "Đội thi công lắp đặt"
+                - option "Công ty xây dựng / M&E"
+                - option "Cá nhân giới thiệu khách"
+                - option "Khác"
+            - generic [ref=f1e2066]:
+              - text: Website
+              - textbox [ref=f1e2067]
+            - button "Đăng ký làm đại lý" [ref=f1e2068] [cursor=pointer]
+    - region [ref=f1e2070]:
+      - generic [ref=f1e2071]:
+        - generic [ref=f1e2073]:
+          - generic [ref=f1e2074]: Hệ thống chi nhánh
+          - heading "5 chi nhánh — kho hàng sẵn, kỹ sư gần bạn." [level=2] [ref=f1e2075]
+          - paragraph [ref=f1e2076]: Bấm vào ghim trên bản đồ để xem địa chỉ văn phòng, kho và hotline.
+        - generic [ref=f1e2077]:
+          - generic [ref=f1e2079]:
+            - img "Bản đồ Việt Nam, quần đảo Hoàng Sa và Trường Sa" [ref=f1e2080]:
+              - generic [ref=f1e2081]: BIỂN ĐÔNG
+              - generic [ref=f1e2087]:
+                - generic [ref=f1e2095]: Q.Đ. Hoàng Sa
+                - generic [ref=f1e2096]: (Việt Nam)
+              - generic [ref=f1e2097]:
+                - generic [ref=f1e2108]: Q.Đ. Trường Sa
+                - generic [ref=f1e2109]: (Việt Nam)
+            - button "Chi nhánh TP. Hồ Chí Minh" [pressed] [ref=f1e2110] [cursor=pointer]:
+              - generic [ref=f1e2115]: TP. Hồ Chí Minh
+            - button "Chi nhánh Hà Nội" [ref=f1e2116] [cursor=pointer]
+            - button "Chi nhánh Đà Nẵng" [ref=f1e2121] [cursor=pointer]
+            - button "Chi nhánh Đắk Lắk" [ref=f1e2126] [cursor=pointer]
+            - button "Chi nhánh Cần Thơ" [ref=f1e2131] [cursor=pointer]
+          - generic [ref=f1e2136]:
+            - group "Chọn chi nhánh" [ref=f1e2137]:
+              - button "TP. Hồ Chí Minh" [pressed] [ref=f1e2138] [cursor=pointer]
+              - button "Hà Nội" [ref=f1e2139] [cursor=pointer]
+              - button "Đà Nẵng" [ref=f1e2140] [cursor=pointer]
+              - button "Đắk Lắk" [ref=f1e2141] [cursor=pointer]
+              - button "Cần Thơ" [ref=f1e2142] [cursor=pointer]
+            - generic [ref=f1e2143]:
+              - article [ref=f1e2144]:
+                - heading "Chi nhánh TP. Hồ Chí Minh" [level=3] [ref=f1e2145]
+                - generic [ref=f1e2146]:
+                  - generic [ref=f1e2147]:
+                    - term [ref=f1e2148]: Văn phòng
+                    - definition [ref=f1e2149]: Tầng 9, Tòa nhà Mẫu 268, đường Số 1, P. Mẫu, TP. Hồ Chí Minh [HƯ CẤU]
+                    - definition [ref=f1e2150]:
+                      - link "Google Maps ↗" [ref=f1e2151] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=10.7865%2C106.699
+                  - generic [ref=f1e2152]:
+                    - term [ref=f1e2153]: Kho hàng
+                    - definition [ref=f1e2154]: Kho K3, KCN Mẫu Tây Bắc, TP. Hồ Chí Minh [HƯ CẤU]
+                    - definition [ref=f1e2155]:
+                      - link "Google Maps ↗" [ref=f1e2156] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=10.871%2C106.605
+                  - generic [ref=f1e2157]:
+                    - term [ref=f1e2158]: Giờ làm việc
+                    - definition [ref=f1e2159]: Mo-Sa 08:00-17:30
+                  - generic [ref=f1e2160]:
+                    - term [ref=f1e2161]: Hotline
+                    - definition [ref=f1e2162]:
+                      - link "0901 234 500" [ref=f1e2163] [cursor=pointer]:
+                        - /url: tel:0901234500
+                - generic [ref=f1e2164]:
+                  - link "Chỉ đường" [ref=f1e2165] [cursor=pointer]:
+                    - /url: https://www.google.com/maps/dir/?api=1&destination=10.7865%2C106.699
+                  - link "Zalo" [ref=f1e2169] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234500
+              - article [ref=f1e2173]:
+                - heading "Chi nhánh Hà Nội" [level=3] [ref=f1e2174]
+                - generic [ref=f1e2175]:
+                  - generic [ref=f1e2176]:
+                    - term [ref=f1e2177]: Văn phòng
+                    - definition [ref=f1e2178]: Tầng 6, Tòa nhà Mẫu 88, phố Mẫu, Hà Nội [HƯ CẤU]
+                    - definition [ref=f1e2179]:
+                      - link "Google Maps ↗" [ref=f1e2180] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=21.03%2C105.8
+                  - generic [ref=f1e2181]:
+                    - term [ref=f1e2182]: Kho hàng
+                    - definition [ref=f1e2183]: Kho B2, Cụm công nghiệp Mẫu, Hà Nội [HƯ CẤU]
+                    - definition [ref=f1e2184]:
+                      - link "Google Maps ↗" [ref=f1e2185] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=21.09%2C105.91
+                  - generic [ref=f1e2186]:
+                    - term [ref=f1e2187]: Giờ làm việc
+                    - definition [ref=f1e2188]: Mo-Sa 08:00-17:30
+                  - generic [ref=f1e2189]:
+                    - term [ref=f1e2190]: Hotline
+                    - definition [ref=f1e2191]:
+                      - link "0901 234 520" [ref=f1e2192] [cursor=pointer]:
+                        - /url: tel:0901234520
+                - generic [ref=f1e2193]:
+                  - link "Chỉ đường" [ref=f1e2194] [cursor=pointer]:
+                    - /url: https://www.google.com/maps/dir/?api=1&destination=21.03%2C105.8
+                  - link "Zalo" [ref=f1e2198] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234520
+              - article [ref=f1e2202]:
+                - heading "Chi nhánh Đà Nẵng" [level=3] [ref=f1e2203]
+                - generic [ref=f1e2204]:
+                  - generic [ref=f1e2205]:
+                    - term [ref=f1e2206]: Văn phòng
+                    - definition [ref=f1e2207]: 56 Đường Mẫu D, Đà Nẵng [HƯ CẤU]
+                    - definition [ref=f1e2208]:
+                      - link "Google Maps ↗" [ref=f1e2209] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=16.06%2C108.21
+                  - generic [ref=f1e2210]:
+                    - term [ref=f1e2211]: Kho hàng
+                    - definition [ref=f1e2212]: Kho C1, KCN Mẫu Hòa Khánh, Đà Nẵng [HƯ CẤU]
+                    - definition [ref=f1e2213]:
+                      - link "Google Maps ↗" [ref=f1e2214] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=16.075%2C108.14
+                  - generic [ref=f1e2215]:
+                    - term [ref=f1e2216]: Giờ làm việc
+                    - definition [ref=f1e2217]: Mo-Sa 08:00-17:30
+                  - generic [ref=f1e2218]:
+                    - term [ref=f1e2219]: Hotline
+                    - definition [ref=f1e2220]:
+                      - link "0901 234 540" [ref=f1e2221] [cursor=pointer]:
+                        - /url: tel:0901234540
+                - generic [ref=f1e2222]:
+                  - link "Chỉ đường" [ref=f1e2223] [cursor=pointer]:
+                    - /url: https://www.google.com/maps/dir/?api=1&destination=16.06%2C108.21
+                  - link "Zalo" [ref=f1e2227] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234540
+              - article [ref=f1e2231]:
+                - heading "Chi nhánh Đắk Lắk" [level=3] [ref=f1e2232]
+                - generic [ref=f1e2233]:
+                  - generic [ref=f1e2234]:
+                    - term [ref=f1e2235]: Văn phòng
+                    - definition [ref=f1e2236]: 210 Đường Mẫu F, Buôn Ma Thuột, Đắk Lắk [HƯ CẤU]
+                    - definition [ref=f1e2237]:
+                      - link "Google Maps ↗" [ref=f1e2238] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=12.68%2C108.04
+                  - generic [ref=f1e2239]:
+                    - term [ref=f1e2240]: Giờ làm việc
+                    - definition [ref=f1e2241]: Mo-Sa 07:30-17:00
+                  - generic [ref=f1e2242]:
+                    - term [ref=f1e2243]: Hotline
+                    - definition [ref=f1e2244]:
+                      - link "0901 234 560" [ref=f1e2245] [cursor=pointer]:
+                        - /url: tel:0901234560
+                - generic [ref=f1e2246]:
+                  - link "Chỉ đường" [ref=f1e2247] [cursor=pointer]:
+                    - /url: https://www.google.com/maps/dir/?api=1&destination=12.68%2C108.04
+                  - link "Zalo" [ref=f1e2251] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234560
+              - article [ref=f1e2255]:
+                - heading "Chi nhánh Cần Thơ" [level=3] [ref=f1e2256]
+                - generic [ref=f1e2257]:
+                  - generic [ref=f1e2258]:
+                    - term [ref=f1e2259]: Văn phòng
+                    - definition [ref=f1e2260]: 77 Đường Mẫu H, Cần Thơ [HƯ CẤU]
+                    - definition [ref=f1e2261]:
+                      - link "Google Maps ↗" [ref=f1e2262] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=10.03%2C105.77
+                  - generic [ref=f1e2263]:
+                    - term [ref=f1e2264]: Kho hàng
+                    - definition [ref=f1e2265]: Kho Mẫu Trà Nóc, Cần Thơ [HƯ CẤU]
+                    - definition [ref=f1e2266]:
+                      - link "Google Maps ↗" [ref=f1e2267] [cursor=pointer]:
+                        - /url: https://www.google.com/maps/search/?api=1&query=10.095%2C105.72
+                  - generic [ref=f1e2268]:
+                    - term [ref=f1e2269]: Giờ làm việc
+                    - definition [ref=f1e2270]: Mo-Sa 08:00-17:30
+                  - generic [ref=f1e2271]:
+                    - term [ref=f1e2272]: Hotline
+                    - definition [ref=f1e2273]:
+                      - link "0901 234 580" [ref=f1e2274] [cursor=pointer]:
+                        - /url: tel:0901234580
+                - generic [ref=f1e2275]:
+                  - link "Chỉ đường" [ref=f1e2276] [cursor=pointer]:
+                    - /url: https://www.google.com/maps/dir/?api=1&destination=10.03%2C105.77
+                  - link "Zalo" [ref=f1e2280] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234580
+    - region [ref=f1e2285]:
+      - generic [ref=f1e2287]:
+        - generic [ref=f1e2288]:
+          - generic [ref=f1e2289]: Đội ngũ kỹ sư
+          - heading "85+ kỹ sư sẵn sàng thiết kế cho công trình của bạn." [level=2] [ref=f1e2290]
+          - paragraph [ref=f1e2291]: Tư vấn miễn phí, báo giá trong 24 giờ, khảo sát tận nơi tại 34 tỉnh/thành.
+          - generic [ref=f1e2292]:
+            - link "Chat Zalo với kỹ sư" [ref=f1e2293] [cursor=pointer]:
+              - /url: https://zalo.me/0901234500
+            - link "0901 234 500" [ref=f1e2294] [cursor=pointer]:
+              - /url: tel:0901234500
+        - generic [ref=f1e2295]:
+          - heading "Để báo giá nhanh, hãy gửi:" [level=3] [ref=f1e2296]
+          - list [ref=f1e2297]:
+            - listitem [ref=f1e2298]: Khu vực lắp đặt
+            - listitem [ref=f1e2302]: Công suất mong muốn (kWp) hoặc thiết bị cần dùng
+            - listitem [ref=f1e2305]: Ảnh hóa đơn tiền điện 1–3 tháng gần nhất
+    - region [ref=f1e2309]:
+      - generic [ref=f1e2310]:
+        - generic [ref=f1e2311]:
+          - generic [ref=f1e2312]: Quy trình triển khai
+          - heading "Mỗi bước đều có đầu ra rõ ràng để bạn kiểm soát." [level=2] [ref=f1e2313]
+        - list [ref=f1e2315]:
+          - listitem [ref=f1e2316]:
+            - generic [ref=f1e2317]: "01"
+            - heading "Khảo sát" [level=3] [ref=f1e2319]
+            - paragraph [ref=f1e2320]: Phụ tải, hóa đơn, mái, trạm điện và điều kiện thi công.
+            - generic [ref=f1e2322]:
+              - generic [ref=f1e2323]: Đầu ra
+              - text: Biên bản khảo sát + dữ liệu đầu vào
+          - listitem [ref=f1e2324]:
+            - generic [ref=f1e2325]: "02"
+            - heading "Thiết kế" [level=3] [ref=f1e2327]
+            - paragraph [ref=f1e2328]: Mô phỏng sản lượng, chọn thiết bị, layout và phương án đấu nối.
+            - generic [ref=f1e2330]:
+              - generic [ref=f1e2331]: Đầu ra
+              - text: Hồ sơ kỹ thuật + mô hình tài chính
+          - listitem [ref=f1e2332]:
+            - generic [ref=f1e2333]: "03"
+            - heading "Thi công" [level=3] [ref=f1e2335]
+            - paragraph [ref=f1e2336]: Kế hoạch an toàn, chia khu vực, quản lý vật tư và chất lượng.
+            - generic [ref=f1e2338]:
+              - generic [ref=f1e2339]: Đầu ra
+              - text: Checklist thi công + nhật ký
+          - listitem [ref=f1e2340]:
+            - generic [ref=f1e2341]: "04"
+            - heading "Nghiệm thu" [level=3] [ref=f1e2343]
+            - paragraph [ref=f1e2344]: Đo kiểm, cấu hình giám sát, hướng dẫn vận hành.
+            - generic [ref=f1e2346]:
+              - generic [ref=f1e2347]: Đầu ra
+              - text: Biên bản nghiệm thu + hồ sơ bàn giao
+          - listitem [ref=f1e2348]:
+            - generic [ref=f1e2349]: "05"
+            - heading "Bảo trì" [level=3] [ref=f1e2351]
+            - paragraph [ref=f1e2352]: Theo dõi sản lượng, cảnh báo, vệ sinh và bảo trì.
+            - generic [ref=f1e2354]:
+              - generic [ref=f1e2355]: Đầu ra
+              - text: Báo cáo hiệu suất định kỳ
+    - region [ref=f1e2357]:
+      - generic [ref=f1e2358]:
+        - generic [ref=f1e2359]:
+          - generic [ref=f1e2360]:
+            - generic [ref=f1e2361]: Kinh nghiệm lắp đặt
+            - 'heading "Đọc trước khi lắp: tình huống thực tế." [level=2] [ref=f1e2362]'
+          - link "Tất cả bài viết" [ref=f1e2363] [cursor=pointer]:
+            - /url: /tin-tuc
+        - generic [ref=f1e2364]:
+          - article [ref=f1e2365]:
+            - generic [ref=f1e2366]:
+              - img "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?" [ref=f1e2367]
+              - generic [ref=f1e2368]: Hộ gia đình
+            - generic [ref=f1e2369]:
+              - heading [level=3] [ref=f1e2370]:
+                - link "Tiền điện 2 triệu/tháng nên lắp bao nhiêu kWp?" [ref=f1e2371] [cursor=pointer]:
+                  - /url: /tin-tuc/tien-dien-2-trieu-nen-lap-bao-nhieu-kwp
+              - paragraph [ref=f1e2372]: Cách quy đổi hóa đơn ra kWh, tính phần điện dùng ban ngày và chọn công suất vừa đủ — không thừa, không thiếu.
+              - generic [ref=f1e2373]: 5 phút đọc
+          - article [ref=f1e2379]:
+            - generic [ref=f1e2380]:
+              - 'img "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện" [ref=f1e2381]'
+              - generic [ref=f1e2382]: Trang trại
+            - generic [ref=f1e2383]:
+              - heading [level=3] [ref=f1e2384]:
+                - 'link "Điện mặt trời cho trại gà: chạy quạt hút, giảm nỗi lo cúp điện" [ref=f1e2385] [cursor=pointer]':
+                  - /url: /tin-tuc/dien-mat-troi-cho-trai-ga
+              - paragraph [ref=f1e2386]: Quạt hút, hệ làm mát, đèn chiếu sáng chạy suốt ngày — vì sao trại gà là nơi điện mặt trời hoàn vốn nhanh.
+              - generic [ref=f1e2387]: 6 phút đọc
+          - article [ref=f1e2393]:
+            - generic [ref=f1e2394]:
+              - 'img "Điện mặt trời cho nhà máy: thi công không dừng sản xuất" [ref=f1e2395]'
+              - generic [ref=f1e2396]: Nhà xưởng
+            - generic [ref=f1e2397]:
+              - heading [level=3] [ref=f1e2398]:
+                - 'link "Điện mặt trời cho nhà máy: thi công không dừng sản xuất" [ref=f1e2399] [cursor=pointer]':
+                  - /url: /tin-tuc/dien-mat-troi-cho-nha-may
+              - paragraph [ref=f1e2400]: Mái xưởng lớn, tải chạy ban ngày — những điều cần kiểm tra trước khi đầu tư hệ thống vài trăm kWp.
+              - generic [ref=f1e2401]: 7 phút đọc
+    - region [ref=f1e2408]:
+      - generic [ref=f1e2409]:
+        - generic [ref=f1e2410]:
+          - generic [ref=f1e2412]:
+            - generic [ref=f1e2413]: Mạng xã hội
+            - heading "Cộng đồng cùng theo dõi hành trình xanh." [level=2] [ref=f1e2414]
+          - generic [ref=f1e2415]:
+            - generic [ref=f1e2416]: 404.800+
+            - generic [ref=f1e2417]: người theo dõi trên tất cả kênh
+        - list [ref=f1e2418]:
+          - listitem [ref=f1e2419]:
+            - link "Theo dõi ↗ 128 N Facebook · Lumivolt Energy" [ref=f1e2420] [cursor=pointer]:
+              - /url: https://www.facebook.com/lumivolt.demo
+              - generic [ref=f1e2421]: Theo dõi ↗
+              - generic [ref=f1e2426]:
+                - generic [ref=f1e2427]: 128 N
+                - generic [ref=f1e2428]: Facebook · Lumivolt Energy
+          - listitem [ref=f1e2429]:
+            - link "Theo dõi ↗ 46,5 N YouTube · @lumivolt.demo" [ref=f1e2430] [cursor=pointer]:
+              - /url: https://www.youtube.com/@lumivolt.demo
+              - generic [ref=f1e2431]: Theo dõi ↗
+              - generic [ref=f1e2436]:
+                - generic [ref=f1e2437]: 46,5 N
+                - generic [ref=f1e2438]: YouTube · @lumivolt.demo
+          - listitem [ref=f1e2439]:
+            - link "Theo dõi ↗ 212 N TikTok · @lumivolt.demo" [ref=f1e2440] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@lumivolt.demo
+              - generic [ref=f1e2441]: Theo dõi ↗
+              - generic [ref=f1e2446]:
+                - generic [ref=f1e2447]: 212 N
+                - generic [ref=f1e2448]: TikTok · @lumivolt.demo
+          - listitem [ref=f1e2449]:
+            - link "Theo dõi ↗ 18,3 N Zalo OA · Lumivolt Energy" [ref=f1e2450] [cursor=pointer]:
+              - /url: https://zalo.me/0901234500
+              - generic [ref=f1e2451]: Theo dõi ↗
+              - generic [ref=f1e2457]:
+                - generic [ref=f1e2458]: 18,3 N
+                - generic [ref=f1e2459]: Zalo OA · Lumivolt Energy
+    - region [ref=f1e2461]:
+      - generic [ref=f1e2462]:
+        - generic [ref=f1e2463]:
+          - generic [ref=f1e2464]: Câu hỏi thường gặp
+          - heading "Những điều nên rõ trước khi lắp đặt." [level=2] [ref=f1e2465]
+          - link "Xem cẩm nang đầy đủ" [ref=f1e2466] [cursor=pointer]:
+            - /url: /cam-nang
+        - generic [ref=f1e2469]:
+          - group [ref=f1e2470]:
+            - generic "Tiền điện bao nhiêu thì nên lắp điện mặt trời?" [ref=f1e2471] [cursor=pointer]:
+              - text: Tiền điện bao nhiêu thì nên lắp điện mặt trời?
+              - generic [aria-hidden] [ref=f1e2472]: +
+          - group [ref=f1e2473]:
+            - generic "Có trả góp hoặc lắp 0 đồng không?" [ref=f1e2474] [cursor=pointer]:
+              - text: Có trả góp hoặc lắp 0 đồng không?
+              - generic [aria-hidden] [ref=f1e2475]: +
+          - group [ref=f1e2476]:
+            - generic "Điện mặt trời thường hoàn vốn bao lâu?" [ref=f1e2477] [cursor=pointer]:
+              - text: Điện mặt trời thường hoàn vốn bao lâu?
+              - generic [aria-hidden] [ref=f1e2478]: +
+          - group [ref=f1e2479]:
+            - generic "Mái tôn, mái ngói có lắp được không? Có bị dột không?" [ref=f1e2480] [cursor=pointer]:
+              - text: Mái tôn, mái ngói có lắp được không? Có bị dột không?
+              - generic [aria-hidden] [ref=f1e2481]: +
+          - group [ref=f1e2482]:
+            - generic "Lắp mất bao lâu, có phải ngừng kinh doanh không?" [ref=f1e2483] [cursor=pointer]:
+              - text: Lắp mất bao lâu, có phải ngừng kinh doanh không?
+              - generic [aria-hidden] [ref=f1e2484]: +
+          - group [ref=f1e2485]:
+            - generic "Hệ thống chịu bão như thế nào?" [ref=f1e2486] [cursor=pointer]:
+              - text: Hệ thống chịu bão như thế nào?
+              - generic [aria-hidden] [ref=f1e2487]: +
+          - group [ref=f1e2488]:
+            - generic "Mất điện lưới thì điện mặt trời có chạy không?" [ref=f1e2489] [cursor=pointer]:
+              - text: Mất điện lưới thì điện mặt trời có chạy không?
+              - generic [aria-hidden] [ref=f1e2490]: +
+          - group [ref=f1e2491]:
+            - generic "Mùa mưa có tạo ra điện không?" [ref=f1e2492] [cursor=pointer]:
+              - text: Mùa mưa có tạo ra điện không?
+              - generic [aria-hidden] [ref=f1e2493]: +
+          - group [ref=f1e2494]:
+            - generic "Bao lâu cần vệ sinh tấm pin?" [ref=f1e2495] [cursor=pointer]:
+              - text: Bao lâu cần vệ sinh tấm pin?
+              - generic [aria-hidden] [ref=f1e2496]: +
+          - group [ref=f1e2497]:
+            - generic "Có cần làm thủ tục với điện lực không?" [ref=f1e2498] [cursor=pointer]:
+              - text: Có cần làm thủ tục với điện lực không?
+              - generic [aria-hidden] [ref=f1e2499]: +
+    - region [ref=f1e2501]:
+      - generic [ref=f1e2502]:
+        - generic [ref=f1e2503]:
+          - img "Hệ thống điện mặt trời dưới bầu trời nắng" [ref=f1e2504]
+          - generic [ref=f1e2506]:
+            - heading "Nhận báo giá — khảo sát miễn phí trong 48 giờ." [level=2] [ref=f1e2510]
+            - list [ref=f1e2511]:
+              - listitem [ref=f1e2512]: Khảo sát mái & đọc hóa đơn miễn phí
+              - listitem [ref=f1e2515]: Báo giá chi tiết trong 24 giờ
+              - listitem [ref=f1e2518]: Hỗ trợ hồ sơ đấu nối EVN
+        - generic [ref=f1e2522]:
+          - heading "Để lại thông tin, kỹ sư sẽ gọi lại" [level=3] [ref=f1e2523]
+          - generic [ref=f1e2524]:
+            - generic [ref=f1e2525]:
+              - text: Họ và tên *
+              - textbox "Họ và tên *" [ref=f1e2526]:
+                - /placeholder: Nguyễn Văn A
+            - generic [ref=f1e2527]:
+              - text: Số điện thoại di động *
+              - textbox "Số điện thoại di động *" [ref=f1e2528]:
+                - /placeholder: 09xx xxx xxx
+            - generic [ref=f1e2529]:
+              - text: Zalo
+              - generic [ref=f1e2530]: (tùy chọn)
+              - textbox "Zalo (tùy chọn)" [ref=f1e2531]:
+                - /placeholder: Nếu khác số điện thoại
+            - generic [ref=f1e2532]:
+              - text: Địa chỉ lắp đặt
+              - generic [ref=f1e2533]: (tùy chọn)
+              - textbox "Địa chỉ lắp đặt (tùy chọn)" [ref=f1e2534]:
+                - /placeholder: Phường/xã, tỉnh/thành
+            - generic [ref=f1e2535]:
+              - text: Nhu cầu
+              - textbox "Nhu cầu" [ref=f1e2536]:
+                - /placeholder: Tiền điện/tháng, loại mái, nhu cầu lưu trữ…
+            - generic [ref=f1e2538]:
+              - text: Website
+              - textbox [ref=f1e2539]
+            - button "Nhận báo giá chi tiết" [ref=f1e2540] [cursor=pointer]
+            - paragraph [ref=f1e2541]: Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.
+  - region "Cam kết dịch vụ" [ref=f1e2543]:
+    - list [ref=f1e2544]:
+      - listitem [ref=f1e2545]:
+        - generic [ref=f1e2549]:
+          - generic [ref=f1e2550]: Khảo sát miễn phí
+          - generic [ref=f1e2551]: Kỹ sư đến tận nơi đo mái, đọc hóa đơn
+      - listitem [ref=f1e2552]:
+        - generic [ref=f1e2556]:
+          - generic [ref=f1e2557]: Bảo hành dài hạn
+          - generic [ref=f1e2558]: Tấm pin tới 30 năm hiệu suất, thi công 5 năm
+      - listitem [ref=f1e2559]:
+        - generic [ref=f1e2563]:
+          - generic [ref=f1e2564]: Hỗ trợ thủ tục đấu nối EVN
+          - generic [ref=f1e2565]: Chuẩn bị hồ sơ, làm việc với điện lực
+      - listitem [ref=f1e2566]:
+        - generic [ref=f1e2570]:
+          - generic [ref=f1e2571]: Bảo trì & vệ sinh định kỳ
+          - generic [ref=f1e2572]: Kiểm tra, vệ sinh tấm pin theo lịch
+  - contentinfo [ref=f1e2574]:
+    - generic [ref=f1e2576]:
+      - generic [ref=f1e2577]:
+        - generic [ref=f1e2584]:
+          - text: Lumivolt
+          - generic [ref=f1e2585]: Energy
+        - paragraph [ref=f1e2586]: Nhà phân phối thiết bị & tổng thầu EPC điện mặt trời.
+        - generic [ref=f1e2587]:
+          - link "Facebook" [ref=f1e2588] [cursor=pointer]:
+            - /url: https://www.facebook.com/lumivolt.demo
+          - link "YouTube" [ref=f1e2591] [cursor=pointer]:
+            - /url: https://www.youtube.com/@lumivolt.demo
+          - link "TikTok" [ref=f1e2594] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@lumivolt.demo
+          - link "Zalo OA" [ref=f1e2597] [cursor=pointer]:
+            - /url: https://zalo.me/0901234500
+        - generic [ref=f1e2601]:
+          - paragraph [ref=f1e2602]: CÔNG TY CỔ PHẦN NĂNG LƯỢNG LUMIVOLT [DỮ LIỆU MẪU]
+          - paragraph [ref=f1e2603]: Giấy CN ĐKKD số 03XXXXXXXX [MẪU] — cấp ngày 15/03/2012, Sở Kế hoạch và Đầu tư (mẫu)
+          - paragraph [ref=f1e2604]: Chứng chỉ năng lực hoạt động xây dựng hạng II — số MẪU-0001 [HƯ CẤU]
+          - paragraph [ref=f1e2605]: Giấy phép hoạt động điện lực (tư vấn thiết kế) — số MẪU-0002 [HƯ CẤU]
+        - generic [ref=f1e2606]:
+          - generic [ref=f1e2607]: ISO 9001:2015
+          - generic [ref=f1e2608]: ISO 14001:2015
+          - generic [ref=f1e2609]: ISO 45001:2018
+        - link "Hotline khiếu nại – góp ý 0901 234 599" [ref=f1e2610] [cursor=pointer]:
+          - /url: tel:0901234599
+          - generic [ref=f1e2613]:
+            - generic [ref=f1e2614]: Hotline khiếu nại – góp ý
+            - text: 0901 234 599
+      - generic [ref=f1e2615]:
+        - heading "Hệ thống cửa hàng" [level=2] [ref=f1e2616]
+        - generic [ref=f1e2617]:
+          - generic [ref=f1e2618]:
+            - generic [ref=f1e2619]: TP. Hồ Chí Minh
+            - list [ref=f1e2623]:
+              - listitem [ref=f1e2624]:
+                - generic [ref=f1e2625]: Tổng đài chi nhánh
+                - generic [ref=f1e2626]:
+                  - link "0901 234 500" [ref=f1e2627] [cursor=pointer]:
+                    - /url: tel:0901234500
+                  - link "Zalo 0901 234 500" [ref=f1e2628] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234500
+                    - text: Zalo
+              - listitem [ref=f1e2632]:
+                - generic [ref=f1e2633]: Showroom Quận Mẫu
+                - generic [ref=f1e2634]: 120 Đường Mẫu A, TP. Hồ Chí Minh [HƯ CẤU]
+                - generic [ref=f1e2635]:
+                  - link "0901 234 511" [ref=f1e2636] [cursor=pointer]:
+                    - /url: tel:0901234511
+                  - link "Zalo 0901 234 511" [ref=f1e2637] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234511
+                    - text: Zalo
+              - listitem [ref=f1e2641]:
+                - generic [ref=f1e2642]: Cửa hàng Mẫu Thủ Đức
+                - generic [ref=f1e2643]: 45 Đường Mẫu B, TP. Hồ Chí Minh [HƯ CẤU]
+                - generic [ref=f1e2644]:
+                  - link "0901 234 512" [ref=f1e2645] [cursor=pointer]:
+                    - /url: tel:0901234512
+                  - link "Zalo 0901 234 512" [ref=f1e2646] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234512
+                    - text: Zalo
+          - generic [ref=f1e2650]:
+            - generic [ref=f1e2651]: Hà Nội
+            - list [ref=f1e2655]:
+              - listitem [ref=f1e2656]:
+                - generic [ref=f1e2657]: Tổng đài chi nhánh
+                - generic [ref=f1e2658]:
+                  - link "0901 234 520" [ref=f1e2659] [cursor=pointer]:
+                    - /url: tel:0901234520
+                  - link "Zalo 0901 234 520" [ref=f1e2660] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234520
+                    - text: Zalo
+              - listitem [ref=f1e2664]:
+                - generic [ref=f1e2665]: Showroom Mẫu Cầu Giấy
+                - generic [ref=f1e2666]: 18 Phố Mẫu C, Hà Nội [HƯ CẤU]
+                - generic [ref=f1e2667]:
+                  - link "0901 234 531" [ref=f1e2668] [cursor=pointer]:
+                    - /url: tel:0901234531
+                  - link "Zalo 0901 234 531" [ref=f1e2669] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234531
+                    - text: Zalo
+          - generic [ref=f1e2673]:
+            - generic [ref=f1e2674]: Đà Nẵng
+            - list [ref=f1e2678]:
+              - listitem [ref=f1e2679]:
+                - generic [ref=f1e2680]: Tổng đài chi nhánh
+                - generic [ref=f1e2681]:
+                  - link "0901 234 540" [ref=f1e2682] [cursor=pointer]:
+                    - /url: tel:0901234540
+                  - link "Zalo 0901 234 540" [ref=f1e2683] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234540
+                    - text: Zalo
+              - listitem [ref=f1e2687]:
+                - generic [ref=f1e2688]: Cửa hàng Mẫu Hải Châu
+                - generic [ref=f1e2689]: 9 Đường Mẫu E, Đà Nẵng [HƯ CẤU]
+                - generic [ref=f1e2690]:
+                  - link "0901 234 551" [ref=f1e2691] [cursor=pointer]:
+                    - /url: tel:0901234551
+                  - link "Zalo 0901 234 551" [ref=f1e2692] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234551
+                    - text: Zalo
+          - generic [ref=f1e2696]:
+            - generic [ref=f1e2697]: Đắk Lắk
+            - list [ref=f1e2701]:
+              - listitem [ref=f1e2702]:
+                - generic [ref=f1e2703]: Tổng đài chi nhánh
+                - generic [ref=f1e2704]:
+                  - link "0901 234 560" [ref=f1e2705] [cursor=pointer]:
+                    - /url: tel:0901234560
+                  - link "Zalo 0901 234 560" [ref=f1e2706] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234560
+                    - text: Zalo
+              - listitem [ref=f1e2710]:
+                - generic [ref=f1e2711]: Đại lý Mẫu Tây Nguyên
+                - generic [ref=f1e2712]: 32 Đường Mẫu G, Đắk Lắk [HƯ CẤU]
+                - generic [ref=f1e2713]:
+                  - link "0901 234 571" [ref=f1e2714] [cursor=pointer]:
+                    - /url: tel:0901234571
+                  - link "Zalo 0901 234 571" [ref=f1e2715] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234571
+                    - text: Zalo
+          - generic [ref=f1e2719]:
+            - generic [ref=f1e2720]: Cần Thơ
+            - list [ref=f1e2724]:
+              - listitem [ref=f1e2725]:
+                - generic [ref=f1e2726]: Tổng đài chi nhánh
+                - generic [ref=f1e2727]:
+                  - link "0901 234 580" [ref=f1e2728] [cursor=pointer]:
+                    - /url: tel:0901234580
+                  - link "Zalo 0901 234 580" [ref=f1e2729] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234580
+                    - text: Zalo
+              - listitem [ref=f1e2733]:
+                - generic [ref=f1e2734]: Showroom Mẫu Ninh Kiều
+                - generic [ref=f1e2735]: 15 Đường Mẫu I, Cần Thơ [HƯ CẤU]
+                - generic [ref=f1e2736]:
+                  - link "0901 234 591" [ref=f1e2737] [cursor=pointer]:
+                    - /url: tel:0901234591
+                  - link "Zalo 0901 234 591" [ref=f1e2738] [cursor=pointer]:
+                    - /url: https://zalo.me/0901234591
+                    - text: Zalo
+      - generic [ref=f1e2742]:
+        - generic [ref=f1e2743]:
+          - heading "Giải pháp" [level=2] [ref=f1e2744]
+          - list [ref=f1e2745]:
+            - listitem [ref=f1e2746]:
+              - link "Hộ gia đình" [ref=f1e2747] [cursor=pointer]:
+                - /url: /?phan-khuc=ho-gia-dinh
+            - listitem [ref=f1e2748]:
+              - link "Cửa hàng & chuỗi" [ref=f1e2749] [cursor=pointer]:
+                - /url: /?phan-khuc=cua-hang
+            - listitem [ref=f1e2750]:
+              - link "Nhà xưởng" [ref=f1e2751] [cursor=pointer]:
+                - /url: /?phan-khuc=nha-xuong
+            - listitem [ref=f1e2752]:
+              - link "Trang trại" [ref=f1e2753] [cursor=pointer]:
+                - /url: /?phan-khuc=trang-trai
+            - listitem [ref=f1e2754]:
+              - link "Dịch vụ kỹ thuật" [ref=f1e2755] [cursor=pointer]:
+                - /url: /giai-phap
+        - generic [ref=f1e2756]:
+          - heading "Công ty" [level=2] [ref=f1e2757]
+          - list [ref=f1e2758]:
+            - listitem [ref=f1e2759]:
+              - link "Về chúng tôi" [ref=f1e2760] [cursor=pointer]:
+                - /url: /ve-chung-toi
+            - listitem [ref=f1e2761]:
+              - link "Sản phẩm & thiết bị" [ref=f1e2762] [cursor=pointer]:
+                - /url: /san-pham
+            - listitem [ref=f1e2763]:
+              - link "Tin tức & kinh nghiệm" [ref=f1e2764] [cursor=pointer]:
+                - /url: /tin-tuc
+            - listitem [ref=f1e2765]:
+              - link "Cẩm nang" [ref=f1e2766] [cursor=pointer]:
+                - /url: /cam-nang
+            - listitem [ref=f1e2767]:
+              - link "Liên hệ" [ref=f1e2768] [cursor=pointer]:
+                - /url: /lien-he
+        - generic [ref=f1e2769]:
+          - heading "Chính sách" [level=2] [ref=f1e2770]
+          - list [ref=f1e2771]:
+            - listitem [ref=f1e2772]:
+              - link "Chính sách bảo hành" [ref=f1e2773] [cursor=pointer]:
+                - /url: /chinh-sach/bao-hanh
+            - listitem [ref=f1e2774]:
+              - link "Chính sách đổi trả" [ref=f1e2775] [cursor=pointer]:
+                - /url: /chinh-sach/doi-tra
+            - listitem [ref=f1e2776]:
+              - link "Chính sách vận chuyển" [ref=f1e2777] [cursor=pointer]:
+                - /url: /chinh-sach/van-chuyen
+            - listitem [ref=f1e2778]:
+              - link "Chính sách bảo mật" [ref=f1e2779] [cursor=pointer]:
+                - /url: /chinh-sach/bao-mat
+          - paragraph [ref=f1e2780]: "Thứ 2 – Thứ 7: 08:00 – 17:30 lienhe@lumivolt.example"
+        - generic [ref=f1e2785]:
+          - text: Đã thông báoBộ Công Thương
+          - generic [ref=f1e2786]: (placeholder)
+    - generic [ref=f1e2788]:
+      - generic [ref=f1e2789]: © 2026 Lumivolt Energy. Website demo — dữ liệu hư cấu.
+      - generic [ref=f1e2790]: Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản.
+  - navigation "Điều hướng nhanh" [ref=f1e2791]:
+    - link "Trang chủ" [ref=f1e2792] [cursor=pointer]:
+      - /url: /
+    - button "Danh mục" [ref=f1e2796] [cursor=pointer]
+    - link "Gọi" [ref=f1e2799] [cursor=pointer]:
+      - /url: tel:0901234500
+    - link "Zalo Gia đình" [ref=f1e2804] [cursor=pointer]:
+      - /url: https://zalo.me/0901234501
+    - link "Zalo Nhà xưởng" [ref=f1e2808] [cursor=pointer]:
+      - /url: https://zalo.me/0901234502
+  - button "Chuyển sang giao diện tối" [ref=f1e2812] [cursor=pointer]

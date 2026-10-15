@@ -4,7 +4,9 @@
 //   node scripts/agents/story.mjs next          → story chưa xong đầu tiên có đủ phụ thuộc
 //   node scripts/agents/story.mjs list [--todo] → bảng trạng thái mọi story
 //   node scripts/agents/story.mjs load          → ước lượng tỷ lệ tải Claude/Codex theo routing.json
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+//   node scripts/agents/story.mjs progress [ID|Ex] → JSON: % tiến độ story/epic + ước lượng thời gian còn lại (/get-progress)
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -157,6 +159,136 @@ function describe(story, stories) {
   };
 }
 
+// ---- progress: % tiến độ theo bước của /run-story + ước lượng thời gian còn lại từ lịch sử .agent-runs ----
+
+const IDLE_MIN = 60; // khoảng lặng > 60 phút giữa hai lần ghi file/commit = nghỉ, không tính vào thời gian làm
+const sizePts = { S: 1, M: 2, L: 4 };
+const git = (...args) => {
+  const r = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  return r.status === 0 ? r.stdout.trim() : "";
+};
+
+/** Mốc thời gian (ms) của story: mtime file trong .agent-runs/<ID> + commit trên branch của nó. */
+function activityTimes(d) {
+  const times = [];
+  const dir = join(root, d.runDir);
+  if (existsSync(dir)) {
+    for (const f of readdirSync(dir)) times.push(statSync(join(dir, f)).mtimeMs);
+  }
+  if (git("rev-parse", "--verify", "--quiet", d.branch)) {
+    for (const t of git("log", "--format=%at", `${d.base}..${d.branch}`).split("\n")) if (t) times.push(Number(t) * 1000);
+  }
+  // Bỏ mtime vô lý (file giải nén giữ mtime cũ).
+  return times.filter((t) => t > Date.UTC(2024, 0, 1)).sort((a, b) => a - b);
+}
+
+/** Phút làm thực tế: cộng khoảng giữa các mốc liên tiếp, bỏ khoảng lặng > IDLE_MIN. */
+function activeMinutes(times) {
+  let total = 0;
+  for (let i = 1; i < times.length; i++) {
+    const gap = (times[i] - times[i - 1]) / 60000;
+    if (gap <= IDLE_MIN) total += gap;
+  }
+  return Math.round(total);
+}
+
+const shortTitle = (d) => d.title.replace(/\s*·\s*PR\b.*$/, "");
+const median = (xs) => {
+  if (!xs.length) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+};
+
+/** Trung vị phút làm theo cỡ, từ các story đã xong có run dir. Cỡ thiếu mẫu (< 2) → suy từ phút/điểm chung. */
+function historyBySize(all) {
+  const samples = { S: [], M: [], L: [] };
+  for (const d of all) {
+    if (!d.done || !sizePts[d.size]) continue;
+    const min = activeMinutes(activityTimes(d));
+    if (min > 0) samples[d.size].push(min);
+  }
+  const perPoint = median(Object.entries(samples).flatMap(([size, xs]) => xs.map((x) => x / sizePts[size]))) ?? 60;
+  return Object.fromEntries(
+    Object.entries(samples).map(([size, xs]) => [
+      size,
+      { samples: xs.length, minutes: Math.round(xs.length >= 2 ? median(xs) : perPoint * sizePts[size]) },
+    ]),
+  );
+}
+
+/** Bước hiện tại của story theo các dấu vết /run-story để lại → % (mốc cuối mỗi bước). */
+function storyPhase(d) {
+  if (d.done) return { step: "Đã merge (✅)", percent: 100 };
+  const run = (f) => join(root, d.runDir, f);
+  const readJson = (f) => { try { return JSON.parse(readFileSync(run(f), "utf8")); } catch { return null; } };
+  const hasBranch = Boolean(git("rev-parse", "--verify", "--quiet", d.branch));
+  const subjects = hasBranch ? git("log", "--format=%s", `${d.base}..${d.branch}`).split("\n").filter(Boolean) : [];
+  const codeCommits = subjects.filter((s) => !s.startsWith("docs(plan)")).length;
+  const reviews = existsSync(join(root, d.runDir))
+    ? readdirSync(join(root, d.runDir)).filter((f) => /^review-r\d+\.md$/.test(f)).sort((a, b) => Number(a.match(/\d+/)) - Number(b.match(/\d+/)))
+    : [];
+  const lastVerdict = reviews.length ? readFileSync(run(reviews.at(-1)), "utf8").match(/VERDICT:\s*(\w+)/)?.[1] ?? null : null;
+  const verify = readJson("verify.json");
+  const verifyOk = Boolean(verify?.checks?.length && verify.checks.every((c) => c.ok));
+  const pr = readJson("pr.json");
+  const facts = { hasPlan: existsSync(join(root, d.planFile)), hasBranch, codeCommits, verifyOk, pr: pr?.url ?? null, reviewRounds: reviews.length, lastVerdict };
+  if (lastVerdict === "APPROVE") return { step: "Review APPROVE — chờ CI xanh / người dùng merge", percent: 95, facts };
+  if (reviews.length) return { step: `Review–sửa vòng ${reviews.length} (${lastVerdict ?? "đang review"})`, percent: Math.min(70 + reviews.length * 5, 90), facts };
+  if (pr) return { step: "Đã tạo PR — chờ review", percent: 70, facts };
+  if (verifyOk) return { step: "Kiểm tra qua — chờ push/tạo PR", percent: 60, facts };
+  if (codeCommits) return { step: verify ? "Đang sửa lỗi kiểm tra" : "Đã có code — chờ verify", percent: verify ? 50 : 55, facts };
+  if (hasBranch) return { step: "Đang thực thi (chưa có commit code)", percent: 25, facts };
+  if (facts.hasPlan) return { step: "Đã có plan — chưa tạo branch", percent: 15, facts };
+  return { step: "Chưa bắt đầu", percent: 0, facts };
+}
+
+function progress(target) {
+  const all = [...stories.values()].map((s) => describe(s, stories));
+  const id = (target ?? git("branch", "--show-current").match(/E\d+-S\d+/)?.[0] ?? all.find((d) => !d.done && d.ready)?.id)?.toUpperCase();
+  const history = historyBySize(all);
+  const estimate = (d) => history[d.size || "M"].minutes;
+
+  const storyReport = (d) => {
+    const phase = storyPhase(d);
+    const elapsed = activeMinutes(activityTimes(d));
+    return {
+      id: d.id, title: shortTitle(d), size: d.size, branch: d.branch, ...phase,
+      ac: `${d.acDone}/${d.acTotal}`, elapsedMinutes: elapsed,
+      estimateMinutes: estimate(d),
+      remainingMinutes: Math.round(estimate(d) * (1 - phase.percent / 100)),
+      overEstimate: elapsed > estimate(d),
+    };
+  };
+
+  const epicId = /^E\d+$/.test(id ?? "") ? id : id && epicOf(id);
+  const inEpic = all.filter((d) => d.epic === epicId);
+  if (!inEpic.length) {
+    console.error(`Không tìm thấy story/epic "${target ?? ""}". Ví dụ: node scripts/agents/story.mjs progress E5-S08 | E5`);
+    process.exit(1);
+  }
+  let pts = 0, donePts = 0, remaining = 0;
+  const rows = inEpic.map((d) => {
+    const r = storyReport(d);
+    const p = sizePts[d.size] ?? 2;
+    pts += p;
+    donePts += (p * r.percent) / 100;
+    remaining += r.remainingMinutes;
+    return { id: d.id, size: d.size, percent: r.percent, step: r.step, ready: d.ready, title: shortTitle(d) };
+  });
+  return {
+    story: /^E\d+-S\d+$/.test(id) ? storyReport(all.find((d) => d.id === id)) : null,
+    epic: {
+      id: epicId,
+      percent: Math.round((donePts / pts) * 100),
+      storiesDone: rows.filter((r) => r.percent === 100).length,
+      storiesTotal: rows.length,
+      remainingMinutes: Math.round(remaining),
+      stories: rows,
+    },
+    history: { idleCutoffMinutes: IDLE_MIN, bySize: history },
+  };
+}
+
 const [cmd, arg] = process.argv.slice(2);
 const stories = loadStories();
 
@@ -201,7 +333,9 @@ if (cmd === "info") {
   }
   const total = load.claude + load.codex;
   console.log(`budget=${routing.budget}  Claude ${load.claude.toFixed(0)} điểm (${((load.claude / total) * 100).toFixed(0)}%)  ·  Codex ${load.codex.toFixed(0)} điểm (${((load.codex / total) * 100).toFixed(0)}%)`);
+} else if (cmd === "progress") {
+  console.log(JSON.stringify(progress(arg), null, 2));
 } else {
-  console.error("Dùng: node scripts/agents/story.mjs info <ID> | next | list [--todo] | load");
+  console.error("Dùng: node scripts/agents/story.mjs info <ID> | next | list [--todo] | load | progress [ID|Ex]");
   process.exit(1);
 }

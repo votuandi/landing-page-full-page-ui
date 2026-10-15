@@ -59,3 +59,34 @@ for (const [policy, reviewPolicy, author, reviewer, conflict] of [
     }
   });
 }
+
+test("progress: % theo bước /run-story và % epic theo điểm cỡ", () => {
+  const root = mkdtempSync(join(tmpdir(), "solar-progress-"));
+  try {
+    const scripts = join(root, "scripts", "agents");
+    const epics = join(root, "roadmap", "epics");
+    const runDir = join(root, ".agent-runs", "E0-S02");
+    for (const dir of [scripts, epics, runDir]) mkdirSync(dir, { recursive: true });
+    for (const file of ["story.mjs", "routing.json"]) copyFileSync(join(source, file), join(scripts, file));
+    writeFileSync(join(epics, "E00-fixture.md"), "### E0-S01 · Xong ✅\n- [x] AC\n- Cỡ: S\n\n### E0-S02 · Đang làm\n- [ ] AC\n- Cỡ: S\n\n### E0-S03 · Chưa\n- [ ] AC\n- Cỡ: M\n");
+    writeFileSync(join(runDir, "pr.json"), JSON.stringify({ number: 1, url: "https://example.test/pr/1" }));
+    writeFileSync(join(runDir, "review-r1.md"), "VERDICT: CHANGES_REQUESTED\n");
+    const env = { ...process.env };
+    delete env.ROUTING_FILE;
+    const run = (...args) => {
+      const result = spawnSync(process.execPath, [join(scripts, "story.mjs"), "progress", ...args], { cwd: root, env, encoding: "utf8" });
+      assert.equal(result.status, 0, result.stderr);
+      return JSON.parse(result.stdout);
+    };
+    const { story, epic } = run("E0-S02");
+    assert.equal(story.percent, 75);
+    assert.equal(story.facts.reviewRounds, 1);
+    assert.equal(epic.percent, 44); // (1×100 + 1×75 + 2×0) / 4 điểm
+    assert.equal(epic.storiesDone, 1);
+    writeFileSync(join(runDir, "review-r2.md"), "VERDICT: APPROVE\n");
+    assert.equal(run("E0-S02").story.percent, 95);
+    assert.equal(run("E0").story, null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -131,6 +131,7 @@ Skill bổ trợ, dùng nếu đã cài trong `.agents/skills` (lý do chọn/b�
 - OmniRoute (`cli-setup`, `omni-auth`, `omni-mcp`): chưa dùng tới khi dự án chạy gateway.
 
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.
+Tiến độ: `/get-progress [ID|Ex]` (`… progress`) báo % story/epic + ước lượng thời gian còn lại.
 
 - Branch: `<type>/<STORY-ID>-<slug>` (vd. `feat/E3-S02-kieu-du-lieu-nen`), tách khỏi `mono-repo-multi-tenent`.
   Playbook chạy tuần tự trong cây làm việc chính; chạy song song thì dùng git worktree riêng.
