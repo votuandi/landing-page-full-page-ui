@@ -164,7 +164,8 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - **Chi tiết**: `sitemap.ts`, `robots.ts` theo host; JSON-LD `Organization`/`LocalBusiness` từ thông tin công ty + chi nhánh,
   `Product`, `FAQPage`, `BreadcrumbList`; redirect 308 slug cũ (danh sách trong t15 `next.config.ts`) cấu hình được theo tenant.
   Subdomain nền tảng và subdomain preview → `noindex`; canonical về tên miền chính.
-- **AC**: [ ] Sitemap tenant A không chứa URL tenant B · [ ] Rich Results Test qua cho trang chủ và trang sản phẩm.
+- **AC**: [x] Sitemap tenant A không chứa URL tenant B · [ ] Rich Results Test qua cho trang chủ và trang sản phẩm
+  (`[ngoài agent]`: JSON-LD đã có test trường bắt buộc + e2e; chạy Google Rich Results Test thật sau khi deploy tên miền công khai). PR #37.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: M
 
 ### E5-S09 · Row-Level Security (lớp bảo vệ thứ hai)
