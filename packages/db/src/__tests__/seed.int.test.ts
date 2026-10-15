@@ -121,13 +121,17 @@ test("seedDemo without SEED_PASSWORD in the environment seeds content but create
   delete process.env.SEED_PASSWORD;
   try {
     const tenantIds = async () => (await db.tenant.findMany({ where: { slug: { in: ["demo-t15", "demo-t12"] } }, select: { id: true } })).map((tenant) => tenant.id);
-    const accounts = async () => [await db.siteUser.count({ where: { tenantId: { in: await tenantIds() } } }), await forPlatform(db).platformAdmin.count()];
-    const before = await accounts();
+    const accounts = async () => [await db.siteUser.count({ where: { tenantId: { in: await tenantIds() } } }), await forPlatform(db).platformAdmin.count({ where: { email: "owner@demo.vn" } })];
+    // Start without any demo account so an upsert cannot hide a write.
+    await db.siteUser.deleteMany({ where: { tenantId: { in: await tenantIds() } } });
+    await forPlatform(db).platformAdmin.deleteMany({ where: { email: "owner@demo.vn" } });
     await seedDemo(db);
-    assert.deepEqual(await accounts(), before);
+    assert.deepEqual(await accounts(), [0, 0]);
     assert.equal(await db.tenant.count({ where: { slug: { in: ["demo-t15", "demo-t12"] } } }), 2);
     assert.equal(await db.page.count({ where: { tenantId: { in: await tenantIds() } } }), 10);
   } finally {
+    // Restore the demo accounts for later tests and browser runs.
+    await seedDemo(db, { password: previous ?? "seed-test-password" });
     if (previous === undefined) delete process.env.SEED_PASSWORD;
     else process.env.SEED_PASSWORD = previous;
     await db.$disconnect();

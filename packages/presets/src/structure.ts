@@ -84,6 +84,8 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can
   const counted = pages.filter((page) => page.slug === "" || isLandingSlug(page.slug)).length;
   // `!(a <= b)` also rejects a missing or NaN limit instead of silently skipping the check.
   if (!(counted <= pagesLimit)) issues.push(`Vượt số trang của gói: ${counted}/${pagesLimit}`);
+  // JS callers can omit the baseline; never treat that as "anything goes".
+  if (!baseline) return [...issues, "Thiếu cấu trúc chuẩn để đối chiếu"];
   if (!can("pageStructure") && [...pageTypes].sort().join() !== [...baseline.pageTypes].sort().join()) {
     issues.push("Gói không cho đổi cấu trúc trang");
   }

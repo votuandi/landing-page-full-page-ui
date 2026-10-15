@@ -352,6 +352,8 @@ test("site structure policy follows D21: plan filters every page, fixed parts st
     for (const can of [basic, premium]) assert.ok(validateSiteStructure(dropped, { can, pagesLimit: 20, baseline: fixed }).includes(message), `${message} (${can === basic ? "basic" : "premium"})`);
   }
   assert.ok(validateSiteStructure(fixed, { can: basic, baseline: fixed }).some((issue) => issue.startsWith("Vượt số trang của gói")), "a missing limit is not unlimited");
+  // A missing baseline is rejected, so a reordered Basic home can never pass by omission.
+  assert.ok(validateSiteStructure(changes["Gói không cho thêm, bớt, bật/tắt hoặc sắp xếp section: /"], { can: basic, pagesLimit: 1 }).includes("Thiếu cấu trúc chuẩn để đối chiếu"));
   assert.deepEqual(validateSiteStructure(landings(full, 30), { can: premium, pagesLimit: Infinity, baseline: full }), []);
   const orphan = { ...fixed, pageTypes: fixed.pageTypes.filter((type) => type !== "about") };
   assert.ok(validateSiteStructure(orphan, { can: premium, pagesLimit: 20, baseline: fixed }).includes("Trang không có trong cấu trúc: /ve-chung-toi"));
