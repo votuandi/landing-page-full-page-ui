@@ -110,6 +110,10 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     thêm metadata fallback qua dispatcher và keyboard/overflow 390/1440. Matrix probe đủ 30 type trên t15 ở bốn
     project: 129/129, so 344 ô với exact base; shard cân tải 57/57 trong 2,9 phút. Full matrix 15 theme và CI/review
     sau commit vẫn cần xác nhận; báo cáo `.agent-runs/E5-S04/fix-r2-report.md` ghi phạm vi kiểm chứng cụ thể.
+  - Sửa review r3: nối locale giá qua section/quick-view/widget giỏ và giá ngắn packages; thêm case đổi VI→EN/reload.
+    Hai diff CI của variant t10 được khoanh vùng vào widget shell ngoài ô; harness loại nguồn nhiễu và từ chối cache
+    ảnh theo cơ chế cũ. Base→base và base→HEAD cho đúng hai ô qua 10/10 mỗi lượt; bằng chứng, giới hạn và kiểm tra
+    cuối trong `.agent-runs/E5-S04/fix-r3-report.md`. CI/review sau commit và nhánh phát hành baseline base còn chờ.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
 ### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu
