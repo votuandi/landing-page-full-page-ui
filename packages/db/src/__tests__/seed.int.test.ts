@@ -2,7 +2,7 @@ import { PLAN_IDS, plans } from "@solar/plans";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDb } from "../client.ts";
-import { seedDemo } from "../../prisma/seed.ts";
+import { seedDemo } from "../../prisma/seed-demo.ts";
 import { buildDemo } from "../../prisma/seed-data.ts";
 
 test("seed twice keeps counts and identities, splits section data and reuses product slugs across tenants", {

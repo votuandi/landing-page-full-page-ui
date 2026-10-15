@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { createDb, forPlatform, forTenant, type Prisma } from "@solar/db";
 import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
+import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
 import { createRedisCache } from "../src/lib/tenant/redis";
 
 const action = process.argv[2];
@@ -17,9 +18,12 @@ async function main() {
     try {
       const domain = await forPlatform(db).domains.resolve("t15.localhost");
       if (!domain) throw new Error("Seed t15 before browser tests");
-      const repo = forTenant(db, domain.tenantId);
+      const host = "review.localhost", reviewSlug = "review-t15";
       if (action === "setup" || action === "cleanup") {
-        const old = await repo.domain.first({ where: { hostname: "review.localhost" } });
+        // Remove the review tenant, plus review rows that older fixtures created inside the t15 tenant.
+        await db.tenant.deleteMany({ where: { slug: reviewSlug } });
+        const repo = forTenant(db, domain.tenantId);
+        const old = await repo.domain.first({ where: { hostname: host } });
         if (old) await repo.site.delete(old.siteId);
         for (const item of await repo.product.list({ where: { slug: { startsWith: "review-sku-" } } })) await repo.product.delete(item.id);
         const post = await repo.post.first({ where: { slug: "review-post" } });
@@ -32,25 +36,32 @@ async function main() {
       }
       if (action === "setup") {
         const demo = buildDemo("t15");
-        const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Review", themeId: "t15", locales: ["vi", "en"], defaultLocale: "en", seo: { ogImage: "http://invalid.test/image" },
+        const tenantId = await seedDemoTenant(db, { id: "t15", slug: reviewSlug, hostname: host });
+        const repo = forTenant(db, tenantId);
+        const seeded = await repo.site.first();
+        if (!seeded) throw new Error("Review site was not seeded");
+        await repo.site.update(seeded.id, { name: "[DỮ LIỆU MẪU] Review", themeId: "t15", locales: ["vi", "en"], defaultLocale: "en", seo: { ogImage: "http://invalid.test/image" },
           themeOverrides: { colors: { light: { primary: "10 110 70" }, dark: { primary: "90 190 120" } } },
           profile: { name: { vi: "[DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu", en: "[DỮ LIỆU MẪU] Solar company with a very long name for mobile menu" }, description: { vi: "Nội dung VI", en: "English description" }, hotline: "0901234567", theme: { default: "dark", switcher: true }, guide: demo.profile.guide, legal: { policies: [...demo.profile.legal.policies, { slug: "review-policy", title: { vi: "Chính sách VI" }, summary: { vi: "" }, body: { vi: [] } }] } },
           widgets: json({ ...demo.widgets, "quote-cart": { enabled: true, variant: "t15", data: { ...widgetRegistry.getType("quote-cart")!.defaults as object, query: { collection: "products", limit: 1, ids: [] } } }, "theme-switch": { enabled: true, variant: "t15" } }) });
-        const host = "review.localhost";
-        await repo.domain.create({ hostname: host, siteId: site.id, isPrimary: true, status: "active", verificationToken: site.id });
+        const site = seeded;
         await repo.domain.create({ hostname: "review-alt.localhost", siteId: site.id, isPrimary: false, status: "active", verificationToken: site.id });
         const home = demo.pages[0];
-        const page = await repo.page.create({ siteId: site.id, slug: "", sections: home.pageSections, publishedAt: new Date(), title: { vi: "Trang chủ VI", en: "English home" } });
+        const page = await repo.page.first({ where: { siteId: site.id, slug: "" } });
+        if (!page) throw new Error("Review home was not seeded");
+        await repo.page.update(page.id, { title: { vi: "Trang chủ VI", en: "English home" } });
         for (const section of home.sections) {
           const data = structuredClone(section.data);
           if (section.type === "site-header") data.brand = { name: "[DỮ LIỆU MẪU] Solar energy installation company" };
-          if (section.type === "hero") data.title = { ...data.title as object, lead: { vi: "Tiêu đề VI", en: "English hero" } };
-          if (section.type === "packages") data.items = (data.items as object[]).map((item) => ({ ...item, price: 180_000_000, salePrice: 144_000_000 }));
-          await repo.sectionContent.create({ siteId: site.id, pageId: page.id, ...section, data: json(data) });
+          else if (section.type === "hero") data.title = { ...data.title as object, lead: { vi: "Tiêu đề VI", en: "English hero" } };
+          else if (section.type === "packages") data.items = (data.items as object[]).map((item) => ({ ...item, price: 180_000_000, salePrice: 144_000_000 }));
+          else continue;
+          const row = await repo.sectionContent.first({ where: { pageId: page.id, sectionId: section.sectionId } });
+          await repo.sectionContent.update(row!.id, { data: json(data) });
         }
         for (const source of demo.pages.slice(1)) {
-          const extra = await repo.page.create({ siteId: site.id, slug: source.slug, kind: source.kind, sections: source.pageSections, title: { vi: source.title.vi, en: `English ${source.slug}` }, publishedAt: new Date() });
-          for (const section of source.sections) await repo.sectionContent.create({ siteId: site.id, pageId: extra.id, ...section, data: json(section.data) });
+          const extra = await repo.page.first({ where: { siteId: site.id, slug: source.slug } });
+          await repo.page.update(extra!.id, { title: { vi: source.title.vi, en: `English ${source.slug}` } });
         }
         const products = [];
         for (let i = 0; i < 49; i++) {
@@ -66,12 +77,13 @@ async function main() {
         await repo.service.create({ slug: "review-service", title: { vi: "Giải pháp thiếu EN" }, status: "published", data: { ...demo.collections.services[0].data, image: site.id, problem: { vi: "" } } });
         const original = demo.collections.posts[0];
         const post = await repo.post.create({ slug: "review-post", title: { vi: "Bài viết VI", en: "English post" }, status: "published", segment: "household", data: { ...original.data, excerpt: { vi: "Mô tả VI", en: "English excerpt" }, body: [{ vi: "Nội dung bài VI", en: "English post body" }] } });
-        const saved = { siteId: site.id, pageId: page.id, products, postId: post.id, host };
+        const saved = { tenantId, siteId: site.id, pageId: page.id, products, postId: post.id, host };
         mkdirSync(resolve(file, ".."), { recursive: true });
         writeFileSync(file, JSON.stringify(saved));
         console.log(JSON.stringify(saved));
       } else {
-        const saved = JSON.parse(readFileSync(file, "utf8")) as { siteId: string; pageId: string; products: string[]; postId: string };
+        const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
+        const repo = forTenant(db, saved.tenantId);
         if (action === "no-dark" || action === "switcher-off") {
           await repo.site.update(saved.siteId, { themeId: action === "no-dark" ? "t01" : "t15", profile: { name: { vi: "[DỮ LIỆU MẪU] Review", en: "[DỮ LIỆU MẪU] Review EN" }, theme: { default: "dark", switcher: action !== "switcher-off" } }, locales: ["en"], defaultLocale: "en" });
         } else if (action === "no-chrome" || action === "disabled-chrome") {
