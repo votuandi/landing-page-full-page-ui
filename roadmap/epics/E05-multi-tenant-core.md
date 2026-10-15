@@ -239,8 +239,10 @@ chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
   - Bằng chứng E5-S10 (Postgres 16.10 portable, Docker không chạy được trên máy vì hypervisor tắt):
     `packages/db/src/__tests__/accounts.int.test.ts` (unique theo tenant, CHECK định danh/ghost, chéo tenant, omit secret,
     slug dành riêng, Site thứ hai), `schema.test.ts` (CHECK khớp `RESERVED_TENANT_SLUGS`), `packages/core` `tenantSlug.test.ts`;
-    `@solar/db` 109/109 không skip. Migration `20261015000000_accounts` deploy trên DB đã có `init` + seed cũ, schema không lệch
-    DB; `prisma db seed` ×2 (`.agent-runs/E5-S10/db-deploy-seed.log`). `pnpm turbo run typecheck lint test build` 35/35
+    `@solar/db` 113/113 không skip (thêm: đọc lồng qua customer/plan/ghostGrant bị chặn, grant chỉ mở phiên ở tenant đích,
+    FK ghép token/PageVersion khi tạo và cập nhật, mọi tổ hợp CHECK phiên, mật khẩu đúng theo realm, seed thiếu
+    `SEED_PASSWORD`). Nâng cấp thật: DB dựng bằng code base (`init` + seed cũ) → deploy hai migration mới: số bản ghi và md5
+    dữ liệu section giữ nguyên, `pageTypes` backfill đủ 9 loại, schema khớp DB, seed ×2 (`.agent-runs/E5-S10/upgrade.log`). `pnpm turbo run typecheck lint test build` 35/35
     (`.agent-runs/E5-S11/checks2.log`); `tooling/visual/tenant.spec.ts` 27/28, test còn lại lỗi DNS `*.localhost` của Node trên
     Windows (robots/sitemap kiểm lại bằng curl `Host:`), CI Linux chạy đủ. Fixture trình duyệt dùng tenant `review-t15` riêng.
 - Phụ thuộc: S01, S02 · Agent: Codex (review Claude adversarial) · Cỡ: M
@@ -269,11 +271,14 @@ Story nâng cấp phần đã làm: preset hiện chỉ có section của trang 
   - [x] Site không có trang Sản phẩm trong cấu trúc → `/san-pham` và `/san-pham/<slug>` trả 404, không có trong sitemap.
   - [x] `applyPlanToPreset(t15, basic)` không còn section/trang có entitlement ngoài gói Cơ bản; `validateSiteStructure`
         từ chối cấu hình thiếu trang bắt buộc hoặc có trang ngoài gói.
-  - [ ] Hai tenant seed render y như trước (`tooling/visual/tenant.spec.ts` qua, ảnh hồi quy khớp).
+  - [x] Hai tenant seed render y như trước (`tooling/visual/tenant.spec.ts` qua, ảnh hồi quy khớp).
   - [x] Site chỉ có subdomain nền tảng → không có `noindex`; thêm tên miền chính khác → subdomain 308.
   - Bằng chứng E5-S11: `apps/web/src/lib/tenant/__tests__/routes.test.ts` (`routeEnabled`), `seo.test.ts` (sitemap bỏ trang
     ngoài cấu trúc/gói, `NOINDEX_DOMAINS`), `packages/presets` test cấu trúc (16/16); web tenant 49 qua (2 skip Redis).
     Server dev thật: bỏ `products` khỏi `pageTypes` của t12 → `/san-pham`, `/san-pham/<slug>` 404, sitemap 0 URL sản phẩm,
-    t15 vẫn 200. Spec trình duyệt tenant 27/28 (lỗi DNS môi trường như S10); ảnh hồi quy chờ CI `visual.yml` (baseline Linux).
+    t15 vẫn 200. Spec trình duyệt tenant 27/28 (lỗi DNS môi trường như S10). So ảnh trước/sau: code base + DB cũ so với code
+    mới + cùng DB sau migration và seed lại, 2 tenant × 8 route × 390/1440 = 32/32 khớp (ngưỡng 0,2% điểm ảnh, che
+    video/iframe/canvas; `.agent-runs/E5-S11/compare.log`, spec `compare.spec.ts`). Landing theo gói: hạ t12 xuống Cơ bản →
+    `/uu-dai/nang-luong` 404 và ra khỏi sitemap, `/about-us` vẫn 308 (`.agent-runs/E5-S11/landing-check.log`).
 - Phụ thuộc: S04, S08, E6-S01 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
