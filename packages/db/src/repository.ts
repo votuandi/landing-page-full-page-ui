@@ -6,6 +6,7 @@ import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 import { tenantModels, optionalTenantModels } from "./tenantScope.ts";
 import { Prisma as PrismaValues } from "../generated/client.ts";
+import { outboxRepository } from "./outbox.ts";
 
 const repositoryModels = [...tenantModels, ...optionalTenantModels];
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
@@ -151,6 +152,7 @@ function platformRepository(db: PlatformDb) {
     },
     customer: client.customer, platformAdmin: client.platformAdmin, platformSession: client.platformSession,
     ghostGrant: client.ghostGrant, platformSetting: client.platformSetting,
+    outbox: outboxRepository(db),
   };
 }
 

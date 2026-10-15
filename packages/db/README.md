@@ -174,6 +174,14 @@ Chuyển domain sang tenant khác: gỡ bản ghi cũ, tạo bản ghi `pending`
 host bị ảnh hưởng sau commit; đổi primary phải invalidate cả alias của site.
 Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.md).
 
+## Lead và outbox (E11-S01)
+
+- `createLead(db, tenantId, siteId, lead)`: một `withTenantTransaction` ghi `Lead` + một `Outbox{topic:"lead.deliver"}` cho
+  mỗi `LeadIntegration` đang bật (khóa `lead.deliver:<leadId>:<integrationId>`). Lỗi bất kỳ → không có lead thiếu job.
+- `forPlatform(platformDb).outbox` (chỉ client `app_platform`, dùng ở worker/console): `claim` (SKIP LOCKED + lease),
+  `complete`, `fail` (backoff `backoffMs`, dead = `failed` sau `maxAgeMs`), `resend`, `enqueue` (bỏ qua khóa trùng).
+  Chi tiết ngữ nghĩa: `apps/worker/README.md`.
+
 ## Giới hạn đã biết
 
 - Runtime không đọc được bảng nền tảng; relation Tenant chỉ thấy tenant trong context. RLS không thay permission/auth.
