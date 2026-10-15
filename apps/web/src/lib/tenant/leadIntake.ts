@@ -34,12 +34,12 @@ export const toLeadInput = ({ name, phone, email, message, source, segment, ...d
   ({ name, phone, email, message, source, segment, data: JSON.parse(JSON.stringify(data)) });
 
 /** Cloudflare Turnstile, only when `TURNSTILE_SECRET_KEY` is set. */
-export async function verifyTurnstile(token: string, ip: string, secret = process.env.TURNSTILE_SECRET_KEY) {
+export async function verifyTurnstile(token: string, ip: string, secret = process.env.TURNSTILE_SECRET_KEY, timeoutMs = 5_000) {
   if (!secret) return true;
   if (!token) return false;
   try {
     const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST", body: new URLSearchParams({ secret, response: token, remoteip: ip }), signal: AbortSignal.timeout(5_000),
+      method: "POST", body: new URLSearchParams({ secret, response: token, remoteip: ip }), signal: AbortSignal.timeout(timeoutMs),
     });
     return (await response.json() as { success?: unknown }).success === true;
   } catch { return false; }

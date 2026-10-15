@@ -159,3 +159,33 @@ test("Postgres outbox: retries, worker crash, concurrent workers and dead jobs (
     await Promise.all([db.$disconnect(), platform.$disconnect()]);
   }
 });
+
+test("Postgres: a job whose status write fails is re-claimed after its lease and delivered exactly once (idempotent channel)", { skip }, async () => {
+  const db = createDb({ pool: 1 }), platform = createPlatformDb({ pool: 2 });
+  const outbox = forPlatform(platform).outbox;
+  const tenantId = randomUUID(), siteId = randomUUID();
+  await platform.tenant.create({ data: { id: tenantId, slug: `outbox-c2-${tenantId}`, name: "[DỮ LIỆU MẪU] C2", planId: "pro", status: "active" } });
+  try {
+    await platform.site.create({ data: { id: siteId, tenantId, name: "C2", themeId: "t15" } });
+    await platform.leadIntegration.create({ data: { tenantId, kind: "webhook", name: "hook", configEncrypted: "test" } });
+    const { id: leadId } = await createLead(db, tenantId, siteId, { source: "contact", name: "A", phone: "0901234572", data: {} });
+    const hook = channel(true);
+    const topics = { "lead.deliver": { handle: createLeadDeliver({ db: platform, senders: { webhook: hook.sender } }) } };
+    let clock = Date.now();
+    const now = () => new Date(clock);
+    // Sent, then the database blips while marking it done (and while recording the failure).
+    const broken = { ...outbox, complete: async () => { throw new Error("db blip"); }, fail: async () => { throw new Error("db blip"); } };
+    await assert.rejects(runOnce({ outbox: broken, topics, tenantId, now }), /db blip/);
+    assert.equal((await forTenant(db, tenantId).outbox.first())?.status, "processing");
+    assert.equal(await runOnce({ outbox, topics, tenantId, now }), 0, "lease still held");
+    clock += 2 * MIN;
+    assert.equal(await runOnce({ outbox, topics, tenantId, now }), 1);
+    const row = await forTenant(db, tenantId).outbox.first();
+    assert.deepEqual([row?.status, row?.attempts], ["done", 2]);
+    assert.deepEqual(hook.received, [`${leadId}:${row?.payload && (row.payload as { integrationId: string }).integrationId}`]);
+  } finally {
+    await platform.lead.deleteMany({ where: { tenantId } });
+    await platform.tenant.delete({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), platform.$disconnect()]);
+  }
+});

@@ -220,3 +220,46 @@ test("phone quota uses the normalized number; Redis down still stores the lead v
   assert.deepEqual(statuses, [...Array(LEAD_LIMITS.phone.limit).fill(200), 429], "equivalent numbers share one quota");
   assert.deepEqual(new Set(saved), new Set(["0901234599"]));
 });
+
+test("verifyTurnstile aborts a hanging Siteverify call after its timeout and fails closed", async () => {
+  const original = globalThis.fetch;
+  let signal: AbortSignal | undefined;
+  globalThis.fetch = ((_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+    signal = init.signal ?? undefined;
+    signal?.addEventListener("abort", () => reject(signal?.reason));
+  })) as typeof fetch;
+  try {
+    const started = Date.now();
+    assert.equal(await verifyTurnstile("good", "1.1.1.1", "secret", 20), false);
+    assert.ok(signal?.aborted, "request was aborted by the timeout signal");
+    assert.ok(Date.now() - started < 2_000);
+  } finally { globalThis.fetch = original; }
+});
+
+test("rate-limit keys are per tenant: A exhausting its IP and phone quota does not block B", async () => {
+  const keys: string[] = [];
+  const counter = memoryCounter();
+  const handler = createTenantLeadHandler({
+    loadSite: async () => ({ entitlements: entitlements() }), saveLead: async () => ({ id: "x" }), verifyTurnstile: async () => true,
+    limiter: createRateLimiter({ primary: async (key, windowMs) => { keys.push(key); return counter(key, windowMs); } }),
+  });
+  const otherTenant = "00000000-0000-4000-8000-0000000000bb";
+  const asTenant = (id: string) => post(lead("contact"), "203.0.113.77", { "x-tenant-id": id, "x-site-id": siteId });
+  for (let i = 0; i < LEAD_LIMITS.phone.limit; i++) assert.equal((await handler(asTenant(tenantId))).status, 200);
+  assert.equal((await handler(asTenant(tenantId))).status, 429);
+  assert.equal((await handler(asTenant(otherTenant))).status, 200, "same IP and phone, other tenant");
+  assert.ok(keys.includes(`rl:lead:${tenantId}:ip:203.0.113.77`) && keys.includes(`rl:lead:${otherTenant}:phone:0901234500`));
+});
+
+test("parseLead bounds: 30 estimate entries, 50 items, qty defaults to 1 and clamps to 1..999", () => {
+  const estimate = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`k${i}`, i]));
+  const items = Array.from({ length: 60 }, (_, i) => ({ sku: `s${i}`, name: `n${i}`, qty: [undefined, "x", 0, -5, 0.4][i % 5] }));
+  const parsed = parseLead({ name: "A", phone: "0901234567", estimate, items });
+  assert.ok("lead" in parsed);
+  assert.equal(Object.keys(parsed.lead.estimate ?? {}).length, 30);
+  assert.equal(parsed.lead.items?.length, 50);
+  assert.deepEqual(new Set(parsed.lead.items?.map((item) => item.qty)), new Set([1]));
+  const arrayEstimate = parseLead({ name: "A", phone: "0901234567", estimate: [1, 2], items: "x" });
+  assert.ok("lead" in arrayEstimate);
+  assert.deepEqual([arrayEstimate.lead.estimate, arrayEstimate.lead.items], [undefined, undefined]);
+});
