@@ -10,9 +10,10 @@ import { addToQuoteCart, clearCart, countItems, removeItem, sanitizeCart, setQty
 const QuoteCartDrawer = dynamic(() => import("@/components/QuoteCartDrawer"), { ssr: false });
 
 type QuoteCartApi = {
-  /** Dòng giỏ: `sku` = slug sản phẩm trong data/products.ts */
+  /** SKU là slug sản phẩm published của site; legacy dùng catalog t15. */
   lines: CartLine[];
   count: number;
+  enabled: boolean;
   add: (sku: string, qty?: number) => void;
   setQty: (sku: string, qty: number) => void;
   remove: (sku: string) => void;
@@ -24,26 +25,28 @@ type QuoteCartApi = {
 const Ctx = createContext<QuoteCartApi | null>(null);
 
 /** Giỏ yêu cầu báo giá (không thanh toán): lưu localStorage (bọc try/catch, có fallback bộ nhớ), drawer bên phải. */
-export function QuoteCartProvider({ children, showDrawer = true }: { children: React.ReactNode; showDrawer?: boolean }) {
+export function QuoteCartProvider({ children, showDrawer = true, validSkus, enabled = catalogEnabled }: { children: React.ReactNode; showDrawer?: boolean; validSkus?: string[]; enabled?: boolean }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setOpen] = useState(false);
+  const valid = useMemo(() => validSkus ? new Set(validSkus) : null, [validSkus]);
+  const accepts = useCallback((sku: string) => enabled && (valid ? valid.has(sku) : Boolean(productBySlug(sku))), [enabled, valid]);
 
   useEffect(() => {
-    const refresh = () => setLines(sanitizeCart(readQuoteCart(), (sku) => Boolean(productBySlug(sku))));
+    const refresh = () => setLines(sanitizeCart(readQuoteCart(), accepts));
     refresh();
     const stopChange = onQuoteCartChange(refresh);
     const stopOpen = onOpenQuoteCart(() => setOpen(true));
     return () => { stopChange(); stopOpen(); };
-  }, []);
+  }, [accepts]);
 
-  const add = useCallback((sku: string, qty = 1) => addToQuoteCart(sku, qty), []);
+  const add = useCallback((sku: string, qty = 1) => { if (accepts(sku)) addToQuoteCart(sku, qty); }, [accepts]);
   const update = useCallback((sku: string, qty: number) => writeQuoteCart(setQty(readQuoteCart(), sku, qty)), []);
   const remove = useCallback((sku: string) => writeQuoteCart(removeItem(readQuoteCart(), sku)), []);
   const clear = useCallback(() => writeQuoteCart(clearCart()), []);
   const open = useCallback(() => openQuoteCart(), []);
   const close = useCallback(() => setOpen(false), []);
 
-  const api = useMemo(() => ({ lines, count: countItems(lines), add, setQty: update, remove, clear, open, close }), [lines, add, update, remove, clear, open, close]);
+  const api = useMemo(() => ({ lines, count: countItems(lines), enabled, add, setQty: update, remove, clear, open, close }), [lines, enabled, add, update, remove, clear, open, close]);
 
   return (
     <Ctx.Provider value={api}>

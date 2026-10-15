@@ -10,9 +10,11 @@ import { TESTIMONIALS } from "../../../../apps/web/src/data/testimonials.ts";
 import { FAQS } from "../../../../apps/web/src/data/faq.ts";
 import { buildDemo } from "../../prisma/seed-data.ts";
 
-test("both demos share complete t15 collections and keep localized titles and static image paths", () => {
+test("both demos keep t15 slugs/assets with distinct localized published content", () => {
   const a = buildDemo("t15"), b = buildDemo("t12");
-  assert.deepEqual(a.collections, b.collections);
+  assert.notDeepEqual(a.collections.posts[0].title, b.collections.posts[0].title);
+  assert.notDeepEqual(a.collections.projects[0].data, b.collections.projects[0].data);
+  assert.deepEqual(a.collections.posts.map((row) => row.slug), b.collections.posts.map((row) => row.slug));
   const { products, projects, posts, stories, testimonials, faqs } = a.collections;
   assert.deepEqual(products.map((row) => row.slug), PRODUCTS.map((row) => row.slug));
   assert.deepEqual(projects.map((row) => row.slug), PROJECTS.map((row) => row.slug));
@@ -34,11 +36,15 @@ test("preset data is separated from page descriptors without losing versions, wi
     assert.match(demo.name, /\[DỮ LIỆU MẪU\]/);
     assert.equal(demo.themeId, loaded.preset.themeId);
     assert.deepEqual(demo.widgets, loaded.widgets);
-    assert.deepEqual(demo.sections.map((section) => section.data), loaded.page.sections.map((section) => section.data));
+    assert.equal(demo.pages.length, 5);
+    assert.ok(demo.collections.services.length);
+    assert.ok(demo.collections.branches.length);
+    assert.ok(demo.collections.certificates.length);
     assert.deepEqual(demo.pageSections, loaded.page.sections.map(({ data: _data, ...descriptor }) => descriptor));
     assert.ok(demo.pageSections.every((section) => !("data" in section)));
     for (const section of demo.sections) {
       assert.equal(section.schemaVersion, sectionRegistry.getType(section.type)!.schemaVersion);
+      assert.ok(sectionRegistry.getType(section.type)!.schema.safeParse(section.data).success);
     }
   }
 });

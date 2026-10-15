@@ -8,7 +8,8 @@ export const formatNumber = (value: number, decimals = 0) =>
 export const parseNumber = (text: string) => Number(text.replace(/[^\d]/g, "")) || 0;
 
 /** 1.234.000.000 → "1,23 tỷ"; 3.450.000 → "3,5 triệu"; 930.710 → "931 nghìn" */
-export function formatMoneyShort(value: number) {
+export function formatMoneyShort(value: number, locale: "vi" | "en" = "vi") {
+  if (locale === "en") return `${new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(value)} VND`;
   // bỏ số 0 thừa ở phần thập phân (3,50 → 3,5; 2,00 → 2) nhưng KHÔNG đụng phần nguyên (180 giữ nguyên)
   const fmt = (n: number, digits: number) => n.toFixed(digits).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "").replace(".", ",");
   if (value >= 1e9) return `${fmt(value / 1e9, 2)} tỷ`;

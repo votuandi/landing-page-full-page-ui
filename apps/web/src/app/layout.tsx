@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { preload } from "react-dom";
 import { t15, themeFontCss, themeFontFiles } from "@solar/themes";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
+import { loadTenantSite } from "@/lib/tenant/siteData";
+import { tenantMetadata } from "@/lib/tenant/metadata";
 import { colorChannelsToHex, themeToCss } from "@solar/tokens";
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
@@ -14,9 +18,15 @@ const { brand, branches, socials, legal } = siteConfig;
 const tagline = pickText(brand.tagline, "vi");
 const defaultTitle = `${brand.name} | Phân phối thiết bị & tổng thầu EPC điện mặt trời`;
 
-export const viewport: Viewport = { width:"device-width", initialScale:1, themeColor:colorChannelsToHex(t15.colors.light.bg) };
+export async function generateViewport(): Promise<Viewport> {
+  const request = await headers();
+  const siteId = request.get("x-site-id");
+  const site = siteId ? await loadTenantSite(request.get("x-tenant-id") ?? "", siteId) : null;
+  const mode = site?.theme.meta.supportsDark && site.profile.theme.default === "dark" ? "dark" : "light";
+  return { width: "device-width", initialScale: 1, themeColor: colorChannelsToHex(site?.overrides.colors?.[mode]?.bg ?? site?.theme.colors[mode]?.bg ?? t15.colors.light.bg) };
+}
 
-export const metadata: Metadata = {
+const legacyMetadata: Metadata = {
   metadataBase:new URL(brand.url),
   title:{ default:defaultTitle, template:`%s | ${brand.name}` },
   description:brand.description,
@@ -33,6 +43,14 @@ export const metadata: Metadata = {
   twitter:{ card:"summary_large_image", title:defaultTitle, description:brand.description, images:[brand.ogImage] },
   formatDetection:{ telephone:false },
 };
+export async function generateMetadata(): Promise<Metadata> {
+  const request = await headers();
+  const siteId = request.get("x-site-id");
+  if (!siteId) return legacyMetadata;
+  const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
+  if (!site) notFound();
+  return tenantMetadata(site, "/");
+}
 
 const orgId = `${brand.url}/#organization`;
 const tel = (p: string) => `+84${phoneDigits(p).replace(/^0/, "")}`;
@@ -83,7 +101,20 @@ const schema = {
 const themeScript = `(function(){try{var t=localStorage.getItem("t15-theme");if(${siteConfig.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t=${JSON.stringify(siteConfig.theme.default)};document.documentElement.dataset.theme=t;}catch(e){}})();`;
 const themeCss = themeToCss(t15) + themeFontCss(t15);
 
-export default function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
+export default async function RootLayout({ children }: Readonly<{children:React.ReactNode}>) {
+  const request = await headers();
+  const siteId = request.get("x-site-id");
+  if (siteId) {
+    const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
+    if (!site) notFound();
+    const mode = site.theme.meta.supportsDark ? site.profile.theme.default : "light";
+    const script = `(function(){try{var t=localStorage.getItem("t15-theme");if(${site.theme.meta.supportsDark && site.profile.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t="${mode}";document.documentElement.dataset.theme=t;}catch(e){}})();`;
+    for (const file of themeFontFiles(site.theme)) preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+    return <html lang={site.locale} data-tenant-site={site.siteId} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(site.theme) }} /><script dangerouslySetInnerHTML={{ __html: script }} /></head>
+      <body>{children}</body>
+    </html>;
+  }
   const loaded = loadPreset("t15");
   const site = { tenantId: "preset-demo", locale: "vi" as const, themeId: loaded.theme.meta.id };
   const canUse = (feature: string) => feature !== "catalog" || catalogEnabled;

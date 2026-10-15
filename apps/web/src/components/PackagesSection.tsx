@@ -22,7 +22,7 @@ const COVERS: Record<Segment, { src: string; pitch: [string, string] }> = {
 
 /** Gói giải pháp theo phân khúc đang chọn (state chung, mặc định Hộ gia đình). "Nhận tư vấn" điền sẵn phân khúc vào dự toán. */
 export default function PackagesSection() {
-  const { tr } = useLang();
+  const { tr, lang } = useLang();
   const { segment, setSegment } = useSegment();
   const current = segment ?? "household";
   const list = packagesFor(current);
@@ -72,7 +72,7 @@ export default function PackagesSection() {
                     {pkg.highlights.map((h) => <li key={h} className="flex gap-2"><CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2.5} />{h}</li>)}
                   </ul>
                   <div className="mt-auto pt-5">
-                    <PriceTag price={pkg.price} salePrice={pkg.salePrice} short className="text-2xl" />
+                    <PriceTag locale={lang} price={pkg.price} salePrice={pkg.salePrice} short className="text-2xl" />
                     <button type="button" onClick={() => openCalculator({ segment: pkg.segment, topic: `${pkg.name} (${formatNumber(pkg.kwp, 1)} kWp)` })} className="t15-button t15-button-primary mt-4 w-full">
                       {tr("Nhận tư vấn gói này", "Get advice on this package")} <ArrowRightIcon className="h-4 w-4" />
                     </button>

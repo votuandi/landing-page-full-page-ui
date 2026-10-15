@@ -97,10 +97,10 @@ test("widget collection loader receives tenant and hydrates cart catalog with qu
   assert.equal(result.items[0].slug, productsFixture.items[0].slug);
 });
 
-test("invalid or failing widget data is skipped with tenant log; others render and loader gets defaults", async (t) => {
+test("schema lỗi dùng defaults; I/O lỗi bỏ widget và log tenant; loader nhận defaults", async (t) => {
   const error = t.mock.method(console, "error", () => {});
   const html = await render({ "consult-popup": { enabled: true, data: {} }, "scroll-progress": { enabled: true } }, "overlay");
-  assert.doesNotMatch(html, /consult-popup/);
+  assert.match(html, /consult-popup/);
   assert.match(html, /scroll-progress/);
   assert.equal((error.mock.calls[0].arguments[1] as { tenantId: string }).tenantId, site.tenantId);
   let loaded = false;
@@ -116,6 +116,15 @@ test("invalid or failing widget data is skipped with tenant log; others render a
 test("consult scroll trigger opens at or above its threshold", () => {
   assert.equal(reachedScrollRatio(600, 1800, 800, 0.6), true);
   assert.equal(reachedScrollRatio(601, 1800, 800, 0.6), true);
+});
+
+test("invalid hydrated widget falls back to schema defaults without logging raw JSON", async (t) => {
+  const log = t.mock.method(console, "error", () => {});
+  const html = renderToStaticMarkup(await SiteWidgets({ widgets: { "scroll-progress": { enabled: true, variant: "t15" } }, site, slot: "overlay", registry,
+    loadData: () => "SECRET_INVALID_JSON" }));
+  assert.match(html, /data-widget="scroll-progress"/);
+  assert.equal(log.mock.callCount(), 1);
+  assert.doesNotMatch(JSON.stringify(log.mock.calls), /SECRET_INVALID_JSON/);
 });
 
 test("consult scroll trigger stays closed below its threshold", () => {

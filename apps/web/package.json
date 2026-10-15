@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -25,7 +25,8 @@
     "@solar/themes": "workspace:*",
     "@solar/tokens": "workspace:*",
     "@solar/sections": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.5",
+    "@solar/plans": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.15",

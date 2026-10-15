@@ -47,11 +47,18 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @solar/db db:deploy
-      - run: pnpm --filter @solar/db plans:sync
+      # db:seed generates the client and syncs plans before seeding tenants.
       - run: pnpm db:seed
       - run: pnpm db:seed
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tenant-browser-evidence
+          path: tooling/visual/test-results/tenant
   verify:
     strategy:
       fail-fast: false

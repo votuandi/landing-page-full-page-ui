@@ -200,9 +200,10 @@ test("đổi giá điện trong dữ liệu section → dự toán đổi theo",
   assert.equal(next.cost, next.kwp * 22_000_000);
 });
 
-test("mediaSrc chỉ nhận đường dẫn tĩnh cùng origin", () => {
+test("mediaSrc accepts static/HTTPS images and leaves UUIDs or unsafe paths unresolved", () => {
   assert.equal(mediaSrc({ id: "/images/a.webp", alt: { vi: "" } }), "/images/a.webp");
-  for (const id of ["//evil.com/a.png", "media_123", "https://x.com/a.png"]) {
+  assert.equal(mediaSrc({ id: "https://x.com/a.png", alt: { vi: "" } }), "https://x.com/a.png");
+  for (const id of ["//evil.com/a.png", "media_123", "http://x.com/a.png", "/../private.png", "https://user:password@x.com/a.png"]) {
     assert.equal(mediaSrc({ id, alt: { vi: "" } }), undefined);
   }
 });

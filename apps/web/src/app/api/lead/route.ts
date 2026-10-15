@@ -24,6 +24,9 @@ function cleanItems(value: unknown): Lead["items"] {
 }
 
 export async function POST(request: Request) {
+  if (request.headers.has("x-tenant-id") || request.headers.has("x-site-id")) {
+    return NextResponse.json({ ok: false, message: "Chưa thể gửi thông tin. Vui lòng liên hệ hotline của công ty." }, { status: 503 });
+  }
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, message: "Dữ liệu không hợp lệ" }, { status: 400 }); }
 

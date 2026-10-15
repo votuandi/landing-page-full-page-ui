@@ -7,6 +7,7 @@ import { formatMoneyShort, formatNumber, type Segment } from "@solar/core";
 import { MediaImage, PriceTag } from "@solar/ui";
 import { SegmentIcon } from "../shared/SegmentIcon";
 import { useSegment, useOpenCalculator } from "../state/SiteState";
+import type { Locale } from "../site";
 
 export type PackageTabView = { segment: Segment; label: string; short: string; pitch: string; cover: { src?: string; alt: string } };
 export type PackageView = {
@@ -15,9 +16,10 @@ export type PackageView = {
 };
 
 /** Tab phân khúc + thẻ gói t15. Mở sẵn theo `?phan-khuc=` nếu có; "Nhận tư vấn" điền sẵn dự toán. */
-export default function PackagesIsland({ head, tabs, items, defaultSegment, maxPerSegment, text }: {
+export default function PackagesIsland({ head, tabs, items, defaultSegment, maxPerSegment, text, locale }: {
   /** Tiêu đề render server, đặt cạnh nhóm tab. */
   head: ReactNode;
+  locale: Locale;
   tabs: PackageTabView[];
   items: PackageView[];
   defaultSegment: Segment;
@@ -69,7 +71,7 @@ export default function PackagesIsland({ head, tabs, items, defaultSegment, maxP
               {pkg.monthlySaving !== undefined && (
                 <div className="mt-4 rounded-2xl bg-bg-tint p-3">
                   <div className="text-2xs font-bold uppercase tracking-[.14em] text-fg-muted">{text.saving}</div>
-                  <div className="text-xl font-black text-primary">~{formatMoneyShort(pkg.monthlySaving)}<span className="text-sm font-bold text-fg-muted">/{text.month}</span></div>
+                  <div className="text-xl font-black text-primary">~{formatMoneyShort(pkg.monthlySaving, locale)}<span className="text-sm font-bold text-fg-muted">/{text.month}</span></div>
                 </div>
               )}
               <ul className="mt-4 grid gap-2 text-sm text-fg-muted">
@@ -77,7 +79,7 @@ export default function PackagesIsland({ head, tabs, items, defaultSegment, maxP
                 {pkg.highlights.map((h) => <li key={h} className="flex gap-2"><CheckIcon aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2.5} />{h}</li>)}
               </ul>
               <div className="mt-auto pt-5">
-                <PriceTag price={pkg.price} salePrice={pkg.salePrice} short className="text-2xl" />
+                <PriceTag locale={locale} price={pkg.price} salePrice={pkg.salePrice} short className="text-2xl" />
                 <button type="button" onClick={() => openCalculator({ segment: pkg.segment, topic: pkg.topic })} className="t15-button t15-button-primary mt-4 w-full">
                   {text.cta} <ArrowRightIcon aria-hidden className="h-4 w-4" />
                 </button>

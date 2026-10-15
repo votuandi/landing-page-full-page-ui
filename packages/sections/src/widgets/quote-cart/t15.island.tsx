@@ -59,7 +59,7 @@ function CartDrawer({ sectionId, locale, items, labels, browseLink, lines, onClo
           : rows.length === 0 ? <div className="text-center text-fg-muted"><p>{labels.emptyText}</p>{browse(labels.browseLabel)}</div>
           : <><ul className="space-y-4">{rows.map(({ sku, qty, product }) => <li key={sku} className="flex gap-3 border-b border-line/10 pb-4">
             <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-card bg-bg-tint"><MediaImage src={product.image.src} alt={product.image.alt} sizes="80px" className="object-contain" /></div>
-            <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-fg">{product.name}</h3><PriceTag price={product.price} salePrice={product.salePrice} className="text-sm" />
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-fg">{product.name}</h3><PriceTag locale={locale} price={product.price} salePrice={product.salePrice} className="text-sm" />
               <div className="mt-2 flex items-center gap-2"><button type="button" aria-label={`${ui.less}: ${product.name}`} className="t15-icon-button" onClick={() => writeQuoteCart(setQty(readQuoteCart(), sku, qty - 1))}><MinusIcon aria-hidden className="h-4 w-4" /></button>
                 <span aria-live="polite" className="font-bold text-fg">{qty}</span>
                 <button type="button" aria-label={`${ui.more}: ${product.name}`} disabled={qty >= MAX_QTY} className="t15-icon-button disabled:opacity-50" onClick={() => writeQuoteCart(setQty(readQuoteCart(), sku, qty + 1))}><PlusIcon aria-hidden className="h-4 w-4" /></button>

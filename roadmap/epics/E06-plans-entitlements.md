@@ -7,7 +7,7 @@ bật/tắt theo gói, kiểm tra phía server.
 
 ---
 
-### E6-S01 · Định nghĩa gói trong code
+### E6-S01 · Định nghĩa gói trong code ✅ · PR [#35](https://github.com/votuandi/landing-page-full-page-ui/pull/35)
 **Là** chủ dự án, **tôi muốn** khai báo 3 gói và tính năng của từng gói ở một chỗ, **để** không bao giờ lệch giữa bán và giao.
 - **Chi tiết**: `packages/plans/plans.ts`:
   ```ts

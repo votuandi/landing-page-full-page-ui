@@ -25,6 +25,7 @@ type Props = {
   children?: React.ReactNode;
   onSuccess?: () => void;
   successText?: string;
+  hotline?: string;
 };
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -32,7 +33,7 @@ type Status = "idle" | "sending" | "success" | "error";
 /** Form lead dùng chung: kiểm tra số di động Việt Nam, honeypot chống spam, gửi POST /api/lead. */
 export default function LeadForm({
   source, fields = { zalo: true, address: true }, messageLabel, messagePlaceholder, defaultMessage = "",
-  getExtra, submitLabel, columns = 2, children, onSuccess, successText,
+  getExtra, submitLabel, columns = 2, children, onSuccess, successText, hotline = primaryHotline.phone,
 }: Props) {
   const { tr } = useLang();
   const id = useId();
@@ -96,7 +97,7 @@ export default function LeadForm({
       </button>
       {status === "error" && (
         <p role="alert" className={`text-sm font-bold text-danger ${span}`}>
-          {error} {tr("Hoặc gọi", "Or call")} <a className="underline" href={telHref(primaryHotline.phone)}>{primaryHotline.phone}</a>.
+          {error}{hotline && <> {tr("Hoặc gọi", "Or call")} <a className="underline" href={telHref(hotline)}>{hotline}</a>.</>}
         </p>
       )}
       <p className={`text-xs leading-5 text-fg-subtle ${span}`}>{tr("Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.", "Your details are only used for consultation and quotes, never shared.")}</p>

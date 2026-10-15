@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
-import { createDb, forPlatform, POOL_BUDGET } from "@solar/db";
+import { forPlatform } from "@solar/db";
+import { getWebDb } from "./db";
 import { normalizeHost } from "./host";
 import { createRedisCache } from "./redis";
 import { createHostResolver, type InvalidationBus } from "./resolver";
@@ -9,7 +10,7 @@ const state = globalThis as typeof globalThis & { solarHostResolver?: ReturnType
 export function getHostResolver() {
   if (!state.solarHostResolver) {
     if (!process.env.DATABASE_URL) throw new Error("MULTI_TENANT=1 requires DATABASE_URL for tenant resolution");
-    const db = createDb({ pool: POOL_BUDGET.web });
+    const db = getWebDb();
     const events = new EventEmitter();
     const localBus: InvalidationBus = {
       publish: async (hosts) => { events.emit("invalidate", hosts); },

@@ -95,9 +95,25 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   slug tiếng Việt như t15: `/san-pham`, `/cong-trinh/[slug]`, `/giai-phap`, `/tin-tuc`, `/cam-nang`, `/chinh-sach/[slug]`,
   `/ve-chung-toi`, `/lien-he`). Dữ liệu section đọc qua repository, kiểm schema (parse lỗi → dùng defaults + log).
 - **AC**:
-  - [ ] Hai tenant seed hiển thị khác theme, khác nội dung trên cùng instance, kể cả ở slug trùng nhau.
-  - [ ] Mọi trang của t15 có bản tương đương dưới `sites`.
-  - [ ] `generateMetadata` theo tenant (title, description, OG image, canonical = primaryHost).
+  - [x] Hai tenant seed hiển thị khác theme, khác nội dung trên cùng instance, kể cả ở slug trùng nhau.
+  - [x] Mọi trang của t15 có bản tương đương dưới `sites`.
+  - [x] `generateMetadata` theo tenant (title, description, OG image, canonical = primaryHost).
+  - Bằng chứng E5-S04: `apps/web/src/lib/tenant/__tests__/*`, seed hai lần trên PostgreSQL 16;
+    `tooling/visual/tenant.spec.ts` qua 5/5: A/B/A/B, ma trận mọi route seed, filter/quick-view/giỏ,
+    anchor, JS off, metadata và header giả mạo; primary alias 308 qua HTTP. Báo cáo/bằng chứng:
+    `.agent-runs/E5-S04/codex-report.md`. Web tạm dùng Webpack vì Turbopack xuất manifest preload chunk thiếu;
+    production hai host và legacy/lab qua browser với 0 lỗi. PR và review Claude chờ sau commit.
+  - Sửa review r1 trên [PR #36](https://github.com/votuandi/landing-page-full-page-ui/pull/36): adapter/giỏ/nội dung/VI-EN,
+    isolation và fallback đã có regression tests; browser 9/9, DB 101/101, tenant 43/43 (0 skip), visual/lab 64/64
+    với baseline đúng merge-base. Chi tiết và commit đề xuất: `.agent-runs/E5-S04/fix-r1-report.md`; review r2/CI sau commit.
+  - Sửa review r2: nhãn filter/giá EN, chặn control catalog trước hydration; tách route theo tenant/collection,
+    thêm metadata fallback qua dispatcher và keyboard/overflow 390/1440. Matrix probe đủ 30 type trên t15 ở bốn
+    project: 129/129, so 344 ô với exact base; shard cân tải 57/57 trong 2,9 phút. Full matrix 15 theme và CI/review
+    sau commit vẫn cần xác nhận; báo cáo `.agent-runs/E5-S04/fix-r2-report.md` ghi phạm vi kiểm chứng cụ thể.
+  - Sửa review r3: nối locale giá qua section/quick-view/widget giỏ và giá ngắn packages; thêm case đổi VI→EN/reload.
+    Hai diff CI của variant t10 được khoanh vùng vào widget shell ngoài ô; harness loại nguồn nhiễu và từ chối cache
+    ảnh theo cơ chế cũ. Base→base và base→HEAD cho đúng hai ô qua 10/10 mỗi lượt; bằng chứng, giới hạn và kiểm tra
+    cuối trong `.agent-runs/E5-S04/fix-r3-report.md`. CI/review sau commit và nhánh phát hành baseline base còn chờ.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
 ### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu

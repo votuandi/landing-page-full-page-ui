@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/presets", "@solar/db"],
+  transpilePackages: ["@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/presets", "@solar/db", "@solar/plans"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   compress: true,
   poweredByHeader: false,
+  // Next 16.3.8 leaves stale canonical tags after streamed tenant metadata on client navigation.
+  htmlLimitedBots: /.*/,
   // Không để `next dev` sinh AGENTS.md/CLAUDE.md trong apps/web — quy ước agent nằm ở AGENTS.md gốc
   agentRules: false,
   async headers() {

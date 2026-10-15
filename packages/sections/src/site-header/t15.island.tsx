@@ -9,6 +9,7 @@ import type { ClientLink } from "../shared/links";
 import type { Locale } from "../site";
 import { onSetSiteLocale, onToggleSiteMenu, setSiteLocale } from "../widgets/events";
 import ThemeSwitch from "../widgets/theme-switch/t15.island";
+import { useDialog } from "@solar/ui";
 
 type Phone = { phone: string; href: string };
 export type HeaderPricing = {
@@ -135,7 +136,7 @@ type Ui = (typeof UI)[Locale];
 function LangSwitch({ locale, ui, className = "" }: { locale: Locale; ui: Ui; className?: string }) {
   const [lang, setLang] = useState(locale);
   useEffect(() => {
-    try { const saved = localStorage.getItem("t15-lang"); if (saved === "vi" || saved === "en") setLang(saved); } catch { /* Storage may be blocked. */ }
+    try { const saved = localStorage.getItem("t15-lang"); if (!document.documentElement.dataset.tenantSite && (saved === "vi" || saved === "en")) setLang(saved); } catch { /* Storage may be blocked. */ }
     return onSetSiteLocale(setLang);
   }, []);
   const choose = (next: Locale) => {
@@ -247,7 +248,7 @@ export default function HeaderIsland(props: {
     <>
       <header ref={headerRef} className="t15-header" data-header-theme={controls.theme || undefined} onPointerLeave={hoverClose} onPointerEnter={() => window.clearTimeout(closeTimer.current)}>
         <div className="t15-container flex h-20 items-center justify-between gap-4">
-          <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={`${props.brandName} – ${ui.home}`}>{props.brand}</Link>
+          <Link href="/" className="flex min-w-0 items-center gap-3 xl:max-w-xs" aria-label={`${props.brandName} – ${ui.home}`}>{props.brand}</Link>
 
           <nav className="hidden items-center gap-5 xl:flex 2xl:gap-7" aria-label={ui.nav}>
             {pricing && trigger("pricing", pricing.label)}
@@ -256,7 +257,7 @@ export default function HeaderIsland(props: {
             {menus.slice(1).map((menu, i) => <span key={menu.label}>{trigger(`menu-${i + 1}`, menu.label)}</span>)}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {hotlines.length > 0 && (
               <div className="relative hidden xl:block">
                 <button ref={(el) => { triggers.current.hotline = el; }} type="button" aria-expanded={open === "hotline"} aria-controls={panelId("hotline")}
@@ -274,7 +275,7 @@ export default function HeaderIsland(props: {
                 )}
               </div>
             )}
-            {controls.language && <LangSwitch locale={props.locale} ui={ui} className="hidden sm:flex" />}
+            {controls.language && <LangSwitch key={props.locale} locale={props.locale} ui={ui} className="hidden sm:flex" />}
             {controls.theme && <ThemeSwitch lightLabel={ui.light} darkLabel={ui.dark} className="t15-icon-button hidden sm:inline-flex" />}
             {controls.cart && <CartButton ui={ui} className="t15-icon-button hidden sm:inline-flex" />}
             <Anchor link={props.cta} onNavigate={() => close()} className="t15-button t15-button-accent whitespace-nowrap !px-4 sm:!px-6" />
@@ -303,14 +304,8 @@ function MobileDrawer({ sectionId, locale, pricing, menus, links, mobileLinks, h
   ui: (typeof UI)[Locale]; onClose: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; document.removeEventListener("keydown", onKey); };
-  }, [onClose]);
+  const drawerRef = useRef<HTMLElement>(null);
+  useDialog(drawerRef, true, onClose);
 
   const section = (title: string, children: ReactNode, defaultOpen = false) => (
     <details key={title} open={defaultOpen || undefined} className="group/sec border-b border-line/12 py-1">
@@ -324,13 +319,13 @@ function MobileDrawer({ sectionId, locale, pricing, menus, links, mobileLinks, h
   return (
     <div id={`${sectionId}-drawer`} role="dialog" aria-modal="true" aria-label={ui.menu} className="fixed inset-0 z-[75] flex justify-end bg-scrim/60 backdrop-blur-sm xl:hidden">
       <button type="button" className="absolute inset-0" onClick={onClose} aria-label={ui.close} tabIndex={-1} />
-      <aside className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-card bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
+      <aside ref={drawerRef} tabIndex={-1} className="relative flex h-full w-full max-w-md flex-col overflow-y-auto rounded-l-card bg-bg-elevated px-5 pb-28 pt-4 shadow-2xl">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            {controls.language && <LangSwitch locale={locale} ui={ui} />}
+            {controls.language && <LangSwitch key={locale} locale={locale} ui={ui} />}
             {controls.theme && <ThemeSwitch lightLabel={ui.light} darkLabel={ui.dark} className="t15-icon-button" />}
           </div>
-          <button ref={closeRef} type="button" onClick={onClose} className="t15-icon-button" aria-label={ui.close}><XMarkIcon aria-hidden className="h-6 w-6" /></button>
+          <button ref={closeRef} data-autofocus type="button" onClick={onClose} className="t15-icon-button" aria-label={ui.close}><XMarkIcon aria-hidden className="h-6 w-6" /></button>
         </div>
         <nav className="mt-4" aria-label={ui.mobileNav}>
           {pricing && section(pricing.label, <PricingPanel compact pricing={pricing} ui={ui} idPrefix={`${sectionId}-m-pricing`} onDone={onClose} />, true)}

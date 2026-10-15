@@ -42,13 +42,14 @@ export const CATEGORIES: { value: ProductCategory; label: string; en: string }[]
 
 export const CATEGORY_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.value, c.label])) as Record<ProductCategory, string>;
 export const PRODUCT_SEGMENT_LABELS: Record<ProductSegment, string> = { home: "Hộ gia đình", business: "Doanh nghiệp", project: "Dự án / nhà xưởng" };
+export const PRODUCT_SEGMENT_LABELS_EN: Record<ProductSegment, string> = { home: "Household", business: "Business", project: "Projects / factories" };
 
 /** Khoảng giá trên trang /san-pham (?gia=…). Sản phẩm "Liên hệ" chỉ hiện khi không lọc giá. */
-export const PRICE_RANGES: { value: string; label: string; min: number; max: number }[] = [
-  { value: "duoi-1tr", label: "Dưới 1 triệu", min: 0, max: 1_000_000 },
-  { value: "1-5tr", label: "1 – 5 triệu", min: 1_000_000, max: 5_000_000 },
-  { value: "5-50tr", label: "5 – 50 triệu", min: 5_000_000, max: 50_000_000 },
-  { value: "tren-50tr", label: "Trên 50 triệu", min: 50_000_000, max: Infinity },
+export const PRICE_RANGES: { value: string; label: string; en: string; min: number; max: number }[] = [
+  { value: "duoi-1tr", label: "Dưới 1 triệu", en: "Under 1 million VND", min: 0, max: 1_000_000 },
+  { value: "1-5tr", label: "1 – 5 triệu", en: "1 – 5 million VND", min: 1_000_000, max: 5_000_000 },
+  { value: "5-50tr", label: "5 – 50 triệu", en: "5 – 50 million VND", min: 5_000_000, max: 50_000_000 },
+  { value: "tren-50tr", label: "Trên 50 triệu", en: "Over 50 million VND", min: 50_000_000, max: Infinity },
 ];
 
 const img = (name: string) => `/images/catalog/${name}.svg`;
