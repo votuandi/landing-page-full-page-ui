@@ -79,3 +79,16 @@ test("runOnce waits for every job before reporting a settle failure (worker stop
   assert.equal(slowDone, true);
   assert.deepEqual(outbox.done, ["slow"]);
 });
+
+test("startWorker survives a failing claim (database down) and delivers once it recovers", async (t) => {
+  t.mock.method(console, "error", () => {});
+  const outbox = fakeOutbox([job("a", "after-recovery")]);
+  const claim = outbox.claim;
+  let calls = 0;
+  outbox.claim = async (options) => { if (++calls === 1) throw new Error("ECONNREFUSED"); return claim(options); };
+  const worker = startWorker({ outbox, intervalMs: 1, topics: { a: { handle: async () => {} } } });
+  for (let i = 0; i < 50 && !outbox.done.length; i++) await new Promise((resolve) => setTimeout(resolve, 5));
+  await worker.stop();
+  assert.ok(calls >= 2);
+  assert.deepEqual(outbox.done, ["after-recovery"]);
+});

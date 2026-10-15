@@ -204,3 +204,19 @@ test("Redis: web instances share the IP/phone quota per tenant and the window re
     assert.equal((await a(`${prefix}:t1:ip`, 2, 300)).ok, true, "window reset");
   } finally { await redis.quit(); }
 });
+
+test("phone quota uses the normalized number; Redis down still stores the lead via the memory fallback", async (t) => {
+  t.mock.method(console, "error", () => {});
+  const saved: string[] = [];
+  const handler = createTenantLeadHandler({
+    loadSite: async () => ({ entitlements: entitlements() }),
+    saveLead: async (_t, _s, input) => { saved.push(input.phone); return { id: `l${saved.length}` }; },
+    limiter: createRateLimiter({ primary: async () => { throw new Error("Redis down"); } }),
+    verifyTurnstile: async () => true,
+  });
+  const forms = ["0901 234 599", "+84901234599", "84 901 234 599", "0901.234.599", "(090) 1234599", "0901234599"];
+  const statuses = [];
+  for (const [i, phone] of forms.entries()) statuses.push((await handler(post(lead("contact", { phone }), `198.18.0.${i}`))).status);
+  assert.deepEqual(statuses, [...Array(LEAD_LIMITS.phone.limit).fill(200), 429], "equivalent numbers share one quota");
+  assert.deepEqual(new Set(saved), new Set(["0901234599"]));
+});

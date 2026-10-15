@@ -12,6 +12,8 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
   const id = useId();
   const en = locale === "en";
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  // Turnstile tokens are single-use: a failed submit needs a fresh one.
+  const [failures, setFailures] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const elapsedMs = useFillTimer();
@@ -36,7 +38,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.ok) throw new Error(result.message || (en ? "Could not send." : "Chưa gửi được thông tin."));
       setStatus("success");
-    } catch (error) { setMessage((error as Error).message); setStatus("error"); }
+    } catch (error) { setMessage((error as Error).message); setStatus("error"); setFailures((n) => n + 1); }
   }
   if (status === "success") return <div role="status" className="rounded-card border border-success/40 bg-success/10 p-6"><h4 className="text-lg font-black text-fg">{text.successTitle}</h4><p className="mt-2 text-sm text-fg-muted">{text.successMessage}</p></div>;
   const aria = (name: string) => ({ "aria-invalid": Boolean(errors[name]) || undefined, "aria-describedby": errors[name] ? id + "-" + name : undefined });
@@ -47,7 +49,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
     <label className="t15-label">{en ? "Province" : "Tỉnh/thành"} *<select name="province" defaultValue="" className="t15-input min-h-12" {...aria("province")}><option value="" disabled>{en ? "Choose a province" : "Chọn tỉnh/thành"}</option>{PROVINCES.map((p) => <option key={p.name}>{p.name}</option>)}</select>{error("province")}</label>
     <label className="t15-label">{en ? "Business type" : "Loại hình kinh doanh"} *<select name="businessType" defaultValue="" className="t15-input min-h-12" {...aria("businessType")}><option value="" disabled>{en ? "Choose a business type" : "Chọn loại hình"}</option>{text.businessTypes.map((type) => <option key={type}>{type}</option>)}</select>{error("businessType")}</label>
     <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-    <TurnstileField className="sm:col-span-2" />
+    <TurnstileField className="sm:col-span-2" resetKey={failures} />
     <button disabled={status === "sending"} className="t15-button t15-button-primary min-h-12 disabled:opacity-60 sm:col-span-2">{status === "sending" ? (en ? "Sending…" : "Đang gửi…") : text.submitLabel}</button>
     {status === "error" && <p role="alert" className="text-sm font-bold text-danger sm:col-span-2">{message}</p>}
   </form>;

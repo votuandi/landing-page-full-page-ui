@@ -124,15 +124,25 @@ test("Postgres outbox: retries, worker crash, concurrent workers and dead jobs (
     const otherTenant = randomUUID();
     await platform.tenant.create({ data: { id: otherTenant, slug: `outbox-b-${otherTenant}`, name: "[DỮ LIỆU MẪU] B", planId: "pro", status: "active" } });
     try {
+      const foreignHook = await platform.leadIntegration.create({ data: { tenantId: otherTenant, kind: "webhook", name: "B", configEncrypted: "test" } });
       await outbox.enqueue([
         { tenantId: otherTenant, topic: "lead.deliver", payload: { leadId, integrationId: webhook.id }, idempotencyKey: `forged:${otherTenant}` },
+        { tenantId, topic: "lead.deliver", payload: { leadId, integrationId: foreignHook.id }, idempotencyKey: `leadA-hookB:${tenantId}` },
+        { tenantId: otherTenant, topic: "lead.deliver", payload: { leadId, integrationId: foreignHook.id }, idempotencyKey: `leadA-hookB-as-B:${otherTenant}` },
         { tenantId, topic: "lead.deliver", payload: { leadId: "nope" }, idempotencyKey: `bad:${tenantId}` },
+        { tenantId, topic: "lead.deliver", payload: { leadId: randomUUID(), integrationId: webhook.id }, idempotencyKey: `deleted:${tenantId}` },
+        { tenantId: null, topic: "lead.deliver", payload: { leadId, integrationId: webhook.id }, idempotencyKey: `no-tenant:${tenantId}` },
       ]);
       await runOnce({ outbox, topics: guarded, tenantId: otherTenant, now });
       await runOnce({ outbox, topics: guarded, tenantId, now });
+      // The tenant-less job is only reachable without a tenant filter; claim it by its key.
+      const [orphan] = await platform.outbox.findMany({ where: { idempotencyKey: `no-tenant:${tenantId}` } });
+      await guarded["lead.deliver"].handle({ ...orphan, payload: orphan.payload } as never).then(() => assert.fail("must reject"), (error) => assert.match(String(error), /payload không hợp lệ/));
+      await platform.outbox.delete({ where: { id: orphan.id } });
       assert.deepEqual(spy.received, []);
-      assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: `forged:${otherTenant}` } })).status, "failed");
-      assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: `bad:${tenantId}` } })).status, "failed");
+      for (const key of [`forged:${otherTenant}`, `leadA-hookB:${tenantId}`, `leadA-hookB-as-B:${otherTenant}`, `bad:${tenantId}`, `deleted:${tenantId}`]) {
+        assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: key } })).status, "failed", key);
+      }
     } finally { await platform.tenant.delete({ where: { id: otherTenant } }); }
 
     // Channel turned off after the lead arrived: job completes without sending.

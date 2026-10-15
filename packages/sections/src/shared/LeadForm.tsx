@@ -52,6 +52,8 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
   const ui = UI[locale];
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
+  // Turnstile tokens are single-use: a failed submit needs a fresh one.
+  const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const elapsedMs = useFillTimer();
@@ -77,6 +79,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
     } catch (e) {
       setError((e as Error).message || ui.failed);
       setStatus("error");
+      setFailures((n) => n + 1);
     }
   }
 
@@ -107,7 +110,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {children && <div className={span}>{children}</div>}
-      <TurnstileField className={span} />
+      <TurnstileField className={span} resetKey={failures} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? ui.sending : text.submit}
       </button>

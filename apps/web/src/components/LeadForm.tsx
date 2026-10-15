@@ -39,6 +39,8 @@ export default function LeadForm({
   const { tr } = useLang();
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
+  // Turnstile tokens are single-use: a failed submit needs a fresh one.
+  const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   // Tenant sites (service pages, quote cart) reject forms without these (E11-S01).
@@ -66,6 +68,7 @@ export default function LeadForm({
     } catch (e) {
       setError((e as Error).message || tr("Chưa gửi được thông tin.", "Could not send your details."));
       setStatus("error");
+      setFailures((n) => n + 1);
     }
   }
 
@@ -95,7 +98,7 @@ export default function LeadForm({
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {children && <div className={span}>{children}</div>}
-      <TurnstileField className={span} />
+      <TurnstileField className={span} resetKey={failures} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? tr("Đang gửi…", "Sending…") : submitLabel || tr("Nhận báo giá chi tiết", "Get a detailed quote")}
       </button>

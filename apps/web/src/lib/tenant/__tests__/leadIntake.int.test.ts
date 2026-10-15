@@ -24,12 +24,18 @@ test("Postgres: a lead posted on tenant A's host is stored only in A, with its o
     const response = await handler(new Request(`http://${a.hostname}/api/lead`, {
       method: "POST", headers: { "x-tenant-id": a.tenantId, "x-site-id": a.siteId },
       // A forged tenant in the body is ignored.
-      body: JSON.stringify({ name: "Khách A", phone, source: "contact", elapsedMs: MIN_FILL_MS, tenantId: b.tenantId }),
+      body: JSON.stringify({ name: "Khách A", phone, source: "contact", elapsedMs: MIN_FILL_MS, tenantId: b.tenantId,
+        zalo: "0901", address: " Q1 ", email: "a@b.vn", message: "Mái tôn", segment: "Hộ gia đình", page: "/lien-he", website: "" }),
     }));
     assert.equal(response.status, 200);
     id = (await response.json()).id;
     const own = await tenantRepository(a.tenantId).lead.list({ where: { phone } });
     assert.deepEqual(own.map((lead) => [lead.id, lead.siteId]), [[id, a.siteId]]);
+    // The cleaned t15 payload is what lands in the row.
+    assert.deepEqual([own[0].name, own[0].email, own[0].message, own[0].segment, own[0].source], ["Khách A", "a@b.vn", "Mái tôn", "Hộ gia đình", "contact"]);
+    const stored = own[0].data as Record<string, unknown>;
+    assert.deepEqual([stored.zalo, stored.address, stored.page, typeof stored.submittedAt], ["0901", "Q1", "/lien-he", "string"]);
+    assert.equal("tenantId" in stored || "elapsedMs" in stored || "website" in stored, false);
     assert.deepEqual(await tenantRepository(b.tenantId).lead.list({ where: { phone } }), []);
     assert.equal(await tenantRepository(b.tenantId).lead.get(id), null);
     const jobs = await tenantRepository(a.tenantId).outbox.list({ where: { idempotencyKey: `lead.deliver:${id}:${integration.id}` } });
