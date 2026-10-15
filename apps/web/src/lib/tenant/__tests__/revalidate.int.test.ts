@@ -7,7 +7,7 @@ import { can } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { createSiteData } from "../siteData";
 import Redis from "ioredis";
-import { createRevalidateHandler, redisNonces } from "../revalidate";
+import { createRevalidateHandler, memoryNonces, redisNonces } from "../revalidate";
 import { createRateLimiter } from "../rateLimit";
 import { createInvalidate } from "../../../../../worker/src/handlers/invalidate.ts";
 import { runOnce } from "../../../../../worker/src/loop.ts";
@@ -33,7 +33,7 @@ test("Postgres E6-S03: cached plan → atomic plan change → worker revalidatio
     const cached = await load(); assert.ok(cached);
     assert.equal(cached.entitlements.planId, "pro"); assert.equal(can(cached.entitlements, "calculator"), true);
     const tags: string[] = [];
-    const post = createRevalidateHandler({ secret: () => "test-secret", invalidate: memory.invalidate, revalidateTag: tag => { tags.push(tag); }, limit: createRateLimiter() });
+    const post = createRevalidateHandler({ secret: () => "test-secret", invalidate: memory.invalidate, revalidateTag: tag => { tags.push(tag); }, limit: createRateLimiter(), claimNonce: memoryNonces() });
     const handle = createInvalidate({ urls: () => "http://web/api/revalidate", secret: () => "test-secret", fetch: (url, init) => post(new Request(url, init)) });
     const poll = () => runOnce({ outbox: forPlatform(platform).outbox, tenantId, topics: {
       invalidate: { handle, maxAgeMs: Infinity }, "notify.plan-changed": { handle: createNotify({ notifier: createLogNotifier(platform) }) },
@@ -113,7 +113,7 @@ test("Postgres: atomic publish → durable retry → signed revalidation → fre
     });
     assert.equal(sectionRegistry.types.hero.schema.parse((await home(a))?.config.sections[0].data).title.lead.vi, "t15");
     const nextTags: string[] = [];
-    const post = createRevalidateHandler({ secret: () => "test-secret", invalidate: memory.invalidate, revalidateTag: tag => { nextTags.push(tag); }, limit: createRateLimiter() });
+    const post = createRevalidateHandler({ secret: () => "test-secret", invalidate: memory.invalidate, revalidateTag: tag => { nextTags.push(tag); }, limit: createRateLimiter(), claimNonce: memoryNonces() });
     let offline = true;
     const handle = createInvalidate({ urls: () => "http://web/api/revalidate", secret: () => "test-secret", fetch: async (url, init) => {
       if (offline) throw Error("ECONNREFUSED");
