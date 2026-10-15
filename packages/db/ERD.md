@@ -22,6 +22,7 @@ erDiagram
     String slug UK
     TenantStatus status
     String planId
+    DateTime planExpiresAt
     String_array addons
     String customerId
     Json featureOverrides
