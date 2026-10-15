@@ -1,11 +1,60 @@
 import assert from "node:assert/strict";
 import { randomUUID, createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import pg from "pg";
 import { createDb, createPlatformDb, internalClient } from "../client.ts";
 import { forTenant, forPlatform, type TenantRepo } from "../repository.ts";
 import { withTenantTransaction } from "../tenantTransaction.ts";
 import { redeemGhostGrant } from "../ghost.ts";
+
+test("unawaited operations settle inside the runtime transaction without crashing Node", { skip: !process.env.DATABASE_URL }, () => {
+  // A separate process makes Node's default unhandled-rejection exit observable.
+  const result = spawnSync(process.execPath, ["--unhandled-rejections=strict", "--import", "tsx", "--input-type=module", "--eval", `
+    import assert from 'node:assert/strict';
+    import { randomUUID } from 'node:crypto';
+    import { setTimeout as delay } from 'node:timers/promises';
+    import { createDb, createPlatformDb } from ${JSON.stringify(new URL("../client.ts", import.meta.url).href)};
+    import { forTenant } from ${JSON.stringify(new URL("../repository.ts", import.meta.url).href)};
+    import { withTenantTransaction } from ${JSON.stringify(new URL("../tenantTransaction.ts", import.meta.url).href)};
+    const db=createDb({pool:1}), ops=createPlatformDb({pool:1});
+    const tenant=randomUUID(), plan='pending-'+randomUUID();
+    try {
+      await ops.plan.create({data:{id:plan,name:'Test',features:[],limits:{}}});
+      await ops.tenant.create({data:{id:tenant,slug:tenant,name:'Test',planId:plan}});
+      await withTenantTransaction(db,tenant,async repo=>{
+        void repo.project.create({slug:'success',title:{}});
+      });
+      assert.equal(await forTenant(db,tenant).project.count(),1);
+      for(const mode of ['early-rejection','sql-rejection','late-rejection','callback-throw','both','immediate-both']) {
+        const callbackError=new Error('callback failed');
+        let pendingSettled=false;
+        await assert.rejects(withTenantTransaction(db,tenant,async repo=>{
+          const write=repo.project.create({slug:mode,title:{}});
+          if(mode==='callback-throw') void write.then(()=>{pendingSettled=true},()=>{pendingSettled=true});
+          if(mode==='sql-rejection'||mode==='late-rejection'||mode==='immediate-both') void repo.project.create({slug:'success',title:{}});
+          if(mode==='early-rejection'||mode==='both') void repo.sectionContent.update(randomUUID(),{type:'other'});
+          // Let the rejection occur while the callback is still running.
+          if(mode!=='callback-throw'&&mode!=='late-rejection'&&mode!=='immediate-both') await delay(25);
+          if(mode==='callback-throw'||mode==='both'||mode==='immediate-both') throw callbackError;
+        }), mode==='early-rejection'?/immutable/:mode==='sql-rejection'||mode==='late-rejection'
+          ?error=>error.code==='P2002':error=>error===callbackError);
+        if(mode==='callback-throw') assert.equal(pendingSettled,true,'drain pending operation before returning callback error');
+        assert.equal(await forTenant(db,tenant).project.count(),1,'pending writes must roll back: '+mode);
+      }
+      await delay(25);
+      console.log('pending runtime cases passed');
+    } finally {
+      await ops.tenant.deleteMany({where:{id:tenant}});
+      await ops.plan.deleteMany({where:{id:plan}});
+      await Promise.all([db.$disconnect(),ops.$disconnect()]);
+    }
+  `], { encoding: "utf8", timeout: 60_000 });
+  assert.equal(result.error, undefined);
+  assert.equal(result.signal, null);
+  assert.equal(result.status, 0, result.stderr + result.stdout);
+  assert.match(result.stdout, /pending runtime cases passed/);
+});
 
 test("real runtime transaction: atomic references, rollback, context concurrency, expired facade, credential checks and ghost session", { skip: !process.env.DATABASE_URL }, async () => {
   const db = createDb({ pool: 3 }), ops = createPlatformDb({ pool: 2 });

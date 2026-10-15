@@ -16,7 +16,8 @@ export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, 
   return tenantTransaction(db, tenantId, async tx => {
     const repo = createTenantRepo(tx, tenantId);
     let active = true;
-    const pending: Promise<unknown>[] = [];
+    const pending: Promise<void>[] = [];
+    const failures: unknown[] = [];
     const bound = Object.fromEntries(Object.entries(repo).map(([name, delegate]) => [name, new Proxy(delegate, {
       get(target, key) {
         const method = Reflect.get(target, key) as (...args: unknown[]) => Promise<unknown>;
@@ -24,15 +25,19 @@ export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, 
         return (...args: unknown[]) => {
           if (!active) return Promise.reject(new Error("Tenant transaction has ended"));
           const result = method(...args);
-          pending.push(result);
+          // Observe rejection immediately, even while the callback is still running.
+          pending.push(result.then(() => undefined, error => { failures.push(error); }));
           return result;
         };
       },
     })])) as TenantRepo;
-    try {
-      const result = await work(bound);
+    let result: T;
+    try { result = await work(bound); }
+    finally {
+      active = false;
       await Promise.all(pending);
-      return result;
-    } finally { active = false; }
+    }
+    if (failures.length) throw failures[0];
+    return result;
   });
 }
