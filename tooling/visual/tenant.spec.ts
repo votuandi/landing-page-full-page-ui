@@ -10,6 +10,17 @@ const origin = (id: string) => `http://${id}.localhost:3211`;
 const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
+// A cold `next dev` compiles each tenant route on its first hit, which can exceed the 30 s navigation timeout on CI
+// and race the browser against half-written dev manifests. Compile the main routes once, outside any navigation.
+test.beforeAll(async ({ request }) => {
+  test.setTimeout(600_000);
+  for (const path of ["/", `/tin-tuc/${postSlug}`, `/cong-trinh/${projectSlug}`, "/uu-dai/nang-luong", "/san-pham", "/tin-tuc", "/lien-he"]) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await request.get(`http://localhost:3211${path}`, { headers: { Host: "t15.localhost" }, timeout: 180_000 }).catch(() => null);
+      if (response?.ok()) break;
+    }
+  }
+});
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
 });
