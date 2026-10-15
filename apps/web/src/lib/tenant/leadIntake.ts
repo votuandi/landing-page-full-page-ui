@@ -91,5 +91,6 @@ let handler: ReturnType<typeof createTenantLeadHandler> | undefined;
 export const tenantLeadHandler = (request: Request) => (handler ??= createTenantLeadHandler({
   loadSite: loadTenantSite,
   saveLead: (tenantId, siteId, lead) => createLead(getWebDb(), tenantId, siteId, lead),
-  limiter: getRateLimiter(),
+  // Resolved per call: building the handler must not open Redis (requests rejected earlier never need it).
+  limiter: (key, limit, windowMs) => getRateLimiter()(key, limit, windowMs),
 }))(request);
