@@ -7,6 +7,8 @@ import { checkConnection, platformClient, type PlatformDb } from "./client.ts";
 
 export const tenantPlanChangesSchema = z.strictObject({
   planId: z.enum(PLAN_IDS).optional(),
+  planExpiresAt: z.date().nullable().optional(),
+  status: z.enum(["active", "suspended"]).optional(),
   addons: z.array(z.enum(FEATURES)).transform(values => [...new Set(values)].sort()).optional(),
   featureOverrides: featureOverridesSchema.optional(),
   limitOverrides: limitOverridesSchema.optional(),
@@ -27,16 +29,32 @@ export async function changeTenantPlan(db: PlatformDb, input: TenantPlanChange) 
     // Serialize competing console changes so the audit's before snapshot cannot be stale.
     await tx.$queryRaw`SELECT id FROM public."Tenant" WHERE id = ${tenantId}::uuid FOR UPDATE`;
     const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: tenantId } });
+    if (changes.status === undefined && tenant.status === "suspended" && changes.planExpiresAt
+      && changes.planExpiresAt.getTime() > Date.now() && !isDeepStrictEqual(changes.planExpiresAt, tenant.planExpiresAt)) {
+      // Only undo billing's suspension; a manual suspension still needs an explicit status change.
+      const suspension = await tx.auditLog.findFirst({ where: {
+        tenantId, entity: "Tenant", entityId: tenantId, actorType: "system", action: "tenant.suspend.expired",
+      }, orderBy: { createdAt: "desc" }, select: { createdAt: true } });
+      if (suspension) {
+        const manual = await tx.auditLog.findFirst({ where: {
+          tenantId, entity: "Tenant", entityId: tenantId, action: "tenant.plan.change",
+          createdAt: { gte: suspension.createdAt }, data: { path: ["after", "status"], equals: "suspended" },
+        }, select: { id: true } });
+        // Equal millisecond timestamps favor the manual suspension rather than random UUID ordering.
+        if (!manual) changes.status = "active";
+      }
+    }
     const before: Record<string, Prisma.InputJsonValue | null> = {}, after: Record<string, Prisma.InputJsonValue | null> = {};
     for (const key of Object.keys(changes) as (keyof typeof changes)[]) {
       const value = changes[key];
       const previous = key === "addons" ? [...tenant.addons].sort() : tenant[key];
       if (value !== undefined && !isDeepStrictEqual(previous, value)) {
-        before[key] = tenant[key]; after[key] = value;
+        before[key] = tenant[key] instanceof Date ? tenant[key].toISOString() : tenant[key];
+        after[key] = value instanceof Date ? value.toISOString() : value;
       }
     }
     if (!Object.keys(after).length) return { changed: false } as const;
-    // Only schema-approved keys with actual changes are written. Extend the schema for E6-S05.
+    // Only schema-approved keys with actual changes are written.
     await tx.tenant.update({ where: { id: tenantId }, data: Object.fromEntries(
       Object.entries(changes).filter(([key]) => Object.hasOwn(after, key)),
     ) });
@@ -44,7 +62,9 @@ export async function changeTenantPlan(db: PlatformDb, input: TenantPlanChange) 
       tenantId, actorType: "platform_admin", actorId, action: "tenant.plan.change", entity: "Tenant", entityId: tenantId,
       data: { before, after, ...(reason ? { reason } : {}) },
     } });
-    await tx.outbox.create({ data: { tenantId, ...invalidationJob([tenantTag(tenantId)]) } });
+    const domains = Object.hasOwn(after, "status")
+      ? await tx.domain.findMany({ where: { tenantId }, select: { hostname: true } }) : undefined;
+    await tx.outbox.create({ data: { tenantId, ...invalidationJob([tenantTag(tenantId)], { hosts: domains?.map(domain => domain.hostname) }) } });
     if (Object.hasOwn(after, "planId")) await tx.outbox.create({ data: {
       tenantId, topic: "notify.plan-changed", payload: { tenantId, from: tenant.planId, to: changes.planId! },
       idempotencyKey: `notify.plan-changed:${audit.id}`,

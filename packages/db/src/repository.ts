@@ -8,6 +8,7 @@ import { tenantModels, optionalTenantModels } from "./tenantScope.ts";
 import { Prisma as PrismaValues } from "../generated/client.ts";
 import { outboxRepository } from "./outbox.ts";
 import { changeTenantPlan, scanExpiredOverrides, type TenantPlanChange } from "./tenantPlan.ts";
+import { runBillingCron } from "./billing.ts";
 
 const repositoryModels = [...tenantModels, ...optionalTenantModels];
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
@@ -154,6 +155,7 @@ function platformRepository(db: PlatformDb) {
     customer: client.customer, platformAdmin: client.platformAdmin, platformSession: client.platformSession,
     ghostGrant: client.ghostGrant, platformSetting: client.platformSetting,
     outbox: outboxRepository(db),
+    billing: { run: (options?: { now?: Date }) => runBillingCron(db, options) },
     tenants: {
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),
       scanExpiredOverrides: (options?: { now?: Date }) => scanExpiredOverrides(db, options),

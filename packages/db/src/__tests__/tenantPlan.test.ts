@@ -16,12 +16,16 @@ test("runtime credentials cannot use platform plan mutations even through a type
 });
 
 test("plan changes reject unknown fields/features, malformed overrides and non-JSON policies", () => {
-  for (const changes of [{ planId: "free" }, { addons: ["bad"] }, { status: "active" },
+  for (const changes of [{ planId: "free" }, { addons: ["bad"] }, { status: "trial" },
+    { planExpiresAt: "2040-01-01" }, { planExpiresAt: new Date(NaN) },
     { featureOverrides: { calculator: { on: true } } }, { limitOverrides: { users: { add: -1, reason: "x" } } },
     { permissionPolicy: [] }, { permissionPolicy: { value: undefined } }]) {
     assert.equal(tenantPlanChangesSchema.safeParse(changes).success, false);
   }
   assert.deepEqual(tenantPlanChangesSchema.parse({ addons: ["shorts", "shorts"] }), { addons: ["shorts"] });
+  for (const changes of [{ status: "active" }, { status: "suspended" }, { planExpiresAt: null }, { planExpiresAt: new Date("2040-01-01Z") }]) {
+    assert.deepEqual(tenantPlanChangesSchema.parse(changes), changes);
+  }
   assert.deepEqual(tenantPlanChangesSchema.parse({ permissionPolicy: { roles: ["editor"], nested: { enabled: true } } }),
     { permissionPolicy: { roles: ["editor"], nested: { enabled: true } } });
 });

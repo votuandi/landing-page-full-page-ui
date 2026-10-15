@@ -5,6 +5,8 @@ import type { Db } from "../client.ts";
 function repositoryTypes(db: Db, tenantId: string) {
   // @ts-expect-error runtime realm cannot change tenant plans
   forPlatform(db).tenants.changePlan({ actorId: "id", tenantId, changes: { planId: "basic" } });
+  // @ts-expect-error runtime realm cannot run cross-tenant billing
+  forPlatform(db).billing.run();
   db.$transaction(async tx => {
     // @ts-expect-error transaction has not been bound to a tenant context
     forTenant(tx, tenantId);
