@@ -265,3 +265,39 @@ test("parseLead bounds: 30 estimate entries, 50 items, qty defaults to 1 and cla
   assert.ok("lead" in arrayEstimate);
   assert.deepEqual([arrayEstimate.lead.estimate, arrayEstimate.lead.items], [undefined, undefined]);
 });
+
+test("IP quota is per tenant: A's 11th request from one IP → 429, B from the same IP and phone → 200", async () => {
+  const handler = createTenantLeadHandler({
+    loadSite: async () => ({ entitlements: entitlements() }), saveLead: async () => ({ id: "x" }), verifyTurnstile: async () => true,
+    limiter: createRateLimiter(),
+  });
+  const otherTenant = "00000000-0000-4000-8000-0000000000cc";
+  const send = (id: string, phone: string) => handler(post(lead("contact", { phone }), "203.0.113.88", { "x-tenant-id": id, "x-site-id": siteId }));
+  for (let i = 0; i < LEAD_LIMITS.ip.limit; i++) assert.equal((await send(tenantId, `09012346${String(i).padStart(2, "0")}`)).status, 200);
+  assert.equal((await send(tenantId, "0901234699")).status, 429, "A exhausted its IP quota");
+  assert.equal((await send(otherTenant, "0901234600")).status, 200, "B: same IP, a phone A already used");
+});
+
+test("legacy single-site path dispatches the full cleaned t15 payload to the env adapters", async (t) => {
+  const original = globalThis.fetch;
+  const env = { LEAD_ADAPTERS: process.env.LEAD_ADAPTERS, LEAD_WEBHOOK_URL: process.env.LEAD_WEBHOOK_URL };
+  const sent: Record<string, unknown>[] = [];
+  globalThis.fetch = (async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init.body))); return new Response("ok"); }) as typeof fetch;
+  process.env.LEAD_ADAPTERS = "webhook"; process.env.LEAD_WEBHOOK_URL = "https://hooks.example.test/lead";
+  t.after(() => {
+    globalThis.fetch = original;
+    for (const [key, value] of Object.entries(env)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
+  });
+  const response = await POST(new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify({
+    name: " Khách ", phone: "+84 901 234 567", zalo: "0901", address: "Q1", email: "a@b.vn", message: "Mái tôn", source: "quote-cart",
+    segment: "Hộ gia đình", province: "Đồng Nai", businessType: "Đại lý", page: "/gio-hang",
+    estimate: { kWp: 6.5, storage: true }, items: [{ sku: "pin-550", name: "Tấm pin", qty: 3 }],
+  }) }));
+  assert.deepEqual(await response.json(), { ok: true, mode: "live", delivered: ["webhook"] });
+  assert.equal(sent.length, 1);
+  const { submittedAt, ...lead } = sent[0];
+  assert.equal(typeof submittedAt, "string");
+  assert.deepEqual(lead, { name: "Khách", phone: "0901234567", zalo: "0901", address: "Q1", email: "a@b.vn", message: "Mái tôn",
+    source: "quote-cart", segment: "Hộ gia đình", province: "Đồng Nai", businessType: "Đại lý",
+    estimate: { kWp: 6.5, storage: true }, items: [{ sku: "pin-550", name: "Tấm pin", qty: 3 }], page: "/gio-hang" });
+});
