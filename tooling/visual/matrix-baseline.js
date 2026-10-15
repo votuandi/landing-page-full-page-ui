@@ -1,5 +1,6 @@
 const { existsSync, readFileSync } = require("node:fs");
 const { resolve, join } = require("node:path");
+const matrixCapturePolicy = "isolated-site-widgets";
 
 /** @param {{ types: Record<string, string[]>; themes: string[] }} manifest */
 function baselineCells(manifest) {
@@ -10,6 +11,7 @@ function baselineCells(manifest) {
 /** @param {string} directory @param {string[]} projects */
 function verifyBaseline(directory, projects) {
   const manifest = JSON.parse(readFileSync(join(directory, "matrix-manifest.json"), "utf8"));
+  if (manifest.capturePolicy !== matrixCapturePolicy) throw new Error("Incompatible matrix capture policy; capture exact base with the current harness");
   const cells = baselineCells(manifest);
   if (!cells.length) throw new Error("Matrix baseline manifest is empty");
   const missing = projects.flatMap((project) => cells.map((cell) => join(project, cell)))
@@ -18,7 +20,7 @@ function verifyBaseline(directory, projects) {
   return cells.length * projects.length;
 }
 
-module.exports = { baselineCells, verifyBaseline };
+module.exports = { baselineCells, verifyBaseline, matrixCapturePolicy };
 
 if (require.main === module) {
   const projects = [390, 1440].flatMap((width) => ["light", "dark"].map((mode) =>

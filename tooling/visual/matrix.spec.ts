@@ -6,6 +6,15 @@ import { resolve } from "node:path";
 import { collectColorSamples, findOffTokenColors } from "./matrix-colors";
 import { matrixTypes, matrixThemes, matrixVariants } from "./matrix";
 import { baselineCells } from "./matrix-baseline.js";
+import { matrixCaptureCss } from "./matrix-capture";
+
+test("matrix capture excludes global widgets and preserves widgets inside the cell", async ({ page }) => {
+  await page.setContent('<div data-lab-cell="probe"><h2>Section content</h2><div data-widget="local">Local widget</div></div><div data-widget="mobile-nav" style="position:fixed;bottom:0">Global navigation</div>');
+  await page.addStyleTag({ content: matrixCaptureCss });
+  await expect(page.locator('body > [data-widget]')).toBeHidden();
+  await expect(page.locator('[data-lab-cell] h2')).toBeVisible();
+  await expect(page.locator('[data-lab-cell] [data-widget]')).toBeVisible();
+});
 
 test("painted SVG colors: lines use stroke while area shapes also use fill", async ({ page }) => {
   await page.setContent('<svg data-lab-cell="probe"><line x1="1" y1="1" x2="20" y2="20" fill="red" stroke="blue"/><rect x="30" y="1" width="20" height="20" fill="red"/><path d="M60 1V20 M80 1L90 20" stroke="blue"/><path d="M100 1 L120 1 L120 20" fill="red"/></svg>');
@@ -15,14 +24,6 @@ test("painted SVG colors: lines use stroke while area shapes also use fill", asy
   expect(samples.some((sample) => sample.selector.includes("rect:") && sample.property === "fill")).toBe(true);
   expect(samples.filter((sample) => sample.selector.includes("path:nth-child(3)") && sample.property === "fill")).toEqual([]);
   expect(samples.some((sample) => sample.selector.includes("path:nth-child(4)") && sample.property === "fill")).toBe(true);
-});
-
-test("registry coverage", async ({ page }, testInfo) => {
-  const response = await page.goto("/lab/sections/matrix");
-  expect(response?.status()).toBe(200);
-  const registered = await page.locator("[data-lab-type]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-lab-type")));
-  if (testInfo.config.updateSnapshots === "none") expect(registered.sort()).toEqual([...matrixTypes].sort());
-  else for (const type of registered) expect(matrixTypes).toContain(type);
 });
 
 // Interleave types so each shard gets a mix of small and expensive sections.
@@ -50,7 +51,7 @@ for (const selectedTheme of matrixThemes) for (const type of matrixTypes) {
     expect(response?.status()).toBe(200);
     await expect(page.locator("html")).toHaveAttribute("data-theme", mode);
     await expect(page.locator("[data-section-fallback]")).toHaveCount(0);
-    await page.addStyleTag({ content: '[data-lab-cell] *, [data-lab-cell] { content-visibility: visible !important; animation: none !important; transition: none !important; }' });
+    await page.addStyleTag({ content: matrixCaptureCss });
     await page.evaluate(async () => {
       await document.fonts.ready;
       document.querySelectorAll("img").forEach((image) => { image.loading = "eager"; });

@@ -122,6 +122,10 @@ Thứ tự theme → type rải hero/calculator/segments vào các shard, tránh
 thiếu PNG làm fail. Chỉ ô không tồn tại trong registry exact-base được ghi `baseline-new`; màu token và axe vẫn kiểm.
 `node tooling/visual/matrix-baseline.js <snapshot-directory>` kiểm đủ PNG của manifest ở cả bốn project.
 Artifact cũ thiếu manifest hoặc snapshot được sinh lại từ exact-base, không từ app PR.
+Matrix ẩn widget của shell nằm ngoài ô (`body > [data-widget]`) trước khi chụp, giữ widget bên trong ô.
+Widget fixed theo viewport từng gây nhiễu trên ô dài khi Playwright cuộn/chụp. Manifest ghi
+`capturePolicy: isolated-site-widgets`; cache dùng cơ chế chụp cũ bị từ chối để CI chụp exact-base bằng harness hiện tại.
+Ngưỡng so ảnh vẫn 0,5%; không thay PNG baseline bằng ảnh của PR.
 
 Computed-style kiểm RGB với sai số ±1 và mọi alpha; transparent hợp lệ. Duyệt phần tử hiển thị và pseudo-element,
 kiểm màu chữ, nền/gradient, viền có width, outline, decoration, shadow, SVG fill/stroke. Dạng màu chưa hỗ trợ bị báo lỗi.
