@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { POST } from "../../../app/api/lead/route";
 import { leadFeatures, leadSourceFeature } from "../entitlements";
-import { createTenantLeadHandler, LEAD_LIMITS, MIN_FILL_MS } from "../leadIntake";
-import { createRateLimiter, memoryCounter } from "../rateLimit";
+import { createTenantLeadHandler, LEAD_LIMITS, MIN_FILL_MS, toLeadInput, verifyTurnstile } from "../leadIntake";
+import { createRateLimiter, memoryCounter, redisCounter } from "../rateLimit";
+import { parseLead } from "../../leads/parse";
 import type { SiteEntitlements } from "../siteData";
 import type { LeadInput } from "@solar/db";
 
@@ -116,4 +117,88 @@ test("route wiring: tenant headers go to the tenant handler; single-site keeps t
 test("lead sources map to the features in the packages/plans README table", () => {
   assert.deepEqual(["contact", "popup", "home-bottom", "calculator", "story-cta", "hero-bill", "dealer", "quote-cart", "website"].map(leadSourceFeature),
     ["leadForm", "leadForm", "quoteForm", "calculator", "calculator", "calculator", "dealer", "quoteCart", "leadForm"]);
+});
+
+test("parseLead keeps the t15 payload contract: trims, bounds and normalizes every field", () => {
+  const parsed = parseLead({
+    name: `  ${"N".repeat(200)} `, phone: "+84 901 234 567", zalo: "0901", address: " Q1 ", email: "a@b.vn", message: "m".repeat(3000),
+    source: "quote cart!", segment: "Hộ gia đình", province: "TP. Hồ Chí Minh", businessType: "Đại lý", page: "/gio-hang",
+    estimate: { kWp: 5, ok: true, note: "x".repeat(300), nested: { no: 1 } },
+    items: [{ sku: "p1", name: "Tấm pin", qty: 2.7 }, { sku: "", name: "skip" }, { sku: "p2", name: "Inverter", qty: 5000 }, null],
+  }, new Date("2026-10-15T00:00:00Z"));
+  assert.ok("lead" in parsed);
+  const { lead } = parsed;
+  assert.equal(lead.name.length, 120);
+  assert.equal(lead.phone, "0901234567");
+  assert.equal(lead.message?.length, 2000);
+  assert.equal(lead.source, "quotecart");
+  assert.deepEqual([lead.province, lead.businessType, lead.page, lead.address], ["TP. Hồ Chí Minh", "Đại lý", "/gio-hang", "Q1"]);
+  assert.deepEqual(lead.estimate, { kWp: 5, ok: true, note: "x".repeat(200) });
+  assert.deepEqual(lead.items, [{ sku: "p1", name: "Tấm pin", qty: 2 }, { sku: "p2", name: "Inverter", qty: 999 }]);
+  assert.equal(lead.submittedAt, "2026-10-15T00:00:00.000Z");
+  assert.deepEqual(toLeadInput(lead).data, { zalo: "0901", address: "Q1", province: "TP. Hồ Chí Minh", businessType: "Đại lý",
+    estimate: lead.estimate, items: lead.items, page: "/gio-hang", submittedAt: "2026-10-15T00:00:00.000Z" });
+  assert.deepEqual(parseLead({ phone: "0901234567" }), { error: "Vui lòng nhập họ tên" });
+  assert.deepEqual(parseLead({ name: "A", phone: "0281234567" }), { error: "Số điện thoại di động không hợp lệ" });
+});
+
+test("verifyTurnstile: off without secret; token, network errors and both field names", async () => {
+  const original = globalThis.fetch;
+  const calls: URLSearchParams[] = [];
+  try {
+    assert.equal(await verifyTurnstile("", "1.1.1.1", ""), true, "disabled when no secret");
+    assert.equal(await verifyTurnstile("", "1.1.1.1", "secret"), false, "missing token");
+    globalThis.fetch = (async (_url: string, init: RequestInit) => {
+      const body = init.body as URLSearchParams; calls.push(body);
+      return new Response(JSON.stringify({ success: body.get("response") === "good" }));
+    }) as typeof fetch;
+    assert.equal(await verifyTurnstile("good", "1.1.1.1", "secret"), true);
+    assert.equal(await verifyTurnstile("bad", "1.1.1.1", "secret"), false);
+    assert.deepEqual([calls[0].get("secret"), calls[0].get("remoteip")], ["secret", "1.1.1.1"]);
+    globalThis.fetch = (async () => { throw new Error("timeout"); }) as typeof fetch;
+    assert.equal(await verifyTurnstile("good", "1.1.1.1", "secret"), false, "network error fails closed");
+  } finally { globalThis.fetch = original; }
+  // The handler reads either `turnstileToken` or the widget's `cf-turnstile-response`.
+  const seen: string[] = [];
+  const handler = createTenantLeadHandler({
+    loadSite: async () => ({ entitlements: entitlements() }), saveLead: async () => ({ id: "x" }), limiter: createRateLimiter(),
+    verifyTurnstile: async (token) => { seen.push(token); return token === "ok"; },
+  });
+  assert.equal((await handler(post(lead("contact", { turnstileToken: "ok" }), "192.0.2.80"))).status, 200);
+  assert.equal((await handler(post(lead("contact", { "cf-turnstile-response": "ok", phone: "0901234511" }), "192.0.2.81"))).status, 200);
+  assert.equal((await handler(post(lead("contact", { phone: "0901234512" }), "192.0.2.82"))).status, 400);
+  assert.deepEqual(seen, ["ok", "ok", ""]);
+});
+
+test("site lookup failure → 503 JSON, not an unhandled rejection", async () => {
+  const handler = createTenantLeadHandler({
+    loadSite: async () => { throw new Error("db down"); }, saveLead: async () => ({ id: "x" }), limiter: createRateLimiter(), verifyTurnstile: async () => true,
+  });
+  const original = console.error;
+  console.error = () => undefined;
+  try {
+    const response = await handler(post(lead("contact")));
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).ok, false);
+  } finally { console.error = original; }
+});
+
+test("Redis: web instances share the IP/phone quota per tenant and the window resets", {
+  skip: !process.env.REDIS_URL && "REDIS_URL missing: requires Redis",
+}, async () => {
+  const { default: Redis } = await import("ioredis");
+  const redis = new Redis(process.env.REDIS_URL!);
+  const prefix = `rl:test:${Date.now()}`;
+  try {
+    // Two limiters = two web processes sharing one Redis.
+    const [a, b] = [createRateLimiter({ primary: redisCounter(redis) }), createRateLimiter({ primary: redisCounter(redis) })];
+    assert.equal((await a(`${prefix}:t1:ip`, 2, 300)).ok, true);
+    assert.equal((await b(`${prefix}:t1:ip`, 2, 300)).ok, true);
+    const third = await a(`${prefix}:t1:ip`, 2, 300);
+    assert.equal(third.ok, false);
+    assert.ok(third.retryAfterSec >= 1);
+    assert.equal((await b(`${prefix}:t2:ip`, 2, 300)).ok, true, "other tenant has its own quota");
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    assert.equal((await a(`${prefix}:t1:ip`, 2, 300)).ok, true, "window reset");
+  } finally { await redis.quit(); }
 });

@@ -5,6 +5,7 @@ import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import { PROVINCES, isVnMobile } from "@solar/core";
 import type { Locale } from "../site";
 import { useFillTimer } from "../shared/useFillTimer";
+import { TurnstileField } from "../shared/TurnstileField";
 
 type FormText = { title: string; description?: string; businessTypes: string[]; submitLabel: string; successTitle: string; successMessage: string };
 function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
@@ -46,6 +47,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
     <label className="t15-label">{en ? "Province" : "Tỉnh/thành"} *<select name="province" defaultValue="" className="t15-input min-h-12" {...aria("province")}><option value="" disabled>{en ? "Choose a province" : "Chọn tỉnh/thành"}</option>{PROVINCES.map((p) => <option key={p.name}>{p.name}</option>)}</select>{error("province")}</label>
     <label className="t15-label">{en ? "Business type" : "Loại hình kinh doanh"} *<select name="businessType" defaultValue="" className="t15-input min-h-12" {...aria("businessType")}><option value="" disabled>{en ? "Choose a business type" : "Chọn loại hình"}</option>{text.businessTypes.map((type) => <option key={type}>{type}</option>)}</select>{error("businessType")}</label>
     <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+    <TurnstileField className="sm:col-span-2" />
     <button disabled={status === "sending"} className="t15-button t15-button-primary min-h-12 disabled:opacity-60 sm:col-span-2">{status === "sending" ? (en ? "Sending…" : "Đang gửi…") : text.submitLabel}</button>
     {status === "error" && <p role="alert" className="text-sm font-bold text-danger sm:col-span-2">{message}</p>}
   </form>;

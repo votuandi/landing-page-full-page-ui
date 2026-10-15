@@ -2,6 +2,7 @@
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { useFillTimer } from "./useFillTimer";
+import { TurnstileField } from "./TurnstileField";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
 import type { Locale } from "../site";
@@ -106,6 +107,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {children && <div className={span}>{children}</div>}
+      <TurnstileField className={span} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? ui.sending : text.submit}
       </button>

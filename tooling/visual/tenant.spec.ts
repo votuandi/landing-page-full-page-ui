@@ -366,12 +366,14 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     await page.goto(url + "/giai-phap/solar-gia-dinh", { waitUntil: "networkidle" });
     await page.getByLabel("Full name", { exact: false }).fill("Review");
     await page.getByLabel("Mobile number", { exact: false }).fill("0901234567");
+    // E11-S01: tenant leads are stored; forms filled faster than 3 s are silently ignored, so wait like a person.
+    await page.waitForTimeout(3_100);
     const response = page.waitForResponse((response) => response.url().endsWith("/api/lead"));
     await page.getByRole("button", { name: "Get a detailed quote" }).click();
-    expect((await response).status()).toBe(503);
-    const error = page.locator("main form").getByRole("alert");
-    await expect(error).toBeVisible();
-    await expect(error.locator('a[href^="tel:"]')).toHaveCount(0);
+    const lead = await response;
+    expect(lead.status()).toBe(200);
+    expect((await lead.json()).id).toEqual(expect.any(String));
+    await expect(page.locator("main").getByRole("status")).toBeVisible();
     for (const action of ["disabled-chrome", "no-chrome"]) {
       fixture(action); await page.reload();
       await expect(page.locator('header, footer')).toHaveCount(0);
@@ -413,15 +415,23 @@ test("robots, sitemap and rich-result JSON-LD stay on each tenant's own host", a
     expect(legacy.headers().location).toContain(`/san-pham/${productSlug}`);
   }
 });
-test("spoofed headers cannot select B; tenant leads return 503 before the legacy adapter", async ({ request }) => {
+test("spoofed headers cannot select B; tenant lead API stores real leads and ignores bots (E11-S01)", async ({ request }) => {
   const response = await request.get("http://localhost:3211/", { headers: { Host: "t15.localhost", "x-tenant-id": "B", "x-site-id": "B", "X-Forwarded-Host": "t12.localhost" } });
   expect(response.status()).toBe(200);
   const html = await response.text();
   expect(html).toContain("Demo t15");
   expect(html).not.toContain("Demo t12");
-  for (const data of [{ website: "bot" }, { name: "A", phone: "0901234500" }]) {
+  // Honeypot or a missing/too-fast fill time: silent success, nothing stored (no id).
+  for (const data of [{ website: "bot", name: "A", phone: "0901234500", elapsedMs: 5_000 }, { name: "A", phone: "0901234500" }, { name: "A", phone: "0901234500", elapsedMs: 200 }]) {
     const lead = await request.post("http://localhost:3211/api/lead", { headers: { Host: "t15.localhost" }, data });
-    expect(lead.status()).toBe(503);
-    expect((await lead.json()).ok).toBe(false);
+    expect(lead.status()).toBe(200);
+    expect(await lead.json()).toEqual({ ok: true });
   }
+  // Spoofed tenant headers are replaced by the proxy; the lead is stored for the host's tenant.
+  const stored = await request.post("http://localhost:3211/api/lead", {
+    headers: { Host: "t15.localhost", "x-tenant-id": "B", "x-site-id": "B" },
+    data: { name: "[DỮ LIỆU MẪU] E2E", phone: "0901234501", source: "contact", elapsedMs: 5_000 },
+  });
+  expect(stored.status()).toBe(200);
+  expect((await stored.json()).id).toEqual(expect.any(String));
 });

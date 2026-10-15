@@ -24,6 +24,11 @@ const ignored = () => json({ ok: true });
 const tooMany = (retryAfterSec: number) =>
   json({ ok: false, message: "Bạn gửi quá nhiều lần. Vui lòng thử lại sau ít phút hoặc gọi hotline." }, 429, { "Retry-After": String(retryAfterSec) });
 
+function unavailable(error: unknown, tenantId: string, siteId: string) {
+  console.error("[lead] lỗi hạ tầng khi nhận lead", { tenantId, siteId }, error);
+  return json({ ok: false, message: "Chưa thể gửi thông tin. Vui lòng thử lại hoặc gọi hotline của công ty." }, 503);
+}
+
 // JSON round trip drops undefined fields.
 export const toLeadInput = ({ name, phone, email, message, source, segment, ...data }: Lead): LeadInput =>
   ({ name, phone, email, message, source, segment, data: JSON.parse(JSON.stringify(data)) });
@@ -59,7 +64,8 @@ export function createTenantLeadHandler({ loadSite, saveLead, limiter, verifyTur
     const byIp = await limiter(`rl:lead:${tenantId}:ip:${ip}`, LEAD_LIMITS.ip.limit, LEAD_LIMITS.ip.windowMs);
     if (!byIp.ok) return tooMany(byIp.retryAfterSec);
 
-    const site = await loadSite(tenantId, siteId);
+    let site: Awaited<ReturnType<Deps["loadSite"]>>;
+    try { site = await loadSite(tenantId, siteId); } catch (error) { return unavailable(error, tenantId, siteId); }
     if (!site) return json({ ok: false, message: "Không tìm thấy website" }, 404);
     try {
       for (const feature of leadFeatures(fields)) assertCan(site.entitlements, feature, { disabled: site.entitlements.disabled });
@@ -76,10 +82,7 @@ export function createTenantLeadHandler({ loadSite, saveLead, limiter, verifyTur
     try {
       const { id } = await saveLead(tenantId, siteId, toLeadInput(parsed.lead));
       return json({ ok: true, id });
-    } catch (error) {
-      console.error("[lead] không lưu được lead", { tenantId, siteId }, error);
-      return json({ ok: false, message: "Chưa thể gửi thông tin. Vui lòng thử lại hoặc gọi hotline của công ty." }, 503);
-    }
+    } catch (error) { return unavailable(error, tenantId, siteId); }
   };
 }
 

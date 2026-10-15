@@ -82,7 +82,9 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
   };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
-const data = createSiteData(tenantRepository, cache(() => cached(() => loadDisabledFeatures(getWebDb()), { keyParts: ["disabled"], tags: ["platform:entitlements"] })), { cached });
+// Nothing publishes `platform:entitlements` yet (console E15); a short TTL keeps the kill switch effective within a minute.
+export const KILL_SWITCH_TTL_MS = 60_000;
+const data = createSiteData(tenantRepository, cache(() => cached(() => loadDisabledFeatures(getWebDb()), { keyParts: ["disabled"], tags: ["platform:entitlements"], ttlMs: KILL_SWITCH_TTL_MS })), { cached });
 export function selectSiteLocale(locales: ("vi" | "en")[], defaultLocale: string, requested?: string) {
   if ((requested === "vi" || requested === "en") && locales.includes(requested)) return requested;
   return locales.includes(defaultLocale as "vi" | "en") ? defaultLocale as "vi" | "en" : locales[0] ?? "vi";

@@ -33,6 +33,9 @@ export default async function TenantLayout({ children, params }: { children: Rea
   return <TenantSiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={widgets("inline")} overlayWidgets={widgets("overlay")}
     defaultLocale={site.locale} locales={site.locales} validSkus={cartEnabled ? (await collections.products()).map((item) => item.slug) : []} cartEnabled={cartEnabled}
     calculatorHref={home.config.sections.some((section) => section.type === "calculator" && section.enabled) && canUse("calculator") ? "/#du-toan" : null}>
-    <JsonLd value={organization} />{children}
+    <JsonLd value={organization} />
+    {/* Lead forms render Turnstile only when the platform enables it; the API then requires its token (E11-S01). */}
+    {process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY ? <meta name="turnstile-site-key" content={process.env.TURNSTILE_SITE_KEY} /> : null}
+    {children}
   </TenantSiteShell>;
 }

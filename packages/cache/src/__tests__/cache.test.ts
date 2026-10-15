@@ -24,6 +24,13 @@ test("tenant A invalidation preserves B; draft bypasses; TTL and LRU expire", as
   assert.equal(await c.cached(read, options()), 6);
   await c.cached(read, { keyParts: "third", tags: [] });
   assert.equal(await c.cached(read, options(b)), 8);
+  // Per-entry TTL (kill switch: 60 s instead of 24 h).
+  const short = { keyParts: "short", tags: [], ttlMs: 2 };
+  const first = await c.cached(read, short);
+  time = 11;
+  assert.equal(await c.cached(read, short), first);
+  time = 12;
+  assert.equal(await c.cached(read, short), first + 1);
 });
 test("single flight, errors retry, invalidation during a slow render never resurrects stale content", async () => {
   const c = createMemoryCache();

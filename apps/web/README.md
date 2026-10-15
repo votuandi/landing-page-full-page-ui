@@ -138,11 +138,11 @@ React cache chỉ gộp đọc trong request. Root đọc headers khiến legacy
 | `website` có giá trị (honeypot), hoặc `elapsedMs` thiếu / < 3000 (form gửi số ms từ lúc mount) | `200 {ok:true}`, **không lưu** |
 | > 10 request/phút theo IP (`x-forwarded-for` đầu tiên) hoặc > 5 lần/10 phút theo SĐT | `429` + `Retry-After` |
 | Tính năng của `source`/payload ngoài gói (E6-S02) | `403` |
-| Có `TURNSTILE_SECRET_KEY` mà `turnstileToken` / `cf-turnstile-response` sai | `400` |
+| Có `TURNSTILE_SECRET_KEY` mà `turnstileToken` / `cf-turnstile-response` sai | `400` (đặt cả `TURNSTILE_SITE_KEY` để layout tenant phát `<meta name="turnstile-site-key">` và form hiện widget) |
 | Hợp lệ | Lưu `Lead` + mỗi kênh `LeadIntegration` đang bật một job `Outbox{topic:"lead.deliver"}` trong **cùng transaction**, rồi `200 {ok:true,id}`; lỗi DB → `503` |
 
 Bộ đếm rate-limit dùng Redis (`REDIS_URL`, dùng chung giữa các bản `web`); Redis lỗi → đếm trong bộ nhớ của tiến trình,
-không chặn lead. Việc gửi tới kênh do `apps/worker` làm (xem README ở đó).
+không chặn lead. Lỗi đọc site/DB → `503`. Việc gửi tới kênh do `apps/worker` làm (xem README ở đó).
 
 Kiểm thử: `pnpm --filter web test:tenant` (đặt DATABASE_URL và REDIS_URL để integration không skip).
 Sau seed chạy `pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts`.
