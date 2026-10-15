@@ -59,3 +59,26 @@ trường đại lý cần dealer kể cả source contact. Source/tenant/quyề
 Dữ liệu ngoài gói giữ nguyên khi hạ gói; E6-S03 cập nhật plan/addons và revalidate.
 
 Đồng bộ DB trong deploy bằng `pnpm --filter @solar/db plans:sync`, không seed tenant khách.
+
+## Đổi gói (E6-S03)
+
+Console đã xác thực PlatformAdmin gọi `forPlatform(platformDb).tenants.changePlan({ actorId, tenantId, changes, reason? })`
+trong `@solar/db`. `changes` nhận `planId`, `addons`, `featureOverrides`, `limitOverrides`, `permissionPolicy` (JSON object);
+trường lạ bị từ chối. Caller kiểm quyền và lấy `actorId` từ phiên đã xác thực, không lấy từ client. Runtime DB không có API này.
+
+Hàm khóa tenant, chỉ cập nhật trường thực sự đổi, ghi `AuditLog` `tenant.plan.change` (actor, trước/sau, lý do) và outbox
+invalidate `tenant:<id>` trong cùng transaction. Lỗi bất kỳ bước nào rollback toàn bộ; không đổi gì trả `{ changed: false }`
+và không tạo audit/job. Hạ gói giữ nguyên cấu hình/nội dung site; nâng lại gói khôi phục quyền tương ứng.
+Khi `planId` đổi, thêm `notify.plan-changed` với khóa `notify.plan-changed:<auditId>`.
+
+Worker poll mỗi giây, gửi invalidation có chữ ký đến web để lượt đọc sau lấy gói mới. Mục tiêu đổi gói có hiệu lực ≤60 giây
+khi worker/web hoạt động bình thường và mọi replica có trong `WEB_REVALIDATE_URLS`; khi web ngắt, job vẫn bền vững và retry
+theo backoff (không bảo đảm 60 giây lúc gián đoạn).
+
+Worker quét override khi khởi động rồi mỗi 5 phút sau khi lượt trước hoàn tất. `scanExpiredOverrides({ now })` xét cả feature
+và limit có `until` trong `(now - 24 giờ, now]`, chuẩn hóa thời gian UTC và enqueue với khóa `override-expired:<tenantId>:<until>`;
+nhiều lần quét/worker không tạo trùng. Audit hệ thống `tenant.override.expired` đi cùng job; dữ liệu override được giữ nguyên.
+Cửa sổ 24 giờ bù gián đoạn ngắn; gián đoạn dài hơn cần vận hành invalidate tenant (cache nội dung cũng có TTL 24 giờ).
+
+Notification mặc định tìm owner và ghi metadata `[notify]`, chưa gửi email/Telegram thật. Adapter gửi thật thuộc E11-S02;
+adapter nhận khóa idempotency để xử lý retry an toàn. Ngày hết hạn gói/status và billing cron thuộc E6-S05.

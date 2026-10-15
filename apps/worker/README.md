@@ -36,3 +36,20 @@ Topic `invalidate` gọi `POST /api/revalidate` tới mọi URL trong `WEB_REVAL
 Topic có `maxAgeMs: Infinity`: web tắt rồi bật lại vẫn nhận invalidation. Job trễ >5 phút log cảnh báo mỗi lần thất bại.
 Retry theo backoff E11-S01. Khi dùng cache bộ nhớ, URL phải trỏ từng tiến trình web; URL load balancer không bảo đảm
 xóa hết replica. Redis/shared cache triển khai ở E10-S03. Xem [hợp đồng cache](../../packages/cache/README.md).
+
+## Đổi gói và override hết hạn (E6-S03)
+
+- `notify.plan-changed`: được tạo cùng transaction đổi gói/audit; `createNotify({ notifier })` chuyển tenant, kind,
+  payload và `idempotencyKey` ổn định cho adapter. Payload khác tenant bị từ chối vĩnh viễn; lỗi adapter đi qua retry outbox.
+  Các topic `notify.*` mới phải đăng ký trong `main.ts` trước khi worker nhận chúng.
+- Adapter mặc định `createLogNotifier` tìm SiteUser `owner` theo tenant (email/contactPhone) và chỉ log `[notify]` metadata
+  (owner ID, có kênh liên hệ hay không), không log địa chỉ/số điện thoại. **Chưa gửi email/Telegram**; adapter thật ở E11-S02.
+  Adapter thật cần dùng idempotency key để tránh gửi trùng khi worker chết sau khi gửi.
+- Cron `override-expiry` gọi `forPlatform(db).tenants.scanExpiredOverrides({ now })` ngay khi khởi động và mỗi 5 phút sau
+  khi hoàn tất; không chồng lượt, lỗi được log rồi thử ở chu kỳ tiếp theo. Khóa outbox theo tenant/thời điểm hết hạn bảo đảm
+  nhiều worker/lần quét không tạo trùng. Quét bù 24 giờ, không xóa override; ghi audit hệ thống cùng transaction enqueue.
+- SIGTERM/SIGINT chờ cả batch outbox và cron đang chạy trước khi đóng pool. `every(ms, task)` dùng lại cho cron tiếp theo.
+
+Test Postgres đổi gói/audit/rollback/expiry ở `packages/db/src/__tests__/tenantPlan.int.test.ts`; chuỗi cache → đổi gói →
+worker → signed revalidation → quyền mới ở `apps/web/src/lib/tenant/__tests__/revalidate.int.test.ts`.
+Đặt `DATABASE_URL` + `PLATFORM_DATABASE_URL`, migrate/sync plans và seed theme `t15.localhost`; thiếu env thì test int skip.

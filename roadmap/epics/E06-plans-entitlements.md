@@ -53,6 +53,8 @@ bật/tắt theo gói, kiểm tra phía server.
   (E15-S03, E15-S05) → ghi `AuditLog` + Outbox invalidate tag `tenant:<id>` trong cùng transaction, gửi email/Telegram cho
   owner khi đổi gói. Override hết hạn: worker quét mỗi 5 phút và invalidate các tenant vừa hết hạn.
 - **AC**: [ ] Thay đổi có hiệu lực ≤ 60 s · [ ] Audit log ghi người đổi, gói cũ, gói mới.
+- Triển khai E6-S03: `changeTenantPlan` atomic update/audit/outbox, worker override-expiry + notification adapter mặc định ghi log.
+  Bằng chứng Postgres và chuỗi cache/revalidate: **chờ test cuối chuỗi** (chưa tick AC); báo cáo `.agent-runs/E6-S03/codex-report.md`.
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
 ### E6-S04 · UI khóa tính năng trong CMS
