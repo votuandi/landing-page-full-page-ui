@@ -45,6 +45,7 @@ async function main() {
           const data = structuredClone(section.data);
           if (section.type === "site-header") data.brand = { name: "[DỮ LIỆU MẪU] Solar energy installation company" };
           if (section.type === "hero") data.title = { ...data.title as object, lead: { vi: "Tiêu đề VI", en: "English hero" } };
+          if (section.type === "packages") data.items = (data.items as object[]).map((item) => ({ ...item, price: 180_000_000, salePrice: 144_000_000 }));
           await repo.sectionContent.create({ siteId: site.id, pageId: page.id, ...section, data: json(data) });
         }
         for (const source of demo.pages.slice(1)) {
@@ -58,6 +59,9 @@ async function main() {
           products.push(product.id);
         }
         await repo.product.update(products[2], { title: { vi: "Sản phẩm thiếu EN" }, data: { ...demo.collections.products[0].data, images: [site.id], warranty: { vi: "Bảo hành VI" } } });
+        const homeProducts = await repo.sectionContent.first({ where: { siteId: site.id, pageId: page.id, type: "products" } });
+        if (!homeProducts) throw new Error("Review home must include products");
+        await repo.sectionContent.update(homeProducts.id, { data: json({ ...homeProducts.data as object, query: { collection: "products", limit: 2, ids: products.slice(0, 2), filter: {} } }) });
         await repo.project.create({ slug: "review-project", title: { vi: "Công trình thiếu EN" }, status: "published", segment: "household", kwp: demo.collections.projects[0].kwp, data: { ...demo.collections.projects[0].data, image: site.id, detail: { vi: "Mô tả công trình VI" } } });
         await repo.service.create({ slug: "review-service", title: { vi: "Giải pháp thiếu EN" }, status: "published", data: { ...demo.collections.services[0].data, image: site.id, problem: { vi: "" } } });
         const original = demo.collections.posts[0];

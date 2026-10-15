@@ -3,6 +3,36 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { sectionRegistry } from "../registry";
+import { PriceTag } from "@solar/ui";
+
+test("English PriceTag uses English contact, sale and compact amount labels", () => {
+  const render = (props: Parameters<typeof PriceTag>[0]) => renderToStaticMarkup(createElement(PriceTag, { ...props, locale: "en" }));
+  assert.match(render({}), /Contact for price/);
+  const sale = render({ price: 180_000_000, salePrice: 144_000_000, short: true });
+  assert.match(sale, /144M VND/);
+  assert.match(sale, /180M VND/);
+  assert.match(sale, /Original price/);
+  assert.match(sale, /Save 20%/);
+  assert.doesNotMatch(sale, /triệu|Giá gốc|Giảm/);
+});
+
+test("product and package variants pass the site locale to all price labels", async () => {
+  const Loadable = (await import("next/dist/shared/lib/loadable.shared-runtime")).default;
+  for (const [type, variants] of [["products", ["t15", "minwy"]], ["packages", ["t15", "t04"]]] as const) {
+    const def = sectionRegistry.getType(type)!;
+    const data = def.schema.parse({ ...def.defaults as object, items: (def.defaults as { items: object[] }).items.map((item) => ({ ...item, price: 180_000_000, salePrice: 144_000_000 })) });
+    for (const variant of variants) {
+      const { default: Component } = await sectionRegistry.getVariant(type, variant)!.load();
+      await Loadable.preloadAll();
+      const html = renderToStaticMarkup(createElement(Component, { data, site: { tenantId: "price-test", themeId: "t15", locale: "en" }, sectionId: type }));
+      assert.match(html, /Original price/, `${type}/${variant}`);
+      assert.match(html, /Save 20%/, `${type}/${variant}`);
+      if (type === "products" && variant === "t15") assert.match(html, /<button[^>]*disabled=""[^>]*>Quick view/);
+      if (type === "packages") assert.match(html, /144M VND/, variant);
+      assert.doesNotMatch(html, /[\d,.]+ (?:triệu|nghìn)<|Giá gốc|Giảm/, `${type}/${variant}`);
+    }
+  }
+});
 
 test("t08 variants render shared defaults and localized tenant content across themes", async () => {
   const Loadable = (await import("next/dist/shared/lib/loadable.shared-runtime")).default;

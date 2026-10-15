@@ -151,6 +151,50 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
   test.beforeAll(() => { fixture("setup"); });
   test.afterAll(() => { fixture("cleanup"); });
   const url = "http://review.localhost:3211";
+  test("home section, quick view, packages and actual cart keep EN prices after switching and reload", async ({ page }, info) => {
+    await page.context().addCookies([{ name: "solar-locale", value: "vi", url }]);
+    await page.goto(url, { waitUntil: "networkidle" });
+    await expect(page.locator("html")).toHaveAttribute("lang", "vi");
+    const products = page.locator('[data-section-type="products"]');
+    await expect(products).toContainText("Giảm 20%");
+    for (const i of [0, 1]) {
+      const card = products.locator("article").filter({ has: page.getByRole("heading", { name: `Sản phẩm VI ${i}`, exact: true }) });
+      await card.getByRole("button", { name: /Xem nhanh/ }).click();
+      await expect(page.getByRole("dialog")).toContainText(i === 0 ? "Liên hệ" : "Giảm 20%");
+      await page.getByRole("dialog").getByRole("button", { name: /Thêm/ }).click();
+      await page.keyboard.press("Escape");
+    }
+    await page.getByRole("button", { name: "en", exact: true }).click();
+    for (const reload of [false, true]) {
+      if (reload) await page.reload({ waitUntil: "networkidle" });
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(products).toContainText("Contact");
+      await expect(products).toContainText("Original price");
+      await expect(products).toContainText("Save 20%");
+      const packages = page.locator('[data-section-type="packages"]');
+      await expect(packages).toContainText("144M VND");
+      await expect(packages).toContainText("180M VND");
+      await expect(packages).not.toContainText(/144 triệu|180 triệu|Giá gốc|Giảm/);
+      for (const i of [0, 1]) {
+        const card = products.locator("article").filter({ has: page.getByRole("heading", { name: `English product ${i}`, exact: true }) });
+        await card.getByRole("button", { name: /Quick view/ }).click();
+        const quick = page.getByRole("dialog");
+        await expect(quick).toContainText(i === 0 ? "Contact" : "Save 20%");
+        if (i === 1) await expect(quick).toContainText("Original price");
+        await page.keyboard.press("Escape");
+      }
+      await page.locator('[data-cart-count]').click();
+      const cart = page.locator('[data-widget="quote-cart"]').getByRole("dialog");
+      await expect(cart).toContainText("English product 0");
+      await expect(cart).toContainText("English product 1");
+      await expect(cart).toContainText("Contact for price");
+      await expect(cart).toContainText("Original price");
+      await expect(cart).toContainText("Save 20%");
+      await expect(cart).not.toContainText(/Liên hệ|Giá gốc|Giảm/);
+      if (reload) await page.screenshot({ path: info.outputPath("home-cart-en-after-reload.png") });
+      await page.keyboard.press("Escape");
+    }
+  });
   for (const [path, from, title, description] of [
     ["/san-pham/review-sku-2", "/san-pham", "Sản phẩm thiếu EN", "Unbranded · Bảo hành VI"],
     ["/cong-trinh/review-project", "/giai-phap/solar-gia-dinh", "Công trình thiếu EN", "Mô tả công trình VI"],

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CarouselNav, MediaImage, PriceTag, useDialog, useSnapCarousel } from "@solar/ui";
 import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { addToQuoteCart, openQuoteCart, priceView } from "@solar/core";
@@ -8,10 +8,10 @@ import type { Locale } from "../site";
 
 type ProductView = Omit<ProductItem, "images"> & { images: { src?: string; alt: string }[] };
 type Labels = { quick: string; add: string; compactAdd: string; added: string; cart: string; details: string; warranty: string; contact: string };
-function Price({ item, contact }: { item: ProductView; contact: string }) {
+function Price({ item, contact, locale }: { item: ProductView; contact: string; locale: Locale }) {
   return priceView(item.price, item.salePrice).kind === "contact"
     ? <div className="font-black text-primary">{contact}</div>
-    : <PriceTag price={item.price} salePrice={item.salePrice} />;
+    : <PriceTag price={item.price} salePrice={item.salePrice} locale={locale} />;
 }
 function Add({ item, labels, compact = false }: { item: ProductView; labels: Labels; compact?: boolean }) {
   const [added, setAdded] = useState(false);
@@ -42,7 +42,7 @@ function QuickView({ item, labels, sectionId, close, locale }: { item: ProductVi
       <div className="flex flex-col p-6 sm:p-8">
         <div className="text-xs font-black uppercase tracking-[.16em] text-secondary">{item.brand} · {item.categoryLabel}</div>
         <h2 id={sectionId + "-quick-title"} className="mt-2 pr-10 text-2xl font-black leading-tight text-fg">{item.name}</h2>
-        <div className="mt-3"><Price item={item} contact={labels.contact} />{item.unit && item.price ? <span className="text-xs text-fg-muted">/{item.unit}</span> : null}</div>
+        <div className="mt-3"><Price item={item} contact={labels.contact} locale={locale} />{item.unit && item.price ? <span className="text-xs text-fg-muted">/{item.unit}</span> : null}</div>
         <dl className="mt-5 divide-y divide-line/10 rounded-card border border-line/10 text-sm">
           {item.specs.map((spec, i) => <div key={i} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-fg-muted">{spec.label}</dt><dd className="text-right font-bold text-fg">{spec.value}</dd></div>)}
           <div className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-fg-muted">{labels.warranty}</dt><dd className="text-right font-bold text-fg">{item.warranty}</dd></div>
@@ -58,6 +58,8 @@ function QuickView({ item, labels, sectionId, close, locale }: { item: ProductVi
 }
 export default function Products({ items, labels, sectionId, locale }: { items: ProductView[]; labels: Labels; sectionId: string; locale: Locale }) {
   const [quick, setQuick] = useState<ProductView | null>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
   const c = useSnapCarousel();
   return <>
     <div className="mt-4 flex justify-end"><CarouselNav prevLabel={locale === "en" ? "Previous" : "Trước"} nextLabel={locale === "en" ? "Next" : "Tiếp"} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} /></div>
@@ -67,8 +69,8 @@ export default function Products({ items, labels, sectionId, locale }: { items: 
         <div className="flex flex-1 flex-col p-3 sm:p-5">
           <div className="text-xs font-black text-secondary">{item.categoryLabel} · {item.brand}</div>
           <h3 className="mt-2 text-sm font-black text-fg sm:text-base"><a href={item.href}>{item.name}</a></h3>
-          <div className="mt-auto pt-3"><Price item={item} contact={labels.contact} /></div>
-          <button type="button" onClick={() => setQuick(item)} className="t15-button t15-button-secondary my-2 text-xs">{labels.quick}<span className="sr-only">: {item.name}</span></button>
+          <div className="mt-auto pt-3"><Price item={item} contact={labels.contact} locale={locale} /></div>
+          <button type="button" disabled={!ready} onClick={() => setQuick(item)} className="t15-button t15-button-secondary my-2 text-xs">{labels.quick}<span className="sr-only">: {item.name}</span></button>
           <Add item={item} labels={labels} compact />
         </div>
       </article>)}

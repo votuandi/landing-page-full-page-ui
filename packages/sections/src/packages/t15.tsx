@@ -15,6 +15,7 @@ export default function PackagesT15({ data, site, sectionId }: SectionPropsOf<ty
       <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[520px] w-[520px] rounded-full bg-glow-leaf-16" />
       <div className="t15-container relative">
         <Packages
+          locale={site.locale}
           head={(
             <div data-reveal="down" className="max-w-3xl">
               <span className="t15-eyebrow"><SparklesIcon aria-hidden className="h-4 w-4" />{t(data.eyebrow)}</span>

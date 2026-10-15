@@ -6,7 +6,7 @@ type Props = { price?: number; salePrice?: number; short?: boolean; className?: 
 export function PriceTag({ price, salePrice, short = false, className = "text-lg", locale = "vi" }: Props) {
   const view = priceView(price, salePrice);
   if (view.kind === "contact") return <div className={`font-black text-primary ${className}`}>{locale === "en" ? "Contact for price" : "Liên hệ"}</div>;
-  const fmt = short ? formatMoneyShort : formatVnd;
+  const fmt = short ? (value: number) => formatMoneyShort(value, locale) : formatVnd;
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
       <span className={`font-black text-fg ${className}`}>{fmt(view.current)}</span>
