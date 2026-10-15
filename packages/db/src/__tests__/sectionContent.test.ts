@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { migrateSectionRow } from "../sectionContent.ts";
-import { forTenant, type DbClient } from "../repository.ts";
+import { createTenantRepo } from "../repository.ts";
 import { Prisma } from "../../generated/client.ts";
 import { sectionRegistry } from "@solar/sections";
 
@@ -49,8 +49,8 @@ function memoryRepo(initial: Stored, concurrent = false) {
       if (stored.draftData === Prisma.DbNull) stored.draftData = null;
       return { count: 1 };
     },
-  } } as unknown as DbClient;
-  return { repo: forTenant(db, tenantId), row: () => stored, payloads, counts: () => ({ reads, writes, conflicts }) };
+  } } as unknown as Parameters<typeof createTenantRepo>[0];
+  return { repo: createTenantRepo(db, tenantId), row: () => stored, payloads, counts: () => ({ reads, writes, conflicts }) };
 }
 
 for (const version of [1, 3]) {
@@ -124,8 +124,8 @@ test("saving only draft upgrades published data and defaults create to current v
     async findFirst() { return stored; },
     async updateMany({ data }: { data: typeof stored }) { stored = { ...stored, ...data }; return { count: 1 }; },
     async create({ data }: { data: typeof stored }) { return data; },
-  } } as unknown as DbClient;
-  const repo = forTenant(db, "019a1234-1234-7123-8123-123456789abc");
+  } } as unknown as Parameters<typeof createTenantRepo>[0];
+  const repo = createTenantRepo(db, "019a1234-1234-7123-8123-123456789abc");
   await repo.sectionContent.update("019a1234-1234-7123-8123-123456789abd", { draftData: { title: "Saved draft", channels: [] } });
   assert.equal(stored.schemaVersion, 3);
   assert.deepEqual((stored.data as Record<string, unknown>).channels, []);

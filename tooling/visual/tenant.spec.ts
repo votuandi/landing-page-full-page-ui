@@ -124,8 +124,11 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin("t15")}/tin-tuc/${postSlug}`);
   await page.goto(`${origin("t15")}/cam-nang`);
-  await page.getByRole("navigation", { name: "Mục lục" }).getByRole("link", { name: "Hỏi đáp" }).click();
-  await expect(page).toHaveURL(/#hoi-dap$/);
+  // App Router replaceState lúc hydrate xóa hash nếu click quá sớm → click lại tới khi hash giữ được.
+  await expect(async () => {
+    await page.getByRole("navigation", { name: "Mục lục" }).getByRole("link", { name: "Hỏi đáp" }).click();
+    await expect(page).toHaveURL(/#hoi-dap$/, { timeout: 1_000 });
+  }).toPass();
   await expect(page.locator("#hoi-dap")).toBeVisible();
   await page.goto(`${origin("t12")}/san-pham/${productSlug}`);
   await expect(page.locator("main")).toContainText("Demo t12");

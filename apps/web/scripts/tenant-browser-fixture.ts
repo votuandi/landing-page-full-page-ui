@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import { createDb, forPlatform, forTenant, type Prisma } from "@solar/db";
+import { createPlatformDb, forPlatform, forTenant, type Prisma } from "@solar/db";
 import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
@@ -14,7 +14,7 @@ async function main() {
     const demo = buildDemo("t15");
     console.log(JSON.stringify({ ...Object.fromEntries(["products", "posts", "projects", "services"].map((key) => [key, demo.collections[key as "products"].map((item) => item.slug)])), servicePrices: demo.collections.services.map((item) => item.data.price), serviceSolutions: demo.collections.services.map((item) => item.data.solution) }));
   } else {
-    const db = createDb({ pool: 5 });
+    const db = createPlatformDb({ pool: 5 });
     try {
       const domain = await forPlatform(db).domains.resolve("t15.localhost");
       if (!domain) throw new Error("Seed t15 before browser tests");

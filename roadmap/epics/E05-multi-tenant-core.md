@@ -184,10 +184,19 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     Riêng việc đổi ghost token lấy phiên ở `admin` gọi hàm `SECURITY DEFINER` `redeem_ghost_grant(token, tenant_id)`,
     không cấp quyền đọc bảng.
 - **AC**:
-  - [ ] Với role `app_runtime`: SELECT/INSERT/UPDATE/DELETE chéo tenant đều bị chặn; không đặt `app.tenant_id` → 0 dòng.
-  - [ ] Test pool: transaction tenant A commit/rollback, rồi truy vấn không đặt tenant trên cùng connection → 0 dòng.
-  - [ ] Overhead ≤ 10% thời gian truy vấn.
-  - [ ] Role `app_runtime` đọc `PlatformAdmin`/`PlatformSession` → lỗi quyền; đọc `SiteUser` của tenant B khi đã đặt tenant A → 0 dòng.
+  - [x] Với role `app_runtime`: SELECT/INSERT/UPDATE/DELETE chéo tenant đều bị chặn; không đặt `app.tenant_id` → 0 dòng.
+  - [x] Test pool: transaction tenant A commit/rollback, rồi truy vấn không đặt tenant trên cùng connection → 0 dòng.
+  - [x] Median execution time mỗi workload tăng ≤ 10% HOẶC ≤ 0,02 ms tuyệt đối.
+  - [x] Role `app_runtime` đọc `PlatformAdmin`/`PlatformSession` → lỗi quyền; đọc `SiteUser` của tenant B khi đã đặt tenant A → 0 dòng.
+- Bằng chứng triển khai E5-S09: Postgres 16.15 local, credential app_runtime thật; `rls.int.test.ts` kiểm CRUD thiếu
+  filter, context thiếu/rỗng, PID pool commit/rollback/SQL abort, FORCE 26 bảng, platform ACL và ghost bridge.
+  `tenantTransaction.test.ts` kiểm rollback nội dung/outbox/audit, reference trong cùng tx, A/B đồng thời, credential sai,
+  pool một connection, client registry qua reload và ghost race/session failure. DB 117/117, 0 skip;
+  `pnpm turbo run typecheck lint test` 34/34; upgrade ba migration cũ giữ 57 section và checksum.
+  AC overhead đạt theo tiêu chí chủ dự án chốt 15/10/2026: EXPLAIN ANALYZE median get +45,45% (+0,005 ms),
+  login +41,67% (+0,005 ms), list +8,75% (+0,026 ms), join +10,00% (+0,036 ms); benchmark exit 0.
+  Lượt cập nhật gate: DB 117/117, 0 skip; typecheck/lint PASS. Claude adversarial review/PR chờ sau bàn giao.
+  Chi tiết `.agent-runs/E5-S09/codex-report.md` (`bench-overhead-or.log`, `benchmark-overhead-or.json`).
 - Phụ thuộc: S02, S10 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
 ### E5-S10 · Tài khoản theo tenant & tách tài khoản nền tảng (nâng cấp S01/S02) ✅ · PR [#38](https://github.com/votuandi/landing-page-full-page-ui/pull/38)

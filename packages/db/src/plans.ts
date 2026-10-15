@@ -1,8 +1,8 @@
 import { PLAN_IDS, plans } from "@solar/plans";
-import type { Db } from "./client.ts";
+import type { PlatformDb } from "./client.ts";
 
 // Global platform configuration; tenant content is untouched.
-export async function syncPlans(db: Pick<Db, "$transaction">): Promise<void> {
+export async function syncPlans(db: Pick<PlatformDb, "$transaction">): Promise<void> {
   await db.$transaction(async tx => {
     for (const id of PLAN_IDS) {
       const plan = plans[id];

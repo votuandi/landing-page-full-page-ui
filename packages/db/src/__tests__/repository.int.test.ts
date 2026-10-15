@@ -1,32 +1,35 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, before, describe, test } from "node:test";
-import { createDb, type Db } from "../client.ts";
+import { createDb, createPlatformDb, type Db } from "../client.ts";
 import { MissingTenantError } from "../tenantScope.ts";
 import { CrossTenantRefError } from "../refs.ts";
-import { forTenant, forPlatform } from "../repository.ts";
+import { forTenant, forPlatform, createTenantRepo } from "../repository.ts";
+import { withTenantTransaction, tenantTransaction } from "../tenantTransaction.ts";
 import { Prisma } from "../../generated/client.ts";
 import { sectionRegistry } from "@solar/sections";
 
 describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16" }, () => {
   let db: Db;
+  let ops: ReturnType<typeof createPlatformDb>;
   const a = randomUUID(), b = randomUUID(), planId = `repo-${randomUUID()}`;
   const projectB = randomUUID(), mediaB = randomUUID(), siteA = randomUUID(), pageA = randomUUID();
   before(async () => {
     db = createDb({ pool: 2 });
-    await db.plan.create({ data: { id: planId, name: "Test", features: [], limits: {} } });
-    for (const id of [a, b]) await db.tenant.create({ data: { id, slug: `repo-${id}`, name: "[DỮ LIỆU MẪU]", planId } });
-    await db.project.create({ data: { id: projectB, tenantId: b, slug: "shared", title: { vi: "B" } } });
-    await db.media.create({ data: { id: mediaB, tenantId: b, key: `tenants/${b}/test`, driver: "local", mime: "image/png", size: 1 } });
-    await db.site.create({ data: { id: siteA, tenantId: a, themeId: "t15", name: "Test" } });
-    await db.page.create({ data: { id: pageA, tenantId: a, siteId: siteA, slug: "", sections: [] } });
+    ops = createPlatformDb({ pool: 2 });
+    await ops.plan.create({ data: { id: planId, name: "Test", features: [], limits: {} } });
+    for (const id of [a, b]) await ops.tenant.create({ data: { id, slug: `repo-${id}`, name: "[DỮ LIỆU MẪU]", planId } });
+    await ops.project.create({ data: { id: projectB, tenantId: b, slug: "shared", title: { vi: "B" } } });
+    await ops.media.create({ data: { id: mediaB, tenantId: b, key: `tenants/${b}/test`, driver: "local", mime: "image/png", size: 1 } });
+    await ops.site.create({ data: { id: siteA, tenantId: a, themeId: "t15", name: "Test" } });
+    await ops.page.create({ data: { id: pageA, tenantId: a, siteId: siteA, slug: "", sections: [] } });
   });
   after(async () => {
     if (!db) return;
     try {
-      await db.tenant.deleteMany({ where: { id: { in: [a, b] } } });
-      await db.plan.delete({ where: { id: planId } });
-    } finally { await db.$disconnect(); }
+      await ops.tenant.deleteMany({ where: { id: { in: [a, b] } } });
+      await ops.plan.delete({ where: { id: planId } });
+    } finally { await Promise.all([db.$disconnect(), ops.$disconnect()]); }
   });
   test("unscoped model queries and all raw operations fail before SQL", async () => {
     for (const query of [db.project.findMany(), db.project.findUnique({ where: { id: projectB } }), db.project.count(), db.project.deleteMany({}), db.$queryRaw`SELECT 1`, db.$executeRaw`SELECT 1`, db.$queryRawUnsafe("SELECT 1"), db.$executeRawUnsafe("SELECT 1")]) {
@@ -53,8 +56,8 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
     await assert.rejects(db.project.upsert({ where, create: { tenantId: a, slug: "forged-upsert", title: {} }, update: {} }), MissingTenantError);
     await assert.rejects(db.project.upsert({ where, create: { tenantId: b, slug: "forged-upsert", title: {} }, update: { tenantId: a } }), MissingTenantError);
     await assert.rejects(db.project.upsert({ where, create: { tenantId: b, slug: "forged-upsert", title: {} }, update: { tenant: { connect: { id: a } } } }), MissingTenantError);
-    assert.equal((await db.project.update({ where, data: { tenantId: b } })).tenantId, b);
-    assert.equal((await db.project.upsert({ where, create: { tenantId: b, slug: "same-tenant", title: {} }, update: { tenant: { connect: { id: b } } } })).tenantId, b);
+    assert.equal((await tenantTransaction(db, b, tx => tx.project.update({ where, data: { tenantId: b } }))).tenantId, b);
+    assert.equal((await tenantTransaction(db, b, tx => tx.project.upsert({ where, create: { tenantId: b, slug: "same-tenant", title: {} }, update: { tenant: { connect: { id: b } } } }))).tenantId, b);
     assert.deepEqual((await forTenant(db, b).project.get(projectB))?.title, { vi: "B" });
     assert.equal(await forTenant(db, a).project.count({ where: { slug: "forged-upsert" } }), 0);
   });
@@ -100,8 +103,7 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
     }), { count: 1 });
   });
   test("repositories use the caller transaction and roll back writes", async () => {
-    await assert.rejects(db.$transaction(async (tx) => {
-      const repo = forTenant(tx, a);
+    await assert.rejects(withTenantTransaction(db, a, async (repo) => {
       const row = await repo.project.create({ slug: "transaction", title: {} });
       assert.equal((await repo.project.get(row.id))?.tenantId, a);
       await assert.rejects(repo.project.create({ slug: "foreign-tx", title: {}, data: { image: { id: mediaB } } }), CrossTenantRefError);
@@ -123,7 +125,7 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
   test("platform exposes hostname lookup without weakening tenant queries", async () => {
     const hostname = `${a}.repo.localhost`;
     await forTenant(db, a).domain.create({ hostname, siteId: siteA, verificationToken: "test" });
-    assert.equal((await forPlatform(db).domains.findByHostname(hostname))?.tenantId, a);
+    assert.equal((await forPlatform(db).domains.resolve(hostname))?.tenantId, a);
     await assert.rejects(db.domain.findUnique({ where: { hostname } }), MissingTenantError);
   });
   for (const schemaVersion of [1, 3]) {
@@ -132,21 +134,23 @@ describe("tenant repository on PostgreSQL", { skip: !process.env.DATABASE_URL &&
       const row = await repo.sectionContent.create({ siteId: siteA, pageId: pageA, sectionId: `concurrent-${schemaVersion}`, type: "shorts", schemaVersion, data: { title: "Old" }, draftData: { title: "Old draft" } });
       let reads = 0, release!: () => void;
       const barrier = new Promise<void>((resolve) => { release = resolve; });
-      const coordinated = new Proxy(db, { get(target, key) {
-        if (key !== "sectionContent") return Reflect.get(target, key);
-        return new Proxy(target.sectionContent, { get(delegate, method) {
-          if (method !== "findFirst") return Reflect.get(delegate, method);
-          return async (args: Parameters<typeof db.sectionContent.findFirst>[0]) => {
-            const snapshot = await delegate.findFirst(args);
-            if (++reads <= 2) { if (reads === 2) release(); await barrier; }
-            return snapshot;
-          };
+      const save = (data: Parameters<typeof repo.sectionContent.update>[1]) => tenantTransaction(db, a, async tx => {
+        const coordinated = new Proxy(tx, { get(target, key) {
+          if (key !== "sectionContent") return Reflect.get(target, key);
+          return new Proxy(target.sectionContent, { get(delegate, method) {
+            if (method !== "findFirst") return Reflect.get(delegate, method);
+            return async (args: Parameters<typeof tx.sectionContent.findFirst>[0]) => {
+              const snapshot = await delegate.findFirst(args);
+              if (++reads <= 2) { if (reads === 2) release(); await barrier; }
+              return snapshot;
+            };
+          } });
         } });
-      } });
-      const saving = forTenant(coordinated, a);
+        return createTenantRepo(coordinated, a).sectionContent.update(row.id, data);
+      });
       await Promise.all([
-        saving.sectionContent.update(row.id, { data: { title: "Published", channels: [] } }),
-        saving.sectionContent.update(row.id, { draftData: { title: "Draft", channels: [] } }),
+        save({ data: { title: "Published", channels: [] } }),
+        save({ draftData: { title: "Draft", channels: [] } }),
       ]);
       const saved = (await repo.sectionContent.get(row.id))!;
       assert.equal((saved.data as Record<string, unknown>).title, "Published");

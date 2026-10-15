@@ -3,6 +3,10 @@ import type { Db } from "../client.ts";
 
 // Compiled by typecheck only: callers cannot override the repository tenant.
 function repositoryTypes(db: Db, tenantId: string) {
+  db.$transaction(async tx => {
+    // @ts-expect-error transaction has not been bound to a tenant context
+    forTenant(tx, tenantId);
+  });
   const repo = forTenant(db, tenantId);
   // @ts-expect-error section type is immutable after create
   repo.sectionContent.update("id", { type: "hero" });

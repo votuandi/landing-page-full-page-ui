@@ -1,8 +1,8 @@
 import { pathToFileURL } from "node:url";
-import { createDb, POOL_BUDGET } from "../src/client.ts";
+import { createPlatformDb, POOL_BUDGET } from "../src/client.ts";
 import { seedDemo } from "./seed-demo.ts";
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const db = createDb({ pool: POOL_BUDGET.worker });
+  const db = createPlatformDb({ pool: POOL_BUDGET.worker });
   try { await seedDemo(db); } finally { await db.$disconnect(); }
 }

@@ -10,6 +10,6 @@ export default defineConfig({
   webServer: {
     command: "pnpm --filter web dev --port 3211", cwd: resolve(__dirname, "../.."),
     url: "http://localhost:3211/favicon.svg", reuseExistingServer: !process.env.CI, timeout: 120_000,
-    env: { MULTI_TENANT: "1", TENANT_PUBLIC_PORT: "3211" },
+    env: { MULTI_TENANT: "1", TENANT_PUBLIC_PORT: "3211", PLATFORM_DATABASE_URL: "", MIGRATION_DATABASE_URL: "", TEST_OWNER_DATABASE_URL: "", SEED_PASSWORD: "" },
   },
 });

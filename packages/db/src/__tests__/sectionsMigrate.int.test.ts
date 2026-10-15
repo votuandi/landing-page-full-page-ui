@@ -1,16 +1,16 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, before, describe, test } from "node:test";
-import { createDb, type Db } from "../client.ts";
+import { createPlatformDb, type PlatformDb } from "../client.ts";
 import { forTenant } from "../repository.ts";
 import { runSectionsMigrate } from "../sectionsMigrate.ts";
 
 describe("section data migrations on PostgreSQL", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16" }, () => {
-  let db: Db;
+  let db: PlatformDb;
   const tenantId = randomUUID(), planId = `migrate-${randomUUID()}`;
   let sectionId: string, versionId: string;
   before(async () => {
-    db = createDb({ pool: 2 });
+    db = createPlatformDb({ pool: 2 });
     await db.plan.create({ data: { id: planId, name: "[DỮ LIỆU MẪU] Migration", features: [], limits: {} } });
     await db.tenant.create({ data: { id: tenantId, slug: `migrate-${tenantId}`, name: "[DỮ LIỆU MẪU] Migration", planId } });
     const repo = forTenant(db, tenantId);

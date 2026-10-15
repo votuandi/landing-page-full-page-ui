@@ -20,7 +20,7 @@ pnpm sections:migrate --file /absolute/path/backup.json --dry-run
 pnpm sections:migrate --file /absolute/path/backup.json
 ```
 
-DB cần `DATABASE_URL`. Script duyệt từng tenant qua `forTenant`, đọc lô 100 bản ghi theo id,
+DB cần `PLATFORM_DATABASE_URL`. Script duyệt từng tenant qua builder repository nội bộ có filter/ref guard, đọc lô 100 bản ghi theo id,
 nâng `SectionContent.data`/`draftData` và `PageVersion.snapshot`; chỉ ghi bản ghi thay đổi.
 Dry-run in tenant, bảng, type, version và số lượng, không ghi dữ liệu. Chạy lần hai báo 0 thay đổi.
 Backup là snapshot hoặc mảng snapshot theo README sections; `--file` không cần DB,
@@ -54,14 +54,16 @@ URL có nhưng không kết nối được thì test lỗi, không skip. Turbo k
 PowerShell với Postgres 16 đã chạy:
 
 ```powershell
-$env:DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/solar_e5'
+$env:DATABASE_URL = 'postgresql://app_runtime:<secret>@localhost:5432/solar_e5'
+$env:MIGRATION_DATABASE_URL = 'postgresql://app_owner:<secret>@localhost:5432/solar_e5'
+$env:PLATFORM_DATABASE_URL = 'postgresql://app_platform:<secret>@localhost:5432/solar_e5'
 pnpm --filter @solar/db db:deploy
 pnpm db:seed
 pnpm db:seed
 pnpm --filter @solar/db test
 ```
 
-Linux/macOS: export cùng `DATABASE_URL` trước các lệnh trên. Prisma 7 không tự nạp `.env`;
+Linux/macOS: export các credential tương ứng trước các lệnh trên. Prisma 7 không tự nạp `.env`;
 đặt biến môi trường trong shell/CI. Tạo migration mới bằng `pnpm --filter @solar/db db:migrate --name <name>`.
 Khi không có DB, sinh SQL từ schema (vẫn cần kiểm `db:deploy` trên Postgres thật trước khi duyệt):
 
@@ -125,7 +127,7 @@ RLS thuộc E5-S09.
 
 ## Repository
 
-Ứng dụng dùng `forTenant(db, tenantId)` từ `@solar/db`; nhận đủ 21 delegate tenant
+Ứng dụng dùng `forTenant(db, tenantId)` từ `@solar/db`; nhận đủ 25 delegate có scope tenant
 (`project`, `page`, `sectionContent`, `media`…), mỗi delegate có `list`, `first`, `get`,
 `count`, `create`, `update`, `delete`. Tenant phải là UUID. Repository tự gắn tenant,
 loại bỏ `tenantId`/`tenant` khỏi dữ liệu ghi; filter AND/OR của caller không thể bỏ scope.
@@ -135,16 +137,15 @@ loại bỏ `tenantId`/`tenant` khỏi dữ liệu ghi; filter AND/OR của call
 ```ts
 const repo = forTenant(db, tenantId);
 const projects = await repo.project.list({ where: { status: "published" } });
-await db.$transaction(async (tx) => {
-  await forTenant(tx, tenantId).project.update(projectId, { title: { vi: "Tiêu đề mới" } });
+await withTenantTransaction(db, tenantId, async (repo) => {
+  await repo.project.update(projectId, { title: { vi: "Tiêu đề mới" } });
 });
 ```
 
 Create/update SectionContent (cả data/draftData) và sáu collection có schema dùng
 `collectRefs` từ `@solar/sections`, rồi kiểm ID media/collection thuộc tenant trước khi ghi.
 Ảnh tĩnh giữ quy tắc ở trên; tên collection lạ bị từ chối. Đây chỉ là kiểm tham chiếu,
-không thay thế validation nội dung của CMS. Khi cần ghi nhiều bước nguyên tử, truyền transaction
-client vào repository; kiểm ref dùng đúng client đó.
+không thay thế validation nội dung của CMS. Khi cần ghi nhiều bước nguyên tử, dùng `withTenantTransaction`; kiểm ref và ghi luôn cùng connection.
 
 `createDb` ném `MissingTenantError` ở mọi môi trường nếu model tenant thiếu scope;
 raw SQL cũng bị chặn. Outbox/AuditLog cần scope tường minh (`tenantId: null` cho tác vụ nền tảng).
@@ -153,17 +154,18 @@ Outbox/AuditLog còn nhận `null`/`{ equals: null }`. Toán tử hoặc thuộc
 Tenant trong dữ liệu ghi là chuỗi (hoặc `null` ở bảng tùy chọn), hoặc `tenant.connect.id`;
 không nhận object filter/field operator. Update/updateMany và hai nhánh upsert không được đổi tenant:
 tenant ghi tường minh phải khớp mọi tenant trong where; upsert.create phải có tenant cùng where.
-Các model Plan/Tenant/User/PlatformAdmin giữ thao tác nền tảng. Client nội bộ không scope
-không được export. `forPlatform(db).domains.findByHostname(hostname)` là ngoại lệ tra host
-được kiểm soát, nhận client gốc từ `createDb`, không nhận transaction client.
-ESLint cấm import tĩnh, `require()` và `import()` với đường dẫn literal tới Prisma/pg/generated client ngoài `packages/db`.
+Plan chỉ đọc ở runtime; Tenant chỉ đọc trong tenant context; các bảng nền tảng cần platform credential. Client nội bộ không scope
+không được export. `forPlatform(runtimeDb).domains.resolve(hostname)` là ngoại lệ bootstrap công khai,
+chỉ gọi `resolve_tenant_host` SECURITY DEFINER. Runtime không có delegate bảng nền tảng.
+`forPlatform(createPlatformDb({ pool: 2 }))` nhận credential `PLATFORM_DATABASE_URL` riêng (bắt buộc, không fallback).
+Audit bắt buộc kèm actor/reason của API console hoãn tới E15-S02; không coi client platform là bằng chứng xác thực actor.
 
 ### Phân giải tên miền
 
 `forPlatform(db).domains.resolve(hostname)` trả `HostRecord | null`: chỉ các trường
 định tuyến, trạng thái tenant và `primaryHost` của cùng tenant + site có trạng thái
-`verified|active`. Tra cứu qua một lời gọi Prisma có relation select, dùng client
-nội bộ của `createDb`; không mở scope cho truy vấn nội dung. Các kiểu `HostRecord`,
+`verified|active`. Tra cứu qua function
+SQL SECURITY DEFINER do `app_platform` sở hữu; không mở scope cho truy vấn nội dung. Các kiểu `HostRecord`,
 `DomainStatus`, `TenantStatus` export từ `@solar/db`. Proxy kiểm trạng thái domain
 và tenant trước khi phục vụ, kể cả chứng chỉ TLS vẫn còn hạn.
 
@@ -174,8 +176,7 @@ Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.m
 
 ## Giới hạn đã biết
 
-- Model nền tảng `Tenant`/`User` có thể `include`/`select` relation tới bảng tenant mà query extension
-  không guard truy vấn relation đó; chỉ dùng trong thao tác nền tảng có kiểm quyền. RLS thuộc E5-S09.
+- Runtime không đọc được bảng nền tảng; relation Tenant chỉ thấy tenant trong context. RLS không thay permission/auth.
 - `Page.sections`/`draftSections` chỉ chứa descriptor `{ id, type, variant, enabled, anchor, layout }`,
   không chứa data/ref nên không rút ref riêng. `PageVersion.snapshot` là bản chụp nội dung đã kiểm khi ghi
   SectionContent; repository chưa kiểm ref độc lập khi ghi trực tiếp snapshot. E7 phải giữ ranh giới này
@@ -184,7 +185,7 @@ Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.m
   và `Media.variants` chưa có schema Zod, nên chưa kiểm ref JSONB. E7 CMS phải thêm schema và gọi `collectRefs`
   khi ghi; hiện chỉ SectionContent và sáu collection có `collectionSchemas` được kiểm.
 - Outbox/AuditLog dùng `null` cho việc nền tảng; guard kiểm scope tường minh, không kiểm quyền gọi.
-  Kiểm ref rồi ghi chưa tự tạo transaction; truyền transaction client nếu cần nhiều bước nguyên tử.
+  Kiểm ref và ghi cùng transaction; dùng `withTenantTransaction` để gom nhiều thao tác nguyên tử.
   Luật lint đường dẫn literal chưa kiểm module được tính động từ biến.
 
 ## Seed demo
@@ -223,7 +224,7 @@ Hai realm không có bảng/khóa nối nhau:
 - `PlatformAdmin` (email unique toàn hệ thống), `PlatformSession`, `GhostGrant`, `PlatformSetting`, `Customer`.
 - `passwordHash`/`totpSecret` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
   `omit: { passwordHash: false }`. `forTenant(id).siteUser|siteSession|siteToken` theo tenant như các bảng khác;
-  `forPlatform(db)` có `customer`, `platformAdmin`, `platformSession`, `ghostGrant`, `platformSetting`.
+  `forPlatform(platformDb)` có `customer`, `platformAdmin`, `platformSession`, `ghostGrant`, `platformSetting`.
 - `Tenant.slug` (= subdomain) có CHECK định dạng nhãn DNS 3–63 ký tự, không `--`, không thuộc danh sách dành riêng;
   danh sách giữ khớp `RESERVED_TENANT_SLUGS` của `@solar/core` (test `schema.test.ts`).
 - `AuditLog` ghi `actorType` + `actorId` (không FK để nhật ký sống lâu hơn tài khoản), `ghostGrantId` khi ghost.
@@ -241,8 +242,42 @@ Nhóm theme ở code, không cần Prisma migration.
 pnpm --filter @solar/db plans:sync
 ```
 
-Chạy CLI này trong deploy sau migrate với DATABASE_URL phù hợp; pool 2 và disconnect trong finally.
+Chạy CLI này trong deploy sau migrate với PLATFORM_DATABASE_URL; pool 2 và disconnect trong finally.
 Seed demo gọi cùng helper trước khi tạo nội dung nên không còn quyền rỗng. **Không dùng db:seed
 trên tenant khách để đồng bộ gói**: seed là công cụ dựng demo. Demo t12 vẫn pro theo scope S01;
 E5-S04 xử lý sự khác biệt nhóm theme Signature. Test Postgres kiểm drift, idempotence, giữ tenant/addons,
 Plan lạ, rollback thật và seed hai lần giữ danh tính nội dung/quyền khớp code.
+
+## RLS và vận hành (E5-S09)
+
+- `DATABASE_URL`: chỉ `app_runtime`, không sở hữu bảng, không superuser/BYPASSRLS/membership owner/platform.
+  `createDb` kiểm session/current role và đặc quyền trước SQL nghiệp vụ. Truy vấn Prisma trực tiếp có filter vẫn không
+  tự đặt context; ứng dụng dùng `forTenant` hoặc `withTenantTransaction` (import từ `@solar/db`).
+- Mỗi operation repository tự mở transaction, `set_config('app.tenant_id', id, true)` trước query, bao gồm ref check và
+  optimistic section migration. Context hết ở commit/rollback; repo nhận từ callback không dùng được sau khi kết thúc.
+  `forTenant(tx, id)` không còn được hỗ trợ. Không gọi HTTP/Redis trong callback.
+- 25 bảng có tenantId và `Tenant` bật ENABLE + FORCE; thiếu/rỗng context SELECT/UPDATE/DELETE không thấy dòng nào,
+  INSERT bị policy chặn. Plan chỉ đọc. Tenant chỉ đọc đúng id. AuditLog runtime chỉ SELECT/INSERT của tenant;
+  null tenant thuộc platform, không được runtime đọc/ghi. Platform không UPDATE/DELETE AuditLog.
+- Operator Postgres 16 chạy `psql -v ON_ERROR_STOP=1 -f packages/db/scripts/provision-roles.sql` bằng superuser trên DB
+  kiểm thử/local, cấp `APP_OWNER_PASSWORD`, `APP_RUNTIME_PASSWORD`, `APP_PLATFORM_PASSWORD` từ môi trường. Script có inventory
+  ownership cho DB cũ, không đưa secret vào migration. Sau đó `pnpm --filter @solar/db db:deploy` dùng
+  `MIGRATION_DATABASE_URL` bắt buộc. Shadow DB cũng phải provision role/schema tương ứng. Managed DB production cần E10
+  xác nhận quyền tạo role, chuyển ownership/membership trước rollout. Không chạy runtime bằng owner để né RLS.
+- Seed, plans-sync, sections-migrate và browser fixture là tác vụ platform. Các process web/admin chỉ nhận DATABASE_URL;
+  CI browser xóa platform/migration/test-owner/seed secret khỏi môi trường server. Tổng pool worker hai credential ≤ 5.
+- Bootstrap host không ghi AuditLog từng lookup; trả đúng hostname/tenantId/siteId/status/isPrimary/tenantStatus/primaryHost
+  và chỉ primary cùng tenant/site. Ngoại lệ D3 đã chốt, không có `resolve_admin_tenant`; slug admin để E7-S01.
+- `redeemGhostGrant(db, tenantId, rawToken)` dùng SHA-256, consume nguyên tử qua `redeem_ghost_grant`, tạo session ghost/admin
+  và lưu hash session token trong cùng transaction. Token sai/hết hạn/đã dùng/thu hồi, actor disabled hoặc tenant suspended
+  trả lỗi chung; lỗi tạo session rollback consume. Các DateTime Prisma là UTC; SQL so sánh hạn ở UTC dù session timezone khác.
+  Đây chỉ là primitive: auth/TOTP/permission, ghost audit và kiểm revokedAt trên request tiếp theo (cache ≤ 5s) thuộc E15-S03.
+- Hai function SECURITY DEFINER có owner app_platform, search_path pg_catalog/pg_temp, bảng định danh public và không EXECUTE
+  cho PUBLIC. Không dùng credential platform cho bootstrap public.
+- Test DB dùng runtime thật để assert; PLATFORM_DATABASE_URL setup fixture, TEST_OWNER_DATABASE_URL chỉ cleanup/benchmark
+  và kiểm FORCE owner. `RLS_REQUIRED=1` làm CI db job lỗi nếu thiếu bất kỳ credential hoặc SEED_PASSWORD; unit offline được skip DB.
+- `pnpm --filter @solar/db exec tsx scripts/rls-bench.ts` tạo hai schema clone riêng, 20×1000 Product/SiteUser, 100 warmup và
+  1000 mẫu xen kẽ cho get/list/join/login. EXPLAIN ANALYZE BUFFERS TIMING OFF loại chi phí bấm giờ từng node; gate mỗi median
+  execution tăng ≤ 10% HOẶC ≤ 0,02 ms tuyệt đối (hai ngưỡng đều inclusive), không nới theo wall time.
+  `RLS_BENCH_OUTPUT` lưu JSON raw samples/plans; wall autocommit/transaction báo
+  riêng cho pg round trips và production repository builder qua Prisma (baseline autocommit / RLS transaction). Script exit 1 khi bất kỳ workload vượt gate; không chạy trong test.

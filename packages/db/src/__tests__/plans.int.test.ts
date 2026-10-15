@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { PLAN_IDS, plans } from "@solar/plans";
-import { createDb, type Db } from "../client.ts";
+import { createPlatformDb, type PlatformDb } from "../client.ts";
 import { syncPlans } from "../plans.ts";
 
 test("Postgres sync repairs drift, is idempotent, preserves tenants and unknown plans, and rolls back", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16",
 }, async () => {
-  const db = createDb({ pool: 2 });
+  const db = createPlatformDb({ pool: 2 });
   const id = randomUUID(), extraPlan = `test-plan-${id}`;
   try {
     await syncPlans(db);

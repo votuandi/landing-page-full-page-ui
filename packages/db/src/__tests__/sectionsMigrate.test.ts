@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { runSectionsMigrate } from "../sectionsMigrate.ts";
-import type { Db } from "../client.ts";
+import type { PlatformDb } from "../client.ts";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -40,7 +40,7 @@ test("database runner batches two tenants and continues past corrupt rows and sn
   const db = {
     tenant: { async findMany() { return tenants.map((id) => ({ id })); } },
     sectionContent: delegate([...sections, bad]), pageVersion: delegate(snapshots),
-  } as unknown as Db;
+  } as unknown as PlatformDb;
   const before = JSON.stringify({ sections, bad, snapshots });
   const log: string[] = [];
   assert.deepEqual(await runSectionsMigrate({ db, dryRun: true, log: (line) => log.push(line) }), { changed: 103, errors: 2 });
@@ -156,7 +156,7 @@ test("runner paginates PageVersion, skips future versions and continues after da
   const db = {
     tenant: { async findMany() { return [{ id: tenantId }]; } },
     sectionContent: delegate("SectionContent", sections), pageVersion: delegate("PageVersion", versions),
-  } as unknown as Db;
+  } as unknown as PlatformDb;
   const logs: string[] = [];
   assert.deepEqual(await runSectionsMigrate({ db, log: (line) => logs.push(line) }), { changed: 102, errors: 2 });
   assert.deepEqual(cursors.filter((cursor) => cursor.table === "PageVersion"), [
@@ -178,7 +178,7 @@ test("empty database or empty tenant returns zero and never writes", async () =>
   for (const tenants of [[], [{ id: "019a1234-1234-7123-8123-123456789abc" }]]) {
     let reads = 0;
     const delegate = { async findMany() { reads++; return []; }, async updateMany() { assert.fail("empty database cannot write"); } };
-    const db = { tenant: { async findMany() { return tenants; } }, sectionContent: delegate, pageVersion: delegate } as unknown as Db;
+    const db = { tenant: { async findMany() { return tenants; } }, sectionContent: delegate, pageVersion: delegate } as unknown as PlatformDb;
     const logs: string[] = [];
     assert.deepEqual(await runSectionsMigrate({ db, log: (line) => logs.push(line) }), { changed: 0, errors: 0 });
     assert.equal(reads, tenants.length * 2);

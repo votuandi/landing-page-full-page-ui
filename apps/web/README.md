@@ -2,7 +2,7 @@
 
 ## Phân giải tên miền (E5-S03)
 
-`MULTI_TENANT=1` bật `src/proxy.ts` (Next 16, Node runtime); cần `DATABASE_URL`.
+`MULTI_TENANT=1` bật `src/proxy.ts` (Next 16, Node runtime); cần `DATABASE_URL` của role `app_runtime` (E5-S09).
 Mặc định tắt để site đơn và `/lab` tiếp tục dùng fixture. Dù tắt,
 proxy vẫn xóa `x-tenant-id`/`x-site-id` từ client và chặn đường dẫn `/sites/*`.
 Route `/sites/[siteId]/[[...path]]` render nội dung published từ DB (E5-S04).
@@ -46,7 +46,7 @@ gỡ domain cũ, tạo `pending` với verification token mới, xác minh lại
 Kiểm local (DB test đã migrate, Redis 7):
 
 ```powershell
-$env:DATABASE_URL = 'postgresql://postgres:postgres@localhost:54329/solar_e5'
+$env:DATABASE_URL = 'postgresql://app_runtime:<secret>@localhost:54329/solar_e5'
 $env:REDIS_URL = 'redis://localhost:6379'
 pnpm db:seed
 pnpm --filter web test:tenant
@@ -132,3 +132,8 @@ Kiểm thử: `pnpm --filter web test:tenant` (đặt DATABASE_URL và REDIS_URL
 Sau seed chạy `pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts`.
 Suite tự chạy một Next dev port 3211 và kiểm hostname thật, metadata, route matrix, giỏ, anchor, JS off,
 header giả mạo, cùng ảnh chụp desktop/mobile. CI lưu ảnh/log/trace trong artifact `tenant-browser-evidence`.
+
+E5-S09: process web chỉ nhận credential app_runtime; không truyền PLATFORM_DATABASE_URL/MIGRATION_DATABASE_URL.
+Resolver công khai vẫn `forPlatform(db).domains.resolve`, qua `resolve_tenant_host` SECURITY DEFINER với allowlist HostRecord,
+không audit từng lookup (ngoại lệ D3). Repository nội dung tự mở transaction + context tenant; include Tenant chỉ đọc đúng id.
+Browser fixture chạy riêng bằng PLATFORM_DATABASE_URL; cấu hình Playwright loại credential vận hành khỏi process Next.
