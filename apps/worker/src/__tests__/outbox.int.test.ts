@@ -86,6 +86,63 @@ test("Postgres outbox: retries, worker crash, concurrent workers and dead jobs (
     clock = Date.now() + 48 * 60 * MIN;
     await runOnce({ outbox, topics: failing, tenantId, now });
     assert.equal((await forTenant(db, tenantId).outbox.first({ where: { topic: "test.retry" } }))?.status, "pending");
+
+    // Default 24 h window: just before it a failure retries, after it the job goes dead.
+    const flaky = { "lead.deliver": { handle: createLeadDeliver({ db: platform, senders: { webhook: channel(false, 100).sender } }) } };
+    const { id: lateLead } = await createLead(db, tenantId, siteId, { source: "contact", name: "B", phone: "0901234568", data: {} });
+    const late = await forTenant(db, tenantId).outbox.first({ where: { idempotencyKey: `lead.deliver:${lateLead}:${webhook.id}` } });
+    assert.ok(late);
+    await platform.outbox.updateMany({ where: { idempotencyKey: { startsWith: `lead.deliver:${lateLead}:` }, NOT: { id: late.id } }, data: { status: "done" } });
+    clock = late.createdAt.getTime() + 24 * 60 * MIN - MIN;
+    await runOnce({ outbox, topics: flaky, tenantId, now });
+    assert.equal((await forTenant(db, tenantId).outbox.get(late.id))?.status, "pending", "inside 24 h → retry");
+    clock = late.createdAt.getTime() + 24 * 60 * MIN + 10 * MIN;
+    await runOnce({ outbox, topics: flaky, tenantId, now });
+    assert.equal((await forTenant(db, tenantId).outbox.get(late.id))?.status, "failed", "past 24 h → dead");
+
+    // "Gửi lại" opens a fresh 24 h window: one transient error retries instead of going dead again.
+    clock += 60 * MIN;
+    assert.equal(await outbox.resend({ tenantId, id: late.id, now: now() }), true);
+    const resendAudit = await forTenant(db, tenantId).auditLog.first({ where: { action: "outbox.resend", entityId: late.id } });
+    assert.equal((resendAudit?.data as { previousCreatedAt?: string } | null)?.previousCreatedAt, late.createdAt.toISOString());
+    await runOnce({ outbox, topics: flaky, tenantId, now });
+    assert.equal((await forTenant(db, tenantId).outbox.get(late.id))?.status, "pending");
+
+    // A worker that claimed before the resend cannot overwrite the new claim (lease token = runAt, not attempts).
+    clock += 7 * 60 * MIN;
+    const [fresh] = await outbox.claim({ tenantId, topics: ["lead.deliver"], now: now() });
+    assert.equal(fresh?.id, late.id);
+    const stale2 = { ...fresh, runAt: new Date(fresh.runAt.getTime() - 5 * 60 * MIN) };
+    assert.equal(await outbox.complete(stale2), false);
+    await outbox.fail(stale2, new Error("old"), { dead: true });
+    assert.equal((await forTenant(db, tenantId).outbox.get(late.id))?.status, "processing", "stale worker changed nothing");
+    assert.equal(await outbox.complete(fresh), true);
+
+    // Delivery stays inside the job's tenant: a forged payload pointing at another tenant's rows → dead, sender untouched.
+    const spy = channel(true);
+    const guarded = { "lead.deliver": { handle: createLeadDeliver({ db: platform, senders: { webhook: spy.sender } }) } };
+    const otherTenant = randomUUID();
+    await platform.tenant.create({ data: { id: otherTenant, slug: `outbox-b-${otherTenant}`, name: "[DỮ LIỆU MẪU] B", planId: "pro", status: "active" } });
+    try {
+      await outbox.enqueue([
+        { tenantId: otherTenant, topic: "lead.deliver", payload: { leadId, integrationId: webhook.id }, idempotencyKey: `forged:${otherTenant}` },
+        { tenantId, topic: "lead.deliver", payload: { leadId: "nope" }, idempotencyKey: `bad:${tenantId}` },
+      ]);
+      await runOnce({ outbox, topics: guarded, tenantId: otherTenant, now });
+      await runOnce({ outbox, topics: guarded, tenantId, now });
+      assert.deepEqual(spy.received, []);
+      assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: `forged:${otherTenant}` } })).status, "failed");
+      assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: `bad:${tenantId}` } })).status, "failed");
+    } finally { await platform.tenant.delete({ where: { id: otherTenant } }); }
+
+    // Channel turned off after the lead arrived: job completes without sending.
+    const { id: offLead } = await createLead(db, tenantId, siteId, { source: "contact", name: "C", phone: "0901234569", data: {} });
+    await platform.leadIntegration.update({ where: { id: webhook.id }, data: { enabled: false } });
+    await platform.outbox.updateMany({ where: { idempotencyKey: { startsWith: `lead.deliver:${offLead}:` }, NOT: { idempotencyKey: `lead.deliver:${offLead}:${webhook.id}` } }, data: { status: "done" } });
+    await runOnce({ outbox, topics: guarded, tenantId, now });
+    assert.equal((await platform.outbox.findUniqueOrThrow({ where: { idempotencyKey: `lead.deliver:${offLead}:${webhook.id}` } })).status, "done");
+    assert.deepEqual(spy.received, []);
+
   } finally {
     await platform.lead.deleteMany({ where: { tenantId } });
     await platform.tenant.delete({ where: { id: tenantId } });

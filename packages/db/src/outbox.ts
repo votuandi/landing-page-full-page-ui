@@ -18,8 +18,9 @@ export const backoffMs = (attempts: number, random = Math.random) =>
 // Worker side of D14. `failed` is the dead state: no more automatic retries, only `resend`.
 export function outboxRepository(db: PlatformDb) {
   const client = platformClient(db);
-  // `attempts` is the lease token: a worker whose lease expired cannot overwrite the job another worker re-claimed.
-  const claimed = (job: OutboxJob) => ({ id: job.id, attempts: job.attempts, status: "processing" as const });
+  // The lease expiry (`runAt` set by claim) is the lease token: every claim moves it forward, so a worker whose lease
+  // expired cannot overwrite a job another worker re-claimed, even after `resend` reset `attempts`.
+  const claimed = (job: OutboxJob) => ({ id: job.id, runAt: job.runAt, status: "processing" as const });
   return {
     /** Jobs that are due, plus `processing` jobs whose lease expired (the worker died mid-job). */
     claim({ limit = 10, leaseMs = 60_000, topics, tenantId, now = new Date() }: Clock & {
@@ -41,21 +42,31 @@ export function outboxRepository(db: PlatformDb) {
     async fail(job: OutboxJob, error: unknown, { now = new Date(), maxAgeMs = DAY, dead = false }: Clock & { maxAgeMs?: number; dead?: boolean } = {}) {
       const lastError = (error instanceof Error ? error.message : String(error)).slice(0, 1000);
       if (dead || now.getTime() - job.createdAt.getTime() >= maxAgeMs) {
-        const { count } = await client.outbox.updateMany({ where: claimed(job), data: { status: "failed", processedAt: now, lastError } });
-        if (count) {
-          console.error("[outbox] dead", { id: job.id, topic: job.topic, tenantId: job.tenantId, attempts: job.attempts, lastError });
-          await client.auditLog.create({ data: { tenantId: job.tenantId, actorType: "system", action: "outbox.dead", entity: "Outbox", entityId: job.id, data: { topic: job.topic, attempts: job.attempts, lastError } } });
-        }
+        // State change and audit commit together; a crash in between leaves the job claimable again.
+        const count = await client.$transaction(async tx => {
+          const { count } = await tx.outbox.updateMany({ where: claimed(job), data: { status: "failed", processedAt: now, lastError } });
+          if (count) await tx.auditLog.create({ data: { tenantId: job.tenantId, actorType: "system", action: "outbox.dead", entity: "Outbox", entityId: job.id, data: { topic: job.topic, attempts: job.attempts, lastError } } });
+          return count;
+        });
+        if (count) console.error("[outbox] dead", { id: job.id, topic: job.topic, tenantId: job.tenantId, attempts: job.attempts, lastError });
         return "dead" as const;
       }
       await client.outbox.updateMany({ where: claimed(job), data: { status: "pending", runAt: new Date(now.getTime() + backoffMs(job.attempts)), lastError } });
       return "retry" as const;
     },
-    /** "Gửi lại" in the lead inbox: a dead job of this tenant starts over. */
+    /**
+     * "Gửi lại" in the lead inbox: a dead job of this tenant starts a fresh 24 h retry window. `createdAt` is the start of
+     * that window; the original value and attempt count are kept in the audit row.
+     */
     async resend({ tenantId, id, actor, now = new Date() }: Clock & { tenantId: string; id: string; actor?: { type: "site_user" | "platform_admin"; id: string } }) {
-      const { count } = await client.outbox.updateMany({ where: { id, tenantId, status: "failed" }, data: { status: "pending", attempts: 0, runAt: now, lastError: null, processedAt: null } });
-      if (count) await client.auditLog.create({ data: { tenantId, actorType: actor?.type ?? "system", actorId: actor?.id, action: "outbox.resend", entity: "Outbox", entityId: id } });
-      return count === 1;
+      return client.$transaction(async tx => {
+        const job = await tx.outbox.findFirst({ where: { id, tenantId, status: "failed" }, select: { createdAt: true, attempts: true, lastError: true } });
+        if (!job) return false;
+        const { count } = await tx.outbox.updateMany({ where: { id, tenantId, status: "failed" }, data: { status: "pending", attempts: 0, runAt: now, createdAt: now, lastError: null, processedAt: null } });
+        if (count) await tx.auditLog.create({ data: { tenantId, actorType: actor?.type ?? "system", actorId: actor?.id, action: "outbox.resend", entity: "Outbox", entityId: id,
+          data: { previousCreatedAt: job.createdAt.toISOString(), attempts: job.attempts, lastError: job.lastError } } });
+        return count === 1;
+      });
     },
     /** Platform jobs (cron); an existing idempotency key means the job was already queued. */
     async enqueue(jobs: readonly NewOutboxJob[]) {

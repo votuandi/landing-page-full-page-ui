@@ -20,7 +20,8 @@ export type RunOptions = { outbox: Outbox; topics: Readonly<Record<string, Topic
 /** One poll: claim due jobs (SKIP LOCKED, so workers never share a job) and settle each one. */
 export async function runOnce({ outbox, topics, now = () => new Date(), limit, leaseMs, tenantId }: RunOptions) {
   const jobs = await outbox.claim({ limit, leaseMs, topics: Object.keys(topics), tenantId, now: now() });
-  await Promise.all(jobs.map(async (job) => {
+  // allSettled: a failing complete/fail (DB blip) must not end the batch while other handlers are still sending.
+  const results = await Promise.allSettled(jobs.map(async (job) => {
     const topic = topics[job.topic];
     try {
       await topic.handle(job);
@@ -29,6 +30,8 @@ export async function runOnce({ outbox, topics, now = () => new Date(), limit, l
       await outbox.fail(job, error, { now: now(), maxAgeMs: topic.maxAgeMs, dead: error instanceof PermanentError });
     }
   }));
+  const failed = results.find((result) => result.status === "rejected");
+  if (failed) throw failed.reason;
   return jobs.length;
 }
 

@@ -10,9 +10,9 @@
     "test": "node scripts/test.mjs"
   },
   "dependencies": {
+    "@solar/cache": "workspace:*",
     "@solar/db": "workspace:*",
-    "zod": "4.6.5",
-    "@solar/cache": "workspace:*"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

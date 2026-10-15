@@ -8,11 +8,13 @@ tác dụng phụ (gửi lead, revalidate cache, cron gói/gia hạn). Chạy: `
 
 - `runOnce` lấy job đến hạn bằng `UPDATE … WHERE id IN (SELECT … FOR UPDATE SKIP LOCKED)` (`forPlatform(db).outbox.claim`):
   nhiều worker không bao giờ nhận cùng một job. Job được giữ bằng **lease** 60 s (`runAt` = hết lease); worker chết giữa chừng
-  → hết lease, worker khác lấy lại. `attempts` là mã lease: worker cũ tỉnh lại không ghi đè được job đã bị lấy lại.
+  → hết lease, worker khác lấy lại. Thời điểm hết lease (`runAt`) là mã lease: mỗi lần claim đẩy nó lên, nên worker cũ tỉnh
+  lại không ghi đè được job đã bị lấy lại (kể cả sau "Gửi lại"). Một job lỗi khi ghi trạng thái không làm batch dừng giữa chừng.
 - Lỗi → retry lũy thừa 30 s, 1 phút, 2 phút … tối đa 6 h (±10%); quá 24 h kể từ lúc tạo → trạng thái `failed` (= **dead**),
   ghi `AuditLog` `outbox.dead` và log `[outbox] dead`. `PermanentError` (kênh chưa hỗ trợ, lead đã xóa) → dead ngay.
   Topic có `maxAgeMs: Infinity` thì không bao giờ dead.
-- "Gửi lại": `forPlatform(db).outbox.resend({ tenantId, id, actor })` đưa job dead về `pending` (hộp thư lead E11-S03).
+- "Gửi lại": `forPlatform(db).outbox.resend({ tenantId, id, actor })` đưa job dead về `pending` với cửa sổ retry 24 h mới
+  (`createdAt` = lúc gửi lại; giá trị cũ + số lần thử nằm trong AuditLog `outbox.resend`). Dead/resend và AuditLog ghi cùng transaction.
 - `startWorker` poll mỗi giây (batch đầy thì poll tiếp ngay), dừng sạch khi SIGTERM/SIGINT.
 
 ## Topic

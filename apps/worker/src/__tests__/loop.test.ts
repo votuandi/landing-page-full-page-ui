@@ -59,3 +59,23 @@ test("startWorker keeps polling and stop() waits for the batch in flight", async
   assert.equal(handled, 1);
   assert.deepEqual(outbox.done, ["1"]);
 });
+
+test("runOnce waits for every job before reporting a settle failure (worker stops cleanly)", async () => {
+  let release!: () => void, slowDone = false;
+  const outbox = fakeOutbox([job("a", "broken"), job("a", "slow")]);
+  outbox.complete = async (j: OutboxJob) => { if (j.id === "broken") throw new Error("db blip"); outbox.done.push(j.id); return true; };
+  outbox.fail = async () => { throw new Error("db blip"); };
+  const run = runOnce({ outbox, topics: { a: { handle: async (j) => {
+    if (j.id !== "slow") return;
+    await new Promise<void>((resolve) => { release = resolve; });
+    slowDone = true;
+  } } } });
+  let settled = false;
+  void run.catch(() => undefined).finally(() => { settled = true; });
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(settled, false, "batch still running while the slow handler sends");
+  release();
+  await assert.rejects(run, /db blip/);
+  assert.equal(slowDone, true);
+  assert.deepEqual(outbox.done, ["slow"]);
+});
