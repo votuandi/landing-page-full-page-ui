@@ -38,6 +38,11 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - Nội dung section: cột `data JSONB` kiểm bằng zod khi ghi; collection có cấu trúc (Product, Project, Post, Story…)
   là bảng riêng để lọc/sắp xếp/SEO.
 
+- Ngoại lệ bootstrap E5-S09 (chốt 15/10/2026): web/admin trước khi biết tenant chỉ được gọi
+  `resolve_tenant_host(hostname)` SECURITY DEFINER bằng app_runtime, trả HostRecord tối thiểu; không AuditLog từng tra cứu
+  công khai. Không cấp credential platform và không mở quyền đọc bảng. `resolve_admin_tenant(slug)` để E7-S01.
+  `forPlatform(createPlatformDb(...))` dùng PLATFORM_DATABASE_URL riêng; audit actor/reason bắt buộc của console ở E15-S02.
+
 ## D4. Token qua CSS variables + Tailwind preset thay bảng màu
 - Theme sinh `:root{--c-primary: 21 128 61; …}` (và khối dark) ở server, inline vào `<head>` của từng tenant —
   không cần build CSS riêng mỗi theme. Tailwind chỉ biết tên token → một file CSS cho mọi theme.
