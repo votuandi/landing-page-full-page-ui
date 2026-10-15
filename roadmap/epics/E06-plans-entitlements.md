@@ -52,9 +52,10 @@ bật/tắt theo gói, kiểm tra phía server.
 - **Chi tiết**: super admin đổi `planId`/`addons`/`featureOverrides`/`limitOverrides`/`permissionPolicy` trong console
   (E15-S03, E15-S05) → ghi `AuditLog` + Outbox invalidate tag `tenant:<id>` trong cùng transaction, gửi email/Telegram cho
   owner khi đổi gói. Override hết hạn: worker quét mỗi 5 phút và invalidate các tenant vừa hết hạn.
-- **AC**: [ ] Thay đổi có hiệu lực ≤ 60 s · [ ] Audit log ghi người đổi, gói cũ, gói mới.
+- **AC**: [x] Thay đổi có hiệu lực ≤ 60 s · [x] Audit log ghi người đổi, gói cũ, gói mới.
 - Triển khai E6-S03: `changeTenantPlan` atomic update/audit/outbox, worker override-expiry + notification adapter mặc định ghi log.
-  Bằng chứng Postgres và chuỗi cache/revalidate: **chờ test cuối chuỗi** (chưa tick AC); báo cáo `.agent-runs/E6-S03/codex-report.md`.
+  Bằng chứng: `packages/db/src/__tests__/tenantPlan.int.test.ts` (audit actor/trước/sau, rollback bằng trigger DB, ghi đồng thời) và
+  `apps/web/src/lib/tenant/__tests__/revalidate.int.test.ts` (đổi gói → worker → entitlements mới < 60 s) PASS trên PostgreSQL 16 ở lượt test cuối chuỗi.
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
 ### E6-S04 · UI khóa tính năng trong CMS
@@ -73,8 +74,8 @@ bật/tắt theo gói, kiểm tra phía server.
 ### E6-S05 · Thanh toán (giai đoạn sau)
 - **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn trong console (E15-S03); cron nhắc gia hạn trước 14/7/1 ngày;
   hết hạn + 7 ngày ân hạn → `suspended`. Tích hợp cổng thanh toán VN (PayOS/VNPay) để ở backlog.
-- **AC**: [ ] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
+- **AC**: [x] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
 - Triển khai E6-S05: ngày hết hạn nullable + migration/index, cron 14/7/1 ngày và khóa sau ân hạn 7 ngày,
   audit/outbox atomic, invalidate host khi status đổi, mở lại khi gia hạn. Unit/schema/worker kiểm offline;
-  bằng chứng Postgres đồng hồ giả: **chờ test cuối chuỗi** (chưa tick AC). Báo cáo `.agent-runs/E6-S05/codex-report.md`.
+  bằng chứng Postgres đồng hồ giả: `packages/db/src/__tests__/billing.int.test.ts` PASS ở lượt test cuối chuỗi (PostgreSQL 16).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
