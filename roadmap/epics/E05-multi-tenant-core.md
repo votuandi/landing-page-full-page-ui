@@ -228,14 +228,21 @@ chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
   - Cập nhật `ERD.md`, `packages/db/README.md`.
 - **Target**: 0 bảng hoặc khóa ngoại nối `SiteUser` với `PlatformAdmin`; mọi bảng tenant mới đi qua `tenantGuard`.
 - **AC**:
-  - [ ] Test: hai tenant cùng tạo `SiteUser` email `a@x.vn` → thành công; cùng tenant tạo trùng email hoặc trùng SĐT
+  - [x] Test: hai tenant cùng tạo `SiteUser` email `a@x.vn` → thành công; cùng tenant tạo trùng email hoặc trùng SĐT
         (kể cả khác cách viết `090…`/`+8490…`, khác hoa thường) → lỗi unique.
-  - [ ] Test: `assertTenantSlug` từ chối `-abc`, `abc-`, `a`, `xn--abc`, `Nang_Luong`, slug dành riêng; nhận `nang-luong-solar`.
-  - [ ] Test: tạo `SiteUser` không email, không SĐT, không username → lỗi CHECK; tạo `SiteSession` `kind: ghost` với `audience: storefront` → lỗi CHECK.
-  - [ ] Test: `forTenant(A).siteUsers.get(idCủaB)` → `null`; `SiteSession` của A không trỏ được tới `SiteUser` của B (khóa ghép).
-  - [ ] Test: tạo tenant slug `admin`/`console`/`preview` → lỗi; tạo `Site` thứ hai cho cùng tenant → lỗi unique.
-  - [ ] Migration mới chạy trên DB đã có `init` + seed cũ; `prisma migrate deploy` + seed chạy 2 lần liên tiếp vẫn qua.
-  - [ ] Typecheck/lint/test toàn workspace qua; `apps/web` không đổi hành vi (`tooling/visual/tenant.spec.ts` vẫn qua).
+  - [x] Test: `assertTenantSlug` từ chối `-abc`, `abc-`, `a`, `xn--abc`, `Nang_Luong`, slug dành riêng; nhận `nang-luong-solar`.
+  - [x] Test: tạo `SiteUser` không email, không SĐT, không username → lỗi CHECK; tạo `SiteSession` `kind: ghost` với `audience: storefront` → lỗi CHECK.
+  - [x] Test: `forTenant(A).siteUsers.get(idCủaB)` → `null`; `SiteSession` của A không trỏ được tới `SiteUser` của B (khóa ghép).
+  - [x] Test: tạo tenant slug `admin`/`console`/`preview` → lỗi; tạo `Site` thứ hai cho cùng tenant → lỗi unique.
+  - [x] Migration mới chạy trên DB đã có `init` + seed cũ; `prisma migrate deploy` + seed chạy 2 lần liên tiếp vẫn qua.
+  - [x] Typecheck/lint/test toàn workspace qua; `apps/web` không đổi hành vi (`tooling/visual/tenant.spec.ts` vẫn qua).
+  - Bằng chứng E5-S10 (Postgres 16.10 portable, Docker không chạy được trên máy vì hypervisor tắt):
+    `packages/db/src/__tests__/accounts.int.test.ts` (unique theo tenant, CHECK định danh/ghost, chéo tenant, omit secret,
+    slug dành riêng, Site thứ hai), `schema.test.ts` (CHECK khớp `RESERVED_TENANT_SLUGS`), `packages/core` `tenantSlug.test.ts`;
+    `@solar/db` 109/109 không skip. Migration `20261015000000_accounts` deploy trên DB đã có `init` + seed cũ, schema không lệch
+    DB; `prisma db seed` ×2 (`.agent-runs/E5-S10/db-deploy-seed.log`). `pnpm turbo run typecheck lint test build` 35/35
+    (`.agent-runs/E5-S11/checks2.log`); `tooling/visual/tenant.spec.ts` 27/28, test còn lại lỗi DNS `*.localhost` của Node trên
+    Windows (robots/sitemap kiểm lại bằng curl `Host:`), CI Linux chạy đủ. Fixture trình duyệt dùng tenant `review-t15` riêng.
 - Phụ thuộc: S01, S02 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
 ### E5-S11 · Cấu trúc trang theo danh mục & preset nhiều trang (nâng cấp E4/E5-S04/E5-S08)
@@ -259,10 +266,14 @@ Story nâng cấp phần đã làm: preset hiện chỉ có section của trang 
   - Seed dùng `applyPlanToPreset` + `PAGE_TYPES` thay danh sách trang cứng; t12 (gói Nâng cao) có addon `catalog` để giữ
     route sản phẩm của demo; quyền của site = gói + `addons`.
 - **AC**:
-  - [ ] Site không có trang Sản phẩm trong cấu trúc → `/san-pham` và `/san-pham/<slug>` trả 404, không có trong sitemap.
-  - [ ] `applyPlanToPreset(t15, basic)` không còn section/trang có entitlement ngoài gói Cơ bản; `validateSiteStructure`
+  - [x] Site không có trang Sản phẩm trong cấu trúc → `/san-pham` và `/san-pham/<slug>` trả 404, không có trong sitemap.
+  - [x] `applyPlanToPreset(t15, basic)` không còn section/trang có entitlement ngoài gói Cơ bản; `validateSiteStructure`
         từ chối cấu hình thiếu trang bắt buộc hoặc có trang ngoài gói.
   - [ ] Hai tenant seed render y như trước (`tooling/visual/tenant.spec.ts` qua, ảnh hồi quy khớp).
-  - [ ] Site chỉ có subdomain nền tảng → không có `noindex`; thêm tên miền chính khác → subdomain 308.
+  - [x] Site chỉ có subdomain nền tảng → không có `noindex`; thêm tên miền chính khác → subdomain 308.
+  - Bằng chứng E5-S11: `apps/web/src/lib/tenant/__tests__/routes.test.ts` (`routeEnabled`), `seo.test.ts` (sitemap bỏ trang
+    ngoài cấu trúc/gói, `NOINDEX_DOMAINS`), `packages/presets` test cấu trúc (16/16); web tenant 49 qua (2 skip Redis).
+    Server dev thật: bỏ `products` khỏi `pageTypes` của t12 → `/san-pham`, `/san-pham/<slug>` 404, sitemap 0 URL sản phẩm,
+    t15 vẫn 200. Spec trình duyệt tenant 27/28 (lỗi DNS môi trường như S10); ảnh hồi quy chờ CI `visual.yml` (baseline Linux).
 - Phụ thuộc: S04, S08, E6-S01 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
