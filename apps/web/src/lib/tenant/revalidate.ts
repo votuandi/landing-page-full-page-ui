@@ -23,8 +23,9 @@ export function redisNonces(redis: Pick<Redis, "set">): ClaimNonce {
 const state = globalThis as typeof globalThis & { solarRevalidateNonces?: ClaimNonce };
 function getNonces() {
   const url = process.env.REDIS_URL;
+  // Offline queue: the first command after boot waits for the connection (bounded by commandTimeout) instead of failing.
   return state.solarRevalidateNonces ??= url ? redisNonces(new Redis(url, {
-    enableOfflineQueue: false, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1000,
+    enableOfflineQueue: true, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1000,
   }).on("error", () => undefined)) : memoryNonces();
 }
 const schema = z.object({

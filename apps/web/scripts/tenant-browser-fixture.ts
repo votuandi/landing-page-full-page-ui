@@ -12,11 +12,19 @@ import { signRevalidate, tenantTag } from "@solar/cache";
 async function revalidate(tenantIds: Iterable<string>) {
   const secret = process.env.REVALIDATE_SECRET;
   if (!secret) return;
-  const body = JSON.stringify({ tags: [...new Set(tenantIds)].map(tenantTag), nonce: randomUUID().replaceAll("-", ""), ts: Date.now() });
-  const response = await fetch(`http://localhost:${process.env.TENANT_PUBLIC_PORT ?? "3211"}/api/revalidate`, {
-    method: "POST", headers: { "Content-Type": "application/json", "x-signature": signRevalidate(body, secret) }, body,
-  });
-  if (!response.ok) throw new Error(`revalidate failed: ${response.status}`);
+  const tags = [...new Set(tenantIds)].map(tenantTag);
+  let status = 0;
+  // Retry like the worker does (fresh nonce each attempt); a cold dev server may still be compiling the route.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const body = JSON.stringify({ tags, nonce: randomUUID().replaceAll("-", ""), ts: Date.now() });
+    const response = await fetch(`http://localhost:${process.env.TENANT_PUBLIC_PORT ?? "3211"}/api/revalidate`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-signature": signRevalidate(body, secret) }, body,
+    });
+    if (response.ok) return;
+    status = response.status;
+    await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+  }
+  throw new Error(`revalidate failed: ${status}`);
 }
 
 const action = process.argv[2];

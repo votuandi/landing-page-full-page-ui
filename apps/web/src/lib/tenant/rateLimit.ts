@@ -43,7 +43,8 @@ const state = globalThis as typeof globalThis & { solarRateLimiter?: RateLimiter
 export function getRateLimiter() {
   const url = process.env.REDIS_URL;
   return state.solarRateLimiter ??= createRateLimiter({ primary: url ? redisCounter(new Redis(url, {
-    enableOfflineQueue: false, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1_000, lazyConnect: false,
+    // Queue while connecting (bounded by commandTimeout) so the first requests after boot share the Redis quota.
+    enableOfflineQueue: true, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1_000,
   }).on("error", () => undefined)) : undefined });
 }
 
