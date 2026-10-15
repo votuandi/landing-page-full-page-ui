@@ -34,7 +34,10 @@ test("A/B/A/B share one instance: theme, content, chrome and metadata follow the
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", new RegExp(`^http://${id}\\.localhost:3211/images/`));
       await expect(page).toHaveTitle(new RegExp(`Demo ${id}`));
       const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
-      expect(jsonLd.join(" ")).not.toMatch(/Organization|lumivolt\.vn/);
+      // Tenant Organization only, at this host; never the legacy t15 brand or the other tenant.
+      expect(jsonLd.join(" ")).not.toMatch(/lumivolt\.vn/);
+      expect(jsonLd.join(" ")).not.toContain(origin(id === "t15" ? "t12" : "t15"));
+      expect(jsonLd.map((value) => JSON.parse(value)).find((value) => value["@graph"])?.["@graph"][0]).toMatchObject({ "@type": "Organization", url: `${origin(id)}/` });
     }
     tokens.set(id, await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--c-primary")));
     for (const width of [390, 1440]) {
@@ -378,6 +381,28 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
   });
 });
 
+test("robots, sitemap and rich-result JSON-LD stay on each tenant's own host", async ({ page, request }) => {
+  for (const id of ["t15", "t12"]) {
+    const other = origin(id === "t15" ? "t12" : "t15");
+    const robots = await request.get(`${origin(id)}/robots.txt`);
+    expect(robots.status()).toBe(200);
+    expect(await robots.text()).toContain(`Sitemap: ${origin(id)}/sitemap.xml`);
+    const sitemap = await request.get(`${origin(id)}/sitemap.xml`);
+    expect(sitemap.status()).toBe(200);
+    const locs = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    expect(locs).toContain(`${origin(id)}/`);
+    expect(locs).toContain(`${origin(id)}/san-pham/${productSlug}`);
+    expect(locs.every((loc) => loc.startsWith(`${origin(id)}/`))).toBe(true);
+    expect(locs.some((loc) => loc.startsWith(other))).toBe(false);
+    await page.goto(`${origin(id)}/san-pham/${productSlug}`);
+    const jsonLd = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((value) => JSON.parse(value));
+    expect(jsonLd.find((value) => value["@type"] === "Product")).toMatchObject({ name: expect.any(String), url: `${origin(id)}/san-pham/${productSlug}` });
+    expect(jsonLd.find((value) => value["@type"] === "BreadcrumbList")?.itemListElement).toHaveLength(3);
+    const legacy = await request.get(`${origin(id)}/product/${productSlug}`, { maxRedirects: 0 });
+    expect(legacy.status()).toBe(308);
+    expect(legacy.headers().location).toContain(`/san-pham/${productSlug}`);
+  }
+});
 test("spoofed headers cannot select B; tenant leads return 503 before the legacy adapter", async ({ request }) => {
   const response = await request.get("http://localhost:3211/", { headers: { Host: "t15.localhost", "x-tenant-id": "B", "x-site-id": "B", "X-Forwarded-Host": "t12.localhost" } });
   expect(response.status()).toBe(200);

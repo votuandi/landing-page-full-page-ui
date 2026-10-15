@@ -60,7 +60,11 @@ export function buildDemo(id: "t15" | "t12") {
       legal: { policies: siteConfig.legal.policies.map((policy) => ({ ...policy, body: { vi: [{ type: "paragraph", children: [{ type: "text", text: `[DỮ LIỆU MẪU] ${name}: ${policy.summary}` }] }] } })) },
       team: TEAM, timeline: [["2015", "[DỮ LIỆU MẪU] Thành lập", name], ["2026", "[DỮ LIỆU MẪU] Phát triển", "Đồng hành cùng khách hàng"]],
     },
-    seo: { title: localized(name), description: localized(`${name} — Thiết kế và lắp đặt điện mặt trời.`), ogImage: id === "t15" ? "/images/solar-panels-hero.jpg" : "/images/solar-battery-hero.jpg" },
+    seo: { title: localized(name), description: localized(`${name} — Thiết kế và lắp đặt điện mặt trời.`), ogImage: id === "t15" ? "/images/solar-panels-hero.jpg" : "/images/solar-battery-hero.jpg",
+      // Slug cũ của template-8 (trước đây ở apps/web/next.config.ts), tenant tự sửa được.
+      redirects: [["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"], ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],
+        ["/project/:slug", "/cong-trinh/:slug"], ["/product", "/san-pham"], ["/product/:slug", "/san-pham/:slug"], ["/news", "/tin-tuc"], ["/news/:slug", "/tin-tuc/:slug"]]
+        .map(([from, to]) => ({ from, to })) },
     pageSections: page.sections.map(({ data: _data, ...descriptor }) => descriptor),
     sections: sections.map((section) => ({
       sectionId: section.id, type: section.type,

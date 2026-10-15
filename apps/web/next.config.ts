@@ -16,7 +16,8 @@ const nextConfig: NextConfig = {
     }];
   },
   async redirects() {
-    // Đường dẫn cũ của template-8 → slug tiếng Việt
+    // Đường dẫn cũ của template-8 → slug tiếng Việt. Chế độ multi-tenant: mỗi tenant tự cấu hình ở Site.seo.redirects.
+    if (process.env.MULTI_TENANT === "1") return [];
     return [
       ["/about-us", "/ve-chung-toi"], ["/contact-us", "/lien-he"],
       ["/service", "/giai-phap"], ["/service/:slug", "/giai-phap/:slug"],

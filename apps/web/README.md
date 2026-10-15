@@ -88,6 +88,17 @@ Chạy `pnpm --filter @solar/db db:deploy`, `pnpm db:seed`, rồi bật `DATABAS
 `MULTI_TENANT=1` và `pnpm --filter web dev`. Hai host seed là `t15.localhost` (premium) và `t12.localhost` (pro).
 `TENANT_PUBLIC_PORT` chỉ dùng cho canonical HTTP trong dev, ví dụ `3211`; production dùng HTTPS và primaryHost.
 
+### SEO theo tenant (E5-S08)
+
+- `/robots.txt`, `/sitemap.xml` của mỗi host do `app/sites/[siteId]/{robots.txt,sitemap.xml}/route.ts` sinh từ dữ liệu
+  published của chính tenant; URL luôn ở primaryHost.
+- JSON-LD: Organization + LocalBusiness (chi nhánh) ở mọi trang, Product + BreadcrumbList ở chi tiết sản phẩm,
+  BreadcrumbList ở chi tiết tin/công trình/giải pháp/chính sách, FAQPage ở `/cam-nang`.
+- `PLATFORM_DOMAINS` (phân tách dấu phẩy, vd. `solarweb.vn,preview.solarweb.vn`): primaryHost là domain đó hoặc subdomain
+  của nó → meta `noindex`, robots không có `Sitemap`, `/sitemap.xml` 404.
+- Slug cũ: `Site.seo.redirects` (`[{ from: "/product/:slug", to: "/san-pham/:slug" }]`) → 308. Redirect toàn cục trong
+  `next.config.ts` chỉ áp khi `MULTI_TENANT` tắt.
+
 Các route: home/landing published (slug nhiều segment), sản phẩm, chi tiết công trình, giải pháp, tin tức,
 cẩm nang, chính sách, về chúng tôi và liên hệ. Theme/override/font/chrome/widget/SEO lấy từ site;
 header/footer lấy từ home cùng site và chỉ render một lần. Collection rỗng giữ rỗng.

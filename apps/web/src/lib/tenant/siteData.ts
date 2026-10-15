@@ -27,7 +27,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     if (!domain || normalizeHost(domain.hostname) !== domain.hostname) return null;
     const context = { tenantId, siteId };
     const profile = parseContent(profileSchema, row.profile, context) ?? profileSchema.parse({});
-    const seo = parseContent(seoSchema, row.seo, context) ?? {};
+    const seo = parseContent(seoSchema, row.seo, context) ?? seoSchema.parse({});
     const widgets = parseContent(siteWidgetsSchema, row.widgets, context) ?? {};
     const overrides = parseContent(ThemeOverridesSchema, row.themeOverrides, context) ?? {};
     const locales = row.locales.filter((locale): locale is "vi" | "en" => locale === "vi" || locale === "en");
@@ -63,7 +63,12 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo) {
     const config = parseContent(pageConfigSchema, { sections }, context);
     return config ? { id: row.id, kind: row.kind, title: text(row.title, locale), config } : null;
   }
-  return { loadTenantSite, loadPublishedPage };
+  async function listPublishedSlugs(tenantId: string, siteId: string) {
+    if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];
+    const rows = await repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true }, orderBy: { slug: "asc" } });
+    return rows.map((row) => row.slug);
+  }
+  return { loadTenantSite, loadPublishedPage, listPublishedSlugs };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
 const data = createSiteData(tenantRepository);
@@ -78,4 +83,5 @@ export const loadTenantSite = cache(async (tenantId: string, siteId: string) => 
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);
+export const listPublishedSlugs = data.listPublishedSlugs;
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;

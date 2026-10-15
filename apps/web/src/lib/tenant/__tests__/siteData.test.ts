@@ -28,7 +28,7 @@ test("site config fallbacks log IDs only; theme/domain and DB failures never bec
   const invalid = { PRIVATE: "raw secret" };
   const result = await siteWith({ profile: { email: invalid }, seo: { ogImage: invalid }, widgets: { "theme-switch": { enabled: "PRIVATE" } }, themeOverrides: { colors: invalid } }).loadTenantSite(tenantId, siteId);
   assert.ok(result);
-  assert.deepEqual(result.seo, {});
+  assert.deepEqual(result.seo, { redirects: [] });
   assert.deepEqual(result.widgets, {});
   assert.deepEqual(result.overrides, {});
   assert.equal(result.profile.theme.default, "light");

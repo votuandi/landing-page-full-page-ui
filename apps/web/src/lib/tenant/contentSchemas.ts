@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { localized, richText } from "@solar/sections";
+import { redirectRule } from "./seo";
 
 export const textValue = z.union([z.string().max(5000), localized({ multiline: true, max: 5000 })]);
 export function text(value: unknown, locale: "vi" | "en" = "vi"): string {
@@ -28,7 +29,7 @@ export const profileSchema = z.object({
   team: z.array(z.object({ name: textValue, role: textValue, image: contentImage })).default([]),
   timeline: z.array(z.tuple([z.string(), textValue, textValue])).default([]),
 });
-export const seoSchema = z.object({ title: textValue.optional(), description: textValue.optional(), ogImage: asset.optional() });
+export const seoSchema = z.object({ title: textValue.optional(), description: textValue.optional(), ogImage: asset.optional(), redirects: z.array(redirectRule).max(200).default([]) });
 
 export const productSchema = z.object({
   powerKw: z.number().nonnegative(), images: z.array(contentImage).min(1), warranty: textValue,
