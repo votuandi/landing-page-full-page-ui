@@ -1,8 +1,10 @@
-import { forTenant } from "../repository.ts";
+import { forPlatform, forTenant } from "../repository.ts";
 import type { Db } from "../client.ts";
 
 // Compiled by typecheck only: callers cannot override the repository tenant.
 function repositoryTypes(db: Db, tenantId: string) {
+  // @ts-expect-error runtime realm cannot change tenant plans
+  forPlatform(db).tenants.changePlan({ actorId: "id", tenantId, changes: { planId: "basic" } });
   db.$transaction(async tx => {
     // @ts-expect-error transaction has not been bound to a tenant context
     forTenant(tx, tenantId);

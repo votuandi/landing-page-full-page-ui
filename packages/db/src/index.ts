@@ -18,3 +18,5 @@ export { Prisma } from "../generated/client.ts";
 export type { PrismaClient } from "../generated/client.ts";
 
 export { enqueueInvalidate } from "./invalidate.ts";
+export { changeTenantPlan, scanExpiredOverrides } from "./tenantPlan.ts";
+export type { TenantPlanChange } from "./tenantPlan.ts";
