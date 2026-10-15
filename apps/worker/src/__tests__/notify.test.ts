@@ -19,3 +19,18 @@ test("notify routes tenant/kind/payload and stable idempotency key; rejects malf
   assert.equal(sent.length, 1);
   await assert.rejects(createNotify({ notifier: { send: async () => { throw Error("offline"); } } })(job), /offline/);
 });
+
+test("billing notifications preserve renewal milestone, expiry, tenant and deduplication key", async () => {
+  const tenantId = randomUUID(), expiresAt = "2040-01-15T12:00:00.000Z";
+  const sent: unknown[] = [];
+  const handle = createNotify({ notifier: { send: async input => { sent.push(input); } } });
+  for (const [kind, payload, key] of [
+    ["renewal", { tenantId, days: 7, expiresAt }, `renewal:${tenantId}:${expiresAt}:7`],
+    ["suspended", { tenantId, expiresAt }, `suspended:${tenantId}:${expiresAt}`],
+  ] as const) {
+    await handle({ id: randomUUID(), tenantId, topic: `notify.${kind}`, payload, idempotencyKey: key,
+      attempts: 1, createdAt: new Date(), runAt: new Date() });
+    assert.deepEqual(sent.at(-1), { tenantId, kind, payload, idempotencyKey: key });
+  }
+  assert.equal(sent.length, 2);
+});
