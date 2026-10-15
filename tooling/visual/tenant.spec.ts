@@ -99,7 +99,8 @@ test(`${id}: every policy and reserved, missing or internal path`, async ({ page
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", origin(id) + path);
       await expect(page.locator("main h1")).toBeVisible();
     }
-    for (const path of ["/missing", "/cong-trinh", "/tin-tuc/draft", "/robots.txt", "/sitemap.xml", "/sites/x"]) {
+    // /robots.txt and /sitemap.xml are served per tenant since E5-S08 (checked in the SEO test).
+    for (const path of ["/missing", "/cong-trinh", "/tin-tuc/draft", "/sites/x"]) {
       const response = await page.goto(origin(id) + path);
       expect(response?.status(), path).toBe(404);
     }
