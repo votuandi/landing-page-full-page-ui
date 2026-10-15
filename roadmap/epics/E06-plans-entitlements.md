@@ -39,10 +39,13 @@ bật/tắt theo gói, kiểm tra phía server.
   Trang render gắn thêm tag `platform:entitlements`.
 - **Target**: 100% điểm vào có kiểm tra (danh sách trong test).
 - **AC**:
-  - [ ] Hạ gói Cao cấp → Nâng cao: section `shorts` biến mất sau revalidate, dữ liệu vẫn giữ nguyên (nâng lại gói là hiện).
-  - [ ] Gọi `POST /api/lead` với `source: "quote-cart"` trên tenant không có `quoteCart` → 403.
-  - [ ] Upload vượt `mediaGb` → 413 với thông báo tiếng Việt.
-  - [ ] Test bảng phân giải: kill switch thắng override bật; override tắt thắng gói; override hết hạn → về theo gói.
+  - [x] Hạ gói Cao cấp → Nâng cao: section `shorts` biến mất sau revalidate, dữ liệu vẫn giữ nguyên (nâng lại gói là hiện).
+  - [x] Gọi `POST /api/lead` với `source: "quote-cart"` trên tenant không có `quoteCart` → 403.
+  - [x] Upload vượt `mediaGb` → 413 với thông báo tiếng Việt.
+  - [x] Test bảng phân giải: kill switch thắng override bật; override tắt thắng gói; override hết hạn → về theo gói.
+- Bằng chứng: `packages/plans/__tests__/entitlements.test.ts` (bảng phân giải), `apps/web/src/lib/tenant/__tests__/leadBoundary.test.ts` (403),
+  `entitlements.test.ts` (413 + danh sách điểm vào), `render.int.test.ts` (hạ/nâng gói trên PostgreSQL 16), `rls.int.test.ts`
+  (hàm kill switch). Route upload chưa có — E8-S02 dùng `assertWithinLimit` + `entitlementResponse`. Báo cáo `.agent-runs/E6-S02/claude-report.md`.
 - Phụ thuộc: S01, E3-S03, E5-S10 · Agent: Codex · Cỡ: M
 
 ### E6-S03 · Đổi gói → revalidate

@@ -26,16 +26,17 @@ Addon không đổi limits hoặc mở nhóm theme. Theme group đối chiếu `
 Limits áp dụng theo tenant, không nhân theo số Site. `pages` tính home + landing CMS do khách tạo;
 trang hệ thống, liên hệ/chính sách, danh mục và từng detail Product/Post không tiêu hạn mức này.
 
-E6-S02 cung cấp `can`, `limit`, `assertCan` phía server từ Tenant DTO
-`{ tenantId, planId, addons, status, createdAt }`, kiểm tên hợp lệ, prerequisite và status/trial.
-Trial dùng premium 14 ngày từ createdAt; suspended luôn deny. DB Plan là bản đồng bộ,
-không phải quyền override bằng SQL. S01 chưa có các guards này. Không tra `.features.has()` từ web
-để thay `can` và bỏ qua addons/status/trial/dependencies.
+## Entitlements (E6-S02, `entitlements.ts`)
 
-E5-S04 nối `can` vào section/widget trước tải chunk/collection, catalog/blog routes và metadata,
-provider/nút giỏ, CTA chức năng đích và API lead tenant. API phải đối chiếu source đã đăng ký với
-form/section published của chính Site và kiểm payload: items cần quoteCart, estimate cần calculator,
-trường đại lý cần dealer kể cả source contact. Source/tenant/quyền do client gửi không cấp quyền.
-Dữ liệu ngoài gói giữ nguyên khi hạ gói; E6-S03 cập nhật plan/addons và revalidate.
+`can(site, feature, { disabled, now })` phân giải theo D19:
+1. feature lạ hoặc tenant `suspended` → `false`; feature nằm trong kill switch `PlatformSetting["features.disabled"]` → `false`;
+2. `Tenant.featureOverrides[feature] = { on, until?, reason }` hợp lệ, chưa hết hạn → `on`;
+3. gói ∪ `addons` ∪ trial (`status = trial`, trong `TRIAL_DAYS = 14` ngày từ `Tenant.createdAt` → mọi feature Cao cấp).
+Prerequisite (`featureDependencies`) cũng phải qua `can`. Mục override sai schema bị bỏ qua từng mục, không mở khóa gì.
 
-Đồng bộ DB trong deploy bằng `pnpm --filter @solar/db plans:sync`, không seed tenant khách.
+`limit(site, key)` = giới hạn gói + `Tenant.limitOverrides[key].add` còn hạn. `assertCan` ném `EntitlementError` 403;
+`assertWithinLimit(site, key, used, adding)` ném 413 với `mediaGb` (tính theo byte) và 403 với limit khác — thông báo tiếng Việt.
+Zod: `featureOverridesSchema`, `limitOverridesSchema` (UI chỉnh ở E15-S05/S06), `disabledFeaturesSchema`.
+Web đọc kill switch qua hàm SECURITY DEFINER `platform_disabled_features()` (`loadDisabledFeatures` trong `@solar/db`).
+Trang tenant mang thêm tag `ENTITLEMENTS_TAG = "platform:entitlements"` khi bật cache (E5-S06).
+Điểm vào phải kiểm: danh sách trong `apps/web/src/lib/tenant/__tests__/entitlements.test.ts`.
