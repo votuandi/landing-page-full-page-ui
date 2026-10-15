@@ -168,7 +168,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   (`[ngoài agent]`: JSON-LD đã có test trường bắt buộc + e2e; chạy Google Rich Results Test thật sau khi deploy tên miền công khai). PR #37.
 - Phụ thuộc: S04 · Agent: Codex · Cỡ: M
 
-### E5-S09 · Row-Level Security (lớp bảo vệ thứ hai)
+### E5-S09 · Row-Level Security (lớp bảo vệ thứ hai) ✅ · PR [#39](https://github.com/votuandi/landing-page-full-page-ui/pull/39)
 **Là** chủ dự án, **tôi muốn** Postgres tự chặn đọc/ghi chéo tenant, **để** an toàn cả khi code có lỗi.
 - **Chi tiết**:
   - Role tách biệt: `app_owner` (sở hữu bảng, chạy migration), `app_runtime` (web/admin/worker — không sở hữu bảng, không
