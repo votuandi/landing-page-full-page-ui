@@ -10,7 +10,8 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
 }, async () => {
   const db = createDb({ pool: 2 });
   try {
-    await seedDemo(db);
+    const password = "seed-test-password";
+    await seedDemo(db, { password });
     async function state() {
       const tenants = await db.tenant.findMany({ where: { slug: { in: ["demo-t15", "demo-t12"] } }, orderBy: { slug: "asc" } });
       const tenantId = { in: tenants.map((tenant) => tenant.id) };
@@ -24,10 +25,11 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
         projects: await db.project.count({ where: { tenantId } }), posts: await db.post.count({ where: { tenantId } }),
         stories: await db.story.count({ where: { tenantId } }), testimonials: await db.testimonial.count({ where: { tenantId } }),
         faqs: await db.faq.count({ where: { tenantId } }), media: await db.media.count({ where: { tenantId } }),
+        users: await db.siteUser.findMany({ where: { tenantId }, orderBy: { id: "asc" }, select: { id: true, tenantId: true, email: true, phone: true, username: true, role: true } }),
       };
     }
     const first = await state();
-    await seedDemo(db);
+    await seedDemo(db, { password });
     assert.deepEqual(await state(), first);
     for (const id of PLAN_IDS) {
       const row = await db.plan.findUniqueOrThrow({ where: { id } });
@@ -42,6 +44,17 @@ test("seed twice keeps counts and identities, splits section data and reuses pro
     assert.equal(first.pages, 10);
     assert.equal(first.versions, 10);
     assert.equal(first.media, 0);
+    // Same login in both tenants = two accounts; khach@demo.vn is a client on t15 and staff on t12.
+    assert.equal(first.users.length, 4);
+    for (const tenant of first.tenants) {
+      const users = first.users.filter((user) => user.tenantId === tenant.id);
+      assert.deepEqual(users.map((user) => user.email).sort(), ["khach@demo.vn", "owner@demo.vn"]);
+      assert.equal(users.find((user) => user.email === "owner@demo.vn")?.username, `${tenant.slug.replace(/-/g, "")}_admin`);
+      assert.equal(users.find((user) => user.email === "khach@demo.vn")?.role, tenant.slug === "demo-t15" ? "client" : "staff");
+    }
+    const hashes = await db.siteUser.findMany({ where: { email: "owner@demo.vn", tenantId: { in: first.tenants.map((tenant) => tenant.id) } }, omit: { passwordHash: false } });
+    assert.notEqual(hashes[0].passwordHash, hashes[1].passwordHash);
+    assert.match(hashes[0].passwordHash ?? "", /^scrypt\$32768\$8\$1\$/);
     for (const id of ["t15", "t12"] as const) {
       const demo = buildDemo(id);
       const tenant = first.tenants.find((tenant) => tenant.slug === `demo-${id}`)!;

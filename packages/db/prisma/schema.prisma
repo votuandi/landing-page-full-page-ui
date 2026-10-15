@@ -13,10 +13,61 @@ enum TenantStatus {
   suspended
 }
 
-enum MembershipRole {
+enum SiteRole {
   owner
+  admin
   editor
+  staff
   viewer
+  client
+}
+
+enum SiteUserStatus {
+  invited
+  unverified
+  active
+  locked
+  disabled
+}
+
+enum SiteUserSource {
+  invite
+  signup
+  console
+}
+
+enum SessionKind {
+  user
+  ghost
+}
+
+enum SessionAudience {
+  admin
+  storefront
+}
+
+enum SiteTokenPurpose {
+  invite
+  verify_email
+  reset_password
+  magic_link
+}
+
+enum AccountStatus {
+  active
+  locked
+  disabled
+}
+
+enum CustomerStatus {
+  active
+  inactive
+}
+
+enum AuditActorType {
+  site_user
+  platform_admin
+  system
 }
 
 enum DomainStatus {
@@ -98,8 +149,16 @@ model Tenant {
   status            TenantStatus      @default(trial)
   planId            String
   addons            String[]          @default([])
+  customerId        String?           @db.Uuid
+  featureOverrides  Json              @default("{}")
+  limitOverrides    Json              @default("{}")
+  permissionPolicy  Json              @default("{}")
   plan              Plan              @relation(fields: [planId], references: [id])
-  memberships       Membership[]
+  customer          Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  siteUsers         SiteUser[]
+  siteSessions      SiteSession[]
+  siteTokens        SiteToken[]
+  ghostGrants       GhostGrant[]
   domains           Domain[]
   sites             Site[]
   pages             Page[]
@@ -126,39 +185,147 @@ model Tenant {
   updatedAt         DateTime          @updatedAt
 }
 
-model User {
-  id            String         @id @default(uuid(7)) @db.Uuid
-  email         String         @unique
-  name          String?
-  passwordHash  String?
-  memberships   Membership[]
-  platformAdmin PlatformAdmin?
-  pageVersions  PageVersion[]
-  auditLogs     AuditLog[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+model Customer {
+  id           String         @id @default(uuid(7)) @db.Uuid
+  name         String
+  taxCode      String?
+  contactName  String
+  contactEmail String?
+  contactPhone String?
+  address      String?
+  note         String?
+  status       CustomerStatus @default(active)
+  tenants      Tenant[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model PlatformAdmin {
-  id        String   @id @default(uuid(7)) @db.Uuid
-  userId    String   @unique @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id           String            @id @default(uuid(7)) @db.Uuid
+  email        String            @unique
+  name         String
+  passwordHash String
+  totpSecret   String?
+  status       AccountStatus     @default(active)
+  lastLoginAt  DateTime?
+  sessions     PlatformSession[]
+  ghostGrants  GhostGrant[]
+  settings     PlatformSetting[]
+  pageVersions PageVersion[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 }
 
-model Membership {
-  id        String         @id @default(uuid(7)) @db.Uuid
-  tenantId  String         @db.Uuid
-  userId    String         @db.Uuid
-  role      MembershipRole
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+model PlatformSession {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  platformAdminId String        @db.Uuid
+  tokenHash       String        @unique
+  expiresAt       DateTime
+  lastSeenAt      DateTime      @default(now())
+  ip              String?
+  userAgent       String?
+  platformAdmin   PlatformAdmin @relation(fields: [platformAdminId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+
+  @@index([platformAdminId])
+}
+
+model GhostGrant {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  platformAdminId  String        @db.Uuid
+  targetTenantId   String        @db.Uuid
+  reason           String
+  tokenHash        String        @unique
+  expiresAt        DateTime
+  sessionExpiresAt DateTime
+  usedAt           DateTime?
+  revokedAt        DateTime?
+  platformAdmin    PlatformAdmin @relation(fields: [platformAdminId], references: [id], onDelete: Cascade)
+  targetTenant     Tenant        @relation(fields: [targetTenantId], references: [id], onDelete: Cascade)
+  sessions         SiteSession[]
+  createdAt        DateTime      @default(now())
+
+  @@index([targetTenantId])
+}
+
+model PlatformSetting {
+  key         String         @id
+  value       Json
+  updatedById String?        @db.Uuid
+  updatedBy   PlatformAdmin? @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt   DateTime       @updatedAt
+}
+
+model SiteUser {
+  id                    String         @id @default(uuid(7)) @db.Uuid
+  tenantId              String         @db.Uuid
+  email                 String?
+  phone                 String?
+  username              String?
+  name                  String
+  passwordHash          String?
+  role                  SiteRole
+  status                SiteUserStatus @default(invited)
+  source                SiteUserSource @default(console)
+  emailVerifiedAt       DateTime?
+  contactPhone          String?
+  mustChangePassword    Boolean        @default(false)
+  tempPasswordExpiresAt DateTime?
+  totpSecret            String?
+  lastLoginAt           DateTime?
+  failedLogins          Int            @default(0)
+  lockedUntil           DateTime?
+  sessions              SiteSession[]
+  tokens                SiteToken[]
+  pageVersions          PageVersion[]
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  tenant                Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, id])
-  @@unique([tenantId, userId])
+  @@unique([tenantId, email])
+  @@unique([tenantId, phone])
+  @@unique([tenantId, username])
   @@index([tenantId])
+}
+
+model SiteSession {
+  id           String          @id @default(uuid(7)) @db.Uuid
+  tenantId     String          @db.Uuid
+  siteUserId   String?         @db.Uuid
+  kind         SessionKind     @default(user)
+  audience     SessionAudience
+  ghostGrantId String?         @db.Uuid
+  tokenHash    String          @unique
+  expiresAt    DateTime
+  lastSeenAt   DateTime        @default(now())
+  ip           String?
+  userAgent    String?
+  siteUser     SiteUser?       @relation(fields: [tenantId, siteUserId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  ghostGrant   GhostGrant?     @relation(fields: [ghostGrantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime        @default(now())
+  tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, siteUserId])
+}
+
+model SiteToken {
+  id         String           @id @default(uuid(7)) @db.Uuid
+  tenantId   String           @db.Uuid
+  siteUserId String           @db.Uuid
+  purpose    SiteTokenPurpose
+  tokenHash  String           @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  siteUser   SiteUser         @relation(fields: [tenantId, siteUserId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  createdAt  DateTime         @default(now())
+  tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, siteUserId])
 }
 
 model Domain {
@@ -202,6 +369,7 @@ model Site {
   updatedAt       DateTime         @updatedAt
   tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId])
   @@unique([tenantId, id])
   @@index([tenantId])
 }
@@ -231,16 +399,18 @@ model Page {
 }
 
 model PageVersion {
-  id            String   @id @default(uuid(7)) @db.Uuid
-  tenantId      String   @db.Uuid
-  pageId        String   @db.Uuid
-  revision      Int
-  snapshot      Json
-  publishedById String?  @db.Uuid
-  page          Page     @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
-  publishedBy   User?    @relation(fields: [publishedById], references: [id], onDelete: SetNull)
-  createdAt     DateTime @default(now())
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                         String         @id @default(uuid(7)) @db.Uuid
+  tenantId                   String         @db.Uuid
+  pageId                     String         @db.Uuid
+  revision                   Int
+  snapshot                   Json
+  publishedBySiteUserId      String?        @db.Uuid
+  publishedByPlatformAdminId String?        @db.Uuid
+  page                       Page           @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+  publishedBySiteUser        SiteUser?      @relation(fields: [tenantId, publishedBySiteUserId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  publishedByPlatformAdmin   PlatformAdmin? @relation(fields: [publishedByPlatformAdminId], references: [id], onDelete: SetNull)
+  createdAt                  DateTime       @default(now())
+  tenant                     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, id])
   @@unique([tenantId, pageId, revision])
@@ -613,16 +783,17 @@ model LeadIntegration {
 }
 
 model AuditLog {
-  id          String   @id @default(uuid(7)) @db.Uuid
-  tenantId    String?  @db.Uuid
-  actorUserId String?  @db.Uuid
-  action      String
-  entity      String
-  entityId    String?
-  data        Json?
-  actorUser   User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
-  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id           String         @id @default(uuid(7)) @db.Uuid
+  tenantId     String?        @db.Uuid
+  actorType    AuditActorType @default(system)
+  actorId      String?        @db.Uuid
+  ghostGrantId String?        @db.Uuid
+  action       String
+  entity       String
+  entityId     String?
+  data         Json?
+  createdAt    DateTime       @default(now())
+  tenant       Tenant?        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, id])
   @@index([tenantId])

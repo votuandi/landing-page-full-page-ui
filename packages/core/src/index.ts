@@ -9,3 +9,4 @@ export * from "./segment";
 export * from "./calculatorBus";
 export * from "./provinces";
 export * from "./lastEstimate";
+export * from "./tenantSlug";

@@ -1,6 +1,6 @@
 import { collectRefs, collectionSchemas, migrateSectionData, sectionRegistry } from "@solar/sections";
 import type { Prisma } from "../generated/client.ts";
-import { platformDomainLookup, platformDomainResolve, type Db } from "./client.ts";
+import { platformClient, platformDomainLookup, platformDomainResolve, type Db } from "./client.ts";
 import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 import { tenantModels } from "./tenantScope.ts";
@@ -118,11 +118,17 @@ export function forTenant(db: DbClient, tenantId: string): TenantRepo {
   })) as TenantRepo;
 }
 
+// Platform tables (D17–D19). Console writes must also record AuditLog (enforced with the console actor in E15-S02).
 export function forPlatform(db: Db) {
-  return { domains: {
-    findByHostname: (hostname: string) => platformDomainLookup(db, hostname),
-    resolve: (hostname: string): Promise<HostRecord | null> => platformDomainResolve(db, hostname),
-  } };
+  const client = platformClient(db);
+  return {
+    domains: {
+      findByHostname: (hostname: string) => platformDomainLookup(db, hostname),
+      resolve: (hostname: string): Promise<HostRecord | null> => platformDomainResolve(db, hostname),
+    },
+    customer: client.customer, platformAdmin: client.platformAdmin, platformSession: client.platformSession,
+    ghostGrant: client.ghostGrant, platformSetting: client.platformSetting,
+  };
 }
 
 export type HostRecord = {

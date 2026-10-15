@@ -122,33 +122,30 @@ test("Postgres: public collections and associations exclude drafts, foreign UUID
     const loaded = blog.schema.parse(await createCollectionLoader(adapter.source)({ section: { id: "blog", type: "blog", variant: "t15", enabled: true, data: blogData }, data: blogData, site: { tenantId: a.tenantId, themeId: "t15", locale: "vi" } }));
     assert.deepEqual(loaded.items, []);
 
-    const siteB = await repo.site.create({ name: `Second ${suffix}`, themeId: "t12" });
-    cleanup.push(() => repo.site.delete(siteB.id));
-    const secondDomain = await repo.domain.create({ siteId: siteB.id, hostname: `${suffix}.localhost`, status: "verified", isPrimary: true, verificationToken: suffix });
-    cleanup.push(() => repo.domain.delete(secondDomain.id));
-    assert.equal((await data.loadTenantSite(a.tenantId, siteB.id))?.theme.meta.id, "t12");
-    await repo.domain.update(secondDomain.id, { status: "pending" });
-    assert.equal(await data.loadTenantSite(a.tenantId, siteB.id), null);
-    await repo.domain.update(secondDomain.id, { status: "verified" });
+    // One site per tenant (E5-S10): a second site is rejected by the database.
+    await assert.rejects(repo.site.create({ name: `Second ${suffix}`, themeId: "t12" }), /Unique constraint/);
+    const primaryDomain = await repo.domain.first({ where: { siteId: a.siteId, isPrimary: true } });
+    assert.ok(primaryDomain);
+    await repo.domain.update(primaryDomain.id, { status: "pending" });
+    assert.equal(await data.loadTenantSite(a.tenantId, a.siteId), null);
+    await repo.domain.update(primaryDomain.id, { status: primaryDomain.status });
     const hero = sectionRegistry.types.hero;
     const descriptors = ["bound", "missing"].map((id) => ({ id, type: "hero", variant: "t15", enabled: true }));
     const pages = [];
-    for (const [siteId, slug, title] of [[a.siteId, `same-${suffix}`, "Site A"], [siteB.id, `same-${suffix}`, "Site B"], [a.siteId, `other-${suffix}`, "Other page"]]) {
-      const page = await repo.page.create({ siteId, slug, title: { vi: title }, sections: descriptors, publishedAt: new Date() });
+    for (const [slug, title] of [[`same-${suffix}`, "Site A"], [`other-${suffix}`, "Other page"]]) {
+      const page = await repo.page.create({ siteId: a.siteId, slug, title: { vi: title }, sections: descriptors, publishedAt: new Date() });
       cleanup.push(() => repo.page.delete(page.id));
       pages.push(page);
     }
-    for (const [page, siteId, sectionId, label] of [[pages[0], a.siteId, "bound", "Site A"], [pages[1], siteB.id, "bound", "Site B"], [pages[2], a.siteId, "missing", "PRIVATE other page"], [pages[0], siteB.id, "missing", "PRIVATE other site"]] as const) {
-      const content = await repo.sectionContent.create({ siteId, pageId: page.id, sectionId, type: "hero", data: { ...hero.defaults, title: { ...hero.defaults.title, lead: { vi: label } } } });
+    for (const [page, sectionId, label] of [[pages[0], "bound", "Site A"], [pages[1], "missing", "PRIVATE other page"]] as const) {
+      const content = await repo.sectionContent.create({ siteId: a.siteId, pageId: page.id, sectionId, type: "hero", data: { ...hero.defaults, title: { ...hero.defaults.title, lead: { vi: label } } } });
       cleanup.push(() => repo.sectionContent.delete(content.id));
     }
-    for (const [siteId, title] of [[a.siteId, "Site A"], [siteB.id, "Site B"]]) {
-      const page = await data.loadPublishedPage(a.tenantId, siteId, `same-${suffix}`);
-      assert.equal(page?.title, title);
-      assert.equal(hero.schema.parse(page?.config.sections[0].data).title.lead.vi, title);
-      assert.deepEqual(page?.config.sections[1].data, hero.defaults);
-      assert.doesNotMatch(JSON.stringify(page), /PRIVATE/);
-    }
+    const samePage = await data.loadPublishedPage(a.tenantId, a.siteId, `same-${suffix}`);
+    assert.equal(samePage?.title, "Site A");
+    assert.equal(hero.schema.parse(samePage?.config.sections[0].data).title.lead.vi, "Site A");
+    assert.deepEqual(samePage?.config.sections[1].data, hero.defaults);
+    assert.doesNotMatch(JSON.stringify(samePage), /PRIVATE/);
 
     // Related/compatible views must select from this tenant's published records.
     const foreignProducts = foreignRepo.product as unknown as FixtureRepo;

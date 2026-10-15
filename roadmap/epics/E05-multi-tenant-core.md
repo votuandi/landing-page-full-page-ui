@@ -202,8 +202,8 @@ chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
     (SĐT chưa xác minh, không dùng đăng nhập), `username?` (D21), `mustChangePassword`, `tempPasswordExpiresAt?`,
     `totpSecret?`, `lastLoginAt?`, `failedLogins`, `lockedUntil?`).
     Unique `(tenantId, email)`, `(tenantId, phone)`, `(tenantId, username)`, CHECK có ít nhất một trong
-    `email`/`phone`/`username`; CHECK `username ~ '^[a-z0-9_]{3,40}$'` và chứa chữ cái. Email lưu dạng chữ
-    thường đã trim, SĐT lưu E.164 (`normalizeVnPhone` của `packages/core`).
+    `email`/`phone`/`username`; CHECK `username ~ '^[a-z0-9_]{3,70}$'` và chứa chữ cái. Email lưu dạng chữ
+    thường đã trim, SĐT lưu dạng `0…` của `normalizeVnPhone` (`packages/core`).
   - `SiteSession` (`tenantId`, `siteUserId?`, `kind user|ghost`, `audience admin|storefront` (D17), `ghostGrantId?`,
     `tokenHash` unique, `expiresAt`, `lastSeenAt`, `ip`, `userAgent`) và `SiteToken` (`tenantId`, `siteUserId`,
     `purpose invite|verify_email|reset_password|magic_link`, `tokenHash`, `expiresAt`, `usedAt?`).
@@ -218,10 +218,9 @@ chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
   - Slug dành riêng + định dạng subdomain (D21 §3): `RESERVED_TENANT_SLUGS` + `assertTenantSlug()` trong `packages/core`,
     và hàm `adminUsernameFor(slug)` (`nang-luong-solar` → `nangluongsolar_admin`). Tạo/đổi tenant gọi `assertTenantSlug`;
     thêm test để slug trong seed không trùng danh sách.
-  - Repository: `forTenant(id).siteUsers` / `.sessions` / `.tokens` (bỏ `passwordHash`, `totpSecret` khỏi kết quả mặc định).
-    `siteUsers.list` bắt buộc chọn nhóm `staff` (mọi vai trò trừ `client`) hoặc `clients`, không trộn hai nhóm.
-    `forPlatform()` trả repository cho bảng nền tảng và các truy vấn tổng hợp chéo tenant (đọc). Đây là lối đi chéo tenant
-    duy nhất, mọi lệnh ghi qua đây phải kèm `actor` để ghi `AuditLog`. Cập nhật `tenantScope`, `tenantGuard` và luật ESLint.
+  - Repository: `forTenant(id).siteUser` / `.siteSession` / `.siteToken` (client omit `passwordHash`, `totpSecret` mặc định;
+    E7-S12/E16-S04 tự lọc nhân viên/client theo `role`). `forPlatform()` thêm delegate cho bảng nền tảng; truy vấn tổng hợp
+    chéo tenant ở E15-S08, ghi `AuditLog` bắt buộc kèm actor ở E15-S02. Cập nhật `tenantScope`, `tenantGuard`.
   - Seed: mỗi tenant demo có `owner@demo.vn` **cùng email** + `0901234567` cùng SĐT, mật khẩu khác nhau. Thêm một
     `PlatformAdmin` cũng dùng `owner@demo.vn` để chứng minh hai realm tách nhau. Tenant A có thêm client `khach@demo.vn`;
     tenant B có nhân viên `khach@demo.vn` (cùng email, khác vai trò). Mật khẩu seed đọc từ biến môi trường,

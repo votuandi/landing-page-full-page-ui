@@ -3,7 +3,7 @@ export type { Db } from "./client.ts";
 export { forTenant, forPlatform } from "./repository.ts";
 export { migrateSectionRow } from "./sectionContent.ts";
 export type { DbClient, TenantRepo, HostRecord } from "./repository.ts";
-export type { DomainStatus, TenantStatus } from "../generated/enums.ts";
+export type { DomainStatus, TenantStatus, SiteRole, SiteUserStatus, SessionAudience, SessionKind, SiteTokenPurpose, AuditActorType } from "../generated/enums.ts";
 export { MissingTenantError } from "./tenantScope.ts";
 export { assertNoCrossTenantConnect } from "./tenantGuard.ts";
 export { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";

@@ -138,7 +138,7 @@ SĐT) chỉ unique trong một site; hai site được có tài khoản trùng t
   `tenantId`. Một công ty có nhiều website → một `Customer` (khách hàng của nền tảng) có nhiều tenant. Tên `client` dành cho
   vai trò khách hàng cuối của site (D20), không dùng cho entity nền tảng.
 - **Hai bảng tài khoản, không có bảng `User` chung**:
-  - `SiteUser` (bảng tenant): `tenantId`, `email?`, `phone?` (E.164 qua `normalizeVnPhone`), `username?` (D21),
+  - `SiteUser` (bảng tenant): `tenantId`, `email?`, `phone?` (dạng `0…` của `normalizeVnPhone`), `username?` (D21),
     `passwordHash`, `role`, `status`, `totpSecret?`. Unique `(tenantId, email)`, `(tenantId, phone)`, `(tenantId, username)`;
     có ít nhất một định danh (CHECK).
     Thay `User` + `Membership` của E5-S01.
@@ -254,7 +254,7 @@ cần ngoại lệ thì bật override cho site trước (E15-S05).
 Trang không có trong cấu trúc site, hoặc bị khóa theo gói, trả 404 và không vào sitemap. Menu header/footer lúc tạo site
 sinh từ cấu trúc đã chọn.
 
-**3. Subdomain.** `Tenant.slug` = subdomain: `^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`, không chứa `--` (tránh `xn--`),
+**3. Subdomain.** `Tenant.slug` = subdomain: nhãn DNS `^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])$` (3–63 ký tự), không chứa `--` (tránh `xn--`),
 không thuộc danh sách dành riêng (D17), unique toàn hệ thống. Wizard kiểm còn trống theo thời gian thực. Tạo site sinh:
 - `Domain{hostname: "<slug>.<platform>", isPrimary: true, status: active}` (cert wildcard, E9-S02);
 - CMS ở `<slug>.admin.<platform>`.
@@ -265,7 +265,7 @@ host nền tảng không phải chính và host preview mới `noindex`).
 apex + `www`, hướng dẫn DNS, chờ `active` (DNS + TLS đã chạy), rồi mới cho đặt làm chính. Đổi chính → `nang-luong-solar.minwysoft.com`
 và host phụ trả 308 về tên miền thật. Không bao giờ đổi chính sang tên miền chưa `active`.
 
-**5. Tài khoản admin tự tạo.** Thêm định danh `username` cho `SiteUser` (`^[a-z0-9_]{3,40}$`, phải có chữ cái để không
+**5. Tài khoản admin tự tạo.** Thêm định danh `username` cho `SiteUser` (`^[a-z0-9_]{3,70}$`, phải có chữ cái để không
 lẫn với SĐT). Tạo site → `SiteUser{username: slug.replace(/-/g, "") + "_admin", role: owner, mustChangePassword: true}`,
 vd. `nangluongsolar_admin`. Mật khẩu tạm 16 ký tự ngẫu nhiên (`crypto.randomBytes`), chỉ lưu hash, hiện **một lần** trên
 màn hình bàn giao của console, hết hạn sau 7 ngày (quá hạn → super admin tạo lại ở E15-S04). Lần đăng nhập đầu: mọi trang

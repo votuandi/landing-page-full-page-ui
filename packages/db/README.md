@@ -88,8 +88,9 @@ client sinh mã, `@prisma/adapter-pg` cho adapter bắt buộc ở Prisma 7, `pg
 
 ## Tenant và khóa ghép
 
-`Tenant`, `User`, `PlatformAdmin`, `Plan` thuộc nền tảng. Mọi bảng khác có FK `tenantId` và unique
-`(tenantId, id)`. `Outbox`/`AuditLog` cho phép `tenantId = null` cho việc nền tảng.
+`Tenant`, `Plan`, `Customer`, `PlatformAdmin`, `PlatformSession`, `GhostGrant`, `PlatformSetting` thuộc nền tảng
+(không có cột `tenantId`; `GhostGrant` trỏ tenant bằng `targetTenantId`). Mọi bảng khác có FK `tenantId` và unique
+`(tenantId, id)`. Mỗi tenant có đúng một `Site` (`@@unique([tenantId])`, D17). `Outbox`/`AuditLog` cho phép `tenantId = null` cho việc nền tảng.
 FK giữa bảng tenant luôn `(tenantId, xxxId) → (tenantId, id)`; cập nhật khóa cha bị `Restrict`
 để không tự lan truyền việc đổi tenant. Collection slug unique theo tenant; page slug theo tenant + site;
 hostname domain và media key unique toàn cục. ID UUIDv7 sinh ở Prisma Client.
@@ -204,7 +205,29 @@ Chạy lại cập nhật dữ liệu demo, không nhân bản; đây không ph�
 Plans tạm có features rỗng/limits `{}`; khi plan đã tồn tại, seed giữ cấu hình features/limits (E6-S01).
 Nếu hostname demo đã thuộc tenant khác, seed báo lỗi và rollback tenant đó.
 
+Có `SEED_PASSWORD` thì seed thêm tài khoản demo (E5-S10): mỗi tenant có owner `owner@demo.vn` / `0901234567` /
+`demo<id>_admin` (mật khẩu `<SEED_PASSWORD>-t15` hoặc `-t12`), và `khach@demo.vn` là `client` ở t15, `staff` ở t12;
+`PlatformAdmin` `owner@demo.vn` (mật khẩu `<SEED_PASSWORD>-platform`). Thiếu biến thì bỏ qua tài khoản, vẫn seed nội dung.
+
 ERD: [ERD.md](./ERD.md). Test ERD yêu cầu tài liệu khớp schema.
+
+## Tài khoản (E5-S10, D17–D21)
+
+Hai realm không có bảng/khóa nối nhau:
+
+- `SiteUser` (bảng tenant): đăng nhập bằng `email`, `phone` hoặc `username`, mỗi trường unique **theo tenant**; tenant khác
+  được trùng. CHECK trong DB: có ít nhất một định danh; email đã `lower(btrim)`; phone dạng `normalizeVnPhone` (`0…`);
+  username `^[a-z0-9_]{3,70}$` và có chữ cái. Chuẩn hóa trước khi ghi (`normalizeVnPhone`, `toLowerCase`).
+  `role`: `owner|admin|editor|staff|viewer|client`. `SiteSession` (`audience admin|storefront`, `kind user|ghost` — ghost chỉ
+  `admin`, CHECK), `SiteToken` (lời mời, xác minh email, đặt lại mật khẩu, magic link).
+- `PlatformAdmin` (email unique toàn hệ thống), `PlatformSession`, `GhostGrant`, `PlatformSetting`, `Customer`.
+- `passwordHash`/`totpSecret` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
+  `omit: { passwordHash: false }`. `forTenant(id).siteUser|siteSession|siteToken` theo tenant như các bảng khác;
+  `forPlatform(db)` có `customer`, `platformAdmin`, `platformSession`, `ghostGrant`, `platformSetting`.
+- `Tenant.slug` (= subdomain) có CHECK định dạng nhãn DNS 3–63 ký tự, không `--`, không thuộc danh sách dành riêng;
+  danh sách giữ khớp `RESERVED_TENANT_SLUGS` của `@solar/core` (test `schema.test.ts`).
+- `AuditLog` ghi `actorType` + `actorId` (không FK để nhật ký sống lâu hơn tài khoản), `ghostGrantId` khi ghost.
+  `PageVersion` ghi `publishedBySiteUserId` (khóa ghép) hoặc `publishedByPlatformAdminId`.
 
 ## Đồng bộ gói E6-S01
 

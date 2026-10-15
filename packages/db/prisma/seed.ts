@@ -1,5 +1,5 @@
 import { syncPlans } from "../src/plans.ts";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID, scryptSync } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { createDb, POOL_BUDGET, type Db } from "../src/client.ts";
 import type { Prisma } from "../generated/client.ts";
@@ -9,8 +9,27 @@ import { forPlatform } from "../src/repository.ts";
 // Strip undefined optional fields and serialize schema-parsed objects to Prisma JSON.
 const json = (value: unknown): Prisma.InputJsonValue => JSON.parse(JSON.stringify(value));
 
-export async function seedDemo(db: Db) {
+// Format shared with packages/auth (E15-S01): scrypt$N$r$p$salt$hash.
+export function hashPassword(password: string) {
+  const salt = randomBytes(16);
+  const hash = scryptSync(password, salt, 32, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
+  return `scrypt$32768$8$1$${salt.toString("base64url")}$${hash.toString("base64url")}`;
+}
+
+// Demo accounts (D17, D20, D21): same email/phone in both tenants and on the platform are separate accounts.
+const demoUsers = (id: "t15" | "t12") => [
+  { email: "owner@demo.vn", phone: "0901234567", username: `demo${id}_admin`, name: "[DỮ LIỆU MẪU] Chủ site", role: "owner" as const, source: "console" as const },
+  { email: "khach@demo.vn", phone: null, username: null, name: "[DỮ LIỆU MẪU] Khách", role: id === "t15" ? "client" as const : "staff" as const,
+    source: id === "t15" ? "signup" as const : "invite" as const },
+];
+
+export async function seedDemo(db: Db, { password = process.env.SEED_PASSWORD } = {}) {
+  if (!password) console.warn("SEED_PASSWORD missing: demo accounts skipped, content still seeded");
   await syncPlans(db);
+  if (password) {
+    const data = { name: "[DỮ LIỆU MẪU] Vận hành", passwordHash: hashPassword(`${password}-platform`) };
+    await forPlatform(db).platformAdmin.upsert({ where: { email: "owner@demo.vn" }, update: data, create: { email: "owner@demo.vn", ...data } });
+  }
   for (const id of ["t15", "t12"] as const) {
     const demo = buildDemo(id);
     const hostname = `${id}.localhost`;
@@ -28,6 +47,13 @@ export async function seedDemo(db: Db) {
       if (domain && domain.tenantId !== tenantId) throw new Error(`Demo hostname already belongs to another tenant: ${hostname}`);
       const domainData = { siteId, isPrimary: true, status: "active" as const, sslProvider: "caddy" as const };
       await tx.domain.upsert({ where: { hostname, tenantId }, update: domainData, create: { tenantId, hostname, verificationToken: randomUUID(), ...domainData } });
+
+      if (password) {
+        for (const { email, ...account } of demoUsers(id)) {
+          const data = { ...account, status: "active" as const, emailVerifiedAt: new Date(0), passwordHash: hashPassword(`${password}-${id}`) };
+          await tx.siteUser.upsert({ where: { tenantId_email: { tenantId, email } }, update: data, create: { tenantId, email, ...data } });
+        }
+      }
 
       for (const seededPage of demo.pages) {
         const pageData = { kind: seededPage.kind, title: seededPage.title, sections: json(seededPage.pageSections), revision: 1 };

@@ -23,29 +23,110 @@ erDiagram
     TenantStatus status
     String planId
     String_array addons
+    String customerId
+    Json featureOverrides
+    Json limitOverrides
+    Json permissionPolicy
     DateTime createdAt
     DateTime updatedAt
   }
-  User {
+  Customer {
     String id PK
-    String email UK
     String name
-    String passwordHash
+    String taxCode
+    String contactName
+    String contactEmail
+    String contactPhone
+    String address
+    String note
+    CustomerStatus status
     DateTime createdAt
     DateTime updatedAt
   }
   PlatformAdmin {
     String id PK
-    String userId UK
-    DateTime createdAt
-  }
-  Membership {
-    String id PK
-    String tenantId
-    String userId
-    MembershipRole role
+    String email UK
+    String name
+    String passwordHash
+    String totpSecret
+    AccountStatus status
+    DateTime lastLoginAt
     DateTime createdAt
     DateTime updatedAt
+  }
+  PlatformSession {
+    String id PK
+    String platformAdminId
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime lastSeenAt
+    String ip
+    String userAgent
+    DateTime createdAt
+  }
+  GhostGrant {
+    String id PK
+    String platformAdminId
+    String targetTenantId
+    String reason
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime sessionExpiresAt
+    DateTime usedAt
+    DateTime revokedAt
+    DateTime createdAt
+  }
+  PlatformSetting {
+    String key PK
+    Json value
+    String updatedById
+    DateTime updatedAt
+  }
+  SiteUser {
+    String id PK
+    String tenantId
+    String email
+    String phone
+    String username
+    String name
+    String passwordHash
+    SiteRole role
+    SiteUserStatus status
+    SiteUserSource source
+    DateTime emailVerifiedAt
+    String contactPhone
+    Boolean mustChangePassword
+    DateTime tempPasswordExpiresAt
+    String totpSecret
+    DateTime lastLoginAt
+    Int failedLogins
+    DateTime lockedUntil
+    DateTime createdAt
+    DateTime updatedAt
+  }
+  SiteSession {
+    String id PK
+    String tenantId
+    String siteUserId
+    SessionKind kind
+    SessionAudience audience
+    String ghostGrantId
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime lastSeenAt
+    String ip
+    String userAgent
+    DateTime createdAt
+  }
+  SiteToken {
+    String id PK
+    String tenantId
+    String siteUserId
+    SiteTokenPurpose purpose
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime usedAt
+    DateTime createdAt
   }
   Domain {
     String id PK
@@ -96,7 +177,8 @@ erDiagram
     String pageId
     Int revision
     Json snapshot
-    String publishedById
+    String publishedBySiteUserId
+    String publishedByPlatformAdminId
     DateTime createdAt
   }
   SectionContent {
@@ -335,7 +417,9 @@ erDiagram
   AuditLog {
     String id PK
     String tenantId
-    String actorUserId
+    AuditActorType actorType
+    String actorId
+    String ghostGrantId
     String action
     String entity
     String entityId
@@ -343,16 +427,25 @@ erDiagram
     DateTime createdAt
   }
   Plan ||--o{ Tenant : "planId"
-  User ||--o{ PlatformAdmin : "userId"
-  User ||--o{ Membership : "userId"
-  Tenant ||--o{ Membership : "tenantId"
+  Customer |o--o{ Tenant : "customerId"
+  PlatformAdmin ||--o{ PlatformSession : "platformAdminId"
+  PlatformAdmin ||--o{ GhostGrant : "platformAdminId"
+  Tenant ||--o{ GhostGrant : "targetTenantId"
+  PlatformAdmin |o--o{ PlatformSetting : "updatedById"
+  Tenant ||--o{ SiteUser : "tenantId"
+  SiteUser |o--o{ SiteSession : "tenantId, siteUserId"
+  GhostGrant |o--o{ SiteSession : "ghostGrantId"
+  Tenant ||--o{ SiteSession : "tenantId"
+  SiteUser ||--o{ SiteToken : "tenantId, siteUserId"
+  Tenant ||--o{ SiteToken : "tenantId"
   Site ||--o{ Domain : "tenantId, siteId"
   Tenant ||--o{ Domain : "tenantId"
   Tenant ||--o{ Site : "tenantId"
   Site ||--o{ Page : "tenantId, siteId"
   Tenant ||--o{ Page : "tenantId"
   Page ||--o{ PageVersion : "tenantId, pageId"
-  User |o--o{ PageVersion : "publishedById"
+  SiteUser |o--o{ PageVersion : "tenantId, publishedBySiteUserId"
+  PlatformAdmin |o--o{ PageVersion : "publishedByPlatformAdminId"
   Tenant ||--o{ PageVersion : "tenantId"
   Site ||--o{ SectionContent : "tenantId, siteId"
   Page ||--o{ SectionContent : "tenantId, pageId"
@@ -381,6 +474,5 @@ erDiagram
   Tenant ||--o{ Lead : "tenantId"
   Tenant |o--o{ Outbox : "tenantId"
   Tenant ||--o{ LeadIntegration : "tenantId"
-  User |o--o{ AuditLog : "actorUserId"
   Tenant |o--o{ AuditLog : "tenantId"
 ```

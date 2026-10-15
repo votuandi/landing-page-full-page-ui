@@ -1,15 +1,19 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+// Source import: @solar/core compiles to CommonJS and tsx cannot see its re-exports.
+import { RESERVED_TENANT_SLUGS } from "../../../core/src/tenantSlug.ts";
 import test from "node:test";
 import { globalRelations, tenantRelations } from "../tenantGuard.ts";
 import { tenantModels as scopedModels, optionalTenantModels } from "../tenantScope.ts";
 
 const schema = readFileSync(new URL("../../prisma/schema.prisma", import.meta.url), "utf8");
 const models = [...schema.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)];
-const platform = new Set(["Tenant", "User", "PlatformAdmin", "Plan"]);
+const platform = new Set(["Tenant", "Plan", "Customer", "PlatformAdmin", "PlatformSession", "GhostGrant", "PlatformSetting"]);
 const optionalTenant = new Set(["Outbox", "AuditLog"]);
 const tenantModels = new Set(models.filter(([, name]) => !platform.has(name)).map(([, name]) => name));
-const migration = readFileSync(new URL("../../prisma/migrations/20261011000000_init/migration.sql", import.meta.url), "utf8");
+const migrationsDir = new URL("../../prisma/migrations/", import.meta.url);
+const migrations = readdirSync(migrationsDir).filter((name) => /^\d+_/.test(name)).sort();
+const migration = migrations.map((name) => readFileSync(new URL(`${name}/migration.sql`, migrationsDir), "utf8")).join("\n");
 
 test("scope guard classifies every required and optional tenant model", () => {
   assert.deepEqual([...scopedModels].sort(), models.filter(([, , body]) => /tenantId\s+String\s/.test(body)).map(([, name]) => name).sort());
@@ -32,7 +36,7 @@ test("guard classifies every schema relation by its target model", () => {
 });
 
 test("schema includes every platform, content and delivery model", () => {
-  const expected = "Plan Tenant User Membership PlatformAdmin Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration AuditLog".split(" ");
+  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration AuditLog".split(" ");
   assert.deepEqual(models.map(([, name]) => name).sort(), expected.sort());
 });
 
@@ -58,10 +62,10 @@ test("every content FK uses the tenant composite key without cascading tenant ch
       checked++;
     }
   }
-  assert.equal(checked, 13, "must inspect all composite relations in this schema");
+  assert.equal(checked, 16, "must inspect all composite relations in this schema");
 });
 
-test("initial SQL migration enforces the same tenant identities and composite foreign keys", () => {
+test("SQL migrations enforce the same tenant identities and composite foreign keys", () => {
   for (const name of tenantModels) {
     assert.ok(migration.includes(`CREATE UNIQUE INDEX "${name}_tenantId_id_key" ON "${name}"("tenantId", "id")`), name);
   }
@@ -72,5 +76,13 @@ test("initial SQL migration enforces the same tenant identities and composite fo
     assert.match(target, /^"tenantId", "\w+"$/, `${source} -> ${relation}`);
     checked++;
   }
-  assert.equal(checked, 13);
+  assert.equal(checked, 16);
+});
+
+test("account migration keeps DB checks in sync with core slug rules (D17, D21)", () => {
+  for (const slug of RESERVED_TENANT_SLUGS) assert.ok(migration.includes(`'${slug}'`), slug);
+  for (const name of ["Tenant_slug_check", "SiteUser_identifier_check", "SiteUser_email_check", "SiteUser_phone_check", "SiteUser_username_check", "SiteSession_kind_check"]) {
+    assert.ok(migration.includes(`"${name}"`), name);
+  }
+  assert.ok(migration.includes(`CREATE UNIQUE INDEX "Site_tenantId_key"`));
 });
