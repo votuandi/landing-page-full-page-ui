@@ -190,7 +190,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - [ ] Role `app_runtime` đọc `PlatformAdmin`/`PlatformSession` → lỗi quyền; đọc `SiteUser` của tenant B khi đã đặt tenant A → 0 dòng.
 - Phụ thuộc: S02, S10 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
-### E5-S10 · Tài khoản theo tenant & tách tài khoản nền tảng (nâng cấp S01/S02)
+### E5-S10 · Tài khoản theo tenant & tách tài khoản nền tảng (nâng cấp S01/S02) ✅ · PR [#38](https://github.com/votuandi/landing-page-full-page-ui/pull/38)
 **Là** chủ dự án, **tôi muốn** tài khoản CMS của site và tài khoản super admin là hai loại riêng, tên đăng nhập chỉ unique trong
 một site, **để** làm được hai CMS (E7, E15) mà không phải sửa lại mô hình dữ liệu sau này.
 Story nâng cấp phần đã làm ở S01/S02 theo D17–D19. Chưa có dữ liệu production (seed không tạo user), nên không cần
@@ -247,7 +247,7 @@ chuyển dữ liệu: thêm migration mới, không sửa migration `init`.
     Windows (robots/sitemap kiểm lại bằng curl `Host:`), CI Linux chạy đủ. Fixture trình duyệt dùng tenant `review-t15` riêng.
 - Phụ thuộc: S01, S02 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
-### E5-S11 · Cấu trúc trang theo danh mục & preset nhiều trang (nâng cấp E4/E5-S04/E5-S08)
+### E5-S11 · Cấu trúc trang theo danh mục & preset nhiều trang (nâng cấp E4/E5-S04/E5-S08) ✅ · PR [#38](https://github.com/votuandi/landing-page-full-page-ui/pull/38)
 **Là** chủ dự án, **tôi muốn** cấu trúc trang của site (có những trang nào) là dữ liệu được kiểm theo gói, **để** wizard
 tạo site (E13) và CMS (E7) chọn trang/section theo cùng một chính sách (D21).
 Story nâng cấp phần đã làm: preset hiện chỉ có section của trang chủ + `subpages`, seed dựng trang con bằng danh sách cứng
