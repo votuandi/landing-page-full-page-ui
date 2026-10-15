@@ -27,8 +27,8 @@ const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
   "app/sites/[siteId]/[[...path]]/page.tsx": /siteCanUse\(site\)/, // routes, landing pages, PageRenderer
   "components/tenant/SystemPages.tsx": /siteCanUse\(site\)/, // system pages, cart, calculator CTA
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap
-  "lib/tenant/entitlements.ts": /assertCan\(/, // POST /api/lead (tenant)
-  "app/api/lead/route.ts": /createTenantLeadGate\(/,
+  "lib/tenant/leadIntake.ts": /assertCan\(/, // POST /api/lead (tenant)
+  "app/api/lead/route.ts": /tenantLeadHandler\(/,
 };
 const src = join(process.cwd(), "src");
 const files = (dir: string): string[] => readdirSync(dir).flatMap((name) => {

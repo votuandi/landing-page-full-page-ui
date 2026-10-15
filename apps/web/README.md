@@ -123,10 +123,26 @@ Nguồn: [Next cookies](https://nextjs.org/docs/app/api-reference/functions/cook
 [Next router.refresh](https://nextjs.org/docs/app/api-reference/functions/use-router).
 
 Hook section/widget hiện tra features của **gói cơ sở** bằng `@solar/plans`; không cộng addons/trial/limits.
-Gating quyền đầy đủ của route/metadata/CTA/provider/API thuộc E6-S02. API lead tenant trả 503 trước adapter chung,
-không lưu hoặc gửi dữ liệu; tích hợp tenant thuộc E11. Nhánh API legacy giữ hành vi hiện có.
+Gating quyền đầy đủ của route/metadata/CTA/provider/API thuộc E6-S02. Nhánh API legacy giữ hành vi hiện có.
 Robots/sitemap tenant tạm trả 404 tới E5-S08. Chưa có ISR/shared content cache/revalidate/preview;
 React cache chỉ gộp đọc trong request. Root đọc headers khiến legacy cũng render động; E5-S05/S06 xử lý cache.
+
+### API lead tenant (E11-S01)
+
+`POST /api/lead` trên host tenant (`lib/tenant/leadIntake.ts`): tenant/site lấy từ header proxy (resolve theo host), không
+đọc từ body. Hợp đồng t15 giữ nguyên (`name`, `phone` di động VN, `source`, `estimate`, `items`, `province`, `businessType`,
+`page`…), thêm:
+
+| Trường / điều kiện | Kết quả |
+|---|---|
+| `website` có giá trị (honeypot), hoặc `elapsedMs` thiếu / < 3000 (form gửi số ms từ lúc mount) | `200 {ok:true}`, **không lưu** |
+| > 10 request/phút theo IP (`x-forwarded-for` đầu tiên) hoặc > 5 lần/10 phút theo SĐT | `429` + `Retry-After` |
+| Tính năng của `source`/payload ngoài gói (E6-S02) | `403` |
+| Có `TURNSTILE_SECRET_KEY` mà `turnstileToken` / `cf-turnstile-response` sai | `400` |
+| Hợp lệ | Lưu `Lead` + mỗi kênh `LeadIntegration` đang bật một job `Outbox{topic:"lead.deliver"}` trong **cùng transaction**, rồi `200 {ok:true,id}`; lỗi DB → `503` |
+
+Bộ đếm rate-limit dùng Redis (`REDIS_URL`, dùng chung giữa các bản `web`); Redis lỗi → đếm trong bộ nhớ của tiến trình,
+không chặn lead. Việc gửi tới kênh do `apps/worker` làm (xem README ở đó).
 
 Kiểm thử: `pnpm --filter web test:tenant` (đặt DATABASE_URL và REDIS_URL để integration không skip).
 Sau seed chạy `pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts`.

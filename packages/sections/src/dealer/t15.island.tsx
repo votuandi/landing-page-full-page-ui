@@ -4,6 +4,7 @@ import { MediaImage, CarouselNav, useSnapCarousel } from "@solar/ui";
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import { PROVINCES, isVnMobile } from "@solar/core";
 import type { Locale } from "../site";
+import { useFillTimer } from "../shared/useFillTimer";
 
 type FormText = { title: string; description?: string; businessTypes: string[]; submitLabel: string; successTitle: string; successMessage: string };
 function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
@@ -12,6 +13,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+  const elapsedMs = useFillTimer();
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (status === "sending") return;
@@ -29,7 +31,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
     setStatus("sending");
     try {
       const response = await fetch("/api/lead", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, source: "dealer", segment: "Đăng ký đại lý", page: window.location.pathname }) });
+        body: JSON.stringify({ ...data, source: "dealer", segment: "Đăng ký đại lý", page: window.location.pathname, elapsedMs: elapsedMs() }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.ok) throw new Error(result.message || (en ? "Could not send." : "Chưa gửi được thông tin."));
       setStatus("success");

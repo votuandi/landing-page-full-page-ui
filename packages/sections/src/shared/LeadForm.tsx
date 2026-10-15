@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { useFillTimer } from "./useFillTimer";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
 import type { Locale } from "../site";
@@ -52,6 +53,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const elapsedMs = useFillTimer();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,7 +67,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, ...getExtra?.() }),
+        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, elapsedMs: elapsedMs(), ...getExtra?.() }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) throw new Error(data.message || "");

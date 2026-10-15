@@ -41,7 +41,7 @@ Web đọc kill switch qua hàm SECURITY DEFINER `platform_disabled_features()` 
 Trang tenant mang thêm tag `ENTITLEMENTS_TAG = "platform:entitlements"` khi bật cache (E5-S06).
 Điểm vào phải kiểm: danh sách trong `apps/web/src/lib/tenant/__tests__/entitlements.test.ts`.
 
-API lead tenant (`createTenantLeadGate`) kiểm `source` và payload; nguồn lạ tính là `leadForm`:
+API lead tenant (`createTenantLeadHandler`, `apps/web/src/lib/tenant/leadIntake.ts`) kiểm `source` và payload; nguồn lạ tính là `leadForm`:
 
 | `source` / payload | Feature |
 |---|---|
