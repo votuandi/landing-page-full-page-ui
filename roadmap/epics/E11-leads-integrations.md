@@ -18,11 +18,11 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   thừa tới 24 h, rồi chuyển `dead` + cảnh báo; nút "Gửi lại" trong hộp thư lead. Story này sở hữu bảng `Outbox` + vòng lặp worker
   dùng chung cho revalidate (E5-S05) và xử lý media (E8).
 - **AC**:
-  - [ ] Test: lead gửi lên host tenant A chỉ xuất hiện ở A.
-  - [ ] Inject lỗi: kill worker giữa lúc gửi, queue/Redis sập, adapter trả 500 → sau khi hồi phục mọi lead được gửi đúng 1 lần
+  - [x] Test: lead gửi lên host tenant A chỉ xuất hiện ở A.
+  - [x] Inject lỗi: kill worker giữa lúc gửi, queue/Redis sập, adapter trả 500 → sau khi hồi phục mọi lead được gửi đúng 1 lần
         tới mỗi kênh (kênh hỗ trợ idempotency) hoặc ít nhất 1 lần (kênh không hỗ trợ — ghi rõ).
-  - [ ] Crash ngay sau khi trả 200 cho trình duyệt → lead vẫn có trong DB và outbox.
-  - [ ] 20 request/phút từ cùng IP → 429.
+  - [x] Crash ngay sau khi trả 200 cho trình duyệt → lead vẫn có trong DB và outbox.
+  - [x] 20 request/phút từ cùng IP → 429.
 - Agent: Codex · Cỡ: M
 
 ### E11-S02 · Kênh nhận lead theo tenant
