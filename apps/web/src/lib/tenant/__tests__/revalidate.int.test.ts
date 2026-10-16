@@ -92,7 +92,10 @@ test("Postgres: atomic publish → durable retry → signed revalidation → fre
         const key = `${tenantId}:${args?.where?.slug}`;
         reads.set(key, (reads.get(key) ?? 0) + 1); return repo.page.first(args);
       } } } as TenantRepo;
-    }, undefined, memory);
+    }, undefined, memory, (tenantId, work) => withTenantTransaction(db, tenantId, repo => work({ ...repo, page: { ...repo.page, first: async args => {
+      const key = `${tenantId}:${args?.where?.slug}`;
+      reads.set(key, (reads.get(key) ?? 0) + 1); return repo.page.first(args);
+    } } }), { isolationLevel: "RepeatableRead" }));
     const home = (f: typeof a) => data.loadPublishedPage(f.tenantId, f.siteId, "");
     for (const fixture of [a, b, a, b]) assert.equal(sectionRegistry.types.hero.schema.parse((await home(fixture))?.config.sections[0].data).title.lead.vi, fixture === a ? "t15" : "t12");
     await data.loadPublishedPage(a.tenantId, a.siteId, "lien-he");

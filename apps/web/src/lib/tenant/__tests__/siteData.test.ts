@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { TenantRepo } from "@solar/db";
-import { createSiteData, selectSiteLocale, siteCanUse } from "../siteData";
+import { createSiteData as factory, selectSiteLocale, siteCanUse } from "../siteData";
 import { sectionRegistry } from "@solar/sections";
 
 const tenantId = "00000000-0000-4000-8000-000000000001";
 const siteId = "00000000-0000-4000-8000-000000000002";
+const createSiteData = (...args: Parameters<typeof factory>) => factory(args[0], args[1], args[2], args[3] ?? ((id, work) => work(args[0](id))));
 const repo = (extra: object = {}) => ({
   site: { first: async () => ({ id: siteId, tenantId, themeId: "t15", name: "A", profile: {}, seo: {}, widgets: {}, themeOverrides: {}, locales: ["vi"], defaultLocale: "vi", pageTypes: ["home", "contact", "policy"], tenant: { planId: "premium", addons: [], status: "active", createdAt: new Date("2026-01-01T00:00:00Z"), featureOverrides: {}, limitOverrides: {} } }) },
   domain: { first: async () => ({ hostname: "a.localhost" }) },
@@ -114,6 +115,22 @@ test("locale selection respects allowed locales, default EN, and ignores unsuppo
   assert.equal(selectSiteLocale(["vi", "en"], "vi", "en"), "en");
   assert.equal(selectSiteLocale(["en"], "en", "vi"), "en");
   assert.equal(selectSiteLocale(["vi", "en"], "en", "fr"), "en");
+});
+
+test("draft loader uses draft layout/data without publication or content cache", async () => {
+  let reads = 0;
+  const hero = sectionRegistry.types.hero;
+  const repository = repo({
+    page: { first: async ({ where }: { where: object }) => {
+      assert.deepEqual(where, { siteId, slug: "draft" }); reads++;
+      return { id: "page", sections: [], draftSections: [{ id: "h", type: "hero", variant: "t15", enabled: true }] };
+    } },
+    sectionContent: { list: async () => [{ sectionId: "h", type: "hero", schemaVersion: hero.schemaVersion,
+      data: hero.defaults, draftData: { ...hero.defaults, title: { ...hero.defaults.title, lead: { vi: "[DỮ LIỆU MẪU] nháp" } } } }] },
+  });
+  const data = createSiteData(() => repository, undefined, { cached: async () => { throw new Error("Draft must bypass cache"); } });
+  for (let i = 0; i < 2; i++) assert.match(JSON.stringify(await data.loadDraftPage(tenantId, siteId, "draft")), /nháp/);
+  assert.equal(reads, 2);
 });
 
 test("process cache dedupes pages/sites and keeps platform kill switches independent", async () => {
