@@ -5,7 +5,7 @@ import { assertTenantScoped, MissingTenantError, optionalTenantModels, tenantMod
 import type { HostRecord } from "./repository.ts";
 
 const scopedModels = new Set<string>([...tenantModels, ...optionalTenantModels]);
-const secret = { passwordHash: true, totpSecret: true } as const;
+const secret = { passwordHash: true, totpSecret: true, totpBackupCodes: true } as const;
 // SQL-capable clients stay internal to this package.
 // Next keeps its pool across hot reloads and server bundles; keep the matching client registry alongside it.
 const state = globalThis as typeof globalThis & { solarDbConnections?: {

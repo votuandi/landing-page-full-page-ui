@@ -1,5 +1,15 @@
 # @solar/db
 
+## Hỗ trợ xác thực (E15-S01)
+
+`SiteUser` và `PlatformAdmin` lưu `totpBackupCodes` dạng mảng hash SHA-256, mặc định rỗng.
+Client mặc định omit `passwordHash`, `totpSecret`, `totpBackupCodes`; adapter `@solar/auth/db`
+chỉ opt-in khi xác thực. Repository `update(id, data, expected?)` hỗ trợ điều kiện so sánh trước khi ghi,
+luôn giữ filter id/tenant của repository; auth dùng để tiêu thụ backup code/đổi token nguyên tử.
+`isGhostSessionActive(db, tenantId, sessionId)` là bridge chỉ đọc trả boolean, ràng buộc tenant transaction,
+kiểm grant đã dùng/chưa thu hồi/hạn phiên và trạng thái admin/tenant. Không mở quyền đọc `GhostGrant`
+hay `PlatformAdmin` cho runtime. Tạo và đổi ghost grant vẫn do luồng ghost riêng đảm nhiệm.
+
 ## Migration section (E3-S09)
 
 `migrateSectionRow(row)` từ `@solar/db` nâng cả `data` và `draftData` trước khi parse,
@@ -230,7 +240,7 @@ Hai realm không có bảng/khóa nối nhau:
   `role`: `owner|admin|editor|staff|viewer|client`. `SiteSession` (`audience admin|storefront`, `kind user|ghost` — ghost chỉ
   `admin`, CHECK), `SiteToken` (lời mời, xác minh email, đặt lại mật khẩu, magic link).
 - `PlatformAdmin` (email unique toàn hệ thống), `PlatformSession`, `GhostGrant`, `PlatformSetting`, `Customer`.
-- `passwordHash`/`totpSecret` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
+- `passwordHash`/`totpSecret`/`totpBackupCodes` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
   `omit: { passwordHash: false }`. `forTenant(id).siteUser|siteSession|siteToken` theo tenant như các bảng khác;
   `forPlatform(platformDb)` có `customer`, `platformAdmin`, `platformSession`, `ghostGrant`, `platformSetting`.
 - `Tenant.slug` (= subdomain) có CHECK định dạng nhãn DNS 3–63 ký tự, không `--`, không thuộc danh sách dành riêng;

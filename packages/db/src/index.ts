@@ -1,7 +1,7 @@
 export { createDb, createPlatformDb, loadDisabledFeatures, POOL_BUDGET } from "./client.ts";
 export type { Db, PlatformDb } from "./client.ts";
 export { withTenantTransaction } from "./tenantTransaction.ts";
-export { redeemGhostGrant } from "./ghost.ts";
+export { redeemGhostGrant, isGhostSessionActive } from "./ghost.ts";
 export { forTenant, forPlatform } from "./repository.ts";
 export { migrateSectionRow } from "./sectionContent.ts";
 export { createLead } from "./leads.ts";

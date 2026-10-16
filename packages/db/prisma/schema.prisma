@@ -209,6 +209,7 @@ model PlatformAdmin {
   name         String
   passwordHash String
   totpSecret   String?
+  totpBackupCodes String[] @default([])
   status       AccountStatus     @default(active)
   lastLoginAt  DateTime?
   sessions     PlatformSession[]
@@ -276,6 +277,7 @@ model SiteUser {
   mustChangePassword    Boolean        @default(false)
   tempPasswordExpiresAt DateTime?
   totpSecret            String?
+  totpBackupCodes       String[]       @default([])
   lastLoginAt           DateTime?
   failedLogins          Int            @default(0)
   lockedUntil           DateTime?

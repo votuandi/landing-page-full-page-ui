@@ -25,7 +25,7 @@ type Repository<D> = {
   get(id: string): Promise<Prisma.Result<D, object, "findFirst">>;
   count<A extends ScopedArgs<Prisma.Args<D, "count">>>(args?: A): Promise<Prisma.Result<D, A, "count">>;
   create(data: WriteData<D, "create">): Promise<Prisma.Result<D, object, "create">>;
-  update(id: string, data: WriteData<D, "updateMany">): Promise<{ count: number }>;
+  update(id: string, data: WriteData<D, "updateMany">, expected?: WithoutTenant<NonNullable<Prisma.Args<D, "updateMany">["where"]>>): Promise<{ count: number }>;
   delete(id: string): Promise<{ count: number }>;
 };
 type SectionCreate = Omit<WriteData<Db["sectionContent"], "create">, "schemaVersion"> & { schemaVersion?: number };
@@ -93,7 +93,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
         await checkRefs(name, data);
         return delegate.create({ data: { ...data, tenantId } });
       },
-      async update(id: string, input: Input) {
+      async update(id: string, input: Input, expected: Input = {}) {
         const data = clean(input);
         if (name === "sectionContent") {
           if (Object.hasOwn(data, "type")) throw new Error("Section type is immutable; create a new section to change type");
@@ -101,7 +101,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
             const existing = await db.sectionContent.findFirst({ where: { id, tenantId }, select: { type: true, schemaVersion: true, data: true, draftData: true } });
             if (!existing) return { count: 0 };
             const next = { ...data };
-            const where: Input = { id, tenantId };
+            const where: Input = { ...clean(expected), id, tenantId };
             if (data.data !== undefined || data.draftData !== undefined) {
               const def = sectionRegistry.getType(existing.type);
               if (!def) throw new Error(`[sections] unknown section type ${existing.type}`);
@@ -127,7 +127,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
           }
           throw new Error(`SectionContent ${id} changed during migration; retry saving`);
         } else await checkRefs(name, data);
-        return delegate.updateMany({ where: { id, tenantId }, data });
+        return delegate.updateMany({ where: { ...clean(expected), id, tenantId }, data });
       },
       delete: (id: string) => delegate.deleteMany({ where: { id, tenantId } }),
     };

@@ -15,6 +15,13 @@ const migrationsDir = new URL("../../prisma/migrations/", import.meta.url);
 const migrations = readdirSync(migrationsDir).filter((name) => /^\d+_/.test(name)).sort();
 const migration = migrations.map((name) => readFileSync(new URL(`${name}/migration.sql`, migrationsDir), "utf8")).join("\n");
 
+test("both authentication realms store backup hashes as non-null arrays", () => {
+  for (const name of ["SiteUser", "PlatformAdmin"]) {
+    assert.match(models.find(([, model]) => model === name)![2], /totpBackupCodes\s+String\[\]\s+@default\(\[\]\)/);
+    assert.ok(migration.includes(`ALTER TABLE public."${name}" ADD COLUMN "totpBackupCodes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`));
+  }
+});
+
 test("billing expiry is nullable, indexed by status and added without changing RLS or grants", () => {
   const tenant = models.find(([, name]) => name === "Tenant")![2];
   assert.match(tenant, /planExpiresAt\s+DateTime\?/);

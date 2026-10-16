@@ -50,6 +50,7 @@ erDiagram
     String name
     String passwordHash
     String totpSecret
+    String_array totpBackupCodes
     AccountStatus status
     DateTime lastLoginAt
     DateTime createdAt
@@ -99,6 +100,7 @@ erDiagram
     Boolean mustChangePassword
     DateTime tempPasswordExpiresAt
     String totpSecret
+    String_array totpBackupCodes
     DateTime lastLoginAt
     Int failedLogins
     DateTime lockedUntil
