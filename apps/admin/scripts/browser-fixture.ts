@@ -3,7 +3,7 @@ import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueu
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
 
-const platformDomain = process.env.E2E_PLATFORM_DOMAIN ?? "solar.example.com";
+const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const fixtures = [
   { id: "e7000000-0000-4000-8000-000000000001", slug: "admin-e7-a", status: "active" as const },
   { id: "e7000000-0000-4000-8000-000000000002", slug: "admin-e7-b", status: "active" as const },

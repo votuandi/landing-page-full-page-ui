@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
-const platformDomain = process.env.E2E_PLATFORM_DOMAIN ?? "solar.example.com";
+const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const origin = (slug = "admin-e7-a") => `http://${slug}.admin.${platformDomain}:3300`;
 const password = () => `${process.env.SEED_PASSWORD!}-t15`;
 async function apiSession(page: Page, slug = "admin-e7-a") {
@@ -112,6 +112,8 @@ test("owner enables TOTP, receives one-use backups, and magic link still needs T
   const backups = page.getByRole("list", { name: "Mã dự phòng" });
   await expect(backups.locator("li")).toHaveCount(10);
   const backup = (await backups.locator("li").first().textContent())!;
+  // TOTP steps already used are rejected (replay protection), so later steps use unused backup codes.
+  const [magicBackup, disableBackup] = [(await backups.locator("li").nth(1).textContent())!, (await backups.locator("li").nth(2).textContent())!];
   await page.getByRole("button", { name: "Đăng xuất", exact: true }).click();
   await login(page);
   await expect(page.getByRole("heading", { name: "Xác thực hai bước" })).toBeVisible();
@@ -131,11 +133,11 @@ test("owner enables TOTP, receives one-use backups, and magic link still needs T
   await page.goto(fixture("mail", "magic_link"));
   await page.getByRole("button", { name: "Tiếp tục đăng nhập" }).click();
   await expect(page).toHaveURL(/buoc=magic-totp/);
-  await page.getByLabel("Mã xác thực hoặc mã dự phòng").fill(fixture("totp"));
+  await page.getByLabel("Mã xác thực hoặc mã dự phòng").fill(magicBackup);
   await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin() + "/tai-khoan/bao-mat");
-  await page.getByRole("heading", { name: "Tắt xác thực hai bước", exact: true }).locator("..").getByLabel("Mã xác thực hoặc mã dự phòng").fill(fixture("totp"));
+  await page.getByRole("heading", { name: "Tắt xác thực hai bước", exact: true }).locator("..").getByLabel("Mã xác thực hoặc mã dự phòng").fill(disableBackup);
   await page.getByRole("button", { name: "Tắt xác thực hai bước", exact: true }).click();
   await expect(page.getByText("Đã tắt xác thực hai bước", { exact: true })).toBeVisible();
   expect(errors).toEqual([]);

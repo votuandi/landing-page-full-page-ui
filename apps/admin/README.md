@@ -65,9 +65,9 @@ pnpm --filter @solar/visual exec playwright test --config playwright.admin.confi
 
 Integration cần `DATABASE_URL` và `PLATFORM_DATABASE_URL`; thiếu env skip có lý do, không mở connection khi import.
 Suite đóng DB trong after/finally. E2E cần seed demo (`SEED_PASSWORD`), fixture tenant riêng `[DỮ LIỆU MẪU]`,
-ghi invalidation qua Outbox, setup trước warm-up route và cleanup sau test. E2E dùng `E2E_PLATFORM_DOMAIN`
-(mặc định `solar.example.com`, chung với preview), Chromium ánh xạ về loopback bằng host-resolver-rules;
-CI thêm host fixture tương ứng vào `/etc/hosts`. Lệnh trên chỉ chạy config admin.
+ghi invalidation qua Outbox, setup trước warm-up route và cleanup sau test. E2E dùng `ADMIN_E2E_PLATFORM_DOMAIN`
+(mặc định `solar.localhost`; Chromium tự phân giải `*.localhost`). Không dùng miền công khai giả như preview: Chromium
+chặn tải JS từ miền công khai trỏ về loopback (Local Network Access) nên trang 403 cần JS hiện trắng. Lệnh trên chỉ chạy config admin.
 
 Dependency dùng phiên bản đã có: Next/React cho app; workspace auth/db cho phiên/RLS, core/ui/tokens/themes
 theo kiến trúc; zod validate; ioredis chia sẻ giới hạn đăng nhập. Không thêm thư viện QR/email provider.

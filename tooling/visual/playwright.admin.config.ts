@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 process.env.ADMIN_SESSION_SECRET ??= "admin-e2e-session-secret-0123456789abcdef";
 
-const platformDomain = process.env.E2E_PLATFORM_DOMAIN ??= "solar.example.com";
+const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ??= "solar.localhost";
 
 export default defineConfig({
   testDir: ".", testMatch: "admin.spec.ts", workers: 1, retries: process.env.CI ? 1 : 0, timeout: 120_000,
