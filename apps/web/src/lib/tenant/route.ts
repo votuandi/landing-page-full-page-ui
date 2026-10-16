@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { loadTenantSite } from "./siteData";
 import { parseTenantContext } from "./routeContext";
 
@@ -18,6 +19,8 @@ export const placeholderParams = () => [{ tenantId: BUILD_PLACEHOLDER, siteId: B
 export const tenantRoute = cache(async (tenantId: string, siteId: string, ctx: string) => {
   const context = parseTenantContext(ctx);
   if (!context || tenantId === BUILD_PLACEHOLDER) notFound();
+  // Request-time route (approved blocking): the process data cache reads the clock outside `"use cache"` scopes.
+  await connection();
   if (context.preview && !(await draftMode()).isEnabled) notFound();
   const site = await loadTenantSite(tenantId, siteId, context.locale === "auto" ? undefined : context.locale);
   if (!site) notFound();

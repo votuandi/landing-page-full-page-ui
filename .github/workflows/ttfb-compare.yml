@@ -94,6 +94,7 @@ jobs:
           done
       - name: Measure TTFB (a = base, b = head)
         run: |
+          set -o pipefail
           for path in / /lien-he /san-pham; do
             out="$RUNNER_TEMP/ttfb$(echo "$path" | tr / -).json"
             node tooling/visual/ttfb.mjs "http://t15.localhost:3300$path" "http://t15.localhost:3301$path" --n 50 | tee "$out"

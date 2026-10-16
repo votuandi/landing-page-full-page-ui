@@ -165,11 +165,11 @@ Giỏ tra toàn bộ SKU published, độc lập query trưng bày của widget.
 dùng dữ liệu tenant; service `data.segment` chọn công trình liên quan, `data.steps` tùy chọn thay quy trình mặc định.
 
 Locale tenant: proxy đọc cookie `solar-locale` và ghi vào segment `[ctx]` (E5-S06), trang kiểm với `Site.locales`; không hợp lệ thì dùng defaultLocale được phép.
-Nút VI/EN cập nhật cookie rồi `router.refresh()` để DTO, server slots, chrome/widget và metadata đổi cùng nhau, kể cả
+Nút VI/EN cập nhật cookie rồi tải lại trang (locale là root param `ctx`, đổi root layout) để DTO, server slots, chrome/widget và metadata đổi cùng nhau, kể cả
 tải lại hoặc điều hướng client. Metadata detail ưu tiên ảnh record, fallback ảnh SEO site; description fallback SEO →
 profile → tên site. Theme switch chỉ hiện khi theme hỗ trợ dark và profile bật switcher.
 Nguồn: [Next cookies](https://nextjs.org/docs/app/api-reference/functions/cookies),
-[Next router.refresh](https://nextjs.org/docs/app/api-reference/functions/use-router).
+[Next root layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout#root-layout).
 
 Hook section/widget hiện tra features của **gói cơ sở** bằng `@solar/plans`; không cộng addons/trial/limits.
 Gating quyền đầy đủ của route/metadata/CTA/provider/API thuộc E6-S02. Nhánh API legacy giữ hành vi hiện có.
