@@ -72,10 +72,12 @@ jobs:
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
-        run: echo '127.0.0.1 preview-e5-t15.solar.localhost preview-e5-t12.solar.localhost preview-e5-t15.preview.solar.localhost preview-e5-t12.preview.solar.localhost preview-e5-t15.admin.solar.localhost' | sudo tee -a /etc/hosts
+        run: echo '127.0.0.1 preview-e5-t15.solar.localhost preview-e5-t12.solar.localhost preview-e5-t15.preview.solar.localhost preview-e5-t12.preview.solar.localhost preview-e5-t15.admin.solar.localhost admin-e7-a.admin.solar.localhost admin-e7-b.admin.solar.localhost nang-luong-solar.admin.solar.localhost admin-e7-paused.admin.solar.localhost missing.admin.solar.localhost' | sudo tee -a /etc/hosts
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
+      - run: pnpm --filter admin test
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -83,6 +85,7 @@ jobs:
           path: |
             tooling/visual/test-results/tenant
             tooling/visual/test-results/preview
+            tooling/visual/test-results/admin
   verify:
     strategy:
       fail-fast: false
