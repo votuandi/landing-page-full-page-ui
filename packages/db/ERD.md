@@ -131,6 +131,15 @@ erDiagram
     DateTime usedAt
     DateTime createdAt
   }
+  PreviewToken {
+    String id PK
+    String tenantId
+    String siteId
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime usedAt
+    DateTime createdAt
+  }
   Domain {
     String id PK
     String tenantId
@@ -442,6 +451,8 @@ erDiagram
   Tenant ||--o{ SiteSession : "tenantId"
   SiteUser ||--o{ SiteToken : "tenantId, siteUserId"
   Tenant ||--o{ SiteToken : "tenantId"
+  Tenant ||--o{ PreviewToken : "tenantId"
+  Site ||--o{ PreviewToken : "tenantId, siteId"
   Site ||--o{ Domain : "tenantId, siteId"
   Tenant ||--o{ Domain : "tenantId"
   Tenant ||--o{ Site : "tenantId"

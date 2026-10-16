@@ -225,6 +225,9 @@ importers:
       '@solar/plans':
         specifier: workspace:*
         version: link:../plans
+      '@solar/presets':
+        specifier: workspace:*
+        version: link:../presets
       '@solar/sections':
         specifier: workspace:*
         version: link:../sections
@@ -238,9 +241,6 @@ importers:
       '@solar/config':
         specifier: workspace:*
         version: link:../config
-      '@solar/presets':
-        specifier: workspace:*
-        version: link:../presets
       '@types/node':
         specifier: 20.19.37
         version: 20.19.37

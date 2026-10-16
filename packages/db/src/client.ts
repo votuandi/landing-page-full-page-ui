@@ -2,7 +2,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/client.ts";
 import { assertNoCrossTenantConnect, assertNoPlatformTraversal } from "./tenantGuard.ts";
 import { assertTenantScoped, MissingTenantError, optionalTenantModels, tenantModels } from "./tenantScope.ts";
-import type { HostRecord } from "./repository.ts";
+import type { HostRecord, SlugRecord } from "./repository.ts";
 
 const scopedModels = new Set<string>([...tenantModels, ...optionalTenantModels]);
 const secret = { passwordHash: true, totpSecret: true, totpBackupCodes: true } as const;
@@ -101,6 +101,12 @@ export function isPlatformDb(db: Db | PlatformDb): db is PlatformDb { return pla
 export async function resolveTenantHost(db: Db | PlatformDb, hostname: string): Promise<HostRecord | null> {
   await checkConnection(db);
   const rows = await internalClient(db).$queryRaw<HostRecord[]>`SELECT * FROM public.resolve_tenant_host(${hostname})`;
+  return rows[0] ?? null;
+}
+
+export async function resolveTenantSlug(db: Db | PlatformDb, slug: string): Promise<SlugRecord | null> {
+  await checkConnection(db);
+  const rows = await internalClient(db).$queryRaw<SlugRecord[]>`SELECT * FROM public.resolve_tenant_slug(${slug})`;
   return rows[0] ?? null;
 }
 

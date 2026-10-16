@@ -33,7 +33,7 @@ test("Postgres plan changes: actor/before/after audit, no-op, atomic rollback an
     assert.deepEqual(await tenants.changePlan({ actorId, tenantId, changes: {} }), { changed: false });
     assert.equal(await repo.auditLog.count(), 1); assert.equal(await repo.outbox.count(), 2);
     // Runtime credentials cannot acquire the platform mutation surface (including by casting).
-    assert.equal("tenants" in forPlatform(db), false);
+    assert.deepEqual(Object.keys(forPlatform(db).tenants), ["bySlug"]);
 
     // A real database failure on the outbox insert rolls back the tenant update and the audit row.
     if (process.env.TEST_OWNER_DATABASE_URL) {

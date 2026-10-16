@@ -1,6 +1,6 @@
 // schema.test.ts forces every new tenant model to be classified here.
 export const tenantModels = [
-  "SiteUser", "SiteSession", "SiteToken", "Domain", "Site", "Page", "PageVersion", "SectionContent", "Product", "ProductCategory",
+  "SiteUser", "SiteSession", "SiteToken", "PreviewToken", "Domain", "Site", "Page", "PageVersion", "SectionContent", "Product", "ProductCategory",
   "Project", "Story", "Post", "Faq", "Testimonial", "Branch", "Certificate", "Brand", "PressItem",
   "Service", "Media", "Lead", "LeadIntegration",
 ] as const;

@@ -56,7 +56,7 @@ test("guard classifies every schema relation by its target model", () => {
 });
 
 test("schema includes every platform, content and delivery model", () => {
-  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration AuditLog".split(" ");
+  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken PreviewToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration AuditLog".split(" ");
   assert.deepEqual(models.map(([, name]) => name).sort(), expected.sort());
 });
 
@@ -82,7 +82,7 @@ test("every content FK uses the tenant composite key without cascading tenant ch
       checked++;
     }
   }
-  assert.equal(checked, 16, "must inspect all composite relations in this schema");
+  assert.equal(checked, 17, "must inspect all composite relations in this schema");
 });
 
 test("SQL migrations enforce the same tenant identities and composite foreign keys", () => {
@@ -96,7 +96,7 @@ test("SQL migrations enforce the same tenant identities and composite foreign ke
     assert.match(target, /^"tenantId", "\w+"$/, `${source} -> ${relation}`);
     checked++;
   }
-  assert.equal(checked, 16);
+  assert.equal(checked, 17);
 });
 
 test("account migration keeps DB checks in sync with core slug rules (D17, D21)", () => {

@@ -1,5 +1,30 @@
 # @solar/db
 
+## Draft / Publish / Preview (E5-S07)
+
+`saveDraft(db, tenantId, { pageId, expectedRevision, draftSections?, sections?, actor })` khóa dòng Page bằng
+compare-and-swap revision, tăng revision và lưu nháp trong một transaction. `sections` gồm
+`{ sectionId, type, draftData }`; dữ liệu được parse theo schema chung của type, tham chiếu vẫn kiểm cùng tenant.
+Không invalidate khi lưu nháp. `actor` nhận đúng một trong `siteUserId` / `platformAdminId`; caller phải xác thực
+và kiểm permission trước khi gọi. Cấu trúc được kiểm bằng `validateSiteStructure` theo quyền/gói hiện hành;
+bố cục published hiện tại là baseline cho các phần gói không cho sửa.
+
+`publishPage(db, tenantId, { pageId, expectedRevision, actor })` dùng cùng khóa revision, chép toàn bộ nháp sang
+published, xóa nháp về SQL NULL, tạo PageVersion và Outbox invalidate trong cùng transaction. Xung đột ném
+`RevisionConflictError.currentRevision` (null nếu không có trang trong tenant), không ghi đè. Trang home và lần
+đầu xuất bản còn invalidate site tag để header/footer và danh sách trang/sitemap được làm mới.
+Mọi writer của Page phải dùng các primitive này để giữ hợp đồng revision; không sửa SectionContent riêng khi xuất bản.
+
+`withTenantTransaction(db, tenantId, work, { isolationLevel: "RepeatableRead" })` cho phép đọc Page và
+SectionContent từ cùng snapshot; mặc định vẫn giữ isolation cũ. Web dùng snapshot cho cả published và draft,
+draft bỏ qua content cache. Có thể chọn `Serializable` khi caller cần mức cô lập cao hơn.
+
+`createPreviewToken(db, tenantId, siteId, { ttlMs? })` trả token ngẫu nhiên 32 byte, DB chỉ lưu SHA-256,
+TTL mặc định/tối đa 10 phút. `consumePreviewToken(db, tenantId, token)` tiêu thụ bằng UPDATE nguyên tử,
+trả `{ siteId }` hoặc null khi hết hạn, đã dùng, sai tenant hay token lỗi. PreviewToken có FK cùng tenant và FORCE RLS.
+`forPlatform(db).tenants.bySlug(slug)` dùng bridge SECURITY DEFINER chỉ trả tenantId/siteId/status để chọn host;
+runtime không nhận các API ghi của platform.
+
 ## Hỗ trợ xác thực (E15-S01)
 
 `SiteUser` và `PlatformAdmin` lưu `totpBackupCodes` dạng mảng hash SHA-256, mặc định rỗng.
