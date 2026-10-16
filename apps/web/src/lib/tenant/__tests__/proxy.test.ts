@@ -5,6 +5,7 @@ import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import type { HostRecord } from "@solar/db";
 import { createProxy } from "../proxy";
 import { config } from "../../../proxy";
+import { signPreviewCookie } from "../preview";
 
 const records: HostRecord[] = ["a", "b", "c"].map((name) => ({
   hostname: `${name}.localhost`, tenantId: `tenant-${name}`, siteId: `site-${name}`,
@@ -13,6 +14,31 @@ const records: HostRecord[] = ["a", "b", "c"].map((name) => ({
 const request = (host: string, path = "/", extra: Record<string, string> = {}) => new NextRequest(`http://untrusted.localhost${path}`, { headers: { host, ...extra } });
 const resolver = { resolve: async (host: string) => records.find((value) => value.hostname === host) ?? null };
 const proxy = createProxy(resolver, { enabled: true, production: false });
+
+test("preview requires a tenant/site MAC cookie; entry bypasses cookie and every response is private/noindex with admin CSP", async t => {
+  const previous = { PLATFORM_DOMAIN: process.env.PLATFORM_DOMAIN, PREVIEW_SECRET: process.env.PREVIEW_SECRET };
+  process.env.PLATFORM_DOMAIN = "localhost";
+  process.env.PREVIEW_SECRET = "preview-test-secret-0123456789abcdef";
+  t.after(() => { for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
+  const record = { ...records[0], hostname: "a.preview.localhost", isPrimary: false, primaryHost: "a.localhost" };
+  const preview = createProxy({ resolve: async () => record }, { enabled: true, production: false });
+  for (const cookie of [undefined, "forged", await signPreviewCookie("tenant-b", "site-a"), await signPreviewCookie("tenant-a", "site-b"),
+    await signPreviewCookie("tenant-a", "site-a", undefined, Date.now() - 3_600_001)]) {
+    const response = await preview(request(record.hostname, "/", cookie ? { cookie: `preview=${cookie}` } : {}));
+    assert.equal(response.status, 401);
+    assert.equal(response.headers.get("cache-control"), "private, no-store");
+    assert.equal(response.headers.get("x-robots-tag"), "noindex");
+    assert.equal(response.headers.get("content-security-policy"), "frame-ancestors http://a.admin.localhost");
+  }
+  const entry = await preview(request(record.hostname, "/api/preview?token=x"));
+  assert.equal(entry.headers.get("x-middleware-request-x-preview"), "1");
+  assert.equal(entry.headers.has("x-middleware-rewrite"), false);
+  const response = await preview(request(record.hostname, "/lien-he", { cookie: `preview=${await signPreviewCookie("tenant-a", "site-a")}` }));
+  assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, "/sites/site-a/lien-he");
+  assert.equal(response.headers.get("x-middleware-request-x-preview"), "1");
+  const publicResponse = await proxy(request("a.localhost", "/", { "x-preview": "1" }));
+  assert.equal(publicResponse.headers.get("x-middleware-request-x-preview"), null);
+});
 
 test("three hosts select three tenants and keep path and search in the rewrite", async () => {
   for (const record of records) {

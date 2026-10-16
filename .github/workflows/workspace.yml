@@ -10,7 +10,7 @@ on:
 jobs:
   db:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     services:
       redis:
         image: redis:7-alpine
@@ -37,6 +37,7 @@ jobs:
     env:
       REDIS_URL: redis://localhost:6379
       RLS_REQUIRED: "1"
+      E2E_PLATFORM_DOMAIN: solar.example.com
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -71,13 +72,24 @@ jobs:
       - run: pnpm db:seed
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
-      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - name: Resolve same-site preview and admin hosts in all browser engines
+        run: |
+          for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
+            echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
+          done
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
+      - run: pnpm --filter admin test
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tenant-browser-evidence
-          path: tooling/visual/test-results/tenant
+          path: |
+            tooling/visual/test-results/tenant
+            tooling/visual/test-results/preview
+            tooling/visual/test-results/admin
   verify:
     strategy:
       fail-fast: false

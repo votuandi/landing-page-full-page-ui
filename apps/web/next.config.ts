@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   compress: true,
   poweredByHeader: false,
+  // Single-use preview tokens must not appear in next dev request logs.
+  logging: { incomingRequests: { ignore: [/^\/api\/preview(?:\?|$)/] } },
   // Next 16.3.8 leaves stale canonical tags after streamed tenant metadata on client navigation.
   htmlLimitedBots: /.*/,
   // Không để `next dev` sinh AGENTS.md/CLAUDE.md trong apps/web — quy ước agent nằm ở AGENTS.md gốc

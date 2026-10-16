@@ -1,8 +1,8 @@
-import { headers } from "next/headers";
+import { headers, draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { PageRenderer, SiteWidgets, createCollectionLoader, type BranchItem } from "@solar/sections";
 import TenantSiteShell from "@/components/TenantSiteShell";
-import { loadPublishedPage, loadTenantSite, siteCanUse } from "@/lib/tenant/siteData";
+import { loadPublishedPage, loadDraftPage, loadTenantSite, siteCanUse } from "@/lib/tenant/siteData";
 import { tenantCollections, createTenantWidgetLoader } from "@/lib/tenant/collections";
 import { organizationJsonLd, siteOrigin } from "@/lib/tenant/seo";
 import { text } from "@/lib/tenant/contentSchemas";
@@ -12,9 +12,11 @@ export default async function TenantLayout({ children, params }: { children: Rea
   const { siteId } = await params;
   const request = await headers();
   if (request.get("x-site-id") !== siteId) notFound();
+  const preview = request.get("x-preview") === "1";
+  if (preview && !(await draftMode()).isEnabled) notFound();
   const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
   if (!site) notFound();
-  const home = await loadPublishedPage(site.tenantId, siteId, "", site.locale);
+  const home = await (preview ? loadDraftPage : loadPublishedPage)(site.tenantId, siteId, "", site.locale);
   if (!home) notFound();
   const canUse = siteCanUse(site);
   const collections = tenantCollections(site.tenantId, site.locale, site.siteId);

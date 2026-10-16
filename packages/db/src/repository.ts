@@ -1,6 +1,6 @@
 import { collectRefs, collectionSchemas, migrateSectionData, sectionRegistry } from "@solar/sections";
 import type { Prisma } from "../generated/client.ts";
-import { platformClient, resolveTenantHost, isPlatformDb, type Db, type PlatformDb } from "./client.ts";
+import { platformClient, resolveTenantHost, resolveTenantSlug, isPlatformDb, type Db, type PlatformDb } from "./client.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
@@ -25,7 +25,7 @@ type Repository<D> = {
   get(id: string): Promise<Prisma.Result<D, object, "findFirst">>;
   count<A extends ScopedArgs<Prisma.Args<D, "count">>>(args?: A): Promise<Prisma.Result<D, A, "count">>;
   create(data: WriteData<D, "create">): Promise<Prisma.Result<D, object, "create">>;
-  update(id: string, data: WriteData<D, "updateMany">): Promise<{ count: number }>;
+  update(id: string, data: WriteData<D, "updateMany">, expected?: WithoutTenant<NonNullable<Prisma.Args<D, "updateMany">["where"]>>): Promise<{ count: number }>;
   delete(id: string): Promise<{ count: number }>;
 };
 type SectionCreate = Omit<WriteData<Db["sectionContent"], "create">, "schemaVersion"> & { schemaVersion?: number };
@@ -93,7 +93,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
         await checkRefs(name, data);
         return delegate.create({ data: { ...data, tenantId } });
       },
-      async update(id: string, input: Input) {
+      async update(id: string, input: Input, expected: Input = {}) {
         const data = clean(input);
         if (name === "sectionContent") {
           if (Object.hasOwn(data, "type")) throw new Error("Section type is immutable; create a new section to change type");
@@ -101,7 +101,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
             const existing = await db.sectionContent.findFirst({ where: { id, tenantId }, select: { type: true, schemaVersion: true, data: true, draftData: true } });
             if (!existing) return { count: 0 };
             const next = { ...data };
-            const where: Input = { id, tenantId };
+            const where: Input = { ...clean(expected), id, tenantId };
             if (data.data !== undefined || data.draftData !== undefined) {
               const def = sectionRegistry.getType(existing.type);
               if (!def) throw new Error(`[sections] unknown section type ${existing.type}`);
@@ -127,7 +127,7 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
           }
           throw new Error(`SectionContent ${id} changed during migration; retry saving`);
         } else await checkRefs(name, data);
-        return delegate.updateMany({ where: { id, tenantId }, data });
+        return delegate.updateMany({ where: { ...clean(expected), id, tenantId }, data });
       },
       delete: (id: string) => delegate.deleteMany({ where: { id, tenantId } }),
     };
@@ -140,9 +140,9 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
 
 // Platform tables (D17–D19). Console writes must also record AuditLog (enforced with the console actor in E15-S02).
 export function forPlatform(db: PlatformDb): ReturnType<typeof platformRepository>;
-export function forPlatform(db: Db): { domains: { resolve(hostname: string): Promise<HostRecord | null> } };
+export function forPlatform(db: Db): { domains: { resolve(hostname: string): Promise<HostRecord | null> }; tenants: { bySlug(slug: string): Promise<SlugRecord | null> } };
 export function forPlatform(db: Db | PlatformDb) {
-  if (!isPlatformDb(db)) return { domains: { resolve: (hostname: string) => resolveTenantHost(db, hostname) } };
+  if (!isPlatformDb(db)) return { domains: { resolve: (hostname: string) => resolveTenantHost(db, hostname) }, tenants: { bySlug: (slug: string) => resolveTenantSlug(db, slug) } };
   return platformRepository(db);
 }
 function platformRepository(db: PlatformDb) {
@@ -157,6 +157,7 @@ function platformRepository(db: PlatformDb) {
     outbox: outboxRepository(db),
     billing: { run: (options?: { now?: Date }) => runBillingCron(db, options) },
     tenants: {
+      bySlug: (slug: string) => resolveTenantSlug(db, slug),
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),
       scanExpiredOverrides: (options?: { now?: Date }) => scanExpiredOverrides(db, options),
     },
@@ -167,3 +168,4 @@ export type HostRecord = {
   hostname: string; tenantId: string; siteId: string; status: DomainStatus;
   isPrimary: boolean; tenantStatus: TenantStatus; primaryHost: string | null;
 };
+export type SlugRecord = { tenantId: string; siteId: string; tenantStatus: TenantStatus };

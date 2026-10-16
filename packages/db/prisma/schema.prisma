@@ -159,6 +159,7 @@ model Tenant {
   siteUsers         SiteUser[]
   siteSessions      SiteSession[]
   siteTokens        SiteToken[]
+  previewTokens     PreviewToken[]
   ghostGrants       GhostGrant[]
   domains           Domain[]
   sites             Site[]
@@ -209,6 +210,8 @@ model PlatformAdmin {
   name         String
   passwordHash String
   totpSecret   String?
+  totpBackupCodes String[] @default([])
+  totpLastStep Int?
   status       AccountStatus     @default(active)
   lastLoginAt  DateTime?
   sessions     PlatformSession[]
@@ -276,6 +279,8 @@ model SiteUser {
   mustChangePassword    Boolean        @default(false)
   tempPasswordExpiresAt DateTime?
   totpSecret            String?
+  totpBackupCodes       String[]       @default([])
+  totpLastStep          Int?
   lastLoginAt           DateTime?
   failedLogins          Int            @default(0)
   lockedUntil           DateTime?
@@ -332,6 +337,22 @@ model SiteToken {
   @@index([tenantId, siteUserId])
 }
 
+model PreviewToken {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  tenantId   String   @db.Uuid
+  siteId     String   @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  site       Site     @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
+  @@index([tenantId, siteId])
+}
+
 model Domain {
   id                String       @id @default(uuid(7)) @db.Uuid
   tenantId          String       @db.Uuid
@@ -368,6 +389,7 @@ model Site {
   widgets         Json             @default("{}")
   seo             Json             @default("{}")
   domains         Domain[]
+  previewTokens   PreviewToken[]
   pages           Page[]
   sectionContents SectionContent[]
   leads           Lead[]

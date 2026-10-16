@@ -37,7 +37,7 @@
     "dev": {
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*", "DATABASE_URL", "REDIS_URL", "MULTI_TENANT"]
+      "passThroughEnv": ["NEXT_PUBLIC_*", "LEAD_*", "GOOGLE_SHEETS_*", "TELEGRAM_*", "DATABASE_URL", "REDIS_URL", "MULTI_TENANT", "PLATFORM_DOMAIN", "PREVIEW_SECRET", "ADMIN_SESSION_SECRET"]
     },
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": ["*.tsbuildinfo"] },
@@ -45,7 +45,9 @@
     "@solar/db#build": { "dependsOn": ["^build"], "outputs": ["generated/**"] },
     "@solar/db#typecheck": { "dependsOn": ["^typecheck", "build"], "outputs": ["generated/**", "*.tsbuildinfo"] },
     "@solar/db#test": { "dependsOn": ["^build", "build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL", "TEST_OWNER_DATABASE_URL", "MIGRATION_DATABASE_URL", "SEED_PASSWORD", "RLS_REQUIRED"] },
-    "web#test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL", "REDIS_URL"] },
+    "@solar/auth#test": { "dependsOn": ["^build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL", "REDIS_URL"] },
+    "web#test": { "dependsOn": ["^build"], "outputs": [".test-dist/**"], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL", "REDIS_URL", "PLATFORM_DOMAIN", "PREVIEW_SECRET"] },
+    "admin#test": { "dependsOn": ["^build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL", "REDIS_URL", "PLATFORM_DOMAIN", "ADMIN_SESSION_SECRET", "SEED_PASSWORD", "RLS_REQUIRED"] },
     "worker#test": { "dependsOn": ["^build"], "outputs": [], "cache": false, "passThroughEnv": ["DATABASE_URL", "PLATFORM_DATABASE_URL"] },
     "@solar/eslint-plugin#test": { "dependsOn": ["^build"], "outputs": [] },
     "@solar/themes#test": { "dependsOn": ["^build"], "outputs": [] },

@@ -1,18 +1,20 @@
 import { checkConnection, internalClient, type Db, type PlatformDb } from "./client.ts";
 import { createTenantRepo, type TenantRepo } from "./repository.ts";
 
+export type TransactionOptions = { isolationLevel?: "RepeatableRead" | "Serializable" };
+
 // Internal callback accepts SQL for the ghost bridge; public callers only receive TenantRepo.
 export async function tenantTransaction<T>(db: Db | PlatformDb, tenantId: string,
-  work: (tx: Parameters<Parameters<ReturnType<typeof internalClient>["$transaction"]>[0]>[0]) => Promise<T>): Promise<T> {
+  work: (tx: Parameters<Parameters<ReturnType<typeof internalClient>["$transaction"]>[0]>[0]) => Promise<T>, options?: TransactionOptions): Promise<T> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId)) throw new Error("tenantId must be a UUID");
   await checkConnection(db);
   return internalClient(db).$transaction(async tx => {
     await tx.$queryRaw`SELECT pg_catalog.set_config('app.tenant_id', ${tenantId.toLowerCase()}, true)`;
     return work(tx);
-  });
+  }, options);
 }
 
-export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, work: (repo: TenantRepo) => Promise<T>): Promise<T> {
+export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, work: (repo: TenantRepo) => Promise<T>, options?: TransactionOptions): Promise<T> {
   return tenantTransaction(db, tenantId, async tx => {
     const repo = createTenantRepo(tx, tenantId);
     let active = true;
@@ -39,5 +41,5 @@ export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, 
     }
     if (failures.length) throw failures[0];
     return result;
-  });
+  }, options);
 }

@@ -8,7 +8,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 
 ---
 
-### E11-S01 · API lead đa tenant
+### E11-S01 · API lead đa tenant ✅ · PR [#41](https://github.com/votuandi/landing-page-full-page-ui/pull/41)
 **Là** tenant, **tôi muốn** mọi lead từ site của tôi được lưu và không lẫn với khách khác, **để** không bỏ lỡ khách hàng.
 - **Chi tiết**: giữ hợp đồng của t15 (`POST /api/lead`: họ tên, SĐT di động VN, honeypot, `source`, `estimate`, `items`,
   `province`, `businessType`, `page`). Tenant xác định từ host (không tin trường gửi lên). Kiểm entitlement theo `source`.

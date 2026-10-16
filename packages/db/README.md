@@ -1,5 +1,43 @@
 # @solar/db
 
+## Draft / Publish / Preview (E5-S07)
+
+`saveDraft(db, tenantId, { pageId, expectedRevision, draftSections?, sections?, actor })` khóa dòng Page bằng
+compare-and-swap revision, tăng revision và lưu nháp trong một transaction. `sections` gồm
+`{ sectionId, type, draftData }`; dữ liệu được parse theo schema chung của type, tham chiếu vẫn kiểm cùng tenant.
+Không invalidate khi lưu nháp. `actor` nhận đúng một trong `siteUserId` / `platformAdminId`; caller phải xác thực
+và kiểm permission trước khi gọi. Cấu trúc được kiểm bằng `validateSiteStructure` theo quyền/gói hiện hành;
+bố cục published hiện tại là baseline cho các phần gói không cho sửa.
+
+`publishPage(db, tenantId, { pageId, expectedRevision, actor })` dùng cùng khóa revision, chép toàn bộ nháp sang
+published, xóa nháp về SQL NULL, tạo PageVersion và Outbox invalidate trong cùng transaction. Xung đột ném
+`RevisionConflictError.currentRevision` (null nếu không có trang trong tenant), không ghi đè. Trang home và lần
+đầu xuất bản còn invalidate site tag để header/footer và danh sách trang/sitemap được làm mới.
+Mọi writer của Page phải dùng các primitive này để giữ hợp đồng revision; không sửa SectionContent riêng khi xuất bản.
+
+`withTenantTransaction(db, tenantId, work, { isolationLevel: "RepeatableRead" })` cho phép đọc Page và
+SectionContent từ cùng snapshot; mặc định vẫn giữ isolation cũ. Web dùng snapshot cho cả published và draft,
+draft bỏ qua content cache. Có thể chọn `Serializable` khi caller cần mức cô lập cao hơn.
+
+`createPreviewToken(db, tenantId, siteId, { ttlMs? })` trả token ngẫu nhiên 32 byte, DB chỉ lưu SHA-256,
+TTL mặc định/tối đa 10 phút. `consumePreviewToken(db, tenantId, token)` tiêu thụ bằng UPDATE nguyên tử,
+trả `{ siteId }` hoặc null khi hết hạn, đã dùng, sai tenant hay token lỗi. PreviewToken có FK cùng tenant và FORCE RLS.
+`forPlatform(db).tenants.bySlug(slug)` dùng bridge SECURITY DEFINER chỉ trả tenantId/siteId/status để chọn host;
+runtime không nhận các API ghi của platform.
+
+## Hỗ trợ xác thực (E15-S01)
+
+`SiteUser` và `PlatformAdmin` lưu `totpBackupCodes` dạng mảng hash SHA-256, mặc định rỗng.
+Hai bảng có `totpLastStep Int?` để adapter auth ghi bước TOTP gần nhất bằng compare-and-swap,
+từ chối bước đã dùng hoặc cũ hơn. Migration `20261020000000_auth_totp_replay` thêm cột nullable
+(tài khoản hiện có bắt đầu ghi nhận từ lần xác thực tiếp theo); không đổi RLS hay quyền DB.
+Client mặc định omit `passwordHash`, `totpSecret`, `totpBackupCodes`; adapter `@solar/auth/db`
+chỉ opt-in khi xác thực. Repository `update(id, data, expected?)` hỗ trợ điều kiện so sánh trước khi ghi,
+luôn giữ filter id/tenant của repository; auth dùng để tiêu thụ backup code/đổi token nguyên tử.
+`isGhostSessionActive(db, tenantId, sessionId)` là bridge chỉ đọc trả boolean, ràng buộc tenant transaction,
+kiểm grant đã dùng/chưa thu hồi/hạn phiên và trạng thái admin/tenant. Không mở quyền đọc `GhostGrant`
+hay `PlatformAdmin` cho runtime. Tạo và đổi ghost grant vẫn do luồng ghost riêng đảm nhiệm.
+
 ## Migration section (E3-S09)
 
 `migrateSectionRow(row)` từ `@solar/db` nâng cả `data` và `draftData` trước khi parse,
@@ -230,7 +268,7 @@ Hai realm không có bảng/khóa nối nhau:
   `role`: `owner|admin|editor|staff|viewer|client`. `SiteSession` (`audience admin|storefront`, `kind user|ghost` — ghost chỉ
   `admin`, CHECK), `SiteToken` (lời mời, xác minh email, đặt lại mật khẩu, magic link).
 - `PlatformAdmin` (email unique toàn hệ thống), `PlatformSession`, `GhostGrant`, `PlatformSetting`, `Customer`.
-- `passwordHash`/`totpSecret` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
+- `passwordHash`/`totpSecret`/`totpBackupCodes` của `SiteUser` và `PlatformAdmin` bị **omit mặc định** ở client; lấy hash phải truyền
   `omit: { passwordHash: false }`. `forTenant(id).siteUser|siteSession|siteToken` theo tenant như các bảng khác;
   `forPlatform(platformDb)` có `customer`, `platformAdmin`, `platformSession`, `ghostGrant`, `platformSetting`.
 - `Tenant.slug` (= subdomain) có CHECK định dạng nhãn DNS 3–63 ký tự, không `--`, không thuộc danh sách dành riêng;

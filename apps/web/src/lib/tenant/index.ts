@@ -4,6 +4,7 @@ import { getWebDb } from "./db";
 import { normalizeHost } from "./host";
 import { createRedisCache } from "./redis";
 import { createHostResolver, type InvalidationBus } from "./resolver";
+import { previewSlug } from "./preview";
 
 const state = globalThis as typeof globalThis & { solarHostResolver?: ReturnType<typeof createHostResolver> };
 
@@ -17,7 +18,13 @@ export function getHostResolver() {
       subscribe: (callback) => { events.on("invalidate", callback); },
     };
     const cache = process.env.REDIS_URL ? createRedisCache(process.env.REDIS_URL) : { bus: localBus };
-    state.solarHostResolver = createHostResolver({ lookup: forPlatform(db).domains.resolve, ...cache });
+    const platform = forPlatform(db);
+    state.solarHostResolver = createHostResolver({ lookup: async host => {
+      const slug = previewSlug(host);
+      if (!slug) return platform.domains.resolve(host);
+      const record = await platform.tenants.bySlug(slug);
+      return record ? { ...record, hostname: host, status: "active", isPrimary: true, primaryHost: null } : null;
+    }, ...cache });
   }
   return state.solarHostResolver;
 }

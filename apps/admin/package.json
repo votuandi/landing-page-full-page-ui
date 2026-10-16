@@ -1,0 +1,41 @@
+{
+  "name": "admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack --port 3300",
+    "build": "next build --webpack",
+    "start": "next start --port 3300",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node scripts/test.mjs",
+    "lint:tokens": "solar-lint-tokens src"
+  },
+  "dependencies": {
+    "@solar/auth": "workspace:*",
+    "@solar/db": "workspace:*",
+    "@solar/core": "workspace:*",
+    "@solar/ui": "workspace:*",
+    "@solar/tokens": "workspace:*",
+    "@solar/themes": "workspace:*",
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "4.6.5",
+    "ioredis": "5.10.0"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@solar/eslint-plugin": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "autoprefixer": "^10.4.20",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.8",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.1",
+    "tsx": "4.23.15",
+    "typescript": "^5"
+  }
+}

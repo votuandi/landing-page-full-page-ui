@@ -28,17 +28,20 @@ hạn chế, **để** an toàn.
   - 2FA TOTP tùy chọn cho owner/admin (super admin có thể bắt buộc qua permission policy về sau).
   - Học từ luồng JWT của branch `develop` (`api/auth/*`) nhưng không lưu JWT trong localStorage.
 - **AC**:
-  - [ ] Seed: `owner@demo.vn` ở tenant A và B là hai tài khoản, mật khẩu khác nhau; đăng nhập ở `a.admin…` bằng mật khẩu của B → thất bại.
-  - [ ] Email/mật khẩu của `PlatformAdmin` (cùng `owner@demo.vn`) → thất bại ở mọi host admin.
-  - [ ] Tài khoản vai trò `client` (đúng mật khẩu) → không vào được CMS, không có route/API admin nào trả dữ liệu (D20).
-  - [ ] Chép cookie phiên của host A sang host B → 401.
-  - [ ] Đăng nhập bằng `0901234567` và `+84901234567` cùng ra một tài khoản.
-  - [ ] `nangluongsolar_admin` đăng nhập bằng mật khẩu tạm → chỉ vào được màn hình đổi mật khẩu (Server Action khác → 403);
+  - [x] Seed: `owner@demo.vn` ở tenant A và B là hai tài khoản, mật khẩu khác nhau; đăng nhập ở `a.admin…` bằng mật khẩu của B → thất bại.
+  - [x] Email/mật khẩu của `PlatformAdmin` (cùng `owner@demo.vn`) → thất bại ở mọi host admin.
+  - [x] Tài khoản vai trò `client` (đúng mật khẩu) → không vào được CMS, không có route/API admin nào trả dữ liệu (D20).
+  - [x] Chép cookie phiên của host A sang host B → 401.
+  - [x] Đăng nhập bằng `0901234567` và `+84901234567` cùng ra một tài khoản.
+  - [x] `nangluongsolar_admin` đăng nhập bằng mật khẩu tạm → chỉ vào được màn hình đổi mật khẩu (Server Action khác → 403);
         mật khẩu tạm quá 7 ngày → từ chối, hướng dẫn liên hệ hỗ trợ.
-  - [ ] Editor không vào được trang Tên miền, Gói, Tài khoản & nhân viên (UI ẩn + server 403).
-  - [ ] Mọi Server Action kiểm permission (test liệt kê tự động, fail khi có action mới chưa khai báo permission).
-  - [ ] 2FA TOTP tùy chọn cho owner.
+  - [x] Editor không vào được trang Tên miền, Gói, Tài khoản & nhân viên (UI ẩn + server 403).
+  - [x] Mọi Server Action kiểm permission (test liệt kê tự động, fail khi có action mới chưa khai báo permission).
+  - [x] 2FA TOTP tùy chọn cho owner.
 - Phụ thuộc: E15-S01 · Agent: Claude · Cỡ: L
+
+Bằng chứng E7-S01: admin 16/16 test (PostgreSQL/RLS thật), auth 25/25, E2E admin Chromium 4/4;
+typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR gộp: chờ Claude tạo và review/CI.
 
 ### E7-S02 · Khung admin & điều hướng
 - **Chi tiết**: layout admin dùng `packages/ui` + theme admin riêng (không theo theme tenant), dùng chung với `apps/console`;

@@ -48,7 +48,7 @@ bật/tắt theo gói, kiểm tra phía server.
   (hàm kill switch). Route upload chưa có — E8-S02 dùng `assertWithinLimit` + `entitlementResponse`. Báo cáo `.agent-runs/E6-S02/claude-report.md`.
 - Phụ thuộc: S01, E3-S03, E5-S10 · Agent: Codex · Cỡ: M
 
-### E6-S03 · Đổi gói → revalidate
+### E6-S03 · Đổi gói → revalidate ✅ · PR [#41](https://github.com/votuandi/landing-page-full-page-ui/pull/41)
 - **Chi tiết**: super admin đổi `planId`/`addons`/`featureOverrides`/`limitOverrides`/`permissionPolicy` trong console
   (E15-S03, E15-S05) → ghi `AuditLog` + Outbox invalidate tag `tenant:<id>` trong cùng transaction, gửi email/Telegram cho
   owner khi đổi gói. Override hết hạn: worker quét mỗi 5 phút và invalidate các tenant vừa hết hạn.
@@ -72,7 +72,7 @@ bật/tắt theo gói, kiểm tra phía server.
   thành công · [ ] Nâng gói lại → section khóa hiện lại với nguyên dữ liệu.
 - Phụ thuộc: S02, E7-S04 · Agent: Claude · Cỡ: S
 
-### E6-S05 · Thanh toán (giai đoạn sau)
+### E6-S05 · Thanh toán (giai đoạn sau) ✅ · PR [#41](https://github.com/votuandi/landing-page-full-page-ui/pull/41)
 - **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn trong console (E15-S03); cron nhắc gia hạn trước 14/7/1 ngày;
   hết hạn + 7 ngày ân hạn → `suspended`. Tích hợp cổng thanh toán VN (PayOS/VNPay) để ở backlog.
 - **AC**: [x] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).

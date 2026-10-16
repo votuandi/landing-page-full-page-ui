@@ -7,7 +7,7 @@ import { forPlatform } from "../repository.ts";
 test("runtime credentials cannot use platform plan mutations even through a type cast", async () => {
   const db = createDb({ url: "postgresql://app_runtime:unused@localhost/unused", pool: 1 });
   try {
-    assert.equal("tenants" in forPlatform(db), false);
+    assert.deepEqual(Object.keys(forPlatform(db).tenants), ["bySlug"]);
     await assert.rejects(changeTenantPlan(db as PlatformDb, {
       actorId: "00000000-0000-4000-8000-000000000001", tenantId: "00000000-0000-4000-8000-000000000002", changes: { planId: "basic" },
     }), /forPlatform requires createPlatformDb credentials/);

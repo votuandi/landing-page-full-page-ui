@@ -50,6 +50,8 @@ erDiagram
     String name
     String passwordHash
     String totpSecret
+    String_array totpBackupCodes
+    Int totpLastStep
     AccountStatus status
     DateTime lastLoginAt
     DateTime createdAt
@@ -99,6 +101,8 @@ erDiagram
     Boolean mustChangePassword
     DateTime tempPasswordExpiresAt
     String totpSecret
+    String_array totpBackupCodes
+    Int totpLastStep
     DateTime lastLoginAt
     Int failedLogins
     DateTime lockedUntil
@@ -124,6 +128,15 @@ erDiagram
     String tenantId
     String siteUserId
     SiteTokenPurpose purpose
+    String tokenHash UK
+    DateTime expiresAt
+    DateTime usedAt
+    DateTime createdAt
+  }
+  PreviewToken {
+    String id PK
+    String tenantId
+    String siteId
     String tokenHash UK
     DateTime expiresAt
     DateTime usedAt
@@ -440,6 +453,8 @@ erDiagram
   Tenant ||--o{ SiteSession : "tenantId"
   SiteUser ||--o{ SiteToken : "tenantId, siteUserId"
   Tenant ||--o{ SiteToken : "tenantId"
+  Tenant ||--o{ PreviewToken : "tenantId"
+  Site ||--o{ PreviewToken : "tenantId, siteId"
   Site ||--o{ Domain : "tenantId, siteId"
   Tenant ||--o{ Domain : "tenantId"
   Tenant ||--o{ Site : "tenantId"

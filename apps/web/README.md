@@ -1,5 +1,28 @@
 # web
 
+## Preview (E5-S07)
+
+Đặt `PLATFORM_DOMAIN` (miền gốc, không scheme/port) và `PREVIEW_SECRET` ngẫu nhiên ít nhất 32 byte.
+Host `<slug>.preview.<PLATFORM_DOMAIN>` tra tenant theo slug, không redirect về tên miền khách.
+Mở `/api/preview?token=…&path=/…` bằng token dùng một lần từ `@solar/db`; endpoint tạo token thuộc admin story sau.
+Entry bật Next Draft Mode và cookie HttpOnly ký MAC gắn tenant/site, hạn một giờ. Production dùng
+`__Host-preview; Secure; SameSite=Lax; Path=/`, không có Domain; dev dùng tên `preview`.
+Chỉ nhánh preview đọc Draft Mode, render nháp không qua content cache và vẫn kiểm entitlement như published.
+Thiếu/sai cookie trả 401; thiếu Draft Mode không render nháp. Host public bỏ qua header `x-preview` do client giả.
+Mọi response preview đặt noindex, private/no-store và CSP chỉ cho iframe từ admin cùng slug/miền/cổng.
+Redirect dùng path nội bộ tương đối; token không bị đưa tiếp sang URL đích.
+
+Kiểm iframe: `pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts --project chromium`.
+CI chạy cả Chromium/WebKit/Firefox. Preview e2e dùng `E2E_PLATFORM_DOMAIN` (admin e2e dùng `ADMIN_E2E_PLATFORM_DOMAIN`, mặc định `solar.localhost`) (mặc định `solar.example.com`),
+truyền thành `PLATFORM_DOMAIN` cho server và dùng chung trong fixture, URL và cookie assertions.
+Hậu tố `com` có trong Public Suffix List; libsoup/WebKit coi các host dưới `solar.localhost` là third-party vì
+không nhận diện hậu tố `localhost`, dù Chromium/Firefox coi chúng là same-site. Cookie ứng dụng vẫn `SameSite=Lax`.
+Chromium local có host-resolver-rules; WebKit/Firefox cần ánh xạ các host preview/public/admin về `127.0.0.1`
+ở DNS hoặc hosts (CI khai báo trong `workspace.yml`). Chỉ dùng miền e2e này khi đã ánh xạ về máy local.
+Chromium đánh dấu đúng origin HTTP admin giả là secure để cấp quyền local-network-access khi Playwright intercept
+(tương đương trust của `.localhost` trước đây); không đổi chính sách cookie hay bảo mật ứng dụng.
+Fixture dùng tenant riêng và gửi `POST /api/revalidate` có HMAC sau các thay đổi DB, không sửa tenant demo.
+
 ## Phân giải tên miền (E5-S03)
 
 `MULTI_TENANT=1` bật `src/proxy.ts` (Next 16, Node runtime); cần `DATABASE_URL` của role `app_runtime` (E5-S09).

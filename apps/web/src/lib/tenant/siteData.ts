@@ -1,7 +1,7 @@
 import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { forTenant, loadDisabledFeatures, type TenantRepo } from "@solar/db";
+import { forTenant, withTenantTransaction, loadDisabledFeatures, type TenantRepo } from "@solar/db";
 import { getTheme } from "@solar/themes";
 import { ThemeOverridesSchema } from "@solar/tokens";
 import { canUse, disabledFeaturesSchema, type EntitlementSubject } from "@solar/plans";
@@ -14,7 +14,9 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type SiteEntitlements = EntitlementSubject & { disabled: readonly string[] };
 // D19 for every render/API entry point: kill switch → tenant override → plan + addons + trial.
 export const siteCanUse = (site: { entitlements: SiteEntitlements }) => canUse(site.entitlements, { disabled: site.entitlements.disabled });
-export function createSiteData(repository: (tenantId: string) => TenantRepo, loadDisabled: () => Promise<readonly string[]> = async () => [], contentCache?: Pick<ContentCache, "cached">) {
+export type PageSnapshot = <T>(tenantId: string, work: (repo: TenantRepo) => Promise<T>) => Promise<T>;
+export function createSiteData(repository: (tenantId: string) => TenantRepo, loadDisabled: () => Promise<readonly string[]> = async () => [], contentCache?: Pick<ContentCache, "cached">,
+  snapshot: PageSnapshot = (tenantId, work) => withTenantTransaction(getWebDb(), tenantId, work, { isolationLevel: "RepeatableRead" })) {
   async function loadTenantSite(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
     const repo = repository(tenantId);
@@ -39,16 +41,19 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
         disabled: [] } satisfies SiteEntitlements,
       context: { tenantId, locale, themeId: theme.meta.id } };
   }
-  async function loadPublishedPage(tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") {
+  async function loadPage(tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi", draft = false) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
-    const repo = repository(tenantId);
-    const row = await repo.page.first({ where: { siteId, slug, publishedAt: { not: null } } });
-    if (!row) return null;
+    const loaded = await snapshot(tenantId, async repo => {
+      const row = await repo.page.first({ where: { siteId, slug, ...(!draft ? { publishedAt: { not: null } } : {}) } });
+      return row ? { row, contents: await repo.sectionContent.list({ where: { siteId, pageId: row.id } }) } : null;
+    });
+    if (!loaded) return null;
+    const { row, contents } = loaded;
     const context = { tenantId, siteId, pageId: row.id };
-    if (!Array.isArray(row.sections)) { console.error("[tenant] cấu hình page lỗi", context); return null; }
-    const contents = await repo.sectionContent.list({ where: { siteId, pageId: row.id } });
+    const layout = draft ? row.draftSections ?? row.sections : row.sections;
+    if (!Array.isArray(layout)) { console.error("[tenant] cấu hình page lỗi", context); return null; }
     const sections = [];
-    for (const raw of row.sections) {
+    for (const raw of layout) {
       const descriptor = pageSectionSchema.safeParse({ ...raw as object, data: undefined });
       if (!descriptor.success) { console.error("[tenant] mô tả section lỗi", context); continue; }
       const section = descriptor.data;
@@ -59,7 +64,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
       let data: unknown = def.defaults;
       try {
         if (!content) throw new Error("Missing published content");
-        data = def.schema.parse(migrateSectionData(def, content.schemaVersion, content.data).data);
+        data = def.schema.parse(migrateSectionData(def, content.schemaVersion, draft ? content.draftData ?? content.data : content.data).data);
       } catch { console.error("[tenant] dùng defaults section", detail); }
       sections.push({ ...section, data });
     }
@@ -77,7 +82,8 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
       // Platform kill switches must not be embedded in a tenant's long-lived site entry.
       return site ? { ...site, entitlements: { ...site.entitlements, disabled: disabledFeaturesSchema.parse(await loadDisabled()) } } : null;
     },
-    loadPublishedPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => read(() => loadPublishedPage(tenantId, siteId, slug, locale), cacheKey({ siteId, locale, mode: "published", parts: ["page", tenantId, slug] }), [tenantTag(tenantId), pageTag(tenantId, slug)]),
+    loadPublishedPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => read(() => loadPage(tenantId, siteId, slug, locale), cacheKey({ siteId, locale, mode: "published", parts: ["page", tenantId, slug] }), [tenantTag(tenantId), pageTag(tenantId, slug)]),
+    loadDraftPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => loadPage(tenantId, siteId, slug, locale, true),
     listPublishedPages: (tenantId: string, siteId: string) => read(() => listPublishedPages(tenantId, siteId), cacheKey({ siteId, locale: "vi", mode: "published", parts: ["pages", tenantId] }), [tenantTag(tenantId), siteTag(tenantId)]),
   };
 }
@@ -96,5 +102,6 @@ export const loadTenantSite = cache(async (tenantId: string, siteId: string) => 
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);
+export const loadDraftPage = cache(data.loadDraftPage);
 export const listPublishedPages = cache(data.listPublishedPages);
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;
