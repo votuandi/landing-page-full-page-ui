@@ -116,7 +116,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     cuối trong `.agent-runs/E5-S04/fix-r3-report.md`. CI/review sau commit và nhánh phát hành baseline base còn chờ.
 - Phụ thuộc: S02, S03, E3-S03 · Agent: Claude · Cỡ: L
 
-### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu
+### E5-S05 · Hợp đồng cache, tag & revalidate khi lưu ✅ · PR [#41](https://github.com/votuandi/landing-page-full-page-ui/pull/41)
 **Là** tenant, **tôi muốn** bấm "Lưu & xuất bản" là site cập nhật trong một phút, **để** tự chủ nội dung.
 - **Chi tiết**:
   - `packages/cache` định nghĩa hợp đồng: `cached(fn, { keyParts, tags })` + `invalidate(tags)`; bản cài bộ nhớ ở story này,
