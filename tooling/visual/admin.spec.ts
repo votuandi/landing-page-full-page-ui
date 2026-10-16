@@ -2,12 +2,13 @@ import { expect, test, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
-const origin = (slug = "admin-e7-a") => `http://${slug}.admin.solar.localhost:3300`;
+const platformDomain = process.env.E2E_PLATFORM_DOMAIN ?? "solar.example.com";
+const origin = (slug = "admin-e7-a") => `http://${slug}.admin.${platformDomain}:3300`;
 const password = () => `${process.env.SEED_PASSWORD!}-t15`;
 async function apiSession(page: Page, slug = "admin-e7-a") {
   const cookies = await page.context().cookies(origin(slug));
   return page.request.get("http://127.0.0.1:3300/api/session", { headers: {
-    Host: `${slug}.admin.solar.localhost:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "),
+    Host: `${slug}.admin.${platformDomain}:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "),
   } });
 }
 function fixture(...args: string[]) {
@@ -26,14 +27,14 @@ test.beforeAll(async ({ request }) => {
   fixture("setup");
   // Warm new routes before timing user flows against next dev.
   for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc"]) {
-    const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: "admin-e7-a.admin.solar.localhost:3300" }, timeout: 180_000 });
+    const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000 });
     expect(response.status(), path).toBeLessThan(500);
   }
 });
 test.afterAll(() => fixture("cleanup"));
 
 test("host errors have no login; cross-tenant/platform/client credentials and copied cookies are rejected", async ({ page, request }, info) => {
-  for (const [host, status] of [["missing.admin.solar.localhost", 404], ["admin-e7-paused.admin.solar.localhost", 403], ["solar.localhost", 404]] as const) {
+  for (const [host, status] of [[`missing.admin.${platformDomain}`, 404], [`admin-e7-paused.admin.${platformDomain}`, 403], [`${platformDomain}`, 404]] as const) {
     const response = await request.get("http://localhost:3300/dang-nhap", { headers: { Host: host } });
     expect(response.status()).toBe(status);
     expect(await response.text()).not.toContain('name="password"');
@@ -49,11 +50,11 @@ test("host errors have no login; cross-tenant/platform/client credentials and co
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   const session = (await page.context().cookies()).find(c => c.name === "site_sid")!;
-  expect(session.httpOnly).toBe(true); expect(session.sameSite).toBe("Lax"); expect(session.domain).toBe("admin-e7-a.admin.solar.localhost");
-  await page.context().addCookies([{ ...session, domain: "admin-e7-b.admin.solar.localhost" }]);
+  expect(session.httpOnly).toBe(true); expect(session.sameSite).toBe("Lax"); expect(session.domain).toBe(`admin-e7-a.admin.${platformDomain}`);
+  await page.context().addCookies([{ ...session, domain: `admin-e7-b.admin.${platformDomain}` }]);
   expect((await apiSession(page, "admin-e7-b")).status()).toBe(401);
   await page.context().clearCookies();
-  await page.context().addCookies([{ name: "site_sid", value: fixture("storefront"), domain: "admin-e7-a.admin.solar.localhost", path: "/", httpOnly: true, sameSite: "Lax" }]);
+  await page.context().addCookies([{ name: "site_sid", value: fixture("storefront"), domain: `admin-e7-a.admin.${platformDomain}`, path: "/", httpOnly: true, sameSite: "Lax" }]);
   expect((await apiSession(page)).status()).toBe(401);
   await page.goto(origin()); await expect(page).toHaveURL(/\/dang-nhap$/);
   await page.context().clearCookies();

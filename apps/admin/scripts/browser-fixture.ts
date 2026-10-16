@@ -3,6 +3,7 @@ import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueu
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
 
+const platformDomain = process.env.E2E_PLATFORM_DOMAIN ?? "solar.example.com";
 const fixtures = [
   { id: "e7000000-0000-4000-8000-000000000001", slug: "admin-e7-a", status: "active" as const },
   { id: "e7000000-0000-4000-8000-000000000002", slug: "admin-e7-b", status: "active" as const },
@@ -32,13 +33,13 @@ async function main() {
                 tempPasswordExpiresAt: new Date(Date.now() + (expired ? -1 : 7 * 86400_000)) });
             }
             // Fixture writes use the same durable invalidation contract as application writes.
-            await enqueueInvalidate(repo, [`tenant:${fixture.id}`], [`${fixture.slug}.admin.solar.localhost`]);
+            await enqueueInvalidate(repo, [`tenant:${fixture.id}`], [`${fixture.slug}.admin.${platformDomain}`]);
           });
         }
       } else {
         // Survives deletion of the tenant, so running subscribers can evict old entries.
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
-          payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.solar.localhost`] } })));
+          payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
     } else if (action === "totp") {
       const owner = await forTenant(db, tenantId).siteUser.first({ where: { email: "owner@demo.vn" }, omit: { totpSecret: false } });
@@ -69,7 +70,7 @@ async function main() {
         const realm = createRealm({ name: "site", secret: process.env.ADMIN_SESSION_SECRET!, secure: false, sessionTtl: 3600_000, idleTtl: 3600_000, store: siteStore(runtime, { audience: "admin" }), limiter });
         const owner = await realm.login({ identifier: "owner@demo.vn", password: `${password}-t15`, tenantId, ip: "fixture", userAgent: "Playwright", totp: process.argv[3] });
         if (!owner.ok) throw new Error("Owner fixture login failed");
-        const raw = await createAccounts({ db: runtime, realm, limiter }).createSiteInvite(owner.session, tenantId, { email: "staff-e2e@demo.vn", name: "[DỮ LIỆU MẪU] Staff", role: "staff" }, "http://admin-e7-a.admin.solar.localhost:3300");
+        const raw = await createAccounts({ db: runtime, realm, limiter }).createSiteInvite(owner.session, tenantId, { email: "staff-e2e@demo.vn", name: "[DỮ LIỆU MẪU] Staff", role: "staff" }, `http://admin-e7-a.admin.${platformDomain}:3300`);
         process.stdout.write(raw);
       } finally { await runtime.$disconnect(); }
     } else throw new Error("Unknown fixture action");

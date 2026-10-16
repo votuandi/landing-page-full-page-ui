@@ -3,6 +3,7 @@ import { createPlatformDb, forTenant, createPreviewToken, saveDraft } from "@sol
 import { signRevalidate, tenantTag } from "@solar/cache";
 import { sectionRegistry } from "@solar/sections";
 
+const platformDomain = process.env.E2E_PLATFORM_DOMAIN ?? "solar.example.com";
 const slugs = ["preview-e5-t15", "preview-e5-t12"];
 const port = process.env.TENANT_PUBLIC_PORT ?? "3212";
 async function main() {
@@ -18,7 +19,7 @@ async function main() {
         ids.push(tenant.id);
         const repo = forTenant(db, tenant.id);
         const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Preview", themeId: i ? "t12" : "t15" });
-        await repo.domain.create({ siteId: site.id, hostname: `${slug}.solar.localhost`, status: "active", isPrimary: true, verificationToken: randomUUID() });
+        await repo.domain.create({ siteId: site.id, hostname: `${slug}.${platformDomain}`, status: "active", isPrimary: true, verificationToken: randomUUID() });
         const user = await repo.siteUser.create({ name: "[DỮ LIỆU MẪU] Owner", role: "owner", email: "owner@example.invalid" });
         const descriptor = { id: "hero", type: "hero", variant: i ? "t12" : "t15", enabled: true };
         const hero = sectionRegistry.types.hero.defaults;
@@ -33,7 +34,7 @@ async function main() {
       if (ids.length) {
         const secret = process.env.REVALIDATE_SECRET;
         if (!secret) throw new Error("REVALIDATE_SECRET is required for browser fixtures");
-        const body = JSON.stringify({ tags: ids.map(tenantTag), hosts: slugs.flatMap(slug => [`${slug}.solar.localhost`, `${slug}.preview.solar.localhost`]),
+        const body = JSON.stringify({ tags: ids.map(tenantTag), hosts: slugs.flatMap(slug => [`${slug}.${platformDomain}`, `${slug}.preview.${platformDomain}`]),
           nonce: randomUUID(), ts: Date.now() });
         const response = await fetch(`http://localhost:${port}/api/revalidate`, {
           method: "POST", headers: { "Content-Type": "application/json", "x-signature": signRevalidate(body, secret) }, body,

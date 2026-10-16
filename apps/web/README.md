@@ -13,9 +13,14 @@ Mọi response preview đặt noindex, private/no-store và CSP chỉ cho iframe
 Redirect dùng path nội bộ tương đối; token không bị đưa tiếp sang URL đích.
 
 Kiểm iframe: `pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts --project chromium`.
-CI chạy cả Chromium/WebKit/Firefox. Fixture dùng `solar.localhost` làm miền gốc chung để cookie same-site hoạt động
-đúng như production (các host trực tiếp dưới `localhost` có registrable domain khác nhau).
-Chromium cấp quyền local-network-access riêng cho trang admin giả bị Playwright intercept; không đổi chính sách app.
+CI chạy cả Chromium/WebKit/Firefox. Preview/admin e2e dùng `E2E_PLATFORM_DOMAIN` (mặc định `solar.example.com`),
+truyền thành `PLATFORM_DOMAIN` cho server và dùng chung trong fixture, URL và cookie assertions.
+Hậu tố `com` có trong Public Suffix List; libsoup/WebKit coi các host dưới `solar.localhost` là third-party vì
+không nhận diện hậu tố `localhost`, dù Chromium/Firefox coi chúng là same-site. Cookie ứng dụng vẫn `SameSite=Lax`.
+Chromium local có host-resolver-rules; WebKit/Firefox cần ánh xạ các host preview/public/admin về `127.0.0.1`
+ở DNS hoặc hosts (CI khai báo trong `workspace.yml`). Chỉ dùng miền e2e này khi đã ánh xạ về máy local.
+Chromium đánh dấu đúng origin HTTP admin giả là secure để cấp quyền local-network-access khi Playwright intercept
+(tương đương trust của `.localhost` trước đây); không đổi chính sách cookie hay bảo mật ứng dụng.
 Fixture dùng tenant riêng và gửi `POST /api/revalidate` có HMAC sau các thay đổi DB, không sửa tenant demo.
 
 ## Phân giải tên miền (E5-S03)
