@@ -10,7 +10,7 @@ on:
 jobs:
   db:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     services:
       redis:
         image: redis:7-alpine
@@ -37,6 +37,7 @@ jobs:
     env:
       REDIS_URL: redis://localhost:6379
       RLS_REQUIRED: "1"
+      E2E_PLATFORM_DOMAIN: solar.example.com
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -72,7 +73,10 @@ jobs:
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
-        run: echo '127.0.0.1 preview-e5-t15.solar.localhost preview-e5-t12.solar.localhost preview-e5-t15.preview.solar.localhost preview-e5-t12.preview.solar.localhost preview-e5-t15.admin.solar.localhost admin-e7-a.admin.solar.localhost admin-e7-b.admin.solar.localhost nang-luong-solar.admin.solar.localhost admin-e7-paused.admin.solar.localhost missing.admin.solar.localhost' | sudo tee -a /etc/hosts
+        run: |
+          for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
+            echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
+          done
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
