@@ -27,8 +27,8 @@ const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
   "app/sites/[siteId]/[[...path]]/page.tsx": /siteCanUse\(site\)/, // routes, landing pages, PageRenderer
   "components/tenant/SystemPages.tsx": /siteCanUse\(site\)/, // system pages, cart, calculator CTA
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap
-  "lib/tenant/entitlements.ts": /assertCan\(/, // POST /api/lead (tenant)
-  "app/api/lead/route.ts": /createTenantLeadGate\(/,
+  "lib/tenant/leadIntake.ts": /assertCan\(/, // POST /api/lead (tenant)
+  "app/api/lead/route.ts": /tenantLeadHandler\(/,
 };
 const src = join(process.cwd(), "src");
 const files = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
@@ -42,6 +42,6 @@ test("100% of entry points check entitlements; nobody resolves plans directly", 
   const tenantEntries = files(join(src, "app")).map((path) => path.slice(src.length + 1).replaceAll("\\", "/"))
     .filter((path) => path.startsWith("app/sites/") || path.startsWith("app/api/"));
   assert.deepEqual(tenantEntries.filter((path) => !(path in ENTRY_POINTS)).sort(),
-    ["app/sites/[siteId]/robots.txt/route.ts", "app/sites/[siteId]/sitemap.xml/route.ts"], "robots has no gated content; sitemap delegates to seoData");
+    ["app/api/revalidate/route.ts", "app/sites/[siteId]/robots.txt/route.ts", "app/sites/[siteId]/sitemap.xml/route.ts"], "revalidate and robots have no gated content; sitemap delegates to seoData");
   for (const path of files(src)) assert.doesNotMatch(readFileSync(path, "utf8"), /\bgetPlan\(|\.features\.has\(|planCanUse/, path);
 });

@@ -29,7 +29,7 @@ bật/tắt theo gói, kiểm tra phía server.
 - Review và link PR: chờ Claude sau commit; chưa tuyên bố DoD hoàn tất.
 - Agent: Claude · Cỡ: S
 
-### E6-S02 · `can()` và `limit()` phía server · PR [#40](https://github.com/votuandi/landing-page-full-page-ui/pull/40)
+### E6-S02 · `can()` và `limit()` phía server ✅ · PR [#40](https://github.com/votuandi/landing-page-full-page-ui/pull/40)
 **Là** chủ dự án, **tôi muốn** tính năng ngoài gói không chạy dù ai đó sửa cấu hình, **để** không mất doanh thu.
 - **Chi tiết**: `can(site, feature)`, `limit(site, key)`, `assertCan()` (ném `EntitlementError` 403). Dùng ở:
   PageRenderer (bỏ section không đủ quyền — không render, không tải chunk), API lead (từ chối `source` thuộc tính năng bị tắt),
@@ -52,7 +52,11 @@ bật/tắt theo gói, kiểm tra phía server.
 - **Chi tiết**: super admin đổi `planId`/`addons`/`featureOverrides`/`limitOverrides`/`permissionPolicy` trong console
   (E15-S03, E15-S05) → ghi `AuditLog` + Outbox invalidate tag `tenant:<id>` trong cùng transaction, gửi email/Telegram cho
   owner khi đổi gói. Override hết hạn: worker quét mỗi 5 phút và invalidate các tenant vừa hết hạn.
-- **AC**: [ ] Thay đổi có hiệu lực ≤ 60 s · [ ] Audit log ghi người đổi, gói cũ, gói mới.
+- **AC**: [x] Thay đổi có hiệu lực ≤ 60 s · [x] Audit log ghi người đổi, gói cũ, gói mới.
+- Triển khai E6-S03: `changeTenantPlan` atomic update/audit/outbox, worker override-expiry + notification adapter mặc định ghi log.
+  Bằng chứng: `packages/db/src/__tests__/tenantPlan.int.test.ts` (audit actor/trước/sau, rollback bằng trigger DB, ghi đồng thời) và
+  `apps/web/src/lib/tenant/__tests__/revalidate.int.test.ts` (đổi gói → worker → entitlements mới < 60 s) PASS trên PostgreSQL 16 ở lượt test cuối chuỗi.
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
 ### E6-S04 · UI khóa tính năng trong CMS
@@ -71,5 +75,9 @@ bật/tắt theo gói, kiểm tra phía server.
 ### E6-S05 · Thanh toán (giai đoạn sau)
 - **Chi tiết**: giai đoạn đầu xuất hóa đơn thủ công, super admin gán gói và ngày hết hạn trong console (E15-S03); cron nhắc gia hạn trước 14/7/1 ngày;
   hết hạn + 7 ngày ân hạn → `suspended`. Tích hợp cổng thanh toán VN (PayOS/VNPay) để ở backlog.
-- **AC**: [ ] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
+- **AC**: [x] Cron nhắc và chuyển trạng thái chạy đúng (test với đồng hồ giả).
+- Triển khai E6-S05: ngày hết hạn nullable + migration/index, cron 14/7/1 ngày và khóa sau ân hạn 7 ngày,
+  audit/outbox atomic, invalidate host khi status đổi, mở lại khi gia hạn. Unit/schema/worker kiểm offline;
+  bằng chứng Postgres đồng hồ giả: `packages/db/src/__tests__/billing.int.test.ts` PASS ở lượt test cuối chuỗi (PostgreSQL 16).
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M

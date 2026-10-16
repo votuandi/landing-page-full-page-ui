@@ -148,6 +148,7 @@ model Tenant {
   slug              String            @unique
   status            TenantStatus      @default(trial)
   planId            String
+  planExpiresAt     DateTime?
   addons            String[]          @default([])
   customerId        String?           @db.Uuid
   featureOverrides  Json              @default("{}")
@@ -183,6 +184,8 @@ model Tenant {
   auditLogs         AuditLog[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+
+  @@index([status, planExpiresAt])
 }
 
 model Customer {

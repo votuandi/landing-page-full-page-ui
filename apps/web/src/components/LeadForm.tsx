@@ -3,6 +3,7 @@
 import { FormEvent, useId, useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile } from "@solar/core";
+import { TurnstileField, useFillTimer } from "@solar/sections";
 import type { Lead } from "@/lib/leads/types";
 import { SITE_CONFIG, primaryHotline, telHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
@@ -38,8 +39,12 @@ export default function LeadForm({
   const { tr } = useLang();
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
+  // Turnstile tokens are single-use: a failed submit needs a fresh one.
+  const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  // Tenant sites (service pages, quote cart) reject forms without these (E11-S01).
+  const elapsedMs = useFillTimer();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +59,7 @@ export default function LeadForm({
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, ...getExtra?.() }),
+        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, elapsedMs: elapsedMs(), ...getExtra?.() }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) throw new Error(data.message || "");
@@ -63,6 +68,7 @@ export default function LeadForm({
     } catch (e) {
       setError((e as Error).message || tr("Chưa gửi được thông tin.", "Could not send your details."));
       setStatus("error");
+      setFailures((n) => n + 1);
     }
   }
 
@@ -92,6 +98,7 @@ export default function LeadForm({
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {children && <div className={span}>{children}</div>}
+      <TurnstileField className={span} resetKey={failures} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? tr("Đang gửi…", "Sending…") : submitLabel || tr("Nhận báo giá chi tiết", "Get a detailed quote")}
       </button>

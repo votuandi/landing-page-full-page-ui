@@ -130,11 +130,21 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - Trang render theo yêu cầu (on-demand ISR), thời hạn dự phòng 24 h.
 - **Target**: p95 thời gian từ "Lưu" đến HTML mới ≤ 60 s; chỉ trang liên quan bị làm mới.
 - **AC**:
-  - [ ] Test e2e: sửa tiêu đề hero ở admin → `curl` trang chủ thấy tiêu đề mới ≤ 60 s; trang `/lien-he` không bị render lại.
-  - [ ] Test: hai tenant cùng slug, gọi xen kẽ A/B/A/B trên cùng instance → mỗi host luôn đúng dữ liệu của mình.
-  - [ ] Tag của A không làm mới trang của B.
-  - [ ] Tắt web lúc xuất bản → khi web lên lại, outbox vẫn revalidate (không mất lệnh).
-  - [ ] Endpoint revalidate từ chối chữ ký sai/nonce dùng lại, có rate-limit.
+  - [x] Test e2e: sửa tiêu đề hero ở admin → `curl` trang chủ thấy tiêu đề mới ≤ 60 s; trang `/lien-he` không bị render lại.
+  - [x] Test: hai tenant cùng slug, gọi xen kẽ A/B/A/B trên cùng instance → mỗi host luôn đúng dữ liệu của mình.
+  - [x] Tag của A không làm mới trang của B.
+  - [x] Tắt web lúc xuất bản → khi web lên lại, outbox vẫn revalidate (không mất lệnh).
+  - [x] Endpoint revalidate từ chối chữ ký sai/nonce dùng lại, có rate-limit.
+- Bằng chứng E5-S05: `packages/cache/src/__tests__/cache.test.ts` (tenant A/B, draft, TTL/LRU, single-flight,
+  render chậm, HMAC), web `revalidate.test.ts` (401/400/409/429/503, body limit, nonce), worker `invalidate.test.ts`
+  (web lỗi hai lần rồi thành công, nonce mới, retry Infinity). Typecheck/lint/unit test cache/db/web/worker qua;
+  web lint 0 error, 52 warning. Test tích hợp `revalidate.int.test.ts` đã viết, skip vì thiếu
+  `DATABASE_URL` + `PLATFORM_DATABASE_URL`: PASS ở lượt test cuối chuỗi (PostgreSQL 16 cục bộ, 15/10/2026).
+  E2E runtime thật (`next start` MULTI_TENANT + `apps/worker`): ghi hero t15 + outbox trong 1 transaction → `curl` trang chủ
+  thấy tiêu đề mới sau 261 ms, job `invalidate` `done` lần 1; đối chứng: sửa DB không invalidate → vẫn bản cache; t12 không đổi.
+  Tắt web lúc xuất bản → job `pending` (retry), bật web lại → `done` ở lần 3, trang hiện bản mới. Bước "sửa ở admin" giả lập
+  bằng script ghi DB (admin E7 chưa có). Test Redis nonce chỉ chạy trên CI.
+- PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S04, E11-S01 (bảng Outbox + worker; có thể làm trước phần outbox ở story này) · Agent: Claude · Cỡ: M
 
 ### E5-S06 · Bật Cache Components (Next 16)

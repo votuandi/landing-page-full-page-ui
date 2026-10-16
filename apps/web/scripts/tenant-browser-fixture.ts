@@ -5,6 +5,27 @@ import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
 import { createRedisCache } from "../src/lib/tenant/redis";
+import { randomUUID } from "node:crypto";
+import { signRevalidate, tenantTag } from "@solar/cache";
+
+// Fixtures write the DB directly, like admin will: drop the web server's content cache the same way (E5-S05).
+async function revalidate(tenantIds: Iterable<string>) {
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) return;
+  const tags = [...new Set(tenantIds)].map(tenantTag);
+  let status = 0;
+  // Retry like the worker does (fresh nonce each attempt); a cold dev server may still be compiling the route.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const body = JSON.stringify({ tags, nonce: randomUUID().replaceAll("-", ""), ts: Date.now() });
+    const response = await fetch(`http://localhost:${process.env.TENANT_PUBLIC_PORT ?? "3211"}/api/revalidate`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-signature": signRevalidate(body, secret) }, body,
+    });
+    if (response.ok) return;
+    status = response.status;
+    await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+  }
+  throw new Error(`revalidate failed: ${status}`);
+}
 
 const action = process.argv[2];
 const file = resolve("../../tooling/visual/.test-dist/tenant-fixture.json");
@@ -19,6 +40,7 @@ async function main() {
       const domain = await forPlatform(db).domains.resolve("t15.localhost");
       if (!domain) throw new Error("Seed t15 before browser tests");
       const host = "review.localhost", reviewSlug = "review-t15";
+      const touched = new Set<string>([domain.tenantId]);
       if (action === "setup" || action === "cleanup") {
         // Remove the review tenant, plus review rows that older fixtures created inside the t15 tenant.
         await db.tenant.deleteMany({ where: { slug: reviewSlug } });
@@ -32,11 +54,12 @@ async function main() {
         if (project) await repo.project.delete(project.id);
         const service = await repo.service.first({ where: { slug: "review-service" } });
         if (service) await repo.service.delete(service.id);
-        if (action === "cleanup") { try { unlinkSync(file); } catch {} return; }
+        if (action === "cleanup") { try { unlinkSync(file); } catch {} await revalidate(touched); return; }
       }
       if (action === "setup") {
         const demo = buildDemo("t15");
         const tenantId = await seedDemoTenant(db, { id: "t15", slug: reviewSlug, hostname: host });
+        touched.add(tenantId);
         const repo = forTenant(db, tenantId);
         const seeded = await repo.site.first();
         if (!seeded) throw new Error("Review site was not seeded");
@@ -84,6 +107,7 @@ async function main() {
       } else {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
+        touched.add(saved.tenantId);
         if (action === "no-dark" || action === "switcher-off") {
           await repo.site.update(saved.siteId, { themeId: action === "no-dark" ? "t01" : "t15", profile: { name: { vi: "[DỮ LIỆU MẪU] Review", en: "[DỮ LIỆU MẪU] Review EN" }, theme: { default: "dark", switcher: action !== "switcher-off" } }, locales: ["en"], defaultLocale: "en" });
         } else if (action === "no-chrome" || action === "disabled-chrome") {
@@ -92,6 +116,7 @@ async function main() {
           await repo.page.update(saved.pageId, { sections: action === "no-chrome" ? sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) : sections.map((section) => ["site-header", "site-footer"].includes(section.type) ? { ...section, enabled: false } : section) });
         } else throw new Error("Unknown fixture action");
       }
+      await revalidate(touched);
       if (process.env.REDIS_URL) {
         const redis = createRedisCache(process.env.REDIS_URL);
         try { await redis.ready; await redis.store.del(["tenancy:host:review.localhost"]); await redis.bus.publish(["review.localhost"]); }

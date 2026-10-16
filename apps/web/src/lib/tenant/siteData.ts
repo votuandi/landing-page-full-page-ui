@@ -1,3 +1,4 @@
+import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { forTenant, loadDisabledFeatures, type TenantRepo } from "@solar/db";
@@ -13,7 +14,7 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type SiteEntitlements = EntitlementSubject & { disabled: readonly string[] };
 // D19 for every render/API entry point: kill switch → tenant override → plan + addons + trial.
 export const siteCanUse = (site: { entitlements: SiteEntitlements }) => canUse(site.entitlements, { disabled: site.entitlements.disabled });
-export function createSiteData(repository: (tenantId: string) => TenantRepo, loadDisabled: () => Promise<readonly string[]> = async () => []) {
+export function createSiteData(repository: (tenantId: string) => TenantRepo, loadDisabled: () => Promise<readonly string[]> = async () => [], contentCache?: Pick<ContentCache, "cached">) {
   async function loadTenantSite(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return null;
     const repo = repository(tenantId);
@@ -35,7 +36,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
       locales, locale, pageTypes: row.pageTypes,
       entitlements: { planId: row.tenant.planId, addons: row.tenant.addons, status: row.tenant.status, createdAt: row.tenant.createdAt,
         featureOverrides: row.tenant.featureOverrides, limitOverrides: row.tenant.limitOverrides,
-        disabled: disabledFeaturesSchema.parse(await loadDisabled()) } satisfies SiteEntitlements,
+        disabled: [] } satisfies SiteEntitlements,
       context: { tenantId, locale, themeId: theme.meta.id } };
   }
   async function loadPublishedPage(tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") {
@@ -69,10 +70,21 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];
     return repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true, kind: true }, orderBy: { slug: "asc" } });
   }
-  return { loadTenantSite, loadPublishedPage, listPublishedPages };
+  const read = <T>(fn: () => Promise<T>, keyParts: string, tags: string[]) => contentCache ? contentCache.cached(fn, { keyParts, tags }) : fn();
+  return {
+    loadTenantSite: async (tenantId: string, siteId: string) => {
+      const site = await read(() => loadTenantSite(tenantId, siteId), cacheKey({ siteId, locale: "vi", mode: "published", parts: ["site", tenantId] }), [tenantTag(tenantId), siteTag(tenantId)]);
+      // Platform kill switches must not be embedded in a tenant's long-lived site entry.
+      return site ? { ...site, entitlements: { ...site.entitlements, disabled: disabledFeaturesSchema.parse(await loadDisabled()) } } : null;
+    },
+    loadPublishedPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => read(() => loadPublishedPage(tenantId, siteId, slug, locale), cacheKey({ siteId, locale, mode: "published", parts: ["page", tenantId, slug] }), [tenantTag(tenantId), pageTag(tenantId, slug)]),
+    listPublishedPages: (tenantId: string, siteId: string) => read(() => listPublishedPages(tenantId, siteId), cacheKey({ siteId, locale: "vi", mode: "published", parts: ["pages", tenantId] }), [tenantTag(tenantId), siteTag(tenantId)]),
+  };
 }
 export const tenantRepository = (tenantId: string) => forTenant(getWebDb(), tenantId);
-const data = createSiteData(tenantRepository, cache(() => loadDisabledFeatures(getWebDb())));
+// Nothing publishes `platform:entitlements` yet (console E15); a short TTL keeps the kill switch effective within a minute.
+export const KILL_SWITCH_TTL_MS = 60_000;
+const data = createSiteData(tenantRepository, cache(() => cached(() => loadDisabledFeatures(getWebDb()), { keyParts: ["disabled"], tags: ["platform:entitlements"], ttlMs: KILL_SWITCH_TTL_MS })), { cached });
 export function selectSiteLocale(locales: ("vi" | "en")[], defaultLocale: string, requested?: string) {
   if ((requested === "vi" || requested === "en") && locales.includes(requested)) return requested;
   return locales.includes(defaultLocale as "vi" | "en") ? defaultLocale as "vi" | "en" : locales[0] ?? "vi";
@@ -84,5 +96,5 @@ export const loadTenantSite = cache(async (tenantId: string, siteId: string) => 
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);
-export const listPublishedPages = data.listPublishedPages;
+export const listPublishedPages = cache(data.listPublishedPages);
 export type TenantSite = NonNullable<Awaited<ReturnType<typeof loadTenantSite>>>;

@@ -115,3 +115,17 @@ test("locale selection respects allowed locales, default EN, and ignores unsuppo
   assert.equal(selectSiteLocale(["en"], "en", "vi"), "en");
   assert.equal(selectSiteLocale(["vi", "en"], "en", "fr"), "en");
 });
+
+test("process cache dedupes pages/sites and keeps platform kill switches independent", async () => {
+  const { createMemoryCache, tenantTag, pageTag } = await import("@solar/cache");
+  const memory = createMemoryCache(); let disabled: string[] = [], pageReads = 0;
+  const repository = repo({ page: { first: async () => { pageReads++; return { id: "page", title: { vi: "VI" }, sections: [] }; } } });
+  const data = createSiteData(() => repository, async () => disabled, memory);
+  await data.loadPublishedPage(tenantId, siteId, ""); await data.loadPublishedPage(tenantId, siteId, "");
+  assert.equal(pageReads, 1);
+  await memory.invalidate([pageTag(tenantId, "")]); await data.loadPublishedPage(tenantId, siteId, ""); assert.equal(pageReads, 2);
+  assert.equal(siteCanUse((await data.loadTenantSite(tenantId, siteId))!)("shorts"), true);
+  disabled = ["shorts"];
+  assert.equal(siteCanUse((await data.loadTenantSite(tenantId, siteId))!)("shorts"), false);
+  await memory.invalidate([tenantTag(tenantId)]); await data.loadPublishedPage(tenantId, siteId, ""); assert.equal(pageReads, 3);
+});

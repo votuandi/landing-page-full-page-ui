@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { useFillTimer } from "./useFillTimer";
+import { TurnstileField } from "./TurnstileField";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
 import type { Locale } from "../site";
@@ -50,8 +52,11 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
   const ui = UI[locale];
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
+  // Turnstile tokens are single-use: a failed submit needs a fresh one.
+  const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const elapsedMs = useFillTimer();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,7 +70,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, ...getExtra?.() }),
+        body: JSON.stringify({ ...Object.fromEntries(form.entries()), source, page: window.location.pathname, elapsedMs: elapsedMs(), ...getExtra?.() }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) throw new Error(data.message || "");
@@ -74,6 +79,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
     } catch (e) {
       setError((e as Error).message || ui.failed);
       setStatus("error");
+      setFailures((n) => n + 1);
     }
   }
 
@@ -104,6 +110,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {children && <div className={span}>{children}</div>}
+      <TurnstileField className={span} resetKey={failures} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? ui.sending : text.submit}
       </button>

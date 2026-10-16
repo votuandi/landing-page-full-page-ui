@@ -37,7 +37,7 @@ function Picture({ src, alt }: { src: string; alt: string }) {
 export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { kind: "page" }>) {
   const t = (vi: string, en: string) => site.locale === "en" ? en : vi;
   const segmentLabel = (value?: string) => value ? ({ household: t("Hộ gia đình", "Household"), shop: t("Cửa hàng", "Shop"), factory: t("Nhà xưởng", "Factory"), farm: t("Trang trại", "Farm") }[value] ?? value) : t("Kinh nghiệm", "Insights");
-  const collections = tenantCollections(site.tenantId, site.locale);
+  const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
   const origin = siteOrigin(site);
   const home: [string, string] = [t("Trang chủ", "Home"), "/"];
   const crumbs = (...items: [string, string][]) => <JsonLd value={breadcrumbJsonLd(origin, [home, ...items])} />;
@@ -110,7 +110,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
 }
 export async function SystemContent({ site, slug, config }: { site: TenantSite; slug: string; config: PageConfig }) {
   const t = (vi: string, en: string) => site.locale === "en" ? en : vi;
-  const collections = tenantCollections(site.tenantId, site.locale);
+  const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
   const sections = <PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(collections.source)} />;
   if (slug === "lien-he") return <><p>{site.profile.email}</p><a className="text-primary" href={`tel:${site.profile.hotline?.replace(/\s/g, "")}`}>{site.profile.hotline}</a>{sections}</>;
   if (slug === "ve-chung-toi") return <>{sections}

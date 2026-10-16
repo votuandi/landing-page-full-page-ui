@@ -15,6 +15,19 @@ const migrationsDir = new URL("../../prisma/migrations/", import.meta.url);
 const migrations = readdirSync(migrationsDir).filter((name) => /^\d+_/.test(name)).sort();
 const migration = migrations.map((name) => readFileSync(new URL(`${name}/migration.sql`, migrationsDir), "utf8")).join("\n");
 
+test("billing expiry is nullable, indexed by status and added without changing RLS or grants", () => {
+  const tenant = models.find(([, name]) => name === "Tenant")![2];
+  assert.match(tenant, /planExpiresAt\s+DateTime\?/);
+  assert.match(tenant, /@@index\(\[status, planExpiresAt\]\)/);
+  const name = migrations.find(name => name.endsWith("_tenant_plan_expiry"));
+  assert.ok(name && name > "20261017000000");
+  const sql = readFileSync(new URL(`${name}/migration.sql`, migrationsDir), "utf8");
+  assert.match(sql, /current_user <> 'app_owner'/);
+  assert.match(sql, /ADD COLUMN "planExpiresAt" TIMESTAMP\(3\)/);
+  assert.match(sql, /CREATE INDEX "Tenant_status_planExpiresAt_idx" ON public\."Tenant"\("status", "planExpiresAt"\)/);
+  assert.doesNotMatch(sql, /\b(?:GRANT|REVOKE|POLICY|DISABLE ROW LEVEL SECURITY)\b/);
+});
+
 test("scope guard classifies every required and optional tenant model", () => {
   assert.deepEqual([...scopedModels].sort(), models.filter(([, , body]) => /tenantId\s+String\s/.test(body)).map(([, name]) => name).sort());
   assert.deepEqual([...optionalTenantModels].sort(), models.filter(([, , body]) => /tenantId\s+String\?/.test(body)).map(([, name]) => name).sort());

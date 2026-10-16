@@ -44,5 +44,5 @@ export default async function TenantPage({ params }: Props) {
   if (!page) notFound();
   const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
   if (page.kind === "system") return <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>;
-  return <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale).source)} /></main>;
+  return <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
 }

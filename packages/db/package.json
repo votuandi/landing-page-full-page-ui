@@ -18,6 +18,8 @@
     "plans:sync": "tsx scripts/plans-sync.ts"
   },
   "dependencies": {
+    "zod": "4.6.5",
+    "@solar/cache": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "pg": "8.23.1",

@@ -23,6 +23,9 @@ importers:
       '@heroicons/react':
         specifier: ^2.2.0
         version: 2.2.0(react@19.2.8)
+      '@solar/cache':
+        specifier: workspace:*
+        version: link:../../packages/cache
       '@solar/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -100,6 +103,52 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  apps/worker:
+    dependencies:
+      '@solar/cache':
+        specifier: workspace:*
+        version: link:../../packages/cache
+      '@solar/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/cache:
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
   packages/config:
     dependencies:
       '@eslint/js':
@@ -142,6 +191,9 @@ importers:
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3)
+      '@solar/cache':
+        specifier: workspace:*
+        version: link:../cache
       '@solar/plans':
         specifier: workspace:*
         version: link:../plans
@@ -151,6 +203,9 @@ importers:
       pg:
         specifier: 8.23.1
         version: 8.23.1
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@solar/config':
         specifier: workspace:*

@@ -174,6 +174,14 @@ Chuyển domain sang tenant khác: gỡ bản ghi cũ, tạo bản ghi `pending`
 host bị ảnh hưởng sau commit; đổi primary phải invalidate cả alias của site.
 Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.md).
 
+## Lead và outbox (E11-S01)
+
+- `createLead(db, tenantId, siteId, lead)`: một `withTenantTransaction` ghi `Lead` + một `Outbox{topic:"lead.deliver"}` cho
+  mỗi `LeadIntegration` đang bật (khóa `lead.deliver:<leadId>:<integrationId>`). Lỗi bất kỳ → không có lead thiếu job.
+- `forPlatform(platformDb).outbox` (chỉ client `app_platform`, dùng ở worker/console): `claim` (SKIP LOCKED + lease),
+  `complete`, `fail` (backoff `backoffMs`, dead = `failed` sau `maxAgeMs`), `resend`, `enqueue` (bỏ qua khóa trùng).
+  Chi tiết ngữ nghĩa: `apps/worker/README.md`.
+
 ## Giới hạn đã biết
 
 - Runtime không đọc được bảng nền tảng; relation Tenant chỉ thấy tenant trong context. RLS không thay permission/auth.
@@ -281,3 +289,10 @@ Plan lạ, rollback thật và seed hai lần giữ danh tính nội dung/quyề
   execution tăng ≤ 10% HOẶC ≤ 0,02 ms tuyệt đối (hai ngưỡng đều inclusive), không nới theo wall time.
   `RLS_BENCH_OUTPUT` lưu JSON raw samples/plans; wall autocommit/transaction báo
   riêng cho pg round trips và production repository builder qua Prisma (baseline autocommit / RLS transaction). Script exit 1 khi bất kỳ workload vượt gate; không chạy trong test.
+
+### Xuất bản và cache (E5-S05)
+
+Gọi `enqueueInvalidate(repo, tags, hosts?)` trong cùng callback `withTenantTransaction` sau khi ghi nội dung.
+Hàm dùng đúng repository transaction được truyền vào; không tự mở transaction hay gọi web trước khi commit.
+Ví dụ: `await enqueueInvalidate(repo, [pageTag(tenantId, slug)])` (`pageTag` từ `@solar/cache`).
+Khi thêm/xóa/đổi slug trang, thêm `siteTag(tenantId)` để làm mới danh sách trang; đổi slug vô hiệu cả tag cũ và mới.
