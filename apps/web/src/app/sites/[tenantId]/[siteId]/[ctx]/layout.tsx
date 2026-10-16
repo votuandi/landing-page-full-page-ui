@@ -10,7 +10,8 @@ import { placeholderParams, tenantRoute } from "@/lib/tenant/route";
 import { TenantChrome } from "@/components/tenant/cached";
 
 // Approved blocking route (E5-S06): the tenant comes from the Host at request time and `next build` has no database, so
-// there is no valid generateStaticParams. Chrome and page bodies are `"use cache"` + tags; a static shell per tenant is E10.
+// there is no valid generateStaticParams. This also covers generateViewport/Metadata's request-time tenant lookup.
+// Chrome and page bodies are `"use cache"` + tags; a static shell per tenant is E10.
 export const instant = false;
 export const generateStaticParams = placeholderParams;
 

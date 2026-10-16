@@ -3,6 +3,10 @@ import { tenantMetadata } from "@/lib/tenant/metadata";
 import { tenantRoute } from "@/lib/tenant/route";
 import { TenantPageBody, tenantPageOutcome } from "@/components/tenant/cached";
 
+// Approved blocking tenant route (E5-S06): page data and metadata need the request context via tenantRoute().
+// A layout's instant=false does not exempt this segment from client-navigation validation.
+export const instant = false;
+
 type Props = { params: Promise<{ tenantId: string; siteId: string; ctx: string; path?: string[] }> };
 async function load({ params }: Props) {
   const { tenantId, siteId, ctx, path = [] } = await params;
