@@ -39,13 +39,25 @@ export function SectionReveal() {
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
 
+    // Streamed boundaries (Cache Components, E5-S06) hydrate after this effect. Touching `data-shown` on server HTML that
+    // React has not hydrated yet is a hydration mismatch, so wait until React has attached its fiber to the element.
+    const hydrated = (el: Element) => Object.keys(el).some((key) => key.startsWith("__reactFiber$"));
+    let pending: HTMLElement[] = [];
+    let frame = 0;
+    const show = (el: HTMLElement) => { if (observer) observer.observe(el); else el.setAttribute("data-shown", ""); };
+    const flush = () => {
+      frame = 0;
+      pending = pending.filter((el) => { if (!el.isConnected) return false; if (!hydrated(el)) return true; show(el); return false; });
+      if (pending.length) frame = requestAnimationFrame(flush);
+    };
     const register = (root: ParentNode) => {
       root.querySelectorAll<HTMLElement>("[data-reveal-stagger]").forEach(applyStagger);
       root.querySelectorAll<HTMLElement>(SELECTOR).forEach((el) => {
         if (seen.has(el)) return;
         seen.add(el);
-        if (observer) observer.observe(el); else el.setAttribute("data-shown", "");
+        if (hydrated(el)) show(el); else pending.push(el);
       });
+      if (pending.length && !frame) frame = requestAnimationFrame(flush);
     };
 
     register(document);
@@ -57,7 +69,7 @@ export function SectionReveal() {
     });
     mutations.observe(document.body, { childList: true, subtree: true });
 
-    return () => { observer?.disconnect(); mutations.disconnect(); sheet.remove(); };
+    return () => { cancelAnimationFrame(frame); observer?.disconnect(); mutations.disconnect(); sheet.remove(); };
   }, []);
 
   return null;

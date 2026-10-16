@@ -308,9 +308,10 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
       await expect(page.locator(selector)).toHaveCount(1);
     }
     await expect(page).toHaveTitle("Trang chủ VI | [DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu");
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + "/");
+    // Home canonical/og:url is the bare origin, as in the A/B/A/B test above.
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url);
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "vi_VN");
-    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url + "/");
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url);
     await page.getByRole("button", { name: "en", exact: true }).click();
     await expect(page.locator("main:visible")).toContainText("English hero");
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
