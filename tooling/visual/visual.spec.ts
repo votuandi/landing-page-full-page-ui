@@ -11,6 +11,9 @@ for (const route of routes) {
       sessionStorage.setItem("t15-consult-shown", "1");
     }, theme);
 
+    // Cache Components (E5-S06): the router leaves prefetch streams of same-route sibling links (e.g. /chinh-sach/*)
+    // unread, so `networkidle` never fires. Screenshots only need the document; navigation is not under test here.
+    await page.route(/[?&]_rsc=/, (route) => route.abort());
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     const response = await page.goto(route, { waitUntil: "networkidle" });
