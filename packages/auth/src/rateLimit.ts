@@ -56,14 +56,24 @@ export function createLoginLimiter({ primary, fallback = memoryCounter(), maxFai
     } catch { return local; }
   }
   async function increment(key: string, ms: number, sliding = false) {
-    // Mirror failures locally so a Redis outage cannot reset an in-progress lockout.
-    await fallback.increment(key, ms, sliding);
-    if (primary) try { await primary.increment(key, ms, sliding); } catch { /* Local counter remains active. */ }
+    // Use the atomic increment's result; a later read would lose this request's reservation.
+    const local = await fallback.increment(key, ms, sliding);
+    if (primary) try {
+      const shared = await primary.increment(key, ms, sliding);
+      return { count: Math.max(local.count, shared.count), resetMs: Math.max(local.resetMs, shared.resetMs) };
+    } catch { /* Local counter remains active. */ }
+    return local;
   }
   return {
     async check(input: LoginAttempt): Promise<{ ok: true } | { ok: false; retryAfterSec: number }> {
       const [account, ip] = await Promise.all(keys(input).map(read));
       const wait = Math.max(account.count >= maxFailures ? account.resetMs : 0, ip.count >= ipLimit ? ip.resetMs : 0);
+      return wait > 0 ? { ok: false, retryAfterSec: Math.max(1, Math.ceil(wait / 1000)) } : { ok: true };
+    },
+    async reserve(input: LoginAttempt): Promise<{ ok: true } | { ok: false; retryAfterSec: number }> {
+      const [accountKey, ipKey] = keys(input);
+      const [account, ip] = await Promise.all([increment(accountKey, lockMs, true), increment(ipKey, ipWindowMs)]);
+      const wait = Math.max(account.count > maxFailures ? account.resetMs : 0, ip.count > ipLimit ? ip.resetMs : 0);
       return wait > 0 ? { ok: false, retryAfterSec: Math.max(1, Math.ceil(wait / 1000)) } : { ok: true };
     },
     async fail(input: LoginAttempt) { const [account, ip] = keys(input); await Promise.all([increment(account, lockMs, true), increment(ip, ipWindowMs)]); },

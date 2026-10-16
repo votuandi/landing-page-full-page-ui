@@ -79,7 +79,7 @@ describe("durable realm isolation under Postgres RLS", { skip: !process.env.DATA
     assert.equal(await site.getSession(other.cookie.value, host), null);
     const results = await Promise.all([1, 2].map(() => site.login({ ...input, tenantId: a, totp: enabled.codes[0] })));
     assert.equal(results.filter(r => r.ok).length, 1);
-    const disabled = await site.disableTotp(enabled.session, totp(pending.secret));
+    const disabled = await site.disableTotp(enabled.session, enabled.codes[1]);
     const changed = await site.changePassword(disabled.session, { current: password, next: "Next!password-strong" });
     assert.equal(await site.getSession(disabled.cookie.value, host), null);
     assert.ok(await site.getSession(changed.cookie.value, host));
@@ -89,7 +89,7 @@ describe("durable realm isolation under Postgres RLS", { skip: !process.env.DATA
     const opsEnabled = await platform.enableTotp(opsSession.session, opsPending.secret, totp(opsPending.secret));
     const opsResults = await Promise.all([1, 2].map(() => platform.login({ ...input, totp: opsEnabled.codes[0] })));
     assert.equal(opsResults.filter(r => r.ok).length, 1);
-    await platform.disableTotp(opsEnabled.session, totp(opsPending.secret));
+    await platform.disableTotp(opsEnabled.session, opsEnabled.codes[1]);
   });
   test("ghost bridge is scoped, detects revoked/expired grants and never exposes platform rows", async () => {
     const token = randomBytes(32).toString("base64url");
@@ -112,5 +112,44 @@ describe("durable realm isolation under Postgres RLS", { skip: !process.env.DATA
     assert.equal(await isGhostSessionActive(db, a, ghost.id), true);
     await forPlatform(ops).ghostGrant.update({ where: { id: grant.id }, data: { revokedAt: new Date() } });
     assert.equal(await site.getSession(cookie, host), null);
+  });
+
+  test("both database realms reject concurrent TOTP replay and older steps atomically", async () => {
+    for (const [name, store, accountId, tenantId] of [
+      ["site", siteStore(db, { audience: "admin" }), aUser, a],
+      ["platform", platformStore(ops), adminId, undefined],
+    ] as const) {
+      let time = 1_900_000_000_000;
+      const totpSecret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+      await store.updateAccount(accountId, { totpSecret, totpLastStep: null }, tenantId);
+      const realm = createRealm({ name, store, secret, sessionTtl: 3600_000, idleTtl: 900_000, now: () => time });
+      const get = store.getAccount;
+      let reads = 0, release!: () => void;
+      const ready = new Promise<void>(resolve => { release = resolve; });
+      store.getAccount = async (...args) => {
+        const account = await get(...args);
+        if (++reads <= 5) { if (reads === 5) release(); await ready; }
+        return account;
+      };
+      const attempt = { accountId, tenantId, ip: "totp-race", userAgent: "test" };
+      try {
+        const results = await Promise.all(Array.from({ length: 5 }, () => realm.loginWithToken({ ...attempt, totp: totp(totpSecret, time) }, async () => true)));
+        assert.equal(results.filter(r => r.ok).length, 1, name);
+        assert.equal((await get(accountId, tenantId))!.totpLastStep, Math.floor(time / 30_000));
+        // An older, never-used code must also fail even though it is inside the skew window.
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: totp(totpSecret, time - 30_000) }, async () => true)).ok, false);
+        // The previous step is still inside the permitted clock-skew window, but is already obsolete.
+        time += 30_000;
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: totp(totpSecret, time - 30_000) }, async () => true)).ok, false);
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: totp(totpSecret, time) }, async () => true)).ok, true);
+        const future = totp(totpSecret, time + 30_000);
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: future }, async () => true)).ok, true);
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: totp(totpSecret, time) }, async () => true)).ok, false);
+        assert.equal((await realm.loginWithToken({ ...attempt, totp: future }, async () => true)).ok, false);
+      } finally {
+        store.getAccount = get;
+        await store.updateAccount(accountId, { totpSecret: null, totpLastStep: null }, tenantId);
+      }
+    }
   });
 });

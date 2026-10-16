@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { parseLoginId, type LoginId } from "./loginId.ts";
 import { hashPassword, verifyPassword, dummyVerify, checkPasswordPolicy } from "./password.ts";
-import { consumeBackupCode, generateBackupCodes, generateTotpSecret, otpauthUri, verifyTotp } from "./totp.ts";
+import { consumeBackupCode, generateBackupCodes, generateTotpSecret, otpauthUri, matchingTotpStep } from "./totp.ts";
 import { effectivePermissions, ForbiddenError, type Audience, type Permission, type Role, type SessionKind } from "./permissions.ts";
 import { createLoginLimiter, type LoginLimiter } from "./rateLimit.ts";
 
@@ -9,10 +9,10 @@ export type RealmName = "site" | "platform";
 export interface Account {
   id: string; tenantId?: string; email?: string | null; phone?: string | null; username?: string | null; name: string;
   status: "active" | "invited" | "unverified" | "locked" | "disabled"; role?: Role; passwordHash: string | null; totpSecret: string | null; totpBackupCodes: string[];
-  mustChangePassword: boolean; tempPasswordExpiresAt: Date | null;
+  mustChangePassword: boolean; tempPasswordExpiresAt: Date | null; totpLastStep: number | null;
 }
-export type AccountPatch = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpBackupCodes" | "mustChangePassword" | "tempPasswordExpiresAt" | "status" | "role">>;
-export type AccountExpected = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpBackupCodes">>;
+export type AccountPatch = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpLastStep" | "totpBackupCodes" | "mustChangePassword" | "tempPasswordExpiresAt" | "status" | "role">>;
+export type AccountExpected = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpLastStep" | "totpBackupCodes">>;
 export interface StoredSession {
   id: string; tokenHash: string; tenantId?: string; accountId?: string; kind: SessionKind; audience?: Audience;
   expiresAt: Date; lastSeenAt: Date; ip?: string; userAgent?: string; policy?: unknown; ghostValid?: boolean;
@@ -116,27 +116,23 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
   async function login(input: { identifier: string; password: string; totp?: string; tenantId?: string; ip: string; userAgent: string }): Promise<LoginFailure | ({ ok: true } & Awaited<ReturnType<typeof issued>>)> {
     let id: LoginId | undefined;
     try { id = parseLoginId(input.identifier); } catch { /* Invalid identifiers share the generic login response and limiter. */ }
-    const attempt = { realm: name, tenantId: name === "site" ? input.tenantId : undefined, identifier: id?.value ?? input.identifier.trim().toLowerCase().slice(0, 254), ip: input.ip };
-    const limit = await limiter.check(attempt);
+    const tenantId = name === "site" ? input.tenantId : undefined;
+    const account = id && (name === "site" ? !!tenantId : id.kind === "email") ? await store.findAccount(id, tenantId) : null;
+    const attempt = { realm: name, tenantId, identifier: account ? `account:${account.id}` : `identifier:${id?.value ?? input.identifier.trim().toLowerCase().slice(0, 254)}`, ip: input.ip };
+    const limit = await limiter.reserve(attempt);
     if (!limit.ok) return { ok: false, reason: "locked", retryAfterSec: limit.retryAfterSec, message: `Tạm khóa đăng nhập, thử lại sau ${Math.ceil(limit.retryAfterSec / 60)} phút` };
-    async function fail() { await limiter.fail(attempt); return invalid(); }
-    const account = id && (name === "site" ? !!input.tenantId : id.kind === "email") ? await store.findAccount(id, attempt.tenantId) : null;
-    if (!account?.passwordHash) { await dummyVerify(); return fail(); }
+    if (!account?.passwordHash) { await dummyVerify(); return invalid(); }
     const passwordOk = await verifyPassword(input.password, account.passwordHash);
-    if (!passwordOk || !eligible(account)) return fail();
+    if (!passwordOk || !eligible(account)) return invalid();
     if (account.tempPasswordExpiresAt && account.tempPasswordExpiresAt.getTime() <= now()) return { ok: false, reason: "temp_password_expired", message: "Mật khẩu tạm đã hết hạn, vui lòng liên hệ hỗ trợ" };
     return completeLogin(account, input, attempt);
   }
   async function completeLogin(account: Account, input: { totp?: string; ip: string; userAgent: string }, attempt: Parameters<LoginLimiter["check"]>[0], consume?: () => Promise<boolean>): Promise<LoginFailure | ({ ok: true } & Awaited<ReturnType<typeof issued>>)> {
-    async function fail() { await limiter.fail(attempt); return invalid(); }
     if (account.totpSecret) {
       if (!input.totp) return { ok: false, reason: "totp_required", message: "Vui lòng nhập mã xác thực hai bước" };
-      if (!verifyTotp(account.totpSecret, input.totp, now())) {
-        const codes = consumeBackupCode(account.totpBackupCodes, input.totp);
-        if (!codes || !await store.updateAccount(account.id, { totpBackupCodes: codes }, account.tenantId, { totpSecret: account.totpSecret, totpBackupCodes: account.totpBackupCodes })) return fail();
-      }
+      if (!await consumeSecondFactor(account, input.totp)) return invalid();
     }
-    if (consume && !await consume()) return fail();
+    if (consume && !await consume()) return invalid();
     const token = randomBytes(32).toString("base64url");
     await store.createSession({ tokenHash: sha256(token), tenantId: account.tenantId, accountId: account.id, kind: "user", audience: store.audience,
       expiresAt: new Date(now() + sessionTtl), lastSeenAt: new Date(now()), ip: input.ip, userAgent: input.userAgent });
@@ -145,12 +141,11 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
   }
   /** Server-only: accountId must come from a validated token lookup; consume must atomically spend that token. */
   async function loginWithToken(input: { accountId: string; tenantId?: string; totp?: string; ip: string; userAgent: string }, consume: () => Promise<boolean>) {
-    const attempt = { realm: name, tenantId: input.tenantId, identifier: `token:${input.accountId}`, ip: input.ip };
-    const limit = await limiter.check(attempt);
+    const attempt = { realm: name, tenantId: input.tenantId, identifier: `account:${input.accountId}`, ip: input.ip };
+    const limit = await limiter.reserve(attempt);
     if (!limit.ok) return { ok: false as const, reason: "locked" as const, retryAfterSec: limit.retryAfterSec, message: "Tạm khóa đăng nhập, thử lại sau 15 phút" };
     const account = name === "site" && !input.tenantId ? null : await store.getAccount(input.accountId, input.tenantId);
     if (!account || !eligible(account) || account.tenantId !== input.tenantId || account.tempPasswordExpiresAt && account.tempPasswordExpiresAt.getTime() <= now()) {
-      await limiter.fail(attempt);
       return invalid();
     }
     return completeLogin(account, input, attempt, consume);
@@ -208,18 +203,29 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
   }
   async function enableTotp(session: Session, secret: string, code: string) {
     const { row, account } = await securitySession(session, "account.totp");
-    if (account.totpSecret || !/^[A-Z2-7]{32}$/.test(secret) || !verifyTotp(secret, code, now())) throw new ForbiddenError();
+    if (account.totpSecret || !/^[A-Z2-7]{32}$/.test(secret)) throw new ForbiddenError();
+    const step = matchingTotpStep(secret, code, now());
+    if (step === null) throw new ForbiddenError();
     const { codes, hashes } = generateBackupCodes();
-    if (!await store.updateAccount(account.id, { totpSecret: secret, totpBackupCodes: hashes }, row.tenantId, { totpSecret: null })) throw new ForbiddenError();
+    if (!await store.updateAccount(account.id, { totpSecret: secret, totpLastStep: step, totpBackupCodes: hashes }, row.tenantId, { totpSecret: null })) throw new ForbiddenError();
     await revokeAll(account.id, { tenantId: row.tenantId, except: row.id });
     return { codes, ...await rotateRow(row) };
+  }
+  async function consumeSecondFactor(account: Account, code: string) {
+    const step = matchingTotpStep(account.totpSecret!, code, now());
+    if (step !== null) {
+      if (account.totpLastStep !== null && step <= account.totpLastStep) return false;
+      return store.updateAccount(account.id, { totpLastStep: step }, account.tenantId, { totpSecret: account.totpSecret, totpLastStep: account.totpLastStep });
+    }
+    const codes = consumeBackupCode(account.totpBackupCodes, code);
+    return !!codes && store.updateAccount(account.id, { totpBackupCodes: codes }, account.tenantId, { totpSecret: account.totpSecret, totpBackupCodes: account.totpBackupCodes });
   }
   async function disableTotp(session: Session, code: string) {
     const { row, account } = await securitySession(session, "account.totp");
     const attempt = { realm: name, tenantId: row.tenantId, identifier: `security:${account.id}`, ip: row.ip ?? "unknown" };
     if (!(await limiter.check(attempt)).ok) throw new ForbiddenError();
-    if (!account.totpSecret || !verifyTotp(account.totpSecret, code, now()) && !consumeBackupCode(account.totpBackupCodes, code)) { await limiter.fail(attempt); throw new ForbiddenError(); }
-    if (!await store.updateAccount(account.id, { totpSecret: null, totpBackupCodes: [] }, row.tenantId, { totpSecret: account.totpSecret, totpBackupCodes: account.totpBackupCodes })) throw new ForbiddenError();
+    if (!account.totpSecret || !await consumeSecondFactor(account, code)) { await limiter.fail(attempt); throw new ForbiddenError(); }
+    if (!await store.updateAccount(account.id, { totpSecret: null, totpLastStep: null, totpBackupCodes: [] }, row.tenantId, { totpSecret: account.totpSecret })) throw new ForbiddenError();
     await revokeAll(account.id, { tenantId: row.tenantId, except: row.id });
     await limiter.succeed(attempt);
     return rotateRow(row);

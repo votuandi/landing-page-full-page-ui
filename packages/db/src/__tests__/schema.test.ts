@@ -22,6 +22,13 @@ test("both authentication realms store backup hashes as non-null arrays", () => 
   }
 });
 
+test("both authentication realms persist a nullable last accepted TOTP step", () => {
+  for (const name of ["SiteUser", "PlatformAdmin"]) {
+    assert.match(models.find(([, model]) => model === name)![2], /totpLastStep\s+Int\?/);
+    assert.ok(migration.includes(`ALTER TABLE public."${name}" ADD COLUMN "totpLastStep" INTEGER`));
+  }
+});
+
 test("billing expiry is nullable, indexed by status and added without changing RLS or grants", () => {
   const tenant = models.find(([, name]) => name === "Tenant")![2];
   assert.match(tenant, /planExpiresAt\s+DateTime\?/);

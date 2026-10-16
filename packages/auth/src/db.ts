@@ -19,7 +19,7 @@ export function siteStore(db: Db, { audience }: { audience: Audience }): Session
     if (!row || audience === "admin" && row.role === "client") return null;
     return { id: row.id, tenantId: row.tenantId, email: row.email, phone: row.phone, username: row.username, name: row.name,
       status: ["active", "trial"].includes(row.tenant.status) ? row.status : "disabled", role: row.role,
-      passwordHash: row.passwordHash, totpSecret: row.totpSecret, totpBackupCodes: row.totpBackupCodes,
+      passwordHash: row.passwordHash, totpSecret: row.totpSecret, totpLastStep: row.totpLastStep, totpBackupCodes: row.totpBackupCodes,
       mustChangePassword: row.mustChangePassword, tempPasswordExpiresAt: row.tempPasswordExpiresAt };
   }
   return {
@@ -67,7 +67,7 @@ export function platformStore(db: PlatformDb): SessionStore {
   async function account(where: { id?: string; email?: string }): Promise<Account | null> {
     const row = await repo().platformAdmin.findFirst({ where, omit: credentials });
     return row ? { id: row.id, email: row.email, name: row.name, status: row.status, passwordHash: row.passwordHash,
-      totpSecret: row.totpSecret, totpBackupCodes: row.totpBackupCodes, mustChangePassword: false, tempPasswordExpiresAt: null } : null;
+      totpSecret: row.totpSecret, totpLastStep: row.totpLastStep, totpBackupCodes: row.totpBackupCodes, mustChangePassword: false, tempPasswordExpiresAt: null } : null;
   }
   function session(row: { id: string; platformAdminId: string; tokenHash: string; expiresAt: Date; lastSeenAt: Date; ip: string | null; userAgent: string | null }): StoredSession {
     return { id: row.id, accountId: row.platformAdminId, kind: "user", tokenHash: row.tokenHash, expiresAt: row.expiresAt, lastSeenAt: row.lastSeenAt, ip: row.ip ?? undefined, userAgent: row.userAgent ?? undefined };
@@ -77,12 +77,12 @@ export function platformStore(db: PlatformDb): SessionStore {
     findAccount: id => id.kind === "email" ? account({ email: id.value }) : Promise.resolve(null),
     getAccount: id => account({ id }),
     async updateAccount(id, data, _tenantId, expected) {
-      const { passwordHash, totpSecret, totpBackupCodes, status } = data;
+      const { passwordHash, totpSecret, totpLastStep, totpBackupCodes, status } = data;
       if (data.role || data.mustChangePassword || data.tempPasswordExpiresAt) throw new Error("Unsupported platform account fields");
       if (status && !["active", "locked", "disabled"].includes(status)) throw new Error("Invalid platform status");
       if (expected?.passwordHash === null) return false;
       return (await repo().platformAdmin.updateMany({ where: { id, ...expectedWhere(expected), passwordHash: expected?.passwordHash ?? undefined }, data: {
-        passwordHash: passwordHash ?? undefined, totpSecret, totpBackupCodes, status: status as "active" | "locked" | "disabled" | undefined,
+        passwordHash: passwordHash ?? undefined, totpSecret, totpLastStep, totpBackupCodes, status: status as "active" | "locked" | "disabled" | undefined,
       } })).count === 1;
     },
     async createSession(input) {

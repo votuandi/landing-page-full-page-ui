@@ -36,15 +36,19 @@ export function totp(secret: string, time = Date.now(), { step = 30, digits = 6,
   return ((digest.readUInt32BE(offset) & 0x7fffffff) % 10 ** digits).toString().padStart(digits, "0");
 }
 export function verifyTotp(secret: string, code: string, now = Date.now(), window = 1): boolean {
-  if (!/^\d{6}$/.test(code) || !Number.isInteger(window) || window < 0 || window > 10) return false;
+  return matchingTotpStep(secret, code, now, window) !== null;
+}
+/** Returns the newest matching step so callers can atomically reject replay. */
+export function matchingTotpStep(secret: string, code: string, now = Date.now(), window = 1): number | null {
+  if (!/^\d{6}$/.test(code) || !Number.isInteger(window) || window < 0 || window > 10) return null;
   try {
-    let valid = false;
+    let matched: number | null = null;
     for (let i = -window; i <= window; i++) {
       if (now + i * 30_000 < 0) continue;
-      valid = timingSafeEqual(Buffer.from(totp(secret, now + i * 30_000)), Buffer.from(code)) || valid;
+      if (timingSafeEqual(Buffer.from(totp(secret, now + i * 30_000)), Buffer.from(code))) matched = Math.floor(now / 30_000) + i;
     }
-    return valid;
-  } catch { return false; }
+    return matched;
+  } catch { return null; }
 }
 export function otpauthUri({ issuer, account, secret }: { issuer: string; account: string; secret: string }): string {
   return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?${new URLSearchParams({ secret, issuer, algorithm: "SHA1", digits: "6", period: "30" })}`;

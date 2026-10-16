@@ -51,6 +51,7 @@ erDiagram
     String passwordHash
     String totpSecret
     String_array totpBackupCodes
+    Int totpLastStep
     AccountStatus status
     DateTime lastLoginAt
     DateTime createdAt
@@ -101,6 +102,7 @@ erDiagram
     DateTime tempPasswordExpiresAt
     String totpSecret
     String_array totpBackupCodes
+    Int totpLastStep
     DateTime lastLoginAt
     Int failedLogins
     DateTime lockedUntil

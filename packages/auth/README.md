@@ -88,13 +88,22 @@ do realm trả về trong request hiện tại; không serialize rồi dựng l�
   xóa cờ buộc đổi/thời hạn mật khẩu tạm, thu hồi phiên khác, đổi token phiên hiện tại. Trả `{ cookie, session }`.
   Mật khẩu tạm hết hạn bị từ chối cả khi đăng nhập lẫn khi đọc phiên.
 - `beginTotp(session)` trả `{ secret, uri }`, chưa lưu DB; app giữ secret trong bước xác nhận thiết lập.
-- `enableTotp(session, secret, code)` xác nhận mã 6 số, lưu secret và backup hashes,
+- `enableTotp(session, secret, code)` xác nhận mã 6 số, lưu secret, bước TOTP đã dùng và backup hashes,
   thu hồi phiên khác/đổi token, trả `{ codes, cookie, session }`. Chỉ hiển thị `codes` một lần.
   Không cho ghi đè cấu hình TOTP đang bật; cần tắt trước.
 - `disableTotp(session, code)` cần mã TOTP hoặc mã dự phòng, xóa secret/hashes, thu hồi phiên khác/đổi token.
 - `generateTotpSecret`, `totp`, `verifyTotp`, `otpauthUri`, `generateBackupCodes`, `consumeBackupCode`
   là primitive dùng độc lập. TOTP theo [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238), SHA1, 30 giây, ±1 bước.
   Backup code 40 bit ngẫu nhiên, dạng `xxxx-xxxx`; lưu SHA-256, tiêu thụ nguyên tử bằng compare-and-swap.
+
+Hai bảng `SiteUser` và `PlatformAdmin` lưu `totpLastStep Int?` (migration `20261020000000_auth_totp_replay`).
+Realm chỉ chấp nhận bước lớn hơn bước đã dùng gần nhất; cùng bước hoặc bước cũ hơn bị từ chối,
+kể cả còn trong cửa sổ ±1. Ghi bước mới bằng compare-and-swap cùng secret và bước cũ, nên nhiều
+yêu cầu đồng thời chỉ một yêu cầu dùng được mã. Quy tắc áp dụng khi bật/tắt TOTP và đăng nhập bằng
+mật khẩu/token; mã xác nhận bật TOTP đã được tiêu thụ. Hãy chờ mã ở bước tiếp theo hoặc dùng một
+mã dự phòng khác cho thao tác tiếp theo. Primitive `verifyTotp` chỉ kiểm mã, không tự lưu trạng thái.
+Tắt TOTP xóa `totpLastStep`; bật lại bắt đầu với secret mới. Tài khoản đang bật trước migration
+khởi đầu với `null`, ghi nhận bước từ lần xác thực thành công đầu tiên sau migration.
 
 Phiên `mustChangePassword` chỉ đổi mật khẩu/đăng xuất; phiên ghost không gọi được API đổi mật khẩu/TOTP/rotate.
 Ghost chỉ được đọc từ phiên đã có; bridge DB `isGhostSessionActive` kiểm đúng tenant, grant đã dùng,
@@ -109,10 +118,18 @@ không có allow/upgrade. Ghost có quyền owner trừ `account.security`; clie
 storefront chỉ có `storefront.*`. `hasPermission(set, permission)` dùng trong guard của app;
 app phải kiểm quyền cho mọi action/route. Realm platform trả set rỗng: console kiểm realm/guard riêng.
 
-`createLoginLimiter` mặc định sai 5 lần → khóa 15 phút từ lần sai cuối, theo `(realm, tenant, identifier)`;
-thêm giới hạn 30 lần sai/15 phút/IP/realm. Check không tăng bộ đếm; success chỉ xóa lỗi định danh.
+`createLoginLimiter.reserve` tăng nguyên tử và đặt chỗ **trước** khi chạy scrypt/dummyVerify hoặc TOTP:
+tối đa 5 lượt xác minh theo `(realm, tenant, account:<id>)`, cùng bộ đếm cho email/SĐT/username và
+đăng nhập bằng token của một tài khoản. Khi không tìm thấy tài khoản, dùng `identifier:<định danh đã chuẩn hóa>`
+với cùng ngưỡng và phản hồi chung, không tiết lộ tài khoản có tồn tại không. Giới hạn IP là
+30 lượt thử/15 phút/IP/realm, gồm cả lượt thành công, thiếu TOTP và lượt bị từ chối. Đặt chỗ vượt ngưỡng
+trả `locked`, không xác minh; khóa tài khoản trượt 15 phút từ lượt thử cuối. Thành công chỉ xóa bộ đếm
+tài khoản, giữ bộ đếm IP. Không gọi `fail` lần nữa cho lượt đã `reserve`.
+`check` chỉ đọc và `fail` tăng bộ đếm còn dành cho caller khác; cặp check/fail không thay thế reservation
+khi cần chặn các yêu cầu đồng thời. Tham số `ip` phải lấy từ proxy tin cậy (Caddy ghi đè X-Forwarded-For),
+không lấy header thô do client tự đặt; không công khai trực tiếp cổng app ở production.
 Khóa Redis không chứa email/IP thô (SHA-256), Lua tăng/TTL nguyên tử. Counter memory dự phòng phản chiếu
-lỗi cục bộ để Redis ngắt không xóa khóa đang có. App dùng Redis chung khi chạy nhiều instance;
+lượt thử cục bộ để Redis ngắt không xóa khóa đang có. App dùng Redis chung khi chạy nhiều instance;
 package chỉ nhận client cấu trúc `{ eval(...) }`, không sở hữu hay tự mở kết nối.
 
 ## Kiểm tra

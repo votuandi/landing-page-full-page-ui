@@ -13,8 +13,8 @@ const password = "Solar!password-strong", secret = "s".repeat(32);
 before(async () => { passwordHash = await hashPassword(password); });
 function setup(options: { forced?: boolean; role?: "owner" | "client"; audience?: "admin" | "storefront" } = {}) {
   let time = 1_900_000_000_000;
-  const accounts = ["a", "b"].map(tenantId => ({ id: `user-${tenantId}`, tenantId, email: "a@x.vn", username: "solar_admin", name: "[DỮ LIỆU MẪU]", role: options.role ?? "owner" as const,
-    status: "active" as const, passwordHash, totpSecret: null, totpBackupCodes: [], mustChangePassword: options.forced ?? false, tempPasswordExpiresAt: null }));
+  const accounts = ["a", "b"].map(tenantId => ({ id: `user-${tenantId}`, tenantId, email: "a@x.vn", phone: "0901234567", username: "solar_admin", name: "[DỮ LIỆU MẪU]", role: options.role ?? "owner" as const,
+    status: "active" as const, passwordHash, totpSecret: null, totpLastStep: null, totpBackupCodes: [], mustChangePassword: options.forced ?? false, tempPasswordExpiresAt: null }));
   const store = memoryStore({ realm: "site", audience: options.audience ?? "admin", accounts });
   const realm = createRealm({ name: "site", secret, sessionTtl: 86_400_000, idleTtl: 300_000, store,
     limiter: createLoginLimiter({ fallback: memoryCounter(() => time) }), now: () => time });
@@ -32,6 +32,7 @@ test("verified one-use token login checks tenant, status, TOTP and atomic consum
   const logged = await t.login();
   const pending = await t.realm.beginTotp(logged.session);
   await t.realm.enableTotp(logged.session, pending.secret, totp(pending.secret, t.now()));
+  t.advance(30_000);
   let used = false;
   const consume = async () => { if (used) return false; used = true; return true; };
   const challenge = await t.realm.loginWithToken(input, consume);
@@ -60,7 +61,7 @@ test("cookie is host-only and signed; realm/secret/host/audience confusion fails
   assert.equal(await t.realm.getSession(logged.cookie.value, { tenantOfHost: "b" }), null);
   assert.equal(await t.realm.getSession(logged.cookie.value + "x", t.host), null);
   const platform = createRealm({ name: "platform", secret, sessionTtl: 3600_000, idleTtl: 600_000,
-    store: memoryStore({ realm: "platform", accounts: [{ id: "ops", email: "ops@x.vn", name: "Ops", status: "active", passwordHash, totpSecret: null, totpBackupCodes: [], mustChangePassword: false, tempPasswordExpiresAt: null }] }) });
+    store: memoryStore({ realm: "platform", accounts: [{ id: "ops", email: "ops@x.vn", name: "Ops", status: "active", passwordHash, totpSecret: null, totpLastStep: null, totpBackupCodes: [], mustChangePassword: false, tempPasswordExpiresAt: null }] }) });
   assert.equal(await platform.getSession(logged.cookie.value), null);
   const ops = await platform.login({ identifier: "ops@x.vn", password, ip: "ip", userAgent: "test" });
   assert.equal(ops.ok, true);
@@ -131,6 +132,55 @@ test("five incorrect logins lock A, B still logs in; unknown/disabled/invalid ID
   assert.equal((await t.realm.login(t.input)).ok, false);
 });
 
+test("40 parallel incorrect logins reserve at most five password verifications", async () => {
+  const t = setup();
+  let verifications = 0;
+  // Password is read only when passed to scrypt verification, after reserving both counters.
+  const input = { ...t.input, get password() { verifications++; return "wrong"; } };
+  const results = await Promise.all(Array.from({ length: 40 }, () => t.realm.login(input)));
+  assert.equal(results.filter(r => !r.ok && r.reason === "invalid_credentials").length, 5);
+  assert.equal(results.filter(r => !r.ok && r.reason === "locked").length, 35);
+  assert.equal(verifications, 5);
+});
+
+test("email, phone and username share one account budget; unknown identifiers still lock", async () => {
+  const t = setup();
+  for (const identifier of ["a@x.vn", "solar_admin", "0901234567", "+84901234567", "A@X.VN"]) {
+    const result = await t.realm.login({ ...t.input, identifier, password: "wrong" });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, "invalid_credentials");
+  }
+  for (const identifier of ["a@x.vn", "solar_admin", "0901234567"]) {
+    const result = await t.realm.login({ ...t.input, identifier });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, "locked");
+  }
+  const results = await Promise.all(Array.from({ length: 20 }, () => t.realm.login({ ...t.input, identifier: "missing@x.vn" })));
+  assert.equal(results.filter(r => !r.ok && r.reason === "invalid_credentials").length, 5);
+  assert.equal(results.filter(r => !r.ok && r.reason === "locked").length, 15);
+});
+
+test("TOTP rejects replay, older steps and concurrent reuse across password/token login", async () => {
+  const t = setup(), logged = await t.login();
+  const pending = await t.realm.beginTotp(logged.session);
+  const code = () => totp(pending.secret, t.now());
+  const enabled = await t.realm.enableTotp(logged.session, pending.secret, code());
+  assert.equal((await t.realm.login({ ...t.input, totp: code() })).ok, false);
+  await assert.rejects(t.realm.disableTotp(enabled.session, code()), ForbiddenError);
+  t.advance(30_000);
+  let consumed = 0;
+  const results = await Promise.all([
+    t.realm.login({ ...t.input, totp: code() }),
+    t.realm.loginWithToken({ accountId: "user-a", tenantId: "a", ip: "ip", userAgent: "test", totp: code() }, async () => { consumed++; return true; }),
+  ]);
+  assert.equal(results.filter(r => r.ok).length, 1);
+  assert.equal(consumed, results[1].ok ? 1 : 0);
+  assert.equal((await t.realm.login({ ...t.input, totp: code() })).ok, false);
+  assert.equal((await t.realm.login({ ...t.input, totp: totp(pending.secret, t.now() - 30_000) })).ok, false);
+  t.advance(30_000);
+  assert.equal((await t.realm.login({ ...t.input, totp: code() })).ok, true);
+});
+
 test("client cannot log in to admin; existing sessions observe account status and role", async () => {
   assert.equal((await setup({ role: "client" }).realm.login(setup().input)).ok, false);
   const storefront = setup({ role: "client", audience: "storefront" });
@@ -174,7 +224,7 @@ test("TOTP setup/login, atomic one-use backup recovery, disable and revoked hand
   assert.equal(results.filter(r => r.ok).length, 1);
   const current = await t.realm.requireSession(enabled.cookie.value, t.host);
   await assert.rejects(t.realm.enableTotp(current, pending.secret, totp(pending.secret, t.now())), ForbiddenError);
-  const disabled = await t.realm.disableTotp(current, totp(pending.secret, t.now()));
+  const disabled = await t.realm.disableTotp(current, enabled.codes[1]);
   assert.equal((await t.store.getAccount("user-a", "a"))!.totpSecret, null);
   assert.equal((await t.realm.login(t.input)).ok, true);
   await t.realm.logout(disabled.cookie.value, t.host);

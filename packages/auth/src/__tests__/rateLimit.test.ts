@@ -47,3 +47,25 @@ test("Redis counter uses atomic read/increment/delete scripts without owning a c
   assert.equal(calls[1][1], 1);
   assert.equal(calls[1][2], "key");
 });
+
+test("reservations enforce account and IP budgets across instances before work starts", async () => {
+  for (const mode of ["account", "ip"] as const) {
+    const primary = memoryCounter();
+    const key = { realm: "site" as const, tenantId: "a", identifier: "account:user", ip: "ip" };
+    const results = await Promise.all(Array.from({ length: 40 }, (_, i) =>
+      createLoginLimiter({ primary }).reserve({ ...key, identifier: mode === "ip" ? `account:${i}` : key.identifier })));
+    assert.equal(results.filter(r => r.ok).length, mode === "account" ? 5 : 30);
+  }
+});
+
+test("reservations preserve local limits during a Redis outage and success clears only the account", async () => {
+  const primary = { get: async () => { throw new Error("Redis down"); }, increment: async () => { throw new Error("Redis down"); }, delete: async () => { throw new Error("Redis down"); } };
+  const limiter = createLoginLimiter({ primary, ipLimit: 40 });
+  const key = { realm: "site" as const, tenantId: "a", identifier: "account:user", ip: "ip" };
+  const results = await Promise.all(Array.from({ length: 20 }, () => limiter.reserve(key)));
+  assert.equal(results.filter(r => r.ok).length, 5);
+  await limiter.succeed(key);
+  assert.equal((await limiter.reserve(key)).ok, true);
+  const others = await Promise.all(Array.from({ length: 20 }, (_, i) => limiter.reserve({ ...key, identifier: `other:${i}` })));
+  assert.equal(others.filter(r => r.ok).length, 19);
+});

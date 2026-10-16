@@ -28,6 +28,9 @@ runtime không nhận các API ghi của platform.
 ## Hỗ trợ xác thực (E15-S01)
 
 `SiteUser` và `PlatformAdmin` lưu `totpBackupCodes` dạng mảng hash SHA-256, mặc định rỗng.
+Hai bảng có `totpLastStep Int?` để adapter auth ghi bước TOTP gần nhất bằng compare-and-swap,
+từ chối bước đã dùng hoặc cũ hơn. Migration `20261020000000_auth_totp_replay` thêm cột nullable
+(tài khoản hiện có bắt đầu ghi nhận từ lần xác thực tiếp theo); không đổi RLS hay quyền DB.
 Client mặc định omit `passwordHash`, `totpSecret`, `totpBackupCodes`; adapter `@solar/auth/db`
 chỉ opt-in khi xác thực. Repository `update(id, data, expected?)` hỗ trợ điều kiện so sánh trước khi ghi,
 luôn giữ filter id/tenant của repository; auth dùng để tiêu thụ backup code/đổi token nguyên tử.
