@@ -10,6 +10,7 @@ import { createAccounts } from "../lib/accounts.ts";
 describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL ? "requires DATABASE_URL and PLATFORM_DATABASE_URL; Claude chạy cuối PR" : false }, () => {
   let db: ReturnType<typeof createDb>, ops: ReturnType<typeof createPlatformDb>;
   let realm: ReturnType<typeof createRealm>, accounts: ReturnType<typeof createAccounts>;
+  let time = Date.now();
   let aUser: string, editor: string, temporary: string, client: string;
   const a = randomUUID(), b = randomUUID(), suffix = randomUUID().slice(0, 8), planId = `admin-${suffix}`;
   const email = "owner@demo.vn", password = "Solar!Strong-password-a", otherPassword = "Solar!Strong-password-b";
@@ -31,7 +32,7 @@ describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DA
       if (role === "editor") editor = user.id; else if (role === "client") client = user.id; else temporary = user.id;
     }
     const limiter = createLoginLimiter({ ipLimit: 500 });
-    realm = createRealm({ name: "site", store: siteStore(db, { audience: "admin" }), secret, secure: false, sessionTtl: 7 * 86400_000, idleTtl: 12 * 3600_000, limiter });
+    realm = createRealm({ name: "site", store: siteStore(db, { audience: "admin" }), secret, secure: false, sessionTtl: 7 * 86400_000, idleTtl: 12 * 3600_000, limiter, now: () => time });
     accounts = createAccounts({ db, realm, limiter });
   });
   after(async () => {
@@ -62,7 +63,7 @@ describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DA
     const forced = await login("nangluongsolar_admin"); assert.equal(forced.ok, true);
     assert.ok(authorize(forced.session, a, "account.password"));
     assert.throws(() => authorize(forced.session, a, "dashboard.view"), { status: 403 });
-    await forTenant(db, a).siteUser.update(temporary, { tempPasswordExpiresAt: new Date(Date.now() - 1) });
+    await forTenant(db, a).siteUser.update(temporary, { tempPasswordExpiresAt: new Date(time - 1) });
     const expired = await login("nangluongsolar_admin"); assert.equal(expired.ok, false); assert.equal(expired.reason, "temp_password_expired");
     assert.equal(await realm.getSession(forced.cookie.value, host), null);
     const edit = await login("editor_admin"); assert.equal(edit.ok, true); assert.equal(edit.session.accountId, editor);
@@ -117,15 +118,16 @@ describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DA
   test("owner enables optional TOTP; magic requires second factor; backup and magic are one-use", async () => {
     const owner = await login(); assert.equal(owner.ok, true);
     const pending = await realm.beginTotp(owner.session);
-    const enabled = await realm.enableTotp(owner.session, pending.secret, totp(pending.secret));
+    const enabled = await realm.enableTotp(owner.session, pending.secret, totp(pending.secret, time));
+    time += 30_000;
     const challenge = await login(); assert.equal(challenge.ok, false); assert.equal(challenge.reason, "totp_required");
-    assert.equal((await login(email, password, a, totp(pending.secret))).ok, true);
+    assert.equal((await login(email, password, a, totp(pending.secret, time))).ok, true);
     const raw = await issuedToken("magic_link");
     const magic = await accounts.redeemMagic(a, raw, undefined, info); assert.equal(magic.ok, false); assert.equal(magic.reason, "totp_required");
-    assert.equal((await accounts.redeemMagic(b, raw, totp(pending.secret), info)).ok, false);
+    assert.equal((await accounts.redeemMagic(b, raw, totp(pending.secret, time), info)).ok, false);
     assert.equal((await accounts.redeemMagic(a, raw, enabled.codes[0], info)).ok, true);
-    assert.equal((await accounts.redeemMagic(a, raw, totp(pending.secret), info)).ok, false);
+    assert.equal((await accounts.redeemMagic(a, raw, totp(pending.secret, time), info)).ok, false);
     assert.equal((await login(email, password, a, enabled.codes[0])).ok, false);
-    await realm.disableTotp(enabled.session, totp(pending.secret));
+    await realm.disableTotp(enabled.session, enabled.codes[1]);
   });
 });
