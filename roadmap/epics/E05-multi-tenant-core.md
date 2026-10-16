@@ -171,10 +171,13 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - Bằng chứng E5-S07: `packages/db/src/__tests__/{publish.int,preview.int}.test.ts` trên Postgres thật
     (revision CAS, rollback, snapshot + Outbox, token hash/expiry/replay/tenant); web `publishSnapshot.int.test.ts`
     xen 20 lần publish vào giữa hai lượt đọc layout/content, tất cả khớp snapshot RepeatableRead.
-    `playwright.preview.config.ts --project chromium`: iframe nháp, reload, public giữ bản chính, token sai/đã dùng/hết hạn
-    và cookie chéo tenant. WebKit/Firefox đã thêm vào CI, chưa chạy local nên AC đa trình duyệt để mở.
-    Fixture dùng miền gốc chung `solar.localhost`; `next dev` ghi đè Cache-Control HTML, proxy/entry có kiểm no-store.
-    Chờ Claude review/CI cuối PR gộp; chưa tạo PR mới ở lượt thực thi này.
+    PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42), fix r2: preview local Chromium 2/2 và
+    WebKit Windows 2/2 (iframe nháp, reload, public giữ bản chính, token sai/đã dùng/hết hạn, cookie chéo tenant).
+    Path xấu trả 400 mà không đốt token; cùng token với `/` trả 307, dùng lại trả 401.
+    Preview/admin e2e dùng `E2E_PLATFORM_DOMAIN=solar.example.com`: hậu tố PSL `com` tránh libsoup coi hai host
+    `*.solar.localhost` là third-party. Cookie ứng dụng vẫn Lax. WebKit local dùng proxy DNS giữ nguyên Host/cookie;
+    CI ánh xạ `/etc/hosts`. Firefox local không tạo được tab do sandbox Windows; AC đa trình duyệt chờ CI Linux.
+    `next dev` ghi đè Cache-Control HTML, proxy/entry có kiểm no-store. Chờ Claude review/CI cuối PR gộp.
 - Phụ thuộc: S05 · Agent: Claude · Cỡ: M
 
 ### E5-S08 · SEO theo tenant ✅ · PR [#37](https://github.com/votuandi/landing-page-full-page-ui/pull/37)
