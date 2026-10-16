@@ -24,6 +24,29 @@ function setup(options: { forced?: boolean; role?: "owner" | "client"; audience?
   return { realm, store, input, host, login, now: () => time, advance: (ms: number) => { time += ms; } };
 }
 
+test("verified one-use token login checks tenant, status, TOTP and atomic consumption before issuing a session", async () => {
+  const t = setup();
+  const input = { accountId: "user-a", tenantId: "a", ip: "ip", userAgent: "test" };
+  const denied = await t.realm.loginWithToken(input, async () => false);
+  assert.equal(denied.ok, false);
+  const logged = await t.login();
+  const pending = await t.realm.beginTotp(logged.session);
+  await t.realm.enableTotp(logged.session, pending.secret, totp(pending.secret, t.now()));
+  let used = false;
+  const consume = async () => { if (used) return false; used = true; return true; };
+  const challenge = await t.realm.loginWithToken(input, consume);
+  assert.equal(challenge.ok, false);
+  if (!challenge.ok) assert.equal(challenge.reason, "totp_required");
+  assert.equal(used, false);
+  assert.equal((await t.realm.loginWithToken({ ...input, totp: "bad" }, consume)).ok, false);
+  assert.equal(used, false);
+  assert.equal((await t.realm.loginWithToken({ ...input, totp: totp(pending.secret, t.now()) }, consume)).ok, true);
+  assert.equal((await t.realm.loginWithToken({ ...input, totp: totp(pending.secret, t.now()) }, consume)).ok, false);
+  assert.equal((await t.realm.loginWithToken({ ...input, tenantId: "b" }, async () => true)).ok, false);
+  const client = setup({ role: "client" });
+  assert.equal((await client.realm.loginWithToken(input, async () => true)).ok, false);
+});
+
 test("cookie is host-only and signed; realm/secret/host/audience confusion fails closed", async () => {
   const t = setup(), logged = await t.login();
   assert.deepEqual(t.realm.cookieOptions(), { name: "__Host-site_sid", httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 86400 });

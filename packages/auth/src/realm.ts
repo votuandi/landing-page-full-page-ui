@@ -125,6 +125,10 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
     const passwordOk = await verifyPassword(input.password, account.passwordHash);
     if (!passwordOk || !eligible(account)) return fail();
     if (account.tempPasswordExpiresAt && account.tempPasswordExpiresAt.getTime() <= now()) return { ok: false, reason: "temp_password_expired", message: "Mật khẩu tạm đã hết hạn, vui lòng liên hệ hỗ trợ" };
+    return completeLogin(account, input, attempt);
+  }
+  async function completeLogin(account: Account, input: { totp?: string; ip: string; userAgent: string }, attempt: Parameters<LoginLimiter["check"]>[0], consume?: () => Promise<boolean>): Promise<LoginFailure | ({ ok: true } & Awaited<ReturnType<typeof issued>>)> {
+    async function fail() { await limiter.fail(attempt); return invalid(); }
     if (account.totpSecret) {
       if (!input.totp) return { ok: false, reason: "totp_required", message: "Vui lòng nhập mã xác thực hai bước" };
       if (!verifyTotp(account.totpSecret, input.totp, now())) {
@@ -132,11 +136,24 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
         if (!codes || !await store.updateAccount(account.id, { totpBackupCodes: codes }, account.tenantId, { totpSecret: account.totpSecret, totpBackupCodes: account.totpBackupCodes })) return fail();
       }
     }
+    if (consume && !await consume()) return fail();
     const token = randomBytes(32).toString("base64url");
     await store.createSession({ tokenHash: sha256(token), tenantId: account.tenantId, accountId: account.id, kind: "user", audience: store.audience,
       expiresAt: new Date(now() + sessionTtl), lastSeenAt: new Date(now()), ip: input.ip, userAgent: input.userAgent });
     await limiter.succeed(attempt);
     return { ok: true, ...await issued(sign(token), { tenantOfHost: account.tenantId }) };
+  }
+  /** Server-only: accountId must come from a validated token lookup; consume must atomically spend that token. */
+  async function loginWithToken(input: { accountId: string; tenantId?: string; totp?: string; ip: string; userAgent: string }, consume: () => Promise<boolean>) {
+    const attempt = { realm: name, tenantId: input.tenantId, identifier: `token:${input.accountId}`, ip: input.ip };
+    const limit = await limiter.check(attempt);
+    if (!limit.ok) return { ok: false as const, reason: "locked" as const, retryAfterSec: limit.retryAfterSec, message: "Tạm khóa đăng nhập, thử lại sau 15 phút" };
+    const account = name === "site" && !input.tenantId ? null : await store.getAccount(input.accountId, input.tenantId);
+    if (!account || !eligible(account) || account.tenantId !== input.tenantId || account.tempPasswordExpiresAt && account.tempPasswordExpiresAt.getTime() <= now()) {
+      await limiter.fail(attempt);
+      return invalid();
+    }
+    return completeLogin(account, input, attempt, consume);
   }
   async function logout(value: string | null | undefined, host: HostContext = {}) {
     const hash = tokenHash(value);
@@ -207,5 +224,5 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
     await limiter.succeed(attempt);
     return rotateRow(row);
   }
-  return { cookieOptions, login, logout, getSession, requireSession, rotate, revokeAll, changePassword, beginTotp, enableTotp, disableTotp };
+  return { cookieOptions, login, loginWithToken, logout, getSession, requireSession, rotate, revokeAll, changePassword, beginTotp, enableTotp, disableTotp };
 }

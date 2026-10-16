@@ -57,6 +57,11 @@ MAC sai bị từ chối trước khi đọc DB. Đổi secret sẽ vô hiệu t
   Realm site luôn cần tenant do server phân giải từ host; không lấy tenant từ form/body của người dùng.
   Store site cố định audience: cookie storefront không mở phiên admin, role client không vào admin.
   Mỗi lần đọc kiểm tài khoản/tenant còn hoạt động, thời hạn tuyệt đối và idle; touch tối đa mỗi phút.
+- `loginWithToken({ accountId, tenantId?, totp?, ip, userAgent }, consume)` chỉ dùng từ server sau khi tra
+  token ngẫu nhiên bằng hash, đúng tenant/purpose/expiry. Không nhận `accountId` trực tiếp từ trình duyệt.
+  `consume()` phải chiếm token nguyên tử và trả `false` nếu hết hạn/đã dùng. Realm kiểm tài khoản,
+  audience, thời hạn mật khẩu tạm và TOTP như đăng nhập mật khẩu; chỉ cấp phiên sau khi consume thành công.
+  Khi trả `totp_required`, token chưa dùng để app có thể hỏi mã qua challenge HttpOnly ngắn hạn.
 - `requireSession(cookieValue, { tenantOfHost?, allowMustChange? })` ném `UnauthenticatedError` (401)
   hoặc `MustChangePasswordError` (403). Chỉ route đổi mật khẩu dùng `allowMustChange: true`.
 - `logout(cookieValue, { tenantOfHost? })` xóa phiên; app xóa cookie với cùng tên/path.
