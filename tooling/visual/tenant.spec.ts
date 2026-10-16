@@ -130,7 +130,7 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
   await expect(page.getByRole("dialog")).toContainText("Demo t15");
   await page.keyboard.press("Escape");
   await page.goto(`${origin("t15")}/tin-tuc`);
-  await page.locator(`main a[href="/tin-tuc/${postSlug}"]`).click();
+  await page.locator(`main:visible a[href="/tin-tuc/${postSlug}"]`).click();
   await expect(page).toHaveURL(`${origin("t15")}/tin-tuc/${postSlug}`);
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin("t15")}/tin-tuc/${postSlug}`);
@@ -224,10 +224,14 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
       for (const client of [false, true]) {
         if (client) {
           await page.goto(url + from, { waitUntil: "networkidle" });
-          await page.locator(`main a[href="${path}"]`).first().click();
+          await page.locator(`main:visible a[href="${path}"]`).first().click();
           await expect(page).toHaveURL(url + path);
         } else expect((await page.goto(url + path))?.status()).toBe(200);
-        await expect(page.locator("main h1")).toHaveText(title);
+        // Cache Components keeps the previous page mounted in a hidden React Activity.
+        await expect(page.locator("main:visible h1")).toHaveText(title);
+        for (const selector of ['title', 'meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:url"]']) {
+          await expect(page.locator(selector)).toHaveCount(1);
+        }
         await expect(page).toHaveTitle(fullTitle);
         await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", description);
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", fullTitle);
@@ -285,22 +289,30 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + path);
     }
     await page.goto(url + "/tin-tuc/review-post", { waitUntil: "networkidle" });
-    await expect(page.locator("main h1")).toHaveText("English post");
-    await expect(page.locator("main")).toContainText("English post body");
+    await expect(page.locator("main:visible h1")).toHaveText("English post");
+    await expect(page.locator("main:visible")).toContainText("English post body");
     await expect(page.getByRole("link", { name: "Estimate costs" })).toBeVisible();
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English excerpt");
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "en_US");
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", url + "/images/illustrations/home-solar.webp");
     await page.getByRole("button", { name: "vi", exact: true }).click();
-    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Mô tả VI");
     await expect(page.getByRole("navigation", { name: "Điều hướng chính" })).toBeVisible();
     await page.reload();
-    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI");
     await page.locator('header a[href="/"]').click();
-    await expect(page.locator("main")).toContainText("Tiêu đề VI");
+    await expect(page).toHaveURL(url + "/");
+    await expect(page.locator("main:visible")).toContainText("Tiêu đề VI");
+    for (const selector of ['title', 'link[rel="canonical"]', 'meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:locale"]', 'meta[property="og:url"]']) {
+      await expect(page.locator(selector)).toHaveCount(1);
+    }
+    await expect(page).toHaveTitle("Trang chủ VI | [DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + "/");
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "vi_VN");
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url + "/");
     await page.getByRole("button", { name: "en", exact: true }).click();
-    await expect(page.locator("main")).toContainText("English hero");
+    await expect(page.locator("main:visible")).toContainText("English hero");
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
   });
   for (const width of [390, 1440]) {
