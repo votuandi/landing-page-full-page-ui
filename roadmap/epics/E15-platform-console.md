@@ -25,16 +25,16 @@ không viết hai lần phần nhạy cảm nhất.
   - Rate-limit đăng nhập: theo `(realm, tenantId, identifier)` và theo IP (Redis; không có Redis thì bộ nhớ). Sai 5 lần → khóa
     15 phút. Thông báo lỗi chung "Thông tin đăng nhập không đúng", không tiết lộ tài khoản có tồn tại không.
   - Định danh đăng nhập `parseLoginId(input)`: có `@` → email (trim, chữ thường); chỉ chữ số/`+`/khoảng trắng →
-    `normalizeVnPhone`; khớp `^[a-z0-9_]{3,40}$` và có chữ cái → username (D21 §5); còn lại → lỗi.
+    `normalizeVnPhone`; khớp `^[a-z0-9_]{3,70}$` và có chữ cái → username (D21 §5); còn lại → lỗi.
   - Phiên có `mustChangePassword` chỉ được gọi đổi mật khẩu và đăng xuất; mật khẩu tạm quá `tempPasswordExpiresAt` → từ chối.
   - Danh mục permission + bảng vai trò → permission (`permissions.ts`), hàm `effectivePermissions(role, tenantPolicy, kind)`
     (D17, D19; phiên ghost trừ nhóm `account.security`).
 - **AC**:
-  - [ ] Test: phiên realm `platform` đưa vào `getSession` của realm `site` (và ngược lại) → `null`, kể cả khi token hợp lệ.
-  - [ ] Test: phiên site của tenant A gửi tới host tenant B → `null`.
-  - [ ] Test: `parseLoginId` cho `A@X.vn `, `0901 234 567`, `+84901234567`, `84901234567`, `NangLuongSolar_Admin`; đầu vào rác → lỗi.
-  - [ ] Test: khóa sau 5 lần sai; đếm sai của tenant A không khóa cùng định danh ở tenant B.
-  - [ ] Test TOTP với vector của RFC 6238.
+  - [x] Test: phiên realm `platform` đưa vào `getSession` của realm `site` (và ngược lại) → `null`, kể cả khi token hợp lệ.
+  - [x] Test: phiên site của tenant A gửi tới host tenant B → `null`.
+  - [x] Test: `parseLoginId` cho `A@X.vn `, `0901 234 567`, `+84901234567`, `84901234567`, `NangLuongSolar_Admin`; đầu vào rác → lỗi.
+  - [x] Test: khóa sau 5 lần sai; đếm sai của tenant A không khóa cùng định danh ở tenant B.
+  - [x] Test TOTP với vector của RFC 6238.
 - Phụ thuộc: E5-S10 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
 ### E15-S02 · Khung `apps/console` + đăng nhập super admin
