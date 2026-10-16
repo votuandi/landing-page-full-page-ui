@@ -92,6 +92,47 @@ jobs:
             for i in $(seq 1 60); do curl -fsS -o /dev/null "http://t15.localhost:$port/" && break; sleep 2; done
             curl -fsS -o /dev/null "http://t15.localhost:$port/"
           done
+      - name: Verify tenant HTML before measuring (base and head)
+        run: |
+          for port in 3300 3301; do
+            for path in / /lien-he; do
+              out="$RUNNER_TEMP/content-$port-$(echo "$path" | tr / -).html"
+              status=$(curl --fail --silent --show-error --max-time 60 --user-agent solar-ttfb --header 'Accept: text/html' --output "$out" --write-out '%{http_code}' "http://t15.localhost:$port$path")
+              test "$status" = 200
+              python3 - "$out" "$path" <<'PY'
+          import sys
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class Content(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.active = set()
+                  self.text = {tag: [] for tag in ("main", "title", "h1")}
+              def handle_starttag(self, tag, attrs):
+                  self.active.add(tag)
+              def handle_endtag(self, tag):
+                  self.active.discard(tag)
+              def handle_data(self, data):
+                  if not self.active.intersection({"script", "style"}):
+                      for tag in self.active.intersection(self.text):
+                          self.text[tag].append(data)
+
+          file, path = sys.argv[1:]
+          html = Path(file).read_text(encoding="utf-8")
+          content = Content()
+          content.feed(html)
+          name = "[DỮ LIỆU MẪU] Demo t15"
+          heading = f"Liên hệ {name}" if path == "/lien-he" else name
+          assert "Demo t15" in "".join(content.text["main"]), f"{file}: missing rendered tenant main (empty shell or legacy page)"
+          assert "Demo t12" not in html, f"{file}: leaked tenant t12"
+          assert "".join(content.text["title"]) == f"{heading} | {name}", f"{file}: wrong or duplicate title"
+          if path == "/lien-he":
+              assert "".join(content.text["h1"]) == heading, f"{file}: wrong contact heading"
+          print(f"{file}: HTTP 200, tenant main and title OK")
+          PY
+            done
+          done
       - name: Measure TTFB (a = base, b = head)
         run: |
           set -o pipefail
@@ -108,3 +149,4 @@ jobs:
             ${{ runner.temp }}/ttfb*.json
             ${{ runner.temp }}/base.log
             ${{ runner.temp }}/head.log
+            ${{ runner.temp }}/content-*.html

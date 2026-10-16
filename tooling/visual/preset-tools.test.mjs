@@ -16,6 +16,16 @@ test("TTFB rejects error responses instead of measuring an error page", async ()
   try { await assert.rejects(measure(`http://127.0.0.1:${server.address().port}`), /500/); }
   finally { await new Promise((done) => server.close(done)); }
 });
+test("TTFB requests HTML with the same User-Agent as the content gate", async () => {
+  let headers;
+  const server = createServer((req, res) => { headers = req.headers; res.end("<main>tenant</main>"); });
+  await new Promise((done) => server.listen(0, "127.0.0.1", done));
+  try {
+    await measure(`http://127.0.0.1:${server.address().port}`);
+    assert.equal(headers["user-agent"], "solar-ttfb");
+    assert.equal(headers.accept, "text/html");
+  } finally { await new Promise((done) => server.close(done)); }
+});
 test("comparison CLI validates id, port and option names", () => {
   assert.equal(options(["t15"]).port, 4100);
   assert.equal(options(["t15", "--port", "4200"]).port, 4200);

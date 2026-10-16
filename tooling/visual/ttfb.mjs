@@ -12,7 +12,8 @@ export function summarize(samples) {
 export function measure(url) {
   return new Promise((resolve, reject) => {
     const start = performance.now();
-    const req = (new URL(url).protocol === "https:" ? secureRequest : request)(url, (res) => {
+    // Match the curl content gate: an absent User-Agent bypasses Next's htmlLimitedBots and can time a streamed shell.
+    const req = (new URL(url).protocol === "https:" ? secureRequest : request)(url, { headers: { "user-agent": "solar-ttfb", accept: "text/html" } }, (res) => {
       const elapsed = performance.now() - start;
       res.resume();
       if (res.statusCode !== 200) reject(new Error(`${url}: HTTP ${res.statusCode}`));
