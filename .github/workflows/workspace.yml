@@ -56,6 +56,8 @@ jobs:
           SEED_PASSWORD=$(openssl rand -hex 24)
           for value in "$APP_OWNER_PASSWORD" "$APP_RUNTIME_PASSWORD" "$APP_PLATFORM_PASSWORD" "$SEED_PASSWORD"; do echo "::add-mask::$value"; done
           psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -f packages/db/scripts/provision-roles.sql
+          # Throwaway CI database: skip durability work so checkpoints do not stall the runner's disk (tenant e2e flakes).
+          psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -c "ALTER SYSTEM SET fsync = off" -c "ALTER SYSTEM SET synchronous_commit = off" -c "ALTER SYSTEM SET full_page_writes = off" -c "SELECT pg_reload_conf()"
           {
             echo "MIGRATION_DATABASE_URL=postgresql://app_owner:$APP_OWNER_PASSWORD@localhost:5432/solar_e5"
             echo "DATABASE_URL=postgresql://app_runtime:$APP_RUNTIME_PASSWORD@localhost:5432/solar_e5"

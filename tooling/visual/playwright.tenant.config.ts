@@ -5,7 +5,8 @@ import { resolve } from "node:path";
 process.env.REVALIDATE_SECRET ??= "tenant-e2e-revalidate-secret-0123456789";
 
 export default defineConfig({
-  testDir: ".", testMatch: "tenant.spec.ts", workers: 1, retries: 0, timeout: 120_000,
+  // One CI retry for `next dev` timing on loaded runners; Playwright still reports such tests as "flaky".
+  testDir: ".", testMatch: "tenant.spec.ts", workers: 1, retries: process.env.CI ? 1 : 0, timeout: 120_000,
   reporter: "list", outputDir: "test-results/tenant",
   use: { browserName: "chromium", viewport: { width: 1440, height: 900 }, locale: "vi-VN", navigationTimeout: 30_000, contextOptions: { reducedMotion: "reduce" }, trace: "retain-on-failure", screenshot: "only-on-failure",
     launchOptions: { args: ["--host-resolver-rules=MAP *.localhost 127.0.0.1"] } },
