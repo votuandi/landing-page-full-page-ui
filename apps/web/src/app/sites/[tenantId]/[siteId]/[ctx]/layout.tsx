@@ -1,43 +1,41 @@
-import { headers, draftMode } from "next/headers";
+import type { Metadata, Viewport } from "next";
+import { preload } from "react-dom";
 import { notFound } from "next/navigation";
-import { PageRenderer, SiteWidgets, createCollectionLoader, type BranchItem } from "@solar/sections";
-import TenantSiteShell from "@/components/TenantSiteShell";
-import { loadPublishedPage, loadDraftPage, loadTenantSite, siteCanUse } from "@/lib/tenant/siteData";
-import { tenantCollections, createTenantWidgetLoader } from "@/lib/tenant/collections";
-import { organizationJsonLd, siteOrigin } from "@/lib/tenant/seo";
-import { text } from "@/lib/tenant/contentSchemas";
-import { JsonLd } from "@/components/tenant/SystemPages";
+import { themeFontCss, themeFontFiles } from "@solar/themes";
+import { colorChannelsToHex, themeToCss } from "@solar/tokens";
+import "../../../../globals.css";
+import { loadDraftPage, loadPublishedPage } from "@/lib/tenant/siteData";
+import { tenantMetadata } from "@/lib/tenant/metadata";
+import { placeholderParams, tenantRoute } from "@/lib/tenant/route";
+import { TenantChrome } from "@/components/tenant/cached";
 
-export default async function TenantLayout({ children, params }: { children: React.ReactNode; params: Promise<{ siteId: string }> }) {
-  const { siteId } = await params;
-  const request = await headers();
-  if (request.get("x-site-id") !== siteId) notFound();
-  const preview = request.get("x-preview") === "1";
-  if (preview && !(await draftMode()).isEnabled) notFound();
-  const site = await loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
-  if (!site) notFound();
-  const home = await (preview ? loadDraftPage : loadPublishedPage)(site.tenantId, siteId, "", site.locale);
+// Approved blocking route (E5-S06): the tenant comes from the Host at request time and `next build` has no database, so
+// there is no valid generateStaticParams. Chrome and page bodies are `"use cache"` + tags; a static shell per tenant is E10.
+export const instant = false;
+export const generateStaticParams = placeholderParams;
+
+type Params = Promise<{ tenantId: string; siteId: string; ctx: string }>;
+const route = async (params: Params) => { const { tenantId, siteId, ctx } = await params; return tenantRoute(tenantId, siteId, ctx); };
+
+export async function generateViewport({ params }: { params: Params }): Promise<Viewport> {
+  const { site } = await route(params);
+  const mode = site.theme.meta.supportsDark && site.profile.theme.default === "dark" ? "dark" : "light";
+  return { width: "device-width", initialScale: 1, themeColor: colorChannelsToHex(site.overrides.colors?.[mode]?.bg ?? site.theme.colors[mode]?.bg ?? site.theme.colors.light.bg) };
+}
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  return tenantMetadata((await route(params)).site, "/");
+}
+
+export default async function TenantLayout({ children, params }: { children: React.ReactNode; params: Params }) {
+  const { site, preview } = await route(params);
+  const home = await (preview ? loadDraftPage : loadPublishedPage)(site.tenantId, site.siteId, "", site.locale);
   if (!home) notFound();
-  const canUse = siteCanUse(site);
-  const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
-  const loadData = createCollectionLoader(collections.source);
-  const cartEnabled = Boolean(site.widgets["quote-cart"]?.enabled && canUse("quoteCart"));
-  const chrome = (type: string) => <PageRenderer site={site.context} canUse={canUse} loadData={loadData}
-    page={{ sections: home.config.sections.filter((section) => section.type === type).map((section) => {
-      if (type !== "site-header") return section;
-      const data = section.data as { controls?: object };
-      return { ...section, data: { ...data, controls: { ...data.controls, cart: cartEnabled, language: site.locales.length > 1, theme: site.theme.meta.supportsDark && site.profile.theme.switcher } } };
-    }) }} />;
-  const organization = organizationJsonLd(siteOrigin(site), { name: text(site.profile.name, site.locale) || site.name,
-    description: text(site.profile.description, site.locale), email: site.profile.email, hotline: site.profile.hotline }, (await collections.source.branches?.(site.context) ?? []) as BranchItem[]);
-  const widgetConfig = { ...site.widgets, "theme-switch": site.theme.meta.supportsDark && site.profile.theme.switcher ? site.widgets["theme-switch"] : undefined };
-  const widgets = (slot: "inline" | "overlay") => <SiteWidgets widgets={widgetConfig} site={site.context} slot={slot} canUse={canUse} loadData={createTenantWidgetLoader(collections.source)} />;
-  return <TenantSiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={widgets("inline")} overlayWidgets={widgets("overlay")}
-    defaultLocale={site.locale} locales={site.locales} validSkus={cartEnabled ? (await collections.products()).map((item) => item.slug) : []} cartEnabled={cartEnabled}
-    calculatorHref={home.config.sections.some((section) => section.type === "calculator" && section.enabled) && canUse("calculator") ? "/#du-toan" : null}>
-    <JsonLd value={organization} />
-    {/* Lead forms render Turnstile only when the platform enables it; the API then requires its token (E11-S01). */}
-    {process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY ? <meta name="turnstile-site-key" content={process.env.TURNSTILE_SITE_KEY} /> : null}
-    {children}
-  </TenantSiteShell>;
+  const mode = site.theme.meta.supportsDark ? site.profile.theme.default : "light";
+  const script = `(function(){try{var t=localStorage.getItem("t15-theme");if(${site.theme.meta.supportsDark && site.profile.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t="${mode}";document.documentElement.dataset.theme=t;}catch(e){}})();`;
+  for (const file of themeFontFiles(site.theme)) preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  return <html lang={site.locale} data-tenant-site={site.siteId} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(site.theme) }} /><script dangerouslySetInnerHTML={{ __html: script }} /></head>
+    <body><TenantChrome tenantId={site.tenantId} siteId={site.siteId} locale={site.locale} preview={preview}>{children}</TenantChrome></body>
+  </html>;
 }

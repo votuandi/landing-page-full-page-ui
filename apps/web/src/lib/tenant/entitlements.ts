@@ -18,7 +18,7 @@ export function leadFeatures(body: Record<string, unknown>): Feature[] {
   return [...features];
 }
 
-/** Cache tags every tenant page carries besides `tenant:<id>`; attached once E5-S06 enables `cacheTag`. */
+/** Cache tags every tenant page carries besides its tenant tags (`tenantPageTags`, E5-S06). */
 export const PAGE_TAGS = Object.freeze([ENTITLEMENTS_TAG]);
 
 /** 403/413 JSON for API routes; other errors are rethrown for the caller's generic handling. */

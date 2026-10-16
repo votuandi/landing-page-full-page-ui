@@ -1,5 +1,5 @@
 import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@solar/ui";
-import { SEGMENT_SLUGS, SEGMENT_ORDER } from "@solar/core";
+import { SEGMENT_SLUGS, SEGMENT_ORDER, currentYear } from "@solar/core";
 import Link from "next/link";
 import { CheckBadgeIcon, ExclamationCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { siteConfig } from "@/config/site.config";
@@ -117,7 +117,7 @@ export default function SiteFooter() {
       </div>
       <div className="relative border-t border-line/12">
         <div className="t15-container flex flex-col gap-2 py-5 pb-28 text-xs text-fg-muted md:flex-row md:justify-between lg:pb-5">
-          <span>© {new Date().getFullYear()} {brand.name}. <Tr vi="Website demo — dữ liệu hư cấu." en="Demo website — fictional data." /></span>
+          <span>© {currentYear()} {brand.name}. <Tr vi="Website demo — dữ liệu hư cấu." en="Demo website — fictional data." /></span>
           <span><Tr vi="Tên, số liệu, địa chỉ, thương hiệu và giấy phép là mẫu, cần thay trước khi xuất bản." en="Names, figures, addresses, brands and licences are samples." /></span>
         </div>
       </div>

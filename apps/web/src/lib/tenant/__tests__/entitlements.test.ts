@@ -23,8 +23,9 @@ test("upload over mediaGb → 413 with a Vietnamese message (helper E8-S02 wires
 
 // Target E6-S02: every current entry point checks entitlements. New entry points must be added here.
 const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
-  "app/sites/[siteId]/layout.tsx": /siteCanUse\(site\)/, // chrome sections, widgets, cart, calculator link
-  "app/sites/[siteId]/[[...path]]/page.tsx": /siteCanUse\(site\)/, // routes, landing pages, PageRenderer
+  "app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx": /<TenantChrome /, // cached chrome below
+  "app/sites/[tenantId]/[siteId]/[ctx]/[[...path]]/page.tsx": /tenantPageOutcome\([\s\S]*<TenantPageBody /, // cached page below
+  "components/tenant/cached.tsx": /siteCanUse\(site\)[\s\S]*siteCanUse\(site\)[\s\S]*siteCanUse\(site\)/, // routes, landing pages, PageRenderer, chrome, widgets, cart
   "components/tenant/SystemPages.tsx": /siteCanUse\(site\)/, // system pages, cart, calculator CTA
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap
   "lib/tenant/leadIntake.ts": /assertCan\(/, // POST /api/lead (tenant)
@@ -42,6 +43,6 @@ test("100% of entry points check entitlements; nobody resolves plans directly", 
   const tenantEntries = files(join(src, "app")).map((path) => path.slice(src.length + 1).replaceAll("\\", "/"))
     .filter((path) => path.startsWith("app/sites/") || path.startsWith("app/api/"));
   assert.deepEqual(tenantEntries.filter((path) => !(path in ENTRY_POINTS)).sort(),
-    ["app/api/preview/route.ts", "app/api/revalidate/route.ts", "app/sites/[siteId]/robots.txt/route.ts", "app/sites/[siteId]/sitemap.xml/route.ts"], "preview only enables authenticated Draft Mode; render checks entitlements; sitemap delegates to seoData");
+    ["app/api/preview/route.ts", "app/api/revalidate/route.ts", "app/sites/[tenantId]/[siteId]/[ctx]/not-found.tsx", "app/sites/[tenantId]/[siteId]/robots.txt/route.ts", "app/sites/[tenantId]/[siteId]/sitemap.xml/route.ts"], "preview only enables authenticated Draft Mode; render checks entitlements; sitemap delegates to seoData");
   for (const path of files(src)) assert.doesNotMatch(readFileSync(path, "utf8"), /\bgetPlan\(|\.features\.has\(|planCanUse/, path);
 });

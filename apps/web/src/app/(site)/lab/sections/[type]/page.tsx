@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PageRenderer, pageConfigSchema, sectionRegistry, createCollectionLoader, type Locale } from "@solar/sections";
 import { themes, getTheme, themeFontCss } from "@solar/themes";
 import { themeToCss } from "@solar/tokens";
-import { staticCollectionSource } from "../../../../lib/sectionCollections";
+import { staticCollectionSource } from "../../../../../lib/sectionCollections";
 import { labPalette, selectLabIds } from "../matrix-data";
 
 export default async function SectionMatrixPage({ params, searchParams }: {

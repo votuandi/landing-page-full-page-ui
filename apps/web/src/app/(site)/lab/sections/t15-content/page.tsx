@@ -1,5 +1,5 @@
 import { PageRenderer, pageConfigSchema, sectionRegistry, createCollectionLoader, type Locale, type SiteContext } from "@solar/sections";
-import { staticCollectionSource } from "../../../../lib/sectionCollections";
+import { staticCollectionSource } from "../../../../../lib/sectionCollections";
 
 const types = ["projects", "shorts", "stats", "energy-monitoring", "process", "testimonials", "trust", "brands", "faq", "blog", "cta-banner", "calculator"];
 const page = pageConfigSchema.parse({ sections: types.map((type) => ({

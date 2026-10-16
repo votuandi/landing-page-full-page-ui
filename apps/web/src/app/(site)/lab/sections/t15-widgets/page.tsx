@@ -1,5 +1,5 @@
 import { PageRenderer, pageConfigSchema, sectionRegistry, SiteWidgets, siteWidgetsSchema, widgetRegistry, createCollectionLoader, type Locale, type SiteContext } from "@solar/sections";
-import { staticCollectionSource } from "../../../../lib/sectionCollections";
+import { staticCollectionSource } from "../../../../../lib/sectionCollections";
 
 export default async function WidgetsLabPage({ searchParams }: { searchParams: Promise<{ lang?: string; plan?: string; popup?: string; dock?: string }> }) {
   const params = await searchParams;

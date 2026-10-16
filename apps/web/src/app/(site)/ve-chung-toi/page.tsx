@@ -1,3 +1,4 @@
+import { currentYear } from "@solar/core";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
@@ -20,7 +21,7 @@ const timeline = [
   [String(founded), "Thành lập", "Bắt đầu từ đội kỹ thuật lắp đặt điện mặt trời cho hộ gia đình."],
   [String(founded + 3), "Cửa hàng & nhà xưởng", "Chuẩn hóa quy trình khảo sát mái, mô phỏng sản lượng, thi công không gián đoạn kinh doanh."],
   [String(founded + 7), "Phân phối thiết bị", "Nhà phân phối ủy quyền tấm pin, inverter, pin lưu trữ, BESS và đèn năng lượng mặt trời."],
-  [String(new Date().getFullYear()), `${String(SITE_CONFIG.capabilities.mwp).replace(".", ",")} MWp`, `${siteConfig.branches.length} chi nhánh, ${siteConfig.stats.dealers}+ đại lý, hơn ${new Intl.NumberFormat("vi-VN").format(SITE_CONFIG.capabilities.customers)} khách hàng.`],
+  [String(currentYear()), `${String(SITE_CONFIG.capabilities.mwp).replace(".", ",")} MWp`, `${siteConfig.branches.length} chi nhánh, ${siteConfig.stats.dealers}+ đại lý, hơn ${new Intl.NumberFormat("vi-VN").format(SITE_CONFIG.capabilities.customers)} khách hàng.`],
 ];
 
 /** Bảo hành tách bạch theo hạng mục. [CẦN XÁC MINH theo hợp đồng thực tế] */

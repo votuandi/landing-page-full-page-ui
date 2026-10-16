@@ -1,5 +1,31 @@
 # web
 
+## Cache Components (E5-S06)
+
+`cacheComponents: true`. Trang tenant không đọc `headers()`/`cookies()` khi render: proxy rewrite sang
+`/sites/<tenantId>/<siteId>/<ctx>/<path>`, `ctx` = `vi` | `en` | `auto` (cookie `solar-locale`), thêm tiền tố `draft.` trên host
+preview (`lib/tenant/routeContext.ts`). `/robots.txt`, `/sitemap.xml` rewrite không có `ctx`. Chỉ proxy tạo được đường dẫn
+`/sites/**` (đường dẫn công khai bị chặn), cặp tenant/site sai không đọc được gì qua repository tenant.
+
+- `components/tenant/cached.tsx`: `TenantChrome` (header/footer/widget/JSON-LD), `TenantPageBody`, `tenantPageOutcome`
+  (quyết định 404/308 + metadata) là `"use cache"`, khóa = tenant, site, locale đã chọn, preview, slug;
+  `cacheTag(...tenantPageTags(tenantId, slug))` = tenant, site, page, mọi collection, `platform:entitlements`;
+  `cacheLife(TENANT_CACHE_LIFE)` (revalidate 60 s cho kill switch). `/api/revalidate` (S05) xóa cả cache này theo tag.
+  `notFound()`/`permanentRedirect()` chỉ gọi ngoài scope cache. Draft Mode làm mọi scope cache chạy lại, không ghi cache.
+- Hai root layout: `app/(site)/layout.tsx` (site đơn + `/lab`, tĩnh) và `app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx`;
+  URL không khớp route nào dùng `app/global-not-found.tsx` (`experimental.globalNotFound`).
+- `currentYear()` (`@solar/core`) thay `new Date().getFullYear()` trong render (Next chặn `new Date()` khi prerender).
+
+Route blocking đã duyệt (`export const instant = false`, có comment lý do):
+
+| Route | Lý do |
+|---|---|
+| `app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx` | Tenant đến từ Host lúc chạy; build không có DB. `generateStaticParams` chỉ trả giá trị giữ chỗ `_` (404, không chạm DB) vì Cache Components bắt buộc root param có giá trị. Shell tĩnh theo tenant để E10. |
+| `app/(site)/lab/layout.tsx` | Đọc `LAB_ENABLED` lúc chạy (`await connection()`). |
+
+Route handler `/api/*`, robots/sitemap tenant động theo bản chất. HTML công khai giờ phụ thuộc cookie `solar-locale` qua
+rewrite: nếu đặt CDN trước Next cần `Vary: Cookie` hoặc locale trong URL.
+
 ## Preview (E5-S07)
 
 Đặt `PLATFORM_DOMAIN` (miền gốc, không scheme/port) và `PREVIEW_SECRET` ngẫu nhiên ít nhất 32 byte.
@@ -28,7 +54,7 @@ Fixture dùng tenant riêng và gửi `POST /api/revalidate` có HMAC sau các t
 `MULTI_TENANT=1` bật `src/proxy.ts` (Next 16, Node runtime); cần `DATABASE_URL` của role `app_runtime` (E5-S09).
 Mặc định tắt để site đơn và `/lab` tiếp tục dùng fixture. Dù tắt,
 proxy vẫn xóa `x-tenant-id`/`x-site-id` từ client và chặn đường dẫn `/sites/*`.
-Route `/sites/[siteId]/[[...path]]` render nội dung published từ DB (E5-S04).
+Route `/sites/[tenantId]/[siteId]/[ctx]/[[...path]]` render nội dung published từ DB (E5-S04, đường dẫn từ E5-S06).
 
 Chỉ `Host` được dùng để chọn tenant. Caddy/ALB/Cloudflare phải ghi đúng `Host`;
 web bỏ qua hoàn toàn `X-Forwarded-Host`/`Forwarded` vì Next proxy không có IP socket
@@ -42,7 +68,7 @@ primary của cùng tenant + site, giữ path/query, dùng HTTPS trong productio
 308 có `Cache-Control: public, max-age=300`; ở dev redirect giữ cổng của request.
 Resolver lỗi (kể cả thiếu `DATABASE_URL` khi bật) trả 503 `no-store`, log chi tiết ở server
 và chỉ gửi thông báo chung cho client. Đường dẫn nội bộ bị chặn cả khi viết hoa (`/SITES/x`).
-Trang thường rewrite sang `/sites/<siteId>/…`; `/api/*` giữ route và nhận header
+Trang thường rewrite sang `/sites/<tenantId>/<siteId>/<ctx>/…` (E5-S06); `/api/*` giữ route và nhận header
 tenant đã phân giải. API vẫn phải tự kiểm membership/entitlements khi các story
 tương ứng triển khai; đây là bước xác định tenant của request.
 
@@ -103,7 +129,7 @@ cùng canonical mới sau điều hướng client sang detail, kể cả chờ 2
 và case điều hướng trong tenant suite qua. [Cấu hình Next htmlLimitedBots](https://nextjs.org/docs/app/api-reference/config/next-config-js/htmlLimitedBots).
 
 `MULTI_TENANT=1` bật phân giải Host và render nội dung published từ PostgreSQL. Mặc định vẫn chạy bản t15/lab cũ.
-Proxy xóa header nội bộ do client gửi, đặt tenant/site đã phân giải và rewrite vào `sites/[siteId]`.
+Proxy xóa header nội bộ do client gửi, đặt tenant/site đã phân giải và rewrite vào `sites/[tenantId]/[siteId]/[ctx]`.
 Đường dẫn công khai `/sites/*` bị chặn. Các truy vấn nội dung dùng repository bắt buộc tenantId;
 Site, Page và SectionContent còn được giới hạn theo site/page. Draft không được render công khai.
 
@@ -113,7 +139,7 @@ Chạy `pnpm --filter @solar/db db:deploy`, `pnpm db:seed`, rồi bật `DATABAS
 
 ### SEO theo tenant (E5-S08)
 
-- `/robots.txt`, `/sitemap.xml` của mỗi host do `app/sites/[siteId]/{robots.txt,sitemap.xml}/route.ts` sinh từ dữ liệu
+- `/robots.txt`, `/sitemap.xml` của mỗi host do `app/sites/[tenantId]/[siteId]/{robots.txt,sitemap.xml}/route.ts` sinh từ dữ liệu
   published của chính tenant; URL luôn ở primaryHost.
 - JSON-LD: Organization + LocalBusiness (chi nhánh) ở mọi trang, Product + BreadcrumbList ở chi tiết sản phẩm,
   BreadcrumbList ở chi tiết tin/công trình/giải pháp/chính sách, FAQPage ở `/cam-nang`.
@@ -138,7 +164,7 @@ Cột DB là nguồn chính cho segment/kind/rating/primary; Product thiếu Bra
 Giỏ tra toàn bộ SKU published, độc lập query trưng bày của widget. Datasheet, đơn vị giá, savings, CTA và form dịch vụ
 dùng dữ liệu tenant; service `data.segment` chọn công trình liên quan, `data.steps` tùy chọn thay quy trình mặc định.
 
-Locale tenant đọc cookie `solar-locale` và kiểm với `Site.locales`; không hợp lệ thì dùng defaultLocale được phép.
+Locale tenant: proxy đọc cookie `solar-locale` và ghi vào segment `[ctx]` (E5-S06), trang kiểm với `Site.locales`; không hợp lệ thì dùng defaultLocale được phép.
 Nút VI/EN cập nhật cookie rồi `router.refresh()` để DTO, server slots, chrome/widget và metadata đổi cùng nhau, kể cả
 tải lại hoặc điều hướng client. Metadata detail ưu tiên ảnh record, fallback ảnh SEO site; description fallback SEO →
 profile → tên site. Theme switch chỉ hiện khi theme hỗ trợ dark và profile bật switcher.
