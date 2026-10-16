@@ -153,7 +153,10 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   `cacheLife` + tag; đối số của hàm cache luôn có `siteId`, `locale` (đúng khóa ở S05); phần phụ thuộc request (draft mode,
   giỏ) nằm trong `<Suspense>`. Chính sách CSP phải tương thích render tĩnh (E14-S04 — không dùng nonce theo request).
   Trang tenant gắn thêm `PAGE_TAGS` (`platform:entitlements`, export ở `apps/web/src/lib/tenant/entitlements.ts`, E6-S02/D19).
-- **AC**: [ ] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [ ] TTFB không kém S05 · [ ] Test cùng slug ở S05 vẫn qua.
+- **AC**: [x] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [ ] TTFB không kém S05 · [ ] Test cùng slug ở S05 vẫn qua.
+  - PR [#43](https://github.com/votuandi/landing-page-full-page-ui/pull/43): build/typecheck/lint/unit test và token lint qua;
+    danh sách blocking ở `apps/web/README.md` gồm layout + page tenant (validation từng segment) và lab.
+    TTFB chờ CI chạy lại với gate nội dung và cùng User-Agent; tenant/preview và test cùng slug cần Postgres/Redis CI.
 - Phụ thuộc: S05, E1-S03 · Agent: Codex (review Claude) · Cỡ: M
 
 ### E5-S07 · Draft, preview & xuất bản nhất quán ✅ · PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42)

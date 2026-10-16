@@ -21,7 +21,17 @@ Route blocking đã duyệt (`export const instant = false`, có comment lý do)
 | Route | Lý do |
 |---|---|
 | `app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx` | Tenant đến từ Host lúc chạy; build không có DB. `generateStaticParams` chỉ trả giá trị giữ chỗ `_` (404, không chạm DB) vì Cache Components bắt buộc root param có giá trị. Shell tĩnh theo tenant để E10. |
+| `app/sites/[tenantId]/[siteId]/[ctx]/[[...path]]/page.tsx` | Page và `generateMetadata` gọi `tenantRoute()` theo request (`connection()`); `instant = false` ở layout không miễn validation của page khi client navigation. |
 | `app/(site)/lab/layout.tsx` | Đọc `LAB_ENABLED` lúc chạy (`await connection()`). |
+
+`generateViewport` và `generateMetadata` của layout dùng cùng `tenantRoute()` với nội dung; không cache lookup chứa
+`connection()`/Draft Mode. `instant = false` chỉ điều khiển validation, không tắt prerender: `connection()` trong
+`tenantRoute()` giữ tenant thật render theo request, rồi tái sử dụng các scope `"use cache"` theo tenant/site/locale/preview.
+
+Workflow `ttfb-compare` kiểm HTML của cả base/head trên `/` và `/lien-he` (HTTP 200, nội dung tenant trong `<main>`,
+tiêu đề đúng, không có tenant khác) trước khi đo. Gate `curl` và `tooling/visual/ttfb.mjs` cùng gửi
+`User-Agent: solar-ttfb`, `Accept: text/html`: thiếu User-Agent sẽ bỏ qua `htmlLimitedBots` và có thể đo shell stream
+thay vì cùng response HTML. Artifact giữ HTML đã kiểm cùng log/số đo để đối chiếu.
 
 Route handler `/api/*`, robots/sitemap tenant động theo bản chất. HTML công khai giờ phụ thuộc cookie `solar-locale` qua
 rewrite: nếu đặt CDN trước Next cần `Vary: Cookie` hoặc locale trong URL.
