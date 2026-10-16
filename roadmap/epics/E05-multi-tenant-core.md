@@ -156,7 +156,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - **AC**: [ ] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [ ] TTFB không kém S05 · [ ] Test cùng slug ở S05 vẫn qua.
 - Phụ thuộc: S05, E1-S03 · Agent: Codex (review Claude) · Cỡ: M
 
-### E5-S07 · Draft, preview & xuất bản nhất quán
+### E5-S07 · Draft, preview & xuất bản nhất quán ✅ · PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42)
 **Là** tenant, **tôi muốn** xem trước thay đổi trước khi xuất bản, **để** không làm hỏng site đang chạy.
 - **Chi tiết**:
   - Preview **luôn chạy trên subdomain nền tảng** `<slug>.preview.<platform>` (cùng site với `admin.<platform>`), không chạy

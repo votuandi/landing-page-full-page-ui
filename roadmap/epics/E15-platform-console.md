@@ -12,7 +12,7 @@ trong một CMS riêng. Console có tài khoản riêng, không dùng chung vớ
 
 ---
 
-### E15-S01 · `packages/auth`: hai realm đăng nhập
+### E15-S01 · `packages/auth`: hai realm đăng nhập ✅ · PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42)
 **Là** dev, **tôi muốn** một thư viện xác thực dùng chung cho `admin` và `console` nhưng hai realm không thể lẫn nhau, **để**
 không viết hai lần phần nhạy cảm nhất.
 - **Chi tiết**:
