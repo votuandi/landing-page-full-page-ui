@@ -1,0 +1,109 @@
+name: ttfb-compare
+
+# Tenant TTFB of the PR head vs its base on a seeded Postgres (E5-S06 AC "TTFB không kém S05").
+# Runs only when the `ttfb` label is added, so normal PRs do not pay for two production builds.
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  ttfb:
+    if: github.event.label.name == 'ttfb'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: solar_e5
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d solar_e5"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      REDIS_URL: redis://localhost:6379
+      MULTI_TENANT: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Provision Postgres roles (same as workspace.yml db job)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          export APP_OWNER_PASSWORD=$(openssl rand -hex 24)
+          export APP_RUNTIME_PASSWORD=$(openssl rand -hex 24)
+          export APP_PLATFORM_PASSWORD=$(openssl rand -hex 24)
+          SEED_PASSWORD=$(openssl rand -hex 24)
+          for value in "$APP_OWNER_PASSWORD" "$APP_RUNTIME_PASSWORD" "$APP_PLATFORM_PASSWORD" "$SEED_PASSWORD"; do echo "::add-mask::$value"; done
+          psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -f packages/db/scripts/provision-roles.sql
+          {
+            echo "MIGRATION_DATABASE_URL=postgresql://app_owner:$APP_OWNER_PASSWORD@localhost:5432/solar_e5"
+            echo "DATABASE_URL=postgresql://app_runtime:$APP_RUNTIME_PASSWORD@localhost:5432/solar_e5"
+            echo "PLATFORM_DATABASE_URL=postgresql://app_platform:$APP_PLATFORM_PASSWORD@localhost:5432/solar_e5"
+            echo "SEED_PASSWORD=$SEED_PASSWORD"
+          } >> "$GITHUB_ENV"
+      - run: pnpm --filter @solar/db db:deploy
+      - run: pnpm db:seed
+      - run: echo "127.0.0.1 t15.localhost t12.localhost" | sudo tee -a /etc/hosts
+      - name: Build base (${{ github.base_ref }}) in a worktree
+        run: |
+          git worktree add ../base "origin/${{ github.base_ref }}"
+          cd ../base
+          pnpm install --frozen-lockfile
+          pnpm --filter @solar/db generate
+          pnpm --filter web build
+      - name: Build head
+        run: pnpm --filter web build
+      - name: Start both servers (runtime DB role only)
+        env:
+          PLATFORM_DATABASE_URL: ""
+          MIGRATION_DATABASE_URL: ""
+          SEED_PASSWORD: ""
+        run: |
+          (cd ../base && nohup pnpm --filter web start --port 3300 > "$RUNNER_TEMP/base.log" 2>&1 &)
+          nohup pnpm --filter web start --port 3301 > "$RUNNER_TEMP/head.log" 2>&1 &
+          for port in 3300 3301; do
+            for i in $(seq 1 60); do curl -fsS -o /dev/null "http://t15.localhost:$port/" && break; sleep 2; done
+            curl -fsS -o /dev/null "http://t15.localhost:$port/"
+          done
+      - name: Measure TTFB (a = base, b = head)
+        run: |
+          for path in / /lien-he /san-pham; do
+            out="$RUNNER_TEMP/ttfb$(echo "$path" | tr / -).json"
+            node tooling/visual/ttfb.mjs "http://t15.localhost:3300$path" "http://t15.localhost:3301$path" --n 50 | tee "$out"
+            { echo "### t15.localhost$path"; echo '```json'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ttfb-compare
+          path: |
+            ${{ runner.temp }}/ttfb*.json
+            ${{ runner.temp }}/base.log
+            ${{ runner.temp }}/head.log
