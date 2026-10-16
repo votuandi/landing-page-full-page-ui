@@ -11,7 +11,8 @@ export default async function PresetLabPage({ params, searchParams }: {
 }) {
   const { id } = await params;
   if (!getPreset(id)) notFound();
-  const loaded = loadPreset(id);
+  // loadPreset returns shared data; subpage rendering must only replace this request's page.
+  const loaded = { ...loadPreset(id) };
   const { theme: override, subpage } = await searchParams;
   const theme = override ? getTheme(override) : loaded.theme;
   if (!theme) notFound();

@@ -118,3 +118,19 @@ test("preset content, header/footer and commitments remain visible without JavaS
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Kỹ sư đến tận nơi đo mái, đọc hóa đơn");
   } finally { await context.close(); }
 });
+
+test("lab subpage requests preserve the homepage preset and its server HTML", async ({ request, browser, baseURL }) => {
+  for (const subpage of ["giai-phap", "san-pham", "giai-phap"]) {
+    expect((await request.get(`/lab/presets/t15?subpage=${subpage}`)).status()).toBe(200);
+  }
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
+  try {
+    const page = await context.newPage();
+    for (const route of ["/lab/presets/t15", "/"]) {
+      expect((await page.goto(route))?.status()).toBe(200);
+      await expect(page.locator("[data-section-type]")).toHaveCount(26);
+      await expect(page.locator("[data-section-type=hero] h1")).toBeVisible();
+      await expect(page.locator("[data-section-fallback]")).toHaveCount(0);
+    }
+  } finally { await context.close(); }
+});

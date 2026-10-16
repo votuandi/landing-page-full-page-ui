@@ -28,6 +28,10 @@ Route blocking đã duyệt (`export const instant = false`, có comment lý do)
 `connection()`/Draft Mode. `instant = false` chỉ điều khiển validation, không tắt prerender: `connection()` trong
 `tenantRoute()` giữ tenant thật render theo request, rồi tái sử dụng các scope `"use cache"` theo tenant/site/locale/preview.
 
+Lab preset tạo bản sao object từ `loadPreset()` trước khi thay trang con: kết quả loader dùng chung và chỉ đọc.
+Prefetch `?subpage=…` không được thay nội dung trang chủ của request khác. Demo `demo-crash` giữ SSR và hydrate giống nhau,
+rồi cố ý ném lỗi render sau hydrate để kiểm `SectionBoundary`; lỗi hydration được React/Next báo ở cấp trang.
+
 Workflow `ttfb-compare` kiểm HTML của cả base/head trên `/` và `/lien-he` (HTTP 200, nội dung tenant trong `<main>`,
 tiêu đề đúng, không có tenant khác) trước khi đo. Gate `curl` và `tooling/visual/ttfb.mjs` cùng gửi
 `User-Agent: solar-ttfb`, `Accept: text/html`: thiếu User-Agent sẽ bỏ qua `htmlLimitedBots` và có thể đo shell stream
