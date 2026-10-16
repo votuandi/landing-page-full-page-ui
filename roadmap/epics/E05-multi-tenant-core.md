@@ -166,8 +166,15 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
     tạo `PageVersion`, ghi Outbox invalidate. Hai người sửa cùng lúc → người lưu sau nhận cảnh báo xung đột (không ghi đè ngầm).
 - **AC**:
   - [ ] Iframe preview hoạt động trên Chrome, Safari, Firefox mới nhất (có test Playwright WebKit).
-  - [ ] Token hết hạn / dùng lại / sai host → 401.
-  - [ ] Không bao giờ có trạng thái "bố cục mới + nội dung cũ" (test xuất bản xen kẽ hai tab).
+  - [x] Token hết hạn / dùng lại / sai host → 401.
+  - [x] Không bao giờ có trạng thái "bố cục mới + nội dung cũ" (test xuất bản xen kẽ hai tab).
+  - Bằng chứng E5-S07: `packages/db/src/__tests__/{publish.int,preview.int}.test.ts` trên Postgres thật
+    (revision CAS, rollback, snapshot + Outbox, token hash/expiry/replay/tenant); web `publishSnapshot.int.test.ts`
+    xen 20 lần publish vào giữa hai lượt đọc layout/content, tất cả khớp snapshot RepeatableRead.
+    `playwright.preview.config.ts --project chromium`: iframe nháp, reload, public giữ bản chính, token sai/đã dùng/hết hạn
+    và cookie chéo tenant. WebKit/Firefox đã thêm vào CI, chưa chạy local nên AC đa trình duyệt để mở.
+    Fixture dùng miền gốc chung `solar.localhost`; `next dev` ghi đè Cache-Control HTML, proxy/entry có kiểm no-store.
+    Chờ Claude review/CI cuối PR gộp; chưa tạo PR mới ở lượt thực thi này.
 - Phụ thuộc: S05 · Agent: Claude · Cỡ: M
 
 ### E5-S08 · SEO theo tenant ✅ · PR [#37](https://github.com/votuandi/landing-page-full-page-ui/pull/37)
