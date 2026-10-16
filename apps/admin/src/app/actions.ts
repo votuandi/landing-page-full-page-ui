@@ -16,15 +16,14 @@ const token = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
 const empty = z.object({});
 const service = () => createAccounts(getRuntime());
 const challengeName = () => process.env.NODE_ENV === "production" ? "__Host-admin_challenge" : "admin_challenge";
+const challengeOptions = () => ({ httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict" as const, path: "/", maxAge: 300 });
 async function saveChallenge(context: ActionContext, purpose: string, data: Record<string, string>) {
-  (await cookies()).set(challengeName(), sealChallenge(data, context.tenantId, purpose, getRuntime().secret), {
-    httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", maxAge: 300,
-  });
+  (await cookies()).set(challengeName(), sealChallenge(data, context.tenantId, purpose, getRuntime().secret), challengeOptions());
 }
 async function readChallenge(context: ActionContext, purpose: string) {
   return openChallenge((await cookies()).get(challengeName())?.value, context.tenantId, purpose, getRuntime().secret);
 }
-async function clearChallenge() { (await cookies()).delete(challengeName()); }
+async function clearChallenge() { (await cookies()).set(challengeName(), "", { ...challengeOptions(), maxAge: 0 }); }
 async function finish(result: Awaited<ReturnType<ReturnType<typeof getRuntime>["realm"]["login"]>>) {
   if (!result.ok) {
     return { ok: false, status: result.reason === "locked" ? 429 : 400, error: result.reason === "temp_password_expired"
@@ -56,7 +55,7 @@ export const loginTotpAction = action("public", z.object({ code: z.string().trim
 export const logoutAction = action("session", empty, async (_input, context) => {
   const { realm } = getRuntime(), jar = await cookies();
   await realm.logout(jar.get(realm.cookieOptions().name)?.value, { tenantOfHost: context.tenantId });
-  jar.delete(realm.cookieOptions().name);
+  jar.set({ ...realm.cookieOptions(), value: "", maxAge: 0 });
   await clearChallenge();
   redirect("/dang-nhap");
 });
@@ -78,7 +77,7 @@ export const requestMagicAction = action("public", z.object({ identifier }), asy
 export const resetPasswordAction = action("public", z.object({ token, next: password, confirm: password }), async (input, context) => {
   if (input.next !== input.confirm) throw new AccountInputError("Hai mật khẩu mới chưa khớp");
   await service().setPassword(context.tenantId, input.token, input.next, "reset_password", (await requestInfo()).ip);
-  (await cookies()).delete(getRuntime().realm.cookieOptions().name);
+  (await cookies()).set({ ...getRuntime().realm.cookieOptions(), value: "", maxAge: 0 });
   await clearChallenge();
   redirect("/dang-nhap?da-dat-lai=1");
 });
