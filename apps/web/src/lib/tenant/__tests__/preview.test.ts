@@ -21,7 +21,7 @@ test("preview host is exact and redirect accepts only local paths", () => {
   for (const host of ["preview.localhost", "x.y.preview.localhost", "x.preview.localhost.evil", "-x.preview.localhost"])
     assert.equal(previewSlug(host, "localhost"), null);
   for (const path of ["//evil.vn", "/\\evil.vn", "https://evil.vn", "/%2f%2fevil.vn", "/%5cevil.vn", "/\r\nLocation: evil", "/%00evil", "/%zz"])
-    assert.equal(safePreviewPath(path), "/");
+    assert.equal(safePreviewPath(path), null);
   assert.equal(safePreviewPath("/lien-he?q=1"), "/lien-he?q=1");
 });
 test("preview entry rejects missing/used/expired/wrong-host tokens and enables host-only session on success", async () => {
@@ -41,5 +41,25 @@ test("preview entry rejects missing/used/expired/wrong-host tokens and enables h
   for (const expected of [/^__Host-preview=/, /; HttpOnly/i, /; Secure/i, /; SameSite=lax/i, /; Path=\//i]) assert.match(response.headers.get("set-cookie")!, expected);
   assert.doesNotMatch(response.headers.get("set-cookie")!, /Domain=/i);
   assert.equal(response.headers.get("cache-control"), "private, no-store");
+  assert.equal(enabled, 1);
+});
+
+test("preview validates and encodes Location before spending a one-use token", async () => {
+  let consumed = 0, enabled = 0;
+  const handle = createPreviewHandler({ secret: () => secret, production: true,
+    consume: async () => { consumed++; return { siteId: "s" }; }, enableDraft: async () => { enabled++; } });
+  const request = (path: string) => new NextRequest(`https://a.preview.example.vn/api/preview?token=valid&${new URLSearchParams({ path })}`, {
+    headers: { "x-preview": "1", "x-tenant-id": "a", "x-site-id": "s" },
+  });
+  for (const path of ["//evil.vn", "/\\evil.vn", "/%zz", "/%00bad", "/\r\nLocation: bad", "/%ED%A0%80"]) {
+    assert.equal((await handle(request(path))).status, 400, path);
+    assert.equal(consumed, 0);
+    assert.equal(enabled, 0);
+  }
+  const path = "/điện-mặt-trời?q=Việt%2BNam";
+  const response = await handle(request(path));
+  assert.equal(response.status, 307);
+  assert.equal(response.headers.get("location"), encodeURI(path).replaceAll("%25", "%"));
+  assert.equal(consumed, 1);
   assert.equal(enabled, 1);
 });

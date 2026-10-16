@@ -14,9 +14,9 @@ export function safePreviewPath(path: string | null) {
   if (!path) return "/";
   try {
     const decoded = decodeURIComponent(path);
-    if (!decoded.startsWith("/") || decoded.startsWith("//") || /[\\\u0000-\u0020\u007f]/.test(decoded)) return "/";
-  } catch { return "/"; }
-  return path;
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || /[\\\u0000-\u0020\u007f]/.test(decoded)) return null;
+    return encodeURI(path).replaceAll("%25", "%");
+  } catch { return null; }
 }
 const encode = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
 const decode = (value: string) => Uint8Array.from(atob(value.replaceAll("-", "+").replaceAll("_", "/")), char => char.charCodeAt(0));
