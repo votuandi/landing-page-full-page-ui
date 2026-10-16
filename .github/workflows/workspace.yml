@@ -71,13 +71,18 @@ jobs:
       - run: pnpm db:seed
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
-      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - name: Resolve same-site preview and admin hosts in all browser engines
+        run: echo '127.0.0.1 preview-e5-t15.solar.localhost preview-e5-t12.solar.localhost preview-e5-t15.preview.solar.localhost preview-e5-t12.preview.solar.localhost preview-e5-t15.admin.solar.localhost' | sudo tee -a /etc/hosts
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tenant-browser-evidence
-          path: tooling/visual/test-results/tenant
+          path: |
+            tooling/visual/test-results/tenant
+            tooling/visual/test-results/preview
   verify:
     strategy:
       fail-fast: false
