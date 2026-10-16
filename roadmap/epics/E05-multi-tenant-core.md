@@ -165,7 +165,8 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   - Xuất bản = 1 transaction: kiểm `revision` (khóa lạc quan), chép `draftSections` + mọi `draftData` của trang → bản chính,
     tạo `PageVersion`, ghi Outbox invalidate. Hai người sửa cùng lúc → người lưu sau nhận cảnh báo xung đột (không ghi đè ngầm).
 - **AC**:
-  - [ ] Iframe preview hoạt động trên Chrome, Safari, Firefox mới nhất (có test Playwright WebKit).
+  - [x] Iframe preview hoạt động trên Chrome, Safari, Firefox mới nhất (có test Playwright WebKit) — CI job `db`
+        run [38890672533](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/38890672533): `playwright.preview.config.ts` chromium/webkit/firefox xanh.
   - [x] Token hết hạn / dùng lại / sai host → 401.
   - [x] Không bao giờ có trạng thái "bố cục mới + nội dung cũ" (test xuất bản xen kẽ hai tab).
   - Bằng chứng E5-S07: `packages/db/src/__tests__/{publish.int,preview.int}.test.ts` trên Postgres thật

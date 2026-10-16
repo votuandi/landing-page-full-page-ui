@@ -13,7 +13,7 @@ Mọi response preview đặt noindex, private/no-store và CSP chỉ cho iframe
 Redirect dùng path nội bộ tương đối; token không bị đưa tiếp sang URL đích.
 
 Kiểm iframe: `pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts --project chromium`.
-CI chạy cả Chromium/WebKit/Firefox. Preview/admin e2e dùng `E2E_PLATFORM_DOMAIN` (mặc định `solar.example.com`),
+CI chạy cả Chromium/WebKit/Firefox. Preview e2e dùng `E2E_PLATFORM_DOMAIN` (admin e2e dùng `ADMIN_E2E_PLATFORM_DOMAIN`, mặc định `solar.localhost`) (mặc định `solar.example.com`),
 truyền thành `PLATFORM_DOMAIN` cho server và dùng chung trong fixture, URL và cookie assertions.
 Hậu tố `com` có trong Public Suffix List; libsoup/WebKit coi các host dưới `solar.localhost` là third-party vì
 không nhận diện hậu tố `localhost`, dù Chromium/Firefox coi chúng là same-site. Cookie ứng dụng vẫn `SameSite=Lax`.
