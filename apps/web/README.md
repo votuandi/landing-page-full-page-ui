@@ -7,10 +7,11 @@
 preview (`lib/tenant/routeContext.ts`). `/robots.txt`, `/sitemap.xml` rewrite không có `ctx`. Chỉ proxy tạo được đường dẫn
 `/sites/**` (đường dẫn công khai bị chặn), cặp tenant/site sai không đọc được gì qua repository tenant.
 
-- `components/tenant/cached.tsx`: `TenantChrome` (header/footer/widget/JSON-LD), `TenantPageBody`, `tenantPageOutcome`
-  (quyết định 404/308 + metadata) là `"use cache"`, khóa = tenant, site, locale đã chọn, preview, slug;
+- `components/tenant/cached.tsx`: `TenantChrome` (header/footer/widget/JSON-LD) và `tenantPage`
+  (một snapshot gồm quyết định 404/308, metadata và JSX) là `"use cache"`, khóa = tenant, site, locale đã chọn, preview,
+  snapshot kill switch (mảng đã sort → chuỗi), slug; metadata/page dùng chung kết quả qua `React.cache` theo request;
   `cacheTag(...tenantPageTags(tenantId, slug))` = tenant, site, page, mọi collection, `platform:entitlements`;
-  `cacheLife(TENANT_CACHE_LIFE)` (revalidate 60 s cho kill switch). `/api/revalidate` (S05) xóa cả cache này theo tag.
+  `cacheLife(TENANT_CACHE_LIFE)` (revalidate 60 s); snapshot kill switch mới đổi khóa ngay, không cộng dồn TTL UI và dữ liệu. `/api/revalidate` (S05) xóa cả cache này theo tag.
   `notFound()`/`permanentRedirect()` chỉ gọi ngoài scope cache. Draft Mode làm mọi scope cache chạy lại, không ghi cache.
 - Hai root layout: `app/(site)/layout.tsx` (site đơn + `/lab`, tĩnh) và `app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx`;
   URL không khớp route nào dùng `app/global-not-found.tsx` (`experimental.globalNotFound`).
@@ -39,6 +40,14 @@ thay vì cùng response HTML. Artifact giữ HTML đã kiểm cùng log/số đo
 
 Route handler `/api/*`, robots/sitemap tenant động theo bản chất. HTML công khai giờ phụ thuộc cookie `solar-locale` qua
 rewrite: nếu đặt CDN trước Next cần `Vary: Cookie` hoặc locale trong URL.
+
+Kiểm production với DB đã migrate/seed: `pnpm --filter web build`, rồi
+`pnpm --filter @solar/visual exec playwright test --config playwright.production.config.ts` (CI job `db` cũng chạy).
+Suite dùng `next start` trên 3210/3213, fixture tenant riêng tự dọn, HMAC revalidate thật, cache 404, VI/EN, preview
+không revalidate và chunk hydrate chậm/lỗi với motion bình thường. Preview production kiểm bằng HTTP với cookie trả
+bởi API thật; suite preview trình duyệt riêng kiểm iframe/SameSite. Reveal dùng Web Animations API hữu hạn, không polling hay đọc React internals; SSR mặc định luôn hiện nếu chunk
+chậm/lỗi. Animation không sửa thuộc tính DOM nên hydrate muộn vẫn khớp. Cầu nối đổi locale đăng ký trong layout effect
+để nhận cả click được phát lại trước passive effects.
 
 ## Preview (E5-S07)
 
