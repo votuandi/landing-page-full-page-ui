@@ -27,12 +27,29 @@ test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
   fixture("setup");
   // Warm new routes before timing user flows against next dev.
-  for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
+  for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000 });
     expect(response.status(), path).toBeLessThan(500);
   }
 });
 test.afterAll(() => fixture("cleanup"));
+
+test("section editor: save variant as draft, reload and publish", async ({ page }) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/trang");
+  await page.getByRole("link", { name: /^Trang chủ/ }).click();
+  const variant = page.getByLabel("Đổi kiểu hiển thị: Banner chính");
+  await expect(variant).toHaveValue("t12"); await variant.selectOption("t15");
+  await expect(page.getByRole("button", { name: "Xuất bản", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nháp" })).toBeVisible();
+  await page.reload(); await expect(variant).toHaveValue("t15");
+  await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible();
+  await page.reload(); await expect(variant).toHaveValue("t15");
+  await expect(page.getByRole("button", { name: "Xuất bản", exact: true })).toBeDisabled();
+});
 
 test("host errors have no login; cross-tenant/platform/client credentials and copied cookies are rejected", async ({ page, request }, info) => {
   for (const [host, status] of [[`missing.admin.${platformDomain}`, 404], [`admin-e7-paused.admin.${platformDomain}`, 403], [`${platformDomain}`, 404]] as const) {

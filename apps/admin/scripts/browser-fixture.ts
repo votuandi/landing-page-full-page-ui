@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueueInvalidate } from "@solar/db";
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
+import { sectionRegistry } from "@solar/sections";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const fixtures = [
@@ -23,7 +24,11 @@ async function main() {
         for (const [index, fixture] of fixtures.entries()) {
           await db.tenant.create({ data: { ...fixture, name: "[DỮ LIỆU MẪU] Admin E2E", planId: "premium" } });
           await withTenantTransaction(db, fixture.id, async repo => {
-            await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15" });
+            const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15" });
+            await repo.page.create({ siteId: site.id, slug: "lien-he", title: { vi: "Liên hệ" }, sections: [] });
+            const home = await repo.page.create({ siteId: site.id, slug: "", kind: "home", title: { vi: "Trang chủ" }, publishedAt: new Date(),
+              sections: [{ id: "hero", type: "hero", variant: "t12", enabled: true }] });
+            await repo.sectionContent.create({ siteId: site.id, pageId: home.id, sectionId: "hero", type: "hero", data: sectionRegistry.types.hero.defaults });
             await repo.siteUser.create({ email: "owner@demo.vn", phone: "0901234567", name: "[DỮ LIỆU MẪU] Owner", role: "owner", status: "active", emailVerifiedAt: new Date(), passwordHash: hashes[index === 1 ? 1 : 0] });
             if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["customer_client", "client"]] as const) {
               await repo.siteUser.create({ username, name: "[DỮ LIỆU MẪU]", role, status: "active", passwordHash: hashes[0] });
@@ -41,6 +46,10 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "home-page") {
+      const page = await forTenant(db, tenantId).page.first({ where: { slug: "", kind: "home" } });
+      if (!page) throw new Error("Home page fixture missing");
+      process.stdout.write(page.id);
     } else if (action === "totp") {
       const owner = await forTenant(db, tenantId).siteUser.first({ where: { email: "owner@demo.vn" }, omit: { totpSecret: false } });
       if (!owner?.totpSecret) throw new Error("Owner has no TOTP secret");
