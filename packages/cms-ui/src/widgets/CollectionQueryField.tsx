@@ -28,7 +28,7 @@ const rowsOf = (filter: Record<string, Scalar> | undefined): Row[] =>
 /** Bản nháp đang khớp dữ liệu (không tính thứ tự khóa): khi đó giữ nguyên kiểu/draft người dùng đang chọn. */
 const sameAsRows = (filter: Record<string, Scalar> | undefined, rows: Row[]) => {
   const entries = Object.entries(filter ?? {});
-  return entries.length === rows.length && rows.every((row) => Object.hasOwn(filter ?? {}, row.key) && filter![row.key] === row.value);
+  return entries.length === rows.length && new Set(rows.map((row) => row.key)).size === rows.length && rows.every((row) => Object.hasOwn(filter ?? {}, row.key) && filter![row.key] === row.value);
 };
 
 export function CollectionQueryField({ node, path, value, label }: FieldProps<CollectionQuery | undefined>) {

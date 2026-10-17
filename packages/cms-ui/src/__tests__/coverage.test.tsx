@@ -204,3 +204,24 @@ test("override widget trên chính dòng object của mảng: chính xác và wi
   assert.deepEqual([...container.querySelectorAll("output")].map((el) => el.textContent), ["Hàng 1:rows.0", "Hàng 2:rows.1", "exact:cols.0"]);
   assert.equal(container.querySelectorAll('[id$="-rows.0.title"]').length, 0, "không dựng control mặc định khi đã override");
 });
+
+test("controlled value khi bản nháp đang trùng khóa: parent truyền bộ lọc hợp lệ → dựng lại đủ khóa, sửa và lưu đúng", async () => {
+  const schema = z.object({ query: collectionQuery("projects") });
+  let setValue: (next: unknown) => void = () => {};
+  const submitted: unknown[] = [];
+  const { container, unmount } = await mount(<Remote schema={schema} initial={{ query: { filter: { a: "same", b: "same" }, limit: 6 } }}
+    onReady={(set) => { setValue = set; }} onSubmit={(data) => submitted.push(data)} />);
+  try {
+    const field = (label: string) => container.querySelector<HTMLInputElement>(`[aria-label="${label}"]`)!;
+    await type(field("Tên trường lọc 2"), "a");
+    assert.equal(submitButton(container).disabled, true);
+    await act(async () => setValue({ query: { filter: { a: "same", b: "same" }, limit: 6 } }));
+    assert.deepEqual([field("Tên trường lọc 1").value, field("Tên trường lọc 2").value], ["a", "b"]);
+    assert.doesNotMatch(container.textContent ?? "", /Tên trường lọc bị trùng/);
+    await type(field("Giá trị lọc 2"), "moi");
+    await click(submitButton(container));
+    assert.deepEqual(submitted[0], { query: { filter: { a: "same", b: "moi" }, limit: 6 } });
+  } finally {
+    unmount();
+  }
+});
