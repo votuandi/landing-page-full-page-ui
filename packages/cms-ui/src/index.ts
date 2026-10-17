@@ -1,4 +1,7 @@
 export { SchemaForm, validate } from "./SchemaForm.tsx";
+export { SectionListEditor } from "./sections/SectionListEditor.tsx";
+export type { SectionListEditorProps } from "./sections/SectionListEditor.tsx";
+export type { EditableSection } from "./sections/ops.ts";
 export type { SchemaFormProps } from "./SchemaForm.tsx";
 export { useSchemaForm } from "./context.ts";
 export type { FieldProps, Pickers, WidgetComponent } from "./context.ts";
