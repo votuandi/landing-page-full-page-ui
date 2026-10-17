@@ -48,7 +48,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   menu: Tổng quan (S11), Trang & Section, Nội dung (các collection: sản phẩm, dịch vụ, dự án…), Media, Lead, Giao diện,
   Tên miền, Email theo tên miền, Tài khoản & nhân viên (S12), Gói. Mobile dùng được. Chừa sẵn vị trí banner cho phiên ghost
   (E15-S07) và banner bảo trì (E15-S06).
-- **AC**: [ ] Lighthouse a11y ≥ 95 cho các trang admin chính · [ ] Menu ẩn mục ngoài quyền/ngoài gói/bị super admin tắt (vẫn kiểm server).
+- **AC**: [x] Lighthouse a11y ≥ 95 cho các trang admin chính · [x] Menu ẩn mục ngoài quyền/ngoài gói/bị super admin tắt (vẫn kiểm server).
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
 ### E7-S03 · Form tự sinh từ schema zod

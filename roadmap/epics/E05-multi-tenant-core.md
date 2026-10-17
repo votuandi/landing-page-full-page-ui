@@ -147,7 +147,7 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
 - PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S04, E11-S01 (bảng Outbox + worker; có thể làm trước phần outbox ở story này) · Agent: Claude · Cỡ: M
 
-### E5-S06 · Bật Cache Components (Next 16)
+### E5-S06 · Bật Cache Components (Next 16) ✅ · PR [#43](https://github.com/votuandi/landing-page-full-page-ui/pull/43)
 **Là** dev, **tôi muốn** dùng `"use cache"` + `cacheTag`, **để** cache theo dữ liệu thay vì theo route, phần động (giỏ, form) stream riêng.
 - **Chi tiết**: theo skill `next-cache-components-adoption`; layout tenant và section tĩnh dùng `"use cache"` +
   `cacheLife` + tag; đối số của hàm cache luôn có `siteId`, `locale` (đúng khóa ở S05); phần phụ thuộc request (draft mode,

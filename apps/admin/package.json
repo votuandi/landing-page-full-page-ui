@@ -15,6 +15,7 @@
     "@solar/auth": "workspace:*",
     "@solar/db": "workspace:*",
     "@solar/core": "workspace:*",
+    "@solar/plans": "workspace:*",
     "@solar/ui": "workspace:*",
     "@solar/tokens": "workspace:*",
     "@solar/themes": "workspace:*",

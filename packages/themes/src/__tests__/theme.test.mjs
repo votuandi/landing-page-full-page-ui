@@ -6,6 +6,23 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 
+test("admin theme hợp lệ, đạt AA light/dark và không cho tenant chọn", () => {
+  const { adminTheme, themes, getTheme, themeFontFamilies } = require("../index.ts");
+  const { parseTheme, checkContrast, contrastRatio } = require("@solar/tokens");
+  assert.ok(adminTheme);
+  assert.deepEqual(parseTheme(adminTheme), adminTheme);
+  assert.equal(adminTheme.meta.supportsDark, true);
+  assert.deepEqual(themeFontFamilies(adminTheme), ["Be Vietnam Pro"]);
+  assert.deepEqual(checkContrast(adminTheme), []);
+  for (const colors of [adminTheme.colors.light, { ...adminTheme.colors.light, ...adminTheme.colors.dark }]) {
+    for (const fg of ["primary", "primary-strong", "danger", "success"]) {
+      for (const bg of ["bg", "bg-elevated", "bg-tint"]) assert.ok(contrastRatio(colors[fg], colors[bg]) >= 4.5, `${fg}/${bg}`);
+    }
+  }
+  assert.ok(!themes.some(theme => theme.meta.id === adminTheme.meta.id));
+  assert.equal(getTheme(adminTheme.meta.id), undefined);
+});
+
 test("C&I themes preserve navy, gold, Inter, square t06 and dark glass t09", () => {
   const { getTheme } = require("../index.ts");
   for (const id of ["t05", "t06", "t09"]) {

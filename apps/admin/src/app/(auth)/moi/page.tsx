@@ -1,6 +1,6 @@
-import { ActionForm } from "../../components/ActionForm.tsx";
-import { NewPasswordFields } from "../../components/Fields.tsx";
-import { acceptInviteAction } from "../actions.ts";
+import { ActionForm } from "../../../components/ActionForm.tsx";
+import { NewPasswordFields } from "../../../components/Fields.tsx";
+import { acceptInviteAction } from "../../actions.ts";
 
 export default async function Invite({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const token = (await searchParams).token ?? "";

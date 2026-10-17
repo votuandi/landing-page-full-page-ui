@@ -1,7 +1,7 @@
-import { requirePagePermission } from "../../lib/auth.ts";
-import { ActionForm } from "../../components/ActionForm.tsx";
-import { Field, NewPasswordFields } from "../../components/Fields.tsx";
-import { changePasswordAction, logoutAction } from "../actions.ts";
+import { requirePagePermission } from "../../../lib/auth.ts";
+import { ActionForm } from "../../../components/ActionForm.tsx";
+import { Field, NewPasswordFields } from "../../../components/Fields.tsx";
+import { changePasswordAction, logoutAction } from "../../actions.ts";
 
 export default async function ChangePassword() {
   const session = await requirePagePermission("account.password");

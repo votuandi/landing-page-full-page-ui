@@ -15,6 +15,8 @@ import { t12 } from "../t12/theme";
 import { t13 } from "../t13/theme";
 import { t14 } from "../t14/theme";
 
+export { adminTheme } from "../admin/theme";
+
 export { t15, t01, t02, t03, t04, t05, t06, t07, t08, t09, t10, t11, t12, t13, t14 };
 export const themes: readonly ThemeTokens[] = [t15, t01, t02, t03, t04, t05, t06, t07, t08, t09, t10, t11, t12, t13, t14];
 
