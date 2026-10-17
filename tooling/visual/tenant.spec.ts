@@ -150,14 +150,17 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
 test("JS disabled and reduced motion preserve SSR content", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
   const page = await context.newPage();
+  // SSR text is the subject here: waiting for `load` also waits on `next dev` image optimisation, which can hang
+  // on CI (run 39011394788 trace: document 200 in 0.7 s, one /_next/image request never finished).
+  const open = async (url: string) => expect((await page.goto(url, { waitUntil: "domcontentloaded" }))?.status()).toBe(200);
   for (const id of ["t15", "t12"]) {
-    await page.goto(origin(id));
+    await open(origin(id));
     await expect(page.locator("h1").first()).toBeVisible();
     await expect(page.locator("main")).toContainText(`Demo ${id}`);
-    await page.goto(`${origin(id)}/san-pham`);
+    await open(`${origin(id)}/san-pham`);
     await expect(page.locator("main article").first()).toBeVisible();
     for (const path of [`/san-pham/${productSlug}`, `/tin-tuc/${postSlug}`, `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh", "/cam-nang", "/ve-chung-toi", "/lien-he"]) {
-      await page.goto(origin(id) + path);
+      await open(origin(id) + path);
       await expect(page.locator("main h1")).toBeVisible();
       if (["/lien-he", "/giai-phap/solar-gia-dinh"].includes(path)) await expect(page.locator('main form input[name="phone"]')).toBeVisible();
     }
