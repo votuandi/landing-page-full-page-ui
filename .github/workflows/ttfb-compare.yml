@@ -133,7 +133,7 @@ jobs:
           PY
             done
           done
-      - name: Measure TTFB (a = base, b = head)
+      - name: Measure TTFB median/p90/p95 (a = base, b = head)
         run: |
           set -o pipefail
           for path in / /lien-he /san-pham; do
