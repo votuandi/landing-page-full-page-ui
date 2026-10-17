@@ -1,5 +1,8 @@
 # @solar/sections
 
+`sectionLimitIssues(descriptors)` trả lỗi tiếng Việt khi một type vượt `meta.maxPerPage` trên một trang.
+Đếm cả section tắt. Helper dùng chung cho trình sửa client và `validateSiteStructure` phía server (D21).
+
 ## Migration dữ liệu (E3-S09)
 
 Khi tăng `schemaVersion`, thêm bước vào `<type>/migrations.ts` và nối vào
