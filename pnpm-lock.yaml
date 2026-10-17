@@ -35,6 +35,9 @@ importers:
       '@solar/plans':
         specifier: workspace:*
         version: link:../../packages/plans
+      '@solar/presets':
+        specifier: workspace:*
+        version: link:../../packages/presets
       '@solar/sections':
         specifier: workspace:*
         version: link:../../packages/sections

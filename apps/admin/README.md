@@ -17,8 +17,21 @@ E7-S02 cung cấp khung điều hướng và theme admin riêng. Nội dung các
 - `getSiteEntitlements()` chỉ memoize trong request, đọc site qua repository có tenant từ Host, rồi áp dụng
   kill switch nền tảng → override tenant → gói/addon/trial qua `@solar/plans`.
   Mỗi trang tự kiểm `requirePagePermission`; trang có feature còn gọi `requirePageFeature`, trả 404 khi ngoài gói/bị tắt.
-- `/trang`, `/noi-dung`, `/media`, `/lead`, `/giao-dien`, `/email` hiện là trang chỗ chờ có guard server.
+- `/noi-dung`, `/media`, `/lead`, `/giao-dien`, `/email` hiện là trang chỗ chờ có guard server.
   Không thêm nội dung quản lý thật vào shell.
+
+## Trang và section (E7-S04 phần a)
+
+`/trang` liệt kê trang của site từ Host; `/trang/[pageId]` dùng `SectionListEditor` trong `@solar/cms-ui`.
+`pages.structure` kết hợp `sectionReorder`/`variantSwitch` quyết định các thao tác sửa bố cục. Gói Cơ bản hoặc
+viewer xem danh sách chỉ đọc. Mọi action có permission riêng và kiểm page thuộc site hiện hành.
+
+Lưu nháp gọi `saveDraft`, giữ nội dung theo `sectionId`; chỉ section chưa có nội dung mới nhận defaults.
+Xóa chỉ bỏ descriptor, giữ `SectionContent`. Xuất bản cần `pages.publish`, dùng revision vừa lưu và `publishPage`
+để tạo phiên bản + invalidation trong transaction. Revision cũ trả 409, yêu cầu tải lại. Preview tạo token một lần,
+mở host `<slug>.preview.<PLATFORM_DOMAIN>` qua proxy web (không dùng port 3300 của admin).
+Phiên ghost hiện chưa có actor SiteUser/PlatformAdmin trong site realm nên ghi trả 403; cầu nối actor thuộc E15.
+Danh mục trang, thumbnail thật và dọn nội dung giữ lại thuộc E7-S13.
 
 ## Chạy local
 
