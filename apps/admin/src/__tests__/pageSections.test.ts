@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { effectivePermissions, type Session } from "@solar/auth";
-import { RevisionConflictError, type DraftInput } from "@solar/db";
+import { RevisionConflictError, StructureError, type DraftInput } from "@solar/db";
 import { validateSiteStructure } from "@solar/presets";
 import { sectionRegistry } from "@solar/sections";
 import { createAction } from "../lib/action.ts";
@@ -28,7 +28,7 @@ function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f
       const structure = { pageTypes: ["home", "contact", "policy"], pages: [{ slug: "", sections: input.draftSections as typeof hero[] }, { slug: "lien-he", sections: [] }] };
       const baseline = { ...structure, pages: [{ slug: "", sections: [hero] }, { slug: "lien-he", sections: [] }] };
       const issues = validateSiteStructure(structure, { can, baseline, pagesLimit: Infinity });
-      if (issues.length) throw new Error(issues.join("; "));
+      if (issues.length) throw new StructureError(issues.join("; "));
       writes.push(input); return { revision: 3 };
     },
     publish: async () => { if (options.conflict) throw new RevisionConflictError(3); return { revision: 3 }; },
@@ -74,6 +74,25 @@ test("maxPerPage overflow returns 400", async () => {
   const s = setup(); const result = await s.actions.save({}, s.form([hero, ...[1, 2].map(i => ({ id: `calc-${i}`, type: "calculator", variant: "t15", enabled: i === 1 }))]));
   assert.equal(result.status, 400); assert.match(result.error!, /Chỉ được có tối đa 1 "Dự toán chi phí"/); assert.equal(s.writes.length, 0);
 });
+test("StructureError returns 400 for save and publish without matching message prefixes", async () => {
+  const s = setup();
+  const message = 'Cấu trúc trang không hợp lệ; Chỉ được có tối đa 1 "Dự toán chi phí" trên một trang (trang /)';
+  s.deps.save = s.deps.publish = async () => { throw new StructureError(message); };
+  for (const action of [s.actions.save, s.actions.publish]) {
+    assert.deepEqual(await action({}, s.form()), { ok: false, status: 400, error: message });
+  }
+});
+
+test("ordinary Error returns generic 500 even with a structure message prefix", async () => {
+  const s = setup();
+  for (const message of ["Gói không cho truy cập thông tin nội bộ", "sensitive internal database error"]) {
+    s.deps.save = s.deps.publish = async () => { throw new Error(message); };
+    for (const action of [s.actions.save, s.actions.publish]) {
+      assert.deepEqual(await action({}, s.form()), { ok: false, status: 500, error: "Không thể thực hiện lúc này. Vui lòng thử lại." });
+    }
+  }
+});
+
 test("rejects malformed sections", async () => {
   for (const value of ["{", "null", "{}", [{ ...hero }, { ...hero }], [{ ...hero, anchor: "bad anchor" }], [{ ...hero, data: { vi: "injected" } }], [{ ...hero, enabled: "yes" }]]) {
     const s = setup(); const result = await s.actions.save({}, s.form(value));

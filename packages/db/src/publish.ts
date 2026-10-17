@@ -24,6 +24,12 @@ export class RevisionConflictError extends Error {
     this.name = "RevisionConflictError";
   }
 }
+export class StructureError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "StructureError";
+  }
+}
 const descriptors = (value: unknown) => pageConfigSchema.parse({ sections: Array.isArray(value)
   ? value.map(section => ({ ...section, data: undefined })) : value }).sections.map(({ data: _data, ...section }) => section);
 
@@ -41,7 +47,7 @@ async function checkStructure(repo: TenantRepo, siteId: string, pageId: string, 
   const proposed = { ...baseline, pages: rows.map(row => ({ slug: row.slug,
     sections: descriptors(row.id === pageId ? sections : row.sections) })) };
   const errors = validateSiteStructure(proposed, { can: canUse(site.tenant, { disabled }), pagesLimit: limit(site.tenant, "pages"), baseline });
-  if (errors.length) throw new Error(errors.join("; "));
+  if (errors.length) throw new StructureError(errors.join("; "));
   for (const section of proposed.pages.flatMap(page => page.sections)) {
     if (!sectionRegistry.variantsOf(section.type)?.includes(section.variant)) throw new Error(`Unknown section variant: ${section.type}/${section.variant}`);
   }

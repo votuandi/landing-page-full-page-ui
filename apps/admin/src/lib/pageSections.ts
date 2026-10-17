@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Session } from "@solar/auth";
-import { RevisionConflictError, type DraftInput, type PublishInput } from "@solar/db";
+import { RevisionConflictError, StructureError, type DraftInput, type PublishInput } from "@solar/db";
 import { pageConfigSchema, pageSectionSchema, sectionRegistry } from "@solar/sections";
 import type { EditableSection } from "@solar/cms-ui";
 import type { ActionContext, ActionResult } from "./action.ts";
@@ -51,7 +51,7 @@ async function mutation(work: () => Promise<{ revision: number }>): Promise<Page
   try { return { ok: true, ...await work() }; }
   catch (error) {
     if (error instanceof RevisionConflictError) return { ok: false, status: 409, error: error.message };
-    if (error instanceof Error && /^(Chỉ được có tối đa|Gói không cho|Section ngoài gói|Section không tồn tại|Trang ngoài gói|Trang landing ngoài gói|Vượt số trang|Thiếu trang|Trang không có trong cấu trúc)/.test(error.message)) {
+    if (error instanceof StructureError) {
       return { ok: false, status: 400, error: error.message };
     }
     throw error;
