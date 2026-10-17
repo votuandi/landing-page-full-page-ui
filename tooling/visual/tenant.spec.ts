@@ -283,7 +283,9 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
   });
   test("locale switch refreshes records, chrome, widgets and metadata on reload and client navigation", async ({ page }) => {
     for (const [path, title] of [["/san-pham", "Products"], ["/tin-tuc", "News"], ["/giai-phap", "Solutions"], ["/cam-nang", "English cam-nang"], ["/ve-chung-toi", "English ve-chung-toi"], ["/lien-he", "English lien-he"], ["/uu-dai/nang-luong", "English uu-dai/nang-luong"]]) {
-      await page.goto(url + path, { waitUntil: "networkidle" });
+      const response = await page.goto(url + path, { waitUntil: "networkidle" });
+      // A DB/SSR 500 has no title: surface its status immediately instead of timing out on metadata (E5-S06 r1).
+      expect(response?.status(), path).toBe(200);
       await expect(page).toHaveTitle(new RegExp(title));
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English description");
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + path);

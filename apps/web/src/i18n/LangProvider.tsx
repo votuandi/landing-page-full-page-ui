@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { siteConfig, type Text } from "@/config/site.config";
 import { pickText, type Lang } from "@/i18n/text";
 import { onSetSiteLocale } from "@solar/sections";
@@ -50,7 +50,8 @@ export function LangProvider({ children, defaultLocale = siteConfig.i18n.default
       window.location.reload();
     }
   }, [locales, serverLocale]);
-  useEffect(() => onSetSiteLocale(setLang), [setLang]);
+  // Hydration can replay a header click before passive effects register the event bridge.
+  useLayoutEffect(() => onSetSiteLocale(setLang), [setLang]);
 
   const value = useMemo<LangContextValue>(() => ({ lang, setLang, tr: (text, en) => pickText(text, lang, en) }), [lang, setLang]);
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
