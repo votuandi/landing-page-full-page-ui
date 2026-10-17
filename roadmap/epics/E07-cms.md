@@ -43,7 +43,7 @@ hạn chế, **để** an toàn.
 Bằng chứng E7-S01: admin 16/16 test (PostgreSQL/RLS thật), auth 25/25, E2E admin Chromium 4/4;
 typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR gộp: chờ Claude tạo và review/CI.
 
-### E7-S02 · Khung admin & điều hướng
+### E7-S02 · Khung admin & điều hướng ✅ · PR [#44](https://github.com/votuandi/landing-page-full-page-ui/pull/44)
 - **Chi tiết**: layout admin dùng `packages/ui` + theme admin riêng (không theo theme tenant), dùng chung với `apps/console`;
   menu: Tổng quan (S11), Trang & Section, Nội dung (các collection: sản phẩm, dịch vụ, dự án…), Media, Lead, Giao diện,
   Tên miền, Email theo tên miền, Tài khoản & nhân viên (S12), Gói. Mobile dùng được. Chừa sẵn vị trí banner cho phiên ghost
