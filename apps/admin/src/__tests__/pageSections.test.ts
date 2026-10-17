@@ -1,0 +1,128 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { effectivePermissions, type Session } from "@solar/auth";
+import { RevisionConflictError, StructureError, type DraftInput } from "@solar/db";
+import { validateSiteStructure } from "@solar/presets";
+import { sectionRegistry } from "@solar/sections";
+import { createAction } from "../lib/action.ts";
+import { createPageSectionHandlers, loadPageEditor, saveSectionsSchema, pageRevisionSchema, pageIdSchema, type PageSectionsDeps } from "../lib/pageSections.ts";
+
+const tenantId = "e7000000-0000-4000-8000-000000000001", siteId = "e7000000-0000-4000-8000-000000000002", pageId = "e7000000-0000-4000-8000-000000000003";
+const hero = { id: "hero", type: "hero", variant: "t12", enabled: true };
+const session = (role: "owner" | "viewer" = "owner"): Session => ({ id: "session", accountId: "e7000000-0000-4000-8000-000000000004", tenantId, realm: "site", audience: "admin", kind: "user", role,
+  permissions: effectivePermissions({ role, audience: "admin" }), expiresAt: new Date(Date.now() + 10000), mustChangePassword: false });
+function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f: string) => boolean; conflict?: boolean; ghost?: boolean } = {}) {
+  let reads = 0;
+  const writes: DraftInput[] = [];
+  const current = { ...session(options.role), ...(options.ghost ? { kind: "ghost" as const, accountId: undefined } : {}) };
+  const can = options.can ?? (() => true);
+  const page = { id: pageId, siteId: options.foreign ? "foreign" : siteId, slug: "", title: { vi: "Trang chủ" }, revision: 2, sections: [hero], draftSections: null, hasDraft: false };
+  const deps: PageSectionsDeps = {
+    tenant: async () => { reads++; return { tenantId, siteId, slug: "mau" }; },
+    page: async () => { reads++; return page; },
+    entitlements: async () => can,
+    contents: async () => [{ sectionId: "hero", type: "hero" }],
+    actor: async s => { if (!s.accountId) return null; return { siteUserId: s.accountId }; },
+    save: async (_tenant, input) => {
+      if (options.conflict) throw new RevisionConflictError(3);
+      const structure = { pageTypes: ["home", "contact", "policy"], pages: [{ slug: "", sections: input.draftSections as typeof hero[] }, { slug: "lien-he", sections: [] }] };
+      const baseline = { ...structure, pages: [{ slug: "", sections: [hero] }, { slug: "lien-he", sections: [] }] };
+      const issues = validateSiteStructure(structure, { can, baseline, pagesLimit: Infinity });
+      if (issues.length) throw new StructureError(issues.join("; "));
+      writes.push(input); return { revision: 3 };
+    },
+    publish: async () => { if (options.conflict) throw new RevisionConflictError(3); return { revision: 3 }; },
+    preview: async () => "https://mau.preview.solar.vn/api/preview?token=test&path=%2F",
+  };
+  const action = createAction(async () => ({ tenantId, slug: "mau", session: current }));
+  const h = createPageSectionHandlers(deps);
+  const actions = { save: action("pages.structure", saveSectionsSchema, h.save), publish: action("pages.publish", pageRevisionSchema, h.publish), preview: action("pages.view", pageIdSchema, h.preview) };
+  const form = (sections: unknown = [{ ...hero, variant: "t15" }]) => {
+    const f = new FormData(); f.set("pageId", pageId); f.set("revision", "2"); f.set("sections", typeof sections === "string" ? sections : JSON.stringify(sections)); return f;
+  };
+  const load = () => loadPageEditor(pageId, { ...deps, requirePermission: async () => current });
+  return { actions, deps, form, writes, reads: () => reads, load };
+}
+test("save requires pages.structure", async () => {
+  const s = setup({ role: "viewer" }); assert.equal((await s.actions.save({}, s.form())).status, 403); assert.equal(s.reads(), 0);
+  const editor = await s.load(); assert.deepEqual(editor?.can, { reorder: false, variantSwitch: false }); assert.equal(editor?.canPublish, false);
+});
+test("publish requires pages.publish and preview requires pages.view before reading page", async () => {
+  const s = setup({ role: "viewer" });
+  assert.equal((await s.actions.publish({}, s.form())).status, 403); assert.equal(s.reads(), 0);
+  const action = createAction(async () => ({ tenantId, slug: "mau", session: { ...session(), permissions: new Set() } }));
+  const preview = action("pages.view", pageIdSchema, createPageSectionHandlers(s.deps).preview);
+  assert.equal((await preview({}, s.form())).status, 403); assert.equal(s.reads(), 0);
+});
+test("rejects page of another site", async () => {
+  const s = setup({ foreign: true }); assert.equal(await s.load(), null);
+  for (const a of Object.values(s.actions)) assert.equal((await a({}, s.form())).status, 404);
+  assert.equal(s.writes.length, 0);
+});
+test("conflict returns 409", async () => {
+  const s = setup({ conflict: true });
+  for (const a of [s.actions.save, s.actions.publish]) assert.deepEqual(await a({}, s.form()), { ok: false, status: 409, error: "Trang đã thay đổi. Tải lại trước khi lưu." });
+  assert.equal(s.writes.length, 0);
+});
+test("structure change rejected by plan", async () => {
+  const s = setup({ can: f => !["sectionReorder", "variantSwitch"].includes(f) });
+  const result = await s.actions.save({}, s.form([{ ...hero, enabled: false }]));
+  assert.equal(result.status, 400); assert.match(result.error!, /Gói không/); assert.equal(s.writes.length, 0);
+  assert.deepEqual((await s.load())?.can, { reorder: false, variantSwitch: false });
+});
+test("maxPerPage overflow returns 400", async () => {
+  const s = setup(); const result = await s.actions.save({}, s.form([hero, ...[1, 2].map(i => ({ id: `calc-${i}`, type: "calculator", variant: "t15", enabled: i === 1 }))]));
+  assert.equal(result.status, 400); assert.match(result.error!, /Chỉ được có tối đa 1 "Dự toán chi phí"/); assert.equal(s.writes.length, 0);
+});
+test("StructureError returns 400 for save and publish without matching message prefixes", async () => {
+  const s = setup();
+  const message = 'Cấu trúc trang không hợp lệ; Chỉ được có tối đa 1 "Dự toán chi phí" trên một trang (trang /)';
+  s.deps.save = s.deps.publish = async () => { throw new StructureError(message); };
+  for (const action of [s.actions.save, s.actions.publish]) {
+    assert.deepEqual(await action({}, s.form()), { ok: false, status: 400, error: message });
+  }
+});
+
+test("ordinary Error returns generic 500 even with a structure message prefix", async () => {
+  const s = setup();
+  for (const message of ["Gói không cho truy cập thông tin nội bộ", "sensitive internal database error"]) {
+    s.deps.save = s.deps.publish = async () => { throw new Error(message); };
+    for (const action of [s.actions.save, s.actions.publish]) {
+      assert.deepEqual(await action({}, s.form()), { ok: false, status: 500, error: "Không thể thực hiện lúc này. Vui lòng thử lại." });
+    }
+  }
+});
+
+test("rejects malformed sections", async () => {
+  for (const value of ["{", "null", "{}", [{ ...hero }, { ...hero }], [{ ...hero, anchor: "bad anchor" }], [{ ...hero, data: { vi: "injected" } }], [{ ...hero, enabled: "yes" }]]) {
+    const s = setup(); const result = await s.actions.save({}, s.form(value));
+    assert.equal(result.status, 400); assert.equal(result.error, "Dữ liệu không hợp lệ"); assert.equal(s.writes.length, 0);
+  }
+});
+test("unknown variant rejected", async () => {
+  const s = setup(); const result = await s.actions.save({}, s.form([{ ...hero, variant: "ghost" }]));
+  assert.equal(result.status, 400); assert.match(result.error!, /Kiểu hiển thị không tồn tại/); assert.equal(s.writes.length, 0);
+});
+test("saving variant keeps content; adding uses defaults only for absent content", async () => {
+  const s = setup(); assert.equal((await s.actions.save({}, s.form())).ok, true);
+  assert.deepEqual(s.writes[0].sections, []);
+  await s.actions.save({}, s.form([hero, { id: "new", type: "projects", variant: "t15", enabled: true }]));
+  assert.deepEqual(s.writes[1].sections, [{ sectionId: "new", type: "projects", draftData: sectionRegistry.types.projects.defaults }]);
+  s.deps.contents = async () => [{ sectionId: "hero", type: "hero" }, { sectionId: "new", type: "projects" }];
+  await s.actions.save({}, s.form([hero, { id: "new", type: "projects", variant: "t15", enabled: true }]));
+  assert.deepEqual(s.writes[2].sections, []);
+});
+test("existing section type cannot change and unexpected storage errors remain generic", async () => {
+  const s = setup();
+  const result = await s.actions.save({}, s.form([{ ...hero, type: "projects", variant: "t15" }]));
+  assert.equal(result.status, 400); assert.equal(s.writes.length, 0);
+  s.deps.save = async () => { throw new Error("sensitive internal database error"); };
+  const failed = await s.actions.save({}, s.form());
+  assert.equal(failed.status, 500); assert.doesNotMatch(failed.error!, /sensitive|database/);
+});
+test("ghost without actor cannot write; preview still works", async () => {
+  const s = setup({ ghost: true });
+  assert.equal((await s.actions.save({}, s.form())).status, 403);
+  assert.equal((await s.actions.publish({}, s.form())).status, 403);
+  assert.equal((await s.actions.preview({}, s.form())).ok, true);
+});

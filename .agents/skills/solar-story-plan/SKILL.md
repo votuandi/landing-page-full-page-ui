@@ -13,6 +13,9 @@ làm theo các quy tắc khảo sát và khung plan dưới đây.
 quan), `roadmap/plans/README.md` (khung plan). Story port template: đọc nguồn bằng `git show origin/template-NN:<path>` và
 bảng ở `roadmap/01-template-analysis.md`.
 
+**Skill như Claude**: dòng `Skill plan:` của prompt (từ `S.skills.plan`) — mở `.agents/skills/<tên>/SKILL.md` trước
+khi dùng (`graphify` có SKILL.md; `codegraph` là CLI). Skill theo việc trong `S.skills.whenRelevant` cũng vậy.
+
 **Khảo sát code: đồ thị trước, file sau.** Ghi các truy vấn đã dùng vào plan (mục "Bối cảnh đã khảo sát").
 1. `codegraph sync` (vài giây), rồi `codegraph explore "<chủ đề>"` / `codegraph node <symbol>` / `codegraph impact
    <symbol>` để định vị code và nơi sẽ bị ảnh hưởng. Chưa có `.codegraph/` → `codegraph init -y` (index local, đặt

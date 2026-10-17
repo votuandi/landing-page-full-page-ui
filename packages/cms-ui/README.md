@@ -2,6 +2,16 @@
 
 Thành phần CMS dùng chung cho `apps/admin`, `apps/console` và wizard tạo site (E13).
 
+## `<SectionListEditor>`
+
+Controlled component nhận `value` là các descriptor `{ id, type, variant, enabled, anchor? }`, phát `onChange`;
+không đọc phiên hay gọi mạng. Truyền `can={{ reorder, variantSwitch }}` từ quyền + gói và `allowedTypes`/`lockedTypes`
+đã lọc ở server. Có kéo thả chuột/bàn phím, nút lên/xuống, bật/tắt, đổi variant cùng type, thêm và xác nhận xóa.
+Mọi section, kể cả tắt, tính vào `meta.maxPerPage` qua `sectionLimitIssues` của `@solar/sections`.
+Caller khóa nút lưu khi helper trả lỗi; server vẫn phải kiểm bằng `validateSiteStructure`.
+Thumbnail là ô nhãn variant dùng token; ảnh chụp thật thuộc E7-S13. `newId(type)` có thể tiêm vào cho test/wizard.
+Lab `/lab/cms-sections`, test `sectionEditor.test.tsx`, bằng chứng browser `tooling/visual/cms-sections.spec.ts`.
+
 ## `<SchemaForm>`
 
 ```tsx

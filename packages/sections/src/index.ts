@@ -6,6 +6,7 @@ export type {
   SectionVariant, VariantLoader, SectionVariants,
 } from "./define";
 export { createRegistry, sectionRegistry } from "./registry";
+export { sectionLimitIssues } from "./limits";
 export type { SectionTypeName, SectionProps, SectionRegistry } from "./registry";
 export { pageConfigSchema, pageSectionSchema } from "./page";
 export type { PageConfig, PageSection } from "./page";

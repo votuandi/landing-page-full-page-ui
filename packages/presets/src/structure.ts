@@ -1,4 +1,4 @@
-import { sectionRegistry } from "@solar/sections";
+import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
 import { PAGE_TYPES, PAGE_TYPE_IDS, isPageType, type PageTypeId } from "./pages";
 import type { Preset } from "./schema";
 
@@ -72,6 +72,7 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can
     }
   }
   for (const page of pages) {
+    issues.push(...sectionLimitIssues(page.sections).map(message => `${message} (trang /${page.slug})`));
     const type = PAGE_TYPE_IDS.find((id) => PAGE_TYPES[id].kind === "page" && PAGE_TYPES[id].slug === page.slug);
     if (type && !pageTypes.includes(type)) issues.push(`Trang không có trong cấu trúc: /${page.slug}`);
     if (isLandingSlug(page.slug) && !can("landingPages")) issues.push(`Trang landing ngoài gói: /${page.slug}`);

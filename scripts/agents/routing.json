@@ -31,7 +31,7 @@
     "E3-S04", "E3-S05", "E3-S06", "E3-S07",
     "E4-S01", "E4-S02", "E4-S03", "E4-S04", "E4-S05", "E4-S06", "E4-S07", "E4-S08", "E4-S09", "E4-S10",
     "E6-S04",
-    "E7-S03", "E7-S06", "E7-S11", "E7-S12",
+    "E7-S03", "E7-S06", "E7-S11", "E7-S12", "E7-S13",
     "E8-S05",
     "E11-S03",
     "E12-S07",
@@ -57,6 +57,28 @@
     "E15-S01", "E15-S07",
     "E16-S01"
   ],
+
+  "$skills": "Skill mọi agent (cả Codex khi nhận việc từ /run-story) phải dùng như Claude. story.mjs info xuất S.skills theo kind (ui|logic) + architecture; prompt giao việc in danh sách; run.mjs skills/verify đối chiếu log Codex (lệnh mở .agents/skills/<tên>/SKILL.md, lệnh codegraph). codegraph là CLI, không có SKILL.md.",
+  "skills": {
+    "exec": { "all": ["ponytail", "test-driven-development", "verification-before-completion", "codegraph"], "ui": ["vercel-react-best-practices", "vercel-composition-patterns"], "architecture": ["security-and-hardening"] },
+    "selfReview": { "all": ["ponytail-review"] },
+    "fix": { "all": ["receiving-code-review", "test-driven-development", "verification-before-completion", "codegraph"] },
+    "review": { "all": ["solar-pr-review", "ponytail-review", "codegraph"], "ui": ["web-design-guidelines"], "architecture": ["security-and-hardening"] },
+    "plan": { "all": ["solar-story-plan", "codegraph"], "architecture": ["graphify"] },
+    "whenRelevant": {
+      "debugging-and-error-recovery": "lệnh kiểm tra lỗi chưa rõ nguyên nhân",
+      "webapp-testing": "viết spec e2e Playwright trong tooling/visual",
+      "playwright-cli": "chụp/kiểm trang khi MCP playwright lỗi (không tự viết script chụp ảnh)",
+      "security-and-hardening": "đụng tenant, auth, upload, dữ liệu cá nhân",
+      "graphify": "câu hỏi kiến trúc dính tài liệu/ADR (python -m graphify query)",
+      "source-driven-development": "tra tài liệu gốc của thư viện",
+      "frontend-ui-engineering": "dựng giao diện, a11y, responsive",
+      "performance-optimization": "story có yêu cầu hiệu năng / Core Web Vitals",
+      "code-simplification": "code chạy đúng nhưng khó đọc",
+      "solar-section-variant": "tạo/sửa section trong packages/sections",
+      "solar-theme-port": "tạo/sửa theme trong packages/themes"
+    }
+  },
 
   "codexEffort": { "S": "medium", "M": "high", "L": "high", "plan": "high", "review": "high", "reReview": "medium" },
   "$codexEffort": "review = vòng 1 (soát cả PR); reReview = vòng > 1 (chỉ soát diff vòng sửa)",

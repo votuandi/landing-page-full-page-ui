@@ -66,14 +66,18 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 ### E7-S04 · Màn hình sắp xếp & bật/tắt section
 **Là** tenant gói Nâng cao, **tôi muốn** kéo đổi thứ tự, bật/tắt và đổi variant section, **để** bố cục trang theo ý tôi.
 - **Chi tiết**: danh sách section của trang (tên, variant, thumbnail, công tắc), kéo thả (dnd-kit, có bàn phím), menu
-  "Đổi kiểu hiển thị" liệt kê variant cùng type (ảnh thumbnail chụp sẵn với theme hiện tại), "Thêm section" từ thư viện
-  (khóa theo gói, E6-S04), xóa (dữ liệu giữ 30 ngày). Gói Cơ bản: chỉ sửa nội dung, không sắp xếp.
-  Danh sách trang của site: bật/tắt trang theo danh mục (cần `pageStructure`, D21). Kiểm bằng `validateSiteStructure`
-  (E5-S11), cùng hàm với wizard tạo site. Trình sửa danh sách section đặt ở `packages/cms-ui` để wizard (E13-S06) dùng lại.
+  "Đổi kiểu hiển thị" liệt kê variant cùng type, "Thêm section" từ thư viện (khóa theo gói, E6-S04), xóa (nội dung
+  giữ lại). Gói Cơ bản: chỉ sửa nội dung, không sắp xếp. Kiểm bằng `validateSiteStructure` (E5-S11), cùng hàm với
+  wizard tạo site. Trình sửa danh sách section đặt ở `packages/cms-ui` để wizard (E13-S06) dùng lại.
+  Đã tách (17/10/2026): thumbnail ở story này là ô giữ chỗ; danh sách trang theo danh mục, thumbnail chụp sẵn và dọn
+  dữ liệu 30 ngày chuyển sang E7-S13. Hero không có variant t08 → AC1 kiểm bằng t12 → t15.
 - **AC**:
-  - [ ] Đổi variant hero t08 → t15: nội dung giữ nguyên, preview cập nhật.
-  - [ ] Thao tác lưu vào draft; "Xuất bản" mới revalidate.
-  - [ ] Ràng buộc `maxPerPage` (vd. chỉ 1 calculator) được kiểm cả client và server.
+  - [x] Đổi variant hero t12 → t15 (hero không có t08): nội dung giữ nguyên, preview cập nhật.
+  - [x] Thao tác lưu vào draft; "Xuất bản" mới revalidate.
+  - [x] Ràng buộc `maxPerPage` (vd. chỉ 1 calculator) được kiểm cả client và server.
+  Bằng chứng phần a: `sectionEditor.int.test.ts` (variant/content, Outbox, giữ nội dung khi xóa),
+  `pageSections.test.ts` (quyền/site/revision/cấu trúc), `cms-sections.spec.ts` (7 ca browser, axe, 390/1440 sáng/tối).
+  Chờ Claude design pass, review và tạo PR; E7-S13 giữ phạm vi phần b.
 - Phụ thuộc: S03, E5-S07 · Agent: Claude · Cỡ: M
 
 ### E7-S05 · Sửa nội dung section kèm xem trước
@@ -135,3 +139,16 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   - [ ] Không gỡ/khóa được owner cuối cùng; admin không đổi được vai trò của owner (test server).
   - [ ] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
 - Phụ thuộc: S01, S02, E6-S02, E11-S05 · Agent: Codex · Cỡ: M
+
+### E7-S13 · Danh mục trang, thumbnail variant & dọn section đã xóa
+**Là** tenant gói Nâng cao, **tôi muốn** bật/tắt trang theo danh mục và chọn kiểu hiển thị qua ảnh xem trước, **để**
+dựng cấu trúc site đúng ý. (Tách từ E7-S04.)
+- **Chi tiết**: danh sách trang của site: bật/tắt trang theo danh mục (cần `pageStructure`, D21), kiểm bằng
+  `validateSiteStructure`. Thumbnail variant chụp sẵn theo theme (script Playwright qua lab `/lab/sections/[type]`,
+  ảnh tĩnh), thay ô giữ chỗ trong menu "Đổi kiểu hiển thị" và thư viện section. Nội dung section đã xóa khỏi trang giữ
+  30 ngày rồi worker dọn (không dọn nội dung còn trong `PageVersion` gần nhất).
+- **AC**:
+  - [ ] Tắt trang `ve-chung-toi` khi có `pageStructure` → lưu được, trang trả 404 sau xuất bản; không có → server từ chối.
+  - [ ] Menu đổi kiểu hiện thumbnail đúng theme hiện tại của site.
+  - [ ] Nội dung section xóa quá 30 ngày bị worker dọn; chưa tới 30 ngày khôi phục được.
+- Phụ thuộc: S04 · Agent: Claude · Cỡ: M

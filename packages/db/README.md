@@ -15,6 +15,9 @@ published, xóa nháp về SQL NULL, tạo PageVersion và Outbox invalidate tro
 đầu xuất bản còn invalidate site tag để header/footer và danh sách trang/sitemap được làm mới.
 Mọi writer của Page phải dùng các primitive này để giữ hợp đồng revision; không sửa SectionContent riêng khi xuất bản.
 
+Lỗi từ `validateSiteStructure` khi lưu nháp/xuất bản ném `StructureError` (export từ `@solar/db`),
+giữ các thông báo tiếng Việt nối bằng `"; "`; admin trả 400 theo kiểu lỗi, lỗi ngoài dự kiến vẫn trả 500 chung.
+
 `withTenantTransaction(db, tenantId, work, { isolationLevel: "RepeatableRead" })` cho phép đọc Page và
 SectionContent từ cùng snapshot; mặc định vẫn giữ isolation cũ. Web dùng snapshot cho cả published và draft,
 draft bỏ qua content cache. Có thể chọn `Serializable` khi caller cần mức cô lập cao hơn.

@@ -11,5 +11,5 @@ export const faqSchema = z.object({
 export const faq = defineSectionType({
   type: "faq", schemaVersion: 1, schema: faqSchema,
   defaults: faqSchema.parse(faqFixture),
-  meta: {"label": {"vi": "Câu hỏi thường gặp", "en": "FAQ"}, "icon": "faq", "entitlement": "faq", "maxPerPage": 1},
+  meta: {"label": {"vi": "Câu hỏi thường gặp", "en": "FAQ"}, "icon": "faq", "entitlement": "faq"},
 });

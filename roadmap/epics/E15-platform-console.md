@@ -127,6 +127,9 @@ xử lý sự cố và vận hành linh hoạt.
     Banner cố định có đồng hồ đếm ngược và nút Thoát. Bị chặn các thao tác `account.security`.
   - Mọi `AuditLog` trong phiên ghost có `actorType: platform_admin`, `ghostGrantId`. Console có danh sách phiên ghost đang mở, nút thu hồi.
   - Owner của site thấy mục "Truy cập hỗ trợ" trong nhật ký (ai, lúc nào, lý do).
+  - Cầu nối actor ghost cho admin: phiên ghost hiện có `accountId = undefined`, nên E7-S04 tạm trả 403 khi lưu nháp/xuất
+    bản section bằng phiên ghost (`apps/admin/src/lib/pageSectionRuntime.ts`). Story này cấp `platformAdminId` +
+    `ghostGrantId` cho Server Action admin và gỡ 403 đó.
 - **AC**:
   - [ ] Token dùng lại / hết hạn / mở trên host của site khác → 401, không tạo phiên.
   - [ ] Phiên ghost hết hạn sau 30 phút; thu hồi từ console → request kế tiếp ở admin bị đẩy ra trong ≤ 5 s.

@@ -187,7 +187,8 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     }
     await page.getByRole("button", { name: "en", exact: true }).click();
     for (const reload of [false, true]) {
-      if (reload) await page.reload({ waitUntil: "networkidle" });
+      // networkidle after reload never settles on CI (README: flaky list); wait for load, then for hydration below.
+      if (reload) await page.reload({ waitUntil: "load" });
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
       await expect(products).toContainText("Contact");
       await expect(products).toContainText("Original price");
@@ -198,8 +199,12 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
       await expect(packages).not.toContainText(/144 triệu|180 triệu|Giá gốc|Giảm/);
       for (const i of [0, 1]) {
         const card = products.locator("article").filter({ has: page.getByRole("heading", { name: `English product ${i}`, exact: true }) });
-        await card.getByRole("button", { name: /Quick view/ }).click();
         const quick = page.getByRole("dialog");
+        // The button only reacts once hydrated: retry the click until the dialog opens.
+        await expect(async () => {
+          await card.getByRole("button", { name: /Quick view/ }).click();
+          await expect(quick).toBeVisible({ timeout: 2_000 });
+        }).toPass({ timeout: 30_000 });
         await expect(quick).toContainText(i === 0 ? "Contact" : "Save 20%");
         if (i === 1) await expect(quick).toContainText("Original price");
         await page.keyboard.press("Escape");

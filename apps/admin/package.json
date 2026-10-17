@@ -16,6 +16,7 @@
     "@solar/db": "workspace:*",
     "@solar/core": "workspace:*",
     "@solar/plans": "workspace:*",
+    "@solar/presets": "workspace:*",
     "@solar/ui": "workspace:*",
     "@solar/sections": "workspace:*",
     "@solar/cms-ui": "workspace:*",

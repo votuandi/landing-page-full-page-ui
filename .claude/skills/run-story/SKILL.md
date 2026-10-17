@@ -89,13 +89,13 @@ codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=
 
 **`S.planMode == "codex-draft"`** (story logic thường):
 1. Codex viết nháp: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
-   `Dùng skill solar-story-plan, mode draft. Story <ID> (<S.epicFile>). Output: <S.planFile>.`
+   `Dùng skill solar-story-plan, mode draft. Story <ID> (<S.epicFile>). Output: <S.planFile>. Skill plan: <S.skills.plan>.`
 2. Claude duyệt nháp: kiểm AC nào cũng có bằng chứng, phạm vi đúng, không mâu thuẫn ADR/AGENTS.md, câu hỏi `[chặn]`.
    Sửa trực tiếp chỗ sai (không viết lại cả plan), xóa dòng "Nháp do Codex viết".
 
 **`S.planMode == "claude"`** (mọi story khi `planPolicy: "claude"`; story kiến trúc hoặc UI khi `planPolicy: "budget"`):
 1. `S.planBrief == true` → Codex khảo sát: sandbox `workspace-write`, effort `S.codexEffort.plan`, prompt
-   `Dùng skill solar-story-plan, mode brief. Story <ID> (<S.epicFile>). Output: <S.runDir>/brief.md.`
+   `Dùng skill solar-story-plan, mode brief. Story <ID> (<S.epicFile>). Output: <S.runDir>/brief.md. Skill plan: <S.skills.plan>.`
    `S.planBrief == false` → **không gọi Codex**; Claude tự khảo sát theo mục "Khảo sát code" của `solar-story-plan`:
    `codegraph explore`/`node`/`impact` trước (graphify cho câu hỏi kiến trúc), rồi mới Grep/Glob, đọc đoạn cần, không
    đọc cả cây. Soát **hạ tầng tái dùng** (helper, lab route `apps/web /lab/*`, spec `tooling/visual`, script).
@@ -122,9 +122,12 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Story: <ID> — <S.title> (<S.epicFile>) · Plan: <S.planFile>
    Branch (đã checkout): <S.branch> · Base: <S.base> · Mode: <S.mode>
    Lệnh kiểm tra: <S.checks + lệnh riêng trong plan>
-   Skill bắt buộc: ponytail (full), test-driven-development (bảng "Case biên & bất biến" của plan → test viết trước),
-   codegraph (định vị + impact), verification-before-completion; debugging-and-error-recovery khi lỗi chưa rõ.
-   Trước khi báo DONE: tự review theo bước 4.5 của run-story (checklists.md + ponytail-review), ghi mục "## Tự review".
+   Loại story: <S.kind><nếu S.architecture: , kiến trúc>
+   Skill bắt buộc: <S.skills.exec, cách nhau dấu phẩy> (ponytail mức full; bảng "Case biên & bất biến" → test viết trước)
+   Skill tự review: <S.skills.selfReview> · Skill khi sửa: <S.skills.fix>
+   Skill theo việc: <mỗi mục S.skills.whenRelevant dạng "tên (khi …)">
+   Dùng skill như Claude: mở .agents/skills/<tên>/SKILL.md bằng lệnh đọc file trước bước dùng skill đó (codegraph là CLI).
+   Trước khi báo DONE: tự review theo bước 4.5 của run-story (checklists.md + skill tự review), ghi mục "## Tự review".
    Quy tắc AGENTS.md ưu tiên hơn mọi skill.
    Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review")
    ```
@@ -132,6 +135,9 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    log `<S.runDir>/codex-exec.log`, prompt = nội dung file trên.
 3. Đọc phần "Trạng thái", "Lệch so với plan", "Việc còn lại" của `codex-report.md` (không cần đọc cả file).
    `BLOCKED` → giải quyết câu hỏi (hỏi người dùng nếu cần) rồi chạy lại với "Tiếp tục".
+   `node scripts/agents/run.mjs skills <ID>` → `missing` (skill bắt buộc Codex chưa mở) hoặc `claimedNotOpened` (ghi đã
+   dùng mà log không thấy) khác rỗng → chạy lại Codex với "Tiếp tục story <ID>. Mở và áp dụng skill <danh sách> lên phần
+   đã làm, sửa nếu lệch, cập nhật report".
 4. `node scripts/agents/run.mjs commit <S.runDir>/codex-report.md` → commit theo "Commit đề xuất". Exit 2 (file lạc) →
    xem file đó: thuộc story thì commit kèm message phù hợp `[<ID>]`; không thì để nguyên và báo người dùng.
 
@@ -162,7 +168,8 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 `node scripts/agents/run.mjs verify <ID>` → đọc vài dòng tóm tắt.
 - PASS → bước 5.
 - FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại bước 3 (Codex) với prompt
-  `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log)`, rồi `run.mjs commit`.
+  `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log). Skill khi sửa:
+  <S.skills.fix>`, rồi `run.mjs commit`.
   Lỗi khó đoán nguyên nhân → thêm vào prompt "dùng skill debugging-and-error-recovery".
   Lỗi trình bày/design → Claude sửa. Tối đa **2 vòng**; hết vòng → ghi `HANDOFF.md`, dừng, báo người dùng.
 - "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.

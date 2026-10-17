@@ -4,7 +4,7 @@
 //   node scripts/agents/run.mjs commit <report.md> [--dry-run] → commit theo mục "Commit đề xuất" của báo cáo Codex
 //   node scripts/agents/run.mjs pr-body <ID>                  → sinh .agent-runs/<ID>/pr-body.md, in tiêu đề PR
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -58,7 +58,35 @@ function qualityWarnings(S) {
   else for (const skill of ["ponytail", "codegraph"]) if (!skills.includes(skill)) warnings.push(`Report không ghi đã dùng ${skill}`);
   if (!section(text, "Case biên → test")) warnings.push('Report thiếu mục "## Case biên → test"');
   if (!section(text, "Tự review")) warnings.push('Report thiếu mục "## Tự review" (bước 4.5 của /run-story)');
+  const usage = skillUsage(S);
+  if (usage.logs.length) {
+    if (usage.missing.length) warnings.push(`Log Codex không thấy mở skill bắt buộc: ${usage.missing.join(", ")}`);
+    if (usage.claimedNotOpened.length) warnings.push(`Report ghi đã dùng nhưng log Codex không thấy mở: ${usage.claimedNotOpened.join(", ")}`);
+  }
   return warnings;
+}
+
+/**
+ * Codex có thật sự dùng skill không: chỉ tính dòng lệnh trong log (dòng ngay sau "exec") mở
+ * `.agents/skills/<tên>/SKILL.md`, hoặc chạy CLI `codegraph`. Chữ trong tài liệu Codex in ra không tính.
+ */
+function skillUsage(S) {
+  const logs = readdirSyncSafe(join(root, S.runDir)).filter((f) => /^(codex-exec(-r\d+)?|fix-r\d+)\.log$/.test(f));
+  const commands = logs.flatMap((f) => readFileSync(join(root, S.runDir, f), "utf8").split(/\r?\n/)
+    .filter((_, i, all) => all[i - 1]?.trim() === "exec")).join("\n");
+  const known = [...new Set([...Object.values(S.skills ?? {}).flatMap((v) => Array.isArray(v) ? v : Object.keys(v))])];
+  const isOpened = (name) => name === "codegraph"
+    ? /(?:^|[\s;'"])codegraph\s+(?:sync|init|explore|node|callers|impact|query|status)\b/m.test(commands)
+    : new RegExp(`skills[\\\\/]+${name}[\\\\/]+SKILL\\.md`).test(commands);
+  const opened = known.filter(isOpened);
+  const required = [...new Set([...(S.skills?.exec ?? []), ...(S.skills?.selfReview ?? [])])];
+  const report = ["codex-report.md"].map((f) => join(root, S.runDir, f)).find(existsSync);
+  const listed = report ? (readFileSync(report, "utf8").match(/^## Skill đã dùng[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] ?? "") : "";
+  const claimed = known.filter((name) => new RegExp(`(?<![\\w-])${name}(?![\\w-])`).test(listed));
+  return { logs, required, opened, missing: required.filter((n) => !opened.includes(n)), claimedNotOpened: claimed.filter((n) => !opened.includes(n)) };
+}
+function readdirSyncSafe(dir) {
+  try { return readdirSync(dir); } catch { return []; }
 }
 
 function verify(id, { skipChecks }) {
@@ -218,8 +246,9 @@ try {
   if (cmd === "verify" && arg) verify(arg.toUpperCase(), { skipChecks: rest.includes("--skip-checks") });
   else if (cmd === "commit" && arg) commit(arg, { dryRun: rest.includes("--dry-run") });
   else if (cmd === "pr-body" && arg) prBody(arg.toUpperCase());
+  else if (cmd === "skills" && arg) console.log(JSON.stringify(skillUsage(storyInfo(arg.toUpperCase()))));
   else {
-    console.error("Dùng: run.mjs verify <ID> [--skip-checks] | commit <report.md> [--dry-run] | pr-body <ID>");
+    console.error("Dùng: run.mjs verify <ID> [--skip-checks] | commit <report.md> [--dry-run] | pr-body <ID> | skills <ID>");
     process.exit(1);
   }
 } catch (err) {

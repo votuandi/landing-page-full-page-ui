@@ -6,6 +6,28 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 
+test("every preset structure is valid on premium", () => {
+  const { presets, loadPreset, presetStructure, validateSiteStructure } = require("../index.ts");
+  const { plans } = require("../../../plans/plans.ts");
+  const can = feature => plans.premium.features.has(feature);
+  for (const { id } of presets) {
+    const { preset, page } = loadPreset(id);
+    const structure = presetStructure({ id, pages: preset.pages, sections: page.sections }, can);
+    assert.deepEqual(validateSiteStructure(structure, { can, pagesLimit: plans.premium.limits.pages, baseline: structure }), [], id);
+  }
+});
+
+test("validateSiteStructure rejects maxPerPage overflow", () => {
+  const { validateSiteStructure } = require("../index.ts");
+  const sections = [true, false].map((enabled, i) => ({ id: `calculator-${i}`, type: "calculator", variant: "t15", enabled }));
+  const structure = { pageTypes: ["home", "contact", "policy"], pages: [{ slug: "", sections }, { slug: "lien-he", sections: [] }] };
+  assert.ok(validateSiteStructure(structure, { can: () => true, pagesLimit: Infinity, baseline: structure })
+    .includes('Chỉ được có tối đa 1 "Dự toán chi phí" trên một trang (trang /)'));
+  structure.pages[0].sections = sections.slice(0, 1);
+  structure.pages[1].sections = sections.slice(1);
+  assert.deepEqual(validateSiteStructure(structure, { can: () => true, pagesLimit: Infinity, baseline: structure }), []);
+});
+
 test("t07 keeps SolarHomePage order, original segments and populated projects", () => {
   const { loadPreset } = require("../index.ts");
   const { preset, page, theme } = loadPreset("t07");

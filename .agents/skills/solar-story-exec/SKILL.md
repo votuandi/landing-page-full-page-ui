@@ -41,14 +41,21 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
 - Tuân thủ mọi quy tắc trong `AGENTS.md` §4 (token, schema, tenant, entitlement). Viết test cho logic mới.
 - **Bảng "Case biên & bất biến" của plan**: viết test cho từng dòng **trước** khi viết code (TDD); tên test khớp cột
   "Test sẽ chứng minh". Không làm được dòng nào → ghi "Lệch so với plan".
-- Skill **bắt buộc** (đã cài trong `.agents/skills`), ghi vào báo cáo mục "Skill đã dùng":
-  - `ponytail` mức `full` — load trước khi viết code: viết ít code nhất thỏa AC, ưu tiên code có sẵn, stdlib và nền
-    tảng. Xung đột thì `AGENTS.md` §4 và plan thắng (token, schema chung, tenant).
-  - `test-driven-development` khi viết test; `debugging-and-error-recovery` khi lệnh kiểm tra lỗi chưa rõ nguyên nhân.
-  - `codegraph` (CLI `codegraph explore|node|callers|impact`) để định vị code thay vì đọc cả cây.
-  - `verification-before-completion` trước khi ghi `DONE`: chỉ báo qua khi đã chạy lệnh và thấy output.
-- Skill theo việc: `playwright-cli` chụp bằng chứng UI khi MCP `playwright` không kết nối được — không tự viết script
-  chụp ảnh riêng; `security-and-hardening` cho tenant/auth/upload; `source-driven-development` khi tra tài liệu thư viện.
+- **Dùng skill như Claude** (skill cài trong `.agents/skills`). Danh sách lấy từ prompt: dòng `Skill bắt buộc:`,
+  `Skill tự review:`, `Skill khi sửa:` và `Skill theo việc:` (sinh từ `S.skills` trong `scripts/agents/routing.json`;
+  prompt không có → `node scripts/agents/story.mjs info <ID>` và đọc trường `skills`).
+  - **Mở `.agents/skills/<tên>/SKILL.md` bằng một lệnh đọc file trước bước dùng skill đó** và làm theo; không làm theo
+    trí nhớ hay chỉ mô tả của skill. Mỗi skill bắt buộc mở ít nhất một lần trong phiên. `codegraph` là CLI (không có
+    SKILL.md): chạy `codegraph sync`, rồi `explore`/`node` để định vị code, `impact` cho symbol đã sửa.
+  - Skill bắt buộc (mặc định khi prompt không ghi): `ponytail` mức `full` trước khi viết code (xung đột thì `AGENTS.md`
+    §4 và plan thắng); `test-driven-development` khi viết test; `codegraph`; `verification-before-completion` trước
+    khi ghi `DONE`; story UI thêm `vercel-react-best-practices`, `vercel-composition-patterns`; story kiến trúc thêm
+    `security-and-hardening`. Tự review: `ponytail-review`. Sửa finding: `receiving-code-review`.
+  - Skill theo việc: gặp đúng tình huống ghi trong `Skill theo việc:` (vd. lỗi chưa rõ → `debugging-and-error-recovery`,
+    viết e2e → `webapp-testing`, chụp UI khi MCP lỗi → `playwright-cli`, tenant/auth/upload → `security-and-hardening`,
+    câu hỏi kiến trúc → `graphify`) thì mở SKILL.md rồi làm. Không tự viết script chụp ảnh riêng.
+  - `node scripts/agents/run.mjs skills <ID>` đối chiếu log của bạn: skill bắt buộc chưa mở hoặc ghi "đã dùng" mà log
+    không thấy mở đều bị cảnh báo khi verify.
 - Tiết kiệm token: sửa bằng công cụ sửa file theo đoạn (không chạy script python/sed có escape phức tạp cho code);
   không in log dài (chỉ đuôi khi lỗi); build/e2e chạy một lần ở cuối, không sau mỗi chỉnh nhỏ.
 - Chia thay đổi thành các commit nhỏ theo bước (ghi trong "Commit đề xuất"): `<type>(<scope>): <mô tả> [<ID>]`.
@@ -88,7 +95,8 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
    ## Case biên → test
    | # (theo plan) | Test | PASS |
    ## Skill đã dùng
-   ponytail, test-driven-development, codegraph, verification-before-completion, … (skill nào bỏ qua → lý do)
+   | Skill | Bước | Đã làm gì (cụ thể) |
+   Mỗi skill đã mở SKILL.md một dòng; skill bắt buộc bỏ qua → ghi lý do. Không ghi skill chưa mở.
    ## Lệch so với plan
    ## Việc còn lại / câu hỏi
    ```

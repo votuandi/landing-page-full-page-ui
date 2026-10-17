@@ -2,7 +2,7 @@ export { createDb, createPlatformDb, loadDisabledFeatures, POOL_BUDGET } from ".
 export type { Db, PlatformDb } from "./client.ts";
 export { withTenantTransaction } from "./tenantTransaction.ts";
 export type { TransactionOptions } from "./tenantTransaction.ts";
-export { saveDraft, publishPage, RevisionConflictError } from "./publish.ts";
+export { saveDraft, publishPage, RevisionConflictError, StructureError } from "./publish.ts";
 export type { DraftInput, PublishInput } from "./publish.ts";
 export { createPreviewToken, consumePreviewToken } from "./preview.ts";
 export { redeemGhostGrant, isGhostSessionActive } from "./ghost.ts";
