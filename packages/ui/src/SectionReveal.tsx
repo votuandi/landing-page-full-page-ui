@@ -3,74 +3,55 @@
 import { useEffect } from "react";
 
 const SELECTOR = "[data-reveal], [data-reveal-stagger] > *";
+const offsets: Record<string, string> = { up: "0 64px", down: "0 -48px", left: "-80px 0", right: "80px 0" };
+const milliseconds = (value: string, fallback: number) => {
+  const number = Number.parseFloat(value);
+  return Number.isFinite(number) ? number * (value.trim().endsWith("ms") ? 1 : 1000) : fallback;
+};
 
-/**
- * Reveals elements marked with `data-reveal="up|down|left|right|zoom"` (or every child of a
- * `data-reveal-stagger="..."` container) as they scroll into view. The hidden state lives in
- * globals.css; this only toggles `data-shown`. Elements replay when they leave through the
- * bottom of the viewport so each section animates again when scrolled back down to.
- * Elements rendered later (tab switches, filters) are picked up by a MutationObserver.
- */
+/** Finite presentation-only animations: SSR remains visible and React's DOM attributes stay untouched. */
 export function SectionReveal() {
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined";
-    const seen = new WeakSet<Element>();
-
-    // Stagger delays live in a separate <style> (`:nth-child` rules) instead of each child's `style`:
-    // this effect can run before lazy sections hydrate, and touching their attributes causes hydration mismatches.
-    const sheet = document.head.appendChild(document.createElement("style"));
-    const rules = new Set<string>();
-    const applyStagger = (group: HTMLElement) => {
-      const step = group.dataset.revealStep;
-      const selector = step ? `[data-reveal-stagger][data-reveal-step="${CSS.escape(step)}"]` : "[data-reveal-stagger]:not([data-reveal-step])";
-      for (let index = 0; index < group.children.length; index++) {
-        const rule = `${selector} > :nth-child(${index + 1}) { --rd: ${(index * Number(step || 0.1)).toFixed(2)}s; }`;
-        if (rules.has(rule)) continue;
-        rules.add(rule);
-        sheet.sheet?.insertRule(rule, sheet.sheet.cssRules.length);
-      }
-    };
-
-    const observer = reduced ? null : new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motion.matches || typeof IntersectionObserver === "undefined" || typeof HTMLElement.prototype.animate !== "function") return;
+    const seen = new WeakSet<HTMLElement>();
+    const animations = new Map<HTMLElement, Animation>();
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
         const el = entry.target as HTMLElement;
-        if (entry.isIntersecting) el.setAttribute("data-shown", "");
-        else if (entry.rootBounds && entry.boundingClientRect.top > entry.rootBounds.bottom) el.removeAttribute("data-shown");
-      });
+        if (entry.isIntersecting && !motion.matches && !animations.has(el)) {
+          const parent = el.parentElement;
+          const group = parent?.hasAttribute("data-reveal-stagger") ? parent : null;
+          const direction = el.dataset.reveal || group?.dataset.revealStagger || "up";
+          const css = getComputedStyle(el);
+          const delay = group ? Array.prototype.indexOf.call(group.children, el) * Number(group.dataset.revealStep || 0.1) * 1000 : 0;
+          animations.set(el, el.animate([
+            { opacity: 0, translate: offsets[direction || "up"] || "0 0", scale: direction === "zoom" ? ".86" : "1", filter: "blur(4px)" },
+            { opacity: 1, translate: "0 0", scale: "1", filter: "blur(0px)" },
+          ], { duration: milliseconds(css.getPropertyValue("--motion-slow"), 900),
+            delay: milliseconds(css.getPropertyValue("--rd"), Number.isFinite(delay) ? delay : 0),
+            easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" }));
+        } else if (!entry.isIntersecting && entry.rootBounds && entry.boundingClientRect.top > entry.rootBounds.bottom) {
+          const animation = animations.get(el);
+          // The reveal's own translation can cross the observer edge; let it finish before allowing a replay.
+          if (animation?.playState !== "running") { animation?.cancel(); animations.delete(el); }
+        }
+      }
     }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-
-    // Streamed boundaries (Cache Components, E5-S06) hydrate after this effect. Touching `data-shown` on server HTML that
-    // React has not hydrated yet is a hydration mismatch, so wait until React has attached its fiber to the element.
-    const hydrated = (el: Element) => Object.keys(el).some((key) => key.startsWith("__reactFiber$"));
-    let pending: HTMLElement[] = [];
-    let frame = 0;
-    const show = (el: HTMLElement) => { if (observer) observer.observe(el); else el.setAttribute("data-shown", ""); };
-    const flush = () => {
-      frame = 0;
-      pending = pending.filter((el) => { if (!el.isConnected) return false; if (!hydrated(el)) return true; show(el); return false; });
-      if (pending.length) frame = requestAnimationFrame(flush);
-    };
-    const register = (root: ParentNode) => {
-      root.querySelectorAll<HTMLElement>("[data-reveal-stagger]").forEach(applyStagger);
-      root.querySelectorAll<HTMLElement>(SELECTOR).forEach((el) => {
-        if (seen.has(el)) return;
-        seen.add(el);
-        if (hydrated(el)) show(el); else pending.push(el);
-      });
-      if (pending.length && !frame) frame = requestAnimationFrame(flush);
-    };
-
-    register(document);
-
-    const mutations = new MutationObserver((records) => {
-      const parents = new Set<ParentNode>();
-      records.forEach((r) => { if (r.addedNodes.length && r.target.parentNode) parents.add(r.target.parentNode); });
-      parents.forEach(register);
+    const register = (root: ParentNode) => root.querySelectorAll<HTMLElement>(SELECTOR).forEach(el => {
+      if (!seen.has(el)) { seen.add(el); observer.observe(el); }
     });
+    const mutations = new MutationObserver(records => {
+      for (const record of records) if (record.addedNodes.length && record.target.parentNode) register(record.target.parentNode);
+      for (const [el, animation] of animations) if (!el.isConnected) {
+        animation.cancel(); animations.delete(el); observer.unobserve(el); seen.delete(el);
+      }
+    });
+    const cancel = () => { if (motion.matches) { for (const animation of animations.values()) animation.cancel(); animations.clear(); } };
+    register(document);
     mutations.observe(document.body, { childList: true, subtree: true });
-
-    return () => { cancelAnimationFrame(frame); observer?.disconnect(); mutations.disconnect(); sheet.remove(); };
+    motion.addEventListener("change", cancel);
+    return () => { observer.disconnect(); mutations.disconnect(); motion.removeEventListener("change", cancel); for (const animation of animations.values()) animation.cancel(); };
   }, []);
-
   return null;
 }
