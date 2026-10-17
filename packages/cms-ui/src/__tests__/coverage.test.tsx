@@ -1,8 +1,8 @@
-import { button, byPath, click, submitButton, type } from "./dom.ts";
+import { button, byPath, click, mount, submitButton, type } from "./dom.ts";
 import { render } from "./harness.tsx";
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { act } from "react";
+import { act, useState } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { z } from "zod";
@@ -138,4 +138,69 @@ test("nhãn wildcard cho dòng mảng object (khác nhãn mặc định) cùng l
   assert.ok(button(container, "Xóa: TEN_RIENG 1"));
   assert.match(container.textContent ?? "", /Tiêu đề dòng/);
   assert.equal(container.querySelector("output")?.textContent, "media:rows.0.image");
+});
+
+test("richText qua form: xóa link đầu trong hai link trùng, nhãn có \ | xuống dòng → lưu giữ đúng metadata", async () => {
+  const schema = z.object({ body: richText() });
+  const page = (label: { vi: string; en?: string }) => ({ type: "link" as const, link: { kind: "page" as const, value: "bao-gia", label },
+    children: [{ type: "text" as const, text: "Xem" }] });
+  const a = page({ vi: "Nhãn A", en: "A" });
+  const b = page({ vi: "A\\", en: "B|C\ndòng 2" });
+  const c = page({ vi: "Nhãn\nhai dòng" });
+  const initial = { body: { vi: [
+    { type: "paragraph", children: [{ type: "text", text: "Mở đầu" }] },
+    { type: "paragraph", children: [a, { type: "text", text: " và " }, b, { type: "text", text: " rồi " }, c] },
+  ] } };
+  const { container, log } = await render(schema, initial);
+  const area = byPath<HTMLTextAreaElement>(container, "body");
+  const markup = area.value;
+  await type(area, markup.replace("Mở đầu", "Mở đầu mới").replace(/\[Xem\]\(\/bao-gia \["Nhãn A","A"\]\) và /, ""));
+  await click(submitButton(container));
+  assert.deepEqual(log.submitted[0], { body: { vi: [
+    { type: "paragraph", children: [{ type: "text", text: "Mở đầu mới" }] },
+    { type: "paragraph", children: [b, { type: "text", text: " rồi " }, c] },
+  ] } });
+});
+
+function Remote({ schema, initial, onReady, onSubmit }: {
+  schema: z.ZodType; initial: unknown; onReady(set: (next: unknown) => void): void; onSubmit(data: unknown): void;
+}) {
+  const [value, setValue] = useState(initial);
+  onReady(setValue);
+  return <SchemaForm schema={schema} value={value as never} onChange={setValue} onSubmit={onSubmit} />;
+}
+
+test("controlled value: parent thay bộ lọc → UI cập nhật, sửa tiếp không ghi đè dữ liệu mới; draft đang gõ được giữ", async () => {
+  const schema = z.object({ query: collectionQuery("projects") });
+  let setValue: (next: unknown) => void = () => {};
+  const submitted: unknown[] = [];
+  const { container, unmount } = await mount(<Remote schema={schema} initial={{ query: { filter: { a: "old" }, limit: 6 } }}
+    onReady={(set) => { setValue = set; }} onSubmit={(data) => submitted.push(data)} />);
+  try {
+    const field = <T extends Element = HTMLInputElement>(label: string) => container.querySelector<T>(`[aria-label="${label}"]`)!;
+    await act(async () => setValue({ query: { filter: { b: "new" }, limit: 6 } }));
+    assert.equal(field("Tên trường lọc 1").value, "b");
+    await type(field("Giá trị lọc 1"), "changed");
+    await click(submitButton(container));
+    assert.deepEqual(submitted[0], { query: { filter: { b: "changed" }, limit: 6 } });
+    // Draft kiểu Số đang trống vẫn giữ sau phản hồi của chính thao tác.
+    await type(field<HTMLSelectElement>("Kiểu giá trị lọc 1"), "number");
+    assert.equal(field<HTMLSelectElement>("Kiểu giá trị lọc 1").value, "number");
+    assert.equal(submitButton(container).disabled, true);
+  } finally {
+    unmount();
+  }
+});
+
+test("override widget trên chính dòng object của mảng: chính xác và wildcard", async () => {
+  const schema = z.object({ rows: z.array(z.object({ title: z.string() })), cols: z.array(z.object({ title: z.string() })) });
+  const Row = ({ path, label }: FieldProps) => <output>{label}:{path.join(".")}</output>;
+  Row.displayName = "Row";
+  const Exact = ({ path }: FieldProps) => <output>exact:{path.join(".")}</output>;
+  Exact.displayName = "Exact";
+  const { container } = await render(schema, { rows: [{ title: "a" }, { title: "b" }], cols: [{ title: "c" }] }, {
+    widgets: { "rows.*": Row, "cols.0": Exact },
+  });
+  assert.deepEqual([...container.querySelectorAll("output")].map((el) => el.textContent), ["Hàng 1:rows.0", "Hàng 2:rows.1", "exact:cols.0"]);
+  assert.equal(container.querySelectorAll('[id$="-rows.0.title"]').length, 0, "không dựng control mặc định khi đã override");
 });

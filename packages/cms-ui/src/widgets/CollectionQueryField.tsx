@@ -25,12 +25,23 @@ type Row = { id: number; key: string; value: Scalar; type: FilterType };
 let nextRow = 0;
 const rowsOf = (filter: Record<string, Scalar> | undefined): Row[] =>
   Object.entries(filter ?? {}).map(([key, value]) => ({ id: nextRow++, key, value, type: typeOf(value) }));
+/** Bản nháp đang khớp dữ liệu (không tính thứ tự khóa): khi đó giữ nguyên kiểu/draft người dùng đang chọn. */
+const sameAsRows = (filter: Record<string, Scalar> | undefined, rows: Row[]) => {
+  const entries = Object.entries(filter ?? {});
+  return entries.length === rows.length && rows.every((row) => Object.hasOwn(filter ?? {}, row.key) && filter![row.key] === row.value);
+};
 
 export function CollectionQueryField({ node, path, value, label }: FieldProps<CollectionQuery | undefined>) {
   const { idPrefix, issues, update, pickers, setInputError } = useSchemaForm();
   // Dòng lọc là bản nháp cục bộ (id + khóa + giá trị + kiểu người dùng chọn): đổi khóa làm đổi thứ tự trong object
   // hay trùng khóa cũng không làm lệch kiểu hoặc mất dòng. Chỉ ghi vào dữ liệu khi khóa không trùng.
   const [rows, setRows] = useState<Row[]>(() => rowsOf(value?.filter));
+  // Parent thay dữ liệu (tải bản khác, hoàn tác…) → dựng lại bản nháp; phản hồi từ chính thao tác đang gõ thì giữ nguyên.
+  const [seen, setSeen] = useState(value?.filter);
+  if (value?.filter !== seen) {
+    setSeen(value?.filter);
+    if (!sameAsRows(value?.filter, rows)) setRows(rowsOf(value?.filter));
+  }
   const [items, setItems] = useState<readonly { id: string; label: string }[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const collection = node.kind === "widget" ? node.collection : undefined;

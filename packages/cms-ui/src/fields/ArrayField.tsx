@@ -13,7 +13,7 @@ import { humanize } from "../schema/labels.ts";
 import { issuesUnder, pathKey, type Path } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps } from "../context.ts";
 import { Errors, SmallButton } from "../ui.tsx";
-import { Field, hasContent, ObjectField, useLabel } from "./Field.tsx";
+import { Field, hasContent, lookupByPath, ObjectField, useLabel } from "./Field.tsx";
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const subscribeMotion = (onChange: () => void) => {
@@ -133,7 +133,9 @@ function SortableItem({ id, index, count, node, path, value, scalar, title: fall
   const reduced = useReducedMotion();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable(
     reduced ? { id, transition: null } : { id });
-  const { issues, inputErrorKeys } = useSchemaForm();
+  const { issues, inputErrorKeys, widgets } = useSchemaForm();
+  // Dòng object có override (theo đường dẫn hoặc kind) thì đi qua Field để dùng widget đó; không thì dựng trường con.
+  const overridden = Boolean(lookupByPath(widgets, path) ?? widgets[node.kind]);
   // Nhãn override theo đường dẫn (vd. "rows.*") thay phần tên; số thứ tự luôn kèm theo.
   const title = `${useLabel(path, fallbackTitle)} ${index + 1}`;
   // Thu gọn bằng nút (không dùng <summary>: không được lồng nút trong summary). Nội dung chỉ ẩn, không unmount,
@@ -185,7 +187,7 @@ function SortableItem({ id, index, count, node, path, value, scalar, title: fall
             {controls}
           </div>
           <div id={bodyId} hidden={!expanded} className="border-t border-line/10 p-4">
-            {node.kind === "object"
+            {node.kind === "object" && !overridden
               ? <ObjectField bare node={node} path={path} value={value as Record<string, unknown>} label={title} />
               : <Field node={node} path={path} value={value} label={title} />}
           </div>

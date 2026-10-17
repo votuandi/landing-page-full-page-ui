@@ -4,13 +4,12 @@ import type { Link, RichTextBlock, RichTextInline, RichTextText } from "@solar/s
  * Editor richText tối giản soạn trên văn bản đánh dấu:
  * `**đậm**`, `*nghiêng*`, `[chữ](đích)`, dòng `- ` / `1. ` là danh sách, `## ` là tiêu đề, dòng trống ngăn đoạn.
  * Đích link: `/trang`, `https://…`, `#neo`, `tel:…`, `zalo:…`, `calculator:?…`. Chỉ sinh đúng whitelist của schema.
- * Nhãn link khác chữ hiển thị (hoặc có bản EN) đi kèm trong link: `[chữ](đích "nhãn VI|nhãn EN")`, nên sửa/xóa link
- * khác không làm đổi metadata của link này.
+ * Nhãn link khác chữ hiển thị (hoặc có bản EN) đi kèm trong link dạng mảng JSON `[chữ](đích ["nhãn VI","nhãn EN"])` —
+ * JSON giữ đúng mọi ký tự (`\`, `|`, xuống dòng) — nên sửa/xóa link khác không làm đổi metadata của link này.
  */
 
 const escapeText = (text: string) => text.replace(/[\\*[\]]/g, "\\$&");
-const escapeHref = (href: string) => href.replace(/[\\()"]/g, "\\$&");
-const escapeLabel = (label: string) => label.replace(/[\\"|]/g, "\\$&");
+const escapeHref = (href: string) => href.replace(/[\\()"[\]]/g, "\\$&");
 const unescape = (text: string) => text.replace(/\\([\s\S])/g, "$1");
 
 function textToMarkup(node: RichTextText): string {
@@ -40,7 +39,7 @@ function hrefLink(href: string, label: Link["label"]): Link {
 function linkToMarkup(node: Extract<RichTextInline, { type: "link" }>): string {
   const text = node.children.map((child) => child.text).join("");
   const { vi, en } = node.link.label;
-  const title = vi === text && en === undefined ? "" : ` "${escapeLabel(vi)}${en === undefined ? "" : `|${escapeLabel(en)}`}"`;
+  const title = vi === text && en === undefined ? "" : ` ${JSON.stringify(en === undefined ? [vi] : [vi, en])}`;
   return `[${node.children.map(textToMarkup).join("")}](${escapeHref(linkHref(node.link))}${title})`;
 }
 
@@ -99,11 +98,15 @@ function closing(source: string, start: number, open: string, close: string): nu
   return -1;
 }
 
-/** `đích "vi|en"` → đích + nhãn; không có nhãn → nhãn = chữ hiển thị. */
+/** `đích ["vi","en"]` → đích + nhãn; không có nhãn (hoặc JSON hỏng) → nhãn = chữ hiển thị. */
 function parseTarget(target: string, text: string): Link {
-  const titled = /^([\s\S]*?) "((?:\\[\s\S]|[^"\\])*)"$/.exec(target);
-  if (!titled) return hrefLink(unescape(target), { vi: text });
-  const [vi, en] = titled[2].split(/(?<!\\)\|/).map(unescape);
+  const titled = /^([\s\S]*?) (\[[\s\S]*\])$/.exec(target);
+  let label: unknown;
+  try { label = titled ? JSON.parse(titled[2]) : undefined; } catch { label = undefined; }
+  if (!titled || !Array.isArray(label) || label.length < 1 || label.length > 2 || !label.every((part) => typeof part === "string")) {
+    return hrefLink(unescape(target), { vi: text });
+  }
+  const [vi, en] = label as string[];
   return hrefLink(unescape(titled[1]), en === undefined ? { vi } : { vi, en });
 }
 
