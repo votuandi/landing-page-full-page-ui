@@ -72,9 +72,12 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   Đã tách (17/10/2026): thumbnail ở story này là ô giữ chỗ; danh sách trang theo danh mục, thumbnail chụp sẵn và dọn
   dữ liệu 30 ngày chuyển sang E7-S13. Hero không có variant t08 → AC1 kiểm bằng t12 → t15.
 - **AC**:
-  - [ ] Đổi variant hero t08 → t15: nội dung giữ nguyên, preview cập nhật.
-  - [ ] Thao tác lưu vào draft; "Xuất bản" mới revalidate.
-  - [ ] Ràng buộc `maxPerPage` (vd. chỉ 1 calculator) được kiểm cả client và server.
+  - [x] Đổi variant hero t12 → t15 (hero không có t08): nội dung giữ nguyên, preview cập nhật.
+  - [x] Thao tác lưu vào draft; "Xuất bản" mới revalidate.
+  - [x] Ràng buộc `maxPerPage` (vd. chỉ 1 calculator) được kiểm cả client và server.
+  Bằng chứng phần a: `sectionEditor.int.test.ts` (variant/content, Outbox, giữ nội dung khi xóa),
+  `pageSections.test.ts` (quyền/site/revision/cấu trúc), `cms-sections.spec.ts` (7 ca browser, axe, 390/1440 sáng/tối).
+  Chờ Claude design pass, review và tạo PR; E7-S13 giữ phạm vi phần b.
 - Phụ thuộc: S03, E5-S07 · Agent: Claude · Cỡ: M
 
 ### E7-S05 · Sửa nội dung section kèm xem trước
