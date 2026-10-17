@@ -10,6 +10,13 @@ Trong E1, app vẫn cung cấp CSS `.t15-eyebrow`, `.t15-heading`, `.t15-subhead
 `.t15-no-scrollbar` (cùng `.can-drag`/`.is-dragging`) và `[data-reveal]`/`[data-reveal-stagger]`/`--rd`
 từ `apps/web/src/app/globals.css`. E2 sẽ chuyển các style này sang token/theme.
 
+`AdminShell` là server component dùng chung cho admin/console, chỉ đọc token của app. Props:
+`brand: ReactNode`, `nav: AdminNavGroup[]`, `banners?: ReactNode`, `account?: ReactNode`, `children`.
+Mỗi group có `label?` và `items: { href, label, current? }[]`. App lọc quyền/gói và xác định `current` trước khi truyền vào;
+shell chỉ render link (`aria-current="page"`), không thay thế guard server. Sidebar cố định từ breakpoint `lg`,
+mobile dùng `<details>`/`<summary>` "Menu" không cần JavaScript. Slot banner có region được đặt tên;
+`main#noi-dung` nhận skip link từ root layout của app. App không bọc shell bằng một `<main>` khác.
+
 `CarouselNav` nhận `prevLabel`/`nextLabel`, `VideoModal` nhận `closeLabel`, mặc định tiếng Việt.
 App truyền label đã dịch để hỗ trợ EN; package không phụ thuộc provider hay config của app.
 `VideoSource` là kiểu union YouTube (`id`) hoặc file (`src`) do package xuất.

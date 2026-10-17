@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getAdminSession } from "../../lib/auth.ts";
-import { ActionForm } from "../../components/ActionForm.tsx";
-import { Field } from "../../components/Fields.tsx";
-import { loginAction, loginTotpAction, magicTotpAction } from "../actions.ts";
+import { getAdminSession } from "../../../lib/auth.ts";
+import { ActionForm } from "../../../components/ActionForm.tsx";
+import { Field } from "../../../components/Fields.tsx";
+import { loginAction, loginTotpAction, magicTotpAction } from "../../actions.ts";
 
 export default async function Login({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const session = await getAdminSession();

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ActionForm } from "../../components/ActionForm.tsx";
-import { NewPasswordFields } from "../../components/Fields.tsx";
-import { resetPasswordAction } from "../actions.ts";
+import { ActionForm } from "../../../components/ActionForm.tsx";
+import { NewPasswordFields } from "../../../components/Fields.tsx";
+import { resetPasswordAction } from "../../actions.ts";
 
 export default async function ResetPassword({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const token = (await searchParams).token ?? "";

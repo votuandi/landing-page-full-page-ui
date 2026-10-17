@@ -1,7 +1,24 @@
 # Site admin
 
 CMS từng tenant tại `<slug>.admin.<PLATFORM_DOMAIN>`. E7-S01 cung cấp đăng nhập và phân quyền;
-khung điều hướng đầy đủ, theme admin và màn hình quản lý nội dung thuộc các story E7 tiếp theo.
+E7-S02 cung cấp khung điều hướng và theme admin riêng. Nội dung các màn hình quản lý thuộc những story tiếp theo.
+
+## Khung và điều hướng
+
+- Root layout áp dụng `adminTheme` từ `@solar/themes`, độc lập với theme tenant. Theme có token light/dark;
+  admin hiện dùng light. Theme admin không xuất hiện trong danh sách theme cho khách chọn.
+- Route group `(auth)` giữ card căn giữa cho đăng nhập, quên/đặt lại/đổi mật khẩu, magic link, nhận mời và lỗi tenant.
+  Route group không thay đổi URL; `/doi-mat-khau` không có menu, kể cả lần đầu bắt buộc đổi mật khẩu.
+- Route group `(admin)` dùng `AdminShell` từ `@solar/ui`: sidebar desktop và menu `<details>` trên mobile,
+  dùng được khi tắt JavaScript. Skip link trỏ tới `main#noi-dung`; mục hiện tại có `aria-current="page"`.
+  Slot banner hiển thị thông báo phiên hỗ trợ; banner bảo trì sẽ được thêm ở E15-S06.
+- `lib/nav.ts` lọc menu bằng cả permission hiệu lực và entitlement. Nhóm rỗng bị bỏ; phiên ghost không có nhóm
+  "Tài khoản của tôi". `/lead` cần `leadInbox`; `/ten-mien` và `/email` cần `customDomain`.
+- `getSiteEntitlements()` chỉ memoize trong request, đọc site qua repository có tenant từ Host, rồi áp dụng
+  kill switch nền tảng → override tenant → gói/addon/trial qua `@solar/plans`.
+  Mỗi trang tự kiểm `requirePagePermission`; trang có feature còn gọi `requirePageFeature`, trả 404 khi ngoài gói/bị tắt.
+- `/trang`, `/noi-dung`, `/media`, `/lead`, `/giao-dien`, `/email` hiện là trang chỗ chờ có guard server.
+  Không thêm nội dung quản lý thật vào shell.
 
 ## Chạy local
 
@@ -69,5 +86,5 @@ ghi invalidation qua Outbox, setup trước warm-up route và cleanup sau test. 
 (mặc định `solar.localhost`; Chromium tự phân giải `*.localhost`). Không dùng miền công khai giả như preview: Chromium
 chặn tải JS từ miền công khai trỏ về loopback (Local Network Access) nên trang 403 cần JS hiện trắng. Lệnh trên chỉ chạy config admin.
 
-Dependency dùng phiên bản đã có: Next/React cho app; workspace auth/db cho phiên/RLS, core/ui/tokens/themes
+Dependency dùng phiên bản đã có: Next/React cho app; workspace auth/db cho phiên/RLS, plans cho entitlement, core/ui/tokens/themes
 theo kiến trúc; zod validate; ioredis chia sẻ giới hạn đăng nhập. Không thêm thư viện QR/email provider.

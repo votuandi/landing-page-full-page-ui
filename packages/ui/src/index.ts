@@ -1,4 +1,5 @@
 export { SectionHead } from "./SectionHead";
+export { AdminShell, type AdminNavItem, type AdminNavGroup } from "./admin/AdminShell";
 export { CarouselNav } from "./CarouselNav";
 export { CountUp } from "./CountUp";
 export { useCountUp, useInViewOnce } from "./useCountUp";

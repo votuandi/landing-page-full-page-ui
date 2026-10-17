@@ -2,6 +2,9 @@ import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { forbidden, notFound, redirect } from "next/navigation";
 import { UnauthenticatedError, MustChangePasswordError } from "@solar/auth";
+import { forTenant } from "@solar/db";
+import type { Feature } from "@solar/plans";
+import { assertPageFeature, getSiteEntitlements } from "./entitlements.ts";
 import { getRuntime } from "./runtime.ts";
 import { authorize, type Access } from "./gate.ts";
 import { requestHost } from "./hostContext.ts";
@@ -29,6 +32,17 @@ export async function requirePagePermission(permission: Access) {
     notFound();
   }
 }
+export async function requirePageFeature(feature: Feature) {
+  assertPageFeature(await getSiteEntitlements(), feature);
+}
+export const getAdminAccountName = cache(async () => {
+  const session = await requirePermission("session");
+  if (!session.accountId || session.kind === "ghost") return null;
+  const user = await forTenant(getRuntime().db, (await getTenant()).tenantId).siteUser.first({
+    where: { id: session.accountId }, select: { name: true },
+  });
+  return user?.name ?? null;
+});
 export async function setSessionCookie(cookie: ReturnType<ReturnType<typeof getRuntime>["realm"]["cookieOptions"]> & { value: string }) {
   (await cookies()).set(cookie.name, cookie.value, cookie);
 }

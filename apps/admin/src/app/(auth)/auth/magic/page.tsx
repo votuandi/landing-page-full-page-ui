@@ -1,5 +1,5 @@
-import { ActionForm } from "../../../components/ActionForm.tsx";
-import { magicLoginAction } from "../../actions.ts";
+import { ActionForm } from "../../../../components/ActionForm.tsx";
+import { magicLoginAction } from "../../../actions.ts";
 
 export default async function RedeemMagic({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const token = (await searchParams).token ?? "";

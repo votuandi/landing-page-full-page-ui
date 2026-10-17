@@ -29,6 +29,9 @@ importers:
       '@solar/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@solar/plans':
+        specifier: workspace:*
+        version: link:../../packages/plans
       '@solar/themes':
         specifier: workspace:*
         version: link:../../packages/themes

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ActionForm } from "../../components/ActionForm.tsx";
-import { Field } from "../../components/Fields.tsx";
-import { forgotPasswordAction } from "../actions.ts";
+import { ActionForm } from "../../../components/ActionForm.tsx";
+import { Field } from "../../../components/Fields.tsx";
+import { forgotPasswordAction } from "../../actions.ts";
 
 export default function ForgotPassword() {
   return <div className="mx-auto max-w-md space-y-5"><h1>Quên mật khẩu</h1><p>Nhập thông tin tài khoản để nhận link qua email đã xác minh. Nếu chỉ dùng số điện thoại, liên hệ chủ site, quản trị viên hoặc hỗ trợ.</p>
