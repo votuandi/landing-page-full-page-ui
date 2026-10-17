@@ -51,7 +51,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 - **AC**: [x] Lighthouse a11y ≥ 95 cho các trang admin chính · [x] Menu ẩn mục ngoài quyền/ngoài gói/bị super admin tắt (vẫn kiểm server).
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: M
 
-### E7-S03 · Form tự sinh từ schema zod
+### E7-S03 · Form tự sinh từ schema zod ✅ · PR [#45](https://github.com/votuandi/landing-page-full-page-ui/pull/45)
 **Là** dev, **tôi muốn** không phải viết tay form cho 28 section, **để** thêm section mới là có form ngay.
 - **Chi tiết**: `<SchemaForm schema={…} value onChange/>` duyệt zod: string/number/boolean/enum, `localized` (tab VI/EN —
   EN chỉ khi có `bilingual`), `mediaRef` (mở thư viện media), `link` (chọn trang/neo/tel/Zalo/calculator), `richText`
