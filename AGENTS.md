@@ -120,14 +120,23 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    review lại, lặp tới khi PR merge được (APPROVE, CI xanh, không conflict; chặn an toàn 5 vòng) rồi báo người dùng.
    **Không agent nào tự merge.**
 
-Skill bổ trợ, dùng nếu đã cài trong `.agents/skills` (lý do chọn/bỏ: ADR D16):
-- Plan: `graphify`, gọi `python -m graphify query "<câu hỏi>"` để định vị file trước khi đọc.
-- Thực thi: `ponytail` mức `full`, viết ít code nhất; `AGENTS.md` §4 ưu tiên hơn.
-- Test và debug: `test-driven-development`, và `debugging-and-error-recovery` khi lệnh kiểm tra lỗi.
-- Bằng chứng UI: `playwright-cli` khi MCP `playwright` lỗi.
-- Review: `ponytail-review` rà over-engineering, tối đa P2.
+Skill đã cài trong `.agents/skills` (lý do chọn/bỏ: ADR D16, D22). **Bắt buộc** = phải dùng và ghi vào report mục
+`## Skill đã dùng` (`run.mjs verify` cảnh báo khi thiếu):
+- Định vị code (bắt buộc): `codegraph` — `codegraph sync`, `codegraph explore|node|callers|impact` (index local
+  `.codegraph/`, đặt `CODEGRAPH_TELEMETRY=0`). Câu hỏi kiến trúc dính tài liệu: `graphify` (`python -m graphify query`).
+- Plan (bắt buộc): mục "Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng" theo `roadmap/plans/README.md`;
+  checklist case biên `.agents/skills/solar-pr-review/checklists.md`.
+- Thực thi (bắt buộc): `ponytail` mức `full` (`AGENTS.md` §4 ưu tiên hơn); `test-driven-development` (case biên → test
+  viết trước); `verification-before-completion` (chỉ báo qua khi đã thấy output).
+- Tự review trước khi push (bắt buộc, bước 4.5 `/run-story`): checklist + `codegraph impact` + `ponytail-review`.
+- Sửa theo review (bắt buộc): `receiving-code-review` — thẩm định, sửa theo bất biến, test tái hiện FAIL trước.
+- Debug: `debugging-and-error-recovery`. Bằng chứng UI: lab `apps/web /lab/*` + spec `tooling/visual`; MCP `playwright`
+  lỗi → `playwright-cli`; viết e2e: `webapp-testing`.
+- Giao diện: `frontend-design`, `ui-ux-pro-max`, `design-system`, `web-design-guidelines`; trang công khai thêm
+  `design-taste-frontend`, `redesign-existing-projects` (màu/font đề xuất → token trong `packages/themes`; không dùng
+  cho admin/console).
 - Theo việc: `security-and-hardening` (tenant/auth/upload), `performance-optimization`, `source-driven-development`,
-  `code-simplification`, `frontend-ui-engineering`, `browser-testing-with-devtools`.
+  `code-simplification`, `frontend-ui-engineering`, `browser-testing-with-devtools`; sửa skill `solar-*`: `skill-creator`.
 - OmniRoute (`cli-setup`, `omni-auth`, `omni-mcp`): chưa dùng tới khi dự án chạy gateway.
 
 Tra cứu nhanh: `node scripts/agents/story.mjs list --todo` (trạng thái, người làm, reviewer), `… info <ID>`, `… next`.

@@ -11,8 +11,19 @@ Bạn là reviewer độc lập. Chỉ đọc, **không sửa file, không commi
 
 1. Story trong file epic (AC là thước đo chính), plan `roadmap/plans/<ID>.md`, `AGENTS.md` §4 và §7.
 2. Diff được nêu trong prompt (`git diff origin/<base>...origin/<branch>`), và file liên quan quanh chỗ sửa khi cần ngữ cảnh.
-3. Vòng > 1: đọc review vòng trước, kiểm tra từng finding P0/P1 và từng mục "Chưa cover" đã xử lý đúng chưa; không mở
-   thêm finding mới trừ khi do chính bản sửa gây ra hoặc là P0. Mục "Chưa cover" luôn được đánh giá lại đầy đủ mỗi vòng.
+3. Checklist case biên theo loại story: `checklists.md` (cùng thư mục) + bảng "Case biên & bất biến" trong plan.
+4. Định vị nhanh: `codegraph explore "<chủ đề>"`, `codegraph impact <symbol>` (nơi bị ảnh hưởng khi symbol đổi) thay vì
+   đọc cả cây.
+
+## Vòng 1 và các vòng sau
+
+- **Vòng 1 — soát hết một lần**: liệt kê *mọi* finding và *mọi* mục "Chưa cover" có thể thấy (đối chiếu AC, Chi tiết,
+  Target, plan, DoD, checklist). Vòng sau không được "phát hiện thêm" thứ đã có sẵn ở vòng 1 — nên vòng 1 phải kỹ.
+- **Vòng > 1 — chỉ soát phần sửa**: prompt cho `<SHA vòng trước>`. Đọc `git diff <SHA vòng trước>..<HEAD>` (không đọc lại
+  cả PR). Việc cần làm: (a) từng finding P0/P1 và mục "Chưa cover" của vòng trước → đã sửa / chưa / sửa sai, có test
+  chưa; (b) hồi quy do chính bản sửa gây ra (dùng `codegraph impact` trên symbol vừa sửa); (c) P0 mới ở bất cứ đâu.
+  Không mở finding P1/P2 hay mục "Chưa cover" mới ngoài (b)/(c). Thứ chỉ nên làm thêm (P2, ý tưởng) → ghi "Gợi ý", không
+  chặn merge.
 
 ## Khi review code do chính bạn (cùng loại agent) viết
 
@@ -36,7 +47,9 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - **Phạm vi**: thay đổi ngoài plan/story.
 - **Over-engineering** (skill `ponytail-review`, nếu đã cài): code, abstraction, cấu hình hoặc dependency thừa so với AC;
   tự viết lại thứ đã có sẵn trong repo, stdlib hoặc nền tảng. Mức tối đa P2, trừ khi gây lỗi hoặc vi phạm `AGENTS.md`.
-- Story UI: tương phản, responsive 390/1440, reduced motion, bàn phím, nội dung khi tắt JS.
+- Story UI: tương phản, responsive 390/1440, reduced motion, bàn phím, nội dung khi tắt JS (chi tiết: `checklists.md`).
+- **Bảng case biên trong plan**: mỗi dòng có test tương ứng thật sự chạy và kiểm đúng hành vi; dòng thiếu → "Chưa cover".
+- **Report của người viết**: có dòng "Skill đã dùng" và mục "Tự review" (bước 4.5); thiếu → P2, ghi vào kết quả.
 - Có thể chạy lệnh chỉ đọc (`git`, đọc file, chạy test nếu sandbox cho phép) để xác minh. Không xác minh được → ghi rõ
   "chưa xác minh".
 

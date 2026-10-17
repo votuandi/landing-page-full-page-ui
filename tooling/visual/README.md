@@ -76,6 +76,19 @@ cuộn toàn trang rồi về đầu. CSS trong harness buộc section/footer đ
 `content-visibility`. Che marquee, iframe/video và các số đếm bằng selector hiện có; nhãn, bố cục và phần còn lại
 vẫn được so sánh. Popup tư vấn tự bật được đánh dấu đã hiện trong sessionStorage. Không đổi giao diện app.
 
+## Test flaky đã biết
+
+Chỉ ghi test đã có bằng chứng (log chạy trên base). Test lỗi ngoài danh sách → coi là hồi quy cho tới khi chạy lại trên
+base (`VISUAL_WEB_ROOT=<worktree base>`, chép `packages/db/generated` vào worktree) chứng minh ngược lại.
+
+| Test | Hiện tượng | Bằng chứng | Ghi chú |
+|---|---|---|---|
+| `preset-home.spec.ts:79` (home and subpages share widgets, dark mode…) | Khi chạy song song, bấm nút theme trước khi hydrate xong → `data-theme` vẫn `light` | E7-S03: base lỗi cùng test (`.agent-runs/E7-S03/e2e-base2.log`), chạy riêng qua | Sửa đúng: chờ hydrate trước khi bấm (story riêng) |
+
+Đang theo dõi (chưa đủ bằng chứng là flaky): CI `compare` — bước dựng baseline merge-base, `visual.spec.ts` `/` chụp
+không ổn định; CI `db` — `tenant.spec.ts:175` `page.reload` timeout. Cả hai lỗi 2 lần ở PR #45 commit `125610e`, qua ở
+`2e76bc0`.
+
 ## Baseline local và CI
 
 Baseline/report/test output đều được `.gitignore`: **không commit ảnh hoặc report**. Baseline nằm tại

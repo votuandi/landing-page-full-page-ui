@@ -36,6 +36,31 @@ function inPlan(file, paths) {
   });
 }
 
+/**
+ * Cảnh báo chất lượng (không chặn): plan thiếu mục bắt buộc, report thiếu bằng chứng skill / case biên / tự review.
+ * Xem roadmap/plans/README.md và solar-story-exec.
+ */
+function qualityWarnings(S) {
+  const warnings = [];
+  const section = (text, title) => text.match(new RegExp(`^## ${title}[^\\n]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "m"))?.[1]?.trim() ?? "";
+  const planPath = join(root, S.planFile);
+  if (existsSync(planPath)) {
+    const plan = readFileSync(planPath, "utf8");
+    for (const title of ["Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng"]) {
+      if (!section(plan, title)) warnings.push(`Plan thiếu mục "## ${title}"`);
+    }
+  }
+  const report = ["codex-report.md", "claude-report.md"].map((f) => join(root, S.runDir, f)).find(existsSync);
+  if (!report) return [...warnings, "Chưa có codex-report.md / claude-report.md trong run dir"];
+  const text = readFileSync(report, "utf8");
+  const skills = section(text, "Skill đã dùng");
+  if (!skills) warnings.push('Report thiếu mục "## Skill đã dùng"');
+  else for (const skill of ["ponytail", "codegraph"]) if (!skills.includes(skill)) warnings.push(`Report không ghi đã dùng ${skill}`);
+  if (!section(text, "Case biên → test")) warnings.push('Report thiếu mục "## Case biên → test"');
+  if (!section(text, "Tự review")) warnings.push('Report thiếu mục "## Tự review" (bước 4.5 của /run-story)');
+  return warnings;
+}
+
 function verify(id, { skipChecks }) {
   const S = storyInfo(id);
   mkdirSync(S.runDir, { recursive: true });
@@ -50,6 +75,10 @@ function verify(id, { skipChecks }) {
 
   const uncommitted = dirtyFiles();
   if (uncommitted.length) problems.push(`Còn file chưa commit: ${uncommitted.join(", ")}`);
+  if (uncommitted.some((f) => f.startsWith("roadmap/evidence/"))) {
+    problems.push("roadmap/evidence/ bị e2e ghi đè — story không cập nhật evidence thì chạy: git checkout -- roadmap/evidence");
+  }
+  const warnings = qualityWarnings(S);
 
   const changed = lines(git("diff", "--name-only", `${S.base}...HEAD`));
   const paths = planPaths(join(root, S.planFile));
@@ -80,6 +109,7 @@ function verify(id, { skipChecks }) {
     ac: `${fresh.acDone}/${fresh.acTotal}`,
     checks: checks.map(({ cmd, ok, seconds }) => ({ cmd, ok, seconds })),
     problems,
+    warnings,
     ok: problems.length === 0 && checks.every((c) => c.ok) && fresh.acDone === fresh.acTotal,
   };
   writeFileSync(join(S.runDir, "verify.json"), JSON.stringify(result, null, 2));
@@ -88,6 +118,7 @@ function verify(id, { skipChecks }) {
   console.log(`VERIFY ${result.ok ? "PASS" : "FAIL"} ${id} · branch ${branch} · ${commits.length} commit · ${changed.length} file · AC ${result.ac}`);
   for (const c of checks) console.log(`  ${c.ok ? "✔" : "✘"} ${c.cmd} (${c.seconds}s)`);
   for (const p of problems) console.log(`  ! ${p}`);
+  for (const w of warnings) console.log(`  ⚠ ${w}`);
   if (outside.length) console.log(`  ? Ngoài danh sách file của plan: ${outside.join(", ")}`);
   if (fresh.acDone !== fresh.acTotal) console.log(`  ! AC chưa tick đủ (${result.ac}) trong ${fresh.epicFile}`);
   for (const c of checks.filter((x) => !x.ok)) console.log(`\n--- ${c.cmd} (40 dòng cuối) ---\n${c.tail}`);
