@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -26,7 +27,7 @@ test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
   fixture("setup");
   // Warm new routes before timing user flows against next dev.
-  for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc"]) {
+  for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000 });
     expect(response.status(), path).toBeLessThan(500);
   }
@@ -89,7 +90,10 @@ test("temporary password forces change; expired temporary password fails; editor
   await login(page, "editor_admin");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
-  for (const label of ["Tên miền", "Gói", "Tài khoản & nhân viên"]) await expect(page.getByRole("navigation", { name: "Quản trị site" }).getByRole("link", { name: label, exact: true })).toHaveCount(0);
+  await page.getByText("Menu", { exact: true }).click();
+  const menu = page.getByRole("navigation", { name: "Điều hướng quản trị" });
+  await expect(menu.getByRole("link", { name: "Trang & Section", exact: true })).toBeVisible();
+  for (const label of ["Tên miền", "Gói", "Tài khoản & nhân viên"]) await expect(menu.getByRole("link", { name: label, exact: true })).toHaveCount(0);
   await page.screenshot({ path: info.outputPath("admin-editor-mobile.png"), fullPage: true });
   for (const path of ["/ten-mien", "/goi", "/nhan-vien"]) {
     expect((await page.goto(origin() + path))?.status()).toBe(403);
@@ -172,4 +176,26 @@ test("invite and reset forms work without JavaScript and consume each link once"
     await login(page, "owner@demo.vn", resetPassword);
     await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   } finally { await context.close(); }
+});
+
+test("owner shell lists every story screen, marks the current page, and main admin pages pass axe", async ({ page }, info) => {
+  // admin-e7-b: earlier tests change the admin-e7-a owner password and enable TOTP.
+  const site = "admin-e7-b";
+  await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const menu = page.getByRole("navigation", { name: "Điều hướng quản trị" });
+  for (const label of ["Tổng quan", "Trang & Section", "Nội dung", "Media", "Lead", "Giao diện", "Tên miền", "Email theo tên miền", "Tài khoản & nhân viên", "Gói", "Đổi mật khẩu", "Bảo mật"]) {
+    await expect(menu.getByRole("link", { name: label, exact: true })).toBeVisible();
+  }
+  await expect(menu.locator('[aria-current="page"]')).toHaveText("Tổng quan");
+  for (const [path, heading] of [["/", "Tổng quan"], ["/trang", "Trang & Section"], ["/nhan-vien", null], ["/goi", "Gói dịch vụ"]] as const) {
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
+      await page.goto(origin(site) + path);
+      if (heading) await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+      await page.screenshot({ path: info.outputPath(`admin-${path === "/" ? "tong-quan" : path.slice(1)}-${width}.png`), fullPage: true });
+      const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+      expect(violations.map(v => `${v.id}: ${v.nodes.map(n => n.target.join(" ")).join(", ")}`), `${path} @${width}`).toEqual([]);
+    }
+  }
 });

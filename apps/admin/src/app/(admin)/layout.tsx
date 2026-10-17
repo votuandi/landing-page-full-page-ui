@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return <AdminShell brand="Solar · Quản trị website" nav={adminNav({ permissions: session.permissions, can, pathname })}
     banners={session.kind === "ghost" ? <p>Bạn đang ở phiên hỗ trợ của quản trị nền tảng</p> : undefined}
     // E15-S06: add the maintenance/read-only banner to this slot.
-    account={<div className="space-y-3"><p className="break-words text-sm font-semibold">{name ?? (session.kind === "ghost" ? "Hỗ trợ nền tảng" : "Tài khoản của tôi")}</p><ActionForm action={logoutAction} label="Đăng xuất" permalink="/" /></div>}>
+    account={<div className="space-y-3"><p className="break-words text-sm font-semibold">{name ?? (session.kind === "ghost" ? "Hỗ trợ nền tảng" : "Tài khoản của tôi")}</p><ActionForm action={logoutAction} label="Đăng xuất" permalink="/" secondary /></div>}>
     {children}
   </AdminShell>;
 }
