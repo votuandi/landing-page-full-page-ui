@@ -71,7 +71,7 @@ function qualityWarnings(S) {
  * `.agents/skills/<tên>/SKILL.md`, hoặc chạy CLI `codegraph`. Chữ trong tài liệu Codex in ra không tính.
  */
 function skillUsage(S) {
-  const logs = readdirSyncSafe(join(root, S.runDir)).filter((f) => /^(codex-exec|fix-r\d+)\.log$/.test(f));
+  const logs = readdirSyncSafe(join(root, S.runDir)).filter((f) => /^(codex-exec(-r\d+)?|fix-r\d+)\.log$/.test(f));
   const commands = logs.flatMap((f) => readFileSync(join(root, S.runDir, f), "utf8").split(/\r?\n/)
     .filter((_, i, all) => all[i - 1]?.trim() === "exec")).join("\n");
   const known = [...new Set([...Object.values(S.skills ?? {}).flatMap((v) => Array.isArray(v) ? v : Object.keys(v))])];

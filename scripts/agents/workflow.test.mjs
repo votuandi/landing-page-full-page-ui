@@ -99,8 +99,10 @@ test("skills: S.skills theo loại story, run.mjs skills đối chiếu log Code
       "- `codegraph impact <symbol>` và .agents/skills/vercel-react-best-practices/SKILL.md (chữ trong tài liệu)",
       "exec", "codegraph impact validateSiteStructure",
     ].join("\n"));
+    // Lượt "Tiếp tục" ghi log riêng; vẫn được tính.
+    writeFileSync(join(runDir, "codex-exec-r2.log"), "exec\ncat .agents/skills/vercel-composition-patterns/SKILL.md\n");
     const report = cli("run.mjs", "skills", "E0-S05");
-    assert.deepEqual(report.missing, ["vercel-react-best-practices", "vercel-composition-patterns", "ponytail-review"]);
+    assert.deepEqual(report.missing, ["vercel-react-best-practices", "ponytail-review"]);
     assert.deepEqual(report.claimedNotOpened, ["graphify"]);
     assert.ok(report.opened.includes("codegraph"));
   } finally {
