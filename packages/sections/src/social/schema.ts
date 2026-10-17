@@ -5,7 +5,8 @@ import { localized, link } from "../fields";
 
 import { socialFixture } from "./fixtures";
 
-const https = () => z.url().refine((value) => new URL(value).protocol === "https:", "Chỉ nhận đường dẫn HTTPS");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 export const socialSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }), description: localized().optional(),
   totalFollowers: z.number().int().nonnegative().optional(), totalFollowersLabel: localized({ max: 200 }).optional(),

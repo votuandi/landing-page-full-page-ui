@@ -33,13 +33,17 @@ export function LinkField({ node, path, value, label }: FieldProps<Link | undefi
       <div className="grid gap-4 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
         <FieldShell id={kindId} label="Khi bấm">
           <select id={kindId} value={current.kind} className={inputClass}
-            onChange={(event) => set({ kind: event.target.value as Link["kind"], value: "" })}>
+            onChange={(event) => {
+              if (current.value && !window.confirm("Đổi loại liên kết sẽ xóa giá trị đang nhập. Tiếp tục?")) return;
+              set({ kind: event.target.value as Link["kind"], value: "" });
+            }}>
             {shape.kind.options.map((kind) => <option key={kind} value={kind}>{KINDS[kind].label}</option>)}
           </select>
         </FieldShell>
         <FieldShell id={valueId} label={meta.value} hint={meta.hint} errors={valueErrors}>
           {pages ? (
             <select id={valueId} value={current.value} className={inputClass} aria-invalid={valueErrors?.length ? true : undefined}
+              aria-describedby={describedBy(valueId, meta.hint, valueErrors)}
               onChange={(event) => set({ value: event.target.value })}>
               {!pages.some((page) => page.slug === current.value) && <option value={current.value}>{current.value || "Trang chủ"}</option>}
               {pages.map((page) => <option key={page.slug} value={page.slug}>{page.label}</option>)}

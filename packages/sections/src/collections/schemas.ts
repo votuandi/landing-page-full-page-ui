@@ -3,7 +3,8 @@ import { mediaRef, localized } from "../fields";
 import { segmentEnum } from "../shared/schema";
 import { normalizeVnPhone } from "@solar/core";
 
-const https = () => z.url().refine((url) => new URL(url).protocol === "https:", "Chỉ nhận đường dẫn HTTPS");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 const localPath = (path: string) => {
   try {
     const decoded = decodeURIComponent(path);
@@ -19,10 +20,10 @@ export const storySource = z.object({
   if (provider === "tiktok") return /^\d{6,25}$/.test(idOrSrc);
   if (provider === "file") return localPath(idOrSrc);
   return https().safeParse(idOrSrc).success;
-}, { message: "Invalid video source", path: ["idOrSrc"] });
+}, { message: "Nguồn video không hợp lệ", path: ["idOrSrc"] });
 
 const text = () => z.string().trim().min(1).max(1500);
-const href = () => z.string().refine((value) => localPath(value) || https().safeParse(value).success, "Invalid content link");
+const href = () => z.string().refine((value) => localPath(value) || https().safeParse(value).success, "Liên kết nội dung không hợp lệ");
 export const projectItem = z.object({
   id: text(), title: text(), segment: segmentEnum(), location: text(), kwp: z.number().positive(),
   savingPerMonth: z.number().nonnegative().optional(), image: mediaRef(), href: href().optional(), video: storySource.optional(),
@@ -53,7 +54,7 @@ export const productItem = z.object({
   warranty: text(), specs: z.array(z.object({ label: text(), value: text() })).max(12), featured: z.boolean().optional(), href: href(),
 });
 export const geoPoint = z.object({ address: text(), lat: z.number().min(8).max(24), lng: z.number().min(102).max(118) });
-const phone = () => z.string().refine((value) => /^\d{9,11}$/.test(normalizeVnPhone(value)), "Invalid phone");
+const phone = () => z.string().refine((value) => /^\d{9,11}$/.test(normalizeVnPhone(value)), "Số điện thoại không hợp lệ");
 export const branchItem = z.object({
   id: text(), name: text(), primary: z.boolean().optional(), hotline: phone(), zaloPhone: phone().optional(),
   hours: text().optional(), office: geoPoint, warehouse: geoPoint.optional(),

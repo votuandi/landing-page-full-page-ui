@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import {
   closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent,
 } from "@dnd-kit/core";
@@ -13,7 +13,16 @@ import { humanize } from "../schema/labels.ts";
 import { pathKey, type Path } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps } from "../context.ts";
 import { Errors, SmallButton } from "../ui.tsx";
-import { Field, ObjectField } from "./Field.tsx";
+import { Field, hasContent, ObjectField } from "./Field.tsx";
+
+const REDUCED = "(prefers-reduced-motion: reduce)";
+const subscribeMotion = (onChange: () => void) => {
+  const query = window.matchMedia(REDUCED);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+};
+/** Animation sắp xếp tắt khi người dùng bật giảm chuyển động (AGENTS.md §4). */
+const useReducedMotion = () => useSyncExternalStore(subscribeMotion, () => window.matchMedia(REDUCED).matches, () => true);
 
 let nextId = 0;
 const newId = () => `item-${nextId++}`;
@@ -61,6 +70,7 @@ export function ArrayField({ node, path, value, label }: FieldProps<unknown[] | 
     update(path, arrayMove(items, from, to));
   };
   const remove = (index: number) => {
+    if (hasContent(items[index]) && !window.confirm("Xóa mục này cùng nội dung đã nhập?")) return;
     setIds(ids.filter((_, i) => i !== index));
     update(path, items.filter((_, i) => i !== index));
   };
@@ -106,12 +116,14 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
   canRemove: boolean; canDuplicate: boolean;
   onMove(from: number, to: number): void; onRemove(index: number): void; onDuplicate(index: number): void;
 }) {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const reduced = useReducedMotion();
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable(
+    reduced ? { id, transition: null } : { id });
   const summary = itemSummary(value);
   const controls = (
-    <div className="flex shrink-0 items-center gap-0.5">
-      <SmallButton className="max-sm:hidden" aria-label={`Lên trên: ${title}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
-      <SmallButton className="max-sm:hidden" aria-label={`Xuống dưới: ${title}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
+    <div className="ml-auto flex shrink-0 items-center gap-0.5">
+      <SmallButton aria-label={`Lên trên: ${title}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
+      <SmallButton aria-label={`Xuống dưới: ${title}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
       {!scalar && <SmallButton className="max-sm:hidden" aria-label={`Nhân bản: ${title}`} disabled={!canDuplicate} onClick={() => onDuplicate(index)}>⧉</SmallButton>}
       <SmallButton tone="danger" aria-label={`Xóa: ${title}`} disabled={!canRemove} onClick={() => onRemove(index)}>✕</SmallButton>
     </div>
@@ -133,9 +145,9 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
         </div>
       ) : (
         <details className="group" open={count <= 3}>
-          <summary className="flex cursor-pointer list-none items-center gap-2 p-2 [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1 p-2 [&::-webkit-details-marker]:hidden">
             {handle}
-            <span className="min-w-0 flex-1 truncate text-sm">
+            <span className="min-w-32 flex-1 truncate text-sm">
               <span className="font-medium text-fg">{title}</span>
               {summary && <span className="text-fg-muted"> · {summary}</span>}
             </span>

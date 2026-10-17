@@ -32,9 +32,11 @@ function hrefLink(href: string, label: string): Link {
   return { kind, value: rest, label: { vi: label } };
 }
 
+const escapeHref = (href: string) => href.replace(/[\\()]/g, "\\$&");
+
 const inlineToMarkup = (children: RichTextInline[]) => children.map((node) => node.type === "text"
   ? textToMarkup(node)
-  : `[${node.children.map(textToMarkup).join("")}](${linkHref(node.link)})`).join("");
+  : `[${node.children.map(textToMarkup).join("")}](${escapeHref(linkHref(node.link))})`).join("");
 
 export function blocksToMarkup(blocks: RichTextBlock[]): string {
   return blocks.map((block) => {
@@ -72,36 +74,71 @@ function parseTexts(source: string): RichTextText[] {
   return out;
 }
 
-function parseInline(source: string): RichTextInline[] {
-  const out: RichTextInline[] = [];
-  let rest = source;
-  while (rest) {
-    const match = /(?<!\\)\[((?:\\.|[^\]\\])*)\]\(([^)\s]*)\)/.exec(rest);
-    if (!match) { out.push(...parseTexts(rest)); break; }
-    out.push(...parseTexts(rest.slice(0, match.index)));
-    const children = parseTexts(match[1]);
-    out.push({ type: "link", link: hrefLink(match[2], children.map((child) => child.text).join("")), children });
-    rest = rest.slice(match.index + match[0].length);
+/** Link cũ (nhãn VI/EN riêng) được giữ nguyên khi đích và chữ hiển thị không đổi. */
+type KnownLink = { href: string; text: string; link: Link };
+
+/** Vị trí ký tự đóng khớp với ký tự mở tại `start`, bỏ qua ký tự thoát; -1 nếu không có trên cùng dòng. */
+function closing(source: string, start: number, open: string, close: string): number {
+  let depth = 0;
+  for (let i = start; i < source.length; i++) {
+    const char = source[i];
+    if (char === "\\") { i++; continue; }
+    if (char === "\n") return -1;
+    if (char === open) depth++;
+    else if (char === close && --depth === 0) return i;
   }
+  return -1;
+}
+
+const unescape = (text: string) => text.replace(/\\([\s\S])/g, "$1");
+
+function parseInline(source: string, known: KnownLink[]): RichTextInline[] {
+  const out: RichTextInline[] = [];
+  let plain = "";
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
+    if (char === "\\") { plain += source.slice(i, i + 2); i++; continue; }
+    const textEnd = char === "[" ? closing(source, i, "[", "]") : -1;
+    const hrefEnd = textEnd > 0 && source[textEnd + 1] === "(" ? closing(source, textEnd + 1, "(", ")") : -1;
+    if (hrefEnd < 0) { plain += char; continue; }
+    out.push(...parseTexts(plain));
+    plain = "";
+    const children = parseTexts(source.slice(i + 1, textEnd));
+    const href = unescape(source.slice(textEnd + 2, hrefEnd));
+    const text = children.map((child) => child.text).join("");
+    const reused = known.find((item) => item.href === href && item.text === text);
+    out.push({ type: "link", link: reused?.link ?? hrefLink(href, text), children });
+    i = hrefEnd;
+  }
+  out.push(...parseTexts(plain));
   return out;
 }
 
-export function markupToBlocks(markup: string): RichTextBlock[] {
+function knownLinks(blocks: RichTextBlock[]): KnownLink[] {
+  const inlines = blocks.flatMap((block) => (block.type === "list" ? block.items.flat() : block.children));
+  return inlines.flatMap((node) => (node.type === "link"
+    ? [{ href: linkHref(node.link), text: node.children.map((child) => child.text).join(""), link: node.link }]
+    : []));
+}
+
+/** `previous`: dữ liệu trước khi sửa, để giữ metadata của link không đổi. */
+export function markupToBlocks(markup: string, previous: RichTextBlock[] = []): RichTextBlock[] {
+  const known = knownLinks(previous);
   const blocks: RichTextBlock[] = [];
   for (const chunk of markup.replace(/\r\n?/g, "\n").split(/\n{2,}/)) {
     const lines = chunk.split("\n").filter((line) => line.trim() !== "");
     if (lines.length === 0) continue;
     const heading = /^(#{2,4}) ([\s\S]*)$/.exec(lines[0]);
     if (heading && lines.length === 1) {
-      blocks.push({ type: "heading", level: heading[1].length as 2 | 3 | 4, children: parseInline(heading[2]) });
+      blocks.push({ type: "heading", level: heading[1].length as 2 | 3 | 4, children: parseInline(heading[2], known) });
       continue;
     }
     const ordered = lines.every((line) => /^\d+\. /.test(line));
     if (ordered || lines.every((line) => line.startsWith("- "))) {
-      blocks.push({ type: "list", ordered, items: lines.map((line) => parseInline(line.replace(/^(\d+\.|-) /, ""))) });
+      blocks.push({ type: "list", ordered, items: lines.map((line) => parseInline(line.replace(/^(\d+\.|-) /, ""), known)) });
       continue;
     }
-    blocks.push({ type: "paragraph", children: parseInline(lines.join("\n")) });
+    blocks.push({ type: "paragraph", children: parseInline(lines.join("\n"), known) });
   }
   return blocks;
 }

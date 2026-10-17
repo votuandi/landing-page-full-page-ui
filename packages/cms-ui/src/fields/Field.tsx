@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { defaultFor, unionIndex, type FieldNode } from "../schema/describe.ts";
 import { humanize, optionLabel } from "../schema/labels.ts";
 import { formatNumber, numberCodec } from "../schema/codecs.ts";
@@ -20,19 +20,28 @@ const WIDGETS = {
 };
 
 export const fieldId = (prefix: string, path: Path) => `${prefix}-${pathKey(path) || "root"}`;
-const patternOf = (path: Path) => path.map((part) => (typeof part === "number" ? "*" : part)).join(".");
+/** Tra override theo đường dẫn; `*` khớp một đoạn bất kỳ (chỉ mục mảng hoặc khóa record). Khớp chính xác thắng. */
+export function lookupByPath<T>(map: Partial<Record<string, T>>, path: Path): T | undefined {
+  const exact = map[pathKey(path)];
+  if (exact !== undefined) return exact;
+  for (const [pattern, value] of Object.entries(map)) {
+    const parts = pattern.split(".");
+    if (value !== undefined && parts.length === path.length && parts.every((part, i) => part === "*" || part === String(path[i]))) return value;
+  }
+  return undefined;
+}
 
 /** Nhãn: override theo đường dẫn → bảng nhãn → tách camelCase. */
 export function useLabel(path: Path, fallback: string): string {
   const { labels } = useSchemaForm();
-  return labels[patternOf(path)] ?? fallback;
+  return (path.length ? lookupByPath(labels, path) : undefined) ?? fallback;
 }
 
 export function Field(props: FieldProps) {
   const { node, path, value } = props;
   const { widgets, update } = useSchemaForm();
   const label = useLabel(path, props.label);
-  const override = widgets[patternOf(path)] ?? widgets[node.kind === "widget" ? node.widget : node.kind];
+  const override = (path.length ? lookupByPath(widgets, path) : undefined) ?? widgets[node.kind === "widget" ? node.widget : node.kind];
   const Component: WidgetComponent = override ?? (node.kind === "widget" ? WIDGETS[node.widget] : KINDS[node.kind]);
 
   // Trường tùy chọn kiểu nhóm (object/widget/mảng/union): công tắc thêm/bỏ thay vì ô trống.
@@ -44,16 +53,29 @@ export function Field(props: FieldProps) {
       </div>
     );
   }
-  const element = <Component {...props} label={label} />;
+  // Component là tra cứu từ bảng widget cố định/override của người gọi, không tạo mới mỗi lần render.
+  const element = createElement(Component, { ...props, label });
   if (!node.optional || !isGroup(node)) return element;
   return (
     <div className="space-y-1">
       {element}
       <div className="flex justify-end">
-        <SmallButton tone="danger" className="text-xs" onClick={() => update(path, undefined)}>Bỏ {label.toLowerCase()}</SmallButton>
+        <SmallButton tone="danger" className="text-xs" onClick={() => {
+          if (hasContent(value) && !window.confirm(`Bỏ "${label}" sẽ xóa nội dung đã nhập ở đây. Tiếp tục?`)) return;
+          update(path, undefined);
+        }}>Bỏ {label.toLowerCase()}</SmallButton>
       </div>
     </div>
   );
+}
+
+/** Có chữ/số người dùng đã nhập (để hỏi xác nhận trước khi xóa). */
+export function hasContent(value: unknown): boolean {
+  if (typeof value === "string") return value.trim() !== "";
+  if (typeof value === "number") return true;
+  if (Array.isArray(value)) return value.some(hasContent);
+  if (value && typeof value === "object") return Object.values(value).some(hasContent);
+  return false;
 }
 
 const isGroup = (node: FieldNode) => ["object", "widget", "array", "union", "record"].includes(node.kind);
@@ -68,7 +90,8 @@ function StringField({ node, path, value, label }: FieldProps<string | undefined
   const common = {
     id, value: text, maxLength: node.max, "aria-invalid": errors?.length ? true : undefined,
     "aria-describedby": describedBy(id, undefined, errors), className: inputClass,
-    onChange: (event: { target: { value: string } }) => update(path, event.target.value),
+    // Trường tùy chọn xóa trắng = bỏ trường (vd. URL không bắt buộc: "" sai định dạng nhưng bỏ trống thì hợp lệ).
+    onChange: (event: { target: { value: string } }) => update(path, node.optional && event.target.value === "" ? undefined : event.target.value),
   };
   return (
     <FieldShell id={id} label={label} errors={errors}
@@ -83,7 +106,11 @@ function NumberField({ node, path, value, label }: FieldProps<number | null | un
   const [draft, setDraft] = useState<string | null>(null);
   const [inputError, setLocalError] = useState<string | null>(null);
   const key = pathKey(path);
-  useEffect(() => () => setInputError(key, null), [key, setInputError]);
+  // Đăng ký lỗi theo đường dẫn hiện tại: đổi chỉ mục (xóa/sắp xếp mảng) vẫn giữ nút lưu bị khóa.
+  useEffect(() => {
+    setInputError(key, inputError);
+    return () => setInputError(key, null);
+  }, [key, inputError, setInputError]);
   if (node.kind !== "number") return null;
   const codec = numberCodec(node.nullable ? "null" : node.optional ? "undefined" : undefined);
   const id = fieldId(idPrefix, path);
@@ -104,7 +131,6 @@ function NumberField({ node, path, value, label }: FieldProps<number | null | un
           const decoded = codec.fromInput(input);
           // Sai kiểu: giữ chữ người dùng gõ trong ô, không ghi vào dữ liệu.
           setLocalError(decoded.ok ? null : decoded.message);
-          setInputError(key, decoded.ok ? null : decoded.message);
           if (decoded.ok) update(path, decoded.value);
         }}
         onBlur={() => { if (!inputError) setDraft(null); }} />
@@ -115,16 +141,18 @@ function NumberField({ node, path, value, label }: FieldProps<number | null | un
 function BooleanField({ path, value, label }: FieldProps<boolean | undefined>) {
   const { idPrefix, issues, update } = useSchemaForm();
   const id = fieldId(idPrefix, path);
+  const errors = issues.get(pathKey(path));
   return (
     <div className="space-y-1">
       <label htmlFor={id} className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
         <span className="text-sm font-medium text-fg">{label}</span>
         <input id={id} type="checkbox" role="switch" checked={value === true}
+          aria-invalid={errors?.length ? true : undefined} aria-describedby={describedBy(id, undefined, errors)}
           onChange={(event) => update(path, event.target.checked)}
           className="peer sr-only" />
         <span aria-hidden className="relative h-6 w-11 shrink-0 rounded-pill bg-line/25 transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-pill after:bg-bg after:shadow-card after:transition-transform peer-checked:bg-primary peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 motion-reduce:transition-none motion-reduce:after:transition-none" />
       </label>
-      <Errors errors={issues.get(pathKey(path))} />
+      <Errors id={`${id}-error`} errors={errors} />
     </div>
   );
 }
@@ -138,7 +166,7 @@ function EnumField({ node, path, value, label }: FieldProps<string | number | un
   return (
     <FieldShell id={id} label={label} errors={errors}>
       <select id={id} value={value === undefined ? "" : String(value)} className={inputClass}
-        aria-invalid={errors?.length ? true : undefined}
+        aria-invalid={errors?.length ? true : undefined} aria-describedby={describedBy(id, undefined, errors)}
         onChange={(event) => {
           const picked = node.options.find((option) => String(option) === event.target.value);
           update(path, picked);

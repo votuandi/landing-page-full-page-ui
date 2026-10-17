@@ -8,7 +8,7 @@ import { defaultFor, describe, unionIndex } from "../schema/describe.ts";
 import { numberCodec } from "../schema/codecs.ts";
 import { getAt, issuesByPath, setAt } from "../schema/path.ts";
 import { blocksToMarkup, markupToBlocks } from "../richText/convert.ts";
-import { parseFilterValue } from "../widgets/CollectionQueryField.tsx";
+import { toFilterValue } from "../widgets/CollectionQueryField.tsx";
 import type { FieldProps } from "../context.ts";
 
 const calculator = sectionRegistry.types.calculator;
@@ -134,17 +134,41 @@ test("bilingual: tab EN chỉ hiện khi site có bilingual; override widget the
   const schema = z.object({ title: localized(), price: z.number() });
   const value = { title: { vi: "Xin chào", en: "Hello" }, price: 1 };
   const mono = renderToStaticMarkup(<SchemaForm schema={schema} value={value} onChange={() => {}} />);
-  assert.doesNotMatch(mono, /role="tab"/);
+  assert.doesNotMatch(mono, /aria-pressed/);
   const bi = renderToStaticMarkup(<SchemaForm schema={schema} value={value} onChange={() => {}} bilingual />);
-  assert.match(bi, /role="tab"/);
+  assert.match(bi, /aria-pressed="true"/);
   const Custom = ({ value: price }: FieldProps<number>) => <output>giá {price}</output>;
   const custom = renderToStaticMarkup(<SchemaForm schema={schema} value={value} onChange={() => {}} widgets={{ price: Custom }} />);
   assert.match(custom, /<output>giá 1<\/output>/);
 });
 
-test("collectionQuery: giá trị lọc giữ đúng kiểu của schema", () => {
-  assert.equal(parseFilterValue("true"), true);
-  assert.equal(parseFilterValue("12"), 12);
-  assert.equal(parseFilterValue("panel"), "panel");
-  assert.equal(parseFilterValue(""), "");
+test("collectionQuery: kiểu giá trị lọc do người dùng chọn", () => {
+  assert.equal(toFilterValue("001", "string"), "001");
+  assert.equal(toFilterValue("001", "number"), 1);
+  assert.equal(toFilterValue("true", "string"), "true");
+  assert.equal(toFilterValue("true", "boolean"), true);
+  assert.equal(toFilterValue("abc", "number"), "abc");
+});
+
+test("richText: URL có ngoặc, số điện thoại có dấu cách và nhãn link riêng được giữ khi sửa chữ khác", () => {
+  const link = { kind: "url" as const, value: "https://example.com/doc_(vi)", label: { vi: "Nhãn riêng", en: "Own label" } };
+  const blocks = [
+    { type: "paragraph" as const, children: [{ type: "text" as const, text: "Xem " },
+      { type: "link" as const, link, children: [{ type: "text" as const, text: "tài liệu" }] }] },
+    { type: "paragraph" as const, children: [{ type: "link" as const, link: { kind: "phone" as const, value: "0901 234 567", label: { vi: "" } },
+      children: [{ type: "text" as const, text: "gọi" }] }] },
+  ];
+  assert.deepEqual(markupToBlocks(blocksToMarkup(blocks), blocks), blocks);
+  const edited = markupToBlocks(blocksToMarkup(blocks).replace("Xem ", "Mời xem "), blocks);
+  assert.equal(edited[0].type === "paragraph" && edited[0].children[1].type === "link" && edited[0].children[1].link, link);
+  // Không có dữ liệu cũ: ngoặc trong URL người dùng gõ tay vẫn được đọc đúng.
+  const typed = markupToBlocks("[a](https://x.vn/a_(b))");
+  assert.equal(typed[0].type === "paragraph" && typed[0].children[0].type === "link" && typed[0].children[0].link.value, "https://x.vn/a_(b)");
+});
+
+test("URL đang nhập dở không làm validate ném lỗi", () => {
+  for (const type of ["press", "social", "tiktok", "testimonials"] as const) {
+    const def = sectionRegistry.types[type];
+    assert.doesNotThrow(() => validate(def.schema, JSON.parse(JSON.stringify(def.defaults).replace(/"https:\/\/[^"]*"/g, '"h"'))));
+  }
 });

@@ -11,6 +11,7 @@ import { Field, fieldId } from "../fields/Field.tsx";
 export function MediaField({ node, path, value, label }: FieldProps<MediaRef | undefined>) {
   const { idPrefix, issues, update, pickers } = useSchemaForm();
   const [failed, setFailed] = useState<string | null>(null);
+  const [pickError, setPickError] = useState<string | null>(null);
   if (node.kind !== "widget") return null;
   const id = fieldId(idPrefix, [...path, "id"]);
   const current = value ?? { id: "", alt: { vi: "" } };
@@ -18,8 +19,13 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
   const idErrors = issues.get(pathKey([...path, "id"]));
   const alt = describe((node.schema as unknown as { shape: { alt: never } }).shape.alt);
   const pick = async () => {
-    const picked = await pickers.media?.(value);
-    if (picked) update(path, picked);
+    setPickError(null);
+    try {
+      const picked = await pickers.media?.(value);
+      if (picked) update(path, picked);
+    } catch {
+      setPickError("Không mở được thư viện media, vui lòng thử lại");
+    }
   };
   return (
     <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
@@ -42,7 +48,7 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
                   onChange={(event) => update(path, { ...current, id: event.target.value })} />
               </FieldShell>
             )}
-          {pickers.media && <Errors errors={idErrors} />}
+          {pickers.media && <Errors errors={[...(idErrors ?? []), ...(pickError ? [pickError] : [])]} />}
           <Field node={alt} path={[...path, "alt"]} value={current.alt} label="Mô tả ảnh (alt)" />
           <Errors errors={issuesUnder(issues, [...path, "focal"])} />
         </div>

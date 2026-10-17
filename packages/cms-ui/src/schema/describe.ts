@@ -55,10 +55,6 @@ export function describe(schema: z.core.$ZodType, flags: Flags = {}): FieldNode 
     case "literal": return { ...flags, kind: "enum", options: [...(def.values as (string | number)[])] };
     case "object": {
       const shape = (schema as z.ZodObject).shape as Record<string, z.core.$ZodType>;
-      // `link().refine(...)` tạo instance mới nên mất meta; nhận lại theo hình dạng của link().
-      if (Object.keys(shape).join() === "kind,value,label" && fieldMeta(shape.label)?.widget === "localized") {
-        return { ...flags, kind: "widget", widget: "link", schema: schema as z.ZodType };
-      }
       return { ...flags, kind: "object", fields: Object.entries(shape).map(([key, value]) => ({ key, node: describe(value) })) };
     }
     case "record": {

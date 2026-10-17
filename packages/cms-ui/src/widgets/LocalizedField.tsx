@@ -9,15 +9,15 @@ import { fieldId } from "../fields/Field.tsx";
 
 export type Locale = "vi" | "en";
 
-/** Tab VI/EN; EN chỉ hiện khi site có `bilingual` (giá trị EN cũ vẫn được giữ nguyên). */
+/** Chọn bản VI/EN đang sửa; EN chỉ hiện khi site có `bilingual` (giá trị EN cũ vẫn được giữ nguyên). */
 export function LocaleTabs({ id, locale, onChange }: { id: string; locale: Locale; onChange(locale: Locale): void }) {
   const { bilingual } = useSchemaForm();
   if (!bilingual) return null;
   return (
-    <div role="tablist" aria-label="Ngôn ngữ" className="inline-flex rounded-pill border border-line/20 p-0.5 text-xs font-semibold">
+    <div role="group" aria-label="Ngôn ngữ đang sửa" className="inline-flex rounded-pill border border-line/20 p-0.5 text-xs font-semibold">
       {(["vi", "en"] as const).map((item) => (
-        <button key={item} type="button" role="tab" id={`${id}-tab-${item}`} aria-selected={locale === item}
-          onClick={() => onChange(item)}
+        <button key={item} type="button" aria-controls={id} aria-pressed={locale === item}
+          aria-label={item === "vi" ? "Tiếng Việt" : "Tiếng Anh"} onClick={() => onChange(item)}
           className={`min-h-7 rounded-pill px-2.5 uppercase ${locale === item ? "bg-primary text-on-primary" : "text-fg-muted hover:text-fg"}`}>
           {item}
         </button>

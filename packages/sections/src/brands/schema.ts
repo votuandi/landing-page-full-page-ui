@@ -8,10 +8,10 @@ import { brandsFixture } from "./fixtures";
 export const brandsSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }),
   description: localized({ multiline: true, max: 600 }).optional(),
-  groups: z.array(z.object({ id: z.string().min(1), label: localized() })).min(1).max(12).refine(uniqueBy("id"), "Duplicate group id"),
+  groups: z.array(z.object({ id: z.string().min(1), label: localized() })).min(1).max(12).refine(uniqueBy("id"), "Mã nhóm bị trùng"),
   items: z.array(z.object({ name: localized(), group: z.string().min(1), logo: mediaRef().optional() })).min(1).max(48),
   signingVideo: z.object({ title: localized(), caption: localized(), poster: mediaRef(), source: storySource }).optional(),
-}).refine((data) => data.items.every((item) => data.groups.some((group) => group.id === item.group)), "Unknown brand group");
+}).refine((data) => data.items.every((item) => data.groups.some((group) => group.id === item.group)), "Thương hiệu thuộc nhóm chưa có trong danh sách");
 
 export const brands = defineSectionType({
   type: "brands", schemaVersion: 1, schema: brandsSchema,

@@ -4,7 +4,8 @@ import { localized, mediaRef } from "../fields";
 
 import { pressFixture } from "./fixtures";
 
-const https = () => z.url().refine((value) => new URL(value).protocol === "https:", "Chỉ nhận đường dẫn HTTPS");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 export const pressSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }),
   outlets: z.array(z.object({ id: z.string().min(1).max(100), name: localized(), short: z.string().min(1).max(4), logo: mediaRef().optional() })).min(1).max(12),
