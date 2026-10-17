@@ -59,8 +59,8 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   Validate inline bằng chính schema; thông báo lỗi tiếng Việt.
 - **Target**: 28/28 type có form dùng được không cần code riêng (cho phép override widget theo trường).
 - **AC**:
-  - [ ] Form của `calculator` cho sửa bảng giá điện, đơn giá/kWp, hệ số sản lượng; nhập sai kiểu bị chặn.
-  - [ ] Test round-trip cho 28 type: fixture → form → submit không chỉnh sửa → dữ liệu ra bằng đúng dữ liệu vào (deep equal).
+  - [x] Form của `calculator` cho sửa bảng giá điện, đơn giá/kWp, hệ số sản lượng; nhập sai kiểu bị chặn.
+  - [x] Test round-trip cho 28 type: fixture → form → submit không chỉnh sửa → dữ liệu ra bằng đúng dữ liệu vào (deep equal).
 - Phụ thuộc: E3-S02 · Agent: Claude · Cỡ: L
 
 ### E7-S04 · Màn hình sắp xếp & bật/tắt section
