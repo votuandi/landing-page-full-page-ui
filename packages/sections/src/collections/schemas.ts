@@ -3,7 +3,7 @@ import { mediaRef, localized } from "../fields";
 import { segmentEnum } from "../shared/schema";
 import { normalizeVnPhone } from "@solar/core";
 
-const https = () => z.url().refine((url) => new URL(url).protocol === "https:", "HTTPS required");
+const https = () => z.url().refine((url) => new URL(url).protocol === "https:", "Chỉ nhận đường dẫn HTTPS");
 const localPath = (path: string) => {
   try {
     const decoded = decodeURIComponent(path);
