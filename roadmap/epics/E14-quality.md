@@ -60,3 +60,19 @@
   (deploy, rollback, khôi phục, xử lý tên miền lỗi); cập nhật `AGENTS.md` khi quy ước đổi.
 - **AC**: [ ] Một dev mới (hoặc agent mới) dựng môi trường dev và hoàn thành một story nhỏ chỉ dựa vào tài liệu.
 - Agent: Claude · Cỡ: S
+
+### E14-S08 · Ổn định e2e: ảnh chụp trang chủ trên base và test flaky đã biết
+**Là** người duy trì, **tôi muốn** CI e2e không đỏ ngẫu nhiên, **để** job đỏ luôn là lỗi thật và PR không phải điều tra lại.
+- **Chi tiết** (bằng chứng trong `tooling/visual/README.md` › "Test flaky đã biết", retro E7-S03 / ADR D22):
+  - `visual.spec.ts:5 › /`: job `baseline` của base đỏ (`410d78d`, `6c7b888`, ≈174–232 nghìn pixel khác) nên job
+    `compare` của mọi PR đỏ theo. Tìm nguồn không ổn định (animation/marquee/counter chưa mask, ảnh/font chưa tải, giờ
+    thực…) và sửa ở nguồn (mask đúng phần, chờ ảnh/font, tắt animation khi `reducedMotion`), không nới ngưỡng pixel.
+  - `tenant.spec.ts:175` (job `db`): bỏ `page.reload({ waitUntil: "networkidle" })`, chờ phần tử/điều kiện cụ thể; tìm
+    request khiến trang không đạt networkidle sau reload.
+  - `preset-home.spec.ts:79`: chờ hydrate xong trước khi bấm nút theme.
+  - Cập nhật danh sách flaky: test đã sửa chuyển khỏi bảng; thêm hướng dẫn chạy lại một test trên base (`VISUAL_WEB_ROOT`).
+- **AC**:
+  - [ ] Job `baseline` của base xanh 5 lần chạy liên tiếp (`gh run rerun`), `visual.spec.ts:5` không cần nới ngưỡng.
+  - [ ] `tenant.spec.ts:175` và `preset-home.spec.ts:79` qua 10/10 lần với `--repeat-each=10` chạy song song (local hoặc CI).
+  - [ ] Bảng "Test flaky đã biết" không còn ba mục trên.
+- Phụ thuộc: — · Agent: Codex · Cỡ: S

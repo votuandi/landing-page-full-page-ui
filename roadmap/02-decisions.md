@@ -290,3 +290,29 @@ chuyển tới màn hình đổi mật khẩu, kèm gợi ý thêm email để t
   - Tên đăng nhập admin là email của khách: nhiều khách chưa có email công ty lúc bàn giao.
   - Gửi mật khẩu qua email/Zalo dạng chữ thường: lộ trong hộp thư. Thay bằng hiện một lần + bắt buộc đổi.
 
+
+## D22. Quy trình story sau retro E7-S03 & skill bổ sung (17/10/2026)
+- **Bối cảnh**: E7-S03 mất 6 vòng review; phần lớn finding vòng sau là lỗi do chính bản sửa gây ra. Plan thiếu bảng case
+  biên, không có tự review trước push, review vòng sau soát lại cả PR và nở phạm vi; `ponytail`, `graphify`,
+  `playwright-cli` có trong playbook nhưng không được dùng.
+- **Quyết định** (chi tiết trong `run-story`, `pr-review`, `solar-*`, `roadmap/plans/README.md`):
+  - Plan bắt buộc "Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng"; ngưỡng tách story (L, > 30 file).
+  - Bước 4.5 tự review đối kháng (checklist theo loại story + `codegraph impact` + `ponytail-review`).
+  - Vòng sửa: thẩm định finding, sửa theo bất biến, test tái hiện FAIL trước, chạy lại toàn bộ test.
+  - Review vòng 1 soát hết (effort `review`); vòng sau chỉ diff vòng sửa (effort `reReview` = medium).
+  - Skill bắt buộc ghi vào report; `run.mjs verify` cảnh báo khi thiếu. Danh sách flaky đã biết ở `tooling/visual/README.md`.
+- **Skill bổ sung**:
+  - `codegraph` (colbymchenry/codegraph, MIT): đồ thị code local (SQLite `.codegraph/`, không gửi code ra ngoài,
+    telemetry tắt bằng `CODEGRAPH_TELEMETRY=0`), MCP khai báo trong `.mcp.json`. Vai trò chính: định vị code và
+    `impact` khi sửa. `graphify` giữ cho câu hỏi kiến trúc dính tài liệu. Không chạy `codegraph install` (sửa cấu hình
+    toàn cục và tự chèn vào `AGENTS.md`).
+  - `anthropics/skills`: thêm `skill-creator` (sửa skill `solar-*`). Đã có `frontend-design`, `webapp-testing`. Bỏ
+    docx/pdf/pptx/xlsx, `theme-factory` (trùng hệ token), artifacts/slack/mcp-builder (không có đối tượng).
+  - `awesome-claude-skills` là danh mục, không cài được trực tiếp. Từ đó chọn `obra/superpowers`:
+    `verification-before-completion`, `receiving-code-review` (đúng hai lỗi của retro). Bỏ `writing-plans`,
+    `executing-plans`, `requesting-code-review`, `brainstorming`… (trùng playbook, hai quy trình song song).
+    `test-driven-development` đã có bản của addyosmani.
+  - `Leonxlnx/taste-skill`: `design-taste-frontend`, `redesign-existing-projects` cho design pass trang công khai
+    (checklist "AI tells", critique). Màu/font đề xuất phải thành token trong `packages/themes`; không dùng cho
+    admin/console (skill tự ghi "Not for dashboards"); không dùng `assets.mjs` (tải ảnh từ mạng).
+  - `ui-ux-pro-max`, `design-system`: đã cài từ trước, nay gắn vào design pass.

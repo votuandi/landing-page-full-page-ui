@@ -5,7 +5,8 @@ description: Execute a roadmap story from a plan file written by Claude on the b
 
 # Thực thi story theo plan
 
-Bạn là người thực thi. Plan do Claude viết là hợp đồng: làm đúng plan, đủ AC, không làm thêm.
+Bạn là người thực thi (Codex, hoặc Claude khi thực thi thay). Plan là hợp đồng: làm đúng plan, đủ AC, không làm thêm.
+Áp dụng cho **cả Claude** khi Claude tự thực thi (mode `claude`, Codex hết quota): cùng quy tắc, cùng khung báo cáo.
 
 ## Git: chỉ đọc
 
@@ -23,6 +24,14 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
 - Prompt có "Tiếp tục" hoặc "Sửa" → đọc thêm `HANDOFF.md` (nếu có), file review/log được nêu.
 - Chỉ sửa đúng các lỗi/finding được nêu; mỗi finding một mục trong "Commit đề xuất" nếu tách được
   (`fix(<scope>): <mô tả> [<ID>]`).
+- **Sửa finding review (skill `receiving-code-review`, `test-driven-development`)** — mỗi finding:
+  1. Thẩm định: tái hiện được không? Sai thì ghi phản biện vào `<runDir>/review-r<n>-rebuttal.md`, không sửa mù.
+  2. Gọi tên **bất biến** bị vi phạm (vd. "metadata link sống sót qua mọi thao tác", không phải "case xóa link đầu"),
+     và sửa theo bất biến đó — sửa hẹp cho đúng một kịch bản là nguồn gốc của chuỗi "sửa gây lỗi mới".
+  3. Viết test tái hiện **trước** (phải FAIL trên code cũ), thêm vào file test hồi quy của story
+     (`<package>/src/__tests__/<id>-regression.test.ts(x)` hoặc file test chính đã có), rồi mới sửa.
+  4. `codegraph impact <symbol đã sửa>` → nơi gọi khác có cần test không.
+  5. Chạy lại **toàn bộ** test của package (không chỉ test mới): mọi test của các vòng trước phải còn xanh.
 
 ## Khi thực thi
 
@@ -30,12 +39,18 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   lý do vào báo cáo mục "Lệch so với plan". Thay đổi lớn (đổi kiến trúc, thêm dependency ngoài danh sách đã duyệt trong
   `AGENTS.md`, sửa schema dùng chung không có trong plan) → **dừng**, ghi `HANDOFF.md` và báo cáo, không tự quyết.
 - Tuân thủ mọi quy tắc trong `AGENTS.md` §4 (token, schema, tenant, entitlement). Viết test cho logic mới.
-- Skill bổ trợ, bỏ qua nếu chưa cài:
-  - `ponytail` mức `full`: viết ít code nhất thỏa AC, ưu tiên code có sẵn, stdlib và tính năng nền tảng. Khi xung đột
-    thì `AGENTS.md` §4 và plan thắng, ví dụ token, schema chung, tenant.
-  - `test-driven-development` khi viết test.
-  - `debugging-and-error-recovery` khi lệnh kiểm tra lỗi mà chưa rõ nguyên nhân.
-  - `playwright-cli` để chụp bằng chứng UI khi MCP `playwright` không kết nối được.
+- **Bảng "Case biên & bất biến" của plan**: viết test cho từng dòng **trước** khi viết code (TDD); tên test khớp cột
+  "Test sẽ chứng minh". Không làm được dòng nào → ghi "Lệch so với plan".
+- Skill **bắt buộc** (đã cài trong `.agents/skills`), ghi vào báo cáo mục "Skill đã dùng":
+  - `ponytail` mức `full` — load trước khi viết code: viết ít code nhất thỏa AC, ưu tiên code có sẵn, stdlib và nền
+    tảng. Xung đột thì `AGENTS.md` §4 và plan thắng (token, schema chung, tenant).
+  - `test-driven-development` khi viết test; `debugging-and-error-recovery` khi lệnh kiểm tra lỗi chưa rõ nguyên nhân.
+  - `codegraph` (CLI `codegraph explore|node|callers|impact`) để định vị code thay vì đọc cả cây.
+  - `verification-before-completion` trước khi ghi `DONE`: chỉ báo qua khi đã chạy lệnh và thấy output.
+- Skill theo việc: `playwright-cli` chụp bằng chứng UI khi MCP `playwright` không kết nối được — không tự viết script
+  chụp ảnh riêng; `security-and-hardening` cho tenant/auth/upload; `source-driven-development` khi tra tài liệu thư viện.
+- Tiết kiệm token: sửa bằng công cụ sửa file theo đoạn (không chạy script python/sed có escape phức tạp cho code);
+  không in log dài (chỉ đuôi khi lỗi); build/e2e chạy một lần ở cuối, không sau mỗi chỉnh nhỏ.
 - Chia thay đổi thành các commit nhỏ theo bước (ghi trong "Commit đề xuất"): `<type>(<scope>): <mô tả> [<ID>]`.
   Không đưa `.agent-runs/`, `HANDOFF.md`, file `.env*` vào commit nào.
 - Không tạo PR, không sửa file của story khác.
@@ -52,6 +67,8 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
 ## Trước khi kết thúc
 
 1. Chạy mọi lệnh kiểm tra trong prompt và plan. Lỗi → sửa rồi chạy lại. Không bỏ qua hoặc vô hiệu test để cho qua.
+   Chạy e2e trong `tooling/visual` có thể ghi đè ảnh trong `roadmap/evidence/` → nếu story không cố ý cập nhật evidence,
+   khôi phục (`git checkout -- roadmap/evidence`) trước khi báo cáo.
 2. Tick `[x]` các AC đã có bằng chứng trong file epic; AC chưa đạt để nguyên `[ ]`. Không gắn ✅ vào heading.
 3. Viết báo cáo vào đường dẫn được nêu trong prompt (mặc định `.agent-runs/<ID>/codex-report.md`):
    ```markdown
@@ -68,6 +85,10 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
       - path/b.ts
    2. `docs(roadmap): tick AC [<ID>]`
       - roadmap/epics/<file>.md
+   ## Case biên → test
+   | # (theo plan) | Test | PASS |
+   ## Skill đã dùng
+   ponytail, test-driven-development, codegraph, verification-before-completion, … (skill nào bỏ qua → lý do)
    ## Lệch so với plan
    ## Việc còn lại / câu hỏi
    ```

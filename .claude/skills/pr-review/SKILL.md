@@ -19,6 +19,8 @@ Tham số: `$ARGUMENTS`.
 3. Vòng review `n` = số file `<S.runDir>/review-r*.md` hiện có + 1. Vòng lặp review → sửa chạy cho tới khi PR merge được
    (mục 4); chặn an toàn: `n > 6` (đã 5 vòng sửa) → dừng, báo người dùng.
 4. Lấy code: `git fetch origin <branch>`; review trên `origin/<S.base>...origin/<branch>`.
+5. Ghi SHA được review mỗi vòng vào `<S.runDir>/review-shas.json` (`{"r1":"<sha>",…}`) ngay khi gọi review. Vòng `n > 1`
+   dùng `<SHA vòng trước>` = `review-shas.json["r<n-1>"]`.
 
 ## 2. Thực hiện review
 
@@ -27,9 +29,11 @@ Tham số: `$ARGUMENTS`.
 ### Reviewer = codex
 Chạy nền, chờ thông báo:
 ```bash
-codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<S.codexEffort.review> -o "<S.runDir>/review-r<n>.md" \
+codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<vòng 1: S.codexEffort.review | vòng > 1: S.codexEffort.reReview> \
+  -o "<S.runDir>/review-r<n>.md" \
   "Dùng skill solar-pr-review. Review PR #<số> — story <ID> (<S.epicFile>), plan <S.planFile>. \
-Diff: git diff origin/<S.base>...origin/<branch>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.> \
+Diff: <vòng 1: git diff origin/<S.base>...origin/<branch> | vòng > 1: git diff <SHA vòng trước>..origin/<branch>, chỉ \
+soát phần sửa theo mục 'Vòng 1 và các vòng sau' của skill>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.> \
 Liệt kê mọi issue (Finding) và mọi case chưa cover hết AC + yêu cầu của story (mục 'Chưa cover'). \
 Rà thêm over-engineering trên diff theo skill ponytail-review nếu có (tối đa P2 trừ khi gây lỗi).\
 <nếu CI đỏ: CI đang lỗi: <tên job + đuôi log>.>\
@@ -39,7 +43,8 @@ Rà thêm over-engineering trên diff theo skill ponytail-review nếu có (tố
 Không sửa, không rút gọn kết luận của Codex.
 
 ### Reviewer = claude
-Luôn review bằng subagent (ngữ cảnh riêng, không làm phình phiên chính, và độc lập với người viết): gọi Agent tool
+Vòng 1 soát cả PR; vòng `n > 1` chỉ soát `git diff <SHA vòng trước>..HEAD` theo mục "Vòng 1 và các vòng sau" của
+`solar-pr-review`. Luôn review bằng subagent (ngữ cảnh riêng, không làm phình phiên chính, và độc lập với người viết): gọi Agent tool
 `subagent_type: general-purpose`, `model: <S.claudeReviewModel>` (mặc định `sonnet` — rẻ hơn, đủ cho review theo AC;
 đổi trong `routing.json`), `run_in_background: false`. Prompt chỉ gồm: dùng skill `solar-pr-review`, số PR, branch,
 base, đường dẫn story và plan, vòng `n`, file review vòng trước (nếu có), rà over-engineering bằng `ponytail-review`
@@ -68,7 +73,12 @@ cover.
 
 - Đủ 4 điều kiện → báo người dùng (PushNotification nếu có) kèm finding P2 còn lại, và kết thúc. **Không tự merge.** Finding P2 không chặn: liệt kê, không bắt sửa.
 - Chưa đủ (`VERDICT: CHANGES_REQUESTED`, CI đỏ hoặc conflict) → người viết sửa các finding P0/P1, mọi mục "Chưa cover"
-  không gắn `[ngoài agent]`, và lỗi CI:
+  không gắn `[ngoài agent]`, và lỗi CI. **Quy tắc sửa (mọi người viết, kể cả Claude)** — skill `receiving-code-review` +
+  `test-driven-development`, chi tiết ở `solar-story-exec` mục "Tiếp tục / sửa lỗi": thẩm định finding (sai → rebuttal),
+  gọi tên bất biến và sửa theo bất biến, test tái hiện viết trước (phải FAIL trên code cũ) vào file test hồi quy của
+  story, `codegraph impact` symbol đã sửa, chạy lại toàn bộ test package, rồi tự review (bước 4.5 của `run-story`) trên
+  diff vòng sửa trước khi push. CI đỏ: đối chiếu danh sách flaky đã biết (`tooling/visual/README.md`); job lỗi cả lần
+  chạy lại → điều tra trên base (`VISUAL_WEB_ROOT`) trước khi kết luận flaky, ghi đúng tên test và dòng.
   - Người viết Codex (chạy nền, Codex không ghi được `.git` nên Claude commit bằng `node scripts/agents/run.mjs commit <S.runDir>/fix-r<n>-report.md` — xem
     `run-story`):
     ```bash

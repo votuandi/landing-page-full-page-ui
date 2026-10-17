@@ -76,6 +76,17 @@ cuộn toàn trang rồi về đầu. CSS trong harness buộc section/footer đ
 `content-visibility`. Che marquee, iframe/video và các số đếm bằng selector hiện có; nhãn, bố cục và phần còn lại
 vẫn được so sánh. Popup tư vấn tự bật được đánh dấu đã hiện trong sessionStorage. Không đổi giao diện app.
 
+## Test flaky đã biết
+
+Chỉ ghi test đã có bằng chứng (log chạy trên base). Test lỗi ngoài danh sách → coi là hồi quy cho tới khi chạy lại trên
+base (`VISUAL_WEB_ROOT=<worktree base>`, chép `packages/db/generated` vào worktree) chứng minh ngược lại.
+
+| Test | Hiện tượng | Bằng chứng | Ghi chú |
+|---|---|---|---|
+| `preset-home.spec.ts:79` (home and subpages share widgets, dark mode…) | Khi chạy song song, bấm nút theme trước khi hydrate xong → `data-theme` vẫn `light` | E7-S03: base lỗi cùng test (`.agent-runs/E7-S03/e2e-base2.log`), chạy riêng qua | Sửa ở E14-S08: chờ hydrate trước khi bấm |
+| `tenant.spec.ts:175` (home section, quick view, packages and actual cart keep EN prices…) — CI job `db` | `page.reload({ waitUntil: "networkidle" })` quá 30 s, lỗi cả lần retry | PR #45: qua ở `6437cd5`, `2e76bc0`; lỗi ở `1a11de7`, `125610e` dù code mà test chạy qua giống hệt (khác nhau chỉ trong `packages/cms-ui`, chỉ trang lab dùng). Workflow đã ghi "tenant e2e flakes" | Chạy lại job; sửa ở E14-S08: bỏ `networkidle` khi reload, chờ phần tử cụ thể |
+| `visual.spec.ts:5 › /` — job `baseline` của base, kéo theo job `compare` của mọi PR phải dựng baseline ở merge-base | `toHaveScreenshot` không ổn định (≈174–232 nghìn pixel khác, 1%) | Base đỏ chính test này ở `410d78d`, `6c7b888` (Visual regression, job `baseline`) | **Base đang đỏ**, không phải lỗi của PR; sửa ở E14-S08 (ổn định trang chủ: animation/ảnh chưa tải) |
+
 ## Baseline local và CI
 
 Baseline/report/test output đều được `.gitignore`: **không commit ảnh hoặc report**. Baseline nằm tại

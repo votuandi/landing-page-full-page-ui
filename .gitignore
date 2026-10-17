@@ -67,3 +67,5 @@ dist/
 
 # graphify knowledge graph (skill graphify, E0-S07)
 graphify-out/
+.codegraph/
+.taste-skill/

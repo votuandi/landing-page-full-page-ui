@@ -60,6 +60,8 @@ function loadStories() {
         epicFile: `roadmap/epics/${file}`,
         title: rawTitle.replace(/✅/g, "").trim(),
         done: rawTitle.includes("✅") || (checked > 0 && unchecked === 0),
+        // Chỉ heading ✅ (gắn sau khi người dùng merge) mới là "đã merge"; AC tick đủ trên branch chưa merge thì chưa.
+        merged: rawTitle.includes("✅"),
         acTotal: checked + unchecked,
         acDone: checked,
         deps: [...new Set([...epicDeps, ...parseDeps(depLine, epicId)])].filter((d) => d !== id && d !== epicId),
@@ -140,6 +142,7 @@ function describe(story, stories) {
       exec: routing.codexEffort[story.size] ?? "high",
       plan: routing.codexEffort.plan,
       review: routing.codexEffort.review,
+      reReview: routing.codexEffort.reReview ?? "medium",
     },
     claudeReviewModel: routing.claudeReviewModel,
     parity,
@@ -216,9 +219,19 @@ function historyBySize(all) {
   );
 }
 
+/** Bước 0 của /run-story: có index codegraph chưa, đồ thị graphify có cũ hơn commit mới nhất của base không. */
+function graphState() {
+  const baseTime = Number(git("log", "-1", "--format=%ct", routing.base)) * 1000;
+  const graph = join(root, "graphify-out", "graph.json");
+  return {
+    codegraph: existsSync(join(root, ".codegraph")) ? "codegraph sync" : "codegraph init -y",
+    graphify: !existsSync(graph) ? "none" : statSync(graph).mtimeMs < baseTime ? "stale: python -m graphify update ." : "fresh",
+  };
+}
+
 /** Bước hiện tại của story theo các dấu vết /run-story để lại → % (mốc cuối mỗi bước). */
 function storyPhase(d) {
-  if (d.done) return { step: "Đã merge (✅)", percent: 100 };
+  if (d.merged) return { step: "Đã merge (✅)", percent: 100 };
   const run = (f) => join(root, d.runDir, f);
   const readJson = (f) => { try { return JSON.parse(readFileSync(run(f), "utf8")); } catch { return null; } };
   const hasBranch = Boolean(git("rev-parse", "--verify", "--quiet", d.branch));
@@ -298,7 +311,7 @@ if (cmd === "info") {
     console.error(`Không tìm thấy story "${arg}". Ví dụ: node scripts/agents/story.mjs info E1-S01`);
     process.exit(1);
   }
-  console.log(JSON.stringify(describe(story, stories), null, 2));
+  console.log(JSON.stringify({ ...describe(story, stories), graphs: graphState() }, null, 2));
 } else if (cmd === "next") {
   const next = [...stories.values()].map((s) => describe(s, stories)).find((s) => !s.done && s.ready);
   if (!next) {
