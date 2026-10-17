@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { mediaSrc, type MediaRef } from "@solar/sections";
 import { describe } from "../schema/describe.ts";
 import { issuesUnder, pathKey } from "../schema/path.ts";
@@ -12,6 +12,14 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
   const { idPrefix, issues, update, pickers } = useSchemaForm();
   const [failed, setFailed] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
+  // Picker trả kết quả bất đồng bộ: ghi vào đường dẫn hiện tại của ô (dòng có thể đã bị sắp xếp/xóa trong lúc chờ).
+  const pathRef = useRef(path);
+  const mounted = useRef(true);
+  useLayoutEffect(() => { pathRef.current = path; }, [path]);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   if (node.kind !== "widget") return null;
   const id = fieldId(idPrefix, [...path, "id"]);
   const current = value ?? { id: "", alt: { vi: "" } };
@@ -22,9 +30,9 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
     setPickError(null);
     try {
       const picked = await pickers.media?.(value);
-      if (picked) update(path, picked);
+      if (picked && mounted.current) update(pathRef.current, picked);
     } catch {
-      setPickError("Không mở được thư viện media, vui lòng thử lại");
+      if (mounted.current) setPickError("Không mở được thư viện media, vui lòng thử lại");
     }
   };
   return (

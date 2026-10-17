@@ -74,8 +74,8 @@ function parseTexts(source: string): RichTextText[] {
   return out;
 }
 
-/** Link cũ (nhãn VI/EN riêng) được giữ nguyên khi đích và chữ hiển thị không đổi. */
-type KnownLink = { href: string; text: string; link: Link };
+/** Link cũ (nhãn VI/EN riêng) được giữ nguyên khi đích và chữ hiển thị không đổi; mỗi link cũ dùng đúng một lần, theo thứ tự. */
+type KnownLink = { href: string; text: string; link: Link; used?: boolean };
 
 /** Vị trí ký tự đóng khớp với ký tự mở tại `start`, bỏ qua ký tự thoát; -1 nếu không có trên cùng dòng. */
 function closing(source: string, start: number, open: string, close: string): number {
@@ -106,7 +106,8 @@ function parseInline(source: string, known: KnownLink[]): RichTextInline[] {
     const children = parseTexts(source.slice(i + 1, textEnd));
     const href = unescape(source.slice(textEnd + 2, hrefEnd));
     const text = children.map((child) => child.text).join("");
-    const reused = known.find((item) => item.href === href && item.text === text);
+    const reused = known.find((item) => !item.used && item.href === href && item.text === text);
+    if (reused) reused.used = true;
     out.push({ type: "link", link: reused?.link ?? hrefLink(href, text), children });
     i = hrefEnd;
   }

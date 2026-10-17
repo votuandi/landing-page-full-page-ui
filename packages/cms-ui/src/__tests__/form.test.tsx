@@ -172,3 +172,13 @@ test("URL đang nhập dở không làm validate ném lỗi", () => {
     assert.doesNotThrow(() => validate(def.schema, JSON.parse(JSON.stringify(def.defaults).replace(/"https:\/\/[^"]*"/g, '"h"'))));
   }
 });
+
+test("richText: mọi loại link đi hai chiều", () => {
+  const kinds = [["page", "san-pham?category=panel"], ["url", "https://a.vn/x"], ["anchor", "bao-gia"], ["phone", "0901234567"],
+    ["zalo", "0901234567"], ["calculator", "phan-khuc=factory&hoa-don=15000000"]] as const;
+  const blocks = kinds.map(([kind, value]) => ({ type: "paragraph" as const, children: [
+    { type: "link" as const, link: { kind, value, label: { vi: kind } }, children: [{ type: "text" as const, text: kind }] },
+  ] }));
+  assert.deepEqual(markupToBlocks(blocksToMarkup(blocks)), blocks);
+  assert.ok(richText().safeParse({ vi: blocks }).success);
+});

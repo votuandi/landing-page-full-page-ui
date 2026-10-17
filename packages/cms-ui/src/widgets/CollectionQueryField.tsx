@@ -22,10 +22,21 @@ export function toFilterValue(input: string, type: FilterType): Scalar {
 const typeOf = (value: Scalar): FilterType => (typeof value === "number" ? "number" : typeof value === "boolean" ? "boolean" : "string");
 
 export function CollectionQueryField({ node, path, value, label }: FieldProps<CollectionQuery | undefined>) {
-  const { idPrefix, issues, update, pickers } = useSchemaForm();
+  const { idPrefix, issues, update, pickers, setInputError } = useSchemaForm();
+  // Kiểu người dùng chọn cho từng dòng lọc, độc lập với giá trị đang gõ (ô "Số" còn trống vẫn là "Số").
+  const [rowTypes, setRowTypes] = useState<Record<number, FilterType>>({});
   const [items, setItems] = useState<readonly { id: string; label: string }[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const collection = node.kind === "widget" ? node.collection : undefined;
+  const filterKey = pathKey([...path, "filter"]);
+  const entries = Object.entries(value?.filter ?? {});
+  const badRows = entries.flatMap(([, item], i) => ((rowTypes[i] ?? typeOf(item)) === "number" && typeof item !== "number" ? [i] : []));
+  const badKey = badRows.join(",");
+  // Dòng "Số" chưa có số hợp lệ khóa nút lưu như ô số thường.
+  useEffect(() => {
+    setInputError(filterKey, badKey ? "Giá trị lọc kiểu số chưa hợp lệ" : null);
+    return () => setInputError(filterKey, null);
+  }, [filterKey, badKey, setInputError]);
   useEffect(() => {
     if (!collection || !pickers.collectionItems) return;
     let alive = true;
@@ -38,11 +49,14 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
   if (node.kind !== "widget") return null;
   const shape = (node.schema as unknown as { shape: Record<"limit" | "sort", never> }).shape;
   const current = value ?? (node.schema.parse({}) as CollectionQuery);
-  const filter = Object.entries(current.filter ?? {});
+  const filter = entries;
   const idsId = fieldId(idPrefix, [...path, "ids"]);
   const idsErrors = [...issuesUnder(issues, [...path, "ids"]), ...(loadError ? ["Không tải được danh sách mục; nhập mã thủ công"] : [])];
   const pinned = current.ids ?? [];
-  const setFilter = (entries: [string, Scalar][]) => update([...path, "filter"], Object.fromEntries(entries));
+  const setFilter = (next: [string, Scalar][], types: Record<number, FilterType> = rowTypes) => {
+    setRowTypes(types);
+    update([...path, "filter"], Object.fromEntries(next));
+  };
   const setEntry = (index: number, entry: [string, Scalar]) => setFilter(filter.map((old, i) => (i === index ? entry : old)));
   const hint = items ? "Chọn mục muốn hiển thị; bỏ trống = lấy theo điều kiện lọc." : "Mỗi dòng một mã mục; bỏ trống = lấy theo điều kiện lọc.";
 
@@ -58,13 +72,17 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
       <div className="space-y-2">
         <p className="text-sm font-medium text-fg">Lọc theo trường</p>
         {filter.map(([key, item], index) => {
-          const type = typeOf(item);
+          const type = rowTypes[index] ?? typeOf(item);
           return (
             <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1fr)_auto]">
               <input aria-label={`Tên trường lọc ${index + 1}`} value={key} placeholder="featured" className={inputClass}
                 onChange={(event) => setEntry(index, [event.target.value, item])} />
               <select aria-label={`Kiểu giá trị lọc ${index + 1}`} value={type} className={`${inputClass} max-sm:order-3`}
-                onChange={(event) => setEntry(index, [key, toFilterValue(String(item), event.target.value as FilterType)])}>
+                onChange={(event) => {
+                  const nextType = event.target.value as FilterType;
+                  const entry: [string, Scalar] = [key, toFilterValue(String(item), nextType)];
+                  setFilter(filter.map((old, i) => (i === index ? entry : old)), { ...rowTypes, [index]: nextType });
+                }}>
                 <option value="string">Chữ</option>
                 <option value="number">Số</option>
                 <option value="boolean">Đúng/sai</option>
@@ -77,15 +95,20 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
                 </select>
               ) : (
                 <input aria-label={`Giá trị lọc ${index + 1}`} value={String(item)} inputMode={type === "number" ? "decimal" : undefined}
+                  aria-invalid={badRows.includes(index) ? true : undefined}
                   className={`${inputClass} max-sm:order-4`} onChange={(event) => setEntry(index, [key, toFilterValue(event.target.value, type)])} />
               )}
               <SmallButton tone="danger" className="max-sm:order-2" aria-label={`Xóa điều kiện lọc ${index + 1}`}
-                onClick={() => setFilter(filter.filter((_, i) => i !== index))}>✕</SmallButton>
+                onClick={() => setFilter(filter.filter((_, i) => i !== index),
+                  Object.fromEntries(Object.entries(rowTypes).flatMap(([i, t]) => {
+                    const n = Number(i);
+                    return n === index ? [] : [[n > index ? n - 1 : n, t]];
+                  })))}>✕</SmallButton>
             </div>
           );
         })}
         <SmallButton className="border border-dashed border-line/30" onClick={() => setFilter([...filter, ["", ""]])}>+ Thêm điều kiện</SmallButton>
-        <Errors errors={issuesUnder(issues, [...path, "filter"])} />
+        <Errors errors={[...issuesUnder(issues, [...path, "filter"]), ...(badRows.length ? ["Giá trị lọc kiểu số chưa hợp lệ"] : [])]} />
       </div>
 
       <FieldShell id={idsId} label="Chọn đích danh (tùy chọn)" errors={idsErrors} hint={hint}>

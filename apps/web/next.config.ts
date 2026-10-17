@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@solar/cache", "@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/presets", "@solar/db", "@solar/plans"],
+  transpilePackages: ["@solar/cache", "@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/cms-ui", "@solar/presets", "@solar/db", "@solar/plans"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   // E5-S06: data and UI caches are tagged per tenant (`tenantPageTags`); `/api/revalidate` expires them by tag.
   cacheComponents: true,

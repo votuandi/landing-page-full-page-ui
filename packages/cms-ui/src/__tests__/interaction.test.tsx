@@ -1,7 +1,7 @@
 import { button, byPath, click, mount, setConfirm, submitButton, type } from "./dom.ts";
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { useState } from "react";
+import { act, useState } from "react";
 import { z } from "zod";
 import { link, localized, mediaRef, richText, sectionRegistry, collectionQuery } from "@solar/sections";
 import { SchemaForm, type SchemaFormProps } from "../SchemaForm.tsx";
@@ -216,4 +216,116 @@ test("override: widget theo wildcard record/mảng và theo kind, nhãn theo đ�
   const outputs = [...container.querySelectorAll("output")].map((el) => el.textContent);
   assert.deepEqual(outputs, ["wild:prices.a", "exact:prices.b", "row:rows.0.n", "kind:flag"]);
   assert.match(container.textContent ?? "", /Bảng giá riêng/);
+});
+
+test("boolean và enum: sửa rồi lưu", async () => {
+  const schema = z.object({ featured: z.boolean(), tone: z.enum(["light", "dark"]), level: z.union([z.literal(2), z.literal(3)]) });
+  const { container, log } = await render(schema, { featured: false, tone: "light", level: 2 });
+  await click(byPath(container, "featured"));
+  await type(byPath<HTMLSelectElement>(container, "tone"), "dark");
+  await type(byPath<HTMLSelectElement>(container, "level"), "3");
+  await click(submitButton(container));
+  assert.deepEqual(log.submitted[0], { featured: true, tone: "dark", level: 3 });
+});
+
+test("mọi trường lá của calculator có control nối đúng đường dẫn", async () => {
+  const { container } = await render(calculator.schema, calculator.defaults);
+  for (const path of ["eyebrow", "title.lead", "tariffs.household.kind", "tariffs.household.tiers.0.upTo", "tariffs.shop.averageRate",
+    "vatRate", "pricePerKwp.farm", "peakSunHours.bac-bo", "segmentRatios.factory", "system.minRoofArea",
+    "inputs.household.bill.default", "inputs.farm.roof.max", "defaultProvince", "steps.0", "tips.0", "leadSource"]) {
+    const control = path === "tariffs.household.kind" ? byPath(container, "tariffs.household.$branch") : byPath(container, path);
+    assert.ok(control, path);
+  }
+});
+
+test("mảng: thêm thành công, chặn xóa ở min, sắp xếp khi dòng có ô số đang sai vẫn khóa lưu", async () => {
+  const schema = z.object({ rows: z.array(z.object({ n: z.number(), label: z.string() })).min(1).max(4) });
+  const { container, last } = await render(schema, { rows: [{ n: 1, label: "A" }] });
+  assert.equal(button(container, "Xóa: Hàng 1").disabled, true, "đang ở min");
+  await click(button(container, "+ Thêm mục"));
+  assert.deepEqual(last(), { rows: [{ n: 1, label: "A" }, { n: 0, label: "" }] });
+  await type(byPath(container, "rows.0.n"), "x");
+  await click(button(container, "Xuống dưới: Hàng 1"));
+  assert.equal(byPath(container, "rows.1.n").value, "x", "ô sai đi theo dòng");
+  assert.equal(submitButton(container).disabled, true);
+});
+
+test("richText: hai link trùng đích và chữ giữ nhãn riêng; nghiêng, danh sách, link trên vùng chọn; chuyển VI/EN", async () => {
+  const a = { kind: "page" as const, value: "bao-gia", label: { vi: "Nhãn A", en: "A" } };
+  const b = { kind: "page" as const, value: "bao-gia", label: { vi: "Nhãn B", en: "B" } };
+  const linkTo = (link: typeof a) => ({ type: "link" as const, link, children: [{ type: "text" as const, text: "Xem" }] });
+  const vi = [
+    { type: "paragraph" as const, children: [{ type: "text" as const, text: "Mở đầu" }] },
+    { type: "paragraph" as const, children: [linkTo(a), { type: "text" as const, text: " và " }, linkTo(b)] },
+  ];
+  const schema = z.object({ body: richText() });
+  const { container, last } = await render(schema, { body: { vi, en: [{ type: "paragraph", children: [{ type: "text", text: "Intro" }] }] } }, { bilingual: true });
+  const area = byPath<HTMLTextAreaElement>(container, "body");
+  await type(area, area.value.replace("Mở đầu", "Mở đầu mới"));
+  const links = ((last() as { body: { vi: typeof vi } }).body.vi[1].children).filter((node) => node.type === "link");
+  assert.deepEqual(links.map((node) => node.type === "link" && node.link.label.vi), ["Nhãn A", "Nhãn B"]);
+
+  area.setSelectionRange(0, 6);
+  await click(button(container, "Nghiêng (*chữ*)"));
+  assert.deepEqual((last() as { body: { vi: typeof vi } }).body.vi[0].children[0], { type: "text", text: "Mở đầu", italic: true });
+  area.setSelectionRange(0, 0);
+  await click(button(container, "Danh sách gạch đầu dòng"));
+  assert.equal((last() as { body: { vi: typeof vi } }).body.vi[0].type, "list");
+
+  await click(button(container, "Tiếng Anh"));
+  const en = byPath<HTMLTextAreaElement>(container, "body");
+  assert.equal(en.value, "Intro");
+  en.setSelectionRange(0, 5);
+  await click(button(container, /^Liên kết/));
+  const enBlocks = (last() as { body: { en: { children: { type: string; link?: { kind: string; value: string } }[] }[] } }).body.en;
+  assert.deepEqual(enBlocks[0].children[0].link, { kind: "page", value: "", label: { vi: "Intro" } });
+  assert.equal((last() as { body: { vi: typeof vi } }).body.vi[0].type, "list", "sửa EN không đụng VI");
+});
+
+test("media picker trả chậm: dòng đã đổi chỗ thì ảnh vẫn vào đúng dòng", async () => {
+  const schema = z.object({ items: z.array(z.object({ image: mediaRef() })) });
+  let resolve: (ref: unknown) => void = () => {};
+  const pickers: Pickers = { media: () => new Promise((r) => { resolve = r; }) as never };
+  const { container, last } = await render(schema, { items: [{ image: { id: "a", alt: { vi: "A" } } }, { image: { id: "b", alt: { vi: "B" } } }] }, { pickers });
+  await click(container.querySelectorAll<HTMLButtonElement>("button")[[...container.querySelectorAll("button")].findIndex((el) => el.textContent === "Đổi ảnh…")]);
+  await click(button(container, "Xuống dưới: Danh sách 1"));
+  await act(async () => resolve({ id: "a2", alt: { vi: "A mới" } }));
+  assert.deepEqual((last() as { items: { image: { id: string } }[] }).items.map((item) => item.image.id), ["b", "a2"]);
+});
+
+test("collectionQuery: chọn kiểu Số giữ khi ô trống và khóa lưu; IDs thủ công, limit, sort", async () => {
+  const schema = z.object({ query: collectionQuery("projects") });
+  const { container, log, last } = await render(schema, { query: { filter: {}, limit: 6 } });
+  await click(button(container, "+ Thêm điều kiện"));
+  const kind = container.querySelector<HTMLSelectElement>('[aria-label="Kiểu giá trị lọc 1"]')!;
+  await type(kind, "number");
+  assert.equal(kind.value, "number");
+  assert.equal(submitButton(container).disabled, true);
+  await type(container.querySelector<HTMLInputElement>('[aria-label="Tên trường lọc 1"]')!, "year");
+  await type(container.querySelector<HTMLInputElement>('[aria-label="Giá trị lọc 1"]')!, "2024");
+  assert.equal(submitButton(container).disabled, false);
+  await type(byPath<HTMLTextAreaElement>(container, "query.ids"), "p1\np2");
+  await type(byPath(container, "query.limit"), "3");
+  await click(button(container, "+ Thêm"));
+  await type(byPath(container, "query.sort.field"), "year");
+  await type(byPath<HTMLSelectElement>(container, "query.sort.dir"), "desc");
+  await click(submitButton(container));
+  assert.deepEqual(log.submitted[0], { query: { filter: { year: 2024 }, limit: 3, ids: ["p1", "p2"], sort: { field: "year", dir: "desc" } } });
+  assert.ok(last());
+});
+
+test("override: theo tên widget, nhãn wildcard; ưu tiên đường dẫn chính xác > wildcard > widget/kind", async () => {
+  const schema = z.object({ a: mediaRef(), b: mediaRef(), rows: z.array(z.object({ title: z.string() })) });
+  const Tag = (name: string) => {
+    const Widget = ({ path }: FieldProps) => <output>{name}:{path.join(".")}</output>;
+    Widget.displayName = `Tag(${name})`;
+    return Widget;
+  };
+  const value = { a: { id: "1", alt: { vi: "" } }, b: { id: "2", alt: { vi: "" } }, rows: [{ title: "x" }] };
+  const { container } = await render(schema, value, {
+    widgets: { media: Tag("widget"), b: Tag("exact"), "rows.*.title": Tag("wild") },
+    labels: { "rows.*": "Hàng" },
+  });
+  assert.deepEqual([...container.querySelectorAll("output")].map((el) => el.textContent), ["widget:a", "exact:b", "wild:rows.0.title"]);
+  assert.match(container.textContent ?? "", /Hàng/);
 });

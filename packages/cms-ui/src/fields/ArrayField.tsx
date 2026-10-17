@@ -2,7 +2,7 @@
 
 import { useId, useState, useSyncExternalStore } from "react";
 import {
-  closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent,
+  closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type Announcements, type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
@@ -10,7 +10,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { defaultFor, type FieldNode } from "../schema/describe.ts";
 import { humanize } from "../schema/labels.ts";
-import { pathKey, type Path } from "../schema/path.ts";
+import { issuesUnder, pathKey, type Path } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps } from "../context.ts";
 import { Errors, SmallButton } from "../ui.tsx";
 import { Field, hasContent, ObjectField } from "./Field.tsx";
@@ -23,6 +23,16 @@ const subscribeMotion = (onChange: () => void) => {
 };
 /** Animation sắp xếp tắt khi người dùng bật giảm chuyển động (AGENTS.md §4). */
 const useReducedMotion = () => useSyncExternalStore(subscribeMotion, () => window.matchMedia(REDUCED).matches, () => true);
+
+/** Thông báo cho trình đọc màn hình bằng tiếng Việt (mặc định của dnd-kit là tiếng Anh). */
+const position = (ids: readonly string[], id: string | number | undefined) => ids.indexOf(String(id)) + 1;
+const announcementsFor = (ids: readonly string[]): Announcements => ({
+  onDragStart: ({ active }) => `Đã nhấc mục ${position(ids, active.id)}. Dùng phím mũi tên để di chuyển, Space để thả, Esc để hủy.`,
+  onDragOver: ({ over }) => (over ? `Đang ở vị trí ${position(ids, over.id)}.` : "Ra ngoài danh sách."),
+  onDragEnd: ({ over }) => (over ? `Đã thả vào vị trí ${position(ids, over.id)}.` : "Đã thả, giữ nguyên vị trí."),
+  onDragCancel: () => "Đã hủy sắp xếp.",
+});
+const SCREEN_READER = { draggable: "Nhấn Space hoặc Enter để nhấc mục, phím mũi tên để di chuyển, Space để thả, Esc để hủy." };
 
 let nextId = 0;
 const newId = () => `item-${nextId++}`;
@@ -91,7 +101,8 @@ export function ArrayField({ node, path, value, label }: FieldProps<unknown[] | 
         {label} <span className="font-normal text-fg-subtle">({items.length}{limits ? ` · ${limits}` : ""})</span>
       </legend>
       <Errors errors={issues.get(pathKey(path))} />
-      <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}
+        accessibility={{ announcements: announcementsFor(ids), screenReaderInstructions: SCREEN_READER }}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <ol className="space-y-2">
             {items.map((item, index) => (
@@ -119,6 +130,13 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
   const reduced = useReducedMotion();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable(
     reduced ? { id, transition: null } : { id });
+  const { issues } = useSchemaForm();
+  // Thu gọn bằng nút (không dùng <summary>: không được lồng nút trong summary). Nội dung chỉ ẩn, không unmount,
+  // để ô đang gõ dở giữ nguyên; dòng có lỗi luôn mở.
+  const [open, setOpen] = useState(count <= 3);
+  const hasErrors = issuesUnder(issues, path).length > 0;
+  const expanded = open || hasErrors;
+  const bodyId = `${id}-body`;
   const summary = itemSummary(value);
   const controls = (
     <div className="ml-auto flex shrink-0 items-center gap-0.5">
@@ -144,21 +162,26 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
           {controls}
         </div>
       ) : (
-        <details className="group" open={count <= 3}>
-          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1 p-2 [&::-webkit-details-marker]:hidden">
+        <>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2">
             {handle}
-            <span className="min-w-32 flex-1 truncate text-sm">
-              <span className="font-medium text-fg">{title}</span>
-              {summary && <span className="text-fg-muted"> · {summary}</span>}
-            </span>
+            <button type="button" aria-expanded={expanded} aria-controls={bodyId} onClick={() => setOpen(!expanded)}
+              className="flex min-h-9 min-w-32 flex-1 items-center gap-2 truncate rounded-button px-1 text-left text-sm hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+              <span aria-hidden className="text-fg-subtle">{expanded ? "▾" : "▸"}</span>
+              <span className="truncate">
+                <span className="font-medium text-fg">{title}</span>
+                {summary && <span className="text-fg-muted"> · {summary}</span>}
+              </span>
+              {hasErrors && <span className="shrink-0 rounded-pill bg-danger/10 px-2 text-xs font-medium text-danger">Có lỗi</span>}
+            </button>
             {controls}
-          </summary>
-          <div className="border-t border-line/10 p-4">
+          </div>
+          <div id={bodyId} hidden={!expanded} className="border-t border-line/10 p-4">
             {node.kind === "object"
               ? <ObjectField bare node={node} path={path} value={value as Record<string, unknown>} label={title} />
               : <Field node={node} path={path} value={value} label={title} />}
           </div>
-        </details>
+        </>
       )}
     </li>
   );
