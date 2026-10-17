@@ -56,7 +56,7 @@ export function RichTextField({ node, path, value, label }: FieldProps<RichTextV
 
   const commit = (markup: string) => {
     setDraft(markup);
-    const blocks = markupToBlocks(markup, (locale === "en" ? current.en : current.vi) ?? []);
+    const blocks = markupToBlocks(markup);
     if (locale === "vi") update(path, { ...current, vi: blocks });
     else {
       const { en: _en, ...rest } = current;

@@ -21,22 +21,27 @@ export function toFilterValue(input: string, type: FilterType): Scalar {
 
 const typeOf = (value: Scalar): FilterType => (typeof value === "number" ? "number" : typeof value === "boolean" ? "boolean" : "string");
 
+type Row = { id: number; key: string; value: Scalar; type: FilterType };
+let nextRow = 0;
+const rowsOf = (filter: Record<string, Scalar> | undefined): Row[] =>
+  Object.entries(filter ?? {}).map(([key, value]) => ({ id: nextRow++, key, value, type: typeOf(value) }));
+
 export function CollectionQueryField({ node, path, value, label }: FieldProps<CollectionQuery | undefined>) {
   const { idPrefix, issues, update, pickers, setInputError } = useSchemaForm();
-  // Kiểu người dùng chọn cho từng dòng lọc, độc lập với giá trị đang gõ (ô "Số" còn trống vẫn là "Số").
-  const [rowTypes, setRowTypes] = useState<Record<number, FilterType>>({});
+  // Dòng lọc là bản nháp cục bộ (id + khóa + giá trị + kiểu người dùng chọn): đổi khóa làm đổi thứ tự trong object
+  // hay trùng khóa cũng không làm lệch kiểu hoặc mất dòng. Chỉ ghi vào dữ liệu khi khóa không trùng.
+  const [rows, setRows] = useState<Row[]>(() => rowsOf(value?.filter));
   const [items, setItems] = useState<readonly { id: string; label: string }[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const collection = node.kind === "widget" ? node.collection : undefined;
   const filterKey = pathKey([...path, "filter"]);
-  const entries = Object.entries(value?.filter ?? {});
-  const badRows = entries.flatMap(([, item], i) => ((rowTypes[i] ?? typeOf(item)) === "number" && typeof item !== "number" ? [i] : []));
-  const badKey = badRows.join(",");
-  // Dòng "Số" chưa có số hợp lệ khóa nút lưu như ô số thường.
+  const duplicate = rows.some((row, i) => rows.findIndex((other) => other.key === row.key) !== i);
+  const badNumber = rows.some((row) => row.type === "number" && typeof row.value !== "number");
+  const draftError = duplicate ? "Tên trường lọc bị trùng" : badNumber ? "Giá trị lọc kiểu số chưa hợp lệ" : null;
   useEffect(() => {
-    setInputError(filterKey, badKey ? "Giá trị lọc kiểu số chưa hợp lệ" : null);
+    setInputError(filterKey, draftError);
     return () => setInputError(filterKey, null);
-  }, [filterKey, badKey, setInputError]);
+  }, [filterKey, draftError, setInputError]);
   useEffect(() => {
     if (!collection || !pickers.collectionItems) return;
     let alive = true;
@@ -49,15 +54,16 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
   if (node.kind !== "widget") return null;
   const shape = (node.schema as unknown as { shape: Record<"limit" | "sort", never> }).shape;
   const current = value ?? (node.schema.parse({}) as CollectionQuery);
-  const filter = entries;
   const idsId = fieldId(idPrefix, [...path, "ids"]);
   const idsErrors = [...issuesUnder(issues, [...path, "ids"]), ...(loadError ? ["Không tải được danh sách mục; nhập mã thủ công"] : [])];
   const pinned = current.ids ?? [];
-  const setFilter = (next: [string, Scalar][], types: Record<number, FilterType> = rowTypes) => {
-    setRowTypes(types);
-    update([...path, "filter"], Object.fromEntries(next));
+  const commit = (next: Row[]) => {
+    setRows(next);
+    if (new Set(next.map((row) => row.key)).size === next.length) {
+      update([...path, "filter"], Object.fromEntries(next.map((row) => [row.key, row.value])));
+    }
   };
-  const setEntry = (index: number, entry: [string, Scalar]) => setFilter(filter.map((old, i) => (i === index ? entry : old)));
+  const patch = (id: number, change: Partial<Row>) => commit(rows.map((row) => (row.id === id ? { ...row, ...change } : row)));
   const hint = items ? "Chọn mục muốn hiển thị; bỏ trống = lấy theo điều kiện lọc." : "Mỗi dòng một mã mục; bỏ trống = lấy theo điều kiện lọc.";
 
   return (
@@ -71,44 +77,37 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-fg">Lọc theo trường</p>
-        {filter.map(([key, item], index) => {
-          const type = rowTypes[index] ?? typeOf(item);
-          return (
-            <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1fr)_auto]">
-              <input aria-label={`Tên trường lọc ${index + 1}`} value={key} placeholder="featured" className={inputClass}
-                onChange={(event) => setEntry(index, [event.target.value, item])} />
-              <select aria-label={`Kiểu giá trị lọc ${index + 1}`} value={type} className={`${inputClass} max-sm:order-3`}
-                onChange={(event) => {
-                  const nextType = event.target.value as FilterType;
-                  const entry: [string, Scalar] = [key, toFilterValue(String(item), nextType)];
-                  setFilter(filter.map((old, i) => (i === index ? entry : old)), { ...rowTypes, [index]: nextType });
-                }}>
-                <option value="string">Chữ</option>
-                <option value="number">Số</option>
-                <option value="boolean">Đúng/sai</option>
+        {rows.map((row, index) => (
+          <div key={row.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1fr)_auto]">
+            <input aria-label={`Tên trường lọc ${index + 1}`} value={row.key} placeholder="featured" className={inputClass}
+              aria-invalid={duplicate && rows.some((other) => other !== row && other.key === row.key) ? true : undefined}
+              onChange={(event) => patch(row.id, { key: event.target.value })} />
+            <select aria-label={`Kiểu giá trị lọc ${index + 1}`} value={row.type} className={`${inputClass} max-sm:order-3`}
+              onChange={(event) => {
+                const type = event.target.value as FilterType;
+                patch(row.id, { type, value: toFilterValue(String(row.value), type) });
+              }}>
+              <option value="string">Chữ</option>
+              <option value="number">Số</option>
+              <option value="boolean">Đúng/sai</option>
+            </select>
+            {row.type === "boolean" ? (
+              <select aria-label={`Giá trị lọc ${index + 1}`} value={String(row.value)} className={`${inputClass} max-sm:order-4`}
+                onChange={(event) => patch(row.id, { value: event.target.value === "true" })}>
+                <option value="true">Đúng</option>
+                <option value="false">Sai</option>
               </select>
-              {type === "boolean" ? (
-                <select aria-label={`Giá trị lọc ${index + 1}`} value={String(item)} className={`${inputClass} max-sm:order-4`}
-                  onChange={(event) => setEntry(index, [key, event.target.value === "true"])}>
-                  <option value="true">Đúng</option>
-                  <option value="false">Sai</option>
-                </select>
-              ) : (
-                <input aria-label={`Giá trị lọc ${index + 1}`} value={String(item)} inputMode={type === "number" ? "decimal" : undefined}
-                  aria-invalid={badRows.includes(index) ? true : undefined}
-                  className={`${inputClass} max-sm:order-4`} onChange={(event) => setEntry(index, [key, toFilterValue(event.target.value, type)])} />
-              )}
-              <SmallButton tone="danger" className="max-sm:order-2" aria-label={`Xóa điều kiện lọc ${index + 1}`}
-                onClick={() => setFilter(filter.filter((_, i) => i !== index),
-                  Object.fromEntries(Object.entries(rowTypes).flatMap(([i, t]) => {
-                    const n = Number(i);
-                    return n === index ? [] : [[n > index ? n - 1 : n, t]];
-                  })))}>✕</SmallButton>
-            </div>
-          );
-        })}
-        <SmallButton className="border border-dashed border-line/30" onClick={() => setFilter([...filter, ["", ""]])}>+ Thêm điều kiện</SmallButton>
-        <Errors errors={[...issuesUnder(issues, [...path, "filter"]), ...(badRows.length ? ["Giá trị lọc kiểu số chưa hợp lệ"] : [])]} />
+            ) : (
+              <input aria-label={`Giá trị lọc ${index + 1}`} value={String(row.value)} inputMode={row.type === "number" ? "decimal" : undefined}
+                aria-invalid={row.type === "number" && typeof row.value !== "number" ? true : undefined}
+                className={`${inputClass} max-sm:order-4`} onChange={(event) => patch(row.id, { value: toFilterValue(event.target.value, row.type) })} />
+            )}
+            <SmallButton tone="danger" className="max-sm:order-2" aria-label={`Xóa điều kiện lọc ${index + 1}`}
+              onClick={() => commit(rows.filter((other) => other.id !== row.id))}>✕</SmallButton>
+          </div>
+        ))}
+        <SmallButton className="border border-dashed border-line/30" onClick={() => commit([...rows, { id: nextRow++, key: "", value: "", type: "string" }])}>+ Thêm điều kiện</SmallButton>
+        <Errors errors={[...issuesUnder(issues, [...path, "filter"]), ...(draftError ? [draftError] : [])]} />
       </div>
 
       <FieldShell id={idsId} label="Chọn đích danh (tùy chọn)" errors={idsErrors} hint={hint}>

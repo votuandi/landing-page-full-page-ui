@@ -80,8 +80,8 @@ export function SchemaForm<S extends z.ZodType>({
     });
   }, []);
 
-  const ctx = useMemo<FormContext>(() => ({ idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError }),
-    [idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError]);
+  const ctx = useMemo<FormContext>(() => ({ idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError, inputErrorKeys: inputErrors }),
+    [idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError, inputErrors]);
   const invalid = !result.success || inputErrors.size > 0;
   const errorCount = (result.error?.issues.length ?? 0) + inputErrors.size;
 

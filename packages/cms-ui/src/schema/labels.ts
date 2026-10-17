@@ -37,7 +37,7 @@ const LABELS: Record<string, string> = {
   menus: "Menu", topBar: "Thanh trên cùng", mobileLinks: "Liên kết trên di động", socials: "Mạng xã hội", legal: "Pháp lý",
   group: "Nhóm", groups: "Nhóm", columns: "Cột", rows: "Hàng", chart: "Biểu đồ", metrics: "Chỉ số", phases: "Giai đoạn",
   articles: "Bài viết", outlets: "Cơ quan báo chí", issuer: "Đơn vị cấp", verified: "Đã xác minh", tone: "Tông màu",
-  sort: "Sắp xếp", field: "Trường", dir: "Chiều", asc: "Tăng dần", desc: "Giảm dần", focal: "Điểm lấy nét",
+  sort: "Sắp xếp", field: "Trường", dir: "Chiều", asc: "Tăng dần", desc: "Giảm dần", focal: "Điểm lấy nét", x: "Ngang (x)", y: "Dọc (y)",
   primary: "Chính", secondary: "Phụ", form: "Form", fields: "Trường", message: "Lời nhắn", successTitle: "Tiêu đề khi gửi xong",
   successMessage: "Lời nhắn khi gửi xong", installment: "Trả góp", saving: "Tiết kiệm", production: "Sản lượng", packageSimulation: "Mô phỏng gói", short: "Tên ngắn", submitLabel: "Chữ nút gửi",
 };

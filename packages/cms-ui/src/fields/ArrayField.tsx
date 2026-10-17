@@ -13,7 +13,7 @@ import { humanize } from "../schema/labels.ts";
 import { issuesUnder, pathKey, type Path } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps } from "../context.ts";
 import { Errors, SmallButton } from "../ui.tsx";
-import { Field, hasContent, ObjectField } from "./Field.tsx";
+import { Field, hasContent, ObjectField, useLabel } from "./Field.tsx";
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const subscribeMotion = (onChange: () => void) => {
@@ -23,6 +23,9 @@ const subscribeMotion = (onChange: () => void) => {
 };
 /** Animation sắp xếp tắt khi người dùng bật giảm chuyển động (AGENTS.md §4). */
 const useReducedMotion = () => useSyncExternalStore(subscribeMotion, () => window.matchMedia(REDUCED).matches, () => true);
+const subscribeNothing = () => () => {};
+/** false khi render ở server/hydrate: nội dung thu gọn vẫn hiện khi tắt JavaScript. */
+const useHydrated = () => useSyncExternalStore(subscribeNothing, () => true, () => false);
 
 /** Thông báo cho trình đọc màn hình bằng tiếng Việt (mặc định của dnd-kit là tiếng Anh). */
 const position = (ids: readonly string[], id: string | number | undefined) => ids.indexOf(String(id)) + 1;
@@ -108,7 +111,7 @@ export function ArrayField({ node, path, value, label }: FieldProps<unknown[] | 
             {items.map((item, index) => (
               <SortableItem key={ids[index]} id={ids[index]} index={index} count={items.length}
                 node={node.item} path={[...path, index]} value={item} scalar={scalar}
-                title={`${humanize(String(path.at(-1) ?? "Mục"))} ${index + 1}`}
+                title={humanize(String(path.at(-1) ?? "Mục"))}
                 canRemove={canRemove} canDuplicate={canAdd}
                 onMove={move} onRemove={remove} onDuplicate={duplicate} />
             ))}
@@ -122,7 +125,7 @@ export function ArrayField({ node, path, value, label }: FieldProps<unknown[] | 
   );
 }
 
-function SortableItem({ id, index, count, node, path, value, scalar, title, canRemove, canDuplicate, onMove, onRemove, onDuplicate }: {
+function SortableItem({ id, index, count, node, path, value, scalar, title: fallbackTitle, canRemove, canDuplicate, onMove, onRemove, onDuplicate }: {
   id: string; index: number; count: number; node: FieldNode; path: Path; value: unknown; scalar: boolean; title: string;
   canRemove: boolean; canDuplicate: boolean;
   onMove(from: number, to: number): void; onRemove(index: number): void; onDuplicate(index: number): void;
@@ -130,13 +133,18 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
   const reduced = useReducedMotion();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable(
     reduced ? { id, transition: null } : { id });
-  const { issues } = useSchemaForm();
+  const { issues, inputErrorKeys } = useSchemaForm();
+  // Nhãn override theo đường dẫn (vd. "rows.*") thay phần tên; số thứ tự luôn kèm theo.
+  const title = `${useLabel(path, fallbackTitle)} ${index + 1}`;
   // Thu gọn bằng nút (không dùng <summary>: không được lồng nút trong summary). Nội dung chỉ ẩn, không unmount,
-  // để ô đang gõ dở giữ nguyên; dòng có lỗi luôn mở.
+  // để ô đang gõ dở giữ nguyên. Server render mở hết (đọc được khi tắt JS); dòng có lỗi schema luôn mở.
+  const hydrated = useHydrated();
   const [open, setOpen] = useState(count <= 3);
+  const key = pathKey(path);
   const hasErrors = issuesUnder(issues, path).length > 0;
-  const expanded = open || hasErrors;
-  const bodyId = `${id}-body`;
+  const hasInputErrors = [...inputErrorKeys].some((k) => k === key || k.startsWith(`${key}.`));
+  const expanded = !hydrated || open || hasErrors;
+  const bodyId = `${useId()}-body`;
   const summary = itemSummary(value);
   const controls = (
     <div className="ml-auto flex shrink-0 items-center gap-0.5">
@@ -172,7 +180,7 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
                 <span className="font-medium text-fg">{title}</span>
                 {summary && <span className="text-fg-muted"> · {summary}</span>}
               </span>
-              {hasErrors && <span className="shrink-0 rounded-pill bg-danger/10 px-2 text-xs font-medium text-danger">Có lỗi</span>}
+              {(hasErrors || hasInputErrors) && <span className="shrink-0 rounded-pill bg-danger/10 px-2 text-xs font-medium text-danger">Có lỗi</span>}
             </button>
             {controls}
           </div>

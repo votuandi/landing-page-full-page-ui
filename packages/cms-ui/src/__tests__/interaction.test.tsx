@@ -1,30 +1,11 @@
-import { button, byPath, click, mount, setConfirm, submitButton, type } from "./dom.ts";
+import { button, byPath, click, setConfirm, submitButton, type } from "./dom.ts";
+import { render } from "./harness.tsx";
 import assert from "node:assert/strict";
-import { afterEach, test } from "node:test";
-import { act, useState } from "react";
+import { test } from "node:test";
+import { act } from "react";
 import { z } from "zod";
 import { link, localized, mediaRef, richText, sectionRegistry, collectionQuery } from "@solar/sections";
-import { SchemaForm, type SchemaFormProps } from "../SchemaForm.tsx";
 import type { FieldProps, Pickers } from "../context.ts";
-
-type Harness = { submitted: unknown[]; changes: unknown[] };
-
-function Controlled<S extends z.ZodType>({ initial, log, ...props }: Omit<SchemaFormProps<S>, "value" | "onChange" | "onSubmit"> & { initial: unknown; log: Harness }) {
-  const [value, setValue] = useState(initial);
-  return <SchemaForm {...props} value={value as z.input<S>}
-    onChange={(next) => { log.changes.push(next); setValue(next); }}
-    onSubmit={(data) => log.submitted.push(data)} />;
-}
-
-async function render<S extends z.ZodType>(schema: S, initial: unknown, extra: Partial<SchemaFormProps<S>> = {}) {
-  const log: Harness = { submitted: [], changes: [] };
-  const mounted = await mount(<Controlled schema={schema} initial={structuredClone(initial)} log={log} {...extra} />);
-  cleanup.push(mounted.unmount);
-  return { ...mounted, log, last: () => log.changes.at(-1) };
-}
-
-const cleanup: (() => void)[] = [];
-afterEach(() => { cleanup.splice(0).forEach((fn) => fn()); setConfirm(true); });
 
 for (const def of Object.values(sectionRegistry.types)) {
   test(`${def.type}: render thật, bấm lưu không chỉnh sửa → onSubmit nhận đúng dữ liệu vào`, async () => {

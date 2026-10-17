@@ -4,9 +4,14 @@ import type { Link, RichTextBlock, RichTextInline, RichTextText } from "@solar/s
  * Editor richText tối giản soạn trên văn bản đánh dấu:
  * `**đậm**`, `*nghiêng*`, `[chữ](đích)`, dòng `- ` / `1. ` là danh sách, `## ` là tiêu đề, dòng trống ngăn đoạn.
  * Đích link: `/trang`, `https://…`, `#neo`, `tel:…`, `zalo:…`, `calculator:?…`. Chỉ sinh đúng whitelist của schema.
+ * Nhãn link khác chữ hiển thị (hoặc có bản EN) đi kèm trong link: `[chữ](đích "nhãn VI|nhãn EN")`, nên sửa/xóa link
+ * khác không làm đổi metadata của link này.
  */
 
 const escapeText = (text: string) => text.replace(/[\\*[\]]/g, "\\$&");
+const escapeHref = (href: string) => href.replace(/[\\()"]/g, "\\$&");
+const escapeLabel = (label: string) => label.replace(/[\\"|]/g, "\\$&");
+const unescape = (text: string) => text.replace(/\\([\s\S])/g, "$1");
 
 function textToMarkup(node: RichTextText): string {
   const text = escapeText(node.text);
@@ -26,17 +31,21 @@ function linkHref(link: Link): string {
   }
 }
 
-function hrefLink(href: string, label: string): Link {
+function hrefLink(href: string, label: Link["label"]): Link {
   const [, prefix = "", rest = href] = /^(\/|#|tel:|zalo:|calculator:)?([\s\S]*)$/.exec(href) ?? [];
   const kind = ({ "/": "page", "#": "anchor", "tel:": "phone", "zalo:": "zalo", "calculator:": "calculator" } as const)[prefix] ?? "url";
-  return { kind, value: rest, label: { vi: label } };
+  return { kind, value: rest, label };
 }
 
-const escapeHref = (href: string) => href.replace(/[\\()]/g, "\\$&");
+function linkToMarkup(node: Extract<RichTextInline, { type: "link" }>): string {
+  const text = node.children.map((child) => child.text).join("");
+  const { vi, en } = node.link.label;
+  const title = vi === text && en === undefined ? "" : ` "${escapeLabel(vi)}${en === undefined ? "" : `|${escapeLabel(en)}`}"`;
+  return `[${node.children.map(textToMarkup).join("")}](${escapeHref(linkHref(node.link))}${title})`;
+}
 
-const inlineToMarkup = (children: RichTextInline[]) => children.map((node) => node.type === "text"
-  ? textToMarkup(node)
-  : `[${node.children.map(textToMarkup).join("")}](${escapeHref(linkHref(node.link))})`).join("");
+const inlineToMarkup = (children: RichTextInline[]) =>
+  children.map((node) => (node.type === "text" ? textToMarkup(node) : linkToMarkup(node))).join("");
 
 export function blocksToMarkup(blocks: RichTextBlock[]): string {
   return blocks.map((block) => {
@@ -74,72 +83,65 @@ function parseTexts(source: string): RichTextText[] {
   return out;
 }
 
-/** Link cũ (nhãn VI/EN riêng) được giữ nguyên khi đích và chữ hiển thị không đổi; mỗi link cũ dùng đúng một lần, theo thứ tự. */
-type KnownLink = { href: string; text: string; link: Link; used?: boolean };
-
-/** Vị trí ký tự đóng khớp với ký tự mở tại `start`, bỏ qua ký tự thoát; -1 nếu không có trên cùng dòng. */
+/** Vị trí ký tự đóng khớp với ký tự mở tại `start`, bỏ qua ký tự thoát và chuỗi trong ngoặc kép; -1 nếu không có trên cùng dòng. */
 function closing(source: string, start: number, open: string, close: string): number {
   let depth = 0;
+  let quoted = false;
   for (let i = start; i < source.length; i++) {
     const char = source[i];
     if (char === "\\") { i++; continue; }
     if (char === "\n") return -1;
-    if (char === open) depth++;
+    if (char === '"' && open === "(") quoted = !quoted;
+    else if (quoted) continue;
+    else if (char === open) depth++;
     else if (char === close && --depth === 0) return i;
   }
   return -1;
 }
 
-const unescape = (text: string) => text.replace(/\\([\s\S])/g, "$1");
+/** `đích "vi|en"` → đích + nhãn; không có nhãn → nhãn = chữ hiển thị. */
+function parseTarget(target: string, text: string): Link {
+  const titled = /^([\s\S]*?) "((?:\\[\s\S]|[^"\\])*)"$/.exec(target);
+  if (!titled) return hrefLink(unescape(target), { vi: text });
+  const [vi, en] = titled[2].split(/(?<!\\)\|/).map(unescape);
+  return hrefLink(unescape(titled[1]), en === undefined ? { vi } : { vi, en });
+}
 
-function parseInline(source: string, known: KnownLink[]): RichTextInline[] {
+function parseInline(source: string): RichTextInline[] {
   const out: RichTextInline[] = [];
   let plain = "";
   for (let i = 0; i < source.length; i++) {
     const char = source[i];
     if (char === "\\") { plain += source.slice(i, i + 2); i++; continue; }
     const textEnd = char === "[" ? closing(source, i, "[", "]") : -1;
-    const hrefEnd = textEnd > 0 && source[textEnd + 1] === "(" ? closing(source, textEnd + 1, "(", ")") : -1;
-    if (hrefEnd < 0) { plain += char; continue; }
+    const targetEnd = textEnd > 0 && source[textEnd + 1] === "(" ? closing(source, textEnd + 1, "(", ")") : -1;
+    if (targetEnd < 0) { plain += char; continue; }
     out.push(...parseTexts(plain));
     plain = "";
     const children = parseTexts(source.slice(i + 1, textEnd));
-    const href = unescape(source.slice(textEnd + 2, hrefEnd));
-    const text = children.map((child) => child.text).join("");
-    const reused = known.find((item) => !item.used && item.href === href && item.text === text);
-    if (reused) reused.used = true;
-    out.push({ type: "link", link: reused?.link ?? hrefLink(href, text), children });
-    i = hrefEnd;
+    out.push({ type: "link", link: parseTarget(source.slice(textEnd + 2, targetEnd), children.map((child) => child.text).join("")), children });
+    i = targetEnd;
   }
   out.push(...parseTexts(plain));
   return out;
 }
 
-function knownLinks(blocks: RichTextBlock[]): KnownLink[] {
-  const inlines = blocks.flatMap((block) => (block.type === "list" ? block.items.flat() : block.children));
-  return inlines.flatMap((node) => (node.type === "link"
-    ? [{ href: linkHref(node.link), text: node.children.map((child) => child.text).join(""), link: node.link }]
-    : []));
-}
-
-/** `previous`: dữ liệu trước khi sửa, để giữ metadata của link không đổi. */
-export function markupToBlocks(markup: string, previous: RichTextBlock[] = []): RichTextBlock[] {
-  const known = knownLinks(previous);
+export function markupToBlocks(markup: string): RichTextBlock[] {
   const blocks: RichTextBlock[] = [];
   for (const chunk of markup.replace(/\r\n?/g, "\n").split(/\n{2,}/)) {
     const lines = chunk.split("\n").filter((line) => line.trim() !== "");
     if (lines.length === 0) continue;
     const heading = /^(#{2,4}) ([\s\S]*)$/.exec(lines[0]);
     if (heading && lines.length === 1) {
-      blocks.push({ type: "heading", level: heading[1].length as 2 | 3 | 4, children: parseInline(heading[2], known) });
+      blocks.push({ type: "heading", level: heading[1].length as 2 | 3 | 4, children: parseInline(heading[2]) });
       continue;
     }
     const ordered = lines.every((line) => /^\d+\. /.test(line));
     if (ordered || lines.every((line) => line.startsWith("- "))) {
-      blocks.push({ type: "list", ordered, items: lines.map((line) => parseInline(line.replace(/^(\d+\.|-) /, ""), known)) });
+      blocks.push({ type: "list", ordered, items: lines.map((line) => parseInline(line.replace(/^(\d+\.|-) /, ""))) });
       continue;
     }
-    blocks.push({ type: "paragraph", children: parseInline(lines.join("\n"), known) });
+    blocks.push({ type: "paragraph", children: parseInline(lines.join("\n")) });
   }
   return blocks;
 }

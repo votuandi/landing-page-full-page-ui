@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { mediaSrc, type MediaRef } from "@solar/sections";
 import { describe } from "../schema/describe.ts";
-import { issuesUnder, pathKey } from "../schema/path.ts";
+import { pathKey } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps } from "../context.ts";
 import { describedBy, Errors, FieldShell, inputClass, SmallButton } from "../ui.tsx";
 import { Field, fieldId } from "../fields/Field.tsx";
@@ -25,7 +25,9 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
   const current = value ?? { id: "", alt: { vi: "" } };
   const src = mediaSrc(value);
   const idErrors = issues.get(pathKey([...path, "id"]));
-  const alt = describe((node.schema as unknown as { shape: { alt: never } }).shape.alt);
+  const shape = (node.schema as unknown as { shape: { alt: never; focal: never } }).shape;
+  const alt = describe(shape.alt);
+  const focal = describe(shape.focal);
   const pick = async () => {
     setPickError(null);
     try {
@@ -58,7 +60,7 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
             )}
           {pickers.media && <Errors errors={[...(idErrors ?? []), ...(pickError ? [pickError] : [])]} />}
           <Field node={alt} path={[...path, "alt"]} value={current.alt} label="Mô tả ảnh (alt)" />
-          <Errors errors={issuesUnder(issues, [...path, "focal"])} />
+          <Field node={focal} path={[...path, "focal"]} value={current.focal} label="Điểm lấy nét (0–1)" />
         </div>
       </div>
     </fieldset>

@@ -26,6 +26,8 @@ export type FormContext = {
   widgets: Partial<Record<string, WidgetComponent>>;
   labels: Partial<Record<string, string>>;
   update(path: Path, next: unknown): void;
+  /** Đường dẫn các ô đang giữ chữ sai kiểu (chưa ghi vào dữ liệu). */
+  inputErrorKeys: ReadonlySet<string>;
   /** Lỗi ô nhập chưa đổi được sang đúng kiểu; còn lỗi thì khóa nút lưu. */
   setInputError(key: string, message: string | null): void;
 };

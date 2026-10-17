@@ -158,9 +158,9 @@ test("richText: URL có ngoặc, số điện thoại có dấu cách và nhãn 
     { type: "paragraph" as const, children: [{ type: "link" as const, link: { kind: "phone" as const, value: "0901 234 567", label: { vi: "" } },
       children: [{ type: "text" as const, text: "gọi" }] }] },
   ];
-  assert.deepEqual(markupToBlocks(blocksToMarkup(blocks), blocks), blocks);
-  const edited = markupToBlocks(blocksToMarkup(blocks).replace("Xem ", "Mời xem "), blocks);
-  assert.equal(edited[0].type === "paragraph" && edited[0].children[1].type === "link" && edited[0].children[1].link, link);
+  assert.deepEqual(markupToBlocks(blocksToMarkup(blocks)), blocks);
+  const edited = markupToBlocks(blocksToMarkup(blocks).replace("Xem ", "Mời xem "));
+  assert.deepEqual(edited[0].type === "paragraph" && edited[0].children[1].type === "link" && edited[0].children[1].link, link);
   // Không có dữ liệu cũ: ngoặc trong URL người dùng gõ tay vẫn được đọc đúng.
   const typed = markupToBlocks("[a](https://x.vn/a_(b))");
   assert.equal(typed[0].type === "paragraph" && typed[0].children[0].type === "link" && typed[0].children[0].link.value, "https://x.vn/a_(b)");
@@ -181,4 +181,15 @@ test("richText: mọi loại link đi hai chiều", () => {
   ] }));
   assert.deepEqual(markupToBlocks(blocksToMarkup(blocks)), blocks);
   assert.ok(richText().safeParse({ vi: blocks }).success);
+});
+
+test("richText: xóa link đầu trong hai link trùng đích+chữ, link còn lại giữ nhãn của nó", () => {
+  const a = { kind: "page" as const, value: "bao-gia", label: { vi: "Nhãn A", en: "A" } };
+  const b = { kind: "page" as const, value: "bao-gia", label: { vi: "Nhãn B", en: "B|\"x\"" } };
+  const linkTo = (link: typeof a) => ({ type: "link" as const, link, children: [{ type: "text" as const, text: "Xem" }] });
+  const blocks = [{ type: "paragraph" as const, children: [linkTo(a), { type: "text" as const, text: " và " }, linkTo(b)] }];
+  const markup = blocksToMarkup(blocks);
+  assert.deepEqual(markupToBlocks(markup), blocks);
+  const removed = markupToBlocks(markup.slice(markup.indexOf(" và ") + 4));
+  assert.deepEqual(removed, [{ type: "paragraph", children: [linkTo(b)] }]);
 });
