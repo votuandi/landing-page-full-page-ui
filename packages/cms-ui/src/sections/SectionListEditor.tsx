@@ -34,6 +34,7 @@ const subscribeMotion = (notify: () => void) => {
 /** Controlled editor dùng chung CMS/wizard; chỉ phát descriptor, không chạm nội dung hay mạng. */
 export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId }: SectionListEditorProps) {
   const dndId = useId();
+  const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedQuery).matches, () => true);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
   const update = (from: number, to: number) => { if (can.reorder) onChange(move(value, from, to)); };
@@ -43,7 +44,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
       onDragEnd={({ active, over }) => { if (over && active.id !== over.id) update(value.findIndex(s => s.id === active.id), value.findIndex(s => s.id === over.id)); }}>
       <SortableContext items={value.map(s => s.id)} strategy={verticalListSortingStrategy}>
         <ol aria-label="Section của trang" className="space-y-3">
-          {value.map((section, index) => <SectionRow key={section.id} section={section} index={index} count={value.length} can={can}
+          {value.map((section, index) => <SectionRow key={section.id} section={section} index={index} count={value.length} can={can} reducedMotion={reduced}
             onMove={update} onToggle={() => onChange(toggle(value, section.id))}
             onVariant={variant => onChange(setVariant(value, section.id, variant))}
             onRemove={() => { if (window.confirm("Xóa section này? Nội dung được giữ lại.")) onChange(remove(value, section.id)); }} />)}
@@ -73,12 +74,12 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
   </div>;
 }
 
-function SectionRow({ section, index, count, can, onMove, onToggle, onVariant, onRemove }: {
+function SectionRow({ section, index, count, can, reducedMotion, onMove, onToggle, onVariant, onRemove }: {
   section: EditableSection; index: number; count: number; can: SectionListEditorProps["can"];
+  reducedMotion: boolean;
   onMove(from: number, to: number): void; onToggle(): void; onVariant(variant: string): void; onRemove(): void;
 }) {
-  const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedQuery).matches, () => true);
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: section.id, disabled: !can.reorder, ...(reduced ? { transition: null } : {}) });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: section.id, disabled: !can.reorder, ...(reducedMotion ? { transition: null } : {}) });
   const label = sectionRegistry.getType(section.type)?.meta.label.vi ?? section.type;
   const variants = sectionRegistry.variantsOf(section.type) ?? [];
   const selectId = useId();

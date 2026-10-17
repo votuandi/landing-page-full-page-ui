@@ -66,6 +66,31 @@ test("reorders with buttons", async () => {
   await click(button(container, /^Xuống dưới:.*\(hero\)$/));
   assert.deepEqual(last().map(s => s.id), ["calculator", "hero"]);
 });
+test("section rows share one motion listener and release it on unmount", async () => {
+  const original = window.matchMedia;
+  const listeners = new Set<EventListenerOrEventListenerObject>();
+  const query = {
+    matches: false, media: "(prefers-reduced-motion: reduce)",
+    addEventListener: (_: string, listener: EventListenerOrEventListenerObject) => { listeners.add(listener); },
+    removeEventListener: (_: string, listener: EventListenerOrEventListenerObject) => { listeners.delete(listener); },
+  };
+  window.matchMedia = (() => query) as unknown as typeof window.matchMedia;
+  let mounted: Mounted | undefined;
+  try {
+    mounted = await mount(<SectionListEditor value={initial} onChange={() => {}} can={{ reorder: true, variantSwitch: true }} allowedTypes={[]} />);
+    assert.equal(listeners.size, 1);
+    await act(async () => {
+      query.matches = true;
+      for (const listener of listeners) (listener as () => void)();
+    });
+    await act(async () => mounted!.root.render(<SectionListEditor value={[]} onChange={() => {}} can={{ reorder: true, variantSwitch: true }} allowedTypes={[]} />));
+    assert.equal(listeners.size, 1);
+    mounted.unmount(); mounted = undefined;
+    assert.equal(listeners.size, 0);
+  } finally {
+    mounted?.unmount(); window.matchMedia = original;
+  }
+});
 test("toggle, variant, add and confirmed remove keep section identity and content reference", async () => {
   const { container, last } = await render();
   await click(container.querySelector('[role="switch"]')!);
