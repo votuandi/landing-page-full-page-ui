@@ -50,6 +50,11 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - Story UI: tương phản, responsive 390/1440, reduced motion, bàn phím, nội dung khi tắt JS (chi tiết: `checklists.md`).
 - **Bảng case biên trong plan**: mỗi dòng có test tương ứng thật sự chạy và kiểm đúng hành vi; dòng thiếu → "Chưa cover".
 - **Report của người viết**: có dòng "Skill đã dùng" và mục "Tự review" (bước 4.5); thiếu → P2, ghi vào kết quả.
+  `node scripts/agents/run.mjs skills <ID>` báo skill bắt buộc người viết chưa mở / ghi "đã dùng" mà log không thấy → P2.
+- **Skill của reviewer** (như Claude): danh sách ở dòng `Skill review:` của prompt (từ `S.skills.review`; không có →
+  `story.mjs info <ID>`). Mở `.agents/skills/<tên>/SKILL.md` trước khi dùng — `ponytail-review` cho over-engineering,
+  `web-design-guidelines` cho story UI, `security-and-hardening` cho tenant/auth/upload; `codegraph impact` (CLI) cho
+  symbol công khai bị sửa. Ghi skill đã dùng vào cuối kết quả review.
 - Có thể chạy lệnh chỉ đọc (`git`, đọc file, chạy test nếu sandbox cho phép) để xác minh. Không xác minh được → ghi rõ
   "chưa xác minh".
 

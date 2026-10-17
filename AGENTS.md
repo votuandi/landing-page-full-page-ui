@@ -120,8 +120,10 @@ Mỗi story chạy bằng playbook **`/run-story <ID|next>`** trong Claude Code 
    review lại, lặp tới khi PR merge được (APPROVE, CI xanh, không conflict; chặn an toàn 5 vòng) rồi báo người dùng.
    **Không agent nào tự merge.**
 
-Skill đã cài trong `.agents/skills` (lý do chọn/bỏ: ADR D16, D22). **Bắt buộc** = phải dùng và ghi vào report mục
-`## Skill đã dùng` (`run.mjs verify` cảnh báo khi thiếu):
+Skill đã cài trong `.agents/skills` (lý do chọn/bỏ: ADR D16, D22). **Codex dùng skill như Claude**: danh sách theo vai
+(exec / tự review / sửa / review / plan) và loại story nằm ở `"skills"` trong `routing.json` (`story.mjs info` → `S.skills`),
+prompt giao việc in ra; Codex mở `.agents/skills/<tên>/SKILL.md` trước khi dùng; `run.mjs skills <ID>` đối chiếu log
+Codex. **Bắt buộc** = phải dùng và ghi vào report mục `## Skill đã dùng` (`run.mjs verify` cảnh báo khi thiếu):
 - Định vị code (bắt buộc): `codegraph` — `codegraph sync`, `codegraph explore|node|callers|impact` (index local
   `.codegraph/`, đặt `CODEGRAPH_TELEMETRY=0`). Câu hỏi kiến trúc dính tài liệu: `graphify` (`python -m graphify query`).
 - Plan (bắt buộc): mục "Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng" theo `roadmap/plans/README.md`;

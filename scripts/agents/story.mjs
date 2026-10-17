@@ -110,6 +110,10 @@ function describe(story, stories) {
   const other = (agent) => (agent === "claude" ? "codex" : "claude");
   const { mode, planMode, planBrief, architecture } = routeStory(story.id);
   const kind = mode === "codex" ? "logic" : "ui";
+  // Skill theo vai (exec/selfReview/fix/review/plan): phần "all" + theo kind + theo architecture.
+  const { whenRelevant = {}, ...roles } = routing.skills ?? {};
+  const skills = Object.fromEntries(Object.entries(roles).map(([role, by]) =>
+    [role, [...new Set([...(by.all ?? []), ...(by[kind] ?? []), ...(architecture ? by.architecture ?? [] : [])])]]));
   // split: Codex viết phần lớn code → tính là người viết; Claude làm design pass.
   const author = mode === "claude" ? "claude" : "codex";
   const parity = storyNum(story.id) % 2 === 1 ? "odd" : "even";
@@ -145,6 +149,7 @@ function describe(story, stories) {
       reReview: routing.codexEffort.reReview ?? "medium",
     },
     claudeReviewModel: routing.claudeReviewModel,
+    skills: { ...skills, whenRelevant },
     parity,
     reviewer,
     selfReviewConflict,

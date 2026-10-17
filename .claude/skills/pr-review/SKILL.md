@@ -35,7 +35,8 @@ codex exec -C "$(pwd)" -s read-only -c model_reasoning_effort=<vòng 1: S.codexE
 Diff: <vòng 1: git diff origin/<S.base>...origin/<branch> | vòng > 1: git diff <SHA vòng trước>..origin/<branch>, chỉ \
 soát phần sửa theo mục 'Vòng 1 và các vòng sau' của skill>. Vòng <n>.<nếu S.selfReviewConflict: Tự review.> \
 Liệt kê mọi issue (Finding) và mọi case chưa cover hết AC + yêu cầu của story (mục 'Chưa cover'). \
-Rà thêm over-engineering trên diff theo skill ponytail-review nếu có (tối đa P2 trừ khi gây lỗi).\
+Rà thêm over-engineering trên diff theo skill ponytail-review nếu có (tối đa P2 trừ khi gây lỗi). \
+Skill review: <S.skills.review> — mở .agents/skills/<tên>/SKILL.md trước khi dùng (codegraph là CLI).\
 <nếu CI đỏ: CI đang lỗi: <tên job + đuôi log>.>\
 <nếu n>1: Kiểm tra các finding và mục chưa cover của vòng trước trong <S.runDir>/review-r<n-1>.md đã được xử lý chưa.>" \
   < /dev/null > "<S.runDir>/review-r<n>.log" 2>&1
@@ -88,6 +89,7 @@ cover.
       -o "<S.runDir>/fix-r<n>.md" "Dùng skill solar-story-exec. Sửa các finding P0/P1 và mọi mục 'Chưa cover' \
     (trừ [ngoài agent]) trong <S.runDir>/review-r<n>.md cho story <ID> trên branch <branch>; mỗi case chưa cover phải \
     có code + test/bằng chứng.<nếu CI đỏ: Sửa lỗi CI: <tên job + đuôi log>.> Không làm thêm việc khác. \
+    Skill khi sửa: <S.skills.fix>; tự review: <S.skills.selfReview> — mở SKILL.md trước khi dùng. \
     Chạy lại lệnh kiểm tra trong <S.planFile>. Báo cáo: <S.runDir>/fix-r<n>-report.md" \
       < /dev/null > "<S.runDir>/fix-r<n>.log" 2>&1
     ```
