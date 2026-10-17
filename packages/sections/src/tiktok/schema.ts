@@ -5,7 +5,8 @@ import { storySource } from "../collections/schemas";
 import { segmentEnum } from "../shared/schema";
 import { tiktokFixture } from "./fixtures";
 
-const https = () => z.url().refine((value) => new URL(value).protocol === "https:", "HTTPS required");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 export const tiktokSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }), description: localized().optional(),
   profile: z.object({ handle: localized(), url: https() }).optional(),

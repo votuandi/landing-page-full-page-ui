@@ -5,12 +5,13 @@ import { localized, link } from "../fields";
 
 import { socialFixture } from "./fixtures";
 
-const https = () => z.url().refine((value) => new URL(value).protocol === "https:", "HTTPS required");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 export const socialSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }), description: localized().optional(),
   totalFollowers: z.number().int().nonnegative().optional(), totalFollowersLabel: localized({ max: 200 }).optional(),
   channels: z.array(z.object({ kind: z.enum(["facebook", "youtube", "tiktok", "zalo", "instagram"]), label: localized(), handle: localized().optional(),
-    url: z.union([https(), link().refine((value) => value.kind === "zalo", "Only Zalo links allowed")]), followers: z.string().max(60).optional() })).min(1).max(8),
+    url: z.union([https(), link().refine((value) => value.kind === "zalo", "Chỉ nhận liên kết Zalo")]), followers: z.string().max(60).optional() })).min(1).max(8),
 });
 
 export const social = defineSectionType({

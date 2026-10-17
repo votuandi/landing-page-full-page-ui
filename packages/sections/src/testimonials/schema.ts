@@ -8,7 +8,7 @@ import { testimonialsFixture } from "./fixtures";
 export const testimonialsSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }),
   query: collectionQuery("testimonials"), items: z.array(testimonialItem).max(48).default([]),
-  ratings: z.array(z.object({ label: localized(), score: z.number().min(0).max(5), count: z.number().int().nonnegative(), url: z.url().refine((url) => new URL(url).protocol === "https:") })).max(2), segmentLabels: segmentLabelsSchema,
+  ratings: z.array(z.object({ label: localized(), score: z.number().min(0).max(5), count: z.number().int().nonnegative(), url: z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" }) })).max(2), segmentLabels: segmentLabelsSchema,
 });
 
 export const testimonials = defineSectionType({

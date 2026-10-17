@@ -1,0 +1,6 @@
+{
+  "extends": "@solar/config/tsconfig.base.json",
+  "compilerOptions": { "target": "ES2020", "jsx": "react-jsx", "allowImportingTsExtensions": true, "lib": ["dom", "dom.iterable", "es2023"] },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
+}

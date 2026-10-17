@@ -1,0 +1,39 @@
+{
+  "name": "@solar/cms-ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:tokens": "solar-lint-tokens src",
+    "test": "node scripts/test.mjs"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "@solar/sections": "workspace:*",
+    "zod": "4.6.5"
+  },
+  "peerDependencies": {
+    "react": "19.2.8"
+  },
+  "devDependencies": {
+    "@solar/config": "workspace:*",
+    "@solar/eslint-plugin": "workspace:*",
+    "@types/jsdom": "21.1.7",
+    "@types/node": "20.19.37",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "eslint": "9.39.5",
+    "jsdom": "25.0.1",
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

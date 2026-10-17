@@ -4,12 +4,13 @@ import { localized, mediaRef } from "../fields";
 
 import { pressFixture } from "./fixtures";
 
-const https = () => z.url().refine((value) => new URL(value).protocol === "https:", "HTTPS required");
+// z.url kiểm protocol mà không ném lỗi với chuỗi đang nhập dở.
+const https = () => z.url({ protocol: /^https$/, error: "Chỉ nhận đường dẫn HTTPS" });
 export const pressSchema = z.object({
   eyebrow: localized({ max: 100 }), title: localized({ max: 200 }),
   outlets: z.array(z.object({ id: z.string().min(1).max(100), name: localized(), short: z.string().min(1).max(4), logo: mediaRef().optional() })).min(1).max(12),
   articles: z.array(z.object({ outletId: z.string().min(1).max(100), date: z.iso.date(), title: localized(), excerpt: localized(), url: https().optional() })).min(1).max(12),
-}).refine(({ outlets, articles }) => articles.every((a) => outlets.some((o) => o.id === a.outletId)), { message: "Unknown outlet", path: ["articles"] });
+}).refine(({ outlets, articles }) => articles.every((a) => outlets.some((o) => o.id === a.outletId)), { message: "Bài viết trỏ tới cơ quan báo chí chưa có trong danh sách", path: ["articles"] });
 
 export const press = defineSectionType({
   type: "press", schemaVersion: 1, schema: pressSchema,

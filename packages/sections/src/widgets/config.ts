@@ -15,7 +15,7 @@ export const siteWidgetsSchema = z.object({
   const dock = widgets["contact-dock"];
   if (dock?.enabled && widgets["mobile-bottom-nav"]?.enabled && dock.data && typeof dock.data === "object"
     && "mobileBar" in dock.data && dock.data.mobileBar === true) {
-    ctx.addIssue({ code: "custom", path: ["contact-dock", "data", "mobileBar"], message: "Mobile bars cannot overlap" });
+    ctx.addIssue({ code: "custom", path: ["contact-dock", "data", "mobileBar"], message: "Hai thanh dưới cùng trên di động không được bật cùng lúc" });
   }
 });
 export type SiteWidgetsConfig = z.output<typeof siteWidgetsSchema>;

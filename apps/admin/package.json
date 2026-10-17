@@ -17,6 +17,8 @@
     "@solar/core": "workspace:*",
     "@solar/plans": "workspace:*",
     "@solar/ui": "workspace:*",
+    "@solar/sections": "workspace:*",
+    "@solar/cms-ui": "workspace:*",
     "@solar/tokens": "workspace:*",
     "@solar/themes": "workspace:*",
     "next": "16.3.8",

@@ -25,6 +25,7 @@
     "@solar/themes": "workspace:*",
     "@solar/tokens": "workspace:*",
     "@solar/sections": "workspace:*",
+    "@solar/cms-ui": "workspace:*",
     "zod": "4.6.5",
     "@solar/plans": "workspace:*",
     "@solar/cache": "workspace:*"
