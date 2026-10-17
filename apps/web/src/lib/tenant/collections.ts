@@ -6,8 +6,9 @@ import type { TenantRepo } from "@solar/db";
 import type { Product } from "../../data/products";
 import { contentImage, parseContent, postSchema, productSchema, projectSchema, serviceSchema, text, textValue } from "./contentSchemas";
 import { tenantRepository } from "./siteData";
+import { COLLECTIONS } from "./cacheTags";
 
-export type Collection = "product" | "productCategory" | "brand" | "project" | "post" | "story" | "testimonial" | "branch" | "faq" | "service" | "certificate" | "pressItem";
+export type Collection = typeof COLLECTIONS[number];
 type RecordRow = { id: string; slug: string; title: unknown; data: unknown; price?: number | null; salePrice?: number | null; featured?: boolean; kwp?: number | null; segment?: string | null; segments?: string[]; kind?: string; rating?: number; isPrimary?: boolean };
 const segment = z.enum(["household", "shop", "factory", "farm"]);
 const media = (id: string, title: string) => ({ id, alt: { vi: title } });

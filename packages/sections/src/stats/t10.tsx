@@ -1,3 +1,4 @@
+import { currentYear } from "@solar/core";
 import type { SectionPropsOf } from "../define";
 import { pickLocale } from "../fields";
 import type { stats } from "./schema";
@@ -6,7 +7,7 @@ import StatsT10Counter from "./t10.client";
 /** Stats t10 (Counters): dải primary 4 cột, số đếm khi vào màn hình; `title` là chú thích nhỏ dưới số liệu. */
 export default function StatsT10({ data, site, sectionId }: SectionPropsOf<typeof stats>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
-  const year = new Date().getFullYear();
+  const year = currentYear();
   return (
     <section aria-labelledby={data.eyebrow ? `${sectionId}-title` : undefined} className="bg-primary-strong py-12 text-on-primary">
       <div className="t15-container">

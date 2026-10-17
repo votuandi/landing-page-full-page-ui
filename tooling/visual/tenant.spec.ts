@@ -130,7 +130,7 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
   await expect(page.getByRole("dialog")).toContainText("Demo t15");
   await page.keyboard.press("Escape");
   await page.goto(`${origin("t15")}/tin-tuc`);
-  await page.locator(`main a[href="/tin-tuc/${postSlug}"]`).click();
+  await page.locator(`main:visible a[href="/tin-tuc/${postSlug}"]`).click();
   await expect(page).toHaveURL(`${origin("t15")}/tin-tuc/${postSlug}`);
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${origin("t15")}/tin-tuc/${postSlug}`);
@@ -150,14 +150,17 @@ test("catalog filters, quick view, quote cart, guide anchors and client navigati
 test("JS disabled and reduced motion preserve SSR content", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
   const page = await context.newPage();
+  // SSR text is the subject here: waiting for `load` also waits on `next dev` image optimisation, which can hang
+  // on CI (run 39011394788 trace: document 200 in 0.7 s, one /_next/image request never finished).
+  const open = async (url: string) => expect((await page.goto(url, { waitUntil: "domcontentloaded" }))?.status()).toBe(200);
   for (const id of ["t15", "t12"]) {
-    await page.goto(origin(id));
+    await open(origin(id));
     await expect(page.locator("h1").first()).toBeVisible();
     await expect(page.locator("main")).toContainText(`Demo ${id}`);
-    await page.goto(`${origin(id)}/san-pham`);
+    await open(`${origin(id)}/san-pham`);
     await expect(page.locator("main article").first()).toBeVisible();
     for (const path of [`/san-pham/${productSlug}`, `/tin-tuc/${postSlug}`, `/cong-trinh/${projectSlug}`, "/giai-phap/solar-gia-dinh", "/cam-nang", "/ve-chung-toi", "/lien-he"]) {
-      await page.goto(origin(id) + path);
+      await open(origin(id) + path);
       await expect(page.locator("main h1")).toBeVisible();
       if (["/lien-he", "/giai-phap/solar-gia-dinh"].includes(path)) await expect(page.locator('main form input[name="phone"]')).toBeVisible();
     }
@@ -224,10 +227,14 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
       for (const client of [false, true]) {
         if (client) {
           await page.goto(url + from, { waitUntil: "networkidle" });
-          await page.locator(`main a[href="${path}"]`).first().click();
+          await page.locator(`main:visible a[href="${path}"]`).first().click();
           await expect(page).toHaveURL(url + path);
         } else expect((await page.goto(url + path))?.status()).toBe(200);
-        await expect(page.locator("main h1")).toHaveText(title);
+        // Cache Components keeps the previous page mounted in a hidden React Activity.
+        await expect(page.locator("main:visible h1")).toHaveText(title);
+        for (const selector of ['title', 'meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:url"]']) {
+          await expect(page.locator(selector)).toHaveCount(1);
+        }
         await expect(page).toHaveTitle(fullTitle);
         await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", description);
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", fullTitle);
@@ -279,28 +286,39 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
   });
   test("locale switch refreshes records, chrome, widgets and metadata on reload and client navigation", async ({ page }) => {
     for (const [path, title] of [["/san-pham", "Products"], ["/tin-tuc", "News"], ["/giai-phap", "Solutions"], ["/cam-nang", "English cam-nang"], ["/ve-chung-toi", "English ve-chung-toi"], ["/lien-he", "English lien-he"], ["/uu-dai/nang-luong", "English uu-dai/nang-luong"]]) {
-      await page.goto(url + path, { waitUntil: "networkidle" });
+      const response = await page.goto(url + path, { waitUntil: "networkidle" });
+      // A DB/SSR 500 has no title: surface its status immediately instead of timing out on metadata (E5-S06 r1).
+      expect(response?.status(), path).toBe(200);
       await expect(page).toHaveTitle(new RegExp(title));
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English description");
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url + path);
     }
     await page.goto(url + "/tin-tuc/review-post", { waitUntil: "networkidle" });
-    await expect(page.locator("main h1")).toHaveText("English post");
-    await expect(page.locator("main")).toContainText("English post body");
+    await expect(page.locator("main:visible h1")).toHaveText("English post");
+    await expect(page.locator("main:visible")).toContainText("English post body");
     await expect(page.getByRole("link", { name: "Estimate costs" })).toBeVisible();
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English excerpt");
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "en_US");
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", url + "/images/illustrations/home-solar.webp");
     await page.getByRole("button", { name: "vi", exact: true }).click();
-    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Mô tả VI");
     await expect(page.getByRole("navigation", { name: "Điều hướng chính" })).toBeVisible();
     await page.reload();
-    await expect(page.locator("main h1")).toHaveText("Bài viết VI");
+    await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI");
     await page.locator('header a[href="/"]').click();
-    await expect(page.locator("main")).toContainText("Tiêu đề VI");
+    await expect(page).toHaveURL(url + "/");
+    await expect(page.locator("main:visible")).toContainText("Tiêu đề VI");
+    for (const selector of ['title', 'link[rel="canonical"]', 'meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:locale"]', 'meta[property="og:url"]']) {
+      await expect(page.locator(selector)).toHaveCount(1);
+    }
+    await expect(page).toHaveTitle("Trang chủ VI | [DỮ LIỆU MẪU] Công ty điện mặt trời với tên rất dài để kiểm tra menu");
+    // Home canonical/og:url is the bare origin, as in the A/B/A/B test above.
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url);
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "vi_VN");
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url);
     await page.getByRole("button", { name: "en", exact: true }).click();
-    await expect(page.locator("main")).toContainText("English hero");
+    await expect(page.locator("main:visible")).toContainText("English hero");
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
   });
   for (const width of [390, 1440]) {

@@ -34,7 +34,7 @@ test("preview requires a tenant/site MAC cookie; entry bypasses cookie and every
   assert.equal(entry.headers.get("x-middleware-request-x-preview"), "1");
   assert.equal(entry.headers.has("x-middleware-rewrite"), false);
   const response = await preview(request(record.hostname, "/lien-he", { cookie: `preview=${await signPreviewCookie("tenant-a", "site-a")}` }));
-  assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, "/sites/site-a/lien-he");
+  assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, "/sites/tenant-a/site-a/draft.auto/lien-he");
   assert.equal(response.headers.get("x-middleware-request-x-preview"), "1");
   const publicResponse = await proxy(request("a.localhost", "/", { "x-preview": "1" }));
   assert.equal(publicResponse.headers.get("x-middleware-request-x-preview"), null);
@@ -44,7 +44,7 @@ test("three hosts select three tenants and keep path and search in the rewrite",
   for (const record of records) {
     const response = await proxy(request(record.hostname, "/cong-trinh/demo?q=1"));
     assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).origin, "http://untrusted.localhost", "keep Next's origin for an internal rewrite");
-    assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, `/sites/${record.siteId}/cong-trinh/demo`);
+    assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, `/sites/${record.tenantId}/${record.siteId}/auto/cong-trinh/demo`);
     assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).search, "?q=1");
     assert.equal(response.headers.get("x-middleware-request-x-tenant-id"), record.tenantId);
     assert.equal(response.headers.get("x-middleware-request-x-site-id"), record.siteId);
@@ -58,7 +58,7 @@ test("spoofed tenant and forwarded host headers cannot select another site", asy
   }));
   assert.equal(response.headers.get("x-middleware-request-x-tenant-id"), "tenant-a");
   assert.equal(response.headers.get("x-middleware-request-x-site-id"), "site-a");
-  assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, "/sites/site-a/");
+  assert.equal(new URL(response.headers.get("x-middleware-rewrite")!).pathname, "/sites/tenant-a/site-a/auto/");
   assert.equal((await proxy(new NextRequest("http://a.localhost/"))).status, 404, "URL host is never a Host fallback");
 });
 
@@ -132,6 +132,15 @@ test("canonical redirects keep the request port in development and omit it in pr
     assert.equal(response.headers.get("cache-control"), "public, max-age=300");
     assert.equal(response.headers.get("location"), production ? "https://a.localhost/lien-he?x=1" : "http://a.localhost:3210/lien-he?x=1");
   }
+});
+
+test("locale cookie and robots/sitemap select the internal tenant path", async () => {
+  const path = async (url: string, cookie?: string) => new URL((await proxy(request("a.localhost", url, cookie ? { cookie } : {}))).headers.get("x-middleware-rewrite")!).pathname;
+  assert.equal(await path("/lien-he", "solar-locale=en"), "/sites/tenant-a/site-a/en/lien-he");
+  assert.equal(await path("/lien-he", "solar-locale=vi"), "/sites/tenant-a/site-a/vi/lien-he");
+  assert.equal(await path("/lien-he", "solar-locale=../x"), "/sites/tenant-a/site-a/auto/lien-he");
+  assert.equal(await path("/robots.txt", "solar-locale=en"), "/sites/tenant-a/site-a/robots.txt");
+  assert.equal(await path("/sitemap.xml"), "/sites/tenant-a/site-a/sitemap.xml");
 });
 
 test("API keeps its route and receives only the resolved tenant headers", async () => {

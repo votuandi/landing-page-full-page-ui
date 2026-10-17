@@ -6,13 +6,14 @@ export function summarize(samples) {
   const sorted = [...samples].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return { median: sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2,
-    p90: sorted[Math.ceil(sorted.length * 0.9) - 1] };
+    p90: sorted[Math.ceil(sorted.length * 0.9) - 1], p95: sorted[Math.ceil(sorted.length * 0.95) - 1] };
 }
 
 export function measure(url) {
   return new Promise((resolve, reject) => {
     const start = performance.now();
-    const req = (new URL(url).protocol === "https:" ? secureRequest : request)(url, (res) => {
+    // Match the curl content gate: an absent User-Agent bypasses Next's htmlLimitedBots and can time a streamed shell.
+    const req = (new URL(url).protocol === "https:" ? secureRequest : request)(url, { headers: { "user-agent": "solar-ttfb", accept: "text/html" } }, (res) => {
       const elapsed = performance.now() - start;
       res.resume();
       if (res.statusCode !== 200) reject(new Error(`${url}: HTTP ${res.statusCode}`));
@@ -36,7 +37,8 @@ async function main() {
   const old = summarize(left), current = summarize(right);
   console.log(JSON.stringify({ n, a: { url: a, ...old }, b: { url: b, ...current },
     medianChangePercent: (current.median / old.median - 1) * 100,
-    p90ChangePercent: (current.p90 / old.p90 - 1) * 100 }, null, 2));
+    p90ChangePercent: (current.p90 / old.p90 - 1) * 100,
+    p95ChangePercent: (current.p95 / old.p95 - 1) * 100 }, null, 2));
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => { console.error(error.message); process.exitCode = 1; });

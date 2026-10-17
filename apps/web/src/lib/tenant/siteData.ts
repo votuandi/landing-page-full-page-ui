@@ -1,6 +1,5 @@
 import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
-import { cookies } from "next/headers";
 import { forTenant, withTenantTransaction, loadDisabledFeatures, type TenantRepo } from "@solar/db";
 import { getTheme } from "@solar/themes";
 import { ThemeOverridesSchema } from "@solar/tokens";
@@ -95,10 +94,11 @@ export function selectSiteLocale(locales: ("vi" | "en")[], defaultLocale: string
   if ((requested === "vi" || requested === "en") && locales.includes(requested)) return requested;
   return locales.includes(defaultLocale as "vi" | "en") ? defaultLocale as "vi" | "en" : locales[0] ?? "vi";
 }
-export const loadTenantSite = cache(async (tenantId: string, siteId: string) => {
+/** `requestedLocale` comes from the proxy's path segment (E5-S06), never from cookies, so callers can be cached. */
+export const loadTenantSite = cache(async (tenantId: string, siteId: string, requestedLocale?: string) => {
   const site = await data.loadTenantSite(tenantId, siteId);
   if (!site) return null;
-  const locale = selectSiteLocale(site.locales, site.locale, (await cookies()).get("solar-locale")?.value);
+  const locale = selectSiteLocale(site.locales, site.locale, requestedLocale);
   return { ...site, locale, context: { ...site.context, locale } };
 });
 export const loadPublishedPage = cache(data.loadPublishedPage);

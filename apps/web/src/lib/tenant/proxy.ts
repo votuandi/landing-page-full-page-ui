@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { normalizeHost } from "./host";
 import type { HostLookup } from "./resolver";
 import { previewSlug, previewCookieName, verifyPreviewCookie } from "./preview";
+import { cookieLocale, formatTenantContext } from "./routeContext";
+
+/** Internal page path: tenant, site, locale and preview live in the URL so pages can be cached (E5-S06). */
+export function tenantRewritePath(request: NextRequest, record: { tenantId: string; siteId: string }, preview: boolean) {
+  const { pathname, search } = request.nextUrl;
+  const base = `/sites/${encodeURIComponent(record.tenantId)}/${encodeURIComponent(record.siteId)}`;
+  if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return `${base}${pathname}${search}`;
+  return `${base}/${formatTenantContext({ locale: cookieLocale(request.cookies.get("solar-locale")?.value), preview })}${pathname}${search}`;
+}
 
 export function createProxy(resolver: { resolve: HostLookup }, { enabled, production = process.env.NODE_ENV === "production" }: { enabled: boolean; production?: boolean }) {
   return async function route(request: NextRequest) {
@@ -48,7 +57,7 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
         return protect(new NextResponse("Phiên xem trước đã hết hạn — mở lại từ trang quản trị.", { status: 401 }));
       }
       if (pathname === "/api" || pathname.startsWith("/api/")) return protect(NextResponse.next({ request: { headers } }));
-      return protect(NextResponse.rewrite(new URL(`/sites/${encodeURIComponent(record.siteId)}${pathname}${search}`, request.url), { request: { headers } }));
+      return protect(NextResponse.rewrite(new URL(tenantRewritePath(request, record, true), request.url), { request: { headers } }));
     }
     if (!record.isPrimary && record.primaryHost && record.primaryHost !== host) {
       const primary = normalizeHost(record.primaryHost);
@@ -63,7 +72,6 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     headers.set("x-site-id", record.siteId);
     if (pathname === "/api" || pathname.startsWith("/api/")) return NextResponse.next({ request: { headers } });
     // Keep Next's internal origin so this stays a local rewrite, even for custom Host.
-    const destination = new URL(`/sites/${encodeURIComponent(record.siteId)}${pathname}${search}`, request.url);
-    return NextResponse.rewrite(destination, { request: { headers } });
+    return NextResponse.rewrite(new URL(tenantRewritePath(request, record, false), request.url), { request: { headers } });
   };
 }

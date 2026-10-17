@@ -1,10 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { siteConfig, type Text } from "@/config/site.config";
 import { pickText, type Lang } from "@/i18n/text";
 import { onSetSiteLocale } from "@solar/sections";
-import { useRouter } from "next/navigation";
 
 export type { Lang };
 const STORAGE_KEY = "t15-lang";
@@ -30,7 +29,6 @@ const legacyLocales: Lang[] = siteConfig.i18n.enabled ? ["vi", "en"] : [siteConf
 export function LangProvider({ children, defaultLocale = siteConfig.i18n.defaultLang, locales = legacyLocales, serverLocale = false }: { children: React.ReactNode; defaultLocale?: Lang; locales?: Lang[]; serverLocale?: boolean }) {
   const [legacyLang, setLangState] = useState<Lang>(defaultLocale);
   const lang = serverLocale ? defaultLocale : legacyLang;
-  const router = useRouter();
 
   useEffect(() => {
     if (serverLocale || locales.length < 2) return;
@@ -48,10 +46,12 @@ export function LangProvider({ children, defaultLocale = siteConfig.i18n.default
     try { localStorage.setItem(STORAGE_KEY, next); } catch {}
     if (serverLocale) {
       document.cookie = `solar-locale=${next}; Path=/; SameSite=Lax; Max-Age=31536000`;
-      router.refresh();
+      // The locale is a root param of the tenant tree (E5-S06): changing it swaps the root layout, so reload the document.
+      window.location.reload();
     }
-  }, [locales, serverLocale, router]);
-  useEffect(() => onSetSiteLocale(setLang), [setLang]);
+  }, [locales, serverLocale]);
+  // Hydration can replay a header click before passive effects register the event bridge.
+  useLayoutEffect(() => onSetSiteLocale(setLang), [setLang]);
 
   const value = useMemo<LangContextValue>(() => ({ lang, setLang, tr: (text, en) => pickText(text, lang, en) }), [lang, setLang]);
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;

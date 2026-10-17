@@ -11,7 +11,7 @@ CMS chỉ hiện form của section có trong cấu hình.
 
 ---
 
-### E7-S01 · Đăng nhập site admin & phân quyền theo site
+### E7-S01 · Đăng nhập site admin & phân quyền theo site ✅ · PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42)
 **Là** chủ doanh nghiệp, **tôi muốn** đăng nhập CMS của site mình bằng email hoặc số điện thoại và mời nhân viên với quyền
 hạn chế, **để** an toàn.
 - **Chi tiết** (dùng `packages/auth` của E15-S01, realm `site`):

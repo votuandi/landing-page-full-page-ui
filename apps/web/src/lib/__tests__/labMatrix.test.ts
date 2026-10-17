@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { selectLabIds, labPalette } from "../../app/lab/sections/matrix-data";
+import { selectLabIds, labPalette } from "../../app/(site)/lab/sections/matrix-data";
 
 test("query lọc, bỏ trùng và dùng mọi id khi không có lựa chọn hợp lệ", () => {
   assert.deepEqual(selectLabIds("t15,unknown,t15,t08", ["t08", "t15"]), ["t15", "t08"]);

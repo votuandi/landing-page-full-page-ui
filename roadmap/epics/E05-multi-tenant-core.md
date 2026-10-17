@@ -153,10 +153,25 @@ cache + bản bộ nhớ, E10-S03 cài bản Redis theo hợp đồng đó.
   `cacheLife` + tag; đối số của hàm cache luôn có `siteId`, `locale` (đúng khóa ở S05); phần phụ thuộc request (draft mode,
   giỏ) nằm trong `<Suspense>`. Chính sách CSP phải tương thích render tĩnh (E14-S04 — không dùng nonce theo request).
   Trang tenant gắn thêm `PAGE_TAGS` (`platform:entitlements`, export ở `apps/web/src/lib/tenant/entitlements.ts`, E6-S02/D19).
-- **AC**: [ ] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [ ] TTFB không kém S05 · [ ] Test cùng slug ở S05 vẫn qua.
+- **AC**: [x] `next build` không còn route "blocking" ngoài danh sách đã duyệt · [x] TTFB không kém S05 · [x] Test cùng slug ở S05 vẫn qua.
+  - PR [#43](https://github.com/votuandi/landing-page-full-page-ui/pull/43): build/typecheck/lint/unit test và token lint qua;
+    danh sách blocking ở `apps/web/README.md` gồm layout + page tenant (validation từng segment) và lab.
+    TTFB: workflow `ttfb-compare` run [38908083866](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/38908083866)
+    (Postgres seed, gate HTML đúng tenant, n=50, median base → head): `/` 38.8 → 35.5 ms (−8.5%), `/lien-he` 13.2 → 13.3 ms
+    (+1.1%), `/san-pham` 16.1 → 15.6 ms (−3.3%). Test cùng slug: CI job `db` run [38917618563](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/38917618563)
+    (`revalidate.int` hai tenant cùng slug trên Postgres, e2e tenant + preview Chromium/WebKit/Firefox) xanh.
+  - Sửa review r1 local (17/10/2026): cache page chung routing/metadata/JSX, key có snapshot kill switch;
+    reveal không đổi thuộc tính DOM/React internals; locale bridge đăng ký layout effect. Turbo 46/46,
+    tenant DB 98/98 (0 skip), build/token lint qua; production 6/6, preview Chromium/WebKit/Firefox 6/6.
+    TTFB tại HEAD sau sửa (`fb5d478`), CI Linux `ttfb-compare` run [39008188688](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/39008188688),
+    n=50, median base → head (p95 head): `/` 42.3 → 37.0 ms (−12.3%; 42.5), `/lien-he` 13.2 → 13.4 (+0.9%; 16.8),
+    `/san-pham` 14.0 → 14.2 (+1.6%; 17.6). Đo local Windows (Node 22) cho head chậm hơn (contact +60,8%) nhưng không lặp lại
+    trên Linux CI — môi trường đo của AC; số local giữ trong `.agent-runs/E5-S06/fix-r1-report.md`.
+    Lỗi CI cũ `/ve-chung-toi` HTTP 500 (Prisma P2028): job `db` run [39008186791](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/39008186791)
+    chạy 3 lần liên tiếp tại `fb5d478`, mỗi lần tenant 28/28, preview 6/6, production 6/6, admin 4/4, 0 flaky, 0 P2028.
 - Phụ thuộc: S05, E1-S03 · Agent: Codex (review Claude) · Cỡ: M
 
-### E5-S07 · Draft, preview & xuất bản nhất quán
+### E5-S07 · Draft, preview & xuất bản nhất quán ✅ · PR [#42](https://github.com/votuandi/landing-page-full-page-ui/pull/42)
 **Là** tenant, **tôi muốn** xem trước thay đổi trước khi xuất bản, **để** không làm hỏng site đang chạy.
 - **Chi tiết**:
   - Preview **luôn chạy trên subdomain nền tảng** `<slug>.preview.<platform>` (cùng site với `admin.<platform>`), không chạy

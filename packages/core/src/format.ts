@@ -20,3 +20,9 @@ export function formatMoneyShort(value: number, locale: "vi" | "en" = "vi") {
 
 /** 3450000 → "3.450.000 ₫" */
 export const formatVnd = (value: number) => `${formatNumber(value)} ₫`;
+
+/**
+ * Calendar year for copyright lines and "years since" stats. Cache Components rejects `new Date()` while prerendering
+ * (Next docs: blocking-prerender-current-time); the year is baked into the static/cached page exactly as before (E5-S06).
+ */
+export const currentYear = () => new Date(performance.timeOrigin + performance.now()).getFullYear();

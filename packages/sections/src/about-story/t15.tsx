@@ -1,3 +1,4 @@
+import { currentYear } from "@solar/core";
 import { SectionHead, MediaImage } from "@solar/ui";
 import { pickLocale } from "../fields";
 import type { SectionPropsOf } from "../define";
@@ -16,7 +17,7 @@ export default function AboutStoryT15({ data, site, sectionId }: SectionPropsOf<
           <SectionHead id={sectionId + "-title"} eyebrow={t(data.eyebrow)} title={t(data.title)} />
           <div className="mt-4 text-sm leading-7 text-fg-muted"><RichText value={data.body} locale={site.locale} /></div>
           <dl className="mt-8 grid grid-cols-2 gap-4">{data.stats.map((stat, i) => <div key={i} className="t15-card p-6">
-            <dd className="text-3xl font-black text-primary">{new Intl.NumberFormat(site.locale, { maximumFractionDigits: 1 }).format(stat.value ?? Math.max(0, new Date().getFullYear() - stat.sinceYear!))}{stat.suffix && t(stat.suffix)}</dd>
+            <dd className="text-3xl font-black text-primary">{new Intl.NumberFormat(site.locale, { maximumFractionDigits: 1 }).format(stat.value ?? Math.max(0, currentYear() - stat.sinceYear!))}{stat.suffix && t(stat.suffix)}</dd>
             <dt className="mt-1 text-sm text-fg-muted">{t(stat.label)}</dt>
           </div>)}</dl>
           <div className="mt-8 flex flex-wrap gap-3">{data.ctas.map((cta, i) => <SectionLink key={i} link={cta} locale={site.locale} className={`t15-button ${i === 0 ? "t15-button-accent" : "t15-button-secondary"}`} />)}</div>

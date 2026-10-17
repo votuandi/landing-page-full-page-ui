@@ -80,6 +80,12 @@ jobs:
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
+      - name: Build tenant production app once
+        run: pnpm --filter web build
+        env:
+          MULTI_TENANT: "1"
+      - name: Verify production cache invalidation, isolation, preview and reveal
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.production.config.ts
       - run: pnpm --filter admin test
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
       - uses: actions/upload-artifact@v4
@@ -90,6 +96,7 @@ jobs:
             tooling/visual/test-results/tenant
             tooling/visual/test-results/preview
             tooling/visual/test-results/admin
+            tooling/visual/test-results/production
   verify:
     strategy:
       fail-fast: false

@@ -1,3 +1,4 @@
+import { currentYear } from "@solar/core";
 /**
  * Lớp dẫn xuất từ src/config/site.config.ts — KHÔNG chứa dữ liệu công ty.
  * Muốn đổi tên, hotline, địa chỉ… hãy sửa site.config.ts.
@@ -71,7 +72,7 @@ export const isDistributor = siteMode === "installer_distributor";
 export const catalogEnabled = isDistributor && siteConfig.catalog.enabled;
 
 /** Số năm kinh nghiệm luôn tính theo năm hiện tại. */
-export const yearsOfExperience = () => new Date().getFullYear() - siteConfig.brand.foundedYear;
+export const yearsOfExperience = () => currentYear() - siteConfig.brand.foundedYear;
 
 /**
  * Bộ màu thử nhanh trong thanh demo. Giá trị là kênh "R G B" ghi đè token --c-primary / --c-secondary / --c-accent.

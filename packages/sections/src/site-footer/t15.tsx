@@ -1,5 +1,5 @@
 import { CheckBadgeIcon, ExclamationCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
-import { normalizeVnPhone } from "@solar/core";
+import { normalizeVnPhone, currentYear } from "@solar/core";
 import { FacebookIcon, TikTokIcon, YouTubeIcon, ZaloIcon } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
 import { pickLocale } from "../fields";
@@ -101,7 +101,7 @@ export default function SiteFooterT15({ data, site }: SectionPropsOf<typeof site
       </div>
       <div className="relative border-t border-line/12">
         <div className="t15-container flex flex-col gap-2 py-5 pb-28 text-xs text-fg-muted md:flex-row md:justify-between lg:pb-5">
-          <span>© {new Date().getFullYear()} {brand.name}.{data.disclaimer[0] && <> {t(data.disclaimer[0])}</>}</span>
+          <span>© {currentYear()} {brand.name}.{data.disclaimer[0] && <> {t(data.disclaimer[0])}</>}</span>
           {data.disclaimer.slice(1).map((line, i) => <span key={i}>{t(line)}</span>)}
         </div>
       </div>

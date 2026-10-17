@@ -1,15 +1,9 @@
-import { headers } from "next/headers";
 import { PAGE_TYPES } from "@solar/presets";
-import { loadTenantSite, listPublishedPages, siteCanUse, type TenantSite } from "./siteData";
+import { listPublishedPages, siteCanUse, type TenantSite } from "./siteData";
 import { tenantCollections, type TenantCollections } from "./collections";
 import { sitemapPaths } from "./seo";
 import { resolveRoute, routeEnabled } from "./routes";
 
-export async function requestSite(siteId: string) {
-  const request = await headers();
-  if (request.get("x-site-id") !== siteId) return null;
-  return loadTenantSite(request.get("x-tenant-id") ?? "", siteId);
-}
 export async function collectSitemapPaths(site: Pick<TenantSite, "tenantId" | "siteId" | "profile" | "entitlements" | "pageTypes">, collections: TenantCollections, pages: { slug: string; kind: string }[]) {
   // Same structure/plan rule as the page dispatcher (E5-S11): closed pages never reach the sitemap.
   const canUse = siteCanUse(site);
