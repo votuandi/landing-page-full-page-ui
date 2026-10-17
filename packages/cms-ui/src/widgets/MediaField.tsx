@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { mediaSrc, type MediaRef } from "@solar/sections";
 import { describe } from "../schema/describe.ts";
 import { issuesUnder, pathKey } from "../schema/path.ts";
@@ -9,6 +10,7 @@ import { Field, fieldId } from "../fields/Field.tsx";
 
 export function MediaField({ node, path, value, label }: FieldProps<MediaRef | undefined>) {
   const { idPrefix, issues, update, pickers } = useSchemaForm();
+  const [failed, setFailed] = useState<string | null>(null);
   if (node.kind !== "widget") return null;
   const id = fieldId(idPrefix, [...path, "id"]);
   const current = value ?? { id: "", alt: { vi: "" } };
@@ -20,12 +22,14 @@ export function MediaField({ node, path, value, label }: FieldProps<MediaRef | u
     if (picked) update(path, picked);
   };
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label}</legend>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="flex aspect-video w-full shrink-0 items-center justify-center overflow-hidden rounded-media bg-bg-tint text-xs text-fg-subtle sm:w-40">
-          {/* eslint-disable-next-line @next/next/no-img-element -- ảnh xem trước trong CMS, không cần tối ưu */}
-          {src ? <img src={src} alt="" className="size-full object-cover" /> : current.id ? "Ảnh trong thư viện" : "Chưa có ảnh"}
+          {src && failed !== src
+            // eslint-disable-next-line @next/next/no-img-element -- ảnh xem trước trong CMS, không cần tối ưu
+            ? <img src={src} alt="" className="size-full object-cover" onError={() => setFailed(src)} />
+            : current.id ? "Không xem trước được" : "Chưa có ảnh"}
         </div>
         <div className="min-w-0 flex-1 space-y-3">
           {pickers.media

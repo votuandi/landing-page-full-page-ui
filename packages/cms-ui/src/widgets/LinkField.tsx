@@ -28,7 +28,7 @@ export function LinkField({ node, path, value, label }: FieldProps<Link | undefi
   const pages = current.kind === "page" ? pickers.pages : undefined;
   const set = (patch: Partial<Link>) => update(path, { ...current, ...patch });
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label}</legend>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
         <FieldShell id={kindId} label="Khi bấm">

@@ -26,7 +26,20 @@ const LABELS: Record<string, string> = {
   bill: "Hóa đơn điện (đ/tháng)", roof: "Diện tích mái (m²)", defaultProvince: "Tỉnh/thành mặc định", tips: "Mẹo",
   resultTitle: "Tiêu đề kết quả", disclaimer: "Lưu ý miễn trừ", formTitle: "Tiêu đề form", formDescription: "Mô tả form",
   successText: "Thông báo gửi thành công", privacyNote: "Ghi chú bảo mật", leadSource: "Mã nguồn lead",
-  quoteCta: "Nút nhận báo giá", packageSimulation: "Mô phỏng gói", short: "Tên ngắn", submitLabel: "Chữ nút gửi",
+  quoteCta: "Nút nhận báo giá", decimals: "Số chữ số thập phân", suffix: "Hậu tố", prefix: "Tiền tố",
+  products: "Sản phẩm", projects: "Dự án", shorts: "Video ngắn", posts: "Bài viết", testimonials: "Đánh giá khách hàng",
+  certificates: "Chứng chỉ", brands: "Thương hiệu", press: "Báo chí", services: "Dịch vụ", badge: "Nhãn nổi bật", badges: "Nhãn", sub: "Dòng phụ", subHighlight: "Dòng phụ nhấn mạnh",
+  score: "Điểm", milestones: "Cột mốc", tagline: "Khẩu hiệu", caption: "Chú thích", excerpt: "Trích đoạn", slug: "Đường dẫn rút gọn",
+  slides: "Slide", lines: "Dòng", points: "Ý chính", highlights: "Điểm nổi bật", specs: "Thông số", warranty: "Bảo hành",
+  location: "Địa điểm", period: "Thời gian", years: "Số năm", scope: "Phạm vi", models: "Mô hình", cases: "Trường hợp",
+  channels: "Kênh", followers: "Người theo dõi", handle: "Tên tài khoản", provider: "Nguồn video", hours: "Giờ làm việc",
+  branches: "Chi nhánh", stores: "Cửa hàng", office: "Văn phòng", warehouse: "Kho", legalName: "Tên pháp lý",
+  menus: "Menu", topBar: "Thanh trên cùng", mobileLinks: "Liên kết trên di động", socials: "Mạng xã hội", legal: "Pháp lý",
+  group: "Nhóm", groups: "Nhóm", columns: "Cột", rows: "Hàng", chart: "Biểu đồ", metrics: "Chỉ số", phases: "Giai đoạn",
+  articles: "Bài viết", outlets: "Cơ quan báo chí", issuer: "Đơn vị cấp", verified: "Đã xác minh", tone: "Tông màu",
+  sort: "Sắp xếp", field: "Trường", dir: "Chiều", asc: "Tăng dần", desc: "Giảm dần", focal: "Điểm lấy nét",
+  primary: "Chính", secondary: "Phụ", form: "Form", fields: "Trường", message: "Lời nhắn", successTitle: "Tiêu đề khi gửi xong",
+  successMessage: "Lời nhắn khi gửi xong", installment: "Trả góp", saving: "Tiết kiệm", production: "Sản lượng", packageSimulation: "Mô phỏng gói", short: "Tên ngắn", submitLabel: "Chữ nút gửi",
 };
 
 export function humanize(key: string): string {

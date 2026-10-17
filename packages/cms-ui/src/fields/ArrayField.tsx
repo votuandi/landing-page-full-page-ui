@@ -76,7 +76,7 @@ export function ArrayField({ node, path, value, label }: FieldProps<unknown[] | 
   const limits = [node.min !== undefined && `tối thiểu ${node.min}`, node.max !== undefined && `tối đa ${node.max}`].filter(Boolean).join(", ");
 
   return (
-    <fieldset className="space-y-3 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-3 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">
         {label} <span className="font-normal text-fg-subtle">({items.length}{limits ? ` · ${limits}` : ""})</span>
       </legend>
@@ -110,9 +110,9 @@ function SortableItem({ id, index, count, node, path, value, scalar, title, canR
   const summary = itemSummary(value);
   const controls = (
     <div className="flex shrink-0 items-center gap-0.5">
-      <SmallButton aria-label={`Lên trên: ${title}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
-      <SmallButton aria-label={`Xuống dưới: ${title}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
-      {!scalar && <SmallButton aria-label={`Nhân bản: ${title}`} disabled={!canDuplicate} onClick={() => onDuplicate(index)}>⧉</SmallButton>}
+      <SmallButton className="max-sm:hidden" aria-label={`Lên trên: ${title}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
+      <SmallButton className="max-sm:hidden" aria-label={`Xuống dưới: ${title}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
+      {!scalar && <SmallButton className="max-sm:hidden" aria-label={`Nhân bản: ${title}`} disabled={!canDuplicate} onClick={() => onDuplicate(index)}>⧉</SmallButton>}
       <SmallButton tone="danger" aria-label={`Xóa: ${title}`} disabled={!canRemove} onClick={() => onRemove(index)}>✕</SmallButton>
     </div>
   );

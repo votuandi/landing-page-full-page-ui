@@ -36,7 +36,7 @@ export function SmallButton({ tone = "default", className = "", ...props }: Comp
   const color = tone === "danger" ? "text-danger hover:bg-danger/10" : "text-fg-muted hover:bg-bg-tint hover:text-fg";
   return (
     <button type="button" {...props}
-      className={`inline-flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-button px-2 text-sm font-medium ${color} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-40 ${className}`} />
+      className={`inline-flex min-h-9 min-w-9 shrink-0 items-center whitespace-nowrap justify-center gap-1 rounded-button px-2 text-sm font-medium ${color} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-40 ${className}`} />
   );
 }
 

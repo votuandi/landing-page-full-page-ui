@@ -34,7 +34,7 @@ export function CollectionQueryField({ node, path, value, label }: FieldProps<Co
   const setFilter = (entries: [string, Scalar][]) => update([...path, "filter"], Object.fromEntries(entries));
 
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label} {collection && <span className="font-normal text-fg-subtle">· {humanize(collection)}</span>}</legend>
       <Errors errors={issues.get(pathKey(path))} />
       <div className="grid gap-4 sm:grid-cols-2">

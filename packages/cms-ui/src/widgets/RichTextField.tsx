@@ -84,7 +84,7 @@ export function RichTextField({ node, path, value, label }: FieldProps<RichTextV
         </div>
         <textarea ref={ref} id={id} rows={8} value={text} onChange={(event) => commit(event.target.value)}
           aria-invalid={errors.length ? true : undefined} aria-describedby={describedBy(id, hint, errors)}
-          className={`${inputClass} rounded-none border-0 font-mono text-sm leading-relaxed focus:ring-0`} />
+          className={`${inputClass} rounded-none border-0 text-sm leading-relaxed focus:ring-0`} />
       </div>
     </FieldShell>
   );

@@ -3,16 +3,39 @@
 import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { describe } from "./schema/describe.ts";
+import { formatNumber } from "./schema/codecs.ts";
 import { issuesByPath, setAt, type Path } from "./schema/path.ts";
 import { SchemaFormContext, type FormContext, type Pickers, type WidgetComponent } from "./context.ts";
 import { ObjectField, Field } from "./fields/Field.tsx";
 import { Errors } from "./ui.tsx";
 
 const vi = z.locales.vi().localeError;
+const TYPES: Record<string, string> = { number: "số", string: "chữ", boolean: "bật/tắt", array: "danh sách", object: "nhóm trường" };
+const fmt = (value: unknown) => (typeof value === "number" ? formatNumber(value) : String(value));
+
+/** Câu ngắn cho người không rành kỹ thuật; dạng hiếm dùng bản dịch sẵn của zod. */
+export const viError: z.core.$ZodErrorMap = (issue) => {
+  const limit = (issue as { maximum?: unknown; minimum?: unknown; inclusive?: boolean; origin?: string });
+  switch (issue.code) {
+    case "too_big":
+      if (limit.origin === "string") return `Tối đa ${fmt(limit.maximum)} ký tự`;
+      if (limit.origin === "array") return `Tối đa ${fmt(limit.maximum)} mục`;
+      return limit.inclusive === false ? `Phải nhỏ hơn ${fmt(limit.maximum)}` : `Tối đa ${fmt(limit.maximum)}`;
+    case "too_small":
+      if (limit.origin === "string") return Number(limit.minimum) <= 1 ? "Không được để trống" : `Tối thiểu ${fmt(limit.minimum)} ký tự`;
+      if (limit.origin === "array") return `Cần ít nhất ${fmt(limit.minimum)} mục`;
+      return limit.inclusive === false ? `Phải lớn hơn ${fmt(limit.minimum)}` : `Tối thiểu ${fmt(limit.minimum)}`;
+    case "invalid_type": return `Cần nhập ${TYPES[issue.expected] ?? "đúng kiểu"}`;
+    case "invalid_value": return "Giá trị không nằm trong danh sách cho phép";
+    case "invalid_format": return issue.format === "url" ? "Đường dẫn không hợp lệ" : "Sai định dạng";
+    case "not_multiple_of": return "Phải là số nguyên";
+    default: return vi(issue);
+  }
+};
 
 /** Validate bằng chính schema, thông báo tiếng Việt (message riêng trong schema được giữ nguyên). */
 export function validate<S extends z.ZodType>(schema: S, value: unknown) {
-  return schema.safeParse(value, { error: vi });
+  return schema.safeParse(value, { error: viError });
 }
 
 export type SchemaFormProps<S extends z.ZodType> = {

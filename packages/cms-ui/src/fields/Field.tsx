@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { defaultFor, unionIndex, type FieldNode } from "../schema/describe.ts";
 import { humanize, optionLabel } from "../schema/labels.ts";
-import { numberCodec } from "../schema/codecs.ts";
+import { formatNumber, numberCodec } from "../schema/codecs.ts";
 import { pathKey, type Path } from "../schema/path.ts";
 import { useSchemaForm, type FieldProps, type WidgetComponent } from "../context.ts";
 import { describedBy, Errors, FieldShell, inputClass, SmallButton } from "../ui.tsx";
@@ -47,9 +47,11 @@ export function Field(props: FieldProps) {
   const element = <Component {...props} label={label} />;
   if (!node.optional || !isGroup(node)) return element;
   return (
-    <div className="relative">
+    <div className="space-y-1">
       {element}
-      <SmallButton tone="danger" className="absolute right-0 top-0" aria-label={`Bỏ ${label}`} onClick={() => update(path, undefined)}>Bỏ</SmallButton>
+      <div className="flex justify-end">
+        <SmallButton tone="danger" className="text-xs" onClick={() => update(path, undefined)}>Bỏ {label.toLowerCase()}</SmallButton>
+      </div>
     </div>
   );
 }
@@ -86,7 +88,10 @@ function NumberField({ node, path, value, label }: FieldProps<number | null | un
   const codec = numberCodec(node.nullable ? "null" : node.optional ? "undefined" : undefined);
   const id = fieldId(idPrefix, path);
   const errors = inputError ? [inputError] : issues.get(key);
-  const range = [node.min !== undefined && `từ ${node.min}`, node.max !== undefined && `đến ${node.max}`].filter(Boolean).join(" ");
+  // Giới hạn kỹ thuật (0 < x ≤ 10^12) không giúp người nhập; chỉ nêu khoảng có ý nghĩa.
+  const max = node.max !== undefined && node.max < 1e9 ? node.max : undefined;
+  const min = node.min !== undefined && (node.min !== 0 || max !== undefined) ? node.min : undefined;
+  const range = [min !== undefined && `từ ${formatNumber(min)}`, max !== undefined && `đến ${formatNumber(max)}`].filter(Boolean).join(" ");
   const hint = [node.int && "Số nguyên", range, node.nullable && "Để trống = không giới hạn"].filter(Boolean).join(" · ") || undefined;
   return (
     <FieldShell id={id} label={label} hint={hint} errors={errors}>
@@ -149,17 +154,21 @@ function EnumField({ node, path, value, label }: FieldProps<string | number | un
 export function ObjectField({ node, path, value, label, bare }: FieldProps<Record<string, unknown> | undefined> & { bare?: boolean }) {
   const { issues } = useSchemaForm();
   if (node.kind !== "object") return null;
+  // Nhóm toàn ô ngắn (số, bật/tắt, lựa chọn) xếp hai cột cho gọn.
+  const compact = node.fields.length > 1 && node.fields.every(({ node: child }) => ["number", "boolean", "enum"].includes(child.kind));
   const body = (
     <div className="space-y-5">
       <Errors errors={issues.get(pathKey(path))} />
-      {node.fields.map((field) => (
-        <Field key={field.key} node={field.node} path={[...path, field.key]} value={value?.[field.key]} label={humanize(field.key)} />
-      ))}
+      <div className={compact ? "grid gap-x-4 gap-y-5 sm:grid-cols-2" : "space-y-5"}>
+        {node.fields.map((field) => (
+          <Field key={field.key} node={field.node} path={[...path, field.key]} value={value?.[field.key]} label={humanize(field.key)} />
+        ))}
+      </div>
     </div>
   );
   if (bare || path.length === 0) return body;
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label}</legend>
       {body}
     </fieldset>
@@ -172,7 +181,7 @@ function RecordField({ node, path, value, label }: FieldProps<Record<string, unk
   if (node.kind !== "record") return null;
   const flat = node.value.kind === "number" || node.value.kind === "string" || node.value.kind === "enum";
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label}</legend>
       <Errors errors={issues.get(pathKey(path))} />
       <div className={flat ? "grid gap-4 sm:grid-cols-2" : "space-y-4"}>
@@ -191,7 +200,7 @@ function UnionField({ node, path, value, label }: FieldProps) {
   const option = node.options[index];
   const id = fieldId(idPrefix, [...path, "$branch"]);
   return (
-    <fieldset className="space-y-4 rounded-card border border-line/15 p-4">
+    <fieldset className="min-w-0 space-y-4 rounded-card border border-line/15 p-3 sm:p-4">
       <legend className="px-1 text-sm font-semibold text-fg">{label}</legend>
       <FieldShell id={id} label="Dạng">
         <select id={id} value={String(index)} className={inputClass}

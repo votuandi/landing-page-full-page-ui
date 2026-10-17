@@ -47,14 +47,20 @@ test("calculator: nhập sai kiểu bị chặn, lỗi tiếng Việt đúng ch�
   assert.deepEqual(codec.fromInput("0,82"), { ok: true, value: 0.82 });
   assert.deepEqual(codec.fromInput("11 500 000"), { ok: true, value: 11_500_000 });
   assert.deepEqual(numberCodec("null").fromInput(""), { ok: true, value: null });
+  // Ô hiển thị kiểu Việt Nam và đọc lại đúng số.
+  assert.equal(codec.toInput(11_500_000), "11 500 000");
+  assert.equal(codec.toInput(0.82), "0,82");
+  for (const n of [0, -1234.5, 1e12, 0.000001]) assert.deepEqual(codec.fromInput(codec.toInput(n)), { ok: true, value: n });
 
   // Kiểu sai lọt vào dữ liệu (vd. API) vẫn bị schema chặn với thông báo tiếng Việt.
   const bad = setAt(setAt(structuredClone(calculator.defaults), ["pricePerKwp", "shop"], "nhiều"), ["system", "performanceRatio"], 1.5);
   const result = validate(calculator.schema, bad);
   assert.equal(result.success, false);
   const issues = issuesByPath(result.error);
-  assert.match(issues.get("pricePerKwp.shop")?.[0] ?? "", /mong đợi số/);
-  assert.match(issues.get("system.performanceRatio")?.[0] ?? "", /Quá lớn/);
+  assert.equal(issues.get("pricePerKwp.shop")?.[0], "Cần nhập số");
+  assert.equal(issues.get("system.performanceRatio")?.[0], "Tối đa 1");
+  const short = validate(calculator.schema, setAt(structuredClone(calculator.defaults), ["eyebrow", "vi"], "x".repeat(61)));
+  assert.equal(issuesByPath(short.error).get("eyebrow.vi")?.[0], "Tối đa 60 ký tự");
   // Message riêng trong schema giữ nguyên.
   const tiers = setAt(structuredClone(calculator.defaults), ["tariffs", "household", "tiers", 0, "upTo"], null);
   assert.ok(issuesByPath(validate(calculator.schema, tiers).error).get("tariffs.household.tiers")?.includes("Bậc tăng dần, chỉ bậc cuối không giới hạn"));
