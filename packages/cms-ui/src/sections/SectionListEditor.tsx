@@ -51,22 +51,24 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
         </ol>
       </SortableContext>
     </DndContext>
-    {!value.length && <p className="text-sm text-fg-muted">Chưa có section nào.</p>}
-    {can.reorder && <section aria-label="Thêm section" className="space-y-3 rounded-card border border-line/20 p-4">
-      <h2 className="font-semibold">Thêm section</h2>
-      <ul className="grid gap-3 sm:grid-cols-2">
+    {!value.length && <p className="rounded-card border border-dashed border-line/30 p-6 text-center text-sm text-fg-muted">
+      Trang chưa có section nào.{can.reorder ? " Chọn một section bên dưới để bắt đầu." : ""}</p>}
+    {can.reorder && <section aria-labelledby={`${dndId}-add`} className="space-y-3 pt-2">
+      <h2 id={`${dndId}-add`} className="text-base font-semibold">Thêm section</h2>
+      <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
         {[...new Set([...allowedTypes, ...lockedTypes])].map(type => {
           const def = sectionRegistry.getType(type);
           const variant = sectionRegistry.variantsOf(type)?.[0];
           if (!def || !variant) return null;
           const locked = !allowedTypes.includes(type) || lockedTypes.includes(type);
-          const reason = locked ? "Gói hiện tại chưa hỗ trợ" : sectionLimitIssues([...value, { type }])[0];
-          return <li key={type} className="min-w-0 rounded-input border border-line/15 p-3">
-            <SmallButton className="min-h-11 whitespace-normal text-left" disabled={Boolean(reason)} aria-disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${type}-reason` : undefined}
+          const reason = locked ? "Cần nâng cấp gói" : sectionLimitIssues([...value, { type }])[0];
+          return <li key={type} className="min-w-0">
+            <button type="button" aria-label={`Thêm ${def.meta.label.vi}`} disabled={Boolean(reason)} aria-disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${type}-reason` : undefined}
+              className="flex min-h-11 w-full items-center gap-2 rounded-input border border-line/20 bg-bg px-3 py-2 text-left text-sm font-medium text-fg hover:border-primary/50 hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:text-fg-muted"
               onClick={() => { if (!reason) onChange(add(value, { id: newId(type), type, variant, enabled: true })); }}>
-              Thêm {def.meta.label.vi}
-            </SmallButton>
-            {reason && <p id={`${dndId}-${type}-reason`} className="text-xs text-fg-muted">{reason}</p>}
+              <span aria-hidden="true" className="w-4 shrink-0 text-center text-base leading-none text-primary">{reason ? (locked ? "🔒" : "–") : "+"}</span>Thêm {def.meta.label.vi}
+            </button>
+            {reason && <p id={`${dndId}-${type}-reason`} className="mt-1 px-1 text-xs text-fg-muted">{reason}</p>}
           </li>;
         })}
       </ul>
@@ -84,27 +86,39 @@ function SectionRow({ section, index, count, can, reducedMotion, onMove, onToggl
   const variants = sectionRegistry.variantsOf(section.type) ?? [];
   const selectId = useId();
   const name = `${label} (${section.id})`;
+  const on = section.enabled;
   return <li ref={setNodeRef} data-section-id={section.id} style={{ transform: CSS.Transform.toString(transform), transition }}
-    className={`min-w-0 rounded-card border border-line/20 bg-bg-elevated p-4 ${isDragging ? "relative z-10 shadow-float" : ""}`}>
-    <div className="flex flex-wrap items-center gap-3">
+    className={`min-w-0 rounded-card border bg-bg-elevated p-3 sm:p-4 ${on ? "border-line/20" : "border-dashed border-line/30 bg-bg"} ${isDragging ? "relative z-10 shadow-float" : ""}`}>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       {can.reorder && <button type="button" ref={setActivatorNodeRef} {...attributes} {...listeners} aria-label={`Kéo để sắp xếp: ${name}`}
-        className="min-h-11 min-w-11 shrink-0 touch-none rounded-button text-fg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">⠿</button>}
-      <div aria-hidden="true" className="flex min-h-16 w-20 shrink-0 items-center justify-center rounded-media bg-bg-tint text-sm text-fg-muted">{section.variant}</div>
-      <div className="min-w-0 flex-1 break-words"><p className="font-semibold">{label}</p><p className="text-sm text-fg-muted">{section.variant} · {section.enabled ? "Đang bật" : "Đang tắt"}</p></div>
-      {can.reorder && <div className="flex flex-wrap items-center gap-1">
-        <SmallButton className="min-h-11 min-w-11" aria-label={`Lên trên: ${name}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
-        <SmallButton className="min-h-11 min-w-11" aria-label={`Xuống dưới: ${name}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
-        <SmallButton className="min-h-11" role="switch" aria-checked={section.enabled} aria-label={`Bật/tắt: ${name}`} onClick={onToggle}>{section.enabled ? "Tắt" : "Bật"}</SmallButton>
-        <SmallButton className="min-h-11" tone="danger" aria-label={`Xóa: ${name}`} onClick={onRemove}>Xóa</SmallButton>
+        className="-ml-1 min-h-11 min-w-9 shrink-0 cursor-grab touch-none rounded-button text-lg text-fg-subtle hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:cursor-grabbing">⠿</button>}
+      {/* Ô giữ chỗ thumbnail; ảnh chụp sẵn theo theme ở E7-S13. */}
+      <div aria-hidden="true" className={`flex h-12 w-16 shrink-0 items-center justify-center rounded-media border bg-bg-tint text-xs font-semibold text-fg-muted ${on ? "border-line/15" : "border-dashed border-line/40"}`}>{section.variant}</div>
+      <div className="min-w-0 flex-1 basis-40 break-words">
+        <p className={`font-semibold ${on ? "text-fg" : "text-fg-muted"}`}>{label}</p>
+        <p className="text-sm text-fg-muted">{on ? `Kiểu ${section.variant}` : "Đang ẩn khỏi trang"}</p>
+      </div>
+      {can.reorder && <div className="flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-end">
+        <button type="button" role="switch" aria-checked={on} aria-label={`Hiển thị: ${name}`} onClick={onToggle}
+          className="inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-sm font-medium text-fg-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          <span aria-hidden="true" className={`relative inline-block h-6 w-10 shrink-0 rounded-pill ${on ? "bg-primary" : "bg-line/30"} transition-colors motion-reduce:transition-none`}>
+            <span className={`absolute left-0.5 top-0.5 size-5 rounded-pill bg-bg-elevated shadow-sm transition-transform motion-reduce:transition-none ${on ? "translate-x-4" : ""}`} />
+          </span>
+          {on ? "Hiện" : "Ẩn"}
+        </button>
+        <div className="flex items-center">
+          <SmallButton className="min-h-11 min-w-11" aria-label={`Lên trên: ${name}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
+          <SmallButton className="min-h-11 min-w-11" aria-label={`Xuống dưới: ${name}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
+          <SmallButton className="min-h-11" tone="danger" aria-label={`Xóa: ${name}`} onClick={onRemove}>Xóa</SmallButton>
+        </div>
       </div>}
     </div>
-    {can.variantSwitch && <div className="mt-3 space-y-1">
-      <label htmlFor={selectId} className="text-sm text-fg-muted">Đổi kiểu hiển thị: {label}</label>
-      <select id={selectId} className={inputClass} value={section.variant} onChange={e => onVariant(e.target.value)}>
+    {can.variantSwitch && <div className="mt-3 flex flex-col gap-1 border-t border-line/15 pt-3 sm:flex-row sm:items-center sm:gap-3">
+      <label htmlFor={selectId} className="shrink-0 text-sm text-fg-muted">Kiểu hiển thị<span className="sr-only">: {label}</span></label>
+      <select id={selectId} aria-label={`Đổi kiểu hiển thị: ${label}`} className={`${inputClass} sm:max-w-xs`} value={section.variant} onChange={e => onVariant(e.target.value)}>
         {!variants.includes(section.variant) && <option value={section.variant}>{section.variant} (không còn hỗ trợ)</option>}
-        {variants.map(variant => <option key={variant} value={variant}>{variant} · {label}</option>)}
+        {variants.map(variant => <option key={variant} value={variant}>{variant}</option>)}
       </select>
-      <div className="flex flex-wrap gap-2" aria-hidden="true">{variants.map(variant => <span key={variant} className="rounded-input bg-bg-tint px-3 py-2 text-xs text-fg-muted">{variant}</span>)}</div>
     </div>}
   </li>;
 }
