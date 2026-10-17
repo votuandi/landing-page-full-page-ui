@@ -24,7 +24,7 @@ test("upload over mediaGb → 413 with a Vietnamese message (helper E8-S02 wires
 // Target E6-S02: every current entry point checks entitlements. New entry points must be added here.
 const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
   "app/sites/[tenantId]/[siteId]/[ctx]/layout.tsx": /<TenantChrome /, // cached chrome below
-  "app/sites/[tenantId]/[siteId]/[ctx]/[[...path]]/page.tsx": /tenantPageOutcome\([\s\S]*<TenantPageBody /, // cached page below
+  "app/sites/[tenantId]/[siteId]/[ctx]/[[...path]]/page.tsx": /tenantRenderKey\(site, preview\)[\s\S]*tenantPage\(key, slug\)[\s\S]*outcome.content/, // cached page below
   "components/tenant/cached.tsx": /siteCanUse\(site\)[\s\S]*siteCanUse\(site\)[\s\S]*siteCanUse\(site\)/, // routes, landing pages, PageRenderer, chrome, widgets, cart
   "components/tenant/SystemPages.tsx": /siteCanUse\(site\)/, // system pages, cart, calculator CTA
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap

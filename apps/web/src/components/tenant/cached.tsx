@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { TenantRenderKey as Key } from "@/lib/tenant/renderKey";
 import { cacheLife, cacheTag } from "next/cache";
 import { PageRenderer, SiteWidgets, createCollectionLoader, type BranchItem } from "@solar/sections";
 import TenantSiteShell from "@/components/TenantSiteShell";
@@ -10,13 +11,10 @@ import { resolveRoute, routeEnabled } from "@/lib/tenant/routes";
 import { TENANT_CACHE_LIFE, tenantPageTags } from "@/lib/tenant/cacheTags";
 import { JsonLd, loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
 
-// Arguments are the cache key (E5-S06): tenant, site, resolved locale, preview and slug. Draft Mode skips these caches.
-type Key = { tenantId: string; siteId: string; locale: "vi" | "en"; preview: boolean };
-
-async function cachedSite({ tenantId, siteId, locale }: Key) {
+async function cachedSite({ tenantId, siteId, locale, disabled }: Key) {
   const site = await loadTenantSite(tenantId, siteId, locale);
   if (!site) throw new Error(`[tenant] site ${siteId} vanished inside a cached render`);
-  return site;
+  return { ...site, entitlements: { ...site.entitlements, disabled: JSON.parse(disabled) as TenantSite["entitlements"]["disabled"] } };
 }
 
 /** Page lookup without throwing, so `notFound()`/`permanentRedirect()` stay outside cache scopes. */
@@ -35,31 +33,25 @@ async function loadTenantPage(site: TenantSite, slug: string, preview: boolean) 
   return target ? { kind: "redirect" as const, target } : { kind: "notFound" as const };
 }
 
-/** Serializable outcome of a tenant page: routing decision plus metadata fields. */
-export async function tenantPageOutcome(key: Key, slug: string) {
-  "use cache";
-  cacheLife(TENANT_CACHE_LIFE);
-  cacheTag(...tenantPageTags(key.tenantId, slug));
-  const result = await loadTenantPage(await cachedSite(key), slug, key.preview);
-  if (result.kind !== "ok") return result;
-  const { page, system } = result;
-  return { kind: "ok" as const, title: page?.title || system?.title, description: system?.description,
-    image: system && "image" in system ? system.image as string | undefined : undefined };
-}
-
-export async function TenantPageBody({ slug, ...key }: Key & { slug: string }) {
+/** One snapshot supplies routing, metadata and JSX; callers throw 404/308 outside this scope. */
+export async function tenantPage(key: Key, slug: string) {
   "use cache";
   cacheLife(TENANT_CACHE_LIFE);
   cacheTag(...tenantPageTags(key.tenantId, slug));
   const site = await cachedSite(key);
   const result = await loadTenantPage(site, slug, key.preview);
-  if (result.kind !== "ok") return null;
+  if (result.kind !== "ok") return result;
   const { page, system } = result;
-  if (system) return <SystemFrame title={system.title} description={system.description}>{system.content}</SystemFrame>;
-  if (!page) return null;
-  const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
-  if (page.kind === "system") return <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>;
-  return <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
+  let content: ReactNode;
+  if (system) content = <SystemFrame title={system.title} description={system.description}>{system.content}</SystemFrame>;
+  else if (page) {
+    const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
+    content = page.kind === "system"
+      ? <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>
+      : <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
+  }
+  return { kind: "ok" as const, title: page?.title || system?.title, description: system?.description,
+    image: system && "image" in system ? system.image as string | undefined : undefined, content };
 }
 
 /** Header, footer, widgets and Organization JSON-LD of the home page; `children` passes through uncached. */

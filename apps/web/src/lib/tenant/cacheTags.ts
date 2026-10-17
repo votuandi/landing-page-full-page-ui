@@ -10,5 +10,5 @@ export const COLLECTIONS = ["product", "productCategory", "brand", "project", "p
 export const tenantPageTags = (tenantId: string, slug: string) => [tenantTag(tenantId), siteTag(tenantId), pageTag(tenantId, slug),
   ...COLLECTIONS.map((name) => collectionTag(tenantId, name)), ...PAGE_TAGS];
 
-/** `cacheLife` of tenant pages: revalidate 60 s keeps the platform kill switch effective within a minute until console publishes its tag (E15). */
+/** UI freshness; the request kill-switch snapshot is also part of every UI key, so the data/UI TTLs cannot accumulate. */
 export const TENANT_CACHE_LIFE = { stale: 60, revalidate: 60, expire: 86_400 };
