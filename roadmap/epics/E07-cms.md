@@ -63,7 +63,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   - [x] Test round-trip cho 28 type: fixture → form → submit không chỉnh sửa → dữ liệu ra bằng đúng dữ liệu vào (deep equal).
 - Phụ thuộc: E3-S02 · Agent: Claude · Cỡ: L
 
-### E7-S04 · Màn hình sắp xếp & bật/tắt section
+### E7-S04 · Màn hình sắp xếp & bật/tắt section ✅ · PR [#47](https://github.com/votuandi/landing-page-full-page-ui/pull/47)
 **Là** tenant gói Nâng cao, **tôi muốn** kéo đổi thứ tự, bật/tắt và đổi variant section, **để** bố cục trang theo ý tôi.
 - **Chi tiết**: danh sách section của trang (tên, variant, thumbnail, công tắc), kéo thả (dnd-kit, có bàn phím), menu
   "Đổi kiểu hiển thị" liệt kê variant cùng type, "Thêm section" từ thư viện (khóa theo gói, E6-S04), xóa (nội dung
