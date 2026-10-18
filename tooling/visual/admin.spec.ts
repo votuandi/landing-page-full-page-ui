@@ -51,15 +51,17 @@ test("collections: create project, publish, duplicate, reorder", async ({ page }
   const handle = copy.getByRole("button", { name: /^Kéo để sắp xếp/ });
   await handle.focus(); await page.keyboard.press("Space"); await page.keyboard.press("ArrowUp"); await page.keyboard.press("Space");
   await expect(page.getByRole("status").filter({ hasText: "Đã lưu thứ tự" })).toBeVisible();
-  for (const width of [390, 1440]) {
+  for (const colorScheme of ["light", "dark"] as const) for (const width of [390, 1440]) {
+    await page.emulateMedia({ colorScheme });
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: info.outputPath(`collections-${width}.png`), fullPage: true });
+    await page.screenshot({ path: info.outputPath(`collections-${colorScheme}-${width}.png`), fullPage: true });
   }
+  await page.emulateMedia({ colorScheme: "light" });
   await page.getByLabel("Tìm kiếm", { exact: true }).fill("da nang"); await page.getByRole("button", { name: "Áp dụng" }).click();
   await expect(page.getByText(/Sắp xếp tạm tắt/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Kéo để sắp xếp/ }).first()).toBeDisabled();
+  await expect(page.getByRole("button", { name: /^Kéo để sắp xếp/ })).toHaveCount(0);
   await page.getByRole("link", { name: "Xóa bộ lọc" }).click();
   page.on("dialog", dialog => dialog.accept());
   await copy.getByRole("button", { name: /^Xóa/ }).click(); await expect(copy).toHaveCount(0);

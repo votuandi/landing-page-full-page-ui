@@ -10,7 +10,8 @@ import type { ActionResult, AdminAction } from "../lib/action.ts";
 import { duplicateCollection, removeCollection, sortCollection } from "../app/(admin)/noi-dung/actions.ts";
 
 type Row = { id: string; title: string; slug: string; status: "draft" | "published" };
-const button = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-button border border-line/20 px-3 text-sm text-fg hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
+const button = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-button border border-line/20 px-3 text-sm text-fg hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-40";
+const danger = `${button} text-danger hover:bg-danger/10`;
 const announcements: Announcements = {
   onDragStart: () => "Đã nhấc bản ghi. Dùng phím mũi tên để di chuyển, Space để thả, Esc để hủy.",
   onDragOver: ({ over }) => over ? "Đang di chuyển bản ghi." : "Ra ngoài danh sách.",
@@ -35,7 +36,7 @@ export function CollectionList({ path, rows, canReorder }: { path: string; rows:
   return <div className="min-w-0 space-y-3" aria-busy={pending}>
     {!canReorder && <p className="text-sm text-fg-muted">Sắp xếp tạm tắt. Xóa tìm kiếm và bộ lọc để sắp xếp toàn bộ danh sách.</p>}
     <p role="status" aria-live="polite" className="text-sm text-fg-muted">{pending ? "Đang lưu…" : result.message}</p>
-    {result.error && <p role="alert" className="text-danger">{result.error}</p>}
+    {result.error && <p role="alert" className="text-sm font-medium text-danger">{result.error}</p>}
     <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} accessibility={{ announcements, screenReaderInstructions: { draggable: "Nhấn Space để nhấc, mũi tên để di chuyển, Space để thả, Esc để hủy." } }}
       onDragEnd={({ active, over }) => { if (over) move(items.findIndex(r => r.id === active.id), items.findIndex(r => r.id === over.id)); }}>
       <SortableContext items={items.map(row => row.id)} strategy={verticalListSortingStrategy}>
@@ -44,21 +45,27 @@ export function CollectionList({ path, rows, canReorder }: { path: string; rows:
           onRemove={() => { if (window.confirm(`Xóa “${row.title}”? Thao tác này không thể hoàn tác.`)) run(removeCollection, { id: row.id }); }} pending={pending} />)}</ol>
       </SortableContext>
     </DndContext>
-    {!items.length && <p className="rounded-card border border-dashed border-line/20 p-6 text-fg-muted">Chưa có nội dung phù hợp. Thêm bản ghi hoặc xóa bộ lọc.</p>}
+    {!items.length && <p className="rounded-card border border-dashed border-line/25 p-6 text-center text-sm text-fg-muted">Chưa có nội dung phù hợp. Thêm bản ghi hoặc xóa bộ lọc.</p>}
   </div>;
 }
 function CollectionRow({ row, path, disabled, index, count, onMove, onDuplicate, onRemove, pending }: { row: Row; path: string; disabled: boolean; index: number; count: number; onMove(to: number): void; onDuplicate(): void; onRemove(): void; pending: boolean }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform } = useSortable({ id: row.id, disabled, transition: null });
   return <li ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform) }} className="min-w-0 rounded-card border border-line/20 bg-bg-elevated p-4">
     <div className="flex min-w-0 flex-wrap items-center gap-3">
-      <button type="button" ref={setActivatorNodeRef} {...attributes} {...listeners} disabled={disabled} aria-label={`Kéo để sắp xếp: ${row.title}`} className={`${button} touch-none cursor-grab`}>⠿</button>
-      <div className="min-w-0 flex-1 basis-40"><p className="break-words font-medium text-fg">{row.title}</p><p className="break-all text-sm text-fg-muted">{row.slug}</p><p className="text-sm text-fg-muted">{row.status === "published" ? "Đã xuất bản" : "Nháp"}</p></div>
+      {!disabled && <button type="button" ref={setActivatorNodeRef} {...attributes} {...listeners} aria-label={`Kéo để sắp xếp: ${row.title}`} className={`${button} touch-none cursor-grab text-fg-muted active:cursor-grabbing`}><span aria-hidden>⠿</span></button>}
+      <div className="min-w-0 flex-1 basis-40 space-y-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-2"><p className="break-words font-medium text-fg">{row.title}</p>
+          <span className={`shrink-0 rounded-pill px-2 py-0.5 text-xs font-medium ${row.status === "published" ? "bg-success/10 text-success" : "bg-bg-tint text-fg-muted"}`}>{row.status === "published" ? "Đã xuất bản" : "Nháp"}</span></div>
+        <p className="break-all text-sm text-fg-subtle">/{row.slug}</p>
+      </div>
       <div className="flex flex-wrap gap-2">
-        <button className={button} disabled={disabled || index === 0} aria-label={`Lên trên: ${row.title}`} onClick={() => onMove(index - 1)}>↑</button>
-        <button className={button} disabled={disabled || index === count - 1} aria-label={`Xuống dưới: ${row.title}`} onClick={() => onMove(index + 1)}>↓</button>
+        {!disabled && <>
+          <button type="button" className={button} disabled={index === 0} aria-label={`Lên trên: ${row.title}`} onClick={() => onMove(index - 1)}><span aria-hidden>↑</span></button>
+          <button type="button" className={button} disabled={index === count - 1} aria-label={`Xuống dưới: ${row.title}`} onClick={() => onMove(index + 1)}><span aria-hidden>↓</span></button>
+        </>}
         <Link className={button} href={`/noi-dung/${path}/${row.id}`}>Sửa<span className="sr-only"> {row.title}</span></Link>
-        <button className={button} disabled={pending} onClick={onDuplicate}>Nhân bản<span className="sr-only"> {row.title}</span></button>
-        <button className={button} disabled={pending} onClick={onRemove}>Xóa<span className="sr-only"> {row.title}</span></button>
+        <button type="button" className={button} disabled={pending} onClick={onDuplicate}>Nhân bản<span className="sr-only"> {row.title}</span></button>
+        <button type="button" className={danger} disabled={pending} onClick={onRemove}>Xóa<span className="sr-only"> {row.title}</span></button>
       </div>
     </div>
   </li>;

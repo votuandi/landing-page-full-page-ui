@@ -40,11 +40,11 @@ export function CollectionForm({ name, initial, bilingual }: { name: Collection;
     if (response.ok) { router.push(`/noi-dung/${definition.path}?saved=1`); router.refresh(); }
   });
   return <section className="min-w-0 space-y-5">
-    <Link className="text-sm text-fg-muted underline" href={`/noi-dung/${definition.path}`}>{definition.label.vi}</Link>
-    <h1 className="text-2xl font-semibold text-fg">{recordId ? "Sửa" : "Thêm"} {definition.label.vi.toLowerCase()}</h1>
-    {record.status === "published" && <p className="text-sm text-fg-muted">Bản ghi đã xuất bản: lưu là cập nhật lên website.</p>}
-    <p className="break-all text-sm text-fg-muted">Để trống đường dẫn để tự tạo: <span>{slugify(record.title?.vi ?? "") || "Nhập tiêu đề để gợi ý đường dẫn"}</span>.</p>
-    {result.error && <p id="collection-save-error" role="alert" className="text-danger">{result.error}</p>}
+    <Link className="inline-flex min-h-11 items-center rounded-button text-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" href={`/noi-dung/${definition.path}`}>Về danh sách {definition.label.vi.toLowerCase()}</Link>
+    <h1 className="break-words text-2xl font-semibold text-fg">{recordId ? "Sửa" : "Thêm"} {definition.label.vi.toLowerCase()}</h1>
+    {record.status === "published" && <p className="rounded-card border border-line/20 bg-bg-tint px-4 py-3 text-sm text-fg-muted">Bản ghi đã xuất bản: lưu là cập nhật ngay lên website.</p>}
+    <p className="break-all text-sm text-fg-muted">Để trống đường dẫn để tự tạo: <code className="text-fg">{slugify(record.title?.vi ?? "") || "nhập tiêu đề để gợi ý"}</code>.</p>
+    {result.error && <p id="collection-save-error" role="alert" className="text-sm font-medium text-danger">{result.error}</p>}
     <fieldset disabled={pending} aria-busy={pending} className="min-w-0 space-y-4">
       <legend className="sr-only">Thông tin {definition.label.vi.toLowerCase()}</legend>
       <SlugError value={result.status === 409 ? result.error : undefined}>

@@ -21,7 +21,7 @@ export default async function Content() {
             <Link href={`/noi-dung/${def.path}`}
               className="flex min-h-14 items-center justify-between gap-3 rounded-card border border-line/15 bg-bg-elevated px-4 py-3 text-fg hover:border-primary/40 hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
               <span className="font-medium">{def.label}</span>
-              <span className="text-fg-muted">{def.count} bản ghi</span>
+              <span className="shrink-0 text-sm text-fg-muted">{def.count} bản ghi</span>
             </Link>
           </li>
         ))}
