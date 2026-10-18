@@ -2,6 +2,7 @@ import type { FieldNode } from "./describe.ts";
 
 /** Nhãn tiếng Việt cho khóa hay gặp; khóa khác tách camelCase. Override theo đường dẫn qua prop `labels` của SchemaForm. */
 const LABELS: Record<string, string> = {
+  status: "Trạng thái", draft: "Nháp", published: "Đã xuất bản",
   title: "Tiêu đề", subtitle: "Phụ đề", eyebrow: "Dòng nhỏ trên tiêu đề", description: "Mô tả", body: "Nội dung",
   text: "Nội dung", intro: "Giới thiệu", summary: "Tóm tắt", note: "Ghi chú", footnote: "Chú thích cuối", hint: "Gợi ý",
   label: "Nhãn", name: "Tên", items: "Danh sách", item: "Mục", image: "Ảnh", images: "Ảnh", logo: "Logo", icon: "Biểu tượng",

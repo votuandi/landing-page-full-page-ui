@@ -85,6 +85,20 @@ action mới thiếu wrapper/permission hoặc public ngoài allowlist làm test
 
 ## Kiểm tra
 
+`/noi-dung` liệt kê collection trong gói cùng số bản ghi; các route `/<collection>`, `/moi`, `/[id]` hỗ trợ tìm kiếm
+không dấu, lọc, thêm/sửa, nhân bản, xóa có xác nhận và sắp xếp bằng chuột/bàn phím/nút ↑↓. Form dùng schema chung
+`@solar/db/collections`; xung đột slug hiện ngay tại trường đường dẫn. Khi đang tìm/lọc hoặc có trên 500 bản ghi,
+sắp xếp bị tắt để không ghi thiếu danh sách. Form section mẫu vẫn ở `/noi-dung/form/<type>`.
+
+Danh mục, thương hiệu và danh mục cha chọn theo tiêu đề trong cùng website; "Không chọn" gỡ liên kết (lưu `null`).
+Danh mục cha không cho chọn chính bản ghi đang sửa; bộ lọc danh mục hiện tiêu đề. Sản phẩm chỉ sửa phân khúc tại
+"Phân khúc sản phẩm" (cột `segments`); trường `data.segment` cũ được giữ khi lưu.
+
+Mọi trang/action kiểm `content.edit`; collection ngoài gói trả trang 404 hoặc lỗi nghiệp vụ 403 trước repository.
+Ghost có quyền `content.edit` được ghi vì collection không có trường actor; audit ghost chi tiết để E15-S07.
+Tenant không có `bilingual` không đổi được title EN và giữ bản dịch đã có khi hạ gói. CSV thuộc E7-S14;
+chọn media thuộc E8-S05. Fixture e2e có tenant basic riêng `admin-e7-collections-basic`.
+
 ```sh
 pnpm --filter admin typecheck
 pnpm --filter admin lint

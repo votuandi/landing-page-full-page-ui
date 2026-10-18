@@ -10,6 +10,7 @@ const fixtures = [
   { id: "e7000000-0000-4000-8000-000000000002", slug: "admin-e7-b", status: "active" as const },
   { id: "e7000000-0000-4000-8000-000000000003", slug: "nang-luong-solar", status: "active" as const },
   { id: "e7000000-0000-4000-8000-000000000004", slug: "admin-e7-paused", status: "suspended" as const },
+  { id: "e7060000-0000-4000-8000-000000000001", slug: "admin-e7-collections-basic", status: "active" as const },
 ];
 async function main() {
   const db = createPlatformDb({ pool: 2 });
@@ -22,7 +23,7 @@ async function main() {
       if (action === "setup") {
         const hashes = await Promise.all(["t15", "t12"].map(s => hashPassword(`${password}-${s}`)));
         for (const [index, fixture] of fixtures.entries()) {
-          await db.tenant.create({ data: { ...fixture, name: "[DỮ LIỆU MẪU] Admin E2E", planId: "premium" } });
+          await db.tenant.create({ data: { ...fixture, name: "[DỮ LIỆU MẪU] Admin E2E", planId: fixture.slug === "admin-e7-collections-basic" ? "basic" : "premium" } });
           await withTenantTransaction(db, fixture.id, async repo => {
             const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15" });
             await repo.domain.create({ siteId: site.id, hostname: `${fixture.slug}.${platformDomain}`, status: "active", isPrimary: true, verificationToken: randomUUID() });

@@ -3,8 +3,9 @@ import { cache } from "react";
 import { z } from "zod";
 import { collectionSchemas, createCollectionLoader, widgetRegistry, type CollectionSource, type LoadSectionData } from "@solar/sections";
 import type { TenantRepo } from "@solar/db";
+import { faqSchema, certificateSchema, pressItemSchema } from "@solar/db/collections";
 import type { Product } from "../../data/products";
-import { contentImage, parseContent, postSchema, productSchema, projectSchema, serviceSchema, text, textValue } from "./contentSchemas";
+import { parseContent, postSchema, productSchema, projectSchema, serviceSchema, text } from "./contentSchemas";
 import { tenantRepository } from "./siteData";
 import { COLLECTIONS } from "./cacheTags";
 
@@ -95,21 +96,21 @@ export function createCollections(repo: TenantRepo, tenantId: string, locale: "v
     }),
   };
   async function faqs() {
-    const schema = z.object({ question: textValue, answer: textValue });
+    const schema = faqSchema;
     return (await records("faq")).flatMap((row) => {
       const data = parseContent(schema, row.data, context("faq", row));
       return data ? [{ id: row.id, question: label(data.question), answer: label(data.answer) }] : [];
     });
   }
   async function certificates() {
-    const schema = z.object({ issuer: z.string(), number: z.string(), validUntil: z.string(), image: contentImage });
+    const schema = certificateSchema;
     return (await records("certificate")).flatMap((row) => {
       const data = parseContent(schema, row.data, context("certificate", row));
       return data ? [{ ...data, id: row.id, title: label(row.title) }] : [];
     });
   }
   async function press() {
-    const schema = z.object({ url: z.url().refine((url) => new URL(url).protocol === "https:"), excerpt: textValue.optional() });
+    const schema = pressItemSchema;
     return (await records("pressItem")).flatMap((row) => {
       const data = parseContent(schema, row.data, context("pressItem", row));
       return data ? [{ id: row.id, title: label(row.title), url: data.url, excerpt: label(data.excerpt) }] : [];

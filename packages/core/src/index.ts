@@ -2,6 +2,7 @@ export * from "./solarCalculator";
 export * from "./solarPackages";
 export * from "./format";
 export * from "./price";
+export { resolvePrice } from "./price";
 export * from "./phone";
 export * from "./quoteCart";
 export * from "./quoteCartStore";

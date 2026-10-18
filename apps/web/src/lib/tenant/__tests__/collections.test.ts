@@ -1,8 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { TenantRepo } from "@solar/db";
+import { COLLECTIONS, collectionDefs, type TenantRepo } from "@solar/db";
 import { collectionSchemas, createCollectionLoader, mediaSrc, sectionRegistry, widgetRegistry, type CollectionSource } from "@solar/sections";
 import { createCollections, createTenantWidgetLoader } from "../collections";
+
+test("all shared collection defaults render through the public loader", async () => {
+  const names = Object.fromEntries(COLLECTIONS.map((name, index) => [name, { list: async () => [{
+    id: `e7060000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`, slug: `default-${name.toLowerCase()}`, status: "published",
+    ...collectionDefs[name].defaults.columns, title: collectionDefs[name].defaults.title, data: collectionDefs[name].defaults.data,
+  }] }])) as unknown as TenantRepo;
+  const adapter = createCollections(names, "e7060000-0000-4000-8000-000000000099");
+  const site = { tenantId: "e7060000-0000-4000-8000-000000000099", themeId: "t15", locale: "vi" as const };
+  for (const name of Object.keys(collectionSchemas) as (keyof typeof collectionSchemas)[]) {
+    const rows = await adapter.source[name]!(site);
+    assert.equal(rows.length, 1, name); assert.ok(collectionSchemas[name].safeParse(rows[0]).success, name);
+  }
+  for (const load of [adapter.services, adapter.faqs, adapter.press, adapter.certificates]) assert.equal((await load()).length, 1);
+});
 
 test("empty DB collections stay empty; UUID selectors never select demo slugs or foreign records", async () => {
   const row = { id: "00000000-0000-4000-8000-000000000001", slug: "shared", title: { vi: "Tenant A" }, data: { excerpt: { vi: "Published A" }, cover: "/images/a.webp", readMinutes: 2, body: ["Body"] } };
