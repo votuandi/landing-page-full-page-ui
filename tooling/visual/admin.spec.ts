@@ -51,10 +51,24 @@ test("content editor: typing updates preview within 2 s and leave warns", async 
   const child = page.frames().find(f => f.url().includes(".preview."))!;
   expect(await child.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
   const timeOrigin = await child.evaluate(() => performance.timeOrigin);
-  const next = `[DỮ LIỆU MẪU] Xem trước ${Date.now()}`;
-  await title.fill(next); const t0 = Date.now();
-  await expect(iframe.locator("main")).toContainText(next);
-  const elapsed = Date.now() - t0; console.info(`E7-S05 preview latency: ${elapsed} ms`); expect(elapsed).toBeLessThan(2000);
+  // AC1 measured in the admin page on one clock: last `input` event → bridge `updated` (posted after the refreshed
+  // preview commits). No Playwright polling in the interval; 5 samples, every one must stay under 2 s.
+  await page.evaluate(() => {
+    const w = window as typeof window & { latency: number[] }; let typed = 0; w.latency = [];
+    addEventListener("input", () => { typed = performance.now(); }, true);
+    addEventListener("message", event => { if ((event.data as { action?: string })?.action === "updated" && typed) { w.latency.push(performance.now() - typed); typed = 0; } });
+  });
+  let next = "";
+  for (let i = 0; i < 5; i++) {
+    next = `[DỮ LIỆU MẪU] Xem trước ${i} ${Date.now()}`;
+    await title.fill(next);
+    await expect(iframe.locator("main")).toContainText(next);
+    await expect.poll(() => page.evaluate(() => (window as typeof window & { latency: number[] }).latency.length)).toBe(i + 1);
+  }
+  const samples = await page.evaluate(() => (window as typeof window & { latency: number[] }).latency.map(Math.round));
+  const sorted = [...samples].sort((a, b) => a - b);
+  console.info(`E7-S05 preview latency ms: ${samples.join(", ")} (median ${sorted[2]}, max ${sorted[4]})`);
+  expect(sorted[4]).toBeLessThan(2000);
   expect(await child.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
   const publicPage = await page.context().newPage();
   try { await publicPage.goto(`http://admin-e7-a.${platformDomain}:3212/`); await expect(publicPage.locator("main")).not.toContainText(next); }
