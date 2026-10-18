@@ -3,6 +3,7 @@ import { getTenant } from "./auth.ts";
 import { getSiteEntitlements } from "./entitlements.ts";
 import { getRuntime } from "./runtime.ts";
 import type { PageSectionsDeps } from "./pageSections.ts";
+import { previewUrl } from "./previewUrl.ts";
 
 export const pageSectionDeps: PageSectionsDeps = {
   tenant: getTenant,
@@ -18,6 +19,9 @@ export const pageSectionDeps: PageSectionsDeps = {
   async contents(siteId, pageId) {
     return forTenant(getRuntime().db, (await getTenant()).tenantId).sectionContent.list({ where: { siteId, pageId }, select: { sectionId: true, type: true } });
   },
+  async content(siteId, pageId, sectionId) {
+    return forTenant(getRuntime().db, (await getTenant()).tenantId).sectionContent.first({ where: { siteId, pageId, sectionId } });
+  },
   async actor(session) {
     // shortcut: ghost không có actor trong site realm; mở rộng cầu nối có audit ở E15 trước khi cho ghi.
     return session.kind === "user" && session.accountId ? { siteUserId: session.accountId } : null;
@@ -27,8 +31,6 @@ export const pageSectionDeps: PageSectionsDeps = {
   async preview(tenantId, siteId, slug, path) {
     const runtime = getRuntime();
     const token = await createPreviewToken(runtime.db, tenantId, siteId);
-    const url = new URL(`${process.env.NODE_ENV === "production" ? "https" : "http"}://${slug}.preview.${runtime.platform}/api/preview`);
-    url.searchParams.set("token", token); url.searchParams.set("path", path);
-    return url.toString();
+    return previewUrl({ slug, platform: runtime.platform, path, token, production: process.env.NODE_ENV === "production", port: process.env.TENANT_PUBLIC_PORT });
   },
 };

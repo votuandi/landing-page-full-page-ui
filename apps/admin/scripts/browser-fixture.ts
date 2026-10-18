@@ -26,12 +26,13 @@ async function main() {
           await db.tenant.create({ data: { ...fixture, name: "[DỮ LIỆU MẪU] Admin E2E", planId: fixture.slug === "admin-e7-collections-basic" ? "basic" : "premium" } });
           await withTenantTransaction(db, fixture.id, async repo => {
             const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15" });
+            await repo.domain.create({ siteId: site.id, hostname: `${fixture.slug}.${platformDomain}`, status: "active", isPrimary: true, verificationToken: randomUUID() });
             await repo.page.create({ siteId: site.id, slug: "lien-he", title: { vi: "Liên hệ" }, sections: [] });
             const home = await repo.page.create({ siteId: site.id, slug: "", kind: "home", title: { vi: "Trang chủ" }, publishedAt: new Date(),
               sections: [{ id: "hero", type: "hero", variant: "t12", enabled: true }] });
             await repo.sectionContent.create({ siteId: site.id, pageId: home.id, sectionId: "hero", type: "hero", data: sectionRegistry.types.hero.defaults });
             await repo.siteUser.create({ email: "owner@demo.vn", phone: "0901234567", name: "[DỮ LIỆU MẪU] Owner", role: "owner", status: "active", emailVerifiedAt: new Date(), passwordHash: hashes[index === 1 ? 1 : 0] });
-            if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["customer_client", "client"]] as const) {
+            if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["viewer_admin", "viewer"], ["customer_client", "client"]] as const) {
               await repo.siteUser.create({ username, name: "[DỮ LIỆU MẪU]", role, status: "active", passwordHash: hashes[0] });
             }
             if (index === 2) for (const [username, expired] of [["nangluongsolar_admin", false], ["expired_admin", true]] as const) {

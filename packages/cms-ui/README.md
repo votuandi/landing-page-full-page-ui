@@ -29,3 +29,15 @@ Lab `/lab/cms-sections`, test `sectionEditor.test.tsx`, bằng chứng browser `
 - Chưa có thư viện media (E8-S05): không truyền `pickers.media` thì ô media là ô nhập mã/đường dẫn.
 
 Thêm section type mới → có form ngay, không cần code riêng. Test: `pnpm --filter @solar/cms-ui test`.
+
+## Sửa nội dung và xem trước
+
+`useAutosave(value, { save, valid, delay: 800 })` lưu tuần tự, chỉ gửi giá trị mới nhất sau debounce.
+Lỗi giữ `dirty`; 409 (`conflict: true`) dừng tự lưu đến khi tải lại. `flush()` thử lưu ngay.
+`SchemaForm.onValidityChange` báo cả lỗi nhập thô (ô số chứa chữ) để caller dừng autosave và cảnh báo chưa lưu.
+`useLeaveGuard(dirty)` chặn đóng/tải lại trang và hỏi trước link nội bộ; App Router `popstate` chưa hỗ trợ chặn.
+
+`PreviewFrame` dùng protocol từ `@solar/cms-ui/preview/protocol`, xác thực cả origin và cửa sổ iframe,
+cuộn khi nhận `ready`, gửi `refresh` khi `refreshKey` tăng. `src` giữ nguyên sau lưu để token một lần và phiên draft
+không bị tải lại. Web preview xác thực cửa sổ cha trước `router.refresh()` và tôn trọng reduced motion khi cuộn.
+`SectionListEditor.editHref(section)` thêm link sửa nội dung độc lập với quyền đổi bố cục.

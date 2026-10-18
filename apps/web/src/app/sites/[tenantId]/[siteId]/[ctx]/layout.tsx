@@ -9,6 +9,7 @@ import { tenantMetadata } from "@/lib/tenant/metadata";
 import { placeholderParams, tenantRoute } from "@/lib/tenant/route";
 import { tenantRenderKey } from "@/lib/tenant/renderKey";
 import { TenantChrome } from "@/components/tenant/cached";
+import { PreviewBridge } from "@/components/preview/PreviewBridge";
 
 // Approved blocking route (E5-S06): the tenant comes from the Host at request time and `next build` has no database, so
 // there is no valid generateStaticParams. This also covers generateViewport/Metadata's request-time tenant lookup.
@@ -38,6 +39,6 @@ export default async function TenantLayout({ children, params }: { children: Rea
   for (const file of themeFontFiles(site.theme)) preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return <html lang={site.locale} data-tenant-site={site.siteId} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
     <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(site.theme) }} /><script dangerouslySetInnerHTML={{ __html: script }} /></head>
-    <body><TenantChrome {...tenantRenderKey(site, preview)}>{children}</TenantChrome></body>
+    <body>{preview && <PreviewBridge adminPort={process.env.NODE_ENV === "production" ? "" : process.env.ADMIN_PUBLIC_PORT} />}<TenantChrome {...tenantRenderKey(site, preview)}>{children}</TenantChrome></body>
   </html>;
 }

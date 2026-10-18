@@ -1,4 +1,9 @@
 export { SchemaForm, validate } from "./SchemaForm.tsx";
+export { useAutosave } from "./preview/useAutosave.ts";
+export { useLeaveGuard } from "./preview/useLeaveGuard.ts";
+export { PreviewFrame } from "./preview/PreviewFrame.tsx";
+export { PREVIEW_MESSAGE, parsePreviewMessage, adminOrigin, shouldHandlePreview } from "./preview/protocol.ts";
+export type { PreviewCommand, PreviewEvent } from "./preview/protocol.ts";
 export { SectionListEditor } from "./sections/SectionListEditor.tsx";
 export type { SectionListEditorProps } from "./sections/SectionListEditor.tsx";
 export type { EditableSection } from "./sections/ops.ts";

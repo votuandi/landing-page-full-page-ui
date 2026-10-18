@@ -34,6 +34,22 @@ async function fixture(work: (ctx: {
 }
 const options = { skip: !process.env.DATABASE_URL };
 
+test("new section content records the current schemaVersion so it remains editable", options, async () => fixture(async ({ repo, pageId }) => {
+  const row = await repo.sectionContent.first({ where: { pageId, sectionId: "hero" } });
+  assert.equal(row?.schemaVersion, sectionRegistry.types.hero.schemaVersion);
+}));
+
+test("content save writes draftData only", options, async () => fixture(async ({ db, repo, tenantId, siteId, pageId, actor, data }) => {
+  const before = await repo.sectionContent.first({ where: { pageId, sectionId: "hero" } }), jobs = await repo.outbox.count();
+  const next = { ...sectionRegistry.types.hero.defaults, badge: { vi: "[DỮ LIỆU MẪU] Nháp mới" } };
+  await saveDraft(db, tenantId, { pageId, expectedRevision: 2, actor, sections: [{ sectionId: "hero", type: "hero", draftData: next }] });
+  const after = await repo.sectionContent.first({ where: { pageId, sectionId: "hero" } });
+  assert.deepEqual(after?.data, before?.data); assert.deepEqual(after?.draftData, next);
+  assert.equal(await repo.outbox.count(), jobs);
+  assert.deepEqual((await data.loadPublishedPage(tenantId, siteId, ""))?.config.sections[0].data, before?.data);
+  assert.deepEqual((await data.loadDraftPage(tenantId, siteId, ""))?.config.sections[0].data, next);
+}));
+
 test("saveDraft rejects a second calculator with StructureError and rolls back", options, async () => fixture(async ({ db, repo, tenantId, pageId, actor }) => {
   const hero = { id: "hero", type: "hero", variant: "t12", enabled: true };
   const calculator = { id: "calculator", type: "calculator", variant: "t15", enabled: true };
@@ -79,7 +95,7 @@ test("publish action rejects legacy overflow with 400 and keeps publication unch
     actor: async () => actor,
     publish: (id, input) => publishPage(db, id, input),
     save: async () => { throw new Error("Unexpected save"); },
-    contents: async () => [], entitlements: async () => () => true, preview: async () => "",
+    contents: async () => [], content: async () => null, entitlements: async () => () => true, preview: async () => "",
   });
   const publish = createAction(async () => context)("pages.publish", pageRevisionSchema, handlers.publish);
   const form = new FormData(); form.set("pageId", pageId); form.set("revision", "2");

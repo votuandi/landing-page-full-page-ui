@@ -42,6 +42,8 @@ export type SchemaFormProps<S extends z.ZodType> = {
   schema: S;
   value: z.input<S>;
   onChange(next: z.input<S>): void;
+  /** Includes raw input errors that cannot be represented in the schema value (e.g. invalid numbers). */
+  onValidityChange?(valid: boolean): void;
   /** Chỉ gọi khi dữ liệu hợp lệ; nhận output của `schema.parse`. */
   onSubmit?(data: z.output<S>): void;
   submitLabel?: string;
@@ -55,7 +57,7 @@ const NO_PICKERS: Pickers = {};
 const NO_OVERRIDES = {};
 
 export function SchemaForm<S extends z.ZodType>({
-  schema, value, onChange, onSubmit, submitLabel = "Lưu", bilingual = false,
+  schema, value, onChange, onValidityChange, onSubmit, submitLabel = "Lưu", bilingual = false,
   pickers = NO_PICKERS, widgets = NO_OVERRIDES, labels = NO_OVERRIDES,
 }: SchemaFormProps<S>) {
   const idPrefix = useId();
@@ -83,6 +85,7 @@ export function SchemaForm<S extends z.ZodType>({
   const ctx = useMemo<FormContext>(() => ({ idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError, inputErrorKeys: inputErrors }),
     [idPrefix, issues, bilingual, pickers, widgets, labels, update, setInputError, inputErrors]);
   const invalid = !result.success || inputErrors.size > 0;
+  useLayoutEffect(() => { onValidityChange?.(!invalid); }, [invalid, onValidityChange]);
   const errorCount = (result.error?.issues.length ?? 0) + inputErrors.size;
 
   const submit = (event: FormEvent) => {

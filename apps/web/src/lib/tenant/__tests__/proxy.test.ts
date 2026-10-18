@@ -15,6 +15,17 @@ const request = (host: string, path = "/", extra: Record<string, string> = {}) =
 const resolver = { resolve: async (host: string) => records.find((value) => value.hostname === host) ?? null };
 const proxy = createProxy(resolver, { enabled: true, production: false });
 
+test("preview frame-ancestors uses admin port in dev and no port in production", async t => {
+  const previous = process.env.ADMIN_PUBLIC_PORT, domain = process.env.PLATFORM_DOMAIN;
+  t.after(() => { if (previous === undefined) delete process.env.ADMIN_PUBLIC_PORT; else process.env.ADMIN_PUBLIC_PORT = previous; if (domain === undefined) delete process.env.PLATFORM_DOMAIN; else process.env.PLATFORM_DOMAIN = domain; });
+  process.env.ADMIN_PUBLIC_PORT = "3300"; process.env.PLATFORM_DOMAIN = "solar.localhost";
+  for (const production of [false, true]) {
+    const route = createProxy({ resolve: async () => null }, { enabled: true, production });
+    const response = await route(new NextRequest("http://a.preview.solar.localhost:3212/api/preview", { headers: { host: "a.preview.solar.localhost:3212" } }));
+    assert.equal(response.headers.get("Content-Security-Policy"), production ? "frame-ancestors https://a.admin.solar.localhost" : "frame-ancestors http://a.admin.solar.localhost:3300");
+  }
+});
+
 test("preview requires a tenant/site MAC cookie; entry bypasses cookie and every response is private/noindex with admin CSP", async t => {
   const previous = { PLATFORM_DOMAIN: process.env.PLATFORM_DOMAIN, PREVIEW_SECRET: process.env.PREVIEW_SECRET };
   process.env.PLATFORM_DOMAIN = "localhost";

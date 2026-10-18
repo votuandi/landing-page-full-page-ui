@@ -29,9 +29,10 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     const host = normalizeHost(headers.get("host"));
     if (!host) return missing();
     const slug = previewSlug(host);
+    const adminPort = !production ? process.env.ADMIN_PUBLIC_PORT ?? request.nextUrl.port : "";
     const previewHeaders = slug ? {
       "X-Robots-Tag": "noindex", "Cache-Control": "private, no-store",
-      "Content-Security-Policy": `frame-ancestors ${production ? "https:" : request.nextUrl.protocol}//${slug}.admin.${process.env.PLATFORM_DOMAIN}${!production && request.nextUrl.port ? `:${request.nextUrl.port}` : ""}`,
+      "Content-Security-Policy": `frame-ancestors ${production ? "https:" : request.nextUrl.protocol}//${slug}.admin.${process.env.PLATFORM_DOMAIN}${adminPort ? `:${adminPort}` : ""}`,
     } : undefined;
     const protect = (response: NextResponse) => {
       for (const [key, value] of Object.entries(previewHeaders ?? {})) response.headers.set(key, value);
