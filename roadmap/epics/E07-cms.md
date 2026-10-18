@@ -84,7 +84,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 - **Chi tiết**: chia đôi màn hình: form (S03) bên trái, iframe preview (draft mode trên `<slug>.preview.<platform>` — xem
   E5-S07, không dùng tên miền khách để tránh vấn đề cookie bên thứ ba) bên phải; cuộn tới
   section đang sửa; cập nhật preview khi lưu nháp (debounce 800 ms).
-- **AC**: [ ] Từ lúc gõ đến lúc preview cập nhật ≤ 2 s · [ ] Rời trang khi chưa lưu → cảnh báo.
+- **AC**: [x] Từ lúc gõ đến lúc preview cập nhật ≤ 2 s · [x] Rời trang khi chưa lưu → cảnh báo.
 - Phụ thuộc: S03, S04 · Agent: Claude · Cỡ: M
 
 ### E7-S06 · Quản lý collection
