@@ -95,7 +95,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   Đã tách (18/10/2026): nhập/xuất CSV cho sản phẩm chuyển sang E7-S14.
 - **AC**:
   - [ ] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật).
-  - [ ] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối.
+  - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts`; e2e đã viết, chờ Claude chạy.)
 - Phụ thuộc: S03, E5-S05 · Agent: Codex · Cỡ: L
 
 ### E7-S07 · Thông tin công ty & cấu hình chung
