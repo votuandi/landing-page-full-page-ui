@@ -15,6 +15,19 @@ test("saveColors stores passing colors and clears empty", async () => {
   assert.equal((await s.actions.colors({}, s.form({}))).ok, true);
   assert.deepEqual(s.site().themeOverrides, {});
 });
+test("saveColors round-trip preserves non-brand overrides while editing and clearing brand colors", async () => {
+  const s = setup(), theme = getTheme("t15")!;
+  const other = { light: { bg: theme.colors.light.bg, glass: theme.colors.light.glass }, dark: { fg: theme.colors.dark!.fg } };
+  const original = { colors: { light: { ...other.light, primary: theme.colors.light.primary }, dark: { ...other.dark, accent: theme.colors.dark!.accent ?? theme.colors.light.accent } } };
+  s.setSite({ themeOverrides: original });
+  assert.equal((await s.actions.colors({}, s.form(original))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, original);
+  const edited = { colors: { light: { secondary: theme.colors.light.secondary } } };
+  assert.equal((await s.actions.colors({}, s.form(edited))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, { colors: { light: { ...other.light, ...edited.colors.light }, dark: other.dark } });
+  assert.equal((await s.actions.colors({}, s.form({}))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, { colors: other });
+});
 test("colors require themeOverride", async () => {
   const s = setup("owner", false);
   assert.equal((await s.actions.colors({}, s.form({}))).status, 403);
@@ -32,6 +45,18 @@ test("theme change rechecks overrides", async () => {
   const s = setup(); s.setSite({ themeOverrides: { colors: { light: { primary: getTheme("t14")!.colors.light["on-primary"] } } } });
   assert.equal((await s.actions.theme({}, s.form({ themeId: "t14" }))).status, 400);
   assert.equal(s.site().themeId, "t15"); assert.equal(s.writes(), 0);
+});
+test("theme change ignores overrides without themeOverride", async () => {
+  const s = setup("owner", false);
+  const overrides = { colors: { light: { primary: getTheme("t02")!.colors.light["on-primary"] } } };
+  s.setSite({ planId: "basic", themeOverrides: overrides });
+  const preview = await s.actions.preview({}, s.form({ themeId: "t02" }));
+  assert.equal(preview.ok, true);
+  assert.equal(new URL(preview.url!).searchParams.get("theme"), "t02");
+  assert.equal(s.writes(), 0);
+  assert.equal((await s.actions.theme({}, s.form({ themeId: "t02" }))).ok, true);
+  assert.equal(s.site().themeId, "t02");
+  assert.deepEqual(s.site().themeOverrides, overrides);
 });
 test("preview rechecks current overrides before creating a token", async () => {
   const s = setup(); s.setSite({ themeOverrides: { colors: { light: { primary: getTheme("t14")!.colors.light["on-primary"] } } } });
