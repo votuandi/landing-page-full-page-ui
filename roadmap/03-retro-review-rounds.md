@@ -52,3 +52,24 @@ finding + cách viết plan + kiểm thử dồn cho CI — đều là vấn đ�
 ## Việc ngoài repo
 - Vercel: tắt deploy từ Git cho các project template cũ trên branch `mono-repo-multi-tenent` (12 check đỏ do giới hạn
   build làm PR luôn `UNSTABLE`).
+
+## Việc theo dõi ở story tiếp theo (sau khi merge PR #50 rồi #51)
+
+PR #50 merge khi job `compare` còn đỏ ở `visual.spec.ts › /`. Lỗi nằm ở bước dựng baseline trên code base (run
+39134430864, 39136637062), không do PR. Story kế tiếp (bước 0 của `/run-story`, trước khi tạo branch) làm và ghi kết quả
+vào report:
+
+1. **Baseline của base**: push merge #51 chạy `visual.yml` (job `baseline`, `matrix-baseline`) — kiểm run đó xanh
+   (`gh run list --workflow visual.yml --branch mono-repo-multi-tenent --limit 1`). Đỏ ở `/` → chạy lại một lần; vẫn đỏ →
+   mục 4.
+2. **PR đầu tiên sau #51** (story tiếp theo): log `compare` phải có `Baseline restored from run …`, không có
+   `generating from merge-base` (kiểm `scripts/ci/visual-baseline-run.sh` hoạt động); `visual.spec.ts › /` qua (có thể
+   sau retry — Playwright ghi `flaky`).
+3. Đạt 1 + 2 → cập nhật dòng `visual.spec.ts:5 › /` trong `tooling/visual/README.md`: "giảm nhờ PR #51 (baseline có sẵn
+   + retry), còn flaky ở base — sửa gốc E14-S08", kèm run id.
+4. Còn đỏ sau retry trên code của PR → không còn là baseline: chạy local
+   `pnpm --filter @solar/visual exec playwright test visual.spec.ts --grep "› /$" --repeat-each=5` trên base để đo tỷ lệ
+   lỗi, rồi đề xuất kéo phần ổn định trang chủ của E14-S08 (chờ ảnh/animation xong, mask vùng động) thành story nhỏ chạy
+   trước; hỏi người dùng trước khi đổi phạm vi.
+5. Gắn ✅ + link PR #50 cho E7-S07 và E7-S08 trong `roadmap/epics/E07-cms.md` (bước 7 của `/run-story`), cùng PR #51 vào
+   ghi chú retro này nếu cần.
