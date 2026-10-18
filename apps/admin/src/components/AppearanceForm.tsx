@@ -13,8 +13,8 @@ const subscribeNothing = () => () => {};
 const focus = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 const primaryButton = `min-h-11 rounded-button bg-primary px-4 py-2 font-semibold text-on-primary disabled:opacity-50 ${focus}`;
 const panel = "min-w-0 space-y-4 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6";
-export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, updatedAt, canOverride }: {
-  themeId: string; planId: string; overrides: ThemeOverrides; logo?: string; logoDark?: string; updatedAt: string; canOverride: boolean;
+export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, updatedAt, canOverride, warning }: {
+  themeId: string; planId: string; overrides: ThemeOverrides; logo?: string; logoDark?: string; updatedAt: string; canOverride: boolean; warning?: string;
 }) {
   const [selected, setSelected] = useState(themeId), [currentTheme, setCurrentTheme] = useState(themeId), [version, setVersion] = useState(updatedAt);
   const [result, setResult] = useState<ActionResult>({}), [pending, start] = useTransition(), router = useRouter();
@@ -40,6 +40,7 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
   return <section className="min-w-0 max-w-6xl space-y-6">
     <header className="space-y-1"><h1 className="text-2xl font-semibold text-fg">Giao diện</h1>
       <p className="text-sm text-fg-muted">Chọn theme, màu thương hiệu và logo. Thay đổi áp dụng cho toàn website ngay khi lưu.</p></header>
+    {warning && <p role="alert" className="text-sm text-danger">{warning}</p>}
     <div role="status" aria-live="polite" className={`break-words text-sm ${result.error ? "font-medium text-danger" : "text-fg"}`}>{pending ? "Đang xử lý…" : result.error ?? result.message}</div>
     {result.url && <a className={`inline-flex min-h-11 items-center rounded-button text-sm text-primary underline-offset-4 hover:underline ${focus}`} href={result.url} target="_blank" rel="noopener noreferrer">Mở trang xem thử (tab mới)</a>}
     <form onSubmit={event => { event.preventDefault(); submit(saveTheme, { themeId: selected }, response => { if (response.ok) setCurrentTheme(selected); }); }} className={panel}>
