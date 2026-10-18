@@ -8,6 +8,7 @@ import { STORIES } from "../../../apps/web/src/data/stories.ts";
 import { TESTIMONIALS } from "../../../apps/web/src/data/testimonials.ts";
 import { FAQS } from "../../../apps/web/src/data/faq.ts";
 import { siteConfig } from "../../../apps/web/src/config/site.config.ts";
+import { mapSiteConfig } from "../src/siteConfigImport.ts";
 import { SERVICES, TEAM } from "../../../apps/web/src/data/solar.ts";
 import { TARIFFS } from "../../../apps/web/src/config/solar.ts";
 import { slugify } from "../src/collections.ts";
@@ -56,12 +57,13 @@ export function buildDemo(id: "t15" | "t12") {
   return {
     id, name, themeId: preset.themeId, widgets, pages, planId, addons: [...addons], pageTypes: structure.pageTypes,
     profile: {
+      ...mapSiteConfig(siteConfig).profile,
       name: localized(name), description: localized(`${name} — Đồng hành cùng từng mái nhà.`),
       email: siteConfig.brand.email, hotline: siteConfig.branches[0].hotline.main, theme: siteConfig.theme,
       guide: { ...siteConfig.guide, tariffs: Object.entries(TARIFFS).flatMap(([segment, tariff]) => tariff.kind === "tiered"
         ? tariff.tiers.map((tier, index) => [`[DỮ LIỆU MẪU] Sinh hoạt — bậc ${index + 1}`, `${tier.upTo ? `Đến ${tier.upTo} kWh` : "Bậc cuối"}: ${tier.price} đ/kWh (chưa VAT)`])
         : [[`[DỮ LIỆU MẪU] ${segment}`, `${tariff.averageRate} đ/kWh bình quân (chưa VAT)`]]) },
-      legal: { policies: siteConfig.legal.policies.map((policy) => ({ ...policy, body: { vi: [{ type: "paragraph", children: [{ type: "text", text: `[DỮ LIỆU MẪU] ${name}: ${policy.summary}` }] }] } })) },
+      legal: { ...mapSiteConfig(siteConfig).profile.legal, policies: siteConfig.legal.policies.map((policy) => ({ ...policy, body: { vi: [{ type: "paragraph", children: [{ type: "text", text: `[DỮ LIỆU MẪU] ${name}: ${policy.summary}` }] }] } })) },
       team: TEAM, timeline: [["2015", "[DỮ LIỆU MẪU] Thành lập", name], ["2026", "[DỮ LIỆU MẪU] Phát triển", "Đồng hành cùng khách hàng"]],
     },
     seo: { title: localized(name), description: localized(`${name} — Thiết kế và lắp đặt điện mặt trời.`), ogImage: id === "t15" ? "/images/solar-panels-hero.jpg" : "/images/solar-battery-hero.jpg",

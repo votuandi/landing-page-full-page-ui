@@ -1,5 +1,24 @@
 # @solar/db
 
+## Hồ sơ và giao diện site (E7-S07 / E7-S08)
+
+`@solar/db/site-profile` cung cấp `siteProfileSchema`, `companyProfileSchema`, `COMPANY_KEYS` và
+`mergeCompanyProfile` cho web/admin. Form công ty giữ nguyên guide, team, timeline, theme và legal.policies.
+`saveSiteSettings` qua entry chính nhận `(db, tenantId, siteId, patch, expectedUpdatedAt?)`; phiên bản cũ trả 409,
+site khác tenant trả 404. Site và outbox tag `tenant:<id>` được ghi trong cùng transaction. Caller kiểm quyền/gói.
+
+Nhập file cấu hình TypeScript tin cậy (script thực thi file):
+
+```sh
+pnpm import:site-config apps/web/src/config/site.config.ts --tenant demo-t15 --dry-run
+pnpm import:site-config apps/web/src/config/site.config.ts --tenant demo-t15
+```
+
+Lệnh ghi cần `PLATFORM_DATABASE_URL`. Dry-run chỉ in mapping và các khóa chưa map, không cần DB.
+Mapper kiểm toàn bộ hồ sơ/chi nhánh trước khi ghi, upsert chi nhánh theo `branch.id` làm slug, giữ các trường ngoài form,
+ghi audit `site.import-config`. Các section/collection khác và ảnh public được chuyển tiếp ở E13-S02.
+CLI ghi từng bước bằng các hàm transaction hiện có; lỗi DB giữa các bước có thể để lại phần đã nhập, chạy lại là an toàn.
+
 ## Collection (E7-S06)
 
 `@solar/db/collections` là entry dùng được ở client: `COLLECTIONS`, `collectionDefs`, `collectionFormSchema`,

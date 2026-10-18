@@ -126,3 +126,11 @@ Chỉ ghi bản nháp; nút xuất bản ở bố cục trang. Khi còn thay đ�
 Dev khác cổng: admin đặt `TENANT_PUBLIC_PORT=3212`; web đặt `ADMIN_PUBLIC_PORT=3300` và `PREVIEW_SECRET`.
 Production dùng HTTPS, không thêm cổng. Bộ e2e admin tự chạy cả hai app, cần DB local và seed như phần kiểm tra.
 Lab `/lab/cms-content` dùng lưu giả và iframe mẫu cố định; kiểm độ trễ thực tế nằm trong `tooling/visual/admin.spec.ts`.
+
+## Hồ sơ công ty và giao diện
+
+`/cai-dat` yêu cầu `settings.manage`, dùng SchemaForm trên schema chung `@solar/db/site-profile`.
+`/giao-dien` yêu cầu `theme.manage`: theme theo nhóm của gói, preview qua token một lần và cookie httpOnly,
+màu primary/secondary/accent (cần `themeOverride`), đường dẫn logo sáng/tối. Màu được kiểm AA trên cả client và server,
+đổi theme kiểm lại override đang lưu. Hạ gói giữ theme hiện tại, web bỏ override khi không còn entitlement.
+Mọi form gửi phiên bản `updatedAt`; xung đột 409 yêu cầu tải lại. Font override và favicon thuộc E7-S15.

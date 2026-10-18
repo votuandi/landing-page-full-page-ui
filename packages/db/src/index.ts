@@ -28,3 +28,5 @@ export { runBillingCron } from "./billing.ts";
 export * from "./collections.ts";
 export { saveCollectionItem, duplicateCollectionItem, deleteCollectionItem, reorderCollection, collectionRepository, CollectionError } from "./collectionWrite.ts";
 export type { CollectionInput, CollectionRow } from "./collectionWrite.ts";
+export { saveSiteSettings, SiteSettingsError } from "./siteSettings.ts";
+export type { SiteSettingsPatch } from "./siteSettings.ts";

@@ -11,14 +11,14 @@ const links = (nav: ReturnType<typeof adminNav>) => nav.flatMap(group => group.i
 
 test("owner navigation contains all story screens in order and the account group", () => {
   const nav = adminNav({ permissions, can });
-  assert.deepEqual(links(nav).map(item => item.href), ["/", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/ten-mien", "/email", "/nhan-vien", "/goi", "/doi-mat-khau", "/tai-khoan/bao-mat"]);
+  assert.deepEqual(links(nav).map(item => item.href), ["/", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/cai-dat", "/ten-mien", "/email", "/nhan-vien", "/goi", "/doi-mat-khau", "/tai-khoan/bao-mat"]);
   assert.equal(nav[1].label, "Tài khoản của tôi");
 });
 
 test("editor cannot see domains, billing or staff; tenant policy removes denied items", () => {
   const editor = effectivePermissions({ role: "editor", audience: "admin", policy: { deny: ["media.view"] } });
   const hrefs = links(adminNav({ permissions: editor, can })).map(item => item.href);
-  for (const href of ["/ten-mien", "/email", "/goi", "/nhan-vien", "/media"]) assert.ok(!hrefs.includes(href), href);
+  for (const href of ["/ten-mien", "/email", "/goi", "/nhan-vien", "/media", "/cai-dat"]) assert.ok(!hrefs.includes(href), href);
   assert.ok(hrefs.includes("/trang"));
 });
 

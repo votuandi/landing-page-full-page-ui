@@ -11,6 +11,7 @@ export const ADMIN_NAV: { label?: string; items: NavEntry[] }[] = [
     { href: "/media", label: "Media", permission: "media.view" },
     { href: "/lead", label: "Lead", permission: "leads.view", feature: "leadInbox" },
     { href: "/giao-dien", label: "Giao diện", permission: "theme.manage" },
+    { href: "/cai-dat", label: "Thông tin công ty", permission: "settings.manage" },
     { href: "/ten-mien", label: "Tên miền", permission: "domains.manage", feature: "customDomain" },
     { href: "/email", label: "Email theo tên miền", permission: "email.manage", feature: "customDomain" },
     { href: "/nhan-vien", label: "Tài khoản & nhân viên", permission: "users.view" },

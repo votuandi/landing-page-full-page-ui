@@ -3,7 +3,7 @@ import { ForbiddenError, MustChangePasswordError, UnauthenticatedError, type Ses
 import { authorize, type Access } from "./gate.ts";
 import { AccountInputError } from "./accounts.ts";
 
-export type ActionResult = { ok?: boolean; error?: string; status?: number; message?: string; secret?: string; uri?: string; codes?: string[] };
+export type ActionResult = { ok?: boolean; error?: string; status?: number; message?: string; secret?: string; uri?: string; codes?: string[]; updatedAt?: string; url?: string };
 export type ActionContext = { tenantId: string; slug: string; session: Session | null };
 export type AdminAction = (previous: ActionResult, form: FormData) => Promise<ActionResult>;
 type Loader = () => Promise<ActionContext>;
