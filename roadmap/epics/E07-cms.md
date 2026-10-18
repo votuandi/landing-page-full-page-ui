@@ -94,7 +94,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   `packages/core/price`), nhiều ảnh, thông số; video có `provider` youtube/tiktok/file/bunny.
   Đã tách (18/10/2026): nhập/xuất CSV cho sản phẩm chuyển sang E7-S14.
 - **AC**:
-  - [ ] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật).
+  - [x] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật). Tag thật `tenant:<id>:collection:project`; bằng chứng `apps/web/.../collectionWrite.int.test.ts` › "saving a published project revalidates home and project page".
   - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts`; e2e đã viết, chờ Claude chạy.)
 - Phụ thuộc: S03, E5-S05 · Agent: Codex · Cỡ: L
 
