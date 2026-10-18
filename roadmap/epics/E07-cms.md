@@ -80,14 +80,14 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   Chờ Claude design pass, review và tạo PR; E7-S13 giữ phạm vi phần b.
 - Phụ thuộc: S03, E5-S07 · Agent: Claude · Cỡ: M
 
-### E7-S05 · Sửa nội dung section kèm xem trước
+### E7-S05 · Sửa nội dung section kèm xem trước ✅ · PR [#49](https://github.com/votuandi/landing-page-full-page-ui/pull/49)
 - **Chi tiết**: chia đôi màn hình: form (S03) bên trái, iframe preview (draft mode trên `<slug>.preview.<platform>` — xem
   E5-S07, không dùng tên miền khách để tránh vấn đề cookie bên thứ ba) bên phải; cuộn tới
   section đang sửa; cập nhật preview khi lưu nháp (debounce 800 ms).
 - **AC**: [x] Từ lúc gõ đến lúc preview cập nhật ≤ 2 s · [x] Rời trang khi chưa lưu → cảnh báo.
 - Phụ thuộc: S03, S04 · Agent: Claude · Cỡ: M
 
-### E7-S06 · Quản lý collection
+### E7-S06 · Quản lý collection ✅ · PR [#48](https://github.com/votuandi/landing-page-full-page-ui/pull/48)
 **Là** tenant, **tôi muốn** thêm/sửa sản phẩm, dự án, video Shorts, bài viết, FAQ, đánh giá, chi nhánh, chứng chỉ, thương hiệu, báo chí, dịch vụ, **để** các section tự cập nhật.
 - **Chi tiết**: CRUD chung sinh từ schema collection (`packages/db/collections/*.ts` zod); danh sách có tìm kiếm, lọc, sắp xếp
   kéo thả, nhân bản, trạng thái nháp/xuất bản, slug tự sinh không dấu và kiểm trùng; sản phẩm có giá/giá giảm (quy tắc
@@ -95,7 +95,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   Đã tách (18/10/2026): nhập/xuất CSV cho sản phẩm chuyển sang E7-S14.
 - **AC**:
   - [x] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật). Tag thật `tenant:<id>:collection:project`; bằng chứng `apps/web/.../collectionWrite.int.test.ts` › "saving a published project revalidates home and project page".
-  - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts`; e2e đã viết, chờ Claude chạy.)
+  - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts` + e2e `admin.spec.ts` › "collections: basic tenant hides catalog and direct route is 404".)
 - Phụ thuộc: S03, E5-S05 · Agent: Codex · Cỡ: L
 
 ### E7-S07 · Thông tin công ty & cấu hình chung
