@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { SchemaForm, describe, type FieldNode } from "@solar/cms-ui";
 import { companyProfileSchema } from "@solar/db/site-profile";
@@ -27,15 +28,15 @@ export function SiteProfileForm({ initial, updatedAt, initialLocales, initialDef
   const [result, setResult] = useState<ActionResult>({}), [pending, start] = useTransition();
   // Keep SSR values readable, and accept edits only after their React handlers are attached.
   const ready = useSyncExternalStore(subscribeNothing, () => true, () => false);
-  return <div className="min-w-0 space-y-6 [&_button]:min-h-11 [&_button]:min-w-11">
-    <h1>Thông tin công ty</h1>
-    <p className="text-sm text-fg-muted">Thông tin được lưu và áp dụng ngay. Quản lý chi nhánh trong mục Nội dung.</p>
-    <div role="status" aria-live="polite" className={result.error ? "break-words text-danger" : "text-fg"}>{result.error ?? result.message}</div>
-    <fieldset disabled={!ready || pending} className="min-w-0 space-y-4" aria-busy={!ready || pending}>
-      <legend className="mb-3 text-lg font-semibold">Ngôn ngữ</legend>
+  return <div className="min-w-0 max-w-4xl space-y-6 [&_button]:min-h-11 [&_button]:min-w-11">
+    <header className="space-y-1"><h1 className="text-2xl font-semibold text-fg">Thông tin công ty</h1>
+      <p className="text-sm text-fg-muted">Thông tin áp dụng cho website ngay khi lưu. Chi nhánh, hotline từng chi nhánh và bản đồ quản lý trong <Link className="rounded-button text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" href="/noi-dung">Nội dung</Link>.</p></header>
+    <div role="status" aria-live="polite" className={`break-words text-sm ${result.error ? "font-medium text-danger" : "text-fg"}`}>{result.error ?? result.message}</div>
+    <fieldset disabled={!ready || pending} className="min-w-0 space-y-3 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6" aria-busy={!ready || pending}>
+      <legend className="px-1 text-lg font-semibold text-fg">Ngôn ngữ</legend>
       <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked disabled />Tiếng Việt (bắt buộc)</label>
       {bilingual && <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={locales.includes("en")} onChange={event => { setLocales(event.target.checked ? ["vi", "en"] : ["vi"]); if (!event.target.checked) setDefaultLocale("vi"); }} />Tiếng Anh</label>}
-      <label className="block space-y-2"><span>Ngôn ngữ mặc định</span><select className="min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg" value={defaultLocale} onChange={event => setDefaultLocale(event.target.value)} disabled={!bilingual}>
+      <label className="block max-w-sm space-y-2"><span className="font-medium text-fg">Ngôn ngữ mặc định</span><select className="min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" value={defaultLocale} onChange={event => setDefaultLocale(event.target.value)} disabled={!bilingual}>
         {(bilingual ? locales : [defaultLocale]).map(locale => <option key={locale} value={locale}>{locale === "vi" ? "Tiếng Việt" : "Tiếng Anh"}</option>)}
       </select></label>
       {!bilingual && <p className="text-sm text-fg-muted">Song ngữ có trong gói Cao cấp.</p>}

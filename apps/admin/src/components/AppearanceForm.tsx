@@ -10,6 +10,9 @@ import { BrandColorsForm } from "./BrandColorsForm.tsx";
 
 const requiredPlan = (group: ThemeGroup) => Object.values(plans).find(plan => plan.themes.includes(group))!.name;
 const subscribeNothing = () => () => {};
+const focus = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+const primaryButton = `min-h-11 rounded-button bg-primary px-4 py-2 font-semibold text-on-primary disabled:opacity-50 ${focus}`;
+const panel = "min-w-0 space-y-4 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6";
 export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, updatedAt, canOverride }: {
   themeId: string; planId: string; overrides: ThemeOverrides; logo?: string; logoDark?: string; updatedAt: string; canOverride: boolean;
 }) {
@@ -34,33 +37,36 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
       else if (tab) tab.location.replace(response.url);
     });
   };
-  return <section className="min-w-0 space-y-8">
-    <h1>Giao diện</h1>
-    <div role="status" aria-live="polite" className={result.error ? "break-words text-danger" : "text-fg"}>{pending ? "Đang xử lý…" : result.error ?? result.message}</div>
-    {result.url && <a className="inline-flex min-h-11 items-center" href={result.url} target="_blank" rel="noopener noreferrer">Mở trang xem thử (tab mới)</a>}
-    <form onSubmit={event => { event.preventDefault(); submit(saveTheme, { themeId: selected }, response => { if (response.ok) setCurrentTheme(selected); }); }} className="space-y-4">
-      <fieldset disabled={!ready || pending} className="min-w-0 space-y-4"><legend className="mb-3 text-lg font-semibold">Chọn theme</legend>
+  return <section className="min-w-0 max-w-6xl space-y-6">
+    <header className="space-y-1"><h1 className="text-2xl font-semibold text-fg">Giao diện</h1>
+      <p className="text-sm text-fg-muted">Chọn theme, màu thương hiệu và logo. Thay đổi áp dụng cho toàn website ngay khi lưu.</p></header>
+    <div role="status" aria-live="polite" className={`break-words text-sm ${result.error ? "font-medium text-danger" : "text-fg"}`}>{pending ? "Đang xử lý…" : result.error ?? result.message}</div>
+    {result.url && <a className={`inline-flex min-h-11 items-center rounded-button text-sm text-primary underline-offset-4 hover:underline ${focus}`} href={result.url} target="_blank" rel="noopener noreferrer">Mở trang xem thử (tab mới)</a>}
+    <form onSubmit={event => { event.preventDefault(); submit(saveTheme, { themeId: selected }, response => { if (response.ok) setCurrentTheme(selected); }); }} className={panel}>
+      <fieldset disabled={!ready || pending} className="min-w-0 space-y-4"><legend className="text-lg font-semibold text-fg">Chọn theme</legend>
         <p className="text-sm text-fg-muted">Đổi theme giữ nguyên nội dung. Dùng Xem thử để kiểm tra trước khi lưu.</p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{themes.map(theme => {
           const allowed = themeAllowed(planId, theme.meta.group), active = theme.meta.id === currentTheme;
-          return <div key={theme.meta.id} className={`min-w-0 rounded-card border p-4 ${selected === theme.meta.id ? "border-primary bg-bg-tint" : "border-line/20 bg-bg-elevated"}`}>
-            <label className="flex min-h-11 items-center gap-3 font-semibold"><input type="radio" name="theme" value={theme.meta.id} checked={selected === theme.meta.id} disabled={!allowed} onChange={() => setSelected(theme.meta.id)} />{theme.meta.name}{active && <span className="text-xs text-fg-muted">Đang dùng</span>}</label>
+          return <div key={theme.meta.id} className={`flex min-w-0 flex-col rounded-card border p-4 ${selected === theme.meta.id ? "border-primary bg-bg-tint ring-1 ring-primary" : "border-line/20 bg-bg"} ${allowed ? "" : "opacity-70"}`}>
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 font-semibold text-fg"><input type="radio" name="theme" value={theme.meta.id} checked={selected === theme.meta.id} disabled={!allowed} onChange={() => setSelected(theme.meta.id)} className="size-4 accent-primary" /><span className="min-w-0 flex-1 break-words">{theme.meta.name}</span>{active && <span className="shrink-0 rounded-pill bg-primary px-2 py-0.5 text-xs font-medium text-on-primary">Đang dùng</span>}</label>
             <p className="text-sm text-fg-muted">{themeLabels[theme.meta.group]}</p>
-            <div aria-hidden="true" className="my-3 flex h-12 overflow-hidden rounded-input">{(["primary", "secondary", "accent", "bg"] as const).map(key => <span key={key} className="flex-1" style={{ backgroundColor: colorChannelsToHex(theme.colors.light[key]) }} />)}</div>
-            {!allowed ? <p className="min-h-11 text-sm text-fg-muted">Đã khóa · Cần gói {requiredPlan(theme.meta.group)}</p> : <button type="button" className="min-h-11 rounded-button px-2 text-primary" onClick={() => openPreview(theme.meta.id)}>Xem thử {theme.meta.name} (tab mới)</button>}
+            <div aria-hidden="true" className="my-3 flex h-10 overflow-hidden rounded-input border border-line/20">{(["primary", "secondary", "accent", "bg"] as const).map(key => <span key={key} className="flex-1" style={{ backgroundColor: colorChannelsToHex(theme.colors.light[key]) }} />)}</div>
+            <div className="mt-auto">{!allowed ? <p className="flex min-h-11 items-center text-sm text-fg-muted">Cần gói {requiredPlan(theme.meta.group)} để dùng theme này</p> : <button type="button" className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary hover:bg-bg-tint ${focus}`} onClick={() => openPreview(theme.meta.id)}>Xem thử<span className="sr-only"> {theme.meta.name} (mở tab mới)</span></button>}</div>
           </div>;
         })}</div>
-        <button disabled={!themeAllowed(planId, getTheme(selected)!.meta.group)} className="min-h-11 rounded-button bg-primary px-4 py-2 font-semibold text-on-primary disabled:opacity-50">Lưu theme</button>
+        <button disabled={!themeAllowed(planId, getTheme(selected)!.meta.group) || selected === currentTheme} className={primaryButton}>Lưu theme</button>
       </fieldset>
     </form>
     {canOverride && <BrandColorsForm key={currentTheme} theme={getTheme(currentTheme)!} initial={overrides} pending={!ready || pending} save={value => submit(saveColors, value)} />}
-    <form className="space-y-4" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); submit(saveLogos, { logo: data.get("logo") || undefined, logoDark: data.get("logoDark") || undefined }); }}>
-      <h2>Logo sáng và tối</h2>
+    <form className={panel} onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); submit(saveLogos, { logo: data.get("logo") || undefined, logoDark: data.get("logoDark") || undefined }); }}>
+      <h2 className="text-lg font-semibold text-fg">Logo sáng và tối</h2>
       <fieldset disabled={!ready || pending} className="min-w-0 space-y-4"><legend className="sr-only">Đường dẫn logo</legend>
-        <p className="text-sm text-fg-muted">Nhập đường dẫn ảnh của website hoặc URL HTTPS. Để trống để bỏ logo.</p>
-        <label className="block space-y-2"><span>Logo sáng</span><input name="logo" defaultValue={logo ?? ""} className="min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg" /></label>
-        <label className="block space-y-2"><span>Logo tối</span><input name="logoDark" defaultValue={logoDark ?? ""} className="min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg" /></label>
-        <button className="min-h-11 rounded-button bg-primary px-4 py-2 font-semibold text-on-primary">Lưu logo</button>
+        <p className="text-sm text-fg-muted">Nhập đường dẫn ảnh trên website (bắt đầu bằng /) hoặc URL HTTPS. Để trống để bỏ logo.</p>
+        <div className="grid gap-4 md:grid-cols-2">
+        <label className="block space-y-2"><span className="font-medium text-fg">Logo sáng</span><input name="logo" type="text" inputMode="url" autoComplete="off" spellCheck={false} placeholder="/images/logo.svg" defaultValue={logo ?? ""} className={`min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg ${focus}`} /></label>
+        <label className="block space-y-2"><span className="font-medium text-fg">Logo tối</span><input name="logoDark" type="text" inputMode="url" autoComplete="off" spellCheck={false} placeholder="/images/logo-dark.svg" defaultValue={logoDark ?? ""} className={`min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg ${focus}`} /></label>
+        </div>
+        <button className={primaryButton}>Lưu logo</button>
       </fieldset>
     </form>
   </section>;
