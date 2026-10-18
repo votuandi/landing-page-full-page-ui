@@ -74,7 +74,7 @@ jobs:
       - run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
         run: |
-          for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
+          for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a admin-e7-a.preview admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
             echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
           done
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox

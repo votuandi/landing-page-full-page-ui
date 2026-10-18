@@ -34,6 +34,53 @@ test.beforeAll(async ({ request }) => {
 });
 test.afterAll(() => fixture("cleanup"));
 
+test("content editor: typing updates preview within 2 s and leave warns", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.context().grantPermissions(["local-network-access"]);
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/trang"); await page.getByRole("link", { name: /^Trang chủ/ }).click();
+  await page.getByRole("link", { name: "Sửa nội dung", exact: true }).first().click();
+  const iframe = page.frameLocator('iframe[title="Xem trước nội dung section"]');
+  await expect(iframe.locator("main")).toBeVisible({ timeout: 120_000 });
+  const en = page.getByRole("button", { name: "Tiếng Anh", exact: true }).first();
+  await en.click(); await expect(en).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Tiếng Việt", exact: true }).first().click();
+  const title = page.getByRole("textbox", { name: "Phần đầu", exact: true });
+  await title.fill("[DỮ LIỆU MẪU] Làm nóng xem trước");
+  await expect(iframe.locator("main")).toContainText("[DỮ LIỆU MẪU] Làm nóng xem trước");
+  const child = page.frames().find(f => f.url().includes(".preview."))!;
+  expect(await child.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
+  const timeOrigin = await child.evaluate(() => performance.timeOrigin);
+  const next = `[DỮ LIỆU MẪU] Xem trước ${Date.now()}`;
+  await title.fill(next); const t0 = Date.now();
+  await expect(iframe.locator("main")).toContainText(next);
+  const elapsed = Date.now() - t0; console.info(`E7-S05 preview latency: ${elapsed} ms`); expect(elapsed).toBeLessThan(2000);
+  expect(await child.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+  const publicPage = await page.context().newPage();
+  try { await publicPage.goto(`http://admin-e7-a.${platformDomain}:3212/`); await expect(publicPage.locator("main")).not.toContainText(next); }
+  finally { await publicPage.close(); }
+  await page.locator('input[id$="-rating.score"]').fill("bad"); await expect(page.getByRole("status").filter({ hasText: "Có lỗi cần sửa" })).toBeVisible();
+  const confirm = page.waitForEvent("dialog");
+  const click = page.getByRole("link", { name: "Về bố cục trang" }).click();
+  const dialog = await confirm; expect(dialog.type()).toBe("confirm"); await dialog.dismiss(); await click;
+  await expect(page).toHaveURL(/\/section\/hero$/);
+  const unload = page.waitForEvent("dialog"); const reload = page.evaluate(() => window.location.reload()).catch(() => null);
+  const warning = await unload; expect(warning.type()).toBe("beforeunload"); await warning.dismiss(); await reload;
+  await expect(page).toHaveURL(/\/section\/hero$/);
+});
+
+test("content editor: editor can edit, viewer cannot", async ({ page }) => {
+  const url = origin() + `/trang/${fixture("home-page")}/section/hero`;
+  await login(page, "editor_admin");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(url);
+  await expect(page.getByTestId("content-editor")).toBeVisible();
+  await page.context().clearCookies(); await login(page, "viewer_admin");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const response = await page.goto(url); expect(response?.status()).toBe(403);
+  await expect(page.getByTestId("content-editor")).toHaveCount(0);
+});
+
 test("section editor: save variant as draft, reload and publish", async ({ page }) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
