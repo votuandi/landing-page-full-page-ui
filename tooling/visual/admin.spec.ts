@@ -34,6 +34,48 @@ test.beforeAll(async ({ request }) => {
 });
 test.afterAll(() => fixture("cleanup"));
 
+test("collections: create project, publish, duplicate, reorder", async ({ page }, info) => {
+  await login(page);
+  await page.goto(origin() + "/noi-dung");
+  await page.getByRole("link", { name: /^Dự án/ }).click();
+  await page.getByRole("link", { name: "Thêm dự án" }).click();
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("[DỮ LIỆU MẪU] Đà Nẵng E7-S06");
+  await expect(page.getByText("du-lieu-mau-da-nang-e7-s06", { exact: true })).toBeVisible();
+  await page.getByLabel("Trạng thái", { exact: true }).selectOption("published");
+  expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "Lưu nội dung", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nội dung" })).toBeVisible();
+  await page.getByRole("button", { name: /Nhân bản.*Đà Nẵng E7-S06/ }).click();
+  const copy = page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "-ban-sao" });
+  await expect(copy).toContainText("Nháp");
+  const handle = copy.getByRole("button", { name: /^Kéo để sắp xếp/ });
+  await handle.focus(); await page.keyboard.press("Space"); await page.keyboard.press("ArrowUp"); await page.keyboard.press("Space");
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu thứ tự" })).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`collections-${width}.png`), fullPage: true });
+  }
+  await page.getByLabel("Tìm kiếm", { exact: true }).fill("da nang"); await page.getByRole("button", { name: "Áp dụng" }).click();
+  await expect(page.getByText(/Sắp xếp tạm tắt/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Kéo để sắp xếp/ }).first()).toBeDisabled();
+  await page.getByRole("link", { name: "Xóa bộ lọc" }).click();
+  page.on("dialog", dialog => dialog.accept());
+  await copy.getByRole("button", { name: /^Xóa/ }).click(); await expect(copy).toHaveCount(0);
+  await page.getByRole("button", { name: /Xóa.*Đà Nẵng E7-S06/ }).click();
+  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem")).toHaveCount(0);
+});
+
+test("collections: basic tenant hides catalog and direct route is 404", async ({ page }) => {
+  const slug = "admin-e7-collections-basic";
+  await login(page, "owner@demo.vn", password(), slug);
+  await page.goto(origin(slug) + "/noi-dung");
+  await expect(page.getByRole("link", { name: /^Sản phẩm/ })).toHaveCount(0);
+  const response = await page.goto(origin(slug) + "/noi-dung/san-pham");
+  expect(response?.status()).toBe(404);
+});
+
 test("section editor: save variant as draft, reload and publish", async ({ page }) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();

@@ -10,11 +10,7 @@ import { FAQS } from "../../../apps/web/src/data/faq.ts";
 import { siteConfig } from "../../../apps/web/src/config/site.config.ts";
 import { SERVICES, TEAM } from "../../../apps/web/src/data/solar.ts";
 import { TARIFFS } from "../../../apps/web/src/config/solar.ts";
-
-function slugify(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d")
-    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-}
+import { slugify } from "../src/collections.ts";
 const row = <T>(slug: string, title: string, data: T, order: number) => ({
   slug, title: { vi: title }, data, order, status: "published" as const,
 });
