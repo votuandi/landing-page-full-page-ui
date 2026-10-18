@@ -106,7 +106,8 @@ test("appearance: colors, theme content preservation, preview, axe and responsiv
   await page.goto(origin("admin-e7-collections-basic") + "/giao-dien");
   await expect(page.getByText("Màu thương hiệu", { exact: true })).toHaveCount(0);
   await expect(page.locator('input[name="theme"][value="t15"]')).toBeDisabled();
-  await expect(page.getByText(/Đã khóa · Cần gói/).first()).toBeVisible();
+  await expect(page.getByText("Đã khóa", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/Cần gói .+ để dùng theme này/).first()).toBeVisible();
 });
 
 test("appearance renders without JS", async ({ page, browser }) => {

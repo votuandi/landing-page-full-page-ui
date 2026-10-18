@@ -47,14 +47,15 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
         <p className="text-sm text-fg-muted">Đổi theme giữ nguyên nội dung. Dùng Xem thử để kiểm tra trước khi lưu.</p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{themes.map(theme => {
           const allowed = themeAllowed(planId, theme.meta.group), active = theme.meta.id === currentTheme;
-          return <div key={theme.meta.id} className={`flex min-w-0 flex-col rounded-card border p-4 ${selected === theme.meta.id ? "border-primary bg-bg-tint ring-1 ring-primary" : "border-line/20 bg-bg"} ${allowed ? "" : "opacity-70"}`}>
+          return <div key={theme.meta.id} className={`flex min-w-0 flex-col rounded-card border p-4 ${selected === theme.meta.id ? "border-primary bg-bg-tint ring-1 ring-primary" : "border-line/20 bg-bg"} ${allowed ? "" : "border-dashed"}`}>
             <label className="flex min-h-11 cursor-pointer items-center gap-3 font-semibold text-fg"><input type="radio" name="theme" value={theme.meta.id} checked={selected === theme.meta.id} disabled={!allowed} onChange={() => setSelected(theme.meta.id)} className="size-4 accent-primary" /><span className="min-w-0 flex-1 break-words">{theme.meta.name}</span>{active && <span className="shrink-0 rounded-pill bg-primary px-2 py-0.5 text-xs font-medium text-on-primary">Đang dùng</span>}</label>
             <p className="text-sm text-fg-muted">{themeLabels[theme.meta.group]}</p>
             <div aria-hidden="true" className="my-3 flex h-10 overflow-hidden rounded-input border border-line/20">{(["primary", "secondary", "accent", "bg"] as const).map(key => <span key={key} className="flex-1" style={{ backgroundColor: colorChannelsToHex(theme.colors.light[key]) }} />)}</div>
-            <div className="mt-auto">{!allowed ? <p className="flex min-h-11 items-center text-sm text-fg-muted">Cần gói {requiredPlan(theme.meta.group)} để dùng theme này</p> : <button type="button" className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary hover:bg-bg-tint ${focus}`} onClick={() => openPreview(theme.meta.id)}>Xem thử<span className="sr-only"> {theme.meta.name} (mở tab mới)</span></button>}</div>
+            <div className="mt-auto">{!allowed ? <p className="flex min-h-11 flex-wrap items-center gap-2 text-sm text-fg-muted"><span className="rounded-pill border border-line/20 px-2 py-0.5 text-xs font-medium text-fg">Đã khóa</span>Cần gói {requiredPlan(theme.meta.group)} để dùng theme này</p> : <button type="button" className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary hover:bg-bg-tint ${focus}`} onClick={() => openPreview(theme.meta.id)}>Xem thử<span className="sr-only"> {theme.meta.name} (mở tab mới)</span></button>}</div>
           </div>;
         })}</div>
-        <button disabled={!themeAllowed(planId, getTheme(selected)!.meta.group) || selected === currentTheme} className={primaryButton}>Lưu theme</button>
+        <div className="flex flex-wrap items-center gap-3"><button disabled={!themeAllowed(planId, getTheme(selected)!.meta.group) || selected === currentTheme} aria-describedby={selected === currentTheme ? "theme-save-hint" : undefined} className={primaryButton}>Lưu theme</button>
+          {selected === currentTheme && <p id="theme-save-hint" className="text-sm text-fg-muted">Chọn một theme khác để lưu.</p>}</div>
       </fieldset>
     </form>
     {canOverride && <BrandColorsForm key={currentTheme} theme={getTheme(currentTheme)!} initial={overrides} pending={!ready || pending} save={value => submit(saveColors, value)} />}

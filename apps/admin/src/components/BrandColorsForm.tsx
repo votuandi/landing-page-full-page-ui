@@ -17,7 +17,7 @@ export function BrandColorsForm({ theme, initial, pending, save }: { theme: Them
   const ratio = (value: number) => `${value.toFixed(1).replace(".", ",")}:1`;
   return <form className="min-w-0 space-y-4 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6" onSubmit={event => { event.preventDefault(); save(overrides); }}>
     <h2 className="text-lg font-semibold text-fg">Màu thương hiệu</h2>
-    <p className="text-sm text-fg-muted">Chữ trên màu thương hiệu cần đạt tỷ lệ tương phản tối thiểu 4,5:1 để dễ đọc. Bấm “Dùng màu theme” để bỏ màu tùy chỉnh.</p>
+    <p className="text-sm text-fg-muted">Chữ trên màu thương hiệu cần đạt tỷ lệ tương phản tối thiểu 4,5:1 để dễ đọc. Bấm “Dùng màu theme” để bỏ màu tùy chỉnh. Màu được kiểm theo theme đang dùng; khi đổi theme, màu tùy chỉnh được kiểm lại.</p>
     <fieldset disabled={pending} className="min-w-0 space-y-5"><legend className="sr-only">Chỉnh màu thương hiệu</legend>
       {(["light", ...(theme.meta.supportsDark ? ["dark"] : [])] as ("light" | "dark")[]).map(mode => <div key={mode} className="space-y-3">
         <h3 className="font-semibold text-fg">{mode === "light" ? "Chế độ sáng" : "Chế độ tối"}</h3>
@@ -30,7 +30,7 @@ export function BrandColorsForm({ theme, initial, pending, save }: { theme: Them
             <p className="flex items-center justify-between gap-3 rounded-input px-3 py-2 font-semibold" style={{ backgroundColor: colorChannelsToHex(colors[key]), color: colorChannelsToHex(colors[`on-${key}`]) }}><span>Chữ trên nền</span><span className="tabular-nums">{ratio(contrastRatio(colors[key], colors[`on-${key}`]))}</span></p>
             <p className="text-xs text-fg-muted"><span className="font-mono uppercase text-fg">{colorChannelsToHex(colors[key])}</span> · {overrides.colors?.[mode]?.[key] ? "màu tùy chỉnh" : "màu của theme"}</p>
             <button type="button" disabled={!overrides.colors?.[mode]?.[key]} className={`min-h-11 rounded-button px-2 text-sm text-primary disabled:text-fg-muted disabled:opacity-60 ${focus}`} onClick={() => update(mode, key)}>Dùng màu theme</button>
-            {issue && <div id={`${id}-error`} role="status" aria-live="polite" className="space-y-2 text-sm text-danger">
+            {issue && <div id={`${id}-error`} role="alert" className="space-y-2 text-sm text-danger">
               <p>Chỉ đạt <span className="tabular-nums">{ratio(issue.ratio)}</span>; cần ≥ 4,5:1. Gợi ý: <span className="font-mono uppercase">{colorChannelsToHex(issue.suggestion)}</span></p>
               <button type="button" className={`inline-flex min-h-11 items-center gap-2 rounded-button border border-line/20 px-3 text-fg ${focus}`} onClick={() => update(mode, key, issue.suggestion)}><span aria-hidden="true" className="size-4 rounded-pill border border-line/20" style={{ backgroundColor: colorChannelsToHex(issue.suggestion) }} />Dùng màu gợi ý</button>
             </div>}
