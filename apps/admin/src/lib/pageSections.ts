@@ -1,9 +1,10 @@
 import { z } from "zod";
 import type { Session } from "@solar/auth";
 import { RevisionConflictError, StructureError, type DraftInput, type PublishInput } from "@solar/db";
-import { pageConfigSchema, pageSectionSchema, sectionRegistry } from "@solar/sections";
+import { migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistry } from "@solar/sections";
 import type { EditableSection } from "@solar/cms-ui";
 import type { ActionContext, ActionResult } from "./action.ts";
+import { sectionFormType } from "./sectionForms.ts";
 
 const descriptorSchema = pageSectionSchema.omit({ data: true }).strict();
 const descriptorsSchema = z.array(descriptorSchema).max(200).superRefine((sections, ctx) => {
@@ -13,12 +14,15 @@ const descriptorsSchema = z.array(descriptorSchema).max(200).superRefine((sectio
 export const pageIdSchema = z.object({ pageId: z.uuid() });
 export const pageRevisionSchema = pageIdSchema.extend({ revision: z.coerce.number().int().min(0) });
 export const saveSectionsSchema = pageRevisionSchema.extend({ sections: z.string().max(200_000) });
+export const saveContentSchema = pageRevisionSchema.extend({ sectionId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/), data: z.string().max(500_000) });
+const oldContent = "Nội dung cần cập nhật phiên bản trước khi sửa";
 type PageRow = { id: string; siteId: string; slug: string; title: unknown; revision: number; sections: unknown; draftSections: unknown; hasDraft: boolean };
 export type PageSectionsDeps = {
   tenant(): Promise<{ tenantId: string; siteId: string; slug: string }>;
   page(siteId: string, pageId: string): Promise<PageRow | null>;
   entitlements(): Promise<(feature: string) => boolean>;
   contents(siteId: string, pageId: string): Promise<{ sectionId: string; type: string }[]>;
+  content(siteId: string, pageId: string, sectionId: string): Promise<{ type: string; schemaVersion: number; data: unknown; draftData: unknown } | null>;
   actor(session: Session): Promise<PublishInput["actor"] | null>;
   save(tenantId: string, input: DraftInput): Promise<{ revision: number }>;
   publish(tenantId: string, input: PublishInput): Promise<{ revision: number }>;
@@ -41,9 +45,31 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
     can: { reorder: structure && can("sectionReorder"), variantSwitch: structure && can("variantSwitch") },
     allowedTypes: types.filter(def => !def.meta.entitlement || can(def.meta.entitlement)).map(def => def.type),
     lockedTypes: types.filter(def => def.meta.entitlement && !can(def.meta.entitlement)).map(def => def.type),
-    canPublish: session.permissions.has("pages.publish") };
+    canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
 }
 export type PageEditor = NonNullable<Awaited<ReturnType<typeof loadPageEditor>>>;
+export async function loadSectionContent(pageId: string, sectionId: string, deps: PageSectionsDeps & { requirePermission(permission: "content.edit"): Promise<Session> }) {
+  await deps.requirePermission("content.edit");
+  if (!pageIdSchema.safeParse({ pageId }).success || !/^[A-Za-z0-9_-]{1,64}$/.test(sectionId)) return null;
+  const tenant = await deps.tenant(), page = await deps.page(tenant.siteId, pageId);
+  if (!page || page.siteId !== tenant.siteId) return null;
+  const section = readSections(page.draftSections ?? page.sections).find(s => s.id === sectionId);
+  if (!section) return null;
+  const can = await deps.entitlements(), def = sectionFormType(section.type, can);
+  if (!def) return null;
+  const row = await deps.content(tenant.siteId, pageId, sectionId);
+  let data: unknown = def.defaults, recovered = false;
+  try {
+    if (row) {
+      if (row.type !== section.type) throw new Error("Section type mismatch");
+      data = def.schema.parse(migrateSectionData(def, row.schemaVersion, row.draftData ?? row.data).data);
+    }
+  } catch { recovered = true; }
+  return { page: { id: page.id, slug: page.slug, title: pageTitle(page.title, page.slug), revision: page.revision },
+    section: { ...section, label: def.meta.label.vi }, data, bilingual: can("bilingual"), previewPath: `/${page.slug}`,
+    readOnly: row && row.schemaVersion !== def.schemaVersion ? oldContent : undefined, recovered };
+}
+export type SectionContent = NonNullable<Awaited<ReturnType<typeof loadSectionContent>>>;
 export type PageSectionResult = ActionResult & { revision?: number; url?: string };
 
 /** Lỗi ngoài dự kiến để wrapper action xử lý, không lộ chi tiết nội bộ. */
@@ -67,6 +93,24 @@ export function createPageSectionHandlers(deps: PageSectionsDeps) {
   const missing = { ok: false, status: 404, error: "Không tìm thấy trang" };
   const forbiddenActor = { ok: false, status: 403, error: "Phiên hiện tại chưa hỗ trợ lưu hoặc xuất bản trang." };
   return {
+    async saveContent(input: z.output<typeof saveContentSchema>, context: ActionContext): Promise<PageSectionResult> {
+      const own = await ownPage(input.pageId, context);
+      if (!own) return missing;
+      const section = readSections(own.page.draftSections ?? own.page.sections).find(s => s.id === input.sectionId);
+      if (!section) return missing;
+      const def = sectionFormType(section.type, await deps.entitlements());
+      if (!def) return { ok: false, status: 403, error: "Section không thuộc gói hiện tại" };
+      let data: unknown;
+      try { data = def.schema.parse(JSON.parse(input.data)); }
+      catch { return { ok: false, status: 400, error: "Dữ liệu không hợp lệ" }; }
+      const row = await deps.content(own.tenant.siteId, input.pageId, input.sectionId);
+      if (row && row.type !== section.type) return { ok: false, status: 400, error: "Không thể thay đổi loại của section đã có nội dung" };
+      if (row && row.schemaVersion !== def.schemaVersion) return { ok: false, status: 409, error: oldContent };
+      const actor = await deps.actor(context.session!);
+      if (!actor) return forbiddenActor;
+      return mutation(() => deps.save(context.tenantId, { pageId: input.pageId, expectedRevision: input.revision, actor,
+        sections: [{ sectionId: section.id, type: section.type, draftData: data }] }));
+    },
     async save(input: z.output<typeof saveSectionsSchema>, context: ActionContext): Promise<PageSectionResult> {
       let sections: EditableSection[];
       try { sections = readSections(JSON.parse(input.sections)); }

@@ -101,3 +101,14 @@ chặn tải JS từ miền công khai trỏ về loopback (Local Network Access
 
 Dependency dùng phiên bản đã có: Next/React cho app; workspace auth/db cho phiên/RLS, plans cho entitlement, core/ui/tokens/themes
 theo kiến trúc; zod validate; ioredis chia sẻ giới hạn đăng nhập. Không thêm thư viện QR/email provider.
+
+## Sửa nội dung section
+
+`/trang/[pageId]/section/[sectionId]` yêu cầu `content.edit`, kiểm section thuộc layout draft của đúng site và gói.
+Form đọc draft trước, tự lưu sau 800 ms và cập nhật preview qua `postMessage` có origin cụ thể.
+Lỗi dữ liệu cũ hiển thị mặc định kèm thông báo; phiên bản schema chưa khớp chỉ được đọc, cần chạy migration trước.
+Chỉ ghi bản nháp; nút xuất bản ở bố cục trang. Khi còn thay đổi chưa lưu, link nội bộ và đóng/tải lại trang có cảnh báo.
+
+Dev khác cổng: admin đặt `TENANT_PUBLIC_PORT=3212`; web đặt `ADMIN_PUBLIC_PORT=3300` và `PREVIEW_SECRET`.
+Production dùng HTTPS, không thêm cổng. Bộ e2e admin tự chạy cả hai app, cần DB local và seed như phần kiểm tra.
+Lab `/lab/cms-content` dùng lưu giả và iframe mẫu cố định; kiểm độ trễ thực tế nằm trong `tooling/visual/admin.spec.ts`.

@@ -14,7 +14,7 @@ export default async function SectionForm({ params }: { params: Promise<{ type: 
       <div className="space-y-1">
         <Link href="/noi-dung" className="text-sm text-fg-muted hover:text-fg">← Nội dung</Link>
         <h1 className="text-2xl font-semibold text-fg">{def.meta.label.vi}</h1>
-        <p className="text-sm text-fg-muted">Form sinh tự động từ schema của section. Lưu nháp và xem trước sẽ có ở bản sau; nút &quot;Kiểm tra&quot; chỉ xác nhận dữ liệu hợp lệ.</p>
+        <p className="text-sm text-fg-muted">Nút &quot;Kiểm tra&quot; xác nhận dữ liệu hợp lệ. Để sửa nội dung và xem trước bản nháp, mở <Link href="/trang" className="text-primary hover:underline">Trang &amp; Section</Link> rồi chọn &quot;Sửa nội dung&quot;.</p>
       </div>
       <SectionFormPreview type={def.type} bilingual={bilingual} />
     </section>
