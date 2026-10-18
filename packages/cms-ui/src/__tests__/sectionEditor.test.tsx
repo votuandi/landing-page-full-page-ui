@@ -10,6 +10,10 @@ const initial: EditableSection[] = [
   { id: "calculator", type: "calculator", variant: "t15", enabled: false },
 ];
 const cleanup: Mounted[] = [];
+test("edit link without reorder", async () => {
+  const m = await render({ can: { reorder: false, variantSwitch: false }, editHref: s => `/section/${s.id}` });
+  assert.equal(m.container.querySelector('a[href="/section/hero"]')?.textContent, "Sửa nội dung");
+});
 afterEach(() => { cleanup.splice(0).forEach(m => m.unmount()); setConfirm(true); });
 async function render(extra: Partial<SectionListEditorProps> = {}) {
   let last = initial;

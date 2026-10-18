@@ -15,6 +15,7 @@ export type SectionListEditorProps = {
   allowedTypes: readonly string[];
   lockedTypes?: readonly string[];
   newId?(type: string): string;
+  editHref?(section: EditableSection): string;
 };
 const newSectionId = (type: string) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
 const instructions = { draggable: "Nhấn Space để nhấc section, phím mũi tên để di chuyển, Space để thả, Esc để hủy." };
@@ -32,7 +33,7 @@ const subscribeMotion = (notify: () => void) => {
 };
 
 /** Controlled editor dùng chung CMS/wizard; chỉ phát descriptor, không chạm nội dung hay mạng. */
-export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId }: SectionListEditorProps) {
+export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId, editHref }: SectionListEditorProps) {
   const dndId = useId();
   const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedQuery).matches, () => true);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -44,7 +45,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
       onDragEnd={({ active, over }) => { if (over && active.id !== over.id) update(value.findIndex(s => s.id === active.id), value.findIndex(s => s.id === over.id)); }}>
       <SortableContext items={value.map(s => s.id)} strategy={verticalListSortingStrategy}>
         <ol aria-label="Section của trang" className="space-y-3">
-          {value.map((section, index) => <SectionRow key={section.id} section={section} index={index} count={value.length} can={can} reducedMotion={reduced}
+          {value.map((section, index) => <SectionRow key={section.id} section={section} index={index} count={value.length} can={can} reducedMotion={reduced} editHref={editHref?.(section)}
             onMove={update} onToggle={() => onChange(toggle(value, section.id))}
             onVariant={variant => onChange(setVariant(value, section.id, variant))}
             onRemove={() => { if (window.confirm("Xóa section này? Nội dung được giữ lại.")) onChange(remove(value, section.id)); }} />)}
@@ -76,9 +77,10 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
   </div>;
 }
 
-function SectionRow({ section, index, count, can, reducedMotion, onMove, onToggle, onVariant, onRemove }: {
+function SectionRow({ section, index, count, can, reducedMotion, editHref, onMove, onToggle, onVariant, onRemove }: {
   section: EditableSection; index: number; count: number; can: SectionListEditorProps["can"];
   reducedMotion: boolean;
+  editHref?: string;
   onMove(from: number, to: number): void; onToggle(): void; onVariant(variant: string): void; onRemove(): void;
 }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: section.id, disabled: !can.reorder, ...(reducedMotion ? { transition: null } : {}) });
@@ -98,6 +100,7 @@ function SectionRow({ section, index, count, can, reducedMotion, onMove, onToggl
         <p className={`font-semibold ${on ? "text-fg" : "text-fg-muted"}`}>{label}</p>
         <p className="text-sm text-fg-muted">{on ? `Kiểu ${section.variant}` : "Đang ẩn khỏi trang"}</p>
       </div>
+      {editHref && <a href={editHref} className="inline-flex min-h-11 items-center rounded-button px-2 text-sm font-medium text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Sửa nội dung</a>}
       {can.reorder && <div className="flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-end">
         <button type="button" role="switch" aria-checked={on} aria-label={`Hiển thị: ${name}`} onClick={onToggle}
           className="inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-sm font-medium text-fg-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
