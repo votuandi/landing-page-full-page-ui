@@ -117,7 +117,7 @@ Bằng chứng triển khai Codex E7-S07/S08: mapper t14/t15 + import idempotent
 contrast/permission/entitlement/preview unit tests; đổi theme so sánh toàn bộ Page/SectionContent kể cả draft.
 E2E: 10 ca admin cũ qua; 3 ca mới qua trên build production, axe + 390/1440 + tắt JS + preview HTTPS.
 Report và ảnh: `.agent-runs/E7-S07/codex-report.md`, `.agent-runs/E7-S07/screenshots/`.
-Chờ Claude design pass, review độc lập và link PR (mode split); không tự merge.
+Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/votuandi/landing-page-full-page-ui/pull/50); CI job `db` chạy `admin.spec.ts` 13/13 qua.
 
 ### E7-S10 · Sao lưu & khôi phục theo tenant
 - **Chi tiết**: học từ branch `develop` (backup JSON + zip media, lịch sử backup). Xuất toàn bộ dữ liệu một tenant
