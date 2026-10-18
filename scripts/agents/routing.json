@@ -60,9 +60,9 @@
 
   "$skills": "Skill mọi agent (cả Codex khi nhận việc từ /run-story) phải dùng như Claude. story.mjs info xuất S.skills theo kind (ui|logic) + architecture; prompt giao việc in danh sách; run.mjs skills/verify đối chiếu log Codex (lệnh mở .agents/skills/<tên>/SKILL.md, lệnh codegraph). codegraph là CLI, không có SKILL.md.",
   "skills": {
-    "exec": { "all": ["ponytail", "test-driven-development", "verification-before-completion", "codegraph"], "ui": ["vercel-react-best-practices", "vercel-composition-patterns"], "architecture": ["security-and-hardening"] },
+    "exec": { "all": ["ponytail", "verification-before-completion", "codegraph"], "ui": ["vercel-react-best-practices", "vercel-composition-patterns"], "architecture": ["security-and-hardening"] },
     "selfReview": { "all": ["ponytail-review"] },
-    "fix": { "all": ["receiving-code-review", "test-driven-development", "verification-before-completion", "codegraph"] },
+    "fix": { "all": ["receiving-code-review", "codegraph"] },
     "review": { "all": ["solar-pr-review", "ponytail-review", "codegraph"], "ui": ["web-design-guidelines"], "architecture": ["security-and-hardening"] },
     "plan": { "all": ["solar-story-plan", "codegraph"], "architecture": ["graphify"] },
     "whenRelevant": {

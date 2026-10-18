@@ -48,7 +48,7 @@ Dùng khi Claude tự viết plan (story kiến trúc/UI). Chỉ ghi sự thật
 
 Dùng cho story logic không thuộc nhóm kiến trúc. Viết plan đầy đủ theo khung `roadmap/plans/README.md`:
 - Mỗi AC ánh xạ tới bước và bằng chứng cụ thể (lệnh, test, file).
-- Mục bắt buộc: "Hạ tầng tái dùng", "Case biên & bất biến" (lấy từ `.agents/skills/solar-pr-review/checklists.md`
+- Mục bắt buộc: "Yêu cầu → test" (mỗi gạch đầu dòng AC/Chi tiết/Target một dòng, có ví dụ input → kết quả), "Hạ tầng tái dùng", "Case biên & bất biến" (lấy từ `.agents/skills/solar-pr-review/checklists.md`
   theo loại story, mỗi dòng một test), "Cách kiểm chứng". Kiểm "Ngưỡng tách story" trong khung plan.
 - Danh sách file tạo/sửa/xóa đặt trong dấu backtick (script kiểm phạm vi đọc chúng).
 - "Ngoài phạm vi" rõ ràng; "Câu hỏi mở" đánh dấu `[chặn]` nếu cần chủ dự án quyết.

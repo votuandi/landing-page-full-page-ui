@@ -28,10 +28,15 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   1. Thẩm định: tái hiện được không? Sai thì ghi phản biện vào `<runDir>/review-r<n>-rebuttal.md`, không sửa mù.
   2. Gọi tên **bất biến** bị vi phạm (vd. "metadata link sống sót qua mọi thao tác", không phải "case xóa link đầu"),
      và sửa theo bất biến đó — sửa hẹp cho đúng một kịch bản là nguồn gốc của chuỗi "sửa gây lỗi mới".
-  3. Viết test tái hiện **trước** (phải FAIL trên code cũ), thêm vào file test hồi quy của story
+  2b. **Quét cùng loại**: `codegraph callers`/`impact` + grep tìm *mọi* chỗ cùng mẫu lỗi (mọi caller, mọi locale, mọi
+     variant, mọi dữ liệu seed/preset). Sửa hết trong vòng này. Finding "sửa một phần" ở vòng sau là lỗi phổ biến nhất
+     (E5-S04, E7-S03).
+  3. Viết test tái hiện **trước** (phải FAIL trên code cũ), dạng bảng phủ cả lớp lỗi (finding + các chỗ tìm được ở 2b),
+     thêm vào file test hồi quy của story
      (`<package>/src/__tests__/<id>-regression.test.ts(x)` hoặc file test chính đã có), rồi mới sửa.
   4. `codegraph impact <symbol đã sửa>` → nơi gọi khác có cần test không.
   5. Chạy lại **toàn bộ** test của package (không chỉ test mới): mọi test của các vòng trước phải còn xanh.
+  6. Báo cáo mỗi finding: `Bất biến` · `Nơi đã soát (2b)` · `Test (tên)` · `RED→GREEN`.
 
 ## Khi thực thi
 
@@ -39,25 +44,25 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   lý do vào báo cáo mục "Lệch so với plan". Thay đổi lớn (đổi kiến trúc, thêm dependency ngoài danh sách đã duyệt trong
   `AGENTS.md`, sửa schema dùng chung không có trong plan) → **dừng**, ghi `HANDOFF.md` và báo cáo, không tự quyết.
 - Tuân thủ mọi quy tắc trong `AGENTS.md` §4 (token, schema, tenant, entitlement). Viết test cho logic mới.
-- **Bảng "Case biên & bất biến" của plan**: viết test cho từng dòng **trước** khi viết code (TDD); tên test khớp cột
-  "Test sẽ chứng minh". Không làm được dòng nào → ghi "Lệch so với plan".
-- **Dùng skill như Claude** (skill cài trong `.agents/skills`). Danh sách lấy từ prompt: dòng `Skill bắt buộc:`,
-  `Skill tự review:`, `Skill khi sửa:` và `Skill theo việc:` (sinh từ `S.skills` trong `scripts/agents/routing.json`;
-  prompt không có → `node scripts/agents/story.mjs info <ID>` và đọc trường `skills`).
-  - **Mở `.agents/skills/<tên>/SKILL.md` bằng một lệnh đọc file trước bước dùng skill đó** và làm theo; không làm theo
-    trí nhớ hay chỉ mô tả của skill. Mỗi skill bắt buộc mở ít nhất một lần trong phiên. `codegraph` là CLI (không có
-    SKILL.md): chạy `codegraph sync`, rồi `explore`/`node` để định vị code, `impact` cho symbol đã sửa.
-  - Skill bắt buộc (mặc định khi prompt không ghi): `ponytail` mức `full` trước khi viết code (xung đột thì `AGENTS.md`
-    §4 và plan thắng); `test-driven-development` khi viết test; `codegraph`; `verification-before-completion` trước
-    khi ghi `DONE`; story UI thêm `vercel-react-best-practices`, `vercel-composition-patterns`; story kiến trúc thêm
-    `security-and-hardening`. Tự review: `ponytail-review`. Sửa finding: `receiving-code-review`.
-  - Skill theo việc: gặp đúng tình huống ghi trong `Skill theo việc:` (vd. lỗi chưa rõ → `debugging-and-error-recovery`,
-    viết e2e → `webapp-testing`, chụp UI khi MCP lỗi → `playwright-cli`, tenant/auth/upload → `security-and-hardening`,
-    câu hỏi kiến trúc → `graphify`) thì mở SKILL.md rồi làm. Không tự viết script chụp ảnh riêng.
-  - `node scripts/agents/run.mjs skills <ID>` đối chiếu log của bạn: skill bắt buộc chưa mở hoặc ghi "đã dùng" mà log
-    không thấy mở đều bị cảnh báo khi verify.
-- Tiết kiệm token: sửa bằng công cụ sửa file theo đoạn (không chạy script python/sed có escape phức tạp cho code);
-  không in log dài (chỉ đuôi khi lỗi); build/e2e chạy một lần ở cuối, không sau mỗi chỉnh nhỏ.
+- **Skill**: prompt ghi `Skill bắt buộc:` (mặc định `ponytail` mức `full`, `verification-before-completion`, `codegraph`;
+  story UI thêm `vercel-react-best-practices`, `vercel-composition-patterns`; story kiến trúc thêm `security-and-hardening`),
+  `Skill tự review:` (`ponytail-review`), `Skill khi sửa:` (`receiving-code-review`). Mở `.agents/skills/<tên>/SKILL.md`
+  một lần trước bước dùng skill bắt buộc (`run.mjs skills` đối chiếu log). Skill khác (debug, e2e, section, theme…) chỉ mở
+  khi thật sự gặp việc đó — không đọc "cho đủ". `codegraph` là CLI: `sync`, `explore`/`node`, `impact`.
+- **TDD theo plan**: viết test cho mỗi dòng bảng "Yêu cầu → test" và "Case biên & bất biến" **trước** khi viết code, tên
+  test khớp plan; dòng nào không làm được → "Lệch so với plan". Test kiểm *yêu cầu* (input → output mong đợi trong
+  plan), không kiểm lại cách mình hiện thực.
+- **Môi trường dựng sẵn — không bootstrap**: Claude đã chạy `bash scripts/local-ci.sh up` (Postgres 16 + Redis, role,
+  migrate, seed) và đưa dòng `Env DB:` trong prompt (đường dẫn file `.env.ci.local`). Nạp bằng `set -a; . ./.env.ci.local; set +a`
+  (PowerShell: đọc từng dòng vào `$env:`). **Không tự tải/cài Postgres, pnpm, codegraph, trình duyệt, chứng chỉ, proxy.**
+  Thiếu công cụ → ghi `BLOCKED` một dòng nêu thiếu gì, không tự dựng.
+- **Phạm vi test (tiết kiệm thời gian + token)**: trong vòng viết code chỉ chạy test của file/package đang sửa
+  (`node --test <file>`, `pnpm --filter <pkg> test`). Lệnh full `pnpm turbo run typecheck lint test` **tối đa 2 lần**:
+  sau khi đổi schema/API dùng chung (nếu có) và một lần cuối. Mọi lệnh dài ghi ra file
+  (`… > <runDir>/<tên>.log 2>&1; tail -n 30 <runDir>/<tên>.log`), chỉ đọc đuôi/tóm tắt — không để output vào ngữ cảnh.
+- E2E: viết spec trong `tooling/visual`; chạy một lần ở cuối bằng `bash scripts/local-ci.sh e2e <config>` nếu có `Env DB`,
+  không thì ghi "chờ Claude chạy e2e local". Không tự dựng proxy/HTTPS/server riêng để chạy e2e.
+- Sửa bằng công cụ sửa file theo đoạn (không chạy script python/sed có escape phức tạp cho code).
 - Chia thay đổi thành các commit nhỏ theo bước (ghi trong "Commit đề xuất"): `<type>(<scope>): <mô tả> [<ID>]`.
   Không đưa `.agent-runs/`, `HANDOFF.md`, file `.env*` vào commit nào.
 - Không tạo PR, không sửa file của story khác.

@@ -44,6 +44,10 @@ roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi l
 
 Trước E1 (repo một app, yarn): `yarn dev` · `yarn typecheck` · `yarn lint` · `yarn test` · `yarn build`.
 Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck lint test build`.
+**Kiểm local trước CI**: mọi thứ chạy được ở local phải chạy trước khi push; CI chỉ để xác nhận, không dùng để tìm lỗi.
+`bash scripts/local-ci.sh up` dựng Postgres 16 + Redis giống job `db` của CI (role, migrate, seed). Sau đó dùng `… db`
+(test DB thật) và `… e2e <tenant|preview|admin|production>` (spec liên quan tới phần đã sửa). Sandbox Codex không dùng được
+Docker, nên Claude chạy các bước này.
 Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng. `build` chỉ bắt buộc ở story cuối
 của mỗi epic (`"buildPolicy": "epic-last"` trong `scripts/agents/routing.json`; CI vẫn build mọi PR).
 
