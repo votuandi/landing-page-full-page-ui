@@ -55,7 +55,8 @@ test("collection writes preserve publication, slug, references and tenant invari
     await t.test("reorder validates id set", async () => {
       const rows = await repo.project.list(); const ids = rows.map(r => r.id).reverse();
       for (const invalid of [ids.slice(1), [...ids, randomUUID()], ids.map(() => ids[0])]) await assert.rejects(reorderCollection(db, tenantId, "project", invalid), error(400));
-      await saveCollectionItem(db, tenantId, "project", { ...project, id: ids[0], status: "published" });
+      // Keep the row's own slug: an empty slug is regenerated from the title and would collide with the original.
+      await saveCollectionItem(db, tenantId, "project", { ...project, id: ids[0], slug: rows.find(r => r.id === ids[0])!.slug, status: "published" });
       const count = await repo.outbox.count();
       await reorderCollection(db, tenantId, "project", ids);
       assert.deepEqual((await repo.project.list({ orderBy: { order: "asc" } })).map(r => r.id), ids);
