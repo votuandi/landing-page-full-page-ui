@@ -20,8 +20,8 @@ labelFields(describe(companyProfileSchema));
 const widgets = { "megaMenu.equipment.groups.*.filters.*.query": CompanyFilterQuery };
 const subscribeNothing = () => () => {};
 
-export function SiteProfileForm({ initial, updatedAt, initialLocales, initialDefaultLocale, bilingual }: {
-  initial: ReturnType<typeof companyProfileSchema.parse>; updatedAt: string; initialLocales: string[]; initialDefaultLocale: string; bilingual: boolean;
+export function SiteProfileForm({ initial, updatedAt, initialLocales, initialDefaultLocale, bilingual, warning }: {
+  initial: ReturnType<typeof companyProfileSchema.parse>; updatedAt: string; initialLocales: string[]; initialDefaultLocale: string; bilingual: boolean; warning?: string;
 }) {
   const [value, setValue] = useState<unknown>(initial), [locales, setLocales] = useState(initialLocales);
   const [defaultLocale, setDefaultLocale] = useState(initialDefaultLocale), [version, setVersion] = useState(updatedAt);
@@ -31,6 +31,7 @@ export function SiteProfileForm({ initial, updatedAt, initialLocales, initialDef
   return <div className="min-w-0 max-w-4xl space-y-6 [&_button]:min-h-11 [&_button]:min-w-11">
     <header className="space-y-1"><h1 className="text-2xl font-semibold text-fg">Thông tin công ty</h1>
       <p className="text-sm text-fg-muted">Thông tin áp dụng cho website ngay khi lưu. Chi nhánh, hotline từng chi nhánh và bản đồ quản lý trong <Link className="rounded-button text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" href="/noi-dung">Nội dung</Link>.</p></header>
+    {warning && <p role="alert" className="text-sm text-danger">{warning}</p>}
     <div role="status" aria-live="polite" className={`break-words text-sm ${result.error ? "font-medium text-danger" : "text-fg"}`}>{result.error ?? result.message}</div>
     <fieldset disabled={!ready || pending} className="min-w-0 space-y-3 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6" aria-busy={!ready || pending}>
       <legend className="px-1 text-lg font-semibold text-fg">Ngôn ngữ</legend>
