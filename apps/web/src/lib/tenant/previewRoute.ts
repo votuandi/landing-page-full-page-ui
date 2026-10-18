@@ -13,6 +13,8 @@ export function createPreviewHandler({ consume, enableDraft, secret = () => proc
     if (request.headers.get("x-preview") !== "1" || !tenantId || !siteId || !token || token.length > 256) return unauthorized();
     const location = safePreviewPath(request.nextUrl.searchParams.get("path"));
     if (location === null) return NextResponse.json({ error: "Đường dẫn xem trước không hợp lệ." }, { status: 400, headers });
+    const theme = request.nextUrl.searchParams.get("theme");
+    if (theme !== null && !/^[a-z0-9-]{1,40}$/.test(theme)) return NextResponse.json({ error: "Giao diện xem trước không hợp lệ." }, { status: 400, headers });
     // Check configuration before burning a single-use token.
     const cookie = await signPreviewCookie(tenantId, siteId, secret());
     const result = await consume(tenantId, token);
@@ -21,6 +23,7 @@ export function createPreviewHandler({ consume, enableDraft, secret = () => proc
     // A relative Location keeps the resolved preview host, regardless of forwarded origin headers.
     const response = new NextResponse(null, { status: 307, headers: { ...headers, Location: location } });
     response.cookies.set(previewCookieName(production), cookie, { httpOnly: true, sameSite: "lax", path: "/", secure: production, maxAge: PREVIEW_SESSION_MS / 1000 });
+    response.cookies.set("solar-preview-theme", theme ?? "", { httpOnly: true, sameSite: "lax", path: "/", secure: production, maxAge: theme === null ? 0 : PREVIEW_SESSION_MS / 1000 });
     return response;
   };
 }

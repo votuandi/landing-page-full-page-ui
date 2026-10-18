@@ -67,3 +67,9 @@ test("public definitions cannot mutate rights, limits or themes between requests
   const copy = [...plan.features]; copy.push("builder");
   assert.equal(plan.features.has("builder"), false);
 });
+import { themeAllowed } from "../plans";
+test("themeAllowed enforces plan groups", () => {
+  assert.equal(themeAllowed("basic", "signature"), false);
+  assert.equal(themeAllowed("premium", "signature"), true);
+  assert.equal(themeAllowed("unknown", "classic"), false);
+});

@@ -79,7 +79,9 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
     loadTenantSite: async (tenantId: string, siteId: string) => {
       const site = await read(() => loadTenantSite(tenantId, siteId), cacheKey({ siteId, locale: "vi", mode: "published", parts: ["site", tenantId] }), [tenantTag(tenantId), siteTag(tenantId)]);
       // Platform kill switches must not be embedded in a tenant's long-lived site entry.
-      return site ? { ...site, entitlements: { ...site.entitlements, disabled: disabledFeaturesSchema.parse(await loadDisabled()) } } : null;
+      if (!site) return null;
+      const result = { ...site, entitlements: { ...site.entitlements, disabled: disabledFeaturesSchema.parse(await loadDisabled()) } };
+      return { ...result, overrides: siteCanUse(result)("themeOverride") ? result.overrides : {} };
     },
     loadPublishedPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => read(() => loadPage(tenantId, siteId, slug, locale), cacheKey({ siteId, locale, mode: "published", parts: ["page", tenantId, slug] }), [tenantTag(tenantId), pageTag(tenantId, slug)]),
     loadDraftPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => loadPage(tenantId, siteId, slug, locale, true),

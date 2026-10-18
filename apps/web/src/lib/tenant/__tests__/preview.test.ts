@@ -63,3 +63,17 @@ test("preview validates and encodes Location before spending a one-use token", a
   assert.equal(consumed, 1);
   assert.equal(enabled, 1);
 });
+test("theme param validates before consume, sets or clears httpOnly preview cookie", async () => {
+  const { createPreviewHandler } = await import("../previewRoute");
+  const { NextRequest } = await import("next/server");
+  let consumed = 0;
+  const handler = createPreviewHandler({ consume: async () => { consumed++; return { siteId: "site" }; }, enableDraft: async () => {}, secret: () => "preview-secret-long-enough-0123456789", production: false });
+  const request = (query: string) => new NextRequest(`http://a.preview.localhost/api/preview?token=token${query}`, { headers: { "x-tenant-id": "tenant", "x-site-id": "site", "x-preview": "1" } });
+  assert.equal((await handler(request("&theme=bad%3Bvalue"))).status, 400); assert.equal(consumed, 0);
+  const preview = await handler(request("&theme=t15"));
+  assert.equal(preview.cookies.get("solar-preview-theme")?.value, "t15");
+  assert.match(preview.headers.get("set-cookie")!, /HttpOnly/);
+  const reset = await handler(request(""));
+  assert.equal(reset.cookies.get("solar-preview-theme")?.value, "");
+  assert.match(reset.headers.get("set-cookie")!, /Max-Age=0/);
+});

@@ -13,6 +13,15 @@ const repo = (extra: object = {}) => ({
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
 
+test("overrides ignored without themeOverride", async () => {
+  const row = await repo().site.first({}); assert.ok(row);
+  const themeOverrides = { colors: { light: { primary: "0 0 0" } } };
+  for (const [planId, disabled, expected] of [["basic", [], {}], ["premium", ["themeOverride"], {}], ["premium", [], themeOverrides]] as const) {
+    const result = await createSiteData(() => repo({ site: { first: async () => ({ ...row, themeOverrides, tenant: { planId, addons: [], status: "active", createdAt: new Date("2026-01-01"), featureOverrides: {}, limitOverrides: {} } }) } }), async () => disabled).loadTenantSite(tenantId, siteId);
+    assert.deepEqual(result?.overrides, expected);
+  }
+});
+
 test("site rejects invalid IDs and absent primary domain, never uses demo", async () => {
   const data = createSiteData(() => repo());
   assert.equal(await data.loadTenantSite("bad", siteId), null);
