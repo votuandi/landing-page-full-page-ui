@@ -7,5 +7,5 @@ export default async function EditCollectionItem({ params }: { params: Promise<{
   const { collection, id } = await params;
   const data = await loadCollectionItem(collection, id, collectionDeps);
   if (!data) notFound();
-  return <CollectionForm key={`${collection}/${id}`} name={data.name} initial={data.input} bilingual={data.bilingual} />;
+  return <CollectionForm key={`${collection}/${id}`} name={data.name} initial={data.input} bilingual={data.bilingual} references={data.references} />;
 }

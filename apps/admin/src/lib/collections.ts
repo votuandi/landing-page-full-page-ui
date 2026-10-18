@@ -29,6 +29,15 @@ export const parseCollectionQuery = (query: unknown): CollectionQuery => z.objec
 }).parse(query);
 const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase();
 export const collectionTitle = (row: { title: unknown; slug: string }) => row.title && typeof row.title === "object" && "vi" in row.title && typeof row.title.vi === "string" ? row.title.vi : row.slug;
+const referenceCollections = { categoryId: "productCategory", brandId: "brand", parentId: "productCategory" } as const;
+export type CollectionReferences = Partial<Record<keyof typeof referenceCollections, { value: string; label: string }[]>>;
+async function loadReferences(name: Collection, id: string | undefined, tenantId: string, deps: CollectionsDeps): Promise<CollectionReferences> {
+  const fields = (Object.keys(referenceCollections) as (keyof typeof referenceCollections)[]).filter(key => key in collectionDefs[name].columns.shape);
+  return Object.fromEntries(await Promise.all(fields.map(async key => [key,
+    (await deps.list(tenantId, referenceCollections[key])).filter(row => key !== "parentId" || row.id !== id)
+      .map(row => ({ value: row.id, label: collectionTitle(row) })),
+  ])));
+}
 export async function loadCollectionIndex(deps: CollectionsDeps) {
   await deps.requirePermission("content.edit");
   const [tenant, can] = await Promise.all([deps.tenant(), deps.entitlements()]);
@@ -45,7 +54,10 @@ export async function loadCollectionList(path: string, query: CollectionQuery, d
   const q = normalize((query.q ?? "").slice(0, 200).trim());
   const rows = source.filter(row => (!q || normalize(`${row.slug} ${collectionTitle(row)}`).includes(q))
     && (!query.status || row.status === query.status) && (!query.filter || filterKey && String(row[filterKey] ?? "") === query.filter));
-  return { definition, rows, limited, filterKey, filterOptions: filterKey ? [...new Set(source.map(row => String(row[filterKey] ?? "")).filter(Boolean))] : [],
+  const categories = filterKey === "categoryId" ? new Map((await deps.list(tenant.tenantId, "productCategory")).map(row => [row.id, collectionTitle(row)])) : null;
+  const filterOptions = filterKey ? [...new Set(source.map(row => String(row[filterKey] ?? "")).filter(Boolean))]
+    .map(value => ({ value, label: categories ? categories.get(value) ?? "Danh mục không còn trong danh sách" : value })) : [];
+  return { definition, rows, limited, filterKey, filterOptions,
     canReorder: !query.q && !query.status && !query.filter && !limited };
 }
 export async function loadCollectionItem(path: string, id: string | undefined, deps: CollectionsDeps) {
@@ -54,8 +66,9 @@ export async function loadCollectionItem(path: string, id: string | undefined, d
   if (!definition || id !== undefined && !z.uuid().safeParse(id).success) return null;
   const tenant = await deps.tenant(), row = id ? await deps.item(tenant.tenantId, definition.name, id) : null;
   if (id && !row) return null;
+  const references = await loadReferences(definition.name, id, tenant.tenantId, deps);
   const columns = row ? Object.fromEntries(Object.keys(definition.columns.shape).map(key => [key, row[key]])) : definition.defaults.columns;
-  return { name: definition.name, bilingual: can("bilingual"), input: row
+  return { name: definition.name, bilingual: can("bilingual"), references, input: row
     ? { id: row.id, title: row.title, slug: row.slug, status: row.status, columns, data: row.data }
     : { ...definition.defaults, slug: "", status: "draft" as const } };
 }

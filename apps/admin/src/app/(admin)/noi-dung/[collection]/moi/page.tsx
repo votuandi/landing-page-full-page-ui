@@ -7,5 +7,5 @@ export default async function NewCollectionItem({ params }: { params: Promise<{ 
   const { collection } = await params;
   const data = await loadCollectionItem(collection, undefined, collectionDeps);
   if (!data) notFound();
-  return <CollectionForm key={collection} name={data.name} initial={data.input} bilingual={data.bilingual} />;
+  return <CollectionForm key={collection} name={data.name} initial={data.input} bilingual={data.bilingual} references={data.references} />;
 }

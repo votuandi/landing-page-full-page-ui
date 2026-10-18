@@ -119,7 +119,7 @@ function NumberField({ node, path, value, label }: FieldProps<number | null | un
   const max = node.max !== undefined && node.max < 1e9 ? node.max : undefined;
   const min = node.min !== undefined && (node.min !== 0 || max !== undefined) ? node.min : undefined;
   const range = [min !== undefined && `từ ${formatNumber(min)}`, max !== undefined && `đến ${formatNumber(max)}`].filter(Boolean).join(" ");
-  const hint = [node.int && "Số nguyên", range, node.nullable && "Để trống = không giới hạn"].filter(Boolean).join(" · ") || undefined;
+  const hint = [node.int && "Số nguyên", range, node.nullable && "Để trống = chưa có giá trị"].filter(Boolean).join(" · ") || undefined;
   return (
     <FieldShell id={id} label={label} hint={hint} errors={errors}>
       <input id={id} type="text" inputMode={node.int ? "numeric" : "decimal"} autoComplete="off"

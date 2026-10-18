@@ -4,7 +4,7 @@ import { effectivePermissions, type Session } from "@solar/auth";
 import { collectionDefs, collectionFormSchema, type CollectionRow } from "@solar/db";
 import { describe } from "@solar/cms-ui";
 import { createAction } from "../lib/action.ts";
-import { collectionTypes, requireCollection, createCollectionHandlers, loadCollectionList, saveCollectionSchema, collectionIdSchema, reorderCollectionSchema, type CollectionsDeps } from "../lib/collections.ts";
+import { collectionTypes, requireCollection, createCollectionHandlers, loadCollectionList, loadCollectionItem, saveCollectionSchema, collectionIdSchema, reorderCollectionSchema, type CollectionsDeps } from "../lib/collections.ts";
 
 const tenantId = "e7060000-0000-4000-8000-000000000001", id = "e7060000-0000-4000-8000-000000000002";
 function setup(role: "owner" | "viewer" = "owner", enabled = true, ghost = false) {
@@ -89,4 +89,62 @@ test("repeated search parameters do not crash the list", async () => {
   const s = setup();
   const data = await loadCollectionList("du-an", { q: ["da", "nang"] as unknown as string, status: ["draft"] as unknown as string }, s.deps);
   assert.ok(data);
+});
+
+test("reference choices use tenant titles for new and existing items and exclude self as parent", async () => {
+  const s = setup(), otherId = "e7060000-0000-4000-8000-000000000003";
+  const calls: string[] = [];
+  s.deps.list = async (tenant, name) => {
+    assert.equal(tenant, tenantId); calls.push(name);
+    return [{ id, title: { vi: "Hiện tại" }, slug: "hien-tai" },
+      { id: otherId, title: { vi: name === "brand" ? "Thương hiệu A" : "Danh mục A" }, slug: "a" }] as CollectionRow[];
+  };
+  for (const recordId of [undefined, id]) {
+    const product = await loadCollectionItem("san-pham", recordId, s.deps);
+    assert.deepEqual(product?.references, {
+      categoryId: [{ value: id, label: "Hiện tại" }, { value: otherId, label: "Danh mục A" }],
+      brandId: [{ value: id, label: "Hiện tại" }, { value: otherId, label: "Thương hiệu A" }],
+    });
+  }
+  assert.deepEqual((await loadCollectionItem("danh-muc-san-pham", id, s.deps))?.references,
+    { parentId: [{ value: otherId, label: "Danh mục A" }] });
+  calls.length = 0;
+  assert.deepEqual((await loadCollectionItem("du-an", undefined, s.deps))?.references, {});
+  assert.deepEqual(calls, []);
+  s.deps.entitlements = async () => () => false;
+  assert.equal(await loadCollectionItem("san-pham", undefined, s.deps), null);
+  assert.deepEqual(calls, []);
+});
+
+test("category filter displays titles while filtering by id", async () => {
+  const s = setup();
+  s.deps.list = async (tenant, name) => {
+    assert.equal(tenant, tenantId);
+    return (name === "productCategory" ? [{ id, title: { vi: "Tấm pin" }, slug: "tam-pin" }]
+      : [{ id, categoryId: id, title: { vi: "Sản phẩm A" }, slug: "a", status: "draft" }]) as CollectionRow[];
+  };
+  const list = await loadCollectionList("san-pham", { filter: id }, s.deps);
+  assert.deepEqual(list?.filterOptions, [{ value: id, label: "Tấm pin" }]);
+  assert.equal(list?.rows.length, 1);
+});
+
+test("admin save and reload keep cleared category brand and parent references as null", async () => {
+  for (const name of ["product", "productCategory"] as const) {
+    const s = setup(), definition = collectionDefs[name];
+    const keys = name === "product" ? ["categoryId", "brandId"] : ["parentId"];
+    let stored = { id, slug: "ban-ghi", title: definition.defaults.title, status: "draft", data: definition.defaults.data,
+      ...definition.defaults.columns, ...Object.fromEntries(keys.map(key => [key, id])) } as CollectionRow;
+    s.deps.item = async () => stored;
+    s.deps.save = async (tenant, collection, input) => {
+      assert.equal(tenant, tenantId); assert.equal(collection, name);
+      stored = { ...stored, ...input.columns }; return { id, slug: stored.slug };
+    };
+    const form = s.form(definition.path);
+    form.set("payload", JSON.stringify({ ...definition.defaults, id, status: "draft",
+      columns: { ...definition.defaults.columns, ...Object.fromEntries(keys.map(key => [key, null])) } }));
+    assert.equal((await s.actions.save({}, form)).ok, true);
+    const reloaded = await loadCollectionItem(definition.path, id, s.deps);
+    assert.ok(reloaded);
+    for (const key of keys) assert.equal(reloaded.input.columns[key], null);
+  }
 });
