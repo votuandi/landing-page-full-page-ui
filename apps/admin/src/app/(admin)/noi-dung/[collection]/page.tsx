@@ -19,7 +19,7 @@ export default async function CollectionPage({ params, searchParams }: { params:
     </div>
     {rawQuery.saved === "1" && <p role="status" className="rounded-card border border-success/40 bg-success/10 px-4 py-3 text-sm font-medium text-success">Đã lưu nội dung</p>}
     <form method="get" role="search" aria-label={`Tìm ${definition.label.vi.toLowerCase()}`} className="flex flex-wrap items-end gap-3 rounded-card border border-line/15 bg-bg-elevated p-4">
-      <label className="grid min-w-0 flex-1 gap-1 text-sm text-fg">Tìm kiếm<input className={inputClass} name="q" defaultValue={query.q} maxLength={200} placeholder="Tiêu đề hoặc đường dẫn" /></label>
+      <label className="grid min-w-0 flex-1 basis-full gap-1 text-sm text-fg sm:basis-60">Tìm kiếm<input className={inputClass} name="q" defaultValue={query.q} maxLength={200} placeholder="Tiêu đề hoặc đường dẫn" /></label>
       <label className="grid gap-1 text-sm text-fg">Trạng thái<select className={inputClass} name="status" defaultValue={query.status ?? ""}>
         <option value="">Tất cả</option><option value="draft">Nháp</option><option value="published">Đã xuất bản</option>
       </select></label>
