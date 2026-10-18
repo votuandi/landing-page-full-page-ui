@@ -1,5 +1,22 @@
 # @solar/db
 
+## Collection (E7-S06)
+
+`@solar/db/collections` là entry dùng được ở client: `COLLECTIONS`, `collectionDefs`, `collectionFormSchema`,
+`collectionInputSchema`, các schema dữ liệu web và `slugify`. Entry này không import Prisma/connection.
+Schema đọc cũ giữ nguyên; schema ghi còn kiểm giới hạn hiển thị của `@solar/sections` để nội dung lưu không bị web loại bỏ.
+
+`saveCollectionItem`, `duplicateCollectionItem`, `deleteCollectionItem`, `reorderCollection` nhận `(db, tenantId, name, …)`
+qua entry chính. Caller phải kiểm `content.edit` và entitlement trước. Mọi ghi dùng tenant transaction Serializable,
+thử lại tối đa ba lần khi P2034. Slug trùng trả `CollectionError` 409; tham chiếu khác tenant trả 400; ID không thuộc
+tenant trả 404. Nhân bản giữ dữ liệu, tạo slug `-ban-sao[-n]`, luôn nháp ở cuối danh sách. Danh mục cha không tạo vòng lặp.
+
+Ghi/xóa có trạng thái published trước hoặc sau, hoặc sắp xếp danh sách có published, tạo Outbox invalidate
+`tenant:<id>:collection:<model>` trong cùng transaction. Ghi nháp thuần không invalidate. Hủy xuất bản đặt
+`publishedAt = null`; lưu bản đang xuất bản cập nhật website ngay. Sắp xếp cần đúng tập ID của tenant, tối đa 500 bản ghi.
+`collectionWrite.int.test.ts` dùng UUID tenant riêng, chỉ dọn fixture của nó; có test rollback Outbox khi cung cấp
+`TEST_OWNER_DATABASE_URL`.
+
 ## Draft / Publish / Preview (E5-S07)
 
 `saveDraft(db, tenantId, { pageId, expectedRevision, draftSections?, sections?, actor })` khóa dòng Page bằng

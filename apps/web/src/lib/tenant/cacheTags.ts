@@ -1,7 +1,8 @@
 import { collectionTag, pageTag, siteTag, tenantTag } from "@solar/cache";
 import { PAGE_TAGS } from "./entitlements";
 
-export const COLLECTIONS = ["product", "productCategory", "brand", "project", "post", "story", "testimonial", "branch", "faq", "service", "certificate", "pressItem"] as const;
+import { COLLECTIONS } from "@solar/db/collections";
+export { COLLECTIONS } from "@solar/db/collections";
 
 /**
  * `cacheTag`s of a cached tenant page/chrome. Any section may read any collection, so every collection tag is attached:

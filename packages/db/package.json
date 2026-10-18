@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts" },
   "scripts": {
     "build": "prisma generate",
     "generate": "prisma generate",
@@ -20,6 +20,7 @@
   "dependencies": {
     "zod": "4.6.5",
     "@solar/cache": "workspace:*",
+    "@solar/core": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "pg": "8.23.1",

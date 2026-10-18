@@ -34,6 +34,59 @@ test.beforeAll(async ({ request }) => {
 });
 test.afterAll(() => fixture("cleanup"));
 
+test("collections: create project, publish, duplicate, reorder", async ({ page }, info) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/noi-dung");
+  await page.getByRole("link", { name: /^Dự án/ }).click();
+  await page.getByRole("link", { name: "Thêm dự án" }).click();
+  await page.getByLabel("Tiêu đề", { exact: true }).fill("[DỮ LIỆU MẪU] Đà Nẵng E7-S06");
+  await expect(page.getByText("du-lieu-mau-da-nang-e7-s06", { exact: true })).toBeVisible();
+  await page.getByLabel("Trạng thái", { exact: true }).selectOption("published");
+  expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "Lưu nội dung", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nội dung" })).toBeVisible();
+  await page.getByRole("button", { name: /Nhân bản.*Đà Nẵng E7-S06/ }).click();
+  const copy = page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "-ban-sao" });
+  await expect(copy).toContainText("Nháp");
+  // Keyboard-operable ↑ button: deterministic, unlike a dnd-kit drag racing the post-duplicate refresh.
+  await copy.getByRole("button", { name: /^Lên trên/ }).focus(); await page.keyboard.press("Enter");
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu thứ tự" })).toBeVisible();
+  for (const colorScheme of ["light", "dark"] as const) for (const width of [390, 1440]) {
+    await page.emulateMedia({ colorScheme });
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`collections-${colorScheme}-${width}.png`), fullPage: true });
+  }
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.getByLabel("Tìm kiếm", { exact: true }).fill("da nang"); await page.getByRole("button", { name: "Áp dụng" }).click();
+  await expect(page.getByText(/Sắp xếp tạm tắt/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Kéo để sắp xếp/ })).toHaveCount(0);
+  await page.getByRole("link", { name: "Xóa bộ lọc" }).click();
+  await expect(page).toHaveURL(/\/noi-dung\/du-an$/); await expect(copy.getByRole("button", { name: /^Kéo để sắp xếp/ })).toBeVisible();
+  // The GET filter form reloads the page; React may replay a pre-hydration click later, so keep one accepting listener
+  // and retry until the row is gone.
+  page.on("dialog", dialog => void dialog.accept());
+  const remove = (row: ReturnType<Page["getByRole"]>) => expect(async () => {
+    if (await row.count()) await row.getByRole("button", { name: /^Xóa/ }).click({ timeout: 5_000 });
+    await expect(row).toHaveCount(0, { timeout: 3_000 });
+  }).toPass({ timeout: 60_000 });
+  await remove(copy);
+  await remove(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "Đà Nẵng E7-S06" }));
+  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem")).toHaveCount(0);
+});
+
+test("collections: basic tenant hides catalog and direct route is 404", async ({ page }) => {
+  const slug = "admin-e7-collections-basic";
+  await login(page, "owner@demo.vn", password(), slug);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(slug) + "/noi-dung");
+  await expect(page.getByRole("link", { name: /^Sản phẩm/ })).toHaveCount(0);
+  const response = await page.goto(origin(slug) + "/noi-dung/san-pham");
+  expect(response?.status()).toBe(404);
+});
+
 test("section editor: save variant as draft, reload and publish", async ({ page }) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();

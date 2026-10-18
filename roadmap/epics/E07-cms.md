@@ -63,7 +63,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   - [x] Test round-trip cho 28 type: fixture → form → submit không chỉnh sửa → dữ liệu ra bằng đúng dữ liệu vào (deep equal).
 - Phụ thuộc: E3-S02 · Agent: Claude · Cỡ: L
 
-### E7-S04 · Màn hình sắp xếp & bật/tắt section
+### E7-S04 · Màn hình sắp xếp & bật/tắt section ✅ · PR [#47](https://github.com/votuandi/landing-page-full-page-ui/pull/47)
 **Là** tenant gói Nâng cao, **tôi muốn** kéo đổi thứ tự, bật/tắt và đổi variant section, **để** bố cục trang theo ý tôi.
 - **Chi tiết**: danh sách section của trang (tên, variant, thumbnail, công tắc), kéo thả (dnd-kit, có bàn phím), menu
   "Đổi kiểu hiển thị" liệt kê variant cùng type, "Thêm section" từ thư viện (khóa theo gói, E6-S04), xóa (nội dung
@@ -91,10 +91,11 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 **Là** tenant, **tôi muốn** thêm/sửa sản phẩm, dự án, video Shorts, bài viết, FAQ, đánh giá, chi nhánh, chứng chỉ, thương hiệu, báo chí, dịch vụ, **để** các section tự cập nhật.
 - **Chi tiết**: CRUD chung sinh từ schema collection (`packages/db/collections/*.ts` zod); danh sách có tìm kiếm, lọc, sắp xếp
   kéo thả, nhân bản, trạng thái nháp/xuất bản, slug tự sinh không dấu và kiểm trùng; sản phẩm có giá/giá giảm (quy tắc
-  `packages/core/price`), nhiều ảnh, thông số; video có `provider` youtube/tiktok/file/bunny; nhập/xuất CSV cho sản phẩm.
+  `packages/core/price`), nhiều ảnh, thông số; video có `provider` youtube/tiktok/file/bunny.
+  Đã tách (18/10/2026): nhập/xuất CSV cho sản phẩm chuyển sang E7-S14.
 - **AC**:
-  - [ ] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật).
-  - [ ] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối.
+  - [x] Lưu dự án → revalidate tag `collection:projects` (trang chủ + trang dự án cập nhật). Tag thật `tenant:<id>:collection:project`; bằng chứng `apps/web/.../collectionWrite.int.test.ts` › "saving a published project revalidates home and project page".
+  - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts`; e2e đã viết, chờ Claude chạy.)
 - Phụ thuộc: S03, E5-S05 · Agent: Codex · Cỡ: L
 
 ### E7-S07 · Thông tin công ty & cấu hình chung
@@ -152,3 +153,14 @@ dựng cấu trúc site đúng ý. (Tách từ E7-S04.)
   - [ ] Menu đổi kiểu hiện thumbnail đúng theme hiện tại của site.
   - [ ] Nội dung section xóa quá 30 ngày bị worker dọn; chưa tới 30 ngày khôi phục được.
 - Phụ thuộc: S04 · Agent: Claude · Cỡ: M
+
+### E7-S14 · Nhập/xuất CSV sản phẩm
+**Là** tenant gói có `catalog`, **tôi muốn** nhập và xuất danh sách sản phẩm bằng CSV, **để** cập nhật hàng loạt giá và
+thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
+- **Chi tiết**: xuất CSV (UTF-8 BOM, mở được bằng Excel) theo schema `product` dùng chung của E7-S06; nhập: xem trước
+  từng dòng (thêm mới / cập nhật theo slug / lỗi kèm lý do tiếng Việt), chỉ ghi khi người dùng xác nhận, ghi trong một
+  transaction và invalidate `collection:product` một lần. Giới hạn kích thước file và số dòng.
+- **AC**:
+  - [ ] Xuất → nhập lại không chỉnh sửa → dữ liệu không đổi (round-trip).
+  - [ ] File có dòng lỗi → không ghi dòng nào, báo đúng dòng và cột lỗi.
+- Phụ thuộc: S06 · Agent: Codex · Cỡ: S
