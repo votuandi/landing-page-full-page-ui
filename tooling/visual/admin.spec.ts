@@ -33,6 +33,10 @@ test.beforeAll(async ({ request }) => {
   }
 });
 test.afterAll(() => fixture("cleanup"));
+// The login limiter counts every attempt per client IP (30 per 15 min); the whole suite logs in more often than that
+// from 127.0.0.1, so each test is its own client (admin reads the proxy's x-forwarded-for).
+let client = 0;
+test.beforeEach(async ({ page }) => { await page.setExtraHTTPHeaders({ "x-forwarded-for": `198.51.100.${++client}` }); });
 
 test("content editor: typing updates preview within 2 s and leave warns", async ({ page }) => {
   test.setTimeout(240_000);
