@@ -43,6 +43,7 @@ finding + cách viết plan + kiểm thử dồn cho CI — đều là vấn đ�
 | 5 | `solar-pr-review`: P1 phải có kịch bản lỗi cụ thể hoặc AC/yêu cầu fail; bằng chứng chỉ có ở CI/phép đo nhiễu → `[ngoài agent]` |
 | Thời gian Codex | Môi trường dùng chung `.agent-runs/_codex-env` (pnpm, codegraph) + DB do Claude dựng; test theo phạm vi, full turbo ≤ 2 lần, log ra file; chỉ bắt buộc `ponytail`, `verification-before-completion`, `codegraph` |
 | Sửa nhỏ | ≤ ~30 dòng → Claude sửa trực tiếp, không khởi động phiên Codex |
+| Codex mất context mỗi lượt | `scripts/agents/codex.sh`: lượt dựng code lưu session id; lượt sửa/"Tiếp tục" của cùng story dùng `codex exec resume` (nhớ plan, code đã viết); tự về phiên mới sau 4 lần resume hoặc khi lỗi; review luôn phiên mới read-only |
 | CI | Baseline visual lấy từ lần chạy xanh gần nhất có cùng input (`scripts/ci/visual-baseline-run.sh`), visual retry 1 lần trên CI, e2e admin tách job song song, cache trình duyệt, Windows chỉ khi push lên base |
 
 Ước tính: ~2 giờ 40 phút → ~1 giờ 15 phút mỗi story cỡ M; vòng review mục tiêu ≤ 2. Đo lại sau 3 story (đếm

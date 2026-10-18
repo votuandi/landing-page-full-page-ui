@@ -22,7 +22,8 @@ Tham số: `$ARGUMENTS`
 - Không đọc log dài: chỉ đọc output tóm tắt của script; mở `checks.log` / `codex-exec.log` khi script báo FAIL, và chỉ
   đọc phần đuôi.
 - Không đọc lại toàn bộ file Codex đã sửa; dùng `git diff --stat` và chỉ mở file khi cần phán đoán.
-- Lệnh `codex exec` luôn chạy nền (`run_in_background: true`) và chờ thông báo — không poll.
+- Lệnh Codex (`scripts/agents/codex.sh`) luôn chạy nền (`run_in_background: true`) và chờ thông báo — không poll.
+  Lượt sửa của cùng story dùng `resume` (giữ context), không mở phiên mới.
 - Báo tiến độ bằng một câu ngắn mỗi bước.
 - Sửa code bằng Edit/Write theo đoạn; không dùng script python/sed có escape phức tạp để sửa code (dễ hỏng, tốn lượt).
 - Build web và chạy e2e **một lần ở cuối** mỗi vòng thực thi/sửa, không sau mỗi chỉnh nhỏ. Chỉ in đuôi log khi lỗi.
@@ -79,11 +80,16 @@ thiếu `ponytail`/`codegraph`). Quy tắc `AGENTS.md` (token, schema, tenant, e
    `CODEGRAPH_TELEMETRY=0`); `S.graphs.graphify` là `stale: …` → chạy nền lệnh đó (chỉ cần khi story có câu hỏi kiến
    trúc/tài liệu).
 
-Mẫu lệnh Codex (thay `<EFFORT>`, `<OUT>`, `<LOG>`, `<PROMPT>`):
+Gọi Codex qua `scripts/agents/codex.sh` (ghi prompt vào file trước, chạy nền):
 ```bash
-codex exec -C "$(pwd)" -s <read-only|workspace-write> -c model_reasoning_effort=<EFFORT> \
-  -c sandbox_workspace_write.network_access=true -o "<OUT>" "<PROMPT>" < /dev/null > "<LOG>" 2>&1
+bash scripts/agents/codex.sh <S.runDir> <name> <EFFORT> <prompt-file> [new|resume|review]
 ```
+- `new`: lượt dựng code đầu tiên của story — lưu session id vào `<S.runDir>/codex-session.txt`.
+- `resume` (mặc định): mọi lượt sau của **cùng người viết** trong story (sửa theo verify/review/CI, "Tiếp tục", bổ sung
+  skill) — `codex exec resume` giữ context (plan đã đọc, code đã viết), không đọc lại từ đầu. Tự về phiên mới khi chưa có
+  phiên, đã resume `CODEX_MAX_RESUMES` (4) lần hoặc resume lỗi. Prompt resume ngắn: chỉ nêu việc mới + file review/log.
+- `review`: phiên mới read-only, không lưu session — reviewer luôn độc lập với người viết.
+- Kết quả `<S.runDir>/<name>.md`, log `<S.runDir>/<name>.log`.
 
 ## Bước 1 — Plan (Claude chốt, Codex làm phần đọc)
 
@@ -135,12 +141,12 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Quy tắc AGENTS.md ưu tiên hơn mọi skill.
    Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review")
    ```
-2. Chạy nền: sandbox `workspace-write`, effort `S.codexEffort.exec`, output `<S.runDir>/codex-exec-last.md`,
-   log `<S.runDir>/codex-exec.log`, prompt = nội dung file trên.
+2. Chạy nền: `bash scripts/agents/codex.sh <S.runDir> codex-exec <S.codexEffort.exec> <S.runDir>/codex-exec-prompt.md new`
+   (kết quả `codex-exec.md`, log `codex-exec.log`, session lưu cho các lượt sửa sau).
 3. Đọc phần "Trạng thái", "Lệch so với plan", "Việc còn lại" của `codex-report.md` (không cần đọc cả file).
-   `BLOCKED` → giải quyết câu hỏi (hỏi người dùng nếu cần) rồi chạy lại với "Tiếp tục".
+   `BLOCKED` → giải quyết câu hỏi (hỏi người dùng nếu cần) rồi chạy lại với "Tiếp tục" (`codex.sh … resume`).
    `node scripts/agents/run.mjs skills <ID>` → `missing` (skill bắt buộc Codex chưa mở) hoặc `claimedNotOpened` (ghi đã
-   dùng mà log không thấy) khác rỗng → chạy lại Codex với "Tiếp tục story <ID>. Mở và áp dụng skill <danh sách> lên phần
+   dùng mà log không thấy) khác rỗng → chạy lại Codex (`resume`) với "Tiếp tục story <ID>. Mở và áp dụng skill <danh sách> lên phần
    đã làm, sửa nếu lệch, cập nhật report".
 4. `node scripts/agents/run.mjs commit <S.runDir>/codex-report.md` → commit theo "Commit đề xuất". Exit 2 (file lạc) →
    xem file đó: thuộc story thì commit kèm message phù hợp `[<ID>]`; không thì để nguyên và báo người dùng.
@@ -176,7 +182,7 @@ mọi spec `tooling/visual` liên quan (admin, tenant, preview, production). Đ�
 `tooling/visual/*.spec.ts` và `__tests__` trước. Lỗi môi trường (thiếu DB, port) → sửa môi trường rồi chạy lại, không
 đẩy sang CI. Chạy nền, một lần ở cuối mỗi vòng thực thi/sửa.
 - PASS → bước 5.
-- FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại bước 3 (Codex) với prompt
+- FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại Codex bằng `codex.sh … resume` với prompt
   `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log). Skill khi sửa:
   <S.skills.fix>`, rồi `run.mjs commit`.
   Lỗi khó đoán nguyên nhân → thêm vào prompt "dùng skill debugging-and-error-recovery".
