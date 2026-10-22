@@ -32,7 +32,15 @@ async function main() {
               sections: [{ id: "hero", type: "hero", variant: "t12", enabled: true }] });
             await repo.sectionContent.create({ siteId: site.id, pageId: home.id, sectionId: "hero", type: "hero", data: sectionRegistry.types.hero.defaults });
             await repo.siteUser.create({ email: "owner@demo.vn", phone: "0901234567", name: "[DỮ LIỆU MẪU] Owner", role: "owner", status: "active", emailVerifiedAt: new Date(), passwordHash: hashes[index === 1 ? 1 : 0] });
-            if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["viewer_admin", "viewer"], ["customer_client", "client"]] as const) {
+            if (index === 0) {
+              for (const [source, hours] of [["lead-form", 0], ['"☀"'.repeat(80), 1], ["calculator", 25]] as const) {
+                await repo.lead.create({ siteId: site.id, source, phone: "0900000000", name: "[DỮ LIỆU MẪU]", data: {}, createdAt: new Date(Date.now() - hours * 3_600_000) });
+              }
+              await repo.auditLog.create({ action: "ghost.start", entity: "Site", entityId: site.id });
+              await repo.auditLog.create({ action: '"☀"'.repeat(80), entity: "Site", entityId: site.id });
+              await repo.page.create({ siteId: site.id, slug: "dashboard-draft", title: { vi: "[DỮ LIỆU MẪU] Bản nháp tổng quan" }, sections: [], draftSections: [] });
+            }
+            if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["viewer_admin", "viewer"], ["staff_admin", "staff"], ["customer_client", "client"]] as const) {
               await repo.siteUser.create({ username, name: "[DỮ LIỆU MẪU]", role, status: "active", passwordHash: hashes[0] });
             }
             if (index === 2) for (const [username, expired] of [["nangluongsolar_admin", false], ["expired_admin", true]] as const) {

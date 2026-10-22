@@ -20,6 +20,16 @@ E7-S02 cung cấp khung điều hướng và theme admin riêng. Nội dung các
 - `/noi-dung`, `/media`, `/lead`, `/giao-dien`, `/email` hiện là trang chỗ chờ có guard server.
   Không thêm nội dung quản lý thật vào shell.
 
+## Tổng quan site (E7-S11)
+
+Trang `/` là server component, không cache dữ liệu phiên. Mỗi ô chỉ truy vấn và hiển thị khi có permission tương ứng:
+lead (`leads.view`), nội dung mẫu/bản nháp (`pages.view`), media (`media.view`), tên miền (`domains.manage`),
+gói (`billing.view`), 10 hoạt động gần nhất (`audit.view`). Link quản lý dùng cùng bộ lọc menu (permission + entitlement).
+Viewer không truy vấn số liệu lead. Thống kê lead dùng ngày Việt Nam; 7 ngày gồm hôm nay và 6 ngày trước,
+lead quá 24 giờ chỉ tính trạng thái `new`. Media bỏ tệp `failed`, quota áp dụng override còn hiệu lực.
+Nội dung mẫu dò cả `data`/`draftData`; bản nháp gồm cấu trúc trang hoặc nội dung section chưa xuất bản.
+Lịch hẹn và client mới chờ E16. Test DB đo loader sau warm-up với 10.000 lead, giới hạn 1 giây.
+
 ## Trang và section (E7-S04 phần a)
 
 `/trang` liệt kê trang của site từ Host; `/trang/[pageId]` dùng `SectionListEditor` trong `@solar/cms-ui`.

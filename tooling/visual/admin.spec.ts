@@ -27,12 +27,61 @@ test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
   fixture("setup");
   // Warm new routes before timing user flows against next dev.
-  for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
+  for (const path of ["/", "/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
     expect(response.status(), path).toBeLessThan(500);
   }
 });
 test.afterAll(() => fixture("cleanup"));
+
+test("dashboard tiles by role", async ({ page, browser }) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const main = page.getByRole("main");
+  for (const name of ["Lead", "Nội dung mẫu", "Bản nháp", "Media", "Tên miền", "Gói dịch vụ", "Hoạt động gần đây"]) {
+    await expect(main.getByRole("heading", { name, exact: true })).toBeVisible();
+  }
+  await expect(main.getByText("Truy cập hỗ trợ", { exact: true })).toBeVisible();
+  await expect(main.getByText('[DỮ LIỆU MẪU] Bản nháp tổng quan', { exact: true })).toBeVisible();
+  await expect(main.getByText('"☀"'.repeat(80), { exact: true })).toHaveCount(2);
+  await expect(main.getByRole("region", { name: "Lead", exact: true })).toContainText("3");
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E7-S11/screenshots/dashboard-${width}.png`), fullPage: true });
+  }
+  const context = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() });
+  try {
+    const noJs = await context.newPage(); await noJs.goto(origin());
+    await expect(noJs.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    for (const name of ["Lead", "Nội dung mẫu", "Bản nháp", "Media", "Tên miền", "Gói dịch vụ", "Hoạt động gần đây"]) {
+      await expect(noJs.getByRole("main").getByRole("heading", { name, exact: true })).toBeVisible();
+    }
+  } finally { await context.close(); }
+  for (const [username, visible, hidden] of [
+    ["viewer_admin", ["Nội dung mẫu", "Bản nháp", "Media"], ["Lead", "Tên miền", "Gói dịch vụ", "Hoạt động gần đây"]],
+    ["staff_admin", ["Lead", "Media"], ["Nội dung mẫu", "Bản nháp", "Tên miền", "Gói dịch vụ", "Hoạt động gần đây"]],
+  ] as const) {
+    await page.context().clearCookies();
+    await login(page, username);
+    await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    for (const name of visible) await expect(main.getByRole("heading", { name, exact: true })).toBeVisible();
+    for (const name of hidden) await expect(main.getByRole("heading", { name, exact: true })).toHaveCount(0);
+    if (username === "viewer_admin") {
+      await expect(main).not.toContainText("Lead");
+      const html = await page.request.get(origin());
+      expect(await html.text()).not.toContain("lead-form");
+      await expect(main.getByRole("link", { name: "Xem lead" })).toHaveCount(0);
+    }
+  }
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", password(), "admin-e7-collections-basic");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Lead", exact: true })).toBeVisible();
+  await expect(main.getByRole("link", { name: "Xem lead", exact: true })).toHaveCount(0);
+  await expect(main.getByText("Chưa có lead trong 7 ngày.", { exact: true })).toBeVisible();
+});
 
 test("company settings: save, reload, permission, axe and responsive", async ({ page }) => {
   await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
