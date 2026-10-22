@@ -67,3 +67,33 @@ test("publication locks the page revision, snapshots content and enqueues invali
     await Promise.all([db.$disconnect(), ops.$disconnect()]);
   }
 });
+
+test("lockedByPlan: hạ gói vẫn lưu/xuất bản, xóa không mất nội dung và nâng lại giữ dữ liệu", { skip: !process.env.DATABASE_URL }, async () => {
+  const db = createDb({ pool: 2 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const repo = forTenant(db, tenantId), site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    const user = await repo.siteUser.create({ name: "[DỮ LIỆU MẪU]", email: "owner@test.vn", role: "owner" }), actor = { siteUserId: user.id };
+    const shorts = { id: "shorts", type: "shorts", variant: "t15", enabled: true }, hero = { id: "hero", type: "hero", variant: "t15", enabled: true };
+    const page = await repo.page.create({ siteId: site.id, slug: "", kind: "home", sections: [shorts, hero], publishedAt: new Date() });
+    await repo.page.create({ siteId: site.id, slug: "lien-he", sections: [] });
+    const content = await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: "shorts", type: "shorts", data: sectionRegistry.types.shorts.defaults });
+    await ops.tenant.update({ where: { id: tenantId }, data: { planId: "pro" } });
+    await saveDraft(db, tenantId, { pageId: page.id, expectedRevision: 0, actor, draftSections: [hero, shorts] });
+    await publishPage(db, tenantId, { pageId: page.id, expectedRevision: 1, actor });
+    assert.deepEqual((await repo.page.get(page.id))?.sections, [hero, shorts]);
+    assert.deepEqual((await repo.sectionContent.get(content.id))?.data, content.data);
+    await assert.rejects(saveDraft(db, tenantId, { pageId: page.id, expectedRevision: 2, actor, draftSections: [hero, { ...shorts, enabled: false }] }), /Section ngoài gói: shorts/);
+    await saveDraft(db, tenantId, { pageId: page.id, expectedRevision: 2, actor, draftSections: [hero] });
+    await publishPage(db, tenantId, { pageId: page.id, expectedRevision: 3, actor });
+    assert.deepEqual((await repo.sectionContent.get(content.id))?.data, content.data);
+    await ops.tenant.update({ where: { id: tenantId }, data: { planId: "premium" } });
+    await saveDraft(db, tenantId, { pageId: page.id, expectedRevision: 4, actor, draftSections: [hero, shorts] });
+    await publishPage(db, tenantId, { pageId: page.id, expectedRevision: 5, actor });
+    assert.deepEqual((await repo.sectionContent.get(content.id))?.data, content.data);
+    assert.deepEqual((await repo.page.get(page.id))?.sections, [hero, shorts]);
+  } finally {
+    await ops.tenant.deleteMany({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), ops.$disconnect()]);
+  }
+});

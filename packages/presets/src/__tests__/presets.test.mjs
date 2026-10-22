@@ -318,6 +318,32 @@ test("C&I presets preserve source homepage order and resolve every in-page CTA",
   }
 });
 
+test("lockedByPlan: giữ nguyên, thêm mới, bật lại/sửa, xóa, nâng gói lại, trang và số trang", () => {
+  const { presetStructure, getPreset, validateSiteStructure } = require("../index.ts");
+  const base = presetStructure(getPreset("t15"), () => true);
+  const locked = { id: "locked-shorts", type: "shorts", variant: "t15", enabled: true };
+  base.pages.find(p => p.slug === "").sections = [locked];
+  base.pages.push({ slug: "uu-dai/a", sections: [] }, { slug: "uu-dai/b", sections: [] });
+  const can = feature => !["shorts", "catalog", "landingPages"].includes(feature);
+  const check = (next, overrides = {}) => validateSiteStructure(next, { can, pagesLimit: 1, baseline: base, ...overrides });
+  const changed = sections => ({ ...base, pages: base.pages.map(p => p.slug === "" ? { ...p, sections } : p) });
+  assert.deepEqual(check(base), [], "giữ nguyên sau hạ gói/kill switch");
+  assert.deepEqual(check(base, { can: feature => can(feature) && feature !== "sectionReorder" }), [], "basic giữ thứ tự");
+  for (const sections of [[locked, { ...locked, id: "new" }], [{ ...locked, id: "new" }], [{ ...locked, enabled: false }], [{ ...locked, variant: "t12" }]]) {
+    assert.ok(check(changed(sections)).some(x => x.startsWith("Section ngoài gói: shorts")));
+  }
+  const disabled = changed([{ ...locked, enabled: false }]);
+  assert.ok(check(base, { baseline: disabled }).some(x => x.startsWith("Section ngoài gói: shorts")), "bật lại");
+  const moved = changed([]); moved.pages = moved.pages.map(p => p.slug === "uu-dai/a" ? { ...p, sections: [locked] } : p);
+  assert.ok(check(moved).some(x => x.startsWith("Section ngoài gói: shorts")), "không chuyển trang");
+  assert.deepEqual(check(changed([])), [], "xóa giữ nội dung riêng");
+  assert.deepEqual(check(base, { can: () => true, pagesLimit: 20 }), [], "nâng gói lại");
+  assert.ok(check(base, { baseline: { ...base, pageTypes: base.pageTypes.filter(x => x !== "products") } }).includes("Trang ngoài gói: products"));
+  const added = { ...base, pages: [...base.pages, { slug: "uu-dai/new", sections: [] }] };
+  assert.ok(check(added).includes("Trang landing ngoài gói: /uu-dai/new"));
+  assert.ok(check(added).includes("Vượt số trang của gói: 4/1"));
+});
+
 test("site structure policy follows D21: plan filters every page, fixed parts stay fixed, landing pages follow the plan", () => {
   const { loadPreset, presetStructure, validateSiteStructure, presetPageTypes, pageTypeOfRoute, PAGE_TYPE_IDS } = require("../index.ts");
   const { plans } = require("../../../plans/plans.ts");
