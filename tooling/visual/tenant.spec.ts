@@ -10,6 +10,19 @@ const origin = (id: string) => `http://${id}.localhost:3211`;
 const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
+
+test("disabled page type returns 404 and disappears from sitemap; re-enable preserves page", async ({ page }) => {
+  fixture("setup");
+  try {
+    fixture("disable-about");
+    const response = await page.goto(origin("review") + "/ve-chung-toi");
+    expect(response?.status()).toBe(404);
+    const sitemap = await page.goto(origin("review") + "/sitemap.xml");
+    expect(await sitemap?.text()).not.toContain("/ve-chung-toi");
+    fixture("enable-about");
+    expect((await page.goto(origin("review") + "/ve-chung-toi"))?.status()).toBe(200);
+  } finally { fixture("cleanup"); }
+});
 // A cold `next dev` compiles each tenant route on its first hit, which can exceed the 30 s navigation timeout on CI
 // and race the browser against half-written dev manifests. Compile the main routes once, outside any navigation.
 test.beforeAll(async ({ request }) => {
@@ -424,10 +437,12 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
 test("robots, sitemap and rich-result JSON-LD stay on each tenant's own host", async ({ page, request }) => {
   for (const id of ["t15", "t12"]) {
     const other = origin(id === "t15" ? "t12" : "t15");
-    const robots = await request.get(`${origin(id)}/robots.txt`);
+    // Node's API client does not use Chromium's *.localhost resolver rules on Windows.
+    const get = (path: string, maxRedirects?: number) => request.get(`http://localhost:3211${path}`, { headers: { Host: `${id}.localhost:3211` }, maxRedirects });
+    const robots = await get("/robots.txt");
     expect(robots.status()).toBe(200);
     expect(await robots.text()).toContain(`Sitemap: ${origin(id)}/sitemap.xml`);
-    const sitemap = await request.get(`${origin(id)}/sitemap.xml`);
+    const sitemap = await get("/sitemap.xml");
     expect(sitemap.status()).toBe(200);
     const locs = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
     expect(locs).toContain(`${origin(id)}/`);
@@ -441,10 +456,10 @@ test("robots, sitemap and rich-result JSON-LD stay on each tenant's own host", a
     await page.goto(`${origin(id)}/cam-nang`);
     const faq = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((value) => JSON.parse(value)).find((value) => value["@type"] === "FAQPage");
     expect(faq?.mainEntity?.length).toBeGreaterThan(0);
-    const about = await request.get(`${origin(id)}/about-us`, { maxRedirects: 0 });
+    const about = await get("/about-us", 0);
     expect(about.status()).toBe(308);
     expect(about.headers().location).toMatch(/\/ve-chung-toi$/);
-    const legacy = await request.get(`${origin(id)}/product/${productSlug}`, { maxRedirects: 0 });
+    const legacy = await get(`/product/${productSlug}`, 0);
     expect(legacy.status()).toBe(308);
     expect(legacy.headers().location).toContain(`/san-pham/${productSlug}`);
   }

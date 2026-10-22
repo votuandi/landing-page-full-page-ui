@@ -6,6 +6,18 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 
+test("site structure filter keeps every preset valid and retains landing pages after disabling about", () => {
+  const { presets, loadPreset, presetStructure, siteStructureOf, validateSiteStructure } = require("../index.ts");
+  for (const { id } of presets) {
+    const { preset, page } = loadPreset(id);
+    const original = presetStructure({ ...preset, sections: page.sections }, () => true);
+    const filtered = siteStructureOf({ pageTypes: original.pageTypes.filter(t => t !== "about") }, [...original.pages, { slug: "custom", sections: [] }]);
+    assert.ok(filtered.pages.some(p => p.slug === "custom"));
+    assert.ok(!filtered.pages.some(p => p.slug === "ve-chung-toi"));
+    assert.deepEqual(validateSiteStructure(filtered, { can: () => true, pagesLimit: Infinity, baseline: original }), [], id);
+  }
+});
+
 test("every preset structure is valid on premium", () => {
   const { presets, loadPreset, presetStructure, validateSiteStructure } = require("../index.ts");
   const { plans } = require("../../../plans/plans.ts");

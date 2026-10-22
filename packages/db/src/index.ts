@@ -30,3 +30,4 @@ export { saveCollectionItem, duplicateCollectionItem, deleteCollectionItem, reor
 export type { CollectionInput, CollectionRow } from "./collectionWrite.ts";
 export { saveSiteSettings, SiteSettingsError } from "./siteSettings.ts";
 export type { SiteSettingsPatch } from "./siteSettings.ts";
+export { setPageTypes } from "./siteStructure.ts";

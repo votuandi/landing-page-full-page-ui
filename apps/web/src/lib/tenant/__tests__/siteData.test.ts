@@ -13,6 +13,12 @@ const repo = (extra: object = {}) => ({
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
 
+test("sitemap page listing filters disabled catalog pages while retaining landing pages", async () => {
+  const pages = [{ slug: "", kind: "home" }, { slug: "ve-chung-toi", kind: "landing" }, { slug: "uu-dai", kind: "landing" }];
+  const result = await createSiteData(() => repo({ page: { list: async () => pages } })).listPublishedPages(tenantId, siteId);
+  assert.deepEqual(result.map(p => p.slug), ["", "uu-dai"]);
+});
+
 test("overrides ignored without themeOverride", async () => {
   const row = await repo().site.first({}); assert.ok(row);
   const themeOverrides = { colors: { light: { primary: "0 0 0" } } };
