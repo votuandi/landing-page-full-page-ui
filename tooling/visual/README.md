@@ -153,3 +153,12 @@ trước so sánh. Legacy/lab và `test:sections` chạy trong job riêng để 
 Mỗi shard upload report/JSON/trace 14 ngày kể cả khi fail. Report giữ partial cells và ghi “Lượt chạy bị ngắt” nếu
 JSON reporter chưa hoàn tất; trạng thái test lỗi vẫn do Playwright/CI quyết định. Thời gian CI cần xác nhận trên PR.
 Push base sinh matrix baseline theo cùng shard, gộp và kiểm đủ tập PNG rồi mới xuất artifact `matrix-baseline` 90 ngày.
+
+## Thumbnail section (E7-S13)
+
+Chạy web server với `LAB_ENABLED=true`, rồi `pnpm --filter @solar/visual thumbnails`.
+Mặc định dùng `http://localhost:3000`; đặt `THUMBNAILS_BASE_URL` để đổi.
+Script chụp 900px đầu từng cell ở viewport 1440px, xuất WebP 320×200 vào
+`apps/admin/public/section-thumbs/<theme>/<type>--<variant>.webp` và cập nhật manifest của cms-ui.
+Chạy lại sau khi thêm variant/theme. Có thể chụp một phần bằng `THUMBNAILS_TYPES=hero,projects`
+và `THUMBNAILS_THEMES=t12,t15`; manifest chỉ khai báo file đã sinh. Test cms-ui kiểm đủ toàn bộ registry × theme.

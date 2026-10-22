@@ -1,11 +1,11 @@
 "use client";
 
-import { useId, useSyncExternalStore } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type Announcements } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
-import { Errors, inputClass, SmallButton } from "../ui.tsx";
+import { Errors, SmallButton } from "../ui.tsx";
 import { add, move, remove, setVariant, toggle, type EditableSection } from "./ops.ts";
 
 export type SectionListEditorProps = {
@@ -17,6 +17,8 @@ export type SectionListEditorProps = {
   onUpgrade?(feature: string): void;
   newId?(type: string): string;
   editHref?(section: EditableSection): string;
+  thumbnail?(type: string, variant: string): string | undefined;
+  removed?: readonly (EditableSection & { expiresAt: string | null })[];
 };
 const newSectionId = (type: string) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
 const instructions = { draggable: "Nhấn Space để nhấc section, phím mũi tên để di chuyển, Space để thả, Esc để hủy." };
@@ -34,7 +36,7 @@ const subscribeMotion = (notify: () => void) => {
 };
 
 /** Controlled editor dùng chung CMS/wizard; chỉ phát descriptor, không chạm nội dung hay mạng. */
-export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId, editHref, onUpgrade }: SectionListEditorProps) {
+export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId, editHref, onUpgrade, thumbnail, removed = [] }: SectionListEditorProps) {
   const dndId = useId();
   const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedQuery).matches, () => true);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -46,7 +48,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
       onDragEnd={({ active, over }) => { if (over && active.id !== over.id) update(value.findIndex(s => s.id === active.id), value.findIndex(s => s.id === over.id)); }}>
       <SortableContext items={value.map(s => s.id)} strategy={verticalListSortingStrategy}>
         <ol aria-label="Section của trang" className="space-y-3">
-          {value.map((section, index) => <SectionRow key={section.id} section={section} locked={lockedTypes.includes(section.type)} index={index} count={value.length} can={can} reducedMotion={reduced} editHref={lockedTypes.includes(section.type) ? undefined : editHref?.(section)} onUpgrade={onUpgrade}
+          {value.map((section, index) => <SectionRow key={section.id} section={section} thumbnail={thumbnail} locked={lockedTypes.includes(section.type)} index={index} count={value.length} can={can} reducedMotion={reduced} editHref={lockedTypes.includes(section.type) ? undefined : editHref?.(section)} onUpgrade={onUpgrade}
             onMove={update} onToggle={() => onChange(toggle(value, section.id))}
             onVariant={variant => onChange(setVariant(value, section.id, variant))}
             onRemove={() => { if (window.confirm("Xóa section này? Nội dung được giữ lại.")) onChange(remove(value, section.id)); }} />)}
@@ -70,7 +72,8 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
             <button type="button" aria-label={`Thêm ${def.meta.label.vi}`} disabled={Boolean(reason)} aria-disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${type}-reason` : undefined}
               className="flex min-h-11 w-full items-center gap-2 rounded-input border border-line/20 bg-bg px-3 py-2 text-left text-sm font-medium text-fg hover:border-primary/50 hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:text-fg-muted"
               onClick={() => { if (!reason) onChange(add(value, { id: newId(type), type, variant, enabled: true })); }}>
-              <span aria-hidden="true" className="w-4 shrink-0 text-center text-base leading-none text-primary">{reason ? (locked ? "🔒" : "–") : "+"}</span>Thêm {def.meta.label.vi}
+              <SectionThumbnail src={thumbnail?.(type, variant)} variant={variant} />
+              <span>Thêm {def.meta.label.vi}</span>
             </button>
             {reason && <div className="mt-1 flex items-center justify-between gap-2 px-1">
               <p id={`${dndId}-${type}-reason`} className="text-xs text-fg-muted">{reason}</p>
@@ -80,7 +83,26 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
         })}
       </ul>
     </section>}
+    {removed.some(section => !value.some(s => s.id === section.id)) && <section aria-labelledby={`${dndId}-removed`} className="space-y-3">
+      <h2 id={`${dndId}-removed`} className="font-semibold">Section đã xóa</h2>
+      <p className="text-sm text-fg-muted">Khôi phục vào bản nháp rồi lưu. Nội dung được giữ 30 ngày sau khi không còn trên trang.</p>
+      <ul className="space-y-2">{removed.filter(section => !value.some(s => s.id === section.id)).map(({ expiresAt, ...section }) => {
+        const label = sectionRegistry.getType(section.type)?.meta.label.vi ?? section.type;
+        const reason = !can.reorder ? "Gói hoặc quyền hiện tại không cho thêm section" : lockedTypes.includes(section.type) || !allowedTypes.includes(section.type) ? "Cần nâng cấp gói" : sectionLimitIssues([...value, section])[0];
+        return <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-line/20 p-3">
+          <div><p className="text-sm">{label} · {section.variant}</p><p className="text-xs text-fg-muted">{expiresAt ? `Giữ đến ${new Date(expiresAt).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}` : "Còn trong bản xuất bản"}</p>{reason && <p id={`${dndId}-${section.id}-restore-reason`} className="text-xs text-fg-muted">{reason}</p>}</div>
+          <SmallButton className="min-h-11" disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${section.id}-restore-reason` : undefined} aria-label={`Khôi phục: ${label} (${section.id})`} onClick={() => onChange([...value, section])}>Khôi phục</SmallButton>
+        </li>;
+      })}</ul>
+    </section>}
   </div>;
+}
+
+function SectionThumbnail({ src, variant }: { src?: string; variant: string }) {
+  const [failed, setFailed] = useState<string>();
+  return <span aria-hidden="true" className="flex h-12 w-20 shrink-0 items-center justify-center overflow-hidden rounded-media border border-line/20 bg-bg-tint text-xs text-fg-muted">
+    {src && failed !== src ? <img src={src} alt="" width={80} height={48} loading="lazy" className="h-full w-full object-cover object-top" onError={() => setFailed(src)} /> : variant}
+  </span>;
 }
 
 function UpgradeButton({ label, onClick }: { label: string; onClick(): void }) {
@@ -88,12 +110,13 @@ function UpgradeButton({ label, onClick }: { label: string; onClick(): void }) {
     className="inline-flex min-h-11 shrink-0 items-center rounded-button border border-primary/40 px-3 text-sm font-medium text-primary hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">Nâng cấp</button>;
 }
 
-function SectionRow({ section, locked, index, count, can, reducedMotion, editHref, onUpgrade, onMove, onToggle, onVariant, onRemove }: {
+function SectionRow({ section, locked, index, count, can, reducedMotion, editHref, onUpgrade, onMove, onToggle, onVariant, onRemove, thumbnail }: {
   section: EditableSection; index: number; count: number; can: SectionListEditorProps["can"];
   locked: boolean;
   reducedMotion: boolean;
   editHref?: string;
   onUpgrade?(feature: string): void;
+  thumbnail?: SectionListEditorProps["thumbnail"];
   onMove(from: number, to: number): void; onToggle(): void; onVariant(variant: string): void; onRemove(): void;
 }) {
   const def = sectionRegistry.getType(section.type);
@@ -108,8 +131,7 @@ function SectionRow({ section, locked, index, count, can, reducedMotion, editHre
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       {can.reorder && <button type="button" ref={setActivatorNodeRef} {...attributes} {...listeners} aria-label={`Kéo để sắp xếp: ${name}`}
         className="-ml-1 min-h-11 min-w-9 shrink-0 cursor-grab touch-none rounded-button text-lg text-fg-subtle hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:cursor-grabbing">⠿</button>}
-      {/* Ô giữ chỗ thumbnail; ảnh chụp sẵn theo theme ở E7-S13. */}
-      <div aria-hidden="true" className={`flex h-12 w-16 shrink-0 items-center justify-center rounded-media border bg-bg-tint text-xs font-semibold text-fg-muted ${on ? "border-line/15" : "border-dashed border-line/40"}`}>{section.variant}</div>
+      <SectionThumbnail src={thumbnail?.(section.type, section.variant)} variant={section.variant} />
       <div className="min-w-0 flex-1 basis-40 break-words">
         <p className={`font-semibold ${on ? "text-fg" : "text-fg-muted"}`}>{label}</p>
         <p className="text-sm text-fg-muted">{on ? `Kiểu ${section.variant}` : "Đang ẩn khỏi trang"}</p>
@@ -134,12 +156,13 @@ function SectionRow({ section, locked, index, count, can, reducedMotion, editHre
         </div>
       </div>}
     </div>
-    {can.variantSwitch && !locked && <div className="mt-3 flex flex-col gap-1 border-t border-line/15 pt-3 sm:flex-row sm:items-center sm:gap-3">
-      <label htmlFor={selectId} className="shrink-0 text-sm text-fg-muted">Kiểu hiển thị<span className="sr-only">: {label}</span></label>
-      <select id={selectId} aria-label={`Đổi kiểu hiển thị: ${label}`} className={`${inputClass} sm:max-w-xs`} value={section.variant} onChange={e => onVariant(e.target.value)}>
-        {!variants.includes(section.variant) && <option value={section.variant}>{section.variant} (không còn hỗ trợ)</option>}
-        {variants.map(variant => <option key={variant} value={variant}>{variant}</option>)}
-      </select>
-    </div>}
+    {can.variantSwitch && !locked && <fieldset className="mt-3 min-w-0 border-t border-line/15 pt-3">
+      <legend className="text-sm text-fg-muted">Kiểu hiển thị: {label}</legend>
+      {!variants.includes(section.variant) && <p className="text-sm text-fg-muted">{section.variant} (không còn hỗ trợ)</p>}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">{variants.map(variant => <label key={variant} className={`flex min-h-11 min-w-0 cursor-pointer flex-wrap items-center gap-2 rounded-input border p-2 text-sm ${section.variant === variant ? "border-primary bg-bg-tint" : "border-line/20"} focus-within:ring-2 focus-within:ring-primary`}>
+        <input type="radio" name={selectId} value={variant} checked={section.variant === variant} onChange={() => onVariant(variant)} className="accent-primary" />
+        <SectionThumbnail src={thumbnail?.(section.type, variant)} variant={variant} /><span>{variant}</span>
+      </label>)}</div>
+    </fieldset>}
   </li>;
 }

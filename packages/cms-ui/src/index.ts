@@ -15,3 +15,4 @@ export { describe, defaultFor } from "./schema/describe.ts";
 export type { FieldNode, FieldKind } from "./schema/describe.ts";
 export { getAt, setAt } from "./schema/path.ts";
 export { blocksToMarkup, markupToBlocks } from "./richText/convert.ts";
+export { thumbnailSrc } from "./sections/thumbnails.ts";

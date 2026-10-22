@@ -304,16 +304,55 @@ test("section editor: save variant as draft, reload and publish", async ({ page 
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin() + "/trang");
   await page.getByRole("link", { name: /^Trang chủ/ }).click();
-  const variant = page.getByLabel("Đổi kiểu hiển thị: Banner chính");
-  await expect(variant).toHaveValue("t12"); await variant.selectOption("t15");
+  const variants = page.getByRole("group", { name: "Kiểu hiển thị: Banner chính" });
+  const variant = variants.getByRole("radio", { name: "t15", exact: true });
+  await expect(variants.getByRole("radio", { name: "t12", exact: true })).toBeChecked(); await variant.check();
   await expect(page.getByRole("button", { name: "Xuất bản", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã lưu nháp" })).toBeVisible();
-  await page.reload(); await expect(variant).toHaveValue("t15");
+  await page.reload(); await expect(variant).toBeChecked();
   await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible();
-  await page.reload(); await expect(variant).toHaveValue("t15");
+  await page.reload(); await expect(variant).toBeChecked();
   await expect(page.getByRole("button", { name: "Xuất bản", exact: true })).toBeDisabled();
+});
+
+test("variant menu shows theme thumbnails and restore removed section keeps its variant", async ({ page }) => {
+  const themeId = fixture("site-theme");
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/trang"); await page.getByRole("link", { name: /^Trang chủ/ }).click();
+  const hero = page.locator('[data-section-id="hero"]');
+  const previous = await hero.locator('input[type="radio"]:checked').inputValue();
+  await hero.getByRole("radio", { name: previous === "t15" ? "t12" : "t15", exact: true }).check();
+  await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nháp" })).toBeVisible();
+  await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible();
+  const variant = await hero.locator('input[type="radio"]:checked').inputValue();
+  await expect(hero.locator("img").first()).toHaveAttribute("src", `/section-thumbs/${themeId}/hero--${variant}.webp`);
+  page.once("dialog", d => d.accept()); await hero.getByRole("button", { name: /^Xóa:/ }).click();
+  await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nháp" })).toBeVisible();
+  await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible();
+  await page.reload(); await page.getByRole("button", { name: "Khôi phục: Banner chính (hero)", exact: true }).click();
+  await expect(hero.getByRole("radio", { name: variant, exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu nháp" })).toBeVisible();
+  await page.reload(); await expect(hero.getByRole("radio", { name: variant, exact: true })).toBeChecked();
+});
+
+test("page catalog applies without JavaScript, required pages stay locked", async ({ page, browser }) => {
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const context = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() });
+  try {
+    const plain = await context.newPage(); await plain.goto(origin() + "/trang");
+    await expect(plain.getByRole("switch", { name: "Bật trang: Trang chủ", exact: true })).toBeDisabled();
+    const about = plain.getByRole("switch", { name: "Bật trang: Về chúng tôi", exact: true });
+    await expect(about).toHaveAttribute("aria-checked", "false"); await about.click();
+    await expect(about).toHaveAttribute("aria-checked", "true"); await about.click();
+    await expect(about).toHaveAttribute("aria-checked", "false");
+  } finally { await context.close(); }
 });
 
 test("host errors have no login; cross-tenant/platform/client credentials and copied cookies are rejected", async ({ page, request }, info) => {

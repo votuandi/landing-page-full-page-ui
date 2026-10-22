@@ -615,12 +615,24 @@ importers:
       '@solar/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@solar/sections':
+        specifier: workspace:*
+        version: link:../../packages/sections
+      '@solar/themes':
+        specifier: workspace:*
+        version: link:../../packages/themes
       '@types/node':
         specifier: 20.19.37
         version: 20.19.37
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@2.7.0)
+      sharp:
+        specifier: 0.35.5
+        version: 0.35.5(@types/node@20.19.37)
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -3932,8 +3944,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.5':
     optionalDependencies:
@@ -5035,8 +5046,7 @@ snapshots:
 
   destr@2.0.5: {}
 
-  detect-libc@2.1.2:
-    optional: true
+  detect-libc@2.1.2: {}
 
   didyoumean@1.2.2: {}
 
@@ -6541,8 +6551,7 @@ snapshots:
 
   semver@7.7.4: {}
 
-  semver@7.8.5:
-    optional: true
+  semver@7.8.5: {}
 
   seq-queue@0.0.5: {}
 
@@ -6600,7 +6609,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
       '@types/node': 20.19.37
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:

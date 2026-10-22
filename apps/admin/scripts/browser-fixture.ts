@@ -65,6 +65,10 @@ async function main() {
     } else if (action === "settings-snapshot") {
       const repo = forTenant(db, tenantId);
       process.stdout.write(JSON.stringify({ pages: await repo.page.list({ orderBy: { id: "asc" } }), contents: await repo.sectionContent.list({ orderBy: { id: "asc" } }) }));
+    } else if (action === "site-theme") {
+      const site = await forTenant(db, tenantId).site.first();
+      if (!site) throw new Error("Site fixture missing");
+      process.stdout.write(site.themeId);
     } else if (action === "home-page") {
       const page = await forTenant(db, tenantId).page.first({ where: { slug: "", kind: "home" } });
       if (!page) throw new Error("Home page fixture missing");

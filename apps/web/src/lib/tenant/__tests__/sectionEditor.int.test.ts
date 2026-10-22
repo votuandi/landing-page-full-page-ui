@@ -90,6 +90,7 @@ test("publish action rejects legacy overflow with 400 and keeps publication unch
     realm: "site", audience: "admin", kind: "user", role: "owner", permissions: new Set(["pages.publish"]),
     expiresAt: new Date(Date.now() + 60_000), mustChangePassword: false } };
   const handlers = createPageSectionHandlers({
+    theme: async () => "t15", removed: async () => [],
     tenant: async () => ({ tenantId, siteId, slug: tenantId }),
     page: async () => { const page = await repo.page.get(pageId); return page ? { ...page, hasDraft: false } : null; },
     actor: async () => actor,
@@ -131,5 +132,7 @@ test("add creates defaults, remove keeps content", options, async () => fixture(
   const added = await repo.sectionContent.first({ where: { pageId, sectionId: "projects-new" } });
   assert.deepEqual(added?.data, sectionRegistry.types.projects.defaults); assert.deepEqual(added?.draftData, added?.data);
   await saveDraft(db, tenantId, { pageId, expectedRevision: 3, actor, draftSections: draftSections.slice(0, 1) });
-  assert.deepEqual(await repo.sectionContent.get(added!.id), added);
+  const retained = (await repo.sectionContent.get(added!.id))!;
+  assert.ok(retained.removedAt instanceof Date);
+  assert.deepEqual({ ...retained, removedAt: added!.removedAt, updatedAt: added!.updatedAt }, added);
 }));

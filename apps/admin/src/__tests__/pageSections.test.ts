@@ -5,10 +5,19 @@ import { RevisionConflictError, StructureError, type DraftInput } from "@solar/d
 import { validateSiteStructure } from "@solar/presets";
 import { sectionRegistry } from "@solar/sections";
 import { createAction } from "../lib/action.ts";
-import { createPageSectionHandlers, loadPageEditor, loadSectionContent, saveContentSchema, saveSectionsSchema, pageRevisionSchema, pageIdSchema, type PageSectionsDeps } from "../lib/pageSections.ts";
+import { createPageSectionHandlers, loadPageEditor, loadSectionContent, recoverRemovedSections, saveContentSchema, saveSectionsSchema, pageRevisionSchema, pageIdSchema, type PageSectionsDeps } from "../lib/pageSections.ts";
 
 const tenantId = "e7000000-0000-4000-8000-000000000001", siteId = "e7000000-0000-4000-8000-000000000002", pageId = "e7000000-0000-4000-8000-000000000003";
 const hero = { id: "hero", type: "hero", variant: "t12", enabled: true };
+
+test("recover removed descriptors without data from published layout or nearest snapshot, preserving anchor", () => {
+  const content = [{ sectionId: "hero", type: "hero", removedAt: new Date("2026-10-01T00:00:00Z") }];
+  const descriptor = { ...hero, anchor: "mo-dau" };
+  assert.deepEqual(recoverRemovedSections({ sections: [], draftSections: [] }, content, [{ sections: [] }, { sections: [descriptor] }]),
+    [{ ...descriptor, expiresAt: "2026-10-31T00:00:00.000Z" }]);
+  assert.equal(recoverRemovedSections({ sections: [hero], draftSections: [] }, content, [])[0].variant, "t12");
+  assert.deepEqual(recoverRemovedSections({ sections: [hero], draftSections: null }, content, []), []);
+});
 const session = (role: "owner" | "viewer" = "owner"): Session => ({ id: "session", accountId: "e7000000-0000-4000-8000-000000000004", tenantId, realm: "site", audience: "admin", kind: "user", role,
   permissions: effectivePermissions({ role, audience: "admin" }), expiresAt: new Date(Date.now() + 10000), mustChangePassword: false });
 function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f: string) => boolean; conflict?: boolean; ghost?: boolean } = {}) {
@@ -21,6 +30,8 @@ function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f
     tenant: async () => { reads++; return { tenantId, siteId, slug: "mau" }; },
     page: async () => { reads++; return page; },
     entitlements: async () => can,
+    theme: async () => "t12",
+    removed: async () => [{ ...hero, id: "removed-hero", expiresAt: "2026-11-01T00:00:00.000Z" }],
     contents: async () => [{ sectionId: "hero", type: "hero" }],
     content: async () => null,
     actor: async s => { if (!s.accountId) return null; return { siteUserId: s.accountId }; },
@@ -59,6 +70,14 @@ function contentSetup(options: Parameters<typeof setup>[0] = {}) {
 test("content requires content.edit", async () => {
   const s = contentSetup({ role: "viewer" });
   await assert.rejects(s.loadContent(), ForbiddenError); assert.equal((await s.save()).status, 403); assert.equal(s.reads(), 0);
+});
+
+test("page editor includes site theme and recoverable descriptors, and restoration outside plan is blocked on save", async () => {
+  const s = setup({ can: feature => feature !== "shorts" });
+  const editor = await s.load();
+  assert.equal(editor?.themeId, "t12"); assert.equal(editor?.removed[0].id, "removed-hero");
+  const restored = [...editor!.sections, { id: "old-shorts", type: "shorts", variant: "t15", enabled: true }];
+  assert.equal((await s.actions.save({}, s.form(restored))).status, 400);
 });
 test("rejects foreign page and unknown section", async () => {
   for (const s of [contentSetup({ foreign: true }), contentSetup()]) {
