@@ -124,6 +124,13 @@ test("structure change rejected by plan", async () => {
   assert.equal(result.status, 400); assert.match(result.error!, /Gói không/); assert.equal(s.writes.length, 0);
   assert.deepEqual((await s.load())?.can, { reorder: false, variantSwitch: false });
 });
+
+test("server từ chối thêm section ngoài gói và editor trả lockedTypes", async () => {
+  const s = setup({ can: feature => feature !== "shorts" });
+  const result = await s.actions.save({}, s.form([hero, { id: "shorts", type: "shorts", variant: "t15", enabled: true }]));
+  assert.equal(result.status, 400); assert.match(result.error!, /Section ngoài gói: shorts/); assert.equal(s.writes.length, 0);
+  const editor = await s.load(); assert.ok(editor?.lockedTypes.includes("shorts")); assert.ok(!editor?.allowedTypes.includes("shorts"));
+});
 test("maxPerPage overflow returns 400", async () => {
   const s = setup(); const result = await s.actions.save({}, s.form([hero, ...[1, 2].map(i => ({ id: `calc-${i}`, type: "calculator", variant: "t15", enabled: i === 1 }))]));
   assert.equal(result.status, 400); assert.match(result.error!, /Chỉ được có tối đa 1 "Dự toán chi phí"/); assert.equal(s.writes.length, 0);

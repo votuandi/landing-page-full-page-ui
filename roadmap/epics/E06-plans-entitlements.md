@@ -68,8 +68,12 @@ bật/tắt theo gói, kiểm tra phía server.
   Theme ngoài gói sau khi hạ → site dùng theme mặc định của nhóm được phép cho tới khi khách chọn lại.
   Trang ngoài gói (vd. `/san-pham` khi mất `catalog`, D21 §2) theo cùng quy tắc: giữ trong cấu trúc với `lockedByPlan`,
   trả 404, dữ liệu collection giữ nguyên.
-- **AC**: [ ] Thêm section/theme ngoài gói → server từ chối, UI báo rõ · [ ] Lưu trang có section `lockedByPlan` không thay đổi →
-  thành công · [ ] Nâng gói lại → section khóa hiện lại với nguyên dữ liệu.
+- **AC**: [x] Thêm section/theme ngoài gói → server từ chối, UI báo rõ · [x] Lưu trang có section `lockedByPlan` không thay đổi →
+  thành công · [x] Nâng gói lại → section khóa hiện lại với nguyên dữ liệu.
+- Bằng chứng Codex: `presets.test.mjs`, `sectionEditor.test.tsx`, admin appearance/pageSections/settingsPages/upgrade tests,
+  `upgrade.int.test.ts`, `publish.int.test.ts`, web `render.int.test.ts` (hạ/nâng gói giữ nguyên dữ liệu) qua trên PostgreSQL.
+  `pnpm turbo run typecheck lint test`: 49/49 tác vụ qua; `pnpm lint:tokens`: 0 vi phạm.
+  Mode split: chờ Claude design pass, E2E trình duyệt và review trước khi chốt DoD/link PR. Báo cáo `.agent-runs/E6-S04/codex-report.md`.
 - Phụ thuộc: S02, E7-S04 · Agent: Claude · Cỡ: S
 
 ### E6-S05 · Thanh toán (giai đoạn sau) ✅ · PR [#41](https://github.com/votuandi/landing-page-full-page-ui/pull/41)

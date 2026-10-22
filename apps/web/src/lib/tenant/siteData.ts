@@ -1,9 +1,9 @@
 import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
 import { forTenant, withTenantTransaction, loadDisabledFeatures, type TenantRepo } from "@solar/db";
-import { getTheme } from "@solar/themes";
-import { ThemeOverridesSchema } from "@solar/tokens";
-import { canUse, disabledFeaturesSchema, type EntitlementSubject } from "@solar/plans";
+import { getTheme, themes } from "@solar/themes";
+import { ThemeOverridesSchema, validateBrandOverrides } from "@solar/tokens";
+import { canUse, disabledFeaturesSchema, themeAllowed, type EntitlementSubject } from "@solar/plans";
 import { migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistry, siteWidgetsSchema } from "@solar/sections";
 import { getWebDb } from "./db";
 import { parseContent, profileSchema, seoSchema, text } from "./contentSchemas";
@@ -21,15 +21,18 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
     const repo = repository(tenantId);
     const row = await repo.site.first({ where: { id: siteId }, include: { tenant: true } });
     if (!row || row.tenantId !== tenantId || row.id !== siteId) return null;
-    const theme = getTheme(row.themeId);
-    if (!theme) { console.error("[tenant] theme không tồn tại", { tenantId, siteId }); return null; }
+    const storedTheme = getTheme(row.themeId);
+    if (!storedTheme) { console.error("[tenant] theme không tồn tại", { tenantId, siteId }); return null; }
+    const theme = themeAllowed(row.tenant.planId, storedTheme.meta.group) ? storedTheme : themes.find(item => themeAllowed(row.tenant.planId, item.meta.group));
+    if (!theme) return null;
     const domain = await repo.domain.first({ where: { siteId, isPrimary: true, status: { in: ["verified", "active"] } } });
     if (!domain || normalizeHost(domain.hostname) !== domain.hostname) return null;
     const context = { tenantId, siteId };
     const profile = parseContent(profileSchema, row.profile, context) ?? profileSchema.parse({});
     const seo = parseContent(seoSchema, row.seo, context) ?? seoSchema.parse({});
     const widgets = parseContent(siteWidgetsSchema, row.widgets, context) ?? {};
-    const overrides = parseContent(ThemeOverridesSchema, row.themeOverrides, context) ?? {};
+    const parsedOverrides = parseContent(ThemeOverridesSchema, row.themeOverrides, context) ?? {};
+    const overrides = theme !== storedTheme && validateBrandOverrides(theme, parsedOverrides).length ? {} : parsedOverrides;
     const locales = row.locales.filter((locale): locale is "vi" | "en" => locale === "vi" || locale === "en");
     if (!locales.length) locales.push("vi");
     const locale = selectSiteLocale(locales, row.defaultLocale);

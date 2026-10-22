@@ -22,6 +22,17 @@ test("overrides ignored without themeOverride", async () => {
   }
 });
 
+test("fallback theme sau hạ gói giữ cấu hình và bỏ overrides không đạt tương phản", async () => {
+  const row = await repo().site.first({ include: { tenant: true } }); assert.ok(row);
+  const valid = { colors: { light: { primary: "0 0 0" } } };
+  for (const [themeOverrides, expected] of [[{}, {}], [valid, valid], [{ colors: { light: { primary: "255 255 255" } } }, {}]]) {
+    const source: Record<string, unknown> & { themeId: string } = { ...row, themeOverrides, tenant: { ...row.tenant, planId: "basic", featureOverrides: { themeOverride: { on: true, reason: "test" } } } };
+    const result = await createSiteData(() => repo({ site: { first: async () => source } })).loadTenantSite(tenantId, siteId);
+    assert.equal(result?.theme.meta.id, "t01"); assert.equal(result?.context.themeId, "t01");
+    assert.deepEqual(result?.overrides, expected); assert.equal(source.themeId, "t15");
+  }
+});
+
 test("site rejects invalid IDs and absent primary domain, never uses demo", async () => {
   const data = createSiteData(() => repo());
   assert.equal(await data.loadTenantSite("bad", siteId), null);

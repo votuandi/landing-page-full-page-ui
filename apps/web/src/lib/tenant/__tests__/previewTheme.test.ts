@@ -6,8 +6,8 @@ import { applyPreviewTheme } from "../previewTheme";
 import { tenantRenderKey } from "../renderKey";
 import type { TenantSite } from "../siteData";
 const site = { tenantId: "tenant", siteId: "site", locale: "vi", theme: getTheme("t01")!, entitlements: { planId: "basic", disabled: [] }, context: { themeId: "t01" } } as unknown as TenantSite;
-test("applyPreviewTheme ignores disallowed", () => {
-  assert.equal(applyPreviewTheme(site, "t15"), site);
+test("applyPreviewTheme previews locked theme without modifying published site", () => {
+  assert.equal(applyPreviewTheme(site, "t15").theme.meta.id, "t15");
   assert.equal(applyPreviewTheme(site, "unknown"), site);
   const preview = applyPreviewTheme(site, "t02");
   assert.equal(preview.theme.meta.id, "t02"); assert.equal(preview.context.themeId, "t02");

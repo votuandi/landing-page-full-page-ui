@@ -16,13 +16,18 @@ const row = <T>(slug: string, title: string, data: T, order: number) => ({
   slug, title: { vi: title }, data, order, status: "published" as const,
 });
 
-// t12 is Pro plus the catalog addon so both demos keep the product routes (D8, D21).
-const demoPlans = { t15: { planId: "premium", addons: [] }, t12: { planId: "pro", addons: ["catalog"] } } as const;
+// Both demo themes are in the Signature group, which only Premium allows (E6-S04); a lower plan would render the fallback theme.
+// t12 keeps one feature off through a tenant override (D19) so e2e still covers a tenant without quoteCart.
+const demoPlans = {
+  t15: { planId: "premium", addons: [], featureOverrides: {} },
+  t12: { planId: "premium", addons: [], featureOverrides: { quoteCart: { on: false, reason: "[DỮ LIỆU MẪU] Demo không có giỏ báo giá" } } },
+} as const;
 
 export function buildDemo(id: "t15" | "t12") {
   const { preset, page, widgets } = loadPreset(id);
-  const { planId, addons } = demoPlans[id];
-  const can = (feature: string) => (plans[planId].features as ReadonlySet<string>).has(feature) || (addons as readonly string[]).includes(feature);
+  const { planId, addons, featureOverrides } = demoPlans[id];
+  const can = (feature: string) => (featureOverrides as Record<string, { on: boolean }>)[feature]?.on
+    ?? ((plans[planId].features as ReadonlySet<string>).has(feature) || (addons as readonly string[]).includes(feature));
   // Same plan policy as the site wizard (D21): every page, including system-page defaults, is filtered by plan.
   const structure = presetStructure({ id: preset.id, pages: preset.pages, sections: page.sections }, can);
   const homeSections = applyPlanToPreset({ pages: preset.pages, sections: page.sections }, can).sections;
@@ -55,7 +60,7 @@ export function buildDemo(id: "t15" | "t12") {
     makePage("uu-dai/nang-luong", "landing", `Ưu đãi ${name}`, sections.filter((section) => section.type === "hero")),
   ];
   return {
-    id, name, themeId: preset.themeId, widgets, pages, planId, addons: [...addons], pageTypes: structure.pageTypes,
+    id, name, themeId: preset.themeId, widgets, pages, planId, addons: [...addons], featureOverrides, pageTypes: structure.pageTypes,
     profile: {
       ...mapSiteConfig(siteConfig).profile,
       name: localized(name), description: localized(`${name} — Đồng hành cùng từng mái nhà.`),

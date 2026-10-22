@@ -35,6 +35,12 @@ site tạo từ preset có (thiếu = mọi loại; trang bắt buộc luôn có
 gói khi tạo site; `validateSiteStructure({ pageTypes, pages }, can)` trả lỗi tiếng Việt, dùng chung cho wizard, CMS,
 builder và API. `can(feature)` là quyền của site (gói + addons).
 
+E6-S04: `validateSiteStructure(structure, { can, pagesLimit, baseline })` dùng bản đã xuất bản làm baseline trong CMS.
+Sau hạ gói, section `lockedByPlan` được suy ra từ entitlement: giữ nguyên `id/type/variant/enabled` trên cùng trang
+hoặc xóa được; thêm mới, chuyển trang, bật lại hay sửa bị từ chối. Nội dung SectionContent được giữ riêng.
+Trang/landing ngoài gói đã có được giữ; vượt giới hạn số trang chỉ bị từ chối khi tăng so với baseline.
+Quyền sắp xếp/đổi variant và kiểm tra dữ liệu hợp lệ vẫn áp dụng. Wizard dùng cấu trúc preset đã lọc theo gói làm baseline.
+
 API public trên giữ nguyên cho các story port chạy song song. `subpages` mô tả route demo `/lab` theo slug branch gốc; việc phục vụ tenant,
 entitlement và route theo DB triển khai ở các epic sau.
 
