@@ -40,6 +40,7 @@ Dùng khi Claude tự viết plan (story kiến trúc/UI). Chỉ ghi sự thật
 ## Nguồn template (nếu port)
 | Section/thành phần | File nguồn | Màu cứng | Dữ liệu dùng | Ghi chú |
 ## Hạ tầng tái dùng
+## Dữ liệu có sẵn chịu ảnh hưởng (preset JSON, seed, fixture mà quy tắc mới chạy trên)
 ## Case biên gợi ý (theo checklists.md)
 ## Rủi ro / điểm mơ hồ
 ```
@@ -48,8 +49,9 @@ Dùng khi Claude tự viết plan (story kiến trúc/UI). Chỉ ghi sự thật
 
 Dùng cho story logic không thuộc nhóm kiến trúc. Viết plan đầy đủ theo khung `roadmap/plans/README.md`:
 - Mỗi AC ánh xạ tới bước và bằng chứng cụ thể (lệnh, test, file).
-- Mục bắt buộc: "Yêu cầu → test" (mỗi gạch đầu dòng AC/Chi tiết/Target một dòng, có ví dụ input → kết quả), "Hạ tầng tái dùng", "Case biên & bất biến" (lấy từ `.agents/skills/solar-pr-review/checklists.md`
-  theo loại story, mỗi dòng một test), "Cách kiểm chứng". Kiểm "Ngưỡng tách story" trong khung plan.
+- Mục bắt buộc: "Yêu cầu → test" (mỗi gạch đầu dòng AC/Chi tiết/Target một dòng, có ví dụ input → kết quả), "Hạ tầng tái dùng", "Dữ liệu có sẵn chịu ảnh hưởng" (quy tắc mới × preset/seed/fixture,
+  test trong `conformance.test.ts`), "Case biên & bất biến" (lấy từ `.agents/skills/solar-pr-review/checklists.md`
+  theo loại story, mỗi dòng một test), "Cách kiểm chứng" (bộ e2e từ `scripts/ci/checks-map.mjs --stdin`). Kiểm "Ngưỡng tách story" trong khung plan.
 - Danh sách file tạo/sửa/xóa đặt trong dấu backtick (script kiểm phạm vi đọc chúng).
 - "Ngoài phạm vi" rõ ràng; "Câu hỏi mở" đánh dấu `[chặn]` nếu cần chủ dự án quyết.
 - Ưu tiên phương án đơn giản nhất thỏa AC; không thêm dependency ngoài danh sách đã duyệt trong `AGENTS.md`.

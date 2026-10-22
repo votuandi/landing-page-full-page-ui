@@ -167,7 +167,7 @@ jobs:
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm plans:table --check
-      - run: node --test scripts/ci/affected.test.mjs
+      - run: node --test scripts/ci/affected.test.mjs scripts/ci/checks-map.test.mjs
       - name: Typecheck and lint (populate cache)
         run: pnpm turbo run typecheck lint lint:root ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Typecheck and lint (verify FULL TURBO)

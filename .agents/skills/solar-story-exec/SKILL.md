@@ -82,7 +82,12 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
    Chạy e2e trong `tooling/visual` có thể ghi đè ảnh trong `roadmap/evidence/` → nếu story không cố ý cập nhật evidence,
    khôi phục (`git checkout -- roadmap/evidence`) trước khi báo cáo.
 2. Tick `[x]` các AC đã có bằng chứng trong file epic; AC chưa đạt để nguyên `[ ]`. Không gắn ✅ vào heading.
-3. Viết báo cáo vào đường dẫn được nêu trong prompt (mặc định `.agent-runs/<ID>/codex-report.md`):
+3. Viết báo cáo vào đường dẫn được nêu trong prompt (mặc định `.agent-runs/<ID>/codex-report.md`). **Ghi dần**: tạo
+   khung ngay khi bắt đầu, cập nhật sau mỗi bước của plan (lệnh đã chạy + đường dẫn log) — lượt bị ngắt (máy khởi động
+   lại, hết quota) thì lượt sau đọc report và làm tiếp, không chạy lại turbo/impact từ đầu. "Lệnh kiểm tra" gồm cả các bộ
+   `printf '%s\n' $(git diff --name-only <base>...HEAD) | node scripts/ci/checks-map.mjs --stdin` liệt kê (chạy được
+   trong sandbox thì chạy, không thì ghi "Claude chạy"). Trong "Commit đề xuất", mỗi file một dòng `- path`; mọi file
+   mới/đổi phải nằm trong một nhóm:
    ```markdown
    # Báo cáo <ID>
    Trạng thái: DONE | PARTIAL | BLOCKED

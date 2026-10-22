@@ -49,6 +49,12 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
   tự viết lại thứ đã có sẵn trong repo, stdlib hoặc nền tảng. Mức tối đa P2, trừ khi gây lỗi hoặc vi phạm `AGENTS.md`.
 - Story UI: tương phản, responsive 390/1440, reduced motion, bàn phím, nội dung khi tắt JS (chi tiết: `checklists.md`).
 - **Bảng case biên trong plan**: mỗi dòng có test tương ứng thật sự chạy và kiểm đúng hành vi; dòng thiếu → "Chưa cover".
+- **Dữ liệu có sẵn** (`[data]`): diff thêm/đổi quy tắc, validator, fallback, giới hạn → plan có mục "Dữ liệu có sẵn chịu
+  ảnh hưởng" và `packages/db/src/__tests__/conformance.test.ts` (hoặc test preset × gói) chạy quy tắc đó trên mọi preset,
+  seed demo, fixture. Thiếu → "Chưa cover". `codegraph impact` không thấy file dữ liệu — tự grep preset JSON/seed.
+- **Kiểm local theo file đổi** (`[verify]`): `node scripts/ci/checks-map.mjs origin/<base>` liệt kê bộ kiểm bắt buộc; mỗi
+  bộ phải có kết quả trên đúng SHA được review (report "Lệnh kiểm tra", `verify.json` → `sha`, `requiredChecks`). Thiếu
+  hoặc khác SHA → "Chưa cover". Không viết "suy luận không hồi quy" thay cho kết quả chạy.
 - **Report của người viết**: có dòng "Skill đã dùng" và mục "Tự review" (bước 4.5); thiếu → P2, ghi vào kết quả.
   `node scripts/agents/run.mjs skills <ID>` báo skill bắt buộc người viết chưa mở / ghi "đã dùng" mà log không thấy → P2.
 - **Skill của reviewer** (như Claude): danh sách ở dòng `Skill review:` của prompt (từ `S.skills.review`; không có →
@@ -61,7 +67,9 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 ## Mức độ
 
 - **P0**: hỏng dữ liệu/bảo mật/rò tenant, build hoặc test chính lỗi, AC cốt lõi không đạt.
-- **P1**: bug thật trong case thường gặp, vi phạm quy tắc bắt buộc của `AGENTS.md`, AC thiếu bằng chứng.
+- **P1**: bug thật trong case thường gặp, vi phạm quy tắc bắt buộc của `AGENTS.md`, AC thiếu bằng chứng. Vi phạm
+  `AGENTS.md` §4 (token, `tenantId`, `requirePermission(...)` trên mọi Server Action/route admin, entitlement phía server)
+  **luôn ≥ P1**, kể cả khi plan chủ ý làm vậy (plan sai → ghi thêm "plan thiếu").
 - **P2**: cải thiện, đặt tên, đơn giản hóa, over-engineering không gây lỗi. Không chặn merge.
 - Hiệu chỉnh: P1 phải chỉ ra **kịch bản lỗi cụ thể** (input/thao tác → kết quả sai) hoặc một dòng "Yêu cầu → test"/AC
   không đạt. Cải thiện UX không có trong AC/Chi tiết → P2. Bằng chứng chỉ có ở CI (Windows, TTFB, e2e chưa chạy) hoặc phép
@@ -70,6 +78,10 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
   plan → "Chưa cover" và ghi "plan thiếu" (để Claude bổ sung quy trình), không chỉ đòi người viết sửa.
 
 ## Định dạng kết quả (bắt buộc, tiếng Việt)
+
+Mỗi finding và mục "Chưa cover" gắn đúng một nhãn nguyên nhân (để retro đếm, không phải đọc lại): `[data]` quy tắc mới
+phá dữ liệu có sẵn · `[verify]` thiếu/sai bộ kiểm local hoặc spec cũ · `[req]` plan/code thiếu yêu cầu của story ·
+`[edge]` case biên/input/async · `[sec]` bảo mật/tenant · `[rule]` quy tắc AGENTS.md · `[simplify]` over-engineering.
 
 ```markdown
 VERDICT: APPROVE | CHANGES_REQUESTED
@@ -81,11 +93,11 @@ VERDICT: APPROVE | CHANGES_REQUESTED
 | <trích ngắn AC> | ✅ đạt / ❌ chưa / ⚠️ chưa xác minh | … |
 
 ## Finding
-1. **[P1] <tiêu đề ngắn>** — `path/file.ts:42`
+1. **[P1][edge] <tiêu đề ngắn>** — `path/file.ts:42`
    Vấn đề: … Kịch bản lỗi: … Đề xuất sửa: …
 
 ## Chưa cover (AC / yêu cầu)
-1. **<AC hoặc yêu cầu, trích ngắn>** — case chưa cover: … · Cần thêm: <code/test/bằng chứng cụ thể>
+1. **[req] <AC hoặc yêu cầu, trích ngắn>** — case chưa cover: … · Cần thêm: <code/test/bằng chứng cụ thể>
    (Ngoài khả năng của agent, vd. cần CI/người dùng → ghi thêm `[ngoài agent]`.)
 
 ## Vòng trước (chỉ khi vòng > 1)

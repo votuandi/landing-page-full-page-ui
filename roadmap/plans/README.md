@@ -30,6 +30,14 @@ commit làm commit đầu tiên của branch story. Người thực thi (Codex h
 - Thứ đã có trong repo sẽ dùng thay vì viết mới: helper, lab route (`apps/web /lab/*` với `LAB_ENABLED`),
   spec/config trong `tooling/visual`, fixture, script `scripts/agents/*`. Ghi "không có" nếu đã soát mà không thấy.
 
+## Dữ liệu có sẵn chịu ảnh hưởng (bắt buộc)
+| Quy tắc/validator/fallback mới hoặc đổi | Dữ liệu đang có phải còn hợp lệ (preset JSON, seed demo, fixture e2e, bản ghi DB cũ) | Test |
+|---|---|---|
+| … | … | `packages/db/src/__tests__/conformance.test.ts` › "…" |
+- `codegraph impact` chỉ thấy code gọi, không thấy file dữ liệu — grep preset/seed/fixture. Story không thêm quy tắc nào
+  → ghi "không có". (E7-S04: `maxPerPage` chặn preset t08; E6-S04: seed t12 gói pro + theme signature → CI đỏ.)
+- Mục "Cách kiểm chứng" lấy bộ e2e từ `printf '%s\n' <file dự kiến sửa> | node scripts/ci/checks-map.mjs --stdin`.
+
 ## Thiết kế
 - Quyết định chính + lý do; chữ ký hàm/kiểu/cấu trúc thư mục cần chốt.
 

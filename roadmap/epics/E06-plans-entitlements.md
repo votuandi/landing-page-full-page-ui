@@ -59,7 +59,7 @@ bật/tắt theo gói, kiểm tra phía server.
 - PR: #41 (gộp E11-S01, E5-S05, E6-S03, E6-S05).
 - Phụ thuộc: S02, E5-S05 · Agent: Codex · Cỡ: S
 
-### E6-S04 · UI khóa tính năng trong CMS
+### E6-S04 · UI khóa tính năng trong CMS ✅ · PR [#52](https://github.com/votuandi/landing-page-full-page-ui/pull/52)
 **Là** tenant gói thấp, **tôi muốn** thấy tính năng cao cấp bị khóa kèm lời mời nâng cấp, **để** biết mình có thể mua gì.
 - **Chi tiết**: thư viện section trong CMS hiện section ngoài gói với biểu tượng khóa, nút "Nâng cấp" mở form yêu cầu
   (tạo lead nội bộ cho đội bán hàng). Theme ngoài nhóm được phép: xem trước được, không áp dụng được.

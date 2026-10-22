@@ -73,3 +73,50 @@ vào report:
    trước; hỏi người dùng trước khi đổi phạm vi.
 5. Gắn ✅ + link PR #50 cho E7-S07 và E7-S08 trong `roadmap/epics/E07-cms.md` (bước 7 của `/run-story`), cùng PR #51 vào
    ghi chú retro này nếu cần.
+
+Kết quả (22/10, PR #52): mục 1 — run 39710282562 đỏ desktop-1440-dark, chạy lại xanh; mục 2 — `compare` của PR #52 có
+`Baseline restored from run 39710282562`, `/` qua cả 4 viewport (run 39723584741); mục 3 — đã cập nhật README; mục 5 — xong.
+
+# Retro 22/10/2026 — E6-S04 (PR #52) và 48 story có review
+
+## Số liệu
+
+- 48 story có review: 17 (35%) qua ở vòng 1; 21 vòng 1 `CHANGES_REQUESTED`; 10 vòng 1 APPROVE nhưng thêm vòng vì CI đỏ/sửa P2.
+- Phân loại P1 vòng 1 của 5 story gần nhất (E7-S04 → E6-S04): 4/5 thuộc hai nhóm mà retro 18/10 chưa xử lý —
+  `[data]` quy tắc mới phá dữ liệu có sẵn (E7-S04 `maxPerPage` × preset t08, E6-S04 fallback theme × seed t12; trước đó
+  E5-S10 seed trang con, E5-S04 cột DB) và `[verify]` chọn sai/thiếu bộ kiểm local (E6-S04 bỏ `e2e tenant`, E7-S07 design
+  pass đổi chữ mà e2e cũ không chạy lại, E7-S05 phép đo nhiễu).
+- E6-S04: ~2 giờ 40′, lãng phí ~75′ — CI đỏ + sửa seed 2 lần (~55′), push riêng 1 dòng README (12′ + 141 phút runner),
+  Codex dừng vì đòi SKILL.md của codegraph (2′, 40k token), chẩn đoán Docker 8 lượt (~10′), lượt Codex bị ngắt phải chạy
+  lại turbo (7′). Review vòng 1 (Sonnet) APPROVE — dấu hiệu tốt của retro 18/10.
+- CI mỗi push: Visual regression 35 job / ~145 phút runner (matrix 32 shard × 3,3′, ~1,6′ mỗi shard là setup + build +
+  tải baseline), wall ~10′; Workspace wall 18–20′ (job `db`: tenant.spec 6,6′, admin.spec 5,7′) — `db` mới là đường găng.
+  Matrix không chạm code E6-S04 vẫn chạy 3 lần (~435 phút runner).
+- Giao tiếp Claude ↔ Codex: context chính (plan, quyết định, resume) đủ. Hụt: prompt gọi codegraph là skill; `run.mjs
+  commit` rơi 9 file mới vì đuôi "(mới)"; log Codex bị ghi đè mỗi lượt nên `run.mjs skills` báo thiếu sai; report chỉ
+  ghi ở cuối lượt. Chỗ "mất context" thật nằm ở plan: không có mục dữ liệu có sẵn, bộ e2e chọn theo trí nhớ.
+
+## Thay đổi (PR chore 22/10)
+
+| Vấn đề | Thay đổi |
+|---|---|
+| `[verify]` chọn e2e theo trí nhớ | `scripts/ci/checks-map.mjs`: bảng file đổi → bộ kiểm; `run.mjs verify` in "Kiểm local bắt buộc" + ghi `sha`/`requiredChecks` vào `verify.json` và PR body; plan lấy "Cách kiểm chứng" từ bảng |
+| Design pass đổi chữ, spec cũ đỏ ở CI | `run.mjs stale <base>` + `verify` FAIL khi chữ đã xóa khỏi source mà test/spec vẫn tìm |
+| `[data]` impact không thấy file dữ liệu | Plan mục bắt buộc "Dữ liệu có sẵn chịu ảnh hưởng"; `packages/db/src/__tests__/conformance.test.ts` |
+| Matrix chạy cho mọi story | Job `changes` trong `visual.yml` dùng cùng bảng: matrix chỉ chạy khi đầu vào section lab đổi; `!**/*.md`; baseline matrix tìm run có artifact + không đổi đầu vào matrix; thêm `packages/presets/**` (trước đây thiếu) |
+| Hụt giao tiếp Codex | Prompt ghi codegraph là CLI; parser commit nhận chú thích sau đường dẫn; `codex.sh` giữ log mọi lượt (`<name>.<n>.log`); report ghi dần |
+| Review | `solar-pr-review`: vi phạm AGENTS.md §4 luôn ≥ P1; reviewer đối chiếu bộ kiểm bắt buộc trên đúng SHA (không "suy luận không hồi quy"); nhãn nguyên nhân `[data] [verify] [req] [edge] [sec] [rule] [simplify]` |
+| Thời gian chết | Bước 0 kiểm Docker một lần rồi báo; gộp push tài liệu vào lần push sửa |
+
+## Ước tính mỗi story (đo lại sau 3 story, đếm theo nhãn finding)
+
+| | Trước | Sau (ước tính) | Cơ sở |
+|---|---|---|---|
+| Vòng review/CI trung bình | ~1,9 | ~1,4 | `[data]` + `[verify]` gây ~4/5 vòng thêm gần đây; giả định chặn được ~60% |
+| Thời gian | ~2–2,7 giờ | −25 đến −40′ (≈ 20–25%) | mỗi vòng thêm ≈ 40–55′ (CI 20′ + sửa/kiểm local + review); + lỗi công cụ 5–10′; − thêm ~5′ cho mục dữ liệu và bộ kiểm local đầy đủ |
+| Token Claude (+ subagent review) | — | −150 đến −250k | mỗi vòng thêm: điều phối/đọc log ~60–120k + review 85–110k |
+| Token Codex | — | −40k đến −300k | lượt bị chặn ~40k; mỗi vòng sửa do Codex làm 150–300k |
+| Phút runner CI | ~145/push visual | −250 đến −400/story không đụng section | matrix ~105/push × ~2,5 push + push base; push chỉ tài liệu bỏ hẳn visual |
+
+Việc theo dõi: sau 3 story — đếm nhãn finding vòng 1, số vòng, phút runner visual; nếu `[data]`/`[verify]` vẫn ≥ 1/story
+thì xem lại bảng `checks-map.mjs`. Matrix chọn theo section/theme bị đổi (thay vì cả 32 shard) để story riêng.
