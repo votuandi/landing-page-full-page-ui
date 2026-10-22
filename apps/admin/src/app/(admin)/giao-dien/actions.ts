@@ -1,0 +1,8 @@
+"use server";
+import { action } from "../../../lib/action.ts";
+import { settingsPayloadSchema } from "../../../lib/siteSettings.ts";
+import { appearanceHandlers } from "../../../lib/appearanceRuntime.ts";
+export const saveTheme = action("theme.manage", settingsPayloadSchema, appearanceHandlers.theme);
+export const previewTheme = action("theme.manage", settingsPayloadSchema, appearanceHandlers.preview);
+export const saveColors = action("theme.manage", settingsPayloadSchema, appearanceHandlers.colors);
+export const saveLogos = action("theme.manage", settingsPayloadSchema, appearanceHandlers.logos);

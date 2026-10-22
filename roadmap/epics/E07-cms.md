@@ -101,7 +101,7 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 ### E7-S07 · Thông tin công ty & cấu hình chung
 - **Chi tiết**: tương đương `site.config.ts` của t15 nhưng trong DB: thương hiệu, pháp lý, chi nhánh (lat/lng, hotline),
   Zalo, mạng xã hội, số liệu, điểm đánh giá, cam kết, popup, giờ gọi lại, top bar, mega menu, ngôn ngữ.
-- **AC**: [ ] Import một file `site.config.ts` của t14/t15 vào tenant bằng script `pnpm import:site-config` (dùng cho E13).
+- **AC**: [x] Import một file `site.config.ts` của t14/t15 vào tenant bằng script `pnpm import:site-config` (dùng cho E13).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
 ### E7-S08 · Giao diện: chọn theme & override
@@ -109,8 +109,15 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
 - **Chi tiết**: lưới theme được phép theo gói (preview thumbnail + "Xem thử" toàn trang qua preview); gói Cao cấp: color picker
   cho `primary`, `secondary`, `accent` có kiểm tương phản (E2-S05) và gợi ý màu đạt chuẩn; chọn font trong danh sách cho phép;
   logo sáng/tối, favicon (sinh `icon.png`, `apple-icon.png`).
-- **AC**: [ ] Màu không đạt AA bị từ chối kèm gợi ý · [ ] Đổi theme giữ nguyên toàn bộ nội dung section.
+  Đã tách (18/10/2026): font override và favicon chuyển sang E7-S15. E7-S08 chỉ đổi theme, màu thương hiệu và đường dẫn logo sáng/tối.
+- **AC**: [x] Màu không đạt AA bị từ chối kèm gợi ý · [x] Đổi theme giữ nguyên toàn bộ nội dung section.
 - Phụ thuộc: E2-S05, S02 · Agent: Claude · Cỡ: M
+
+Bằng chứng triển khai Codex E7-S07/S08: mapper t14/t15 + import idempotent trên PostgreSQL/RLS thật;
+contrast/permission/entitlement/preview unit tests; đổi theme so sánh toàn bộ Page/SectionContent kể cả draft.
+E2E: 10 ca admin cũ qua; 3 ca mới qua trên build production, axe + 390/1440 + tắt JS + preview HTTPS.
+Report và ảnh: `.agent-runs/E7-S07/codex-report.md`, `.agent-runs/E7-S07/screenshots/`.
+Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/votuandi/landing-page-full-page-ui/pull/50); CI job `db` chạy `admin.spec.ts` 13/13 qua.
 
 ### E7-S10 · Sao lưu & khôi phục theo tenant
 - **Chi tiết**: học từ branch `develop` (backup JSON + zip media, lịch sử backup). Xuất toàn bộ dữ liệu một tenant
@@ -164,3 +171,13 @@ thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
   - [ ] Xuất → nhập lại không chỉnh sửa → dữ liệu không đổi (round-trip).
   - [ ] File có dòng lỗi → không ghi dòng nào, báo đúng dòng và cột lỗi.
 - Phụ thuộc: S06 · Agent: Codex · Cỡ: S
+
+### E7-S15 · Font thương hiệu & favicon
+**Là** chủ doanh nghiệp, **tôi muốn** chọn font và biểu tượng website, **để** hoàn thiện nhận diện thương hiệu.
+(Tách từ E7-S08.)
+- **Chi tiết**: font override theo danh sách cho phép, entitlement `themeOverride` và kiểm server; chọn ảnh favicon từ
+  media đúng tenant, sinh `icon.png`/`apple-icon.png`, cập nhật metadata và invalidation. Hạ gói dùng font theme gốc.
+- **AC**:
+  - [ ] Chỉ chọn được font trong danh sách cho phép khi có entitlement; font lạ hoặc ngoài gói bị server từ chối.
+  - [ ] Chọn favicon từ media → icon trình duyệt/Apple đúng tenant, không đọc được media tenant khác.
+- Phụ thuộc: S08, E8-S02 · Agent: Claude · Cỡ: M

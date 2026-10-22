@@ -1,9 +1,10 @@
 import { cache } from "react";
-import { draftMode } from "next/headers";
+import { cookies, draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { loadTenantSite } from "./siteData";
 import { parseTenantContext } from "./routeContext";
+import { applyPreviewTheme } from "./previewTheme";
 
 /**
  * Cache Components needs one value per root param at build time; this one renders a 404 without touching the database
@@ -22,7 +23,8 @@ export const tenantRoute = cache(async (tenantId: string, siteId: string, ctx: s
   // Request-time route (approved blocking): the process data cache reads the clock outside `"use cache"` scopes.
   await connection();
   if (context.preview && !(await draftMode()).isEnabled) notFound();
-  const site = await loadTenantSite(tenantId, siteId, context.locale === "auto" ? undefined : context.locale);
+  let site = await loadTenantSite(tenantId, siteId, context.locale === "auto" ? undefined : context.locale);
   if (!site) notFound();
+  if (context.preview) site = applyPreviewTheme(site, (await cookies()).get("solar-preview-theme")?.value);
   return { site, preview: context.preview };
 });

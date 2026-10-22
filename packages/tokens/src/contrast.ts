@@ -2,6 +2,30 @@ import { ThemeOverridesSchema, type ThemeOverrides } from "./css";
 import { RgbChannels, type ColorKey, type ColorSet, type ThemeTokens } from "./schema";
 
 export const AA_NORMAL = 4.5;
+export const BRAND_COLOR_KEYS = ["primary", "secondary", "accent"] as const;
+export type BrandContrastIssue = { mode: "light" | "dark"; key: ColorKey; ratio: number; suggestion: string };
+
+/** Brand suggestions adjust the customer's background, preserving the theme's text color. */
+export function validateBrandOverrides(theme: ThemeTokens, overrides: ThemeOverrides): BrandContrastIssue[] {
+  const parsed = ThemeOverridesSchema.parse(overrides);
+  const issues: BrandContrastIssue[] = [];
+  const light = { ...theme.colors.light, ...parsed.colors?.light };
+  for (const mode of ["light", "dark"] as const) {
+    if (mode === "dark" && !theme.meta.supportsDark) continue;
+    const colors = mode === "light" ? light : { ...light, ...theme.colors.dark, ...parsed.colors?.dark };
+    for (const key of BRAND_COLOR_KEYS) {
+      if (parsed.colors?.[mode]?.[key] === undefined && !(mode === "dark" && parsed.colors?.light?.[key] !== undefined && !theme.colors.dark?.[key])) continue;
+      const against = colors[`on-${key}`];
+      const ratio = contrastRatio(colors[key], against);
+      if (ratio < AA_NORMAL) issues.push({ mode, key, ratio, suggestion: suggestAccessible(colors[key], against) });
+    }
+  }
+  for (const issue of checkContrast(theme, parsed)) {
+    if (BRAND_COLOR_KEYS.some(key => issue.bg === key)) continue;
+    issues.push({ mode: issue.mode, key: issue.fg, ratio: issue.ratio, suggestion: issue.suggestion });
+  }
+  return issues;
+}
 
 function channels(color: string): number[] {
   return RgbChannels.parse(color).split(" ").map(Number);

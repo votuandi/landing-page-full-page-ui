@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts" },
+  "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts", "./site-profile": "./src/siteProfile.ts" },
   "scripts": {
+    "import:site-config": "tsx scripts/import-site-config.ts",
     "build": "prisma generate",
     "generate": "prisma generate",
     "typecheck": "tsc --noEmit",

@@ -38,6 +38,7 @@ export const plans: Readonly<Record<PlanId, PlanDefinition>> = Object.freeze({
 export function isFeature(value: string): value is Feature { return (FEATURES as readonly string[]).includes(value); }
 export function isPlanId(value: string): value is PlanId { return (PLAN_IDS as readonly string[]).includes(value); }
 export function getPlan(id: string): PlanDefinition | undefined { return isPlanId(id) ? plans[id] : undefined; }
+export function themeAllowed(planId: string, group: ThemeGroup): boolean { return getPlan(planId)?.themes.includes(group) ?? false; }
 
 export const featureLabels: Readonly<Record<Feature, string>> = Object.freeze({
   leadForm: "Form liên hệ/tư vấn", blog: "Tin tức", customDomain: "Tên miền riêng + SSL",

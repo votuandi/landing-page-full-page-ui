@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "import:site-config": "pnpm --filter @solar/db import:site-config",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "pnpm --filter web start",

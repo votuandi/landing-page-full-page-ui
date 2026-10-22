@@ -5,16 +5,18 @@ import { PageRenderer, SiteWidgets, createCollectionLoader, type BranchItem } fr
 import TenantSiteShell from "@/components/TenantSiteShell";
 import { loadPublishedPage, loadDraftPage, loadTenantSite, siteCanUse, type TenantSite } from "@/lib/tenant/siteData";
 import { tenantCollections, createTenantWidgetLoader } from "@/lib/tenant/collections";
+import { applyPreviewTheme } from "@/lib/tenant/previewTheme";
 import { organizationJsonLd, siteOrigin, matchRedirect } from "@/lib/tenant/seo";
 import { text } from "@/lib/tenant/contentSchemas";
 import { resolveRoute, routeEnabled } from "@/lib/tenant/routes";
 import { TENANT_CACHE_LIFE, tenantPageTags } from "@/lib/tenant/cacheTags";
 import { JsonLd, loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
 
-async function cachedSite({ tenantId, siteId, locale, disabled }: Key) {
+async function cachedSite({ tenantId, siteId, locale, disabled, preview, themeId }: Key) {
   const site = await loadTenantSite(tenantId, siteId, locale);
   if (!site) throw new Error(`[tenant] site ${siteId} vanished inside a cached render`);
-  return { ...site, entitlements: { ...site.entitlements, disabled: JSON.parse(disabled) as TenantSite["entitlements"]["disabled"] } };
+  const snapshot = { ...site, entitlements: { ...site.entitlements, disabled: JSON.parse(disabled) as TenantSite["entitlements"]["disabled"] } };
+  return preview ? applyPreviewTheme(snapshot, themeId) : snapshot;
 }
 
 /** Page lookup without throwing, so `notFound()`/`permanentRedirect()` stay outside cache scopes. */
@@ -73,7 +75,7 @@ export async function TenantChrome({ children, ...key }: Key & { children: React
       return { ...section, data: { ...data, controls: { ...data.controls, cart: cartEnabled, language: site.locales.length > 1, theme: site.theme.meta.supportsDark && site.profile.theme.switcher } } };
     }) }} />;
   const organization = organizationJsonLd(siteOrigin(site), { name: text(site.profile.name, site.locale) || site.name,
-    description: text(site.profile.description, site.locale), email: site.profile.email, hotline: site.profile.hotline }, (await collections.source.branches?.(site.context) ?? []) as BranchItem[]);
+    description: text(site.profile.description, site.locale), email: site.profile.email, hotline: site.profile.hotline, logo: site.profile.brand?.logo }, (await collections.source.branches?.(site.context) ?? []) as BranchItem[]);
   const widgetConfig = { ...site.widgets, "theme-switch": site.theme.meta.supportsDark && site.profile.theme.switcher ? site.widgets["theme-switch"] : undefined };
   const widgets = (slot: "inline" | "overlay") => <SiteWidgets widgets={widgetConfig} site={site.context} slot={slot} canUse={canUse} loadData={createTenantWidgetLoader(collections.source)} />;
   return <TenantSiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={widgets("inline")} overlayWidgets={widgets("overlay")}

@@ -1,8 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { AA_NORMAL, CONTRAST_PAIRS, checkContrast, contrastRatio, suggestAccessible } from "../index";
+import { AA_NORMAL, CONTRAST_PAIRS, checkContrast, contrastRatio, suggestAccessible, validateBrandOverrides } from "../index";
 import { parseTheme, RgbChannels } from "../schema";
 import { t15 } from "./fixtures/t15";
+
+test("validateBrandOverrides rejects with passing suggestion", () => {
+  const issues = validateBrandOverrides(parseTheme(t15), { colors: { light: { primary: t15.colors.light["on-primary"] } } });
+  const issue = issues.find(i => i.key === "primary" && i.mode === "light");
+  assert.ok(issue);
+  assert.ok(contrastRatio(issue.suggestion, t15.colors.light["on-primary"]) >= 4.5);
+  assert.deepEqual(validateBrandOverrides(parseTheme(t15), {}), []);
+});
 
 test("WCAG ratio is symmetric, unrounded, and matches known colors", () => {
   assert.equal(AA_NORMAL, 4.5);

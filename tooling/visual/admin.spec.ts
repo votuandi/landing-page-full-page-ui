@@ -28,11 +28,99 @@ test.beforeAll(async ({ request }) => {
   fixture("setup");
   // Warm new routes before timing user flows against next dev.
   for (const path of ["/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
-    const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000 });
+    const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
     expect(response.status(), path).toBeLessThan(500);
   }
 });
 test.afterAll(() => fixture("cleanup"));
+
+test("company settings: save, reload, permission, axe and responsive", async ({ page }) => {
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  fixture("company-query");
+  await page.goto(origin() + "/cai-dat");
+  const legalName = `[DỮ LIỆU MẪU] Công ty \"Mặt trời\" ☀ ${Date.now()}`;
+  await page.getByRole("textbox", { name: "Tên pháp lý", exact: true }).fill(legalName);
+  await page.getByRole("textbox", { name: "minPower", exact: true }).fill("0.8");
+  await page.getByLabel("Tên bộ lọc mới", { exact: true }).fill("minPower");
+  await expect(page.getByRole("button", { name: "Thêm bộ lọc", exact: true })).toBeDisabled();
+  await page.getByLabel("Tên bộ lọc mới", { exact: true }).fill("tech");
+  await page.getByRole("button", { name: "Thêm bộ lọc", exact: true }).click();
+  await page.getByRole("textbox", { name: "tech", exact: true }).fill("[DỮ LIỆU MẪU] TOPCon");
+  await page.getByRole("button", { name: "Lưu thông tin công ty", exact: true }).click();
+  await expect(page.getByRole("status").first()).toContainText("Đã lưu thay đổi");
+  await page.reload(); await expect(page.getByRole("textbox", { name: "Tên pháp lý", exact: true })).toHaveValue(legalName);
+  await expect(page.getByRole("textbox", { name: "minPower", exact: true })).toHaveValue("0.8");
+  await expect(page.getByRole("textbox", { name: "tech", exact: true })).toHaveValue("[DỮ LIỆU MẪU] TOPCon");
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E7-S07/screenshots/company-${width}.png`), fullPage: true });
+  }
+  const editor = await page.context().browser()!.newContext();
+  try {
+    const restricted = await editor.newPage(); await restricted.setExtraHTTPHeaders({ "x-forwarded-for": "198.51.100.200" });
+    await login(restricted, "editor_admin");
+    await expect(restricted.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    expect((await restricted.goto(origin() + "/cai-dat"))?.status()).toBe(403);
+  } finally { await editor.close(); }
+});
+
+test("appearance: colors, theme content preservation, preview, axe and responsive", async ({ page }) => {
+  test.setTimeout(240_000);
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/giao-dien");
+  const before = fixture("settings-snapshot");
+  // Choose a different permitted theme using native radio keyboard controls.
+  const next = page.locator('input[name="theme"][value="t12"]');
+  await expect(next).toBeEnabled();
+  await next.focus(); await page.keyboard.press("Space"); await expect(next).toBeChecked();
+  await page.getByRole("button", { name: "Lưu theme", exact: true }).click();
+  await expect(page.getByRole("status").first()).toContainText("Đã lưu thay đổi");
+  await page.reload(); await expect(next).toBeChecked();
+  expect(fixture("settings-snapshot")).toBe(before);
+  await page.getByLabel("Màu chính (sáng)", { exact: true }).fill("#FFE000");
+  await expect(page.getByText(/Chỉ đạt .*cần ≥ 4,5:1/).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Lưu màu thương hiệu" })).toBeDisabled();
+  await page.getByRole("button", { name: "Dùng màu gợi ý", exact: true }).first().click();
+  const savedColor = await page.getByLabel("Màu chính (sáng)", { exact: true }).inputValue();
+  await page.getByRole("button", { name: "Lưu màu thương hiệu" }).click();
+  await expect(page.getByRole("status").first()).toContainText("Đã lưu thay đổi");
+  await page.reload();
+  await expect(page.getByLabel("Màu chính (sáng)", { exact: true })).toHaveValue(savedColor);
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E7-S07/screenshots/appearance-${width}.png`), fullPage: true });
+  }
+  const popupPromise = page.waitForEvent("popup");
+  await page.getByRole("button", { name: /Xem thử/ }).first().click();
+  const preview = page.getByRole("link", { name: "Mở trang xem thử (tab mới)" });
+  await expect(preview).toHaveAttribute("href", /theme=t15/);
+  const popup = await popupPromise;
+  await expect(popup.locator("main")).toBeVisible({ timeout: 120_000 }); await popup.close();
+  await page.goto(origin("admin-e7-collections-basic") + "/dang-nhap");
+  await login(page, "owner@demo.vn", password(), "admin-e7-collections-basic");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin("admin-e7-collections-basic") + "/giao-dien");
+  await expect(page.getByText("Màu thương hiệu", { exact: true })).toHaveCount(0);
+  await expect(page.locator('input[name="theme"][value="t15"]')).toBeDisabled();
+  await expect(page.getByText("Đã khóa", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/Cần gói .+ để dùng theme này/).first()).toBeVisible();
+});
+
+test("appearance renders without JS", async ({ page, browser }) => {
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const context = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() });
+  try {
+    const noJs = await context.newPage(); await noJs.goto(origin() + "/giao-dien");
+    await expect(noJs.getByRole("heading", { name: "Giao diện", exact: true })).toBeVisible();
+    await expect(noJs.locator('input[name="theme"]:checked')).toHaveCount(1);
+    await noJs.goto(origin() + "/cai-dat");
+    await expect(noJs.getByRole("textbox", { name: "Tên pháp lý", exact: true })).not.toHaveValue("");
+  } finally { await context.close(); }
+});
 // The login limiter counts every attempt per client IP (30 per 15 min); the whole suite logs in more often than that
 // from 127.0.0.1, so each test is its own client (admin reads the proxy's x-forwarded-for).
 let client = 0;

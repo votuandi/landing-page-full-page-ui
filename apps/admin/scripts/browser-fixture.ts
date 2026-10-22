@@ -25,7 +25,7 @@ async function main() {
         for (const [index, fixture] of fixtures.entries()) {
           await db.tenant.create({ data: { ...fixture, name: "[DỮ LIỆU MẪU] Admin E2E", planId: fixture.slug === "admin-e7-collections-basic" ? "basic" : "premium" } });
           await withTenantTransaction(db, fixture.id, async repo => {
-            const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15" });
+            const site = await repo.site.create({ name: "[DỮ LIỆU MẪU] Admin E2E", themeId: "t15", profile: { name: "[DỮ LIỆU MẪU] Admin E2E", brand: { legalName: "[DỮ LIỆU MẪU] Pháp lý" } } });
             await repo.domain.create({ siteId: site.id, hostname: `${fixture.slug}.${platformDomain}`, status: "active", isPrimary: true, verificationToken: randomUUID() });
             await repo.page.create({ siteId: site.id, slug: "lien-he", title: { vi: "Liên hệ" }, sections: [] });
             const home = await repo.page.create({ siteId: site.id, slug: "", kind: "home", title: { vi: "Trang chủ" }, publishedAt: new Date(),
@@ -48,6 +48,15 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "company-query") {
+      const repo = forTenant(db, tenantId), site = await repo.site.first();
+      if (!site) throw new Error("Site fixture missing");
+      await repo.site.update(site.id, { profile: { ...site.profile as object, megaMenu: { equipment: { enabled: true, groups: [
+        { id: "panel", label: "[DỮ LIỆU MẪU] Tấm pin", category: "panel", filters: [{ label: "[DỮ LIỆU MẪU] Công suất", query: { minPower: "0.6" } }] },
+      ] } } } });
+    } else if (action === "settings-snapshot") {
+      const repo = forTenant(db, tenantId);
+      process.stdout.write(JSON.stringify({ pages: await repo.page.list({ orderBy: { id: "asc" } }), contents: await repo.sectionContent.list({ orderBy: { id: "asc" } }) }));
     } else if (action === "home-page") {
       const page = await forTenant(db, tenantId).page.first({ where: { slug: "", kind: "home" } });
       if (!page) throw new Error("Home page fixture missing");
