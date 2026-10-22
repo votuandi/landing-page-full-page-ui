@@ -7,6 +7,13 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const source = fileURLToPath(new URL("./", import.meta.url));
+/** Chép script agent (và bảng checks-map run.mjs import) vào repo giả. */
+function copyScripts(root) {
+  const scripts = join(root, "scripts", "agents"), ci = join(root, "scripts", "ci");
+  for (const dir of [scripts, ci]) mkdirSync(dir, { recursive: true });
+  for (const file of ["run.mjs", "story.mjs"]) copyFileSync(join(source, file), join(scripts, file));
+  copyFileSync(join(source, "..", "ci", "checks-map.mjs"), join(ci, "checks-map.mjs"));
+}
 for (const [policy, reviewPolicy, author, reviewer, conflict] of [
   ["swap", "codex", "codex", "claude", false],
   ["allow", "codex", "codex", "codex", true],
@@ -22,7 +29,7 @@ for (const [policy, reviewPolicy, author, reviewer, conflict] of [
       const epics = join(root, "roadmap", "epics");
       const runDir = join(root, ".agent-runs", "E0-S05");
       for (const dir of [scripts, epics, runDir]) mkdirSync(dir, { recursive: true });
-      for (const file of ["run.mjs", "story.mjs"]) copyFileSync(join(source, file), join(scripts, file));
+      copyScripts(root);
       const routing = JSON.parse(readFileSync(join(source, "routing.json"), "utf8"));
       routing.selfReview = policy;
       routing.reviewPolicy = reviewPolicy;
@@ -67,7 +74,7 @@ test("skills: S.skills theo loại story, run.mjs skills đối chiếu log Code
     const epics = join(root, "roadmap", "epics");
     const runDir = join(root, ".agent-runs", "E0-S05");
     for (const dir of [scripts, epics, runDir]) mkdirSync(dir, { recursive: true });
-    for (const file of ["run.mjs", "story.mjs"]) copyFileSync(join(source, file), join(scripts, file));
+    copyScripts(root);
     const routing = JSON.parse(readFileSync(join(source, "routing.json"), "utf8"));
     routing.authorOverride = {};
     routing.split = ["E0-S05"];
@@ -101,8 +108,10 @@ test("skills: S.skills theo loại story, run.mjs skills đối chiếu log Code
     ].join("\n"));
     // Lượt "Tiếp tục" ghi log riêng; vẫn được tính.
     writeFileSync(join(runDir, "codex-exec-r2.log"), "exec\ncat .agents/skills/vercel-composition-patterns/SKILL.md\n");
+    // codex.sh giữ log lượt trước dưới tên <name>.<n>.log (E6-S04: resume ghi đè làm báo thiếu skill sai).
+    writeFileSync(join(runDir, "codex-exec.1.log"), "exec\ncat .agents/skills/vercel-react-best-practices/SKILL.md\n");
     const report = cli("run.mjs", "skills", "E0-S05");
-    assert.deepEqual(report.missing, ["vercel-react-best-practices", "ponytail-review"]);
+    assert.deepEqual(report.missing, ["ponytail-review"]);
     assert.deepEqual(report.claimedNotOpened, ["graphify"]);
     assert.ok(report.opened.includes("codegraph"));
   } finally {
@@ -136,6 +145,42 @@ test("progress: % theo bước /run-story và % epic theo điểm cỡ", () => {
     writeFileSync(join(runDir, "review-r2.md"), "VERDICT: APPROVE\n");
     assert.equal(run("E0-S02").story.percent, 95);
     assert.equal(run("E0").story, null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("commit --dry-run: đường dẫn có chú thích \"(mới)\" vẫn thuộc commit đề xuất (E6-S04 làm rơi 9 file mới)", () => {
+  const root = mkdtempSync(join(tmpdir(), "solar-commit-"));
+  try {
+    copyScripts(root);
+    const report = join(root, "report.md");
+    writeFileSync(report, "## Commit đề xuất\n\n1. `feat(x): a [E0-S05]`\n   - `packages/a/old.ts`\n   - `packages/a/New.tsx` (mới)\n   - apps/admin/src/app/(admin)/x.ts — mới\n\n## Việc còn lại\n");
+    const result = spawnSync(process.execPath, [join(root, "scripts", "agents", "run.mjs"), "commit", report, "--dry-run"], { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    for (const file of ["packages/a/old.ts", "packages/a/New.tsx", "apps/admin/src/app/(admin)/x.ts"]) assert.ok(result.stdout.includes(file), file);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("stale: chữ bị xóa khỏi source mà spec vẫn tìm → báo; chữ chỉ đổi chỗ hoặc class → không (E7-S07)", () => {
+  const root = mkdtempSync(join(tmpdir(), "solar-stale-"));
+  const git = (...args) => assert.equal(spawnSync("git", args, { cwd: root, encoding: "utf8" }).status, 0, args.join(" "));
+  try {
+    copyScripts(root);
+    for (const dir of ["apps/admin/src", "tooling/visual"]) mkdirSync(join(root, dir), { recursive: true });
+    const ui = join(root, "apps/admin/src/Form.tsx");
+    writeFileSync(ui, '<p className="text-sm text-fg">Đang dùng theme này</p>;\nconst a = "Giữ nguyên chữ";\n');
+    writeFileSync(join(root, "tooling/visual/admin.spec.ts"), 'getByText("Đang dùng theme này"); getByText("Giữ nguyên chữ");\n');
+    git("init", "-q", "-b", "base"); git("add", "."); git("-c", "user.email=a@b", "-c", "user.name=t", "commit", "-qm", "base");
+    git("switch", "-qc", "story");
+    writeFileSync(ui, '<p className="text-xs">Đã lưu</p>;\nexport const moved = "Giữ nguyên chữ";\n');
+    git("-c", "user.email=a@b", "-c", "user.name=t", "commit", "-qam", "design pass");
+    const result = spawnSync(process.execPath, [join(root, "scripts/agents/run.mjs"), "stale", "base"], { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stdout, /"Đang dùng theme này" → tooling\/visual\/admin\.spec\.ts/);
+    assert.doesNotMatch(result.stdout, /Giữ nguyên chữ|text-sm/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

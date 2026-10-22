@@ -11,6 +11,8 @@ run_dir=$1 name=$2 effort=$3 prompt_file=$4 mode=${5:-resume}
 session_file="$run_dir/codex-session.txt" out="$run_dir/$name.md" log="$run_dir/$name.log"
 max_resumes=${CODEX_MAX_RESUMES:-4} # phiên quá dài làm mỗi lượt đắt hơn khởi động lại
 mkdir -p "$run_dir"
+# Giữ log lượt trước (<name>.1.log, .2.log, …): run.mjs skills đối chiếu skill trên mọi lượt, không chỉ lượt cuối.
+if [ -s "$log" ]; then n=1; while [ -e "$run_dir/$name.$n.log" ]; do n=$((n + 1)); done; mv "$log" "$run_dir/$name.$n.log"; fi
 common=(-c "model_reasoning_effort=$effort" -c sandbox_workspace_write.network_access=true -o "$out")
 
 fresh() { # sandbox, save?

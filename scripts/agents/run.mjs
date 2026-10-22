@@ -3,10 +3,12 @@
 //   node scripts/agents/run.mjs verify <ID> [--skip-checks]   → kiểm branch, commit, chạy checks, phạm vi file, AC
 //   node scripts/agents/run.mjs commit <report.md> [--dry-run] → commit theo mục "Commit đề xuất" của báo cáo Codex
 //   node scripts/agents/run.mjs pr-body <ID>                  → sinh .agent-runs/<ID>/pr-body.md, in tiêu đề PR
+//   node scripts/agents/run.mjs stale <base>                  → chữ giao diện đã xóa mà test/spec vẫn dùng (sau design pass)
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { affectedChecks, CHECKS } from "../ci/checks-map.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
@@ -46,7 +48,7 @@ function qualityWarnings(S) {
   const planPath = join(root, S.planFile);
   if (existsSync(planPath)) {
     const plan = readFileSync(planPath, "utf8");
-    for (const title of ["Yêu cầu → test", "Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng"]) {
+    for (const title of ["Yêu cầu → test", "Hạ tầng tái dùng", "Dữ liệu có sẵn chịu ảnh hưởng", "Case biên & bất biến", "Cách kiểm chứng"]) {
       if (!section(plan, title)) warnings.push(`Plan thiếu mục "## ${title}"`);
     }
   }
@@ -71,7 +73,8 @@ function qualityWarnings(S) {
  * `.agents/skills/<tên>/SKILL.md`, hoặc chạy CLI `codegraph`. Chữ trong tài liệu Codex in ra không tính.
  */
 function skillUsage(S) {
-  const logs = readdirSyncSafe(join(root, S.runDir)).filter((f) => /^(codex-exec(-r\d+)?|fix-r\d+)\.log$/.test(f));
+  // codex.sh giữ log mọi lượt (`<name>.log`, `<name>.1.log`, …) — gộp hết, không chỉ lượt cuối.
+  const logs = readdirSyncSafe(join(root, S.runDir)).filter((f) => /^(codex-exec(-r\d+)?|fix-r\d+)(\.\d+)?\.log$/.test(f));
   const commands = logs.flatMap((f) => readFileSync(join(root, S.runDir, f), "utf8").split(/\r?\n/)
     .filter((_, i, all) => all[i - 1]?.trim() === "exec")).join("\n");
   const known = [...new Set([...Object.values(S.skills ?? {}).flatMap((v) => Array.isArray(v) ? v : Object.keys(v))])];
@@ -87,6 +90,31 @@ function skillUsage(S) {
 }
 function readdirSyncSafe(dir) {
   try { return readdirSync(dir); } catch { return []; }
+}
+
+const gitOk = (...args) => spawnSync("git", args, { cwd: root, encoding: "utf8" });
+const notTests = [":(exclude)**/__tests__/**", ":(exclude)**/*.test.*", ":(exclude)tooling/visual/**"];
+/**
+ * Chữ giao diện bị xóa khỏi source mà test/spec vẫn tìm (E7-S07: design pass đổi chữ, e2e cũ đỏ ở CI).
+ * Chỉ xét chuỗi giống chữ người đọc (có dấu tiếng Việt hoặc viết hoa đầu, có khoảng trắng) để bỏ qua class/token.
+ */
+function staleTestStrings(base) {
+  const diff = gitOk("diff", "-U0", `${base}...HEAD`, "--", "apps", "packages", ...notTests).stdout ?? "";
+  const removed = new Set();
+  for (const line of diff.split("\n")) {
+    if (!line.startsWith("-") || line.startsWith("---")) continue;
+    for (const m of line.matchAll(/"([^"\n]{6,80})"|`([^`$\n]{6,80})|>([^<>{}\n]{6,80})</g)) {
+      const text = (m[1] ?? m[2] ?? m[3]).trim();
+      if (/\s/.test(text) && /[À-ỹ]|^[A-ZÀ-Ỹ]/u.test(text)) removed.add(text);
+    }
+  }
+  const stale = [];
+  for (const text of removed) {
+    if (gitOk("grep", "-qF", "-e", text, "--", "apps", "packages", ...notTests).status === 0) continue; // vẫn còn trong source
+    const users = gitOk("grep", "-lF", "-e", text, "--", "tooling/visual", "**/__tests__/**", "**/*.test.*").stdout?.trim();
+    if (users) stale.push(`"${text}" → ${users.split("\n").join(", ")}`);
+  }
+  return stale;
 }
 
 function verify(id, { skipChecks }) {
@@ -109,6 +137,9 @@ function verify(id, { skipChecks }) {
   const warnings = qualityWarnings(S);
 
   const changed = lines(git("diff", "--name-only", `${S.base}...HEAD`));
+  for (const s of staleTestStrings(S.base)) problems.push(`Chữ đã xóa khỏi source nhưng test vẫn dùng: ${s}`);
+  // Cùng bảng với CI (scripts/ci/checks-map.mjs): chạy hết trước khi push, ghi kết quả vào report "Lệnh kiểm tra".
+  const requiredChecks = affectedChecks(changed).map((name) => ({ name, cmd: CHECKS[name].cmd }));
   const paths = planPaths(join(root, S.planFile));
   const outside = paths.length
     ? changed.filter((f) => !inPlan(f, paths) && f !== S.planFile && f !== S.epicFile)
@@ -131,6 +162,8 @@ function verify(id, { skipChecks }) {
   const result = {
     id,
     branch,
+    sha: git("rev-parse", "--short", "HEAD"),
+    requiredChecks,
     commits: commits.length,
     changedFiles: changed.length,
     outsidePlan: outside,
@@ -145,6 +178,7 @@ function verify(id, { skipChecks }) {
   // Tóm tắt ngắn cho Claude — log đầy đủ ở checks.log.
   console.log(`VERIFY ${result.ok ? "PASS" : "FAIL"} ${id} · branch ${branch} · ${commits.length} commit · ${changed.length} file · AC ${result.ac}`);
   for (const c of checks) console.log(`  ${c.ok ? "✔" : "✘"} ${c.cmd} (${c.seconds}s)`);
+  if (requiredChecks.length) console.log(`  → Kiểm local bắt buộc theo file đổi (chạy trước push, matrix chỉ chạy ở CI):\n${requiredChecks.map((c) => `      ${c.name}: ${c.cmd}`).join("\n")}`);
   for (const p of problems) console.log(`  ! ${p}`);
   for (const w of warnings) console.log(`  ⚠ ${w}`);
   if (outside.length) console.log(`  ? Ngoài danh sách file của plan: ${outside.join(", ")}`);
@@ -162,7 +196,8 @@ function parseProposals(reportPath) {
   for (const line of section.split("\n")) {
     const msg = line.match(/^\s*\d+\.\s*`(.+)`\s*$/);
     if (msg) proposals.push({ message: msg[1], files: [] });
-    const file = line.match(/^\s+[-*]\s+`?([^`\s]+)`?\s*$/);
+    // Cho phép chú thích sau đường dẫn: "- `a/b.ts` (mới)" — trước đây làm rơi file mới khỏi commit (E6-S04).
+    const file = line.match(/^\s+[-*]\s+`?([^`\s]+)`?(?:\s.*)?$/);
     if (file && proposals.length) proposals.at(-1).files.push(file[1]);
   }
   return proposals.filter((p) => p.files.length);
@@ -184,8 +219,9 @@ function commit(reportPath, { dryRun }) {
     git("commit", "-q", "-m", p.message, "-m", "Co-Authored-By: Codex <noreply@openai.com>");
     console.log(`  ✔ ${git("log", "-1", "--format=%h")} ${p.message}`);
   }
+  if (dryRun) return;
   const left = dirtyFiles();
-  if (left.length && !dryRun) {
+  if (left.length) {
     console.log(`  ! File thay đổi không thuộc commit đề xuất nào: ${left.join(", ")}`);
     process.exit(2);
   }
@@ -214,6 +250,7 @@ ${section("AC → bằng chứng")}
 
 ${v ? v.checks.map((c) => `- ${c.ok ? "✅" : "❌"} \`${c.cmd}\` (${c.seconds}s)`).join("\n") + `\n- AC đã tick: ${v.ac} · ${v.commits} commit · ${v.changedFiles} file` : "_chưa chạy verify_"}
 ${v?.outsidePlan?.length ? `- File ngoài danh sách của plan: ${v.outsidePlan.map((f) => `\`${f}\``).join(", ")}` : ""}
+${v?.requiredChecks?.length ? `- Kiểm local bắt buộc theo file đổi (SHA ${v.sha}; kết quả ở report "Lệnh kiểm tra"): ${v.requiredChecks.map((c) => `\`${c.name}\``).join(", ")}` : ""}
 
 ## Lệch so với plan
 
@@ -247,8 +284,9 @@ try {
   else if (cmd === "commit" && arg) commit(arg, { dryRun: rest.includes("--dry-run") });
   else if (cmd === "pr-body" && arg) prBody(arg.toUpperCase());
   else if (cmd === "skills" && arg) console.log(JSON.stringify(skillUsage(storyInfo(arg.toUpperCase()))));
+  else if (cmd === "stale" && arg) { const s = staleTestStrings(arg); console.log(s.join("\n")); process.exit(s.length ? 1 : 0); }
   else {
-    console.error("Dùng: run.mjs verify <ID> [--skip-checks] | commit <report.md> [--dry-run] | pr-body <ID> | skills <ID>");
+    console.error("Dùng: run.mjs verify <ID> [--skip-checks] | commit <report.md> [--dry-run] | pr-body <ID> | skills <ID> | stale <base>");
     process.exit(1);
   }
 } catch (err) {

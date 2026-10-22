@@ -75,7 +75,9 @@ thiếu `ponytail`/`codegraph`). Quy tắc `AGENTS.md` (token, schema, tenant, e
    `head: <owner>:<S.branch>`) → nhảy thẳng tới **Bước 6** (bỏ qua điều kiện working tree của base). Chưa có PR nhưng
    branch đã push và `<S.runDir>/` có report/commit đã xong → nhảy tới **Bước 5.3** tạo PR. Còn lại → đọc
    `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
-5. `mkdir -p <S.runDir>`.
+5. `mkdir -p <S.runDir>`. **Kiểm môi trường một lần**: `docker info >/dev/null` (Windows lỗi → thêm đúng một lệnh
+   `wsl --status`). Lỗi → báo người dùng một dòng nguyên nhân (vd. `HCS_E_HYPERV_NOT_INSTALLED` = bật Virtual Machine
+   Platform/Hyper-V rồi khởi động lại) và đi tiếp phần không cần DB; không tự chẩn đoán nhiều lượt (E6-S04 mất ~10′).
 6. Đồ thị code theo `S.graphs`: chạy lệnh trong `S.graphs.codegraph` (`codegraph sync` hoặc `codegraph init -y`, đặt
    `CODEGRAPH_TELEMETRY=0`); `S.graphs.graphify` là `stale: …` → chạy nền lệnh đó (chỉ cần khi story có câu hỏi kiến
    trúc/tài liệu).
@@ -105,11 +107,15 @@ bash scripts/agents/codex.sh <S.runDir> <name> <EFFORT> <prompt-file> [new|resum
    `S.planBrief == false` → **không gọi Codex**; Claude tự khảo sát theo mục "Khảo sát code" của `solar-story-plan`:
    `codegraph explore`/`node`/`impact` trước (graphify cho câu hỏi kiến trúc), rồi mới Grep/Glob, đọc đoạn cần, không
    đọc cả cây. Soát **hạ tầng tái dùng** (helper, lab route `apps/web /lab/*`, spec `tooling/visual`, script).
-2. Claude viết `S.planFile` theo `roadmap/plans/README.md` (dựa trên brief nếu có), **≤ ~8 KB**. **Bốn mục bắt buộc**:
+2. Claude viết `S.planFile` theo `roadmap/plans/README.md` (dựa trên brief nếu có), **≤ ~8 KB**. **Năm mục bắt buộc**:
    "Yêu cầu → test" (mỗi gạch đầu dòng của AC, "Chi tiết", "Target" của story — và hành vi của template gốc khi port —
    thành một dòng có ví dụ input → kết quả mong đợi và tên test; đây là nguồn chính của finding "chưa cover"), "Hạ tầng tái
-   dùng", "Case biên & bất biến" (lấy từ `.agents/skills/solar-pr-review/checklists.md` theo loại story — mỗi dòng một
-   test), "Cách kiểm chứng" (unit / tương tác / e2e chạy ở đâu; trang cần DB → lab route). Ghi các truy vấn
+   dùng", **"Dữ liệu có sẵn chịu ảnh hưởng"** (quy tắc/validator/fallback mới chạy trên dữ liệu nào đang có: preset JSON,
+   seed demo, fixture e2e, bản ghi DB cũ — `codegraph impact` không thấy file dữ liệu; mỗi dòng → một test trong
+   `packages/db/src/__tests__/conformance.test.ts`), "Case biên & bất biến" (lấy từ
+   `.agents/skills/solar-pr-review/checklists.md` theo loại story — mỗi dòng một test), "Cách kiểm chứng" (unit / tương
+   tác / e2e; **bộ e2e lấy từ bảng** `printf '%s\n' <file dự kiến sửa> | node scripts/ci/checks-map.mjs --stdin`, không
+   chọn theo trí nhớ; trang cần DB → lab route). Ghi các truy vấn
    `codegraph`/`graphify` đã dùng. Kiểm **ngưỡng tách story** (cỡ L, > 30 file, ≥ 3 khối độc lập) → hỏi người dùng tách.
    Story `split`: thêm mục **"Design pass"** — Claude sẽ tự làm phần nào (bố cục, khoảng cách, hiệu ứng, tương phản,
    responsive), Codex dựng phần nào (schema, fixture, cấu trúc component, đổi màu sang token, logic).
@@ -133,13 +139,15 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Branch (đã checkout): <S.branch> · Base: <S.base> · Mode: <S.mode>
    Lệnh kiểm tra: <S.checks + lệnh riêng trong plan>
    Loại story: <S.kind><nếu S.architecture: , kiến trúc>
-   Skill bắt buộc: <S.skills.exec, cách nhau dấu phẩy> (ponytail mức full; bảng "Case biên & bất biến" → test viết trước)
+   Skill bắt buộc: <S.skills.exec, cách nhau dấu phẩy> (ponytail mức full; bảng "Case biên & bất biến" → test viết trước;
+   codegraph là CLI, không có SKILL.md — chạy `codegraph explore|impact <symbol>`)
    Skill tự review: <S.skills.selfReview> · Skill khi sửa: <S.skills.fix>
    Môi trường đã dựng sẵn — không bootstrap: `. .agent-runs/_codex-env/environment.ps1` (pnpm, codegraph) · Env DB: .env.ci.local
    Phạm vi test: trong vòng code chỉ test file/package đang sửa; full turbo tối đa 2 lần; log ra file, chỉ đọc đuôi.
    Trước khi báo DONE: tự review theo bước 4.5 của run-story (checklists.md + skill tự review), ghi mục "## Tự review".
    Quy tắc AGENTS.md ưu tiên hơn mọi skill.
-   Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review")
+   Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review") — ghi dần sau mỗi
+   bước của plan (mục "Lệnh kiểm tra" kèm đường dẫn log), để lượt bị ngắt chỉ làm tiếp, không chạy lại từ đầu.
    ```
 2. Chạy nền: `bash scripts/agents/codex.sh <S.runDir> codex-exec <S.codexEffort.exec> <S.runDir>/codex-exec-prompt.md new`
    (kết quả `codex-exec.md`, log `codex-exec.log`, session lưu cho các lượt sửa sau).
@@ -162,7 +170,9 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    thêm `design-taste-frontend` / `redesign-existing-projects` (checklist "AI tells", critique — màu/font đề xuất phải
    thành token trong `packages/themes`). Chỉ sửa phần trình bày (bố cục, khoảng cách, typography, hiệu ứng, tương phản,
    responsive, a11y) — không viết lại logic/schema của Codex. Lỗi logic → ghi lại để Codex sửa (vòng "Tiếp tục").
-3. Commit `style(<scope>): design pass … [<ID>]` + `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+3. `node scripts/agents/run.mjs stale <S.base>` — design pass đổi chữ/aria mà spec/test cũ còn tìm → sửa spec ngay
+   (E7-S07). Rồi chạy lại các e2e trong "Kiểm local bắt buộc" có trang vừa chỉnh.
+   Commit `style(<scope>): design pass … [<ID>]` + `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
    Ảnh chụp lưu `<S.runDir>/screenshots/`. Ghi ngắn vào `<S.runDir>/design-pass.md` những gì đã chỉnh.
 
 **`claude`** — Claude làm toàn bộ (story thiết kế UX mới):
@@ -176,11 +186,12 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 ## Bước 4 — Kiểm chứng (script)
 
 `node scripts/agents/run.mjs verify <ID>` → đọc vài dòng tóm tắt.
-Rồi **kiểm local mọi thứ CI sẽ chạy có liên quan** (không đợi CI): `bash scripts/local-ci.sh up` (một lần mỗi phiên),
-`bash scripts/local-ci.sh db` khi đụng `packages/db`/`apps/web` tenant/`apps/admin`, `bash scripts/local-ci.sh e2e <config>` cho
-mọi spec `tooling/visual` liên quan (admin, tenant, preview, production). Đổi chữ/aria trên UI → grep chuỗi cũ trong
-`tooling/visual/*.spec.ts` và `__tests__` trước. Lỗi môi trường (thiếu DB, port) → sửa môi trường rồi chạy lại, không
-đẩy sang CI. Chạy nền, một lần ở cuối mỗi vòng thực thi/sửa.
+Rồi **chạy hết "Kiểm local bắt buộc"** mà `verify` in ra (bảng `scripts/ci/checks-map.mjs`, cùng bảng CI dùng; không
+tự chọn bớt — E6-S04 bỏ `e2e tenant` → CI đỏ, mất ~55′): `bash scripts/local-ci.sh up` (một lần mỗi phiên) rồi từng lệnh,
+chạy nền, một lần ở cuối mỗi vòng thực thi/sửa. Ghi kết quả + SHA vào report "Lệnh kiểm tra" (reviewer đối chiếu).
+`verify` FAIL vì "Chữ đã xóa khỏi source nhưng test vẫn dùng" → sửa spec/test. Lỗi môi trường (thiếu DB, port) → sửa môi
+trường rồi chạy lại, không đẩy sang CI. Lỗi chỉ có trên Windows, CI Ubuntu qua: `tenant.spec › robots…` (ENOTFOUND
+`*.localhost` của API request), preview webkit/firefox (local chạy `--project chromium`) — ghi vào report, không chặn.
 - PASS → bước 5.
 - FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại Codex bằng `codex.sh … resume` với prompt
   `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log). Skill khi sửa:
@@ -197,7 +208,9 @@ mọi spec `tooling/visual` liên quan (admin, tenant, preview, production). Đ�
 Mục tiêu: chặn lỗi trước vòng review đắt. Người viết tự làm trên diff `<S.base>...HEAD` (vòng sửa: diff của vòng đó):
 1. Đi từng mục của `.agents/skills/solar-pr-review/checklists.md` theo loại story (ui / logic / tenant / e2e) và bảng
    "Case biên & bất biến" của plan: mỗi mục áp dụng → chỉ ra test chứng minh (tên test) hoặc viết thêm test (TDD).
-2. `codegraph impact <symbol>` cho mọi symbol công khai đã sửa → nơi gọi còn đúng, có test.
+2. `codegraph impact <symbol>` cho mọi symbol công khai đã sửa → nơi gọi còn đúng, có test. Impact không thấy **dữ
+   liệu**: quy tắc/validator/fallback mới → có dòng trong `packages/db/src/__tests__/conformance.test.ts` chạy nó trên mọi
+   preset, seed demo và fixture (E7-S04 preset t08, E6-S04 seed t12).
 3. Skill `ponytail-review` trên diff: code/abstraction/dependency thừa → bỏ.
 4. Với mỗi file đổi, tìm ít nhất một kịch bản làm nó sai (input biên, async, tenant khác, SSR/hydrate, tắt JS) và
    chứng minh không xảy ra.
@@ -245,6 +258,8 @@ Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>` (`--agent cl
    của `solar-story-exec` (`receiving-code-review` → bất biến → test tái hiện FAIL trước → sửa → toàn bộ test package
    xanh → `codegraph impact` → tự review bước 4.5 trên diff vòng sửa). Bản sửa nhỏ (≤ ~30 dòng, rõ cách sửa, không đổi
    thiết kế) → Claude sửa trực tiếp thay vì khởi động một phiên Codex. Claude commit (`run.mjs commit`), `verify`, kiểm local (`scripts/local-ci.sh db` / `e2e <config>` như bước 4), rồi mới push.
+   **Gộp push**: mỗi push = một vòng CI ~20′. Sửa tài liệu/roadmap/README phát sinh trong lúc chờ → gộp vào lần push sửa
+   kế tiếp hoặc commit cuối cùng trước khi báo người dùng; không push riêng một commit tài liệu khi CI đang chạy.
 3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh, không
    conflict với base. Mục `[ngoài agent]` cần CI (vd. AC "chạy trên Windows/Ubuntu") → CI xanh thì Claude tick AC.
 4. Dừng sớm, hỏi người dùng khi: finding lặp lại 2 vòng không sửa được, cần quyết định phạm vi/dependency/AC, hoặc quá

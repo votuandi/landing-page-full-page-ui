@@ -11,11 +11,15 @@ on:
       - 'packages/sections/**'
       - 'packages/themes/**'
       - 'packages/tokens/**'
+      - 'packages/presets/**'
       - 'tooling/visual/**'
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
       - '.github/workflows/visual.yml'
+      - 'scripts/ci/checks-map.mjs'
+      - 'scripts/ci/visual-baseline-run.sh'
+      - '!**/*.md'
   pull_request:
     branches: [mono-repo-multi-tenent]
     paths:
@@ -26,11 +30,15 @@ on:
       - 'packages/sections/**'
       - 'packages/themes/**'
       - 'packages/tokens/**'
+      - 'packages/presets/**'
       - 'tooling/visual/**'
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
       - '.github/workflows/visual.yml'
+      - 'scripts/ci/checks-map.mjs'
+      - 'scripts/ci/visual-baseline-run.sh'
+      - '!**/*.md'
   workflow_dispatch:
 
 permissions:
@@ -38,6 +46,27 @@ permissions:
   actions: read
 
 jobs:
+  # Bộ kiểm theo file đổi (scripts/ci/checks-map.mjs, cùng bảng với /run-story): matrix chỉ chạy khi đầu vào của nó đổi.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.map.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: map
+        shell: bash
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: |
+          # workflow_dispatch, push đầu tiên hoặc before không còn → chạy đủ.
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then echo "matrix=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          node scripts/ci/checks-map.mjs "$BASE" --github-output
+
   baseline:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/mono-repo-multi-tenent'
     runs-on: ubuntu-latest
@@ -125,7 +154,8 @@ jobs:
           if-no-files-found: warn
 
   matrix:
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/mono-repo-multi-tenent'
+    needs: changes
+    if: (github.event_name == 'pull_request' || github.ref == 'refs/heads/mono-repo-multi-tenent') && needs.changes.outputs.matrix == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -158,7 +188,7 @@ jobs:
           snapshot_dir="$GITHUB_WORKSPACE/tooling/visual/__screenshots__/linux"
           merge_base=$(git merge-base HEAD "origin/$BASE_REF")
           # Latest successful base run with identical visual inputs (docs-only commits do not run visual.yml).
-          run_id=$(bash scripts/ci/visual-baseline-run.sh "$merge_base") || run_id=""
+          run_id=$(bash scripts/ci/visual-baseline-run.sh "$merge_base" matrix-baseline) || run_id=""
           if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
             --name matrix-baseline --dir "$snapshot_dir" && \
             node tooling/visual/matrix-baseline.js "$snapshot_dir"; then

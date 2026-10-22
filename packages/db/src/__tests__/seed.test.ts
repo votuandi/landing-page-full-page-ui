@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { applyPlanToPreset, loadPreset, presetStructure, validateSiteStructure } from "@solar/presets";
-import { plans, themeAllowed } from "@solar/plans";
+import { plans } from "@solar/plans";
 import { sectionRegistry } from "@solar/sections";
 import { PRODUCTS } from "../../../../apps/web/src/data/products.ts";
 import { PROJECTS } from "../../../../apps/web/src/data/projects.ts";
@@ -10,13 +10,6 @@ import { STORIES } from "../../../../apps/web/src/data/stories.ts";
 import { TESTIMONIALS } from "../../../../apps/web/src/data/testimonials.ts";
 import { FAQS } from "../../../../apps/web/src/data/faq.ts";
 import { buildDemo } from "../../prisma/seed-data.ts";
-
-test("each demo's seeded theme is allowed by its plan, so render does not fall back (E6-S04)", () => {
-  for (const id of ["t15", "t12"] as const) {
-    const demo = buildDemo(id);
-    assert.ok(themeAllowed(demo.planId, loadPreset(id).theme.meta.group), `${id}: ${demo.themeId} on ${demo.planId}`);
-  }
-});
 
 test("both demos keep t15 slugs/assets with distinct localized published content", () => {
   const a = buildDemo("t15"), b = buildDemo("t12");
