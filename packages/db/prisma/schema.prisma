@@ -456,6 +456,7 @@ model SectionContent {
   schemaVersion Int
   data          Json
   draftData     Json?
+  removedAt     DateTime?
   revision      Int      @default(0)
   site          Site     @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
   page          Page     @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
@@ -465,6 +466,7 @@ model SectionContent {
 
   @@unique([tenantId, id])
   @@unique([tenantId, pageId, sectionId])
+  @@index([tenantId, removedAt])
   @@index([tenantId])
   @@index([tenantId, siteId])
   @@index([tenantId, pageId])

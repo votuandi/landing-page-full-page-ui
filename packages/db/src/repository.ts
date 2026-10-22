@@ -9,6 +9,7 @@ import { Prisma as PrismaValues } from "../generated/client.ts";
 import { outboxRepository } from "./outbox.ts";
 import { changeTenantPlan, scanExpiredOverrides, type TenantPlanChange } from "./tenantPlan.ts";
 import { runBillingCron } from "./billing.ts";
+import { purgeRemoved } from "./sectionCleanup.ts";
 
 const repositoryModels = [...tenantModels, ...optionalTenantModels];
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
@@ -156,6 +157,7 @@ function platformRepository(db: PlatformDb) {
     ghostGrant: client.ghostGrant, platformSetting: client.platformSetting,
     outbox: outboxRepository(db),
     billing: { run: (options?: { now?: Date }) => runBillingCron(db, options) },
+    sectionContents: { purgeRemoved: (options?: { now?: Date }) => purgeRemoved(db, options) },
     tenants: {
       bySlug: (slug: string) => resolveTenantSlug(db, slug),
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),

@@ -206,6 +206,7 @@ erDiagram
     Int schemaVersion
     Json data
     Json draftData
+    DateTime removedAt
     Int revision
     DateTime createdAt
     DateTime updatedAt

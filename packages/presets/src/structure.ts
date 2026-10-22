@@ -26,6 +26,14 @@ export type StructureSection = { id: string; type: string; variant: string; enab
 export type SitePage = { slug: string; sections: readonly StructureSection[] };
 export type SiteStructure = { pageTypes: readonly string[]; pages: readonly SitePage[] };
 
+/** Disabled catalog pages retain their records, but do not participate in active site structure. */
+export function siteStructureOf(site: { pageTypes: readonly string[] }, pages: readonly SitePage[]): SiteStructure {
+  return { pageTypes: site.pageTypes, pages: pages.filter(page => {
+    const type = PAGE_TYPE_IDS.find(id => PAGE_TYPES[id].kind === "page" && PAGE_TYPES[id].slug === page.slug);
+    return !type || site.pageTypes.includes(type);
+  }) };
+}
+
 /**
  * Cấu trúc đầy đủ của site tạo từ preset theo gói: home lấy section của preset, trang hệ thống lấy section mặc định
  * trong danh mục; mọi trang đều bỏ section ngoài gói. Đây cũng là cấu trúc cố định khi gói không cho tùy biến.
