@@ -90,10 +90,8 @@ jobs:
         run: |
           snapshot_dir="$GITHUB_WORKSPACE/tooling/visual/__screenshots__/linux"
           merge_base=$(git merge-base HEAD "origin/$BASE_REF")
-          # An older successful run may predate intentional ports already merged into the base.
-          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow visual.yml \
-            --branch mono-repo-multi-tenent --event push --status success --commit "$merge_base" --limit 1 \
-            --json databaseId --jq '.[0].databaseId // empty') || run_id=""
+          # Latest successful base run with identical visual inputs (docs-only commits do not run visual.yml).
+          run_id=$(bash scripts/ci/visual-baseline-run.sh "$merge_base") || run_id=""
           if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
             --name visual-baseline --dir "$snapshot_dir"; then
             echo "Baseline restored from run $run_id"
@@ -159,9 +157,8 @@ jobs:
         run: |
           snapshot_dir="$GITHUB_WORKSPACE/tooling/visual/__screenshots__/linux"
           merge_base=$(git merge-base HEAD "origin/$BASE_REF")
-          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow visual.yml \
-            --branch mono-repo-multi-tenent --event push --status success --commit "$merge_base" --limit 1 \
-            --json databaseId --jq '.[0].databaseId // empty') || run_id=""
+          # Latest successful base run with identical visual inputs (docs-only commits do not run visual.yml).
+          run_id=$(bash scripts/ci/visual-baseline-run.sh "$merge_base") || run_id=""
           if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
             --name matrix-baseline --dir "$snapshot_dir" && \
             node tooling/visual/matrix-baseline.js "$snapshot_dir"; then

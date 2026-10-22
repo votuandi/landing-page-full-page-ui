@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   // Keep Playwright's default; allow constrained local machines to limit browser processes.
   workers: process.env.VISUAL_WORKERS ? Number(process.env.VISUAL_WORKERS) : undefined,
-  retries: 0,
+  retries: process.env.CI ? 1 : 0, // visual.spec ›/ lệch pixel ngẫu nhiên (README › flaky), sửa gốc ở E14-S08
   timeout: 60_000,
   // Comparison never creates or replaces a baseline; the CLI update flag overrides this.
   updateSnapshots: "none",

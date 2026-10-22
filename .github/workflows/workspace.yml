@@ -47,28 +47,8 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - name: Provision isolated Postgres 16 roles
-        env:
-          PGPASSWORD: postgres
-        run: |
-          export APP_OWNER_PASSWORD=$(openssl rand -hex 24)
-          export APP_RUNTIME_PASSWORD=$(openssl rand -hex 24)
-          export APP_PLATFORM_PASSWORD=$(openssl rand -hex 24)
-          SEED_PASSWORD=$(openssl rand -hex 24)
-          for value in "$APP_OWNER_PASSWORD" "$APP_RUNTIME_PASSWORD" "$APP_PLATFORM_PASSWORD" "$SEED_PASSWORD"; do echo "::add-mask::$value"; done
-          psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -f packages/db/scripts/provision-roles.sql
-          # Throwaway CI database: skip durability work so checkpoints do not stall the runner's disk (tenant e2e flakes).
-          psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -c "ALTER SYSTEM SET fsync = off" -c "ALTER SYSTEM SET synchronous_commit = off" -c "ALTER SYSTEM SET full_page_writes = off" -c "SELECT pg_reload_conf()"
-          {
-            echo "MIGRATION_DATABASE_URL=postgresql://app_owner:$APP_OWNER_PASSWORD@localhost:5432/solar_e5"
-            echo "DATABASE_URL=postgresql://app_runtime:$APP_RUNTIME_PASSWORD@localhost:5432/solar_e5"
-            echo "PLATFORM_DATABASE_URL=postgresql://app_platform:$APP_PLATFORM_PASSWORD@localhost:5432/solar_e5"
-            echo "TEST_OWNER_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/solar_e5"
-            echo "SEED_PASSWORD=$SEED_PASSWORD"
-          } >> "$GITHUB_ENV"
-      - run: pnpm --filter @solar/db db:deploy
-      # db:seed generates the client and syncs plans before seeding tenants.
-      - run: pnpm db:seed
+      - uses: ./.github/actions/db-setup
+      # Second seed proves the seed is idempotent.
       - run: pnpm db:seed
       - run: pnpm --filter @solar/db test
       - run: pnpm --filter web test:tenant
@@ -77,6 +57,10 @@ jobs:
           for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a admin-e7-a.preview admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
             echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
           done
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-all-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
       - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
@@ -86,8 +70,6 @@ jobs:
           MULTI_TENANT: "1"
       - name: Verify production cache invalidation, isolation, preview and reveal
         run: pnpm --filter @solar/visual exec playwright test --config playwright.production.config.ts
-      - run: pnpm --filter admin test
-      - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -95,13 +77,66 @@ jobs:
           path: |
             tooling/visual/test-results/tenant
             tooling/visual/test-results/preview
-            tooling/visual/test-results/admin
             tooling/visual/test-results/production
+  # Tách khỏi `db` để chạy song song (job `db` trước đây ~17 phút tuần tự).
+  admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: solar_e5
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d solar_e5"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      REDIS_URL: redis://localhost:6379
+      RLS_REQUIRED: "1"
+      E2E_PLATFORM_DOMAIN: solar.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/db-setup
+      - run: pnpm --filter admin test
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: admin-browser-evidence
+          path: tooling/visual/test-results/admin
   verify:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        # PR: chỉ Ubuntu (nhanh); Windows chạy khi push lên base để giữ AC đa nền tảng.
+        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["windows-latest", "ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     defaults:

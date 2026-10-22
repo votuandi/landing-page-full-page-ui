@@ -1,0 +1,30 @@
+name: Provision Postgres roles, migrate and seed
+description: Dùng chung cho các job cần DB (service postgres:16 ở localhost:5432, user/password postgres, db solar_e5).
+runs:
+  using: composite
+  steps:
+    - name: Provision isolated Postgres 16 roles
+      shell: bash
+      env:
+        PGPASSWORD: postgres
+      run: |
+        export APP_OWNER_PASSWORD=$(openssl rand -hex 24)
+        export APP_RUNTIME_PASSWORD=$(openssl rand -hex 24)
+        export APP_PLATFORM_PASSWORD=$(openssl rand -hex 24)
+        SEED_PASSWORD=$(openssl rand -hex 24)
+        for value in "$APP_OWNER_PASSWORD" "$APP_RUNTIME_PASSWORD" "$APP_PLATFORM_PASSWORD" "$SEED_PASSWORD"; do echo "::add-mask::$value"; done
+        psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -f packages/db/scripts/provision-roles.sql
+        # Throwaway CI database: skip durability work so checkpoints do not stall the runner's disk (tenant e2e flakes).
+        psql -h localhost -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -c "ALTER SYSTEM SET fsync = off" -c "ALTER SYSTEM SET synchronous_commit = off" -c "ALTER SYSTEM SET full_page_writes = off" -c "SELECT pg_reload_conf()"
+        {
+          echo "MIGRATION_DATABASE_URL=postgresql://app_owner:$APP_OWNER_PASSWORD@localhost:5432/solar_e5"
+          echo "DATABASE_URL=postgresql://app_runtime:$APP_RUNTIME_PASSWORD@localhost:5432/solar_e5"
+          echo "PLATFORM_DATABASE_URL=postgresql://app_platform:$APP_PLATFORM_PASSWORD@localhost:5432/solar_e5"
+          echo "TEST_OWNER_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/solar_e5"
+          echo "SEED_PASSWORD=$SEED_PASSWORD"
+        } >> "$GITHUB_ENV"
+    - run: pnpm --filter @solar/db db:deploy
+      shell: bash
+    # db:seed generates the client and syncs plans before seeding tenants.
+    - run: pnpm db:seed
+      shell: bash

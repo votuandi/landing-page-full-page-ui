@@ -46,7 +46,7 @@ function qualityWarnings(S) {
   const planPath = join(root, S.planFile);
   if (existsSync(planPath)) {
     const plan = readFileSync(planPath, "utf8");
-    for (const title of ["Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng"]) {
+    for (const title of ["Yêu cầu → test", "Hạ tầng tái dùng", "Case biên & bất biến", "Cách kiểm chứng"]) {
       if (!section(plan, title)) warnings.push(`Plan thiếu mục "## ${title}"`);
     }
   }

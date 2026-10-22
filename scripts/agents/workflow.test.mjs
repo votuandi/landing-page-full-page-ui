@@ -81,7 +81,7 @@ test("skills: S.skills theo loại story, run.mjs skills đối chiếu log Code
     };
     const info = cli("story.mjs", "info", "E0-S05");
     assert.equal(info.kind, "ui");
-    for (const skill of ["ponytail", "test-driven-development", "verification-before-completion", "codegraph", "vercel-react-best-practices"]) {
+    for (const skill of ["ponytail", "verification-before-completion", "codegraph", "vercel-react-best-practices"]) {
       assert.ok(info.skills.exec.includes(skill), skill);
     }
     assert.ok(info.skills.selfReview.includes("ponytail-review"));

@@ -19,6 +19,13 @@ commit làm commit đầu tiên của branch story. Người thực thi (Codex h
 - File/hàm hiện có liên quan (đường dẫn:dòng), ADR áp dụng (D1…D14), story phụ thuộc đã xong.
 - Truy vấn đã dùng: `codegraph explore/impact …`, `graphify query …` (nếu có) — để reviewer thấy phạm vi đã soát.
 
+## Yêu cầu → test (bắt buộc)
+| # | Yêu cầu (trích AC / Chi tiết / Target / hành vi template gốc) | Ví dụ: input → kết quả mong đợi | Test |
+|---|---|---|---|
+| R1 | … | … | `<file>.test.ts` › "<tên>" |
+- Mỗi gạch đầu dòng của story một dòng; yêu cầu bị tách/hoãn ghi rõ story nhận. Đây là thước đo "chưa cover" của reviewer
+  — phần lớn vòng review lặp trước đây đến từ yêu cầu trong "Chi tiết" không có dòng ở plan (E5-S04, E7-S06, E3-S03).
+
 ## Hạ tầng tái dùng (bắt buộc)
 - Thứ đã có trong repo sẽ dùng thay vì viết mới: helper, lab route (`apps/web /lab/*` với `LAB_ENABLED`),
   spec/config trong `tooling/visual`, fixture, script `scripts/agents/*`. Ghi "không có" nếu đã soát mà không thấy.
@@ -56,6 +63,11 @@ commit làm commit đầu tiên của branch story. Người thực thi (Codex h
 - [chặn] … → đã hỏi người dùng: <câu trả lời>
 - [không chặn] … → chọn: … vì …
 ```
+
+## Độ dài
+
+Plan ≤ ~8 KB: Codex và reviewer đọc lại plan mỗi vòng. "Bối cảnh" chỉ ghi `đường dẫn:dòng` + một câu, không chép code;
+không lặp nội dung giữa các mục.
 
 ## Ngưỡng tách story
 

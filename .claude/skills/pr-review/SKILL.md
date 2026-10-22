@@ -84,14 +84,12 @@ cover.
     `run-story`):
     ```bash
     git switch <branch>
-    codex exec -C "$(pwd)" -s workspace-write -c sandbox_workspace_write.network_access=true \
-      -c model_reasoning_effort=<S.codexEffort.exec> \
-      -o "<S.runDir>/fix-r<n>.md" "Dùng skill solar-story-exec. Sửa các finding P0/P1 và mọi mục 'Chưa cover' \
-    (trừ [ngoài agent]) trong <S.runDir>/review-r<n>.md cho story <ID> trên branch <branch>; mỗi case chưa cover phải \
-    có code + test/bằng chứng.<nếu CI đỏ: Sửa lỗi CI: <tên job + đuôi log>.> Không làm thêm việc khác. \
-    Skill khi sửa: <S.skills.fix>; tự review: <S.skills.selfReview> — mở SKILL.md trước khi dùng. \
-    Chạy lại lệnh kiểm tra trong <S.planFile>. Báo cáo: <S.runDir>/fix-r<n>-report.md" \
-      < /dev/null > "<S.runDir>/fix-r<n>.log" 2>&1
+    # Ghi prompt vào <S.runDir>/fix-r<n>-prompt.md: "Dùng skill solar-story-exec. Sửa các finding P0/P1 và mọi mục
+    # 'Chưa cover' (trừ [ngoài agent]) trong <S.runDir>/review-r<n>.md; mỗi case chưa cover có code + test/bằng chứng.
+    # <nếu CI đỏ: Sửa lỗi CI: <tên job + đuôi log>.> Không làm thêm việc khác. Skill khi sửa: <S.skills.fix>; tự review:
+    # <S.skills.selfReview>. Chạy lại lệnh kiểm tra trong <S.planFile>. Báo cáo: <S.runDir>/fix-r<n>-report.md"
+    # resume: nối tiếp phiên dựng code (Codex còn nhớ plan + code đã viết); tự về phiên mới khi cần.
+    bash scripts/agents/codex.sh <S.runDir> fix-r<n> <S.codexEffort.exec> <S.runDir>/fix-r<n>-prompt.md resume
     ```
   - Người viết Claude: tự sửa trên branch.
   - Story `split`: finding về trình bày (bố cục, tương phản, responsive, hiệu ứng) → Claude sửa; finding về logic/schema/

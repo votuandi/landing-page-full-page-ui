@@ -63,6 +63,11 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - **P0**: hỏng dữ liệu/bảo mật/rò tenant, build hoặc test chính lỗi, AC cốt lõi không đạt.
 - **P1**: bug thật trong case thường gặp, vi phạm quy tắc bắt buộc của `AGENTS.md`, AC thiếu bằng chứng.
 - **P2**: cải thiện, đặt tên, đơn giản hóa, over-engineering không gây lỗi. Không chặn merge.
+- Hiệu chỉnh: P1 phải chỉ ra **kịch bản lỗi cụ thể** (input/thao tác → kết quả sai) hoặc một dòng "Yêu cầu → test"/AC
+  không đạt. Cải thiện UX không có trong AC/Chi tiết → P2. Bằng chứng chỉ có ở CI (Windows, TTFB, e2e chưa chạy) hoặc phép
+  đo nhiễu → mục `[ngoài agent]` kèm cách đo, không phải P1 — trừ khi bằng chứng hiện có cho thấy AC thất bại.
+- Đối chiếu theo thứ tự: bảng "Yêu cầu → test" và "Case biên" của plan → AC → diff. Yêu cầu của story không có dòng trong
+  plan → "Chưa cover" và ghi "plan thiếu" (để Claude bổ sung quy trình), không chỉ đòi người viết sửa.
 
 ## Định dạng kết quả (bắt buộc, tiếng Việt)
 
