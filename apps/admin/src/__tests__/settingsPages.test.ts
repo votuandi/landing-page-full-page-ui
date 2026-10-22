@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import * as themes from "@solar/themes";
+import * as plans from "@solar/plans";
 import * as jsxRuntime from "react/jsx-runtime";
 import * as profileSchemas from "@solar/db/site-profile";
 import { ThemeOverridesSchema } from "@solar/tokens";
@@ -13,6 +15,8 @@ async function pageProps(page: "cai-dat" | "giao-dien", s: ReturnType<typeof set
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const imports: Record<string, unknown> = {
     "react/jsx-runtime": jsxRuntime,
+    "@solar/themes": themes,
+    "@solar/plans": plans,
     "@solar/db/site-profile": profileSchemas,
     "@solar/tokens": { ThemeOverridesSchema },
     "../../../lib/siteSettings.ts": settings,
@@ -69,4 +73,11 @@ test("settings pages keep valid saved values without a warning", async () => {
   assert.deepEqual(appearance.overrides, s.site().themeOverrides);
   assert.ok(!company.warning); assert.ok(!appearance.warning);
   assert.equal(s.writes(), 0);
+});
+
+test("appearance báo theme đã lưu ngoài gói và theme website đang dùng", async () => {
+  const s = setup(); s.setSite({ planId: "basic", themeId: "t15" });
+  const props = await pageProps("giao-dien", s);
+  assert.match(String(props.warning), /Theme .* ngoài gói, website đang dùng/);
+  assert.equal(props.themeId, "t15"); assert.equal(s.writes(), 0);
 });

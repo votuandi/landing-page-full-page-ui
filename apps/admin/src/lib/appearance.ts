@@ -19,10 +19,10 @@ export function assertBrandContrast(theme: ThemeTokens, overrides: ThemeOverride
 }
 export function createAppearanceHandlers(deps: SiteSettingsDeps) {
   const run = (input: SettingsInput, context: ActionContext, work: Parameters<typeof settingsAction>[4]) => settingsAction("theme.manage", input, context, deps, work);
-  const allowedTheme = (raw: unknown, planId: string) => {
+  const allowedTheme = (raw: unknown, planId?: string) => {
     const { themeId } = selectTheme.parse(raw), theme = getTheme(themeId);
     if (!theme) throw new SiteSettingsError("Giao diện không tồn tại", 400);
-    if (!themeAllowed(planId, theme.meta.group)) throw new SiteSettingsError("Giao diện này nằm ngoài gói hiện tại", 403);
+    if (planId !== undefined && !themeAllowed(planId, theme.meta.group)) throw new SiteSettingsError("Giao diện này nằm ngoài gói hiện tại", 403);
     return theme;
   };
   return {
@@ -56,7 +56,7 @@ export function createAppearanceHandlers(deps: SiteSettingsDeps) {
       return save({ profile: { ...profile, brand: { ...rest, ...data } } });
     }),
     preview: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, can) => {
-      const theme = allowedTheme(raw, site.planId);
+      const theme = allowedTheme(raw);
       if (can("themeOverride")) assertBrandContrast(theme, ThemeOverridesSchema.parse(site.themeOverrides));
       const url = new URL(await deps.preview(context.tenantId, site.id, context.slug));
       url.searchParams.set("theme", theme.meta.id);

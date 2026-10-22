@@ -7,6 +7,8 @@ import ts from "typescript";
 import { PERMISSIONS } from "@solar/auth";
 
 const publicActions = new Set(["loginAction", "loginTotpAction", "forgotPasswordAction", "requestMagicAction", "resetPasswordAction", "acceptInviteAction", "magicLoginAction", "magicTotpAction"]);
+// Upgrade requests are available to authenticated tenant staff, independent of editing permissions.
+const sessionActions = new Set(["logoutAction", "requestUpgrade"]);
 function exportsOf(source: string, wrapper: "action" | "route") {
   const file = ts.createSourceFile("check.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const exports: { name: string; permission: string }[] = [];
@@ -28,7 +30,7 @@ function exportsOf(source: string, wrapper: "action" | "route") {
       assert.ok(call && ts.isCallExpression(call) && ts.isIdentifier(call.expression) && call.expression.text === wrapper, "Missing permission wrapper");
       assert.ok(ts.isStringLiteral(call.arguments[0]), "Permission must be explicit");
       const name = declaration.name.text, permission = call.arguments[0].text;
-      assert.ok(PERMISSIONS.includes(permission as typeof PERMISSIONS[number]) || wrapper === "action" && permission === "public" && publicActions.has(name) || wrapper === "action" && permission === "session" && name === "logoutAction", "Permission is unknown or public/session exemption is not allowlisted");
+      assert.ok(PERMISSIONS.includes(permission as typeof PERMISSIONS[number]) || wrapper === "action" && permission === "public" && publicActions.has(name) || wrapper === "action" && permission === "session" && sessionActions.has(name), "Permission is unknown or public/session exemption is not allowlisted");
       exports.push({ name, permission });
     }
   }

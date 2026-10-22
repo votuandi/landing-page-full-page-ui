@@ -108,6 +108,13 @@ test("appearance: colors, theme content preservation, preview, axe and responsiv
   await expect(page.locator('input[name="theme"][value="t15"]')).toBeDisabled();
   await expect(page.getByText("Đã khóa", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/Cần gói .+ để dùng theme này/).first()).toBeVisible();
+  const lockedTheme = page.locator('input[name="theme"][value="t15"]').locator("..").locator("..");
+  await expect(lockedTheme.getByRole("button", { name: /Xem thử/ })).toBeEnabled();
+  await lockedTheme.getByRole("button", { name: /^Nâng cấp:/ }).click();
+  const upgrade = page.getByRole("dialog");
+  await upgrade.getByRole("textbox").fill("Tư vấn nâng cấp theme");
+  await upgrade.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
+  await expect(upgrade.getByRole("status")).toContainText("Đã gửi yêu cầu nâng cấp");
 });
 
 test("appearance renders without JS", async ({ page, browser }) => {

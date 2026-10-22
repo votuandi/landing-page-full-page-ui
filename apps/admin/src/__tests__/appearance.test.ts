@@ -35,11 +35,19 @@ test("colors require themeOverride", async () => {
 });
 test("theme outside plan is rejected", async () => {
   const s = setup(); s.setSite({ planId: "basic" });
-  for (const action of [s.actions.theme, s.actions.preview]) {
+  for (const action of [s.actions.theme]) {
     assert.equal((await action({}, s.form({ themeId: "t15" }))).status, 403);
     assert.equal((await action({}, s.form({ themeId: "unknown" }))).status, 400);
   }
   assert.equal(s.writes(), 0);
+});
+
+test("preview theme khóa vẫn tạo link nhưng không lưu", async () => {
+  const s = setup("owner", false); s.setSite({ planId: "basic" });
+  const result = await s.actions.preview({}, s.form({ themeId: "t15" }));
+  assert.equal(result.ok, true); assert.equal(new URL(result.url!).searchParams.get("theme"), "t15");
+  assert.equal(s.writes(), 0);
+  assert.equal((await s.actions.preview({}, s.form({ themeId: "unknown" }))).status, 400);
 });
 test("theme change rechecks overrides", async () => {
   const s = setup(); s.setSite({ themeOverrides: { colors: { light: { primary: getTheme("t14")!.colors.light["on-primary"] } } } });

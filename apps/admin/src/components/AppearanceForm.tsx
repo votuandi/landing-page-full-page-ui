@@ -7,6 +7,7 @@ import { colorChannelsToHex, type ThemeOverrides } from "@solar/tokens";
 import { saveTheme, previewTheme, saveColors, saveLogos } from "../app/(admin)/giao-dien/actions.ts";
 import type { AdminAction, ActionResult } from "../lib/action.ts";
 import { BrandColorsForm } from "./BrandColorsForm.tsx";
+import { UpgradeRequest } from "./UpgradeRequest.tsx";
 
 const requiredPlan = (group: ThemeGroup) => Object.values(plans).find(plan => plan.themes.includes(group))!.name;
 const subscribeNothing = () => () => {};
@@ -18,6 +19,7 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
 }) {
   const [selected, setSelected] = useState(themeId), [currentTheme, setCurrentTheme] = useState(themeId), [version, setVersion] = useState(updatedAt);
   const [result, setResult] = useState<ActionResult>({}), [pending, start] = useTransition(), router = useRouter();
+  const [upgrade, setUpgrade] = useState<string>();
   const ready = useSyncExternalStore(subscribeNothing, () => true, () => false);
   const submit = (action: AdminAction, payload: unknown, done?: (response: ActionResult) => void) => start(async () => {
     setResult({});
@@ -41,6 +43,7 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
     <header className="space-y-1"><h1 className="text-2xl font-semibold text-fg">Giao diện</h1>
       <p className="text-sm text-fg-muted">Chọn theme, màu thương hiệu và logo. Thay đổi áp dụng cho toàn website ngay khi lưu.</p></header>
     {warning && <p role="alert" className="text-sm text-danger">{warning}</p>}
+    {upgrade && <UpgradeRequest key={upgrade} feature={upgrade} onClose={() => setUpgrade(undefined)} />}
     <div role="status" aria-live="polite" className={`break-words text-sm ${result.error ? "font-medium text-danger" : "text-fg"}`}>{pending ? "Đang xử lý…" : result.error ?? result.message}</div>
     {result.url && <a className={`inline-flex min-h-11 items-center rounded-button text-sm text-primary underline-offset-4 hover:underline ${focus}`} href={result.url} target="_blank" rel="noopener noreferrer">Mở trang xem thử (tab mới)</a>}
     <form onSubmit={event => { event.preventDefault(); submit(saveTheme, { themeId: selected }, response => { if (response.ok) setCurrentTheme(selected); }); }} className={panel}>
@@ -52,7 +55,11 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, upd
             <label className="flex min-h-11 cursor-pointer items-center gap-3 font-semibold text-fg"><input type="radio" name="theme" value={theme.meta.id} checked={selected === theme.meta.id} disabled={!allowed} onChange={() => setSelected(theme.meta.id)} className="size-4 accent-primary" /><span className="min-w-0 flex-1 break-words">{theme.meta.name}</span>{active && <span className="shrink-0 rounded-pill bg-primary px-2 py-0.5 text-xs font-medium text-on-primary">Đang dùng</span>}</label>
             <p className="text-sm text-fg-muted">{themeLabels[theme.meta.group]}</p>
             <div aria-hidden="true" className="my-3 flex h-10 overflow-hidden rounded-input border border-line/20">{(["primary", "secondary", "accent", "bg"] as const).map(key => <span key={key} className="flex-1" style={{ backgroundColor: colorChannelsToHex(theme.colors.light[key]) }} />)}</div>
-            <div className="mt-auto">{!allowed ? <p className="flex min-h-11 flex-wrap items-center gap-2 text-sm text-fg-muted"><span className="rounded-pill border border-line/20 px-2 py-0.5 text-xs font-medium text-fg">Đã khóa</span>Cần gói {requiredPlan(theme.meta.group)} để dùng theme này</p> : <button type="button" className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary hover:bg-bg-tint ${focus}`} onClick={() => openPreview(theme.meta.id)}>Xem thử<span className="sr-only"> {theme.meta.name} (mở tab mới)</span></button>}</div>
+            <div className="mt-auto space-y-2">
+              {!allowed && <p className="flex min-h-11 flex-wrap items-center gap-2 text-sm text-fg-muted"><span className="rounded-pill border border-line/20 px-2 py-0.5 text-xs font-medium text-fg">Đã khóa</span>Cần gói {requiredPlan(theme.meta.group)} để dùng theme này</p>}
+              <div className="flex flex-wrap gap-2"><button type="button" className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary hover:bg-bg-tint ${focus}`} onClick={() => openPreview(theme.meta.id)}>Xem thử<span className="sr-only"> {theme.meta.name} (mở tab mới)</span></button>
+                {!allowed && <button type="button" aria-label={`Nâng cấp: ${theme.meta.name}`} className={`min-h-11 rounded-button border border-line/20 px-3 text-sm font-medium text-primary ${focus}`} onClick={() => setUpgrade(`theme:${theme.meta.group}`)}>Nâng cấp</button>}</div>
+            </div>
           </div>;
         })}</div>
         <div className="flex flex-wrap items-center gap-3"><button disabled={!themeAllowed(planId, getTheme(selected)!.meta.group) || selected === currentTheme} aria-describedby={selected === currentTheme ? "theme-save-hint" : undefined} className={primaryButton}>Lưu theme</button>

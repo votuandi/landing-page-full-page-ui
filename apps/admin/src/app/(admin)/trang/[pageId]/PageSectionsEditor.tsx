@@ -5,6 +5,7 @@ import { SectionListEditor, useLeaveGuard } from "@solar/cms-ui";
 import { sectionLimitIssues } from "@solar/sections";
 import type { PageEditor, PageSectionResult } from "../../../../lib/pageSections.ts";
 import { saveSectionsDraft, publishSections, previewLink } from "../actions.ts";
+import { UpgradeRequest } from "../../../../components/UpgradeRequest.tsx";
 
 const base = "inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-40";
 const button = `${base} border border-line/25 bg-bg-elevated text-fg hover:bg-bg-tint`;
@@ -12,6 +13,7 @@ const primary = `${base} bg-primary text-on-primary hover:opacity-90`;
 
 export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
   const [value, setValue] = useState(editor.sections);
+  const [upgrade, setUpgrade] = useState<string>();
   const [saved, setSaved] = useState(JSON.stringify(editor.sections));
   const [revision, setRevision] = useState(editor.page.revision);
   const [hasDraft, setHasDraft] = useState(editor.hasDraft);
@@ -41,9 +43,10 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
     <p className="text-sm text-fg-muted">{hasDraft ? "Trang có bản nháp chưa xuất bản." : "Bố cục đang hiển thị là bản đã xuất bản."} Khách truy cập chỉ thấy thay đổi sau khi bạn xuất bản.</p>
     <fieldset disabled={pending || conflict} className="min-w-0">
       <legend className="sr-only">Bố cục section</legend>
-      <SectionListEditor value={value} onChange={setValue} can={editor.can} allowedTypes={editor.allowedTypes} lockedTypes={editor.lockedTypes}
+      <SectionListEditor value={value} onChange={setValue} can={editor.can} allowedTypes={editor.allowedTypes} lockedTypes={editor.lockedTypes} onUpgrade={setUpgrade}
         editHref={editor.canEditContent ? section => `/trang/${editor.page.id}/section/${section.id}` : undefined} />
     </fieldset>
+    {upgrade && <UpgradeRequest key={upgrade} feature={upgrade} onClose={() => setUpgrade(undefined)} />}
     <div className="sticky bottom-0 flex flex-col gap-3 border-t border-line/20 bg-bg/95 px-3 py-3 backdrop-blur sm:flex-row sm:px-4 sm:items-center sm:justify-between sm:rounded-card sm:border sm:shadow-float" aria-busy={pending}>
       <div className="min-w-0 space-y-1">
         {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
