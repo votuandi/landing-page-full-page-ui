@@ -64,6 +64,26 @@ test("locked types cannot be added", async () => {
   const locked = button(container, "Thêm Video công trình");
   assert.equal(locked.disabled, true); assert.equal(locked.getAttribute("aria-disabled"), "true");
 });
+
+test("nút Nâng cấp gọi feature của section khóa kể cả khi không được sắp xếp", async () => {
+  for (const reorder of [true, false]) {
+    let feature = "";
+    const m = await render({ can: { reorder, variantSwitch: true }, lockedTypes: ["shorts"], onUpgrade: value => { feature = value; } });
+    await click(button(m.container, "Nâng cấp: Video công trình"));
+    assert.equal(feature, "shorts");
+  }
+});
+
+test("hàng lockedByPlan không cho bật/sửa nhưng cho di chuyển và xóa", async () => {
+  const m = await render({ lockedTypes: ["calculator"], editHref: s => `/section/${s.id}` });
+  const row = m.container.querySelector<HTMLElement>('[data-section-id="calculator"]')!;
+  assert.match(row.textContent!, /Khóa theo gói/);
+  assert.equal(row.querySelector('[role="switch"],select,a'), null);
+  await click(button(row, /^Lên trên:/));
+  assert.equal(m.last()[0].id, "calculator");
+  await click(button(row, /^Xóa:/));
+  assert.equal(m.last().some(s => s.id === "calculator"), false);
+});
 test("reorders with buttons", async () => {
   const { container, last } = await render();
   assert.equal(button(container, /^Lên trên:.*\(hero\)$/).disabled, true);

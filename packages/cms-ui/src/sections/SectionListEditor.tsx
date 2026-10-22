@@ -14,6 +14,7 @@ export type SectionListEditorProps = {
   can: { reorder: boolean; variantSwitch: boolean };
   allowedTypes: readonly string[];
   lockedTypes?: readonly string[];
+  onUpgrade?(feature: string): void;
   newId?(type: string): string;
   editHref?(section: EditableSection): string;
 };
@@ -33,7 +34,7 @@ const subscribeMotion = (notify: () => void) => {
 };
 
 /** Controlled editor dùng chung CMS/wizard; chỉ phát descriptor, không chạm nội dung hay mạng. */
-export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId, editHref }: SectionListEditorProps) {
+export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTypes = [], newId = newSectionId, editHref, onUpgrade }: SectionListEditorProps) {
   const dndId = useId();
   const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia(reducedQuery).matches, () => true);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -45,7 +46,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
       onDragEnd={({ active, over }) => { if (over && active.id !== over.id) update(value.findIndex(s => s.id === active.id), value.findIndex(s => s.id === over.id)); }}>
       <SortableContext items={value.map(s => s.id)} strategy={verticalListSortingStrategy}>
         <ol aria-label="Section của trang" className="space-y-3">
-          {value.map((section, index) => <SectionRow key={section.id} section={section} index={index} count={value.length} can={can} reducedMotion={reduced} editHref={editHref?.(section)}
+          {value.map((section, index) => <SectionRow key={section.id} section={section} locked={lockedTypes.includes(section.type)} index={index} count={value.length} can={can} reducedMotion={reduced} editHref={lockedTypes.includes(section.type) ? undefined : editHref?.(section)}
             onMove={update} onToggle={() => onChange(toggle(value, section.id))}
             onVariant={variant => onChange(setVariant(value, section.id, variant))}
             onRemove={() => { if (window.confirm("Xóa section này? Nội dung được giữ lại.")) onChange(remove(value, section.id)); }} />)}
@@ -54,7 +55,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
     </DndContext>
     {!value.length && <p className="rounded-card border border-dashed border-line/30 p-6 text-center text-sm text-fg-muted">
       Trang chưa có section nào.{can.reorder ? " Chọn một section bên dưới để bắt đầu." : ""}</p>}
-    {can.reorder && <section aria-labelledby={`${dndId}-add`} className="space-y-3 pt-2">
+    {(can.reorder || (onUpgrade && lockedTypes.length > 0)) && <section aria-labelledby={`${dndId}-add`} className="space-y-3 pt-2">
       <h2 id={`${dndId}-add`} className="text-base font-semibold">Thêm section</h2>
       <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
         {[...new Set([...allowedTypes, ...lockedTypes])].map(type => {
@@ -62,6 +63,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
           const variant = sectionRegistry.variantsOf(type)?.[0];
           if (!def || !variant) return null;
           const locked = !allowedTypes.includes(type) || lockedTypes.includes(type);
+          if (!can.reorder && !locked) return null;
           const reason = locked ? "Cần nâng cấp gói" : sectionLimitIssues([...value, { type }])[0];
           return <li key={type} className="min-w-0">
             <button type="button" aria-label={`Thêm ${def.meta.label.vi}`} disabled={Boolean(reason)} aria-disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${type}-reason` : undefined}
@@ -70,6 +72,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
               <span aria-hidden="true" className="w-4 shrink-0 text-center text-base leading-none text-primary">{reason ? (locked ? "🔒" : "–") : "+"}</span>Thêm {def.meta.label.vi}
             </button>
             {reason && <p id={`${dndId}-${type}-reason`} className="mt-1 px-1 text-xs text-fg-muted">{reason}</p>}
+            {locked && onUpgrade && def.meta.entitlement && <SmallButton className="min-h-11" aria-label={`Nâng cấp: ${def.meta.label.vi}`} onClick={() => onUpgrade(def.meta.entitlement!)}>Nâng cấp</SmallButton>}
           </li>;
         })}
       </ul>
@@ -77,8 +80,9 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
   </div>;
 }
 
-function SectionRow({ section, index, count, can, reducedMotion, editHref, onMove, onToggle, onVariant, onRemove }: {
+function SectionRow({ section, locked, index, count, can, reducedMotion, editHref, onMove, onToggle, onVariant, onRemove }: {
   section: EditableSection; index: number; count: number; can: SectionListEditorProps["can"];
+  locked: boolean;
   reducedMotion: boolean;
   editHref?: string;
   onMove(from: number, to: number): void; onToggle(): void; onVariant(variant: string): void; onRemove(): void;
@@ -99,16 +103,17 @@ function SectionRow({ section, index, count, can, reducedMotion, editHref, onMov
       <div className="min-w-0 flex-1 basis-40 break-words">
         <p className={`font-semibold ${on ? "text-fg" : "text-fg-muted"}`}>{label}</p>
         <p className="text-sm text-fg-muted">{on ? `Kiểu ${section.variant}` : "Đang ẩn khỏi trang"}</p>
+        {locked && <p className="text-sm text-fg-muted">Khóa theo gói</p>}
       </div>
       {editHref && <a href={editHref} className="inline-flex min-h-11 items-center rounded-button px-2 text-sm font-medium text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Sửa nội dung</a>}
       {can.reorder && <div className="flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-end">
-        <button type="button" role="switch" aria-checked={on} aria-label={`Hiển thị: ${name}`} onClick={onToggle}
+        {!locked && <button type="button" role="switch" aria-checked={on} aria-label={`Hiển thị: ${name}`} onClick={onToggle}
           className="inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-sm font-medium text-fg-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
           <span aria-hidden="true" className={`relative inline-block h-6 w-10 shrink-0 rounded-pill ${on ? "bg-primary" : "bg-line/30"} transition-colors motion-reduce:transition-none`}>
             <span className={`absolute left-0.5 top-0.5 size-5 rounded-pill bg-bg-elevated shadow-sm transition-transform motion-reduce:transition-none ${on ? "translate-x-4" : ""}`} />
           </span>
           {on ? "Hiện" : "Ẩn"}
-        </button>
+        </button>}
         <div className="flex items-center">
           <SmallButton className="min-h-11 min-w-11" aria-label={`Lên trên: ${name}`} disabled={index === 0} onClick={() => onMove(index, index - 1)}>↑</SmallButton>
           <SmallButton className="min-h-11 min-w-11" aria-label={`Xuống dưới: ${name}`} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>↓</SmallButton>
@@ -116,7 +121,7 @@ function SectionRow({ section, index, count, can, reducedMotion, editHref, onMov
         </div>
       </div>}
     </div>
-    {can.variantSwitch && <div className="mt-3 flex flex-col gap-1 border-t border-line/15 pt-3 sm:flex-row sm:items-center sm:gap-3">
+    {can.variantSwitch && !locked && <div className="mt-3 flex flex-col gap-1 border-t border-line/15 pt-3 sm:flex-row sm:items-center sm:gap-3">
       <label htmlFor={selectId} className="shrink-0 text-sm text-fg-muted">Kiểu hiển thị<span className="sr-only">: {label}</span></label>
       <select id={selectId} aria-label={`Đổi kiểu hiển thị: ${label}`} className={`${inputClass} sm:max-w-xs`} value={section.variant} onChange={e => onVariant(e.target.value)}>
         {!variants.includes(section.variant) && <option value={section.variant}>{section.variant} (không còn hỗ trợ)</option>}

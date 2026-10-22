@@ -24,8 +24,23 @@ for (const width of [390, 1440]) for (const colorScheme of ["light", "dark"] as 
     await page.getByRole("button", { name: /^Kéo để sắp xếp:/ }).first().focus();
     expect(await page.evaluate(() => { const s = getComputedStyle(document.activeElement!); return s.outlineStyle !== "none" || s.boxShadow !== "none"; })).toBe(true);
     expect(errors).toEqual([]);
-    const folder = resolve(__dirname, "../../.agent-runs/E7-S04/screenshots"); await mkdir(folder, { recursive: true });
+    const folder = resolve(__dirname, "../../.agent-runs/E6-S04/screenshots"); await mkdir(folder, { recursive: true });
     await page.screenshot({ path: resolve(folder, `${width}-${colorScheme}.png`), fullPage: true });
+    const locked = page.locator('[data-section-id="shorts"]');
+    await expect(locked).toContainText("Khóa theo gói");
+    await expect(locked.locator('select,a,[role="switch"]')).toHaveCount(0);
+    const upgrade = page.getByRole("button", { name: "Nâng cấp: Video công trình", exact: true });
+    await upgrade.focus(); await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog", { name: "Nâng cấp: Video Shorts" });
+    await expect(dialog.getByRole("textbox")).toBeFocused();
+    expect((await new AxeBuilder({ page }).include('[role="dialog"]').withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    await page.screenshot({ path: resolve(folder, `${width}-${colorScheme}-upgrade.png`), fullPage: true });
+    await page.keyboard.press("Escape"); await expect(dialog).toHaveCount(0); await expect(upgrade).toBeFocused();
+    await upgrade.click(); await dialog.getByRole("textbox").fill("Tư vấn gói phù hợp");
+    await dialog.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
+    await expect(dialog.getByRole("status")).toContainText("Đã gửi yêu cầu nâng cấp");
+    expect(errors).toEqual([]);
   });
 }
 test("keyboard reorder and pointer reorder, reduced motion", async ({ page }) => {
@@ -54,8 +69,8 @@ test("toggle, switch variant, save, add, remove and limit locks", async ({ page 
   await expect(page.getByRole("status", { name: "" }).filter({ hasText: "Đã lưu nháp" })).toHaveCount(1);
   const saved = JSON.parse(await page.getByTestId("sections-saved").textContent() ?? "[]");
   expect(saved[0]).toMatchObject({ id: "hero", variant: "t15", enabled: false });
-  await page.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).click(); await expect(rows(page)).toHaveCount(3);
-  page.on("dialog", d => d.accept()); await rows(page).last().getByRole("button", { name: /^Xóa:/ }).click(); await expect(rows(page)).toHaveCount(2);
+  await page.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).click(); await expect(rows(page)).toHaveCount(4);
+  page.on("dialog", d => d.accept()); await rows(page).last().getByRole("button", { name: /^Xóa:/ }).click(); await expect(rows(page)).toHaveCount(3);
 });
 test("legacy overflow disables saving and no-JS content stays visible", async ({ page, browser }) => {
   await open(page); await page.getByRole("button", { name: "Nạp dữ liệu vượt giới hạn" }).click();
