@@ -70,8 +70,8 @@ test("dashboard tiles by role", async ({ page, browser }) => {
     for (const name of hidden) await expect(main.getByRole("heading", { name, exact: true })).toHaveCount(0);
     if (username === "viewer_admin") {
       await expect(main).not.toContainText("Lead");
-      const html = await page.request.get(origin());
-      expect(await html.text()).not.toContain("lead-form");
+      // Rendered document, not page.request: *.localhost does not resolve for API requests on Windows.
+      expect(await page.content()).not.toContain("lead-form");
       await expect(main.getByRole("link", { name: "Xem lead" })).toHaveCount(0);
     }
   }
