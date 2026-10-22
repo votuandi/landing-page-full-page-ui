@@ -38,7 +38,7 @@ export async function seedDemoTenant(db: PlatformDb, { id, slug, hostname, passw
     const demo = buildDemo(id);
     const domain = await forPlatform(db).domains.findByHostname(hostname);
     const seededTenantId = await db.$transaction(async (tx) => {
-      const tenantData = { name: demo.name, status: "active" as const, planId: demo.planId, addons: demo.addons };
+      const tenantData = { name: demo.name, status: "active" as const, planId: demo.planId, addons: demo.addons, featureOverrides: demo.featureOverrides };
       const tenant = await tx.tenant.upsert({ where: { slug }, update: tenantData, create: { slug, ...tenantData } });
       const tenantId = tenant.id;
       const siteData = { name: demo.name, themeId: demo.themeId, presetId: id, pageTypes: demo.pageTypes, widgets: json(demo.widgets), profile: json(demo.profile), seo: json(demo.seo) };
