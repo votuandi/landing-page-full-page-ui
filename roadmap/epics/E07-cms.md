@@ -156,9 +156,10 @@ dựng cấu trúc site đúng ý. (Tách từ E7-S04.)
   ảnh tĩnh), thay ô giữ chỗ trong menu "Đổi kiểu hiển thị" và thư viện section. Nội dung section đã xóa khỏi trang giữ
   30 ngày rồi worker dọn (không dọn nội dung còn trong `PageVersion` gần nhất).
 - **AC**:
-  - [ ] Tắt trang `ve-chung-toi` khi có `pageStructure` → lưu được, trang trả 404 sau xuất bản; không có → server từ chối.
-  - [ ] Menu đổi kiểu hiện thumbnail đúng theme hiện tại của site.
-  - [ ] Nội dung section xóa quá 30 ngày bị worker dọn; chưa tới 30 ngày khôi phục được.
+  - [x] Tắt trang `ve-chung-toi` khi có `pageStructure` → lưu được, trang trả 404 sau xuất bản; không có → server từ chối.
+  - [x] Menu đổi kiểu hiện thumbnail đúng theme hiện tại của site.
+  - [x] Nội dung section xóa quá 30 ngày bị worker dọn; chưa tới 30 ngày khôi phục được.
+- Bằng chứng Codex: `.agent-runs/E7-S13/codex-report.md` (DB thật, unit, lab và admin e2e); PR: chờ Claude design pass/review.
 - Phụ thuộc: S04 · Agent: Claude · Cỡ: M
 
 ### E7-S14 · Nhập/xuất CSV sản phẩm
