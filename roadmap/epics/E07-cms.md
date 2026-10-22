@@ -126,7 +126,7 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
   Bản xuất **không** chứa `SiteUser`/mật khẩu/phiên; khôi phục vào tenant mới không mang theo tài khoản.
 - Phụ thuộc: E8-S01 · Agent: Codex · Cỡ: M
 
-### E7-S11 · Dashboard của site
+### E7-S11 · Dashboard của site ✅ · PR [#54](https://github.com/votuandi/landing-page-full-page-ui/pull/54)
 **Là** chủ doanh nghiệp, **tôi muốn** mở CMS là thấy ngay tình hình site, **để** biết việc cần làm hôm nay.
 - **Chi tiết**: trang Tổng quan: lead mới (hôm nay/7 ngày, theo nguồn), lead chưa xử lý quá 24 h, trang/section còn
   `[DỮ LIỆU MẪU]` (checklist E13-S01), bản nháp chưa xuất bản, dung lượng media/giới hạn gói, trạng thái tên miền + SSL,
