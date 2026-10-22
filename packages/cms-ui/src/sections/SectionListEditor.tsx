@@ -89,19 +89,26 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
       <ul className="space-y-2">{removed.filter(section => !value.some(s => s.id === section.id)).map(({ expiresAt, ...section }) => {
         const label = sectionRegistry.getType(section.type)?.meta.label.vi ?? section.type;
         const reason = !can.reorder ? "Gói hoặc quyền hiện tại không cho thêm section" : lockedTypes.includes(section.type) || !allowedTypes.includes(section.type) ? "Cần nâng cấp gói" : sectionLimitIssues([...value, section])[0];
-        return <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-line/20 p-3">
-          <div><p className="text-sm">{label} · {section.variant}</p><p className="text-xs text-fg-muted">{expiresAt ? `Giữ đến ${new Date(expiresAt).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}` : "Còn trong bản xuất bản"}</p>{reason && <p id={`${dndId}-${section.id}-restore-reason`} className="text-xs text-fg-muted">{reason}</p>}</div>
-          <SmallButton className="min-h-11" disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${section.id}-restore-reason` : undefined} aria-label={`Khôi phục: ${label} (${section.id})`} onClick={() => onChange([...value, section])}>Khôi phục</SmallButton>
+        return <li key={section.id} className="flex flex-wrap items-center gap-3 rounded-card border border-dashed border-line/30 p-3">
+          <SectionThumbnail src={thumbnail?.(section.type, section.variant)} variant={section.variant} />
+          <div className="min-w-0 flex-1 basis-40 break-words">
+            <p className="text-sm font-medium text-fg">{label} <span className="font-normal text-fg-muted">· {section.variant}</span></p>
+            <p className="text-xs text-fg-muted">{expiresAt ? `Giữ đến ${new Date(expiresAt).toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}` : "Còn trong bản xuất bản"}</p>
+            {reason && <p id={`${dndId}-${section.id}-restore-reason`} className="text-xs text-fg-muted">{reason}</p>}
+          </div>
+          <button type="button" disabled={Boolean(reason)} aria-describedby={reason ? `${dndId}-${section.id}-restore-reason` : undefined} aria-label={`Khôi phục: ${label} (${section.id})`} onClick={() => onChange([...value, section])}
+            className="inline-flex min-h-11 shrink-0 items-center rounded-button border border-primary/40 px-3 text-sm font-medium text-primary hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:border-line/20 disabled:text-fg-muted">Khôi phục</button>
         </li>;
       })}</ul>
     </section>}
   </div>;
 }
 
-function SectionThumbnail({ src, variant }: { src?: string; variant: string }) {
+/** Ảnh 16:10 chụp sẵn; thiếu hoặc lỗi → ô giữ chỗ ghi tên variant. `fill` = rộng theo thẻ chọn kiểu. */
+function SectionThumbnail({ src, variant, fill = false }: { src?: string; variant: string; fill?: boolean }) {
   const [failed, setFailed] = useState<string>();
-  return <span aria-hidden="true" className="flex h-12 w-20 shrink-0 items-center justify-center overflow-hidden rounded-media border border-line/20 bg-bg-tint text-xs text-fg-muted">
-    {src && failed !== src ? <img src={src} alt="" width={80} height={48} loading="lazy" className="h-full w-full object-cover object-top" onError={() => setFailed(src)} /> : variant}
+  return <span aria-hidden="true" className={`flex aspect-[16/10] shrink-0 items-center justify-center overflow-hidden rounded-input border border-line/15 bg-bg-tint text-xs text-fg-muted ${fill ? "w-full" : "w-20"}`}>
+    {src && failed !== src ? <img src={src} alt="" width={320} height={200} loading="lazy" decoding="async" className="h-full w-full object-cover object-top" onError={() => setFailed(src)} /> : variant}
   </span>;
 }
 
@@ -157,12 +164,18 @@ function SectionRow({ section, locked, index, count, can, reducedMotion, editHre
       </div>}
     </div>
     {can.variantSwitch && !locked && <fieldset className="mt-3 min-w-0 border-t border-line/15 pt-3">
-      <legend className="text-sm text-fg-muted">Kiểu hiển thị: {label}</legend>
-      {!variants.includes(section.variant) && <p className="text-sm text-fg-muted">{section.variant} (không còn hỗ trợ)</p>}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">{variants.map(variant => <label key={variant} className={`flex min-h-11 min-w-0 cursor-pointer flex-wrap items-center gap-2 rounded-input border p-2 text-sm ${section.variant === variant ? "border-primary bg-bg-tint" : "border-line/20"} focus-within:ring-2 focus-within:ring-primary`}>
-        <input type="radio" name={selectId} value={variant} checked={section.variant === variant} onChange={() => onVariant(variant)} className="accent-primary" />
-        <SectionThumbnail src={thumbnail?.(section.type, variant)} variant={variant} /><span>{variant}</span>
-      </label>)}</div>
+      <legend className="mb-2 text-sm text-fg-muted">Kiểu hiển thị<span className="sr-only">: {label}</span></legend>
+      {!variants.includes(section.variant) && <p className="mb-2 text-sm text-fg-muted">{section.variant} (không còn hỗ trợ)</p>}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{variants.map(variant => {
+        const checked = section.variant === variant;
+        return <label key={variant} className={`grid min-w-0 cursor-pointer gap-2 rounded-input border p-1.5 text-sm transition-colors motion-reduce:transition-none focus-within:ring-2 focus-within:ring-primary/40 ${checked ? "border-primary bg-bg-tint" : "border-line/20 hover:border-primary/50"}`}>
+          <SectionThumbnail src={thumbnail?.(section.type, variant)} variant={variant} fill />
+          <span className="flex min-h-6 items-center gap-2 px-1 pb-0.5">
+            <input type="radio" name={selectId} value={variant} checked={checked} onChange={() => onVariant(variant)} className="size-4 shrink-0 accent-primary" />
+            <span className={checked ? "font-semibold text-fg" : "text-fg-muted"}>{variant}</span>
+          </span>
+        </label>;
+      })}</div>
     </fieldset>}
   </li>;
 }

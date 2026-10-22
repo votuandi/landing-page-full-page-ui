@@ -24,7 +24,7 @@ export default async function Pages() {
       <ul className="grid gap-3 sm:grid-cols-2">{PAGE_TYPE_IDS.map(type => {
         const def = PAGE_TYPES[type], outside = def.entitlement && !can(def.entitlement);
         const reason = def.required ? "Bắt buộc" : !session.permissions.has("pages.structure") ? "Bạn không có quyền đổi cấu trúc trang" : !can("pageStructure") || outside ? "Cần nâng cấp gói" : undefined;
-        return <PageTypeForm key={`${type}:${site.pageTypes.join(",")}`} siteId={siteId} type={type} label={def.label.vi} enabled={site.pageTypes.includes(type)} expected={site.pageTypes}
+        return <PageTypeForm key={`${type}:${site.pageTypes.join(",")}`} siteId={siteId} type={type} label={def.label.vi} slug={def.slug} enabled={site.pageTypes.includes(type)} expected={site.pageTypes}
           reason={reason} upgrade={!def.required && session.permissions.has("pages.structure") ? !can("pageStructure") ? "pageStructure" : outside ? def.entitlement : undefined : undefined} />;
       })}</ul>
     </section>
