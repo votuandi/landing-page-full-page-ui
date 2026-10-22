@@ -98,13 +98,13 @@ typecheck/lint/token lint qua. Report: `.agent-runs/E7-S01/codex-report.md`. PR 
   - [x] Collection ngoài gói (vd. sản phẩm khi không có `catalog`) bị ẩn và API từ chối. (E7-S06: unit `apps/admin/src/__tests__/collections.test.ts` + e2e `admin.spec.ts` › "collections: basic tenant hides catalog and direct route is 404".)
 - Phụ thuộc: S03, E5-S05 · Agent: Codex · Cỡ: L
 
-### E7-S07 · Thông tin công ty & cấu hình chung
+### E7-S07 · Thông tin công ty & cấu hình chung ✅ · PR [#50](https://github.com/votuandi/landing-page-full-page-ui/pull/50)
 - **Chi tiết**: tương đương `site.config.ts` của t15 nhưng trong DB: thương hiệu, pháp lý, chi nhánh (lat/lng, hotline),
   Zalo, mạng xã hội, số liệu, điểm đánh giá, cam kết, popup, giờ gọi lại, top bar, mega menu, ngôn ngữ.
 - **AC**: [x] Import một file `site.config.ts` của t14/t15 vào tenant bằng script `pnpm import:site-config` (dùng cho E13).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
-### E7-S08 · Giao diện: chọn theme & override
+### E7-S08 · Giao diện: chọn theme & override ✅ · PR [#50](https://github.com/votuandi/landing-page-full-page-ui/pull/50)
 **Là** tenant, **tôi muốn** chọn theme và đổi màu chính/logo/font trong giới hạn, **để** đúng nhận diện thương hiệu.
 - **Chi tiết**: lưới theme được phép theo gói (preview thumbnail + "Xem thử" toàn trang qua preview); gói Cao cấp: color picker
   cho `primary`, `secondary`, `accent` có kiểm tương phản (E2-S05) và gợi ý màu đạt chuẩn; chọn font trong danh sách cho phép;
