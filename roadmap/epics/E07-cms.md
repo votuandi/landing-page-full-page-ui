@@ -132,7 +132,7 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
   `[DỮ LIỆU MẪU]` (checklist E13-S01), bản nháp chưa xuất bản, dung lượng media/giới hạn gói, trạng thái tên miền + SSL,
   gói + ngày hết hạn, lịch hẹn sắp tới và client mới (khi có `booking`/`clientAccounts`, E16), hoạt động gần đây (AuditLog của site, gồm cả "Truy cập hỗ trợ" của E15-S07). Mỗi ô chỉ hiện khi user
   có permission tương ứng.
-- **AC**: [ ] Tải ≤ 1 s với 10.000 lead · [ ] Viewer chỉ thấy ô được phép, không lộ số liệu lead.
+- **AC**: [x] Tải ≤ 1 s với 10.000 lead · [x] Viewer chỉ thấy ô được phép, không lộ số liệu lead.
 - Phụ thuộc: S02, E11-S01 · Agent: Claude · Cỡ: M
 
 ### E7-S12 · Tài khoản & nhân viên của site
