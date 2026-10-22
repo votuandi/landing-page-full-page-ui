@@ -29,7 +29,8 @@ for (const width of [390, 1440]) for (const colorScheme of ["light", "dark"] as 
     const locked = page.locator('[data-section-id="shorts"]');
     await expect(locked).toContainText("Khóa theo gói");
     await expect(locked.locator('select,a,[role="switch"]')).toHaveCount(0);
-    const upgrade = page.getByRole("button", { name: "Nâng cấp: Video công trình", exact: true });
+    await expect(page.getByRole("button", { name: "Nâng cấp: Video công trình", exact: true })).toHaveCount(2);
+    const upgrade = locked.getByRole("button", { name: "Nâng cấp: Video công trình", exact: true });
     await upgrade.focus(); await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog", { name: "Nâng cấp: Video Shorts" });
     await expect(dialog.getByRole("textbox")).toBeFocused();
