@@ -169,8 +169,8 @@ thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
   từng dòng (thêm mới / cập nhật theo slug / lỗi kèm lý do tiếng Việt), chỉ ghi khi người dùng xác nhận, ghi trong một
   transaction và invalidate `collection:product` một lần. Giới hạn kích thước file và số dòng.
 - **AC**:
-  - [ ] Xuất → nhập lại không chỉnh sửa → dữ liệu không đổi (round-trip).
-  - [ ] File có dòng lỗi → không ghi dòng nào, báo đúng dòng và cột lỗi.
+  - [x] Xuất → nhập lại không chỉnh sửa → dữ liệu không đổi (round-trip).
+  - [x] File có dòng lỗi → không ghi dòng nào, báo đúng dòng và cột lỗi.
 - Phụ thuộc: S06 · Agent: Codex · Cỡ: S
 
 ### E7-S15 · Font thương hiệu & favicon
