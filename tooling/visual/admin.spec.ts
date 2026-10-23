@@ -77,7 +77,8 @@ test("products: CSV export, preview error, import", async ({ page }, info) => {
   await upload([rows[0], valid, invalid]);
   await expect(csvPanel.getByRole("alert")).toContainText("Dòng 3, cột price");
   await expect(csvPanel.getByRole("button", { name: "Xác nhận nhập" })).toBeDisabled();
-  await expect(page.getByRole("link", { name: title, exact: true })).toHaveCount(0);
+  const editLink = page.getByRole("link", { name: `Sửa ${title}`, exact: true });
+  await expect(editLink).toHaveCount(0);
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -88,7 +89,7 @@ test("products: CSV export, preview error, import", async ({ page }, info) => {
   await expect(csvPanel.getByText("Cập nhật", { exact: true })).toBeVisible();
   await csvPanel.getByRole("button", { name: "Xác nhận nhập" }).click();
   await expect(csvPanel.getByRole("status")).toContainText("Đã nhập 1 sản phẩm");
-  await expect(page.getByRole("link", { name: title, exact: true })).toBeVisible();
+  await expect(editLink).toBeVisible();
   const verified = await exportCsv();
   expect(verified.find(r => r[0] === valid[0])?.[rows[0].indexOf("price")]).toBe("1999999999");
 });
