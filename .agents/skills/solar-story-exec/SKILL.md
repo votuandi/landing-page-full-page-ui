@@ -56,12 +56,15 @@ Lệnh git chỉ đọc (`git status`, `git diff`, `git log`, `git show origin/t
   migrate, seed) và đưa dòng `Env DB:` trong prompt (đường dẫn file `.env.ci.local`). Nạp bằng `set -a; . ./.env.ci.local; set +a`
   (PowerShell: đọc từng dòng vào `$env:`). **Không tự tải/cài Postgres, pnpm, codegraph, trình duyệt, chứng chỉ, proxy.**
   Thiếu công cụ → ghi `BLOCKED` một dòng nêu thiếu gì, không tự dựng.
-- **Phạm vi test (tiết kiệm thời gian + token)**: trong vòng viết code chỉ chạy test của file/package đang sửa
-  (`node --test <file>`, `pnpm --filter <pkg> test`). Lệnh full `pnpm turbo run typecheck lint test` **tối đa 2 lần**:
-  sau khi đổi schema/API dùng chung (nếu có) và một lần cuối. Mọi lệnh dài ghi ra file
+- **Phạm vi test — chỉ code mới của story** (quyết định 23/10/2026): chạy test của file/package đang sửa
+  (`node --test <file>`, `pnpm --filter <pkg> test|typecheck|lint`). Không chạy full suite/regression — Claude chạy
+  regression theo nhịp (`S.regression`). Mọi lệnh dài ghi ra file
   (`… > <runDir>/<tên>.log 2>&1; tail -n 30 <runDir>/<tên>.log`), chỉ đọc đuôi/tóm tắt — không để output vào ngữ cảnh.
-- E2E: viết spec trong `tooling/visual`; chạy một lần ở cuối bằng `bash scripts/local-ci.sh e2e <config>` nếu có `Env DB`,
-  không thì ghi "chờ Claude chạy e2e local". Không tự dựng proxy/HTTPS/server riêng để chạy e2e.
+- **Codex trong sandbox không chạy**: `pnpm turbo …` (kéo `@solar/db:build` → `prisma generate` lỗi EPERM, xóa dở
+  Prisma client — E7-S14 mất ~30′), `prisma generate`, `next dev`/dev server, Playwright/`local-ci.sh e2e`. Tiến trình
+  sandbox để lại giữ cổng mà Claude không tắt được. Cần typecheck toàn repo hoặc e2e → ghi "chờ Claude chạy" trong report.
+- E2E: viết spec trong `tooling/visual`, mỗi test mới/sửa tự đủ dữ liệu (tenant fixture có thể trống — tạo qua chính luồng
+  đang test hoặc fixture). Claude chạy riêng test đó (`-g '<tên test>'`) trước khi push. Không tự dựng proxy/HTTPS/server.
 - Sửa bằng công cụ sửa file theo đoạn (không chạy script python/sed có escape phức tạp cho code).
 - Chia thay đổi thành các commit nhỏ theo bước (ghi trong "Commit đề xuất"): `<type>(<scope>): <mô tả> [<ID>]`.
   Không đưa `.agent-runs/`, `HANDOFF.md`, file `.env*` vào commit nào.

@@ -13,8 +13,10 @@
   "reviewerByParity": { "odd": "codex", "even": "claude" },
   "selfReview": "swap",
 
-  "buildPolicy": "epic-last",
-  "$buildPolicy": "epic-last = chỉ story cuối của mỗi epic chạy build trong checks (tiết kiệm thời gian), các story khác chạy typecheck/lint/test | always = mọi story đều build",
+  "buildPolicy": "regression",
+  "$buildPolicy": "regression = chỉ story đến lượt regression chạy build trong checks, story khác chạy typecheck/lint/test của package đổi | always = mọi story đều build",
+  "regressionEvery": 6,
+  "$regressionEvery": "Regression toàn bộ (local + CI nhãn `regression`) ở story thứ N kể từ lần regression trước, đếm PR đã merge vào base sau roadmap/regression.json lastSha. Story khác chỉ test code mới của nó (quyết định 23/10/2026, không theo epic, không nightly).",
   "claudeReviewModel": "sonnet",
 
   "$modes": "claudeFull: Claude viết toàn bộ (thiết kế UX mới). split: Codex dựng code, Claude làm 'design pass' (chỉnh giao diện, chụp ảnh). Còn lại: Codex viết toàn bộ.",

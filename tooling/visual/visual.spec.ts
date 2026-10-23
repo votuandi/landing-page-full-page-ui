@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 import { routes } from "./routes";
 
 for (const route of routes) {
-  test(route, async ({ page, colorScheme }) => {
+  // `/` chụp không ổn định (tooling/visual/README.md › Test flaky đã biết, sửa gốc E14-S08): PR bỏ qua, regression vẫn chạy.
+  test(route, { tag: route === "/" ? "@quarantine" : [] }, async ({ page, colorScheme }) => {
     const theme = colorScheme === "dark" ? "dark" : "light";
     await page.addInitScript((value) => {
       localStorage.setItem("t15-theme", value);

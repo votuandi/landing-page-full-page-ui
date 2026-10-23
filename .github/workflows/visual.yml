@@ -20,25 +20,9 @@ on:
       - 'scripts/ci/checks-map.mjs'
       - 'scripts/ci/visual-baseline-run.sh'
       - '!**/*.md'
+  # PR: không lọc paths — job `changes` chọn compare/matrix; story regression (nhãn) cần chạy dù không đổi giao diện.
   pull_request:
     branches: [mono-repo-multi-tenent]
-    paths:
-      - 'apps/web/**'
-      - 'packages/config/**'
-      - 'packages/core/**'
-      - 'packages/ui/**'
-      - 'packages/sections/**'
-      - 'packages/themes/**'
-      - 'packages/tokens/**'
-      - 'packages/presets/**'
-      - 'tooling/visual/**'
-      - 'pnpm-lock.yaml'
-      - 'package.json'
-      - 'pnpm-workspace.yaml'
-      - '.github/workflows/visual.yml'
-      - 'scripts/ci/checks-map.mjs'
-      - 'scripts/ci/visual-baseline-run.sh'
-      - '!**/*.md'
   workflow_dispatch:
 
 permissions:
@@ -51,6 +35,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.map.outputs.matrix }}
+      visual: ${{ steps.map.outputs.visual }}
+      sections_e2e: ${{ steps.map.outputs.sections_e2e }}
+      sections_grep: ${{ steps.map.outputs.sections_grep }}
+      sections_files: ${{ steps.map.outputs.sections_files }}
+      full: ${{ steps.map.outputs.full }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,10 +51,14 @@ jobs:
         shell: bash
         env:
           BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+          # Story regression (nhãn PR `regression`, routing.json regressionEvery) hoặc chạy tay → toàn bộ.
+          FULL: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'regression') }}
         run: |
+          echo "full=$FULL" >> "$GITHUB_OUTPUT"
           # workflow_dispatch, push đầu tiên hoặc before không còn → chạy đủ.
-          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then echo "matrix=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          node scripts/ci/checks-map.mjs "$BASE" --github-output
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then printf 'matrix=true\nvisual=true\nsections_e2e=true\n' >> "$GITHUB_OUTPUT"; exit 0; fi
+          args=(); [ "$FULL" = true ] && args=(--full)
+          node scripts/ci/checks-map.mjs "$BASE" --github-output "${args[@]}"
 
   baseline:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/mono-repo-multi-tenent'
@@ -92,8 +85,10 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
+  # Story thường: ảnh trang công khai khi đầu vào của nó đổi + chỉ test sections mới/sửa; regression: toàn bộ.
   compare:
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && (needs.changes.outputs.visual == 'true' || needs.changes.outputs.sections_e2e == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -112,6 +107,7 @@ jobs:
           key: visual-chromium-${{ runner.os }}-${{ hashFiles('tooling/visual/package.json') }}
       - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
       - name: Download base baseline, or generate at merge-base
+        if: needs.changes.outputs.visual == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -141,8 +137,19 @@ jobs:
             VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update
             test -n "$(find "$snapshot_dir" -name '*.png' -print -quit)"
           fi
-      - run: pnpm visual:test
-      - run: pnpm --filter @solar/visual test:sections
+      # `@quarantine`: test flaky đã biết (tooling/visual/README.md), chỉ chạy ở regression.
+      - if: needs.changes.outputs.visual == 'true'
+        shell: bash
+        run: pnpm visual:test ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }}
+      # visual:test đã build web; chỉ chạy sections thì build ở đây (test:sections dùng `next start`).
+      - if: needs.changes.outputs.visual != 'true' && needs.changes.outputs.sections_e2e == 'true'
+        run: pnpm turbo run build --filter=web
+      - if: needs.changes.outputs.sections_e2e == 'true'
+        shell: bash
+        env:
+          GREP: ${{ needs.changes.outputs.sections_grep }}
+          FILES: ${{ needs.changes.outputs.sections_files }}
+        run: pnpm --filter @solar/visual test:sections $FILES ${GREP:+--grep "$GREP"}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

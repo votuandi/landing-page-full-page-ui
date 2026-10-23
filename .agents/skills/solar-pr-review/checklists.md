@@ -40,3 +40,6 @@ Dùng ở 3 chỗ: plan (bảng "Case biên & bất biến"), người viết t�
 - Spec nằm trong `tooling/visual` (config phù hợp), không script tạm trong `.agent-runs`.
 - Test lỗi khi chạy cả bộ: so với danh sách flaky đã biết (`tooling/visual/README.md`); test mới lỗi → chạy lại trên base
   (`VISUAL_WEB_ROOT`) trước khi kết luận flaky. Ghi đúng tên test và dòng.
+- Test mới tự đủ dữ liệu: không giả định tenant fixture có sẵn bản ghi; tạo qua chính luồng đang test hoặc fixture. Chờ
+  trạng thái trước khi chuyển trang (đăng nhập xong mới `goto`); locator khớp accessible name thật (`Sửa <tiêu đề>`).
+- Test mới đã chạy xanh ở local (`-g '<tên test>'`, có log trong report) trước push — không lấy CI làm lần chạy đầu.

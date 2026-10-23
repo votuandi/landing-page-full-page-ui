@@ -8,7 +8,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { affectedChecks, CHECKS } from "../ci/checks-map.mjs";
+import { affectedChecks, CHECKS, e2eScope, specDiff } from "../ci/checks-map.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
@@ -139,7 +139,19 @@ function verify(id, { skipChecks }) {
   const changed = lines(git("diff", "--name-only", `${S.base}...HEAD`));
   for (const s of staleTestStrings(S.base)) problems.push(`Chữ đã xóa khỏi source nhưng test vẫn dùng: ${s}`);
   // Cùng bảng với CI (scripts/ci/checks-map.mjs): chạy hết trước khi push, ghi kết quả vào report "Lệnh kiểm tra".
-  const requiredChecks = affectedChecks(changed).map((name) => ({ name, cmd: CHECKS[name].cmd }));
+  // Story thường: unit/int (db) + chỉ test e2e mới/sửa của story; story regression: mọi bộ toàn bộ.
+  const full = S.regression?.due ?? false;
+  const quote = (text) => `'${text.replace(/'/g, `'\\''`)}'`;
+  const scope = e2eScope(changed, specDiff(S.base), { full });
+  const requiredChecks = [
+    ...(full ? Object.keys(CHECKS) : affectedChecks(changed)).filter((name) => !name.startsWith("e2e:") && CHECKS[name].cmd.startsWith("bash"))
+      .map((name) => ({ name, cmd: CHECKS[name].cmd })),
+    ...scope.filter((s) => s.mode !== "none").map((s) => ({ name: s.name, cmd: `${CHECKS[s.name].cmd}${
+      s.mode === "grep" ? ` -g ${quote(s.grep)}` : s.mode === "files" ? ` ${s.files.map((f) => f.replace("tooling/visual/", "")).join(" ")}` : ""}` })),
+  ];
+  for (const s of scope.filter((x) => x.mode === "none")) {
+    warnings.push(`Đổi code thuộc ${s.name} nhưng không có test e2e mới/sửa — code mới phải được cover bằng unit/int hoặc spec`);
+  }
   const paths = planPaths(join(root, S.planFile));
   const outside = paths.length
     ? changed.filter((f) => !inPlan(f, paths) && f !== S.planFile && f !== S.epicFile)
@@ -178,7 +190,8 @@ function verify(id, { skipChecks }) {
   // Tóm tắt ngắn cho Claude — log đầy đủ ở checks.log.
   console.log(`VERIFY ${result.ok ? "PASS" : "FAIL"} ${id} · branch ${branch} · ${commits.length} commit · ${changed.length} file · AC ${result.ac}`);
   for (const c of checks) console.log(`  ${c.ok ? "✔" : "✘"} ${c.cmd} (${c.seconds}s)`);
-  if (requiredChecks.length) console.log(`  → Kiểm local bắt buộc theo file đổi (chạy trước push, matrix chỉ chạy ở CI):\n${requiredChecks.map((c) => `      ${c.name}: ${c.cmd}`).join("\n")}`);
+  if (full) console.log(`  ★ Story regression (${S.regression.since} PR đã merge từ lần trước): chạy mọi bộ toàn bộ + gắn nhãn PR "regression"`);
+  if (requiredChecks.length) console.log(`  → Kiểm local bắt buộc (chạy trước push; trước đó: node scripts/agents/doctor.mjs):\n${requiredChecks.map((c) => `      ${c.name}: ${c.cmd}`).join("\n")}`);
   for (const p of problems) console.log(`  ! ${p}`);
   for (const w of warnings) console.log(`  ⚠ ${w}`);
   if (outside.length) console.log(`  ? Ngoài danh sách file của plan: ${outside.join(", ")}`);
@@ -250,7 +263,7 @@ ${section("AC → bằng chứng")}
 
 ${v ? v.checks.map((c) => `- ${c.ok ? "✅" : "❌"} \`${c.cmd}\` (${c.seconds}s)`).join("\n") + `\n- AC đã tick: ${v.ac} · ${v.commits} commit · ${v.changedFiles} file` : "_chưa chạy verify_"}
 ${v?.outsidePlan?.length ? `- File ngoài danh sách của plan: ${v.outsidePlan.map((f) => `\`${f}\``).join(", ")}` : ""}
-${v?.requiredChecks?.length ? `- Kiểm local bắt buộc theo file đổi (SHA ${v.sha}; kết quả ở report "Lệnh kiểm tra"): ${v.requiredChecks.map((c) => `\`${c.name}\``).join(", ")}` : ""}
+${v?.requiredChecks?.length ? `- Kiểm local bắt buộc theo phạm vi story (SHA ${v.sha}; kết quả ở report "Lệnh kiểm tra"): ${v.requiredChecks.map((c) => `\`${c.name}\``).join(", ")}` : ""}
 
 ## Lệch so với plan
 
@@ -264,7 +277,7 @@ _Chờ reviewer theo policy; ghi verdict, SHA cuối, vòng sửa và tóm tắt
 
 - [${v?.ok ? "x" : " "}] Mọi AC đạt và có bằng chứng
 - [ ] typecheck · lint · test qua, có bằng chứng lệnh/exit code
-- [ ] Build qua khi buildPolicy yêu cầu (epic-last: story cuối epic; CI build mọi PR)
+- [ ] Build qua khi buildPolicy yêu cầu (regression: story đến lượt regression; CI build package đổi mọi PR)
 - [ ] \`lint:tokens\` qua sau E2; ảnh 390/1440 cho story UI
 - [ ] Có test cho logic mới và e2e cho luồng người dùng phù hợp
 - [ ] Review theo policy trên SHA cuối; mọi finding P0/P1 đã xử lý

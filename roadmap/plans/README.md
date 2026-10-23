@@ -51,6 +51,8 @@ commit làm commit đầu tiên của branch story. Người thực thi (Codex h
 ## Cách kiểm chứng (bắt buộc)
 - Unit (`node:test`), tương tác (jsdom / React Testing), e2e (spec nào, chạy trên trang nào — trang cần DB/đăng nhập
   thì dùng lab route), ảnh 390/1440. Ghi rõ lệnh chạy. Không ghi "không test được" mà không có phương án thay.
+  E2e mới: tên test + **dữ liệu nó cần** (tenant fixture nào, bản ghi tạo ở đâu — E7-S14 giả định tenant có sản phẩm).
+  Chỉ test code mới của story; regression toàn bộ do `S.regression` quyết định, không liệt kê ở đây.
 
 ## Các bước
 1. <việc> — file: … — kiểm bằng: …

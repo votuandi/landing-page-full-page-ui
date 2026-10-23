@@ -52,9 +52,10 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - **Dữ liệu có sẵn** (`[data]`): diff thêm/đổi quy tắc, validator, fallback, giới hạn → plan có mục "Dữ liệu có sẵn chịu
   ảnh hưởng" và `packages/db/src/__tests__/conformance.test.ts` (hoặc test preset × gói) chạy quy tắc đó trên mọi preset,
   seed demo, fixture. Thiếu → "Chưa cover". `codegraph impact` không thấy file dữ liệu — tự grep preset JSON/seed.
-- **Kiểm local theo file đổi** (`[verify]`): `node scripts/ci/checks-map.mjs origin/<base>` liệt kê bộ kiểm bắt buộc; mỗi
-  bộ phải có kết quả trên đúng SHA được review (report "Lệnh kiểm tra", `verify.json` → `sha`, `requiredChecks`). Thiếu
-  hoặc khác SHA → "Chưa cover". Không viết "suy luận không hồi quy" thay cho kết quả chạy.
+- **Kiểm local theo phạm vi story** (`[verify]`): `verify.json` → `requiredChecks` (unit/int package bị ảnh hưởng + test
+  e2e mới/sửa; story regression: mọi bộ) phải có kết quả trên đúng SHA được review (report "Lệnh kiểm tra"). Thiếu hoặc
+  khác SHA → "Chưa cover". Code mới không có unit/int hay e2e nào cover (cảnh báo "code mới phải được cover" của
+  `verify`) → "Chưa cover". Không đòi chạy cả bộ e2e ở story thường; không viết "suy luận không hồi quy" thay cho kết quả.
 - **Report của người viết**: có dòng "Skill đã dùng" và mục "Tự review" (bước 4.5); thiếu → P2, ghi vào kết quả.
   `node scripts/agents/run.mjs skills <ID>` báo skill bắt buộc người viết chưa mở / ghi "đã dùng" mà log không thấy → P2.
 - **Skill của reviewer** (như Claude): danh sách ở dòng `Skill review:` của prompt (từ `S.skills.review`; không có →
@@ -69,7 +70,9 @@ Prompt ghi "Tự review" → bạn dễ có cùng điểm mù với người vi�
 - **P0**: hỏng dữ liệu/bảo mật/rò tenant, build hoặc test chính lỗi, AC cốt lõi không đạt.
 - **P1**: bug thật trong case thường gặp, vi phạm quy tắc bắt buộc của `AGENTS.md`, AC thiếu bằng chứng. Vi phạm
   `AGENTS.md` §4 (token, `tenantId`, `requirePermission(...)` trên mọi Server Action/route admin, entitlement phía server)
-  **luôn ≥ P1**, kể cả khi plan chủ ý làm vậy (plan sai → ghi thêm "plan thiếu").
+  **luôn ≥ P1**, kể cả khi plan chủ ý làm vậy (plan sai → ghi thêm "plan thiếu"). Dữ liệu người dùng nhập/gõ tay (form,
+  file nhập CSV/JSON) bị đọc sai hoặc từ chối nhầm ở giá trị thường gặp → **≥ P1** (E7-S14: tiêu đề "[DỮ LIỆU MẪU] …" bị
+  đọc như JSON, vòng 1 xếp P2, CI mới lộ).
 - **P2**: cải thiện, đặt tên, đơn giản hóa, over-engineering không gây lỗi. Không chặn merge.
 - Hiệu chỉnh: P1 phải chỉ ra **kịch bản lỗi cụ thể** (input/thao tác → kết quả sai) hoặc một dòng "Yêu cầu → test"/AC
   không đạt. Cải thiện UX không có trong AC/Chi tiết → P2. Bằng chứng chỉ có ở CI (Windows, TTFB, e2e chưa chạy) hoặc phép
