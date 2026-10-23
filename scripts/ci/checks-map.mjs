@@ -17,7 +17,8 @@ export const CHECKS = {
     cmd: "CI: Visual regression / matrix",
     // Không tính pnpm-lock.yaml: đổi dependency luôn kèm package.json của package dùng nó (đã nằm trong các tiền tố dưới);
     // lockfile đổi riêng thường là workspace link của package ngoài matrix (vd. cms-ui ở E6-S04).
-    paths: ["package.json", "pnpm-workspace.yaml", "scripts/ci/checks-map.mjs", "packages/sections/", "packages/themes/", "packages/tokens/", "packages/ui/", "packages/core/",
+    // Không tính scripts/ci/checks-map.mjs: sửa bảng không đổi pixel nào (E8-S01 thêm bộ storage kéo 32 shard vô ích).
+    paths: ["package.json", "pnpm-workspace.yaml", "packages/sections/", "packages/themes/", "packages/tokens/", "packages/ui/", "packages/core/",
       "packages/config/", "packages/presets/", `${web}app/(site)/lab/sections/`, `${web}app/(site)/lab/layout.tsx`,
       `${web}app/(site)/layout.tsx`, `${web}app/layout.tsx`, `${web}app/globals.css`, `${web}components/`, `${web}config/`,
       `${web}i18n/`, `${web}lib/`, `${web}data/`, "apps/web/public/", "apps/web/tailwind.config.ts", "apps/web/postcss.config.mjs",
@@ -29,7 +30,7 @@ export const CHECKS = {
   // Ảnh chụp các trang công khai của t15 (CI: Visual regression / compare). Spec e2e đổi không kéo bộ này.
   visual: {
     cmd: "CI: Visual regression / compare",
-    paths: ["package.json", "pnpm-workspace.yaml", "scripts/ci/checks-map.mjs", "packages/sections/", "packages/themes/", "packages/tokens/",
+    paths: ["package.json", "pnpm-workspace.yaml", "packages/sections/", "packages/themes/", "packages/tokens/",
       "packages/ui/", "packages/core/", "packages/config/", "packages/presets/", `${web}app/(site)/`, `${web}app/layout.tsx`, `${web}app/globals.css`,
       `${web}components/`, `${web}config/`, `${web}i18n/`, `${web}lib/`, `${web}data/`, "apps/web/public/", "apps/web/tailwind.config.ts",
       "apps/web/postcss.config.mjs", "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/visual.spec.ts", "tooling/visual/routes.ts",

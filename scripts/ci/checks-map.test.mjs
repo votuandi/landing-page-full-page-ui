@@ -12,6 +12,12 @@ test("E8-S01: storage selects its contract suite and does not select unrelated s
   assert.deepEqual(affectedChecks(["packages/storage/README.md", "packages/storage/src/__tests__/storage.test.ts"]), []);
 });
 
+test("sửa bảng checks-map không kéo matrix/visual (ảnh chụp không phụ thuộc bảng; logic bảng do file test này kiểm)", () => {
+  const checks = affectedChecks(["scripts/ci/checks-map.mjs"]);
+  assert.ok(!checks.includes("matrix") && !checks.includes("visual"));
+  assert.ok(checks.includes("db") && checks.includes("e2e:tenant"));
+});
+
 // File thật của PR #52 (E6-S04): CI đỏ ở tenant.spec vì plan không chọn e2e tenant.
 const e6s04 = ["pnpm-lock.yaml", "packages/cms-ui/package.json","apps/admin/src/lib/appearance.ts", "apps/admin/src/components/AppearanceForm.tsx",
   "apps/web/src/app/(site)/lab/cms-sections/CmsSectionsLab.tsx", "apps/web/src/lib/tenant/siteData.ts",
