@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { action } from "../../../lib/action.ts";
 import { createCollectionHandlers, saveCollectionSchema, collectionIdSchema, reorderCollectionSchema } from "../../../lib/collections.ts";
 import { collectionDeps } from "../../../lib/collectionRuntime.ts";
+import { productCsvSchema } from "../../../lib/productCsv.ts";
+import { productCsvHandlers } from "../../../lib/productCsvRuntime.ts";
 
 const handlers = createCollectionHandlers(collectionDeps);
 const refresh = <T extends { collection: string }>(handler: (input: T, context: import("../../../lib/action.ts").ActionContext) => Promise<import("../../../lib/action.ts").ActionResult>) =>
@@ -16,3 +18,9 @@ export const saveCollection = action("content.edit", saveCollectionSchema, refre
 export const duplicateCollection = action("content.edit", collectionIdSchema, refresh(handlers.duplicate));
 export const removeCollection = action("content.edit", collectionIdSchema, refresh(handlers.remove));
 export const sortCollection = action("content.edit", reorderCollectionSchema, refresh(handlers.reorder));
+export const previewProductCsv = action("content.edit", productCsvSchema, productCsvHandlers.preview);
+export const importProductCsv = action("content.edit", productCsvSchema, async (input, context) => {
+  const result = await productCsvHandlers.import(input, context);
+  if (result.ok) revalidatePath("/noi-dung/san-pham");
+  return result;
+});

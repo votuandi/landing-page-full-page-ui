@@ -6,6 +6,7 @@ import type { TenantRepo } from "./repository.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import { enqueueInvalidate } from "./invalidate.ts";
 import { CrossTenantRefError } from "./refs.ts";
+import { previewProductCsv } from "./productCsv.ts";
 
 export class CollectionError extends Error {
   constructor(message: string, readonly status: 400 | 404 | 409) { super(message); this.name = "CollectionError"; }
@@ -28,10 +29,10 @@ function checkName(name: Collection) {
 }
 function checkId(id: string) { if (!z.uuid().safeParse(id).success) throw new CollectionError("Mã bản ghi không hợp lệ", 400); }
 const missing = () => new CollectionError("Không tìm thấy bản ghi", 404);
-async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Collection, work: (repo: TenantRepo, model: Delegate) => Promise<T>): Promise<T> {
+async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Collection, work: (repo: TenantRepo, model: Delegate) => Promise<T>, timeout?: number): Promise<T> {
   checkName(name);
   for (let attempt = 0; ; attempt++) {
-    try { return await withTenantTransaction(db, tenantId, repo => work(repo, collectionRepository(repo, name)), { isolationLevel: "Serializable" }); }
+    try { return await withTenantTransaction(db, tenantId, repo => work(repo, collectionRepository(repo, name)), { isolationLevel: "Serializable", ...(timeout === undefined ? {} : { timeout }) }); }
     catch (error) {
       const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
       if (code === "P2034" && attempt < 3) continue;
@@ -46,34 +47,58 @@ async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Colle
 const nextOrder = async (model: Delegate) => ((await model.first({ orderBy: { order: "desc" } }))?.order ?? -1) + 1;
 const invalidate = (repo: TenantRepo, tenantId: string, name: Collection) => enqueueInvalidate(repo, [collectionTag(tenantId, name)]);
 
-export async function saveCollectionItem(db: Db | PlatformDb, tenantId: string, name: Collection, input: CollectionInput): Promise<{ id: string; slug: string }> {
+async function writeItem(model: Delegate, name: Collection, input: CollectionInput, upsert = false) {
   checkName(name);
   const parsed = collectionInputSchema(name).safeParse(input, { error: z.locales.vi().localeError });
   if (!parsed.success) throw new CollectionError(parsed.error.issues.map(i => i.message).join("; "), 400);
   const value = parsed.data, slug = value.slug?.trim() || slugify(value.title.vi);
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 200) throw new CollectionError("Đường dẫn không hợp lệ", 400);
-  return transaction(db, tenantId, name, async (repo, model) => {
-    const before = value.id ? await model.get(value.id) : null;
-    if (value.id && !before) throw missing();
-    const conflict = await model.first({ where: { slug } });
-    if (conflict && conflict.id !== value.id) throw new CollectionError("Đường dẫn đã được dùng", 409);
-    // A category must not become its own ancestor, including through an existing chain.
-    if (name === "productCategory" && value.id) {
-      let parent = value.columns.parentId;
-      const seen = new Set([value.id]);
-      while (typeof parent === "string") {
-        if (seen.has(parent)) throw new CollectionError("Danh mục cha tạo vòng lặp", 400);
-        seen.add(parent); parent = (await model.get(parent))?.parentId;
-      }
+  const before = value.id ? await model.get(value.id) : upsert ? await model.first({ where: { slug } }) : null;
+  if (value.id && !before) throw missing();
+  const conflict = upsert && !value.id ? before : await model.first({ where: { slug } });
+  if (conflict && conflict.id !== before?.id) throw new CollectionError("Đường dẫn đã được dùng", 409);
+  // A category must not become its own ancestor, including through an existing chain.
+  if (name === "productCategory" && value.id) {
+    let parent = value.columns.parentId;
+    const seen = new Set([value.id]);
+    while (typeof parent === "string") {
+      if (seen.has(parent)) throw new CollectionError("Danh mục cha tạo vòng lặp", 400);
+      seen.add(parent); parent = (await model.get(parent))?.parentId;
     }
-    const data = { ...value.columns, slug, title: value.title, data: value.data,
-      status: value.status, publishedAt: value.status === "published" ? before?.publishedAt ?? new Date() : null };
-    let id: string;
-    if (before) { if (!(await model.update(before.id, data)).count) throw missing(); id = before.id; }
-    else id = (await model.create({ ...data, order: await nextOrder(model) })).id;
-    if (before?.status === "published" || value.status === "published") await invalidate(repo, tenantId, name);
-    return { id, slug };
+  }
+  const data = { ...value.columns, slug, title: value.title, data: value.data,
+    status: value.status, publishedAt: value.status === "published" ? before?.publishedAt ?? new Date() : null };
+  let id: string;
+  if (before) { if (!(await model.update(before.id, data)).count) throw missing(); id = before.id; }
+  else id = (await model.create({ ...data, order: await nextOrder(model) })).id;
+  return { id, slug, published: before?.status === "published" || value.status === "published" };
+}
+export async function saveCollectionItem(db: Db | PlatformDb, tenantId: string, name: Collection, input: CollectionInput): Promise<{ id: string; slug: string }> {
+  return transaction(db, tenantId, name, async (repo, model) => {
+    const result = await writeItem(model, name, input);
+    if (result.published) await invalidate(repo, tenantId, name);
+    return { id: result.id, slug: result.slug };
   });
+}
+async function writeItems(repo: TenantRepo, model: Delegate, tenantId: string, inputs: CollectionInput[]) {
+  let published = false;
+  for (const input of inputs) published = (await writeItem(model, "product", input, true)).published || published;
+  if (published) await invalidate(repo, tenantId, "product");
+}
+export async function importCollectionItems(db: Db | PlatformDb, tenantId: string, name: "product", inputs: CollectionInput[]) {
+  if (inputs.length > 1000) throw new CollectionError("Chỉ có thể nhập tối đa 1000 dòng sản phẩm", 400);
+  return transaction(db, tenantId, name, (repo, model) => writeItems(repo, model, tenantId, inputs), 60_000);
+}
+/** Re-read products and references in the same serializable transaction as the writes. */
+export async function importProductCsv(db: Db | PlatformDb, tenantId: string, text: string, options: { bilingual: boolean }) {
+  return transaction(db, tenantId, "product", async (repo, model) => {
+    const [existing, categories, brands] = await Promise.all([model.list(), collectionRepository(repo, "productCategory").list(), collectionRepository(repo, "brand").list()]);
+    const preview = previewProductCsv(text, existing, { categories, brands }, options);
+    const errors = preview.rows.flatMap(row => row.errors.map(e => `Dòng ${row.line}, cột ${e.column}: ${e.message}`));
+    if (errors.length) throw new CollectionError(errors.join("; "), 400);
+    await writeItems(repo, model, tenantId, preview.inputs);
+    return { count: preview.inputs.length };
+  }, 60_000);
 }
 export async function duplicateCollectionItem(db: Db | PlatformDb, tenantId: string, name: Collection, id: string) {
   checkId(id);

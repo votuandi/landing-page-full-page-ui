@@ -374,6 +374,15 @@ Hàm dùng đúng repository transaction được truyền vào; không tự m�
 Ví dụ: `await enqueueInvalidate(repo, [pageTag(tenantId, slug)])` (`pageTag` từ `@solar/cache`).
 Khi thêm/xóa/đổi slug trang, thêm `siteTag(tenantId)` để làm mới danh sách trang; đổi slug vô hiệu cả tag cũ và mới.
 
+### CSV sản phẩm (E7-S14)
+
+`exportProductsCsv` xuất UTF-8 BOM/CRLF, tham chiếu danh mục và thương hiệu bằng slug của tenant.
+`previewProductCsv` kiểm schema dùng chung, lỗi theo số bản ghi/cột, giới hạn 500 kB và 1000 dòng.
+`importProductCsv` tính lại preview và ghi trong một transaction Serializable (timeout batch 60 giây),
+giữ ID/thứ tự/ngày xuất bản khi cập nhật và enqueue một invalidation khi có thay đổi nội dung đã xuất bản.
+Dòng xuất nguyên trạng được bỏ qua cả validate và write, giữ cả dữ liệu legacy và updatedAt.
+CSV dùng dấu phẩy; công thức Excel được escape và khôi phục hai chiều. Không xóa sản phẩm vắng mặt trong file.
+
 ### Danh mục trang và section đã xóa (E7-S13)
 
 `setPageTypes(db, tenantId, { siteId, pageTypes, expected })` kiểm quyền gói bằng `validateSiteStructure`,

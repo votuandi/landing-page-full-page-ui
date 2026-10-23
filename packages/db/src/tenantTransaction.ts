@@ -1,7 +1,7 @@
 import { checkConnection, internalClient, type Db, type PlatformDb } from "./client.ts";
 import { createTenantRepo, type TenantRepo } from "./repository.ts";
 
-export type TransactionOptions = { isolationLevel?: "RepeatableRead" | "Serializable" };
+export type TransactionOptions = { isolationLevel?: "RepeatableRead" | "Serializable"; timeout?: number };
 
 // Internal callback accepts SQL for the ghost bridge; public callers only receive TenantRepo.
 export async function tenantTransaction<T>(db: Db | PlatformDb, tenantId: string,
