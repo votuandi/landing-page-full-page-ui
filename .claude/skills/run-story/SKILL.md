@@ -27,6 +27,7 @@ Tham số: `$ARGUMENTS`
 - Báo tiến độ bằng một câu ngắn mỗi bước.
 - Sửa code bằng Edit/Write theo đoạn; không dùng script python/sed có escape phức tạp để sửa code (dễ hỏng, tốn lượt).
 - Build web và chạy e2e **một lần ở cuối** mỗi vòng thực thi/sửa, không sau mỗi chỉnh nhỏ. Chỉ in đuôi log khi lỗi.
+  Ngoại lệ: test e2e mới/vừa sửa chạy riêng (`-g`) ngay khi viết xong — vòng 1–3′, không đợi CI.
 - Không đổi branch giữa chừng để "thử" script; kiểm tra script ngay trên branch đang làm.
 - Không tự viết script chụp ảnh/probe trình duyệt: MCP `playwright` → lỗi thì `playwright-cli` → bằng chứng lâu dài thì
   spec trong `tooling/visual`.
@@ -75,9 +76,10 @@ thiếu `ponytail`/`codegraph`). Quy tắc `AGENTS.md` (token, schema, tenant, e
    `head: <owner>:<S.branch>`) → nhảy thẳng tới **Bước 6** (bỏ qua điều kiện working tree của base). Chưa có PR nhưng
    branch đã push và `<S.runDir>/` có report/commit đã xong → nhảy tới **Bước 5.3** tạo PR. Còn lại → đọc
    `<S.runDir>/` và `HANDOFF.md`, hỏi người dùng tiếp tục hay làm lại.
-5. `mkdir -p <S.runDir>`. **Kiểm môi trường một lần**: `docker info >/dev/null` (Windows lỗi → thêm đúng một lệnh
-   `wsl --status`). Lỗi → báo người dùng một dòng nguyên nhân (vd. `HCS_E_HYPERV_NOT_INSTALLED` = bật Virtual Machine
-   Platform/Hyper-V rồi khởi động lại) và đi tiếp phần không cần DB; không tự chẩn đoán nhiều lượt (E6-S04 mất ~10′).
+5. `mkdir -p <S.runDir>`. **Kiểm môi trường**: `node scripts/agents/doctor.mjs` (Docker/Postgres/Redis, Prisma client,
+   cổng e2e có server treo, git lock/rebase dở). `✘` mà sửa được bằng lệnh nó in → sửa; cần người dùng (bật Docker, kill
+   tiến trình của sandbox cần admin) → báo một dòng, đi tiếp phần không cần DB; không tự chẩn đoán nhiều lượt. Chạy lại
+   doctor sau khi phiên bị ngắt/khởi động lại và trước mỗi lượt e2e. `S.regression.due` → báo người dùng "story regression".
 6. Đồ thị code theo `S.graphs`: chạy lệnh trong `S.graphs.codegraph` (`codegraph sync` hoặc `codegraph init -y`, đặt
    `CODEGRAPH_TELEMETRY=0`); `S.graphs.graphify` là `stale: …` → chạy nền lệnh đó (chỉ cần khi story có câu hỏi kiến
    trúc/tài liệu).
@@ -143,7 +145,8 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    codegraph là CLI, không có SKILL.md — chạy `codegraph explore|impact <symbol>`)
    Skill tự review: <S.skills.selfReview> · Skill khi sửa: <S.skills.fix>
    Môi trường đã dựng sẵn — không bootstrap: `. .agent-runs/_codex-env/environment.ps1` (pnpm, codegraph) · Env DB: .env.ci.local
-   Phạm vi test: trong vòng code chỉ test file/package đang sửa; full turbo tối đa 2 lần; log ra file, chỉ đọc đuôi.
+   Phạm vi test: chỉ code mới của story — `pnpm --filter <pkg> test|typecheck|lint`; KHÔNG chạy `pnpm turbo`, `prisma
+   generate`, dev server, Playwright trong sandbox (Claude chạy); log ra file, chỉ đọc đuôi.
    Trước khi báo DONE: tự review theo bước 4.5 của run-story (checklists.md + skill tự review), ghi mục "## Tự review".
    Quy tắc AGENTS.md ưu tiên hơn mọi skill.
    Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review") — ghi dần sau mỗi
@@ -187,8 +190,13 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 
 `node scripts/agents/run.mjs verify <ID>` → đọc vài dòng tóm tắt.
 Rồi **chạy hết "Kiểm local bắt buộc"** mà `verify` in ra (bảng `scripts/ci/checks-map.mjs`, cùng bảng CI dùng; không
-tự chọn bớt — E6-S04 bỏ `e2e tenant` → CI đỏ, mất ~55′): `bash scripts/local-ci.sh up` (một lần mỗi phiên) rồi từng lệnh,
-chạy nền, một lần ở cuối mỗi vòng thực thi/sửa. Ghi kết quả + SHA vào report "Lệnh kiểm tra" (reviewer đối chiếu).
+tự chọn bớt). **Phạm vi = code mới của story** (quyết định 23/10/2026): `db` (unit/int package bị ảnh hưởng) + chỉ test e2e
+mới/sửa (`-g '<tên test>'`, hoặc cả file spec khi đổi hook/helper); bộ e2e không có spec đổi → cảnh báo "code mới phải
+được cover" thay vì chạy cả bộ. **Story regression** (`S.regression.due`, mỗi `regressionEvery` PR): `verify` in mọi bộ
+toàn bộ + build. Trước khi chạy: `node scripts/agents/doctor.mjs`; mỗi lệnh chạy nền qua
+`node scripts/agents/doctor.mjs run --idle 8 -- <lệnh>` (treo → exit 124 ngay, không chờ timeout 20′). Test mới phải
+**xanh ở local trước push**; local không chạy được (Docker tắt, cổng bị giữ) → dừng, hỏi người dùng — không dùng CI làm
+debugger (E7-S14: 3 vòng CI × 20′ cho 3 lỗi spec chạy local 2′ là thấy). Ghi kết quả + SHA vào report "Lệnh kiểm tra".
 `verify` FAIL vì "Chữ đã xóa khỏi source nhưng test vẫn dùng" → sửa spec/test. Lỗi môi trường (thiếu DB, port) → sửa môi
 trường rồi chạy lại, không đẩy sang CI. Lỗi chỉ có trên Windows, CI Ubuntu qua: `tenant.spec › robots…` (ENOTFOUND
 `*.localhost` của API request), preview webkit/firefox (local chạy `--project chromium`) — ghi vào report, không chặn.
@@ -243,6 +251,8 @@ Codex là người viết → làm bước này trong cùng lượt `solar-story
    hoặc `gh label list`; tạo nếu thiếu bằng MCP hoặc `gh label create "<nhãn>" --description "Người viết chính"`.
    Sau đó gắn nhãn bằng MCP hoặc `gh pr edit <số> --add-label "<nhãn>"`. Kiểm lại title, labels và reviewer trong body.
    Không thêm workflow có quyền ghi để gắn nhãn. Nếu lỗi quyền, ghi lỗi và phần còn chờ trong report.
+   `S.regression.due` → gắn thêm nhãn `regression` (tạo nếu thiếu, mô tả "Regression toàn bộ"): CI chạy mọi bộ toàn bộ,
+   kể cả test `@quarantine`; PR thường CI chỉ chạy phạm vi story.
 
 ## Bước 6 — Review theo routing và sửa tới khi merge được
 
@@ -280,4 +290,6 @@ Không suy reviewer từ nhãn người viết.
 Khi PR merge được (không comment gì lên PR), báo người dùng: link PR, ai làm gì (plan / dựng /
 design pass / review), số vòng review–sửa, issue và case chưa cover đã sửa, CI, finding P2 còn lại, và câu chốt
 **"PR #<số> sẵn sàng merge — bạn tự merge."** **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
-`S.epicFile`, commit `docs(roadmap): <ID> done`, hỏi trước khi push.
+`S.epicFile`, commit `docs(roadmap): <ID> done`, hỏi trước khi push. Story regression (CI full xanh) → cùng commit đó
+đặt `lastSha` trong `roadmap/regression.json` = SHA merge của PR (bộ đếm `S.regression` về 0). Trước khi switch/pull base:
+`git log origin/<base>..<base>` rỗng (commit chưa push của phiên trước → hỏi người dùng, E7-S14 suýt lệch base).

@@ -47,10 +47,13 @@ Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck 
 **Kiểm local trước CI**: mọi thứ chạy được ở local phải chạy trước khi push; CI chỉ để xác nhận, không dùng để tìm lỗi.
 `bash scripts/local-ci.sh up` dựng Postgres 16 + Redis giống job `db` của CI (role, migrate, seed). Sau đó dùng `… db`
 (test DB thật) và `… e2e <tenant|preview|admin|production|sections>` — bộ nào phải chạy lấy từ bảng
-`scripts/ci/checks-map.mjs` (`run.mjs verify` in ra; CI dùng cùng bảng để quyết định chạy Visual regression / matrix). Sandbox Codex không dùng được
-Docker, nên Claude chạy các bước này.
-Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng. `build` chỉ bắt buộc ở story cuối
-của mỗi epic (`"buildPolicy": "epic-last"` trong `scripts/agents/routing.json`; CI vẫn build mọi PR).
+`scripts/ci/checks-map.mjs` (`run.mjs verify` in ra; CI dùng cùng bảng để chọn job và test). Sandbox Codex không dùng được
+Docker, nên Claude chạy các bước này; Codex trong sandbox cũng không chạy `pnpm turbo`, `prisma generate`, dev server, Playwright.
+**Phạm vi test** (23/10/2026): mỗi story chỉ test code mới của nó — unit/int package bị ảnh hưởng + test e2e mới/sửa
+(CI và local cùng phạm vi). **Regression toàn bộ** mỗi `regressionEvery` (6) PR đã merge (`roadmap/regression.json`,
+`S.regression`): story đó chạy mọi bộ + build, PR gắn nhãn `regression`. Không theo epic, không nightly.
+Trước test/e2e: `node scripts/agents/doctor.mjs`; lệnh dài qua `doctor.mjs run --idle <phút> -- <lệnh>` (dừng khi treo).
+Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng.
 
 ## 4. Quy tắc bắt buộc
 
@@ -158,7 +161,7 @@ Tiến độ: `/get-progress [ID|Ex]` (`… progress`) báo % story/epic + ướ
 ## 7. Định nghĩa hoàn thành (DoD) cho mọi story
 
 1. Mọi AC của story đạt, có bằng chứng (test, ảnh chụp, log).
-2. `typecheck`, `lint`, `test` qua (`build` ở story cuối epic, xem §3); không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
+2. `typecheck`, `lint`, `test` qua (`build` ở story regression, xem §3); không còn vi phạm luật token (`pnpm lint:tokens` sau E2).
 3. Có test cho logic mới (unit với `node:test`/vitest; e2e Playwright cho luồng người dùng).
 4. Đã được review theo `reviewPolicy` (§6), mọi finding P0/P1 đã xử lý.
 5. Tài liệu (README package, roadmap) cập nhật nếu hành vi thay đổi.

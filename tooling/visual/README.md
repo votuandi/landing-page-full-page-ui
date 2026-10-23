@@ -78,6 +78,9 @@ vẫn được so sánh. Popup tư vấn tự bật được đánh dấu đã h
 
 ## Test flaky đã biết
 
+Test gắn tag `@quarantine` (hiện có `visual.spec.ts:5 › /`) bị bỏ qua ở PR thường (`--grep-invert @quarantine`) và chỉ chạy ở
+story regression (nhãn PR `regression`). Sửa gốc xong thì bỏ tag.
+
 Chỉ ghi test đã có bằng chứng (log chạy trên base). Test lỗi ngoài danh sách → coi là hồi quy cho tới khi chạy lại trên
 base (`VISUAL_WEB_ROOT=<worktree base>`, chép `packages/db/generated` vào worktree) chứng minh ngược lại.
 
