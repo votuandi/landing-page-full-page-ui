@@ -36,26 +36,39 @@ test.beforeAll(async ({ request }) => {
 });
 test.afterAll(() => fixture("cleanup"));
 
-test("products: CSV export, preview error, import", async ({ page }) => {
+test("products: CSV export, preview error, import", async ({ page }, info) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin() + "/noi-dung/san-pham");
   const csvPanel = page.getByRole("region", { name: "Nhập xuất CSV sản phẩm" });
-  const downloadPromise = page.waitForEvent("download");
-  await csvPanel.getByRole("link", { name: "Xuất CSV" }).click();
-  const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe("san-pham.csv");
-  const bytes = await readFile((await download.path())!);
-  expect(bytes.subarray(0, 3).toString("hex")).toBe("efbbbf");
-  const rows = parseCsv(bytes.toString("utf8"));
+  const exportCsv = async () => {
+    const downloadPromise = page.waitForEvent("download");
+    await csvPanel.getByRole("link", { name: "Xuất CSV" }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe("san-pham.csv");
+    const bytes = await readFile((await download.path())!);
+    expect(bytes.subarray(0, 3).toString("hex")).toBe("efbbbf");
+    return parseCsv(bytes.toString("utf8"));
+  };
   const upload = async (records: string[][]) => {
     await csvPanel.getByLabel("File CSV sản phẩm").setInputFiles({ name: "san-pham.csv", mimeType: "text/csv", buffer: Buffer.from(toCsv(records)) });
     await csvPanel.getByRole("button", { name: "Xem trước", exact: true }).click();
   };
+  let rows = await exportCsv();
+  // The fixture tenant starts without products: create one through the import itself, typed as in Excel.
+  if (!rows.some(r => r[0] === "csv-e2e")) {
+    const cells: Record<string, string> = { slug: "csv-e2e", title_vi: "[DỮ LIỆU MẪU] Sản phẩm CSV", status: "published", price: "1000000",
+      featured: "false", segments: "home", powerKw: "5", images: "/images/t07/solar-home-hero.webp", warranty: "[DỮ LIỆU MẪU] 10 năm", segment: "home", specs: "{}" };
+    await upload([rows[0], rows[0].map(key => cells[key] ?? "")]);
+    await expect(csvPanel.getByText("Thêm mới", { exact: true })).toBeVisible();
+    await csvPanel.getByRole("button", { name: "Xác nhận nhập" }).click();
+    await expect(csvPanel.getByRole("status")).toContainText("Đã nhập 1 sản phẩm");
+    rows = await exportCsv();
+  }
   await upload(rows);
   await expect(csvPanel.getByText("Không đổi", { exact: true })).toHaveCount(rows.length - 1);
   await expect(csvPanel.getByRole("button", { name: "Xác nhận nhập" })).toBeDisabled();
-  const valid = [...rows[1]];
+  const valid = [...rows.find(r => r[0] === "csv-e2e")!];
   const title = "[DỮ LIỆU MẪU] Sản phẩm CSV đã cập nhật";
   valid[rows[0].indexOf("title_vi")] = title;
   valid[rows[0].indexOf("price")] = "1999999999";
@@ -69,16 +82,14 @@ test("products: CSV export, preview error, import", async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E7-S14/csv-${width}.png`), fullPage: true });
+    await page.screenshot({ path: info.outputPath(`csv-${width}.png`), fullPage: true });
   }
   await upload([rows[0], valid]);
   await expect(csvPanel.getByText("Cập nhật", { exact: true })).toBeVisible();
   await csvPanel.getByRole("button", { name: "Xác nhận nhập" }).click();
   await expect(csvPanel.getByRole("status")).toContainText("Đã nhập 1 sản phẩm");
   await expect(page.getByRole("link", { name: title, exact: true })).toBeVisible();
-  const verifyPromise = page.waitForEvent("download");
-  await csvPanel.getByRole("link", { name: "Xuất CSV" }).click();
-  const verified = parseCsv(await readFile((await (await verifyPromise).path())!, "utf8"));
+  const verified = await exportCsv();
   expect(verified.find(r => r[0] === valid[0])?.[rows[0].indexOf("price")]).toBe("1999999999");
 });
 
