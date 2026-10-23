@@ -164,7 +164,8 @@ function SectionRow({ section, locked, index, count, can, reducedMotion, editHre
       </div>}
     </div>
     {can.variantSwitch && !locked && <fieldset className="mt-3 min-w-0 border-t border-line/15 pt-3">
-      <legend className="mb-2 text-sm text-fg-muted">Kiểu hiển thị<span className="sr-only">: {label}</span></legend>
+      {/* Tên đầy đủ trong một nút văn bản: tách "Kiểu hiển thị" + sr-only làm accessible name thêm khoảng trắng. */}
+      <legend className="mb-2 text-sm text-fg-muted"><span className="sr-only">Kiểu hiển thị: {label}</span><span aria-hidden="true">Kiểu hiển thị</span></legend>
       {!variants.includes(section.variant) && <p className="mb-2 text-sm text-fg-muted">{section.variant} (không còn hỗ trợ)</p>}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{variants.map(variant => {
         const checked = section.variant === variant;

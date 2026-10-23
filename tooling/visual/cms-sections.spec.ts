@@ -65,7 +65,7 @@ test("toggle, switch variant, save, add, remove and limit locks", async ({ page 
   await expect(page.getByRole("button", { name: "Thêm Video công trình", exact: true })).toBeDisabled();
   const hero = rows(page).first();
   await hero.getByRole("switch").click(); await expect(hero.getByRole("switch")).toHaveAttribute("aria-checked", "false");
-  await hero.getByRole("group", { name: "Kiểu hiển thị: Banner chính" }).getByRole("radio", { name: "t15", exact: true }).check();
+  await hero.getByRole("group", { name: "Kiểu hiển thị: Banner chính", exact: true }).getByRole("radio", { name: "t15", exact: true }).check();
   await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
   await expect(page.getByRole("status", { name: "" }).filter({ hasText: "Đã lưu nháp" })).toHaveCount(1);
   const saved = JSON.parse(await page.getByTestId("sections-saved").textContent() ?? "[]");
@@ -87,7 +87,7 @@ for (const theme of ["t03", "t12", "t15"]) test(`radio keyboard and thumbnail ga
     await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
     await page.addInitScript(scheme => localStorage.setItem("t15-theme", scheme), colorScheme);
     await page.goto(`/lab/cms-sections?theme=${theme}`, { waitUntil: "networkidle" });
-    const group = page.locator('[data-section-id="hero"]').getByRole("group", { name: "Kiểu hiển thị: Banner chính" });
+    const group = page.locator('[data-section-id="hero"]').getByRole("group", { name: "Kiểu hiển thị: Banner chính", exact: true });
     expect(await group.getByRole("radio").count()).toBeGreaterThanOrEqual(9);
     const selected = group.locator('input:checked'); const previous = await selected.inputValue();
     await selected.focus(); await page.keyboard.press("ArrowRight");
