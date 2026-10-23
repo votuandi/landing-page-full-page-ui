@@ -38,6 +38,7 @@ test.afterAll(() => fixture("cleanup"));
 
 test("products: CSV export, preview error, import", async ({ page }) => {
   await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin() + "/noi-dung/san-pham");
   const csvPanel = page.getByRole("region", { name: "Nhập xuất CSV sản phẩm" });
   const downloadPromise = page.waitForEvent("download");
