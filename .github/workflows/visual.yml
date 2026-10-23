@@ -20,25 +20,9 @@ on:
       - 'scripts/ci/checks-map.mjs'
       - 'scripts/ci/visual-baseline-run.sh'
       - '!**/*.md'
+  # PR: không lọc paths — job `changes` chọn compare/matrix; story regression (nhãn) cần chạy dù không đổi giao diện.
   pull_request:
     branches: [mono-repo-multi-tenent]
-    paths:
-      - 'apps/web/**'
-      - 'packages/config/**'
-      - 'packages/core/**'
-      - 'packages/ui/**'
-      - 'packages/sections/**'
-      - 'packages/themes/**'
-      - 'packages/tokens/**'
-      - 'packages/presets/**'
-      - 'tooling/visual/**'
-      - 'pnpm-lock.yaml'
-      - 'package.json'
-      - 'pnpm-workspace.yaml'
-      - '.github/workflows/visual.yml'
-      - 'scripts/ci/checks-map.mjs'
-      - 'scripts/ci/visual-baseline-run.sh'
-      - '!**/*.md'
   workflow_dispatch:
 
 permissions:
