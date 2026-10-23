@@ -4,13 +4,31 @@
 // Story thêm quy tắc như vậy → thêm một test ở đây (plan mục "Dữ liệu có sẵn chịu ảnh hưởng").
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadPreset } from "@solar/presets";
-import { themeAllowed } from "@solar/plans";
+import { loadPreset, siteStructureOf, validateSiteStructure } from "@solar/presets";
+import { plans, themeAllowed } from "@solar/plans";
 import { buildDemo } from "../../prisma/seed-data.ts";
 
 test("seed demo: theme được gói cho phép, render không rơi về theme fallback (E6-S04)", () => {
   for (const id of ["t15", "t12"] as const) {
     const demo = buildDemo(id);
     assert.ok(themeAllowed(demo.planId, loadPreset(id).theme.meta.group), `${id}: ${demo.themeId} on ${demo.planId}`);
+  }
+});
+
+// E7-S13: bộ lọc structure chung của checkStructure/setPageTypes. Fixture e2e tenant/admin dựng từ seedDemoTenant,
+// fixture tenant còn tắt `about` (giữ Page `ve-chung-toi`) — cả hai trạng thái phải còn lưu/xuất bản được.
+test("site structure filter keeps seeds valid (E7-S13)", () => {
+  for (const id of ["t15", "t12"] as const) {
+    const demo = buildDemo(id);
+    const can = (feature: string) => (demo.featureOverrides as Record<string, { on: boolean }>)[feature]?.on
+      ?? ((plans[demo.planId].features as ReadonlySet<string>).has(feature) || (demo.addons as readonly string[]).includes(feature));
+    const pages = demo.pages.map(page => ({ slug: page.slug, sections: page.pageSections }));
+    const policy = { can, pagesLimit: plans[demo.planId].limits.pages, baseline: siteStructureOf(demo, pages) };
+    assert.equal(policy.baseline.pages.length, demo.pages.length, `${id}: filter must keep every enabled page`);
+    assert.deepEqual(validateSiteStructure(policy.baseline, policy), [], id);
+    if (!demo.pageTypes.includes("about")) continue;
+    const disabled = siteStructureOf({ pageTypes: demo.pageTypes.filter(type => type !== "about") }, pages);
+    assert.ok(!disabled.pages.some(page => page.slug === "ve-chung-toi"), `${id}: disabled about page is filtered out`);
+    assert.deepEqual(validateSiteStructure(disabled, { ...policy, baseline: disabled }), [], `${id} without about`);
   }
 });

@@ -6,6 +6,9 @@ import { themeToCss } from "@solar/tokens";
 import { staticCollectionSource } from "../../../../../lib/sectionCollections";
 import { labPalette, selectLabIds } from "../matrix-data";
 
+// Lab queries select variants/themes at request time, including thumbnail captures.
+export const instant = false;
+
 export default async function SectionMatrixPage({ params, searchParams }: {
   params: Promise<{ type: string }>;
   searchParams: Promise<{ themes?: string; variant?: string; lang?: string }>;

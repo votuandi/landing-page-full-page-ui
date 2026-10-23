@@ -1,5 +1,10 @@
 # worker
 
+Cron section cleanup (E7-S13) gọi `forPlatform(db).sectionContents.purgeRemoved({ now })` ngay khi khởi động và mỗi 6 giờ.
+Chỉ xóa content có `removedAt` quá 30 ngày, không còn trong descriptor nháp/xuất bản và snapshot PageVersion mới nhất.
+Cron khóa Page như luồng lưu/xuất bản và recheck trong câu DELETE; nhiều worker không xóa trùng hoặc xóa hàng vừa khôi phục.
+Mỗi Page có content bị dọn ghi audit `section-content.purge` trong cùng transaction; shutdown chờ cron hoàn tất.
+
 Tiến trình Node (không Next) xử lý bảng `Outbox` theo D14: request chỉ ghi DB + job trong cùng transaction, worker làm
 tác dụng phụ (gửi lead, revalidate cache, cron gói/gia hạn). Chạy: `pnpm --filter worker start` với
 `PLATFORM_DATABASE_URL` (vai trò `app_platform`, pool `POOL_BUDGET.worker`).

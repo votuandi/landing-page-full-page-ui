@@ -24,7 +24,7 @@ for (const width of [390, 1440]) for (const colorScheme of ["light", "dark"] as 
     await page.getByRole("button", { name: /^Kéo để sắp xếp:/ }).first().focus();
     expect(await page.evaluate(() => { const s = getComputedStyle(document.activeElement!); return s.outlineStyle !== "none" || s.boxShadow !== "none"; })).toBe(true);
     expect(errors).toEqual([]);
-    const folder = resolve(__dirname, "../../.agent-runs/E6-S04/screenshots"); await mkdir(folder, { recursive: true });
+    const folder = resolve(__dirname, "../../.agent-runs/E7-S13/screenshots"); await mkdir(folder, { recursive: true });
     await page.screenshot({ path: resolve(folder, `${width}-${colorScheme}.png`), fullPage: true });
     const locked = page.locator('[data-section-id="shorts"]');
     await expect(locked).toContainText("Khóa theo gói");
@@ -65,7 +65,7 @@ test("toggle, switch variant, save, add, remove and limit locks", async ({ page 
   await expect(page.getByRole("button", { name: "Thêm Video công trình", exact: true })).toBeDisabled();
   const hero = rows(page).first();
   await hero.getByRole("switch").click(); await expect(hero.getByRole("switch")).toHaveAttribute("aria-checked", "false");
-  await hero.getByLabel("Đổi kiểu hiển thị: Banner chính").selectOption("t15");
+  await hero.getByRole("group", { name: "Kiểu hiển thị: Banner chính", exact: true }).getByRole("radio", { name: "t15", exact: true }).check();
   await page.getByRole("button", { name: "Lưu nháp", exact: true }).click();
   await expect(page.getByRole("status", { name: "" }).filter({ hasText: "Đã lưu nháp" })).toHaveCount(1);
   const saved = JSON.parse(await page.getByTestId("sections-saved").textContent() ?? "[]");
@@ -77,7 +77,24 @@ test("legacy overflow disables saving and no-JS content stays visible", async ({
   await open(page); await page.getByRole("button", { name: "Nạp dữ liệu vượt giới hạn" }).click();
   await expect(page.getByRole("main").getByRole("alert")).toContainText('Chỉ được có tối đa 1 "Dự toán chi phí"');
   await expect(page.getByRole("button", { name: "Lưu nháp", exact: true })).toBeDisabled();
-  const context = await browser.newContext({ javaScriptEnabled: false });
-  try { const plain = await context.newPage(); await plain.goto("http://localhost:3210/lab/cms-sections"); await expect(plain.getByText("Banner chính", { exact: true })).toBeVisible(); }
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL: test.info().project.use.baseURL });
+  try { const plain = await context.newPage(); await plain.goto("/lab/cms-sections"); await expect(plain.getByText("Banner chính", { exact: true })).toBeVisible(); }
   finally { await context.close(); }
+});
+
+for (const theme of ["t03", "t12", "t15"]) test(`radio keyboard and thumbnail gallery: ${theme}`, async ({ page }, info) => {
+  for (const width of [390, 1440]) for (const colorScheme of ["light", "dark"] as const) {
+    await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+    await page.addInitScript(scheme => localStorage.setItem("t15-theme", scheme), colorScheme);
+    await page.goto(`/lab/cms-sections?theme=${theme}`, { waitUntil: "networkidle" });
+    const group = page.locator('[data-section-id="hero"]').getByRole("group", { name: "Kiểu hiển thị: Banner chính", exact: true });
+    expect(await group.getByRole("radio").count()).toBeGreaterThanOrEqual(9);
+    const selected = group.locator('input:checked'); const previous = await selected.inputValue();
+    await selected.focus(); await page.keyboard.press("ArrowRight");
+    await expect(group.locator('input:checked')).not.toHaveValue(previous);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    expect((await new AxeBuilder({ page }).include("main").withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await expect(group.locator("img").first()).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`${theme}-${width}-${colorScheme}.png`), fullPage: true });
+  }
 });

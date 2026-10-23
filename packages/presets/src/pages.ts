@@ -1,5 +1,6 @@
 /** Danh mục trang của site (D21 §2). Trang `page` có section lưu ở bảng Page; `collection`/`policy` do code render. */
 export type PageTypeDef = {
+  label: { vi: string; en?: string };
   slug: string;
   kind: "page" | "collection" | "policy";
   required?: boolean;
@@ -10,15 +11,15 @@ export type PageTypeDef = {
 };
 
 const defs = {
-  home: { slug: "", kind: "page", required: true },
-  about: { slug: "ve-chung-toi", kind: "page", sections: ["about-story", "stats", "trust", "warranty"] },
-  services: { slug: "giai-phap", kind: "collection", collection: "service" },
-  projects: { slug: "cong-trinh", kind: "collection", collection: "project" },
-  products: { slug: "san-pham", kind: "collection", collection: "product", entitlement: "catalog" },
-  news: { slug: "tin-tuc", kind: "collection", collection: "post", entitlement: "blog" },
-  guides: { slug: "cam-nang", kind: "page", entitlement: "blog", sections: [] },
-  contact: { slug: "lien-he", kind: "page", required: true, sections: ["lead-form", "branch-map"] },
-  policy: { slug: "chinh-sach", kind: "policy", required: true },
+  home: { label: { vi: "Trang chủ" }, slug: "", kind: "page", required: true },
+  about: { label: { vi: "Về chúng tôi" }, slug: "ve-chung-toi", kind: "page", sections: ["about-story", "stats", "trust", "warranty"] },
+  services: { label: { vi: "Giải pháp" }, slug: "giai-phap", kind: "collection", collection: "service" },
+  projects: { label: { vi: "Công trình" }, slug: "cong-trinh", kind: "collection", collection: "project" },
+  products: { label: { vi: "Sản phẩm" }, slug: "san-pham", kind: "collection", collection: "product", entitlement: "catalog" },
+  news: { label: { vi: "Tin tức" }, slug: "tin-tuc", kind: "collection", collection: "post", entitlement: "blog" },
+  guides: { label: { vi: "Cẩm nang" }, slug: "cam-nang", kind: "page", entitlement: "blog", sections: [] },
+  contact: { label: { vi: "Liên hệ" }, slug: "lien-he", kind: "page", required: true, sections: ["lead-form", "branch-map"] },
+  policy: { label: { vi: "Chính sách" }, slug: "chinh-sach", kind: "policy", required: true },
 } as const satisfies Record<string, PageTypeDef>;
 
 export type PageTypeId = keyof typeof defs;

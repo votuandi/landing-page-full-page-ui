@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { pageTag, siteTag } from "@solar/cache";
 import { migrateSectionData, pageConfigSchema, sectionRegistry } from "@solar/sections";
-import { validateSiteStructure } from "@solar/presets";
+import { validateSiteStructure, siteStructureOf } from "@solar/presets";
 import { canUse, limit } from "@solar/plans";
 import { Prisma } from "../generated/client.ts";
 import { loadDisabledFeatures, type Db, type PlatformDb } from "./client.ts";
@@ -39,13 +39,23 @@ async function lockPage(repo: TenantRepo, input: PublishInput) {
   return (await repo.page.get(input.pageId))!;
 }
 
+async function markRemoved(repo: TenantRepo, pageId: string) {
+  const page = (await repo.page.get(pageId))!;
+  const ids = new Set([...descriptors(page.sections), ...descriptors(page.draftSections ?? page.sections)].map(s => s.id));
+  for (const row of await repo.sectionContent.list({ where: { pageId } })) {
+    if (ids.has(row.sectionId)) {
+      if (row.removedAt) await repo.sectionContent.update(row.id, { removedAt: null });
+    } else if (!row.removedAt) await repo.sectionContent.update(row.id, { removedAt: new Date() });
+  }
+}
+
 async function checkStructure(repo: TenantRepo, siteId: string, pageId: string, sections: unknown, disabled: string[]) {
   const site = await repo.site.first({ where: { id: siteId }, include: { tenant: true } });
   if (!site) throw new Error("Site not found");
   const rows = await repo.page.list({ where: { siteId } });
-  const baseline = { pageTypes: site.pageTypes, pages: rows.map(row => ({ slug: row.slug, sections: descriptors(row.sections) })) };
-  const proposed = { ...baseline, pages: rows.map(row => ({ slug: row.slug,
-    sections: descriptors(row.id === pageId ? sections : row.sections) })) };
+  const baseline = siteStructureOf(site, rows.map(row => ({ slug: row.slug, sections: descriptors(row.sections) })));
+  const proposed = siteStructureOf(site, rows.map(row => ({ slug: row.slug,
+    sections: descriptors(row.id === pageId ? sections : row.sections) })));
   const errors = validateSiteStructure(proposed, { can: canUse(site.tenant, { disabled }), pagesLimit: limit(site.tenant, "pages"), baseline });
   if (errors.length) throw new StructureError(errors.join("; "));
   for (const section of proposed.pages.flatMap(page => page.sections)) {
@@ -75,6 +85,7 @@ export async function saveDraft(db: Db | PlatformDb, tenantId: string, raw: Draf
       } else await repo.sectionContent.create({ siteId: page.siteId, pageId: page.id, sectionId: section.sectionId,
         type: section.type, data: def.defaults as Prisma.InputJsonValue, draftData });
     }
+    await markRemoved(repo, page.id);
     return { revision: page.revision };
   });
 }
@@ -88,6 +99,7 @@ export async function publishPage(db: Db | PlatformDb, tenantId: string, raw: Pu
     await checkStructure(repo, page.siteId, page.id, sections, disabled);
     const contents = [];
     for (const content of await repo.sectionContent.list({ where: { siteId: page.siteId, pageId: page.id }, orderBy: { sectionId: "asc" } })) {
+      if (!sections.some(s => s.id === content.sectionId)) continue;
       const def = sectionRegistry.getType(content.type);
       if (!def) throw new Error(`Unknown section type: ${content.type}`);
       if (content.draftData !== null) await repo.sectionContent.update(content.id, {
@@ -98,6 +110,7 @@ export async function publishPage(db: Db | PlatformDb, tenantId: string, raw: Pu
       contents.push({ sectionId: saved.sectionId, type: saved.type, schemaVersion: saved.schemaVersion, data: saved.data });
     }
     await repo.page.update(page.id, { sections, draftSections: Prisma.DbNull, publishedAt: new Date() });
+    await markRemoved(repo, page.id);
     const version = await repo.pageVersion.create({ pageId: page.id, revision: page.revision, snapshot: { sections, contents },
       publishedBySiteUserId: input.actor.siteUserId, publishedByPlatformAdminId: input.actor.platformAdminId });
     await enqueueInvalidate(repo, [pageTag(tenantId, page.slug), ...(page.kind === "home" || !page.publishedAt ? [siteTag(tenantId)] : [])]);

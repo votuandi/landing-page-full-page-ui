@@ -3,17 +3,32 @@ import { getTenant } from "./auth.ts";
 import { getSiteEntitlements } from "./entitlements.ts";
 import { getRuntime } from "./runtime.ts";
 import type { PageSectionsDeps } from "./pageSections.ts";
+import { recoverRemovedSections } from "./pageSections.ts";
 import { previewUrl } from "./previewUrl.ts";
 
 export const pageSectionDeps: PageSectionsDeps = {
   tenant: getTenant,
   entitlements: getSiteEntitlements,
+  async theme(siteId) {
+    const site = await forTenant(getRuntime().db, (await getTenant()).tenantId).site.get(siteId);
+    return site?.themeId ?? "";
+  },
+  async removed(siteId, pageId) {
+    const repo = forTenant(getRuntime().db, (await getTenant()).tenantId);
+    const page = await repo.page.first({ where: { id: pageId, siteId } });
+    if (!page) return [];
+    const [contents, versions] = await Promise.all([
+      repo.sectionContent.list({ where: { siteId, pageId, OR: [{ removedAt: null }, { removedAt: { gte: new Date(Date.now() - 30 * 86400000) } }] } }),
+      repo.pageVersion.list({ where: { pageId }, orderBy: { revision: "desc" }, select: { snapshot: true } }),
+    ]);
+    return recoverRemovedSections(page, contents, versions.map(v => v.snapshot));
+  },
   async page(siteId, pageId) {
     const { tenantId } = await getTenant();
     const repo = forTenant(getRuntime().db, tenantId);
     const page = await repo.page.first({ where: { id: pageId, siteId } });
     if (!page) return null;
-    const hasDraft = page.draftSections !== null || await repo.sectionContent.count({ where: { siteId, pageId, draftData: { not: Prisma.DbNull } } }) > 0;
+    const hasDraft = page.draftSections !== null || await repo.sectionContent.count({ where: { siteId, pageId, removedAt: null, draftData: { not: Prisma.DbNull } } }) > 0;
     return { ...page, hasDraft };
   },
   async contents(siteId, pageId) {

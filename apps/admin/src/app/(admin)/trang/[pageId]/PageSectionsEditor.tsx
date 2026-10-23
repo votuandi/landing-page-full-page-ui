@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { SectionListEditor, useLeaveGuard } from "@solar/cms-ui";
+import { SectionListEditor, thumbnailSrc, useLeaveGuard } from "@solar/cms-ui";
 import { sectionLimitIssues } from "@solar/sections";
 import type { PageEditor, PageSectionResult } from "../../../../lib/pageSections.ts";
 import { saveSectionsDraft, publishSections, previewLink } from "../actions.ts";
@@ -25,6 +25,7 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
   const dirty = JSON.stringify(value) !== saved;
   useLeaveGuard(dirty);
   const invalid = sectionLimitIssues(value).length > 0;
+  const recoverable = [...editor.removed, ...editor.sections.filter(section => !editor.removed.some(s => s.id === section.id)).map(section => ({ ...section, expiresAt: null }))];
   const form = () => { const f = new FormData(); f.set("pageId", editor.page.id); f.set("revision", String(revision)); return f; };
   function run(work: () => Promise<PageSectionResult>, success: (result: PageSectionResult) => void, failure?: () => void) {
     setError(""); setMessage("");
@@ -44,6 +45,7 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
     <fieldset disabled={pending || conflict} className="min-w-0">
       <legend className="sr-only">Bố cục section</legend>
       <SectionListEditor value={value} onChange={setValue} can={editor.can} allowedTypes={editor.allowedTypes} lockedTypes={editor.lockedTypes} onUpgrade={setUpgrade}
+        thumbnail={(type, variant) => thumbnailSrc(editor.themeId, type, variant)} removed={recoverable}
         editHref={editor.canEditContent ? section => `/trang/${editor.page.id}/section/${section.id}` : undefined} />
     </fieldset>
     {upgrade && <UpgradeRequest key={upgrade} feature={upgrade} onClose={() => setUpgrade(undefined)} />}

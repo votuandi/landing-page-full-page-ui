@@ -21,6 +21,8 @@ export type PageSectionsDeps = {
   tenant(): Promise<{ tenantId: string; siteId: string; slug: string }>;
   page(siteId: string, pageId: string): Promise<PageRow | null>;
   entitlements(): Promise<(feature: string) => boolean>;
+  theme(siteId: string): Promise<string>;
+  removed(siteId: string, pageId: string): Promise<(EditableSection & { expiresAt: string | null })[]>;
   contents(siteId: string, pageId: string): Promise<{ sectionId: string; type: string }[]>;
   content(siteId: string, pageId: string, sectionId: string): Promise<{ type: string; schemaVersion: number; data: unknown; draftData: unknown } | null>;
   actor(session: Session): Promise<PublishInput["actor"] | null>;
@@ -32,16 +34,31 @@ export const pageTitle = (title: unknown, slug: string) => typeof title === "obj
   ? title.vi : slug ? `/${slug}` : "Trang chủ";
 const readSections = (value: unknown) => descriptorsSchema.parse(value);
 
+export function recoverRemovedSections(page: { sections: unknown; draftSections: unknown }, contents: { sectionId: string; type: string; removedAt: Date | null }[], snapshots: unknown[]) {
+  const current = readSections(page.draftSections ?? page.sections);
+  const history = [readSections(page.sections), ...snapshots.map(snapshot => {
+    const parsed = descriptorsSchema.safeParse((snapshot as { sections?: unknown } | null)?.sections);
+    return parsed.success ? parsed.data : [];
+  })].flat();
+  return contents.filter(c => !current.some(s => s.id === c.sectionId)).flatMap(c => {
+    const descriptor = history.find(s => s.id === c.sectionId && s.type === c.type);
+    const variant = descriptor?.variant ?? sectionRegistry.variantsOf(c.type)?.[0];
+    return variant ? [{ ...descriptor, id: c.sectionId, type: c.type, variant, enabled: descriptor?.enabled ?? true,
+      expiresAt: c.removedAt ? new Date(c.removedAt.getTime() + 30 * 86400000).toISOString() : null }] : [];
+  });
+}
+
 export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { requirePermission(permission: "pages.view"): Promise<Session> }) {
   const session = await deps.requirePermission("pages.view");
   if (!z.uuid().safeParse(pageId).success) return null;
   const tenant = await deps.tenant();
   const page = await deps.page(tenant.siteId, pageId);
   if (!page || page.siteId !== tenant.siteId) return null;
-  const can = await deps.entitlements(), structure = session.permissions.has("pages.structure");
+  const [can, themeId, removed] = await Promise.all([deps.entitlements(), deps.theme(tenant.siteId), deps.removed(tenant.siteId, pageId)]);
+  const structure = session.permissions.has("pages.structure");
   const types = Object.values(sectionRegistry.types);
   return { page: { id: page.id, slug: page.slug, title: pageTitle(page.title, page.slug), revision: page.revision },
-    sections: readSections(page.draftSections ?? page.sections), hasDraft: page.hasDraft,
+    sections: readSections(page.draftSections ?? page.sections), hasDraft: page.hasDraft, themeId, removed,
     can: { reorder: structure && can("sectionReorder"), variantSwitch: structure && can("variantSwitch") },
     allowedTypes: types.filter(def => !def.meta.entitlement || can(def.meta.entitlement)).map(def => def.type),
     lockedTypes: types.filter(def => def.meta.entitlement && !can(def.meta.entitlement)).map(def => def.type),

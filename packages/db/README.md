@@ -373,3 +373,13 @@ Gọi `enqueueInvalidate(repo, tags, hosts?)` trong cùng callback `withTenantTr
 Hàm dùng đúng repository transaction được truyền vào; không tự mở transaction hay gọi web trước khi commit.
 Ví dụ: `await enqueueInvalidate(repo, [pageTag(tenantId, slug)])` (`pageTag` từ `@solar/cache`).
 Khi thêm/xóa/đổi slug trang, thêm `siteTag(tenantId)` để làm mới danh sách trang; đổi slug vô hiệu cả tag cũ và mới.
+
+### Danh mục trang và section đã xóa (E7-S13)
+
+`setPageTypes(db, tenantId, { siteId, pageTypes, expected })` kiểm quyền gói bằng `validateSiteStructure`,
+đối chiếu danh mục cũ để chặn hai tab ghi đè, tạo Page thiếu dưới dạng chưa xuất bản và enqueue `siteTag` cùng transaction.
+Trang tắt vẫn giữ Page/content. `siteStructureOf` loại trang tắt khỏi cấu trúc đang hoạt động, kể cả khi lưu/xuất bản trang khác.
+
+`saveDraft`/`publishPage` đánh dấu `SectionContent.removedAt` khi ID không còn trong cả nháp và bản xuất bản;
+tham chiếu lại sẽ xóa dấu này. Snapshot mới chỉ chứa content của section đang xuất bản. Worker giữ content 30 ngày,
+kiểm lại Page và PageVersion mới nhất trước khi xóa; các version lịch sử vẫn giữ snapshot riêng.

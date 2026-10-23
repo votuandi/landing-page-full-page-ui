@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "thumbnails": "tsx thumbnails.mts",
     "lint": "eslint .",
     "test": "tsc -p tsconfig.test.json && node --test .test-dist/matrix-colors.test.js matrix-report.test.mjs matrix-baseline.test.mjs preset-tools.test.mjs",
     "matrix:test": "playwright test -c playwright.matrix.config.ts",
@@ -15,6 +16,10 @@
     "test:sections": "playwright test --config playwright.sections.config.ts"
   },
   "devDependencies": {
+    "@solar/sections": "workspace:*",
+    "@solar/themes": "workspace:*",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15",
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.58.2",
     "@solar/config": "workspace:*",

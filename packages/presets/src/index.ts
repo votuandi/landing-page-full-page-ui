@@ -20,7 +20,7 @@ import { presetSchema } from "./schema";
 export { presetSchema };
 export { PAGE_TYPES, PAGE_TYPE_IDS, isPageType, pageTypeOfRoute } from "./pages";
 export type { PageTypeDef, PageTypeId } from "./pages";
-export { applyPlanToPreset, isLandingSlug, presetPageTypes, presetStructure, validateSiteStructure } from "./structure";
+export { applyPlanToPreset, isLandingSlug, presetPageTypes, presetStructure, validateSiteStructure, siteStructureOf } from "./structure";
 export type { Can, SitePage, SiteStructure, StructurePolicy, StructureSection } from "./structure";
 export type { Preset } from "./schema";
 import type { Preset } from "./schema";

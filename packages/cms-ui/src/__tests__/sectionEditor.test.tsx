@@ -119,10 +119,34 @@ test("toggle, variant, add and confirmed remove keep section identity and conten
   const { container, last } = await render();
   await click(container.querySelector('[role="switch"]')!);
   assert.equal(last()[0].enabled, false);
-  const select = container.querySelector("select")!;
-  const { type } = await import("./dom.ts");
-  await type(select, "t15"); assert.equal(last()[0].variant, "t15"); assert.equal(last()[0].anchor, "dau-trang");
+  await click(container.querySelector('[data-section-id="hero"] input[type="radio"][value="t15"]')!);
+  assert.equal(last()[0].variant, "t15"); assert.equal(last()[0].anchor, "dau-trang");
   await click(button(container, "Thêm Công trình đã thực hiện")); assert.equal(last().at(-1)?.id, "projects-new");
   setConfirm(false); await click(button(container, /^Xóa:.*\(hero\)$/)); assert.equal(last().length, 3);
   setConfirm(true); await click(button(container, /^Xóa:.*\(hero\)$/)); assert.equal(last().length, 2);
+});
+
+test("row, variant radio cards and add library use supplied theme thumbnail; failed image falls back", async () => {
+  const m = await render({ thumbnail: (type, variant) => `/section-thumbs/t12/${type}--${variant}.webp` });
+  const row = m.container.querySelector('[data-section-id="hero"]')!;
+  assert.equal(row.querySelector('img')?.getAttribute('src'), '/section-thumbs/t12/hero--t12.webp');
+  assert.equal(row.querySelector('input[type="radio"][value="t12"]')?.getAttribute('name'), row.querySelector('input[type="radio"][value="t15"]')?.getAttribute('name'));
+  assert.ok(row.querySelector('fieldset legend')?.textContent?.includes("Kiểu hiển thị: Banner chính"));
+  assert.ok(m.container.querySelector('button[aria-label="Thêm Công trình đã thực hiện"] img'));
+  const preview = row.querySelector('img')!.parentElement!;
+  await act(async () => preview.querySelector('img')!.dispatchEvent(new window.Event('error')));
+  assert.equal(preview.querySelector('img'), null, "failed image is replaced, not left broken");
+  assert.equal(preview.textContent, "t12");
+});
+
+test("restore keeps original id/variant and locks outside plan or maxPerPage", async () => {
+  const removed = [{ id: "old-project", type: "projects", variant: "t15", enabled: true, expiresAt: "2026-11-01T00:00:00.000Z" },
+    { id: "old-calc", type: "calculator", variant: "t15", enabled: true, expiresAt: "2026-11-01T00:00:00.000Z" },
+    { id: "old-shorts", type: "shorts", variant: "t15", enabled: true, expiresAt: null }];
+  const m = await render({ removed, lockedTypes: ["shorts"] });
+  assert.equal(button(m.container, "Khôi phục: Dự toán chi phí (old-calc)").disabled, true);
+  assert.equal(button(m.container, "Khôi phục: Video công trình (old-shorts)").disabled, true);
+  await click(button(m.container, "Khôi phục: Công trình đã thực hiện (old-project)"));
+  assert.equal(m.last().at(-1)?.id, "old-project"); assert.equal(m.last().at(-1)?.variant, "t15");
+  assert.equal(m.container.querySelector('button[aria-label="Khôi phục: Công trình đã thực hiện (old-project)"]'), null);
 });

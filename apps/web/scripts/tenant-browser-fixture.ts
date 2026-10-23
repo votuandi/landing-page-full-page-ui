@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import { createPlatformDb, forPlatform, forTenant, type Prisma } from "@solar/db";
+import { createPlatformDb, forPlatform, forTenant, setPageTypes, type Prisma } from "@solar/db";
 import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
@@ -108,7 +108,11 @@ async function main() {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
         touched.add(saved.tenantId);
-        if (action === "no-dark" || action === "switcher-off") {
+        if (action === "disable-about" || action === "enable-about") {
+          const site = (await repo.site.get(saved.siteId))!;
+          await setPageTypes(db, saved.tenantId, { siteId: site.id, expected: site.pageTypes,
+            pageTypes: action === "disable-about" ? site.pageTypes.filter(t => t !== "about") : [...new Set([...site.pageTypes, "about"])] });
+        } else if (action === "no-dark" || action === "switcher-off") {
           await repo.site.update(saved.siteId, { themeId: action === "no-dark" ? "t01" : "t15", profile: { name: { vi: "[DỮ LIỆU MẪU] Review", en: "[DỮ LIỆU MẪU] Review EN" }, theme: { default: "dark", switcher: action !== "switcher-off" } }, locales: ["en"], defaultLocale: "en" });
         } else if (action === "no-chrome" || action === "disabled-chrome") {
           const page = await repo.page.get(saved.pageId);

@@ -1,5 +1,6 @@
 import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
+import { pageTypeOfRoute } from "@solar/presets";
 import { forTenant, withTenantTransaction, loadDisabledFeatures, type TenantRepo } from "@solar/db";
 import { getTheme, themes } from "@solar/themes";
 import { ThemeOverridesSchema, validateBrandOverrides } from "@solar/tokens";
@@ -75,7 +76,15 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
   }
   async function listPublishedPages(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];
-    return repository(tenantId).page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true, kind: true }, orderBy: { slug: "asc" } });
+    const repo = repository(tenantId);
+    const [site, pages] = await Promise.all([
+      repo.site.first({ where: { id: siteId }, select: { pageTypes: true } }),
+      repo.page.list({ where: { siteId, publishedAt: { not: null } }, select: { slug: true, kind: true }, orderBy: { slug: "asc" } }),
+    ]);
+    return site ? pages.filter(page => {
+      const type = pageTypeOfRoute({ kind: "page", slug: page.slug });
+      return !type || site.pageTypes.includes(type);
+    }) : [];
   }
   const read = <T>(fn: () => Promise<T>, keyParts: string, tags: string[]) => contentCache ? contentCache.cached(fn, { keyParts, tags }) : fn();
   return {
