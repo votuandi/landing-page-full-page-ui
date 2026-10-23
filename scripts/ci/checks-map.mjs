@@ -41,6 +41,10 @@ export const CHECKS = {
     paths: [...shared, "packages/db/", "packages/plans/", "packages/presets/", "packages/sections/", "packages/cache/",
       "packages/auth/", "packages/platform/", `${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/sites/`, "apps/admin/src/"],
   },
+  storage: {
+    cmd: "bash scripts/local-ci.sh storage",
+    paths: [...shared, "packages/storage/", "scripts/local-ci.sh", ".github/workflows/workspace.yml"],
+  },
   "e2e:tenant": {
     cmd: "bash scripts/local-ci.sh e2e tenant",
     paths: [...shared, "apps/web/", "packages/db/prisma/", "packages/db/src/", "packages/plans/", "packages/presets/",

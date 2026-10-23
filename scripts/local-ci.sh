@@ -2,6 +2,7 @@
 # Chạy ở local các bước cần Postgres/Redis của job `db` (.github/workflows/workspace.yml) trước khi push.
 #   bash scripts/local-ci.sh up        dựng container Postgres 16 + Redis, tạo role, migrate, seed (chạy lại an toàn)
 #   bash scripts/local-ci.sh db        test DB thật: @solar/db, web test:tenant, admin
+#   bash scripts/local-ci.sh storage   contract local + S3 trên MinIO (tự dựng MinIO nếu chưa có)
 #   bash scripts/local-ci.sh e2e [cfg] e2e Playwright (mặc định admin; vd. tenant, preview, admin)
 #   bash scripts/local-ci.sh all       up + db + e2e admin
 #   bash scripts/local-ci.sh down      xóa container (dữ liệu mất)
@@ -11,6 +12,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PG=solar-local-pg REDIS=solar-local-redis PG_PORT=${LOCAL_PG_PORT:-55432} REDIS_PORT=${LOCAL_REDIS_PORT:-56379}
+MINIO=solar-local-minio MINIO_PORT=${LOCAL_MINIO_PORT:-59000}
+MINIO_IMAGE=minio/minio:RELEASE.2025-04-22T22-12-26Z
 ENV_FILE=.env.ci.local
 
 rand() { node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("hex"))'; }
@@ -42,11 +45,32 @@ start() { # name, docker run args...
   else docker run -d --name "$name" "$@" >/dev/null; fi
 }
 
+minio_up() {
+  start "$MINIO" -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+    -p "127.0.0.1:$MINIO_PORT:9000" "$MINIO_IMAGE" server /data
+  for attempt in {1..60}; do
+    if curl --fail --silent --output /dev/null --max-time 1 "http://127.0.0.1:$MINIO_PORT/minio/health/live"; then return; fi
+    sleep 1
+  done
+  docker logs "$MINIO"
+  echo "MinIO chưa sẵn sàng sau 60 lần thử" >&2
+  return 1
+}
+
+storage() {
+  minio_up
+  # Bucket được contract fixture tạo; credentials này chỉ dùng cho container test local.
+  STORAGE_REQUIRE_S3=1 STORAGE_S3_TEST_ENDPOINT="http://127.0.0.1:$MINIO_PORT" \
+    STORAGE_S3_TEST_BUCKET=solar-storage-test STORAGE_S3_TEST_ACCESS_KEY_ID=minioadmin \
+    STORAGE_S3_TEST_SECRET_ACCESS_KEY=minioadmin pnpm --filter @solar/storage test
+}
+
 up() {
   load_env
   start "$PG" -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=solar_e5 -p "$PG_PORT:5432" postgres:16-alpine \
     -c fsync=off -c synchronous_commit=off -c full_page_writes=off
   start "$REDIS" -p "$REDIS_PORT:6379" redis:7-alpine
+  minio_up
   until docker exec "$PG" pg_isready -U postgres -d solar_e5 >/dev/null 2>&1; do sleep 1; done
   docker exec -i -e APP_OWNER_PASSWORD -e APP_RUNTIME_PASSWORD -e APP_PLATFORM_PASSWORD "$PG" \
     psql -q -U postgres -d solar_e5 -v ON_ERROR_STOP=1 -f - < packages/db/scripts/provision-roles.sql
@@ -71,9 +95,10 @@ e2e() {
 case "${1:-}" in
   up) up ;;
   db) db ;;
+  storage) storage ;;
   e2e) shift; e2e "$@" ;;
   all) up; db; e2e admin ;;
-  down) docker rm -f "$PG" "$REDIS" >/dev/null; echo "Đã xóa $PG, $REDIS" ;;
+  down) docker rm -f "$PG" "$REDIS" "$MINIO" >/dev/null; echo "Đã xóa $PG, $REDIS, $MINIO" ;;
   env) ensure_env; sed 's/^/export /' "$ENV_FILE" ;;
   *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
