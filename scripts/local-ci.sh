@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 
 PG=solar-local-pg REDIS=solar-local-redis PG_PORT=${LOCAL_PG_PORT:-55432} REDIS_PORT=${LOCAL_REDIS_PORT:-56379}
 MINIO=solar-local-minio MINIO_PORT=${LOCAL_MINIO_PORT:-59000}
-MINIO_IMAGE=minio/minio:RELEASE.2025-04-22T22-12-26Z
+MINIO_IMAGE=bitnamilegacy/minio:2025.4.22 # minio/minio đã gỡ khỏi Docker Hub; image bitnami tự chạy `server`
 ENV_FILE=.env.ci.local
 
 rand() { node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("hex"))'; }
@@ -47,7 +47,7 @@ start() { # name, docker run args...
 
 minio_up() {
   start "$MINIO" -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
-    -p "127.0.0.1:$MINIO_PORT:9000" "$MINIO_IMAGE" server /data
+    -p "127.0.0.1:$MINIO_PORT:9000" "$MINIO_IMAGE"
   for attempt in {1..60}; do
     if curl --fail --silent --output /dev/null --max-time 1 "http://127.0.0.1:$MINIO_PORT/minio/health/live"; then return; fi
     sleep 1

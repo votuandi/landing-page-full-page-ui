@@ -11,6 +11,18 @@ export interface LocalDriverOptions {
 
 const missing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === "ENOENT";
 
+// Windows: rename đè lên đích đang bị một rename/đọc khác giữ trả EPERM/EACCES/EBUSY — thử lại ngắn như graceful-fs.
+async function renameWithRetry(from: string, to: string): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try { return await rename(from, to); }
+    catch (error) {
+      const code = (error as NodeJS.ErrnoException)?.code;
+      if (attempt >= 10 || !["EPERM", "EACCES", "EBUSY"].includes(code ?? "")) throw error;
+      await new Promise((done) => setTimeout(done, 10 * (attempt + 1)));
+    }
+  }
+}
+
 export function createLocalDriver({ root, publicBase }: LocalDriverOptions): StorageDriver {
   const directory = resolve(root);
   const base = publicBase.replace(/\/+$/, "");
@@ -41,7 +53,7 @@ export function createLocalDriver({ root, publicBase }: LocalDriverOptions): Sto
       const temporary = resolve(temporaryDirectory, randomUUID());
       try {
         await writeFile(temporary, body, { flag: "wx" });
-        await rename(temporary, target);
+        await renameWithRetry(temporary, target);
       } finally { await rm(temporary, { force: true }); }
     },
     async delete(key) {

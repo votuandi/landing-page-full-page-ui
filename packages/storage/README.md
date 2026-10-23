@@ -69,7 +69,7 @@ bash scripts/local-ci.sh storage
 
 Contract chung chạy local và S3. `storage` tự dựng MinIO test trên `127.0.0.1:${LOCAL_MINIO_PORT:-59000}`, tạo bucket
 trong fixture, chạy test với `STORAGE_REQUIRE_S3=1`. `up` cũng dựng MinIO; `down` xóa cả ba container.
-MinIO ghim `minio/minio:RELEASE.2025-04-22T22-12-26Z`; credentials `minioadmin` chỉ dùng cho container test loopback.
+MinIO ghim `bitnamilegacy/minio:2025.4.22` (`minio/minio` đã gỡ khỏi Docker Hub); credentials `minioadmin` chỉ dùng cho container test loopback.
 
 Không có `STORAGE_S3_TEST_ENDPOINT` thì suite S3 skip có lý do. Đặt `STORAGE_REQUIRE_S3=1` mà thiếu endpoint thì test
 fail để CI không báo xanh khi bỏ sót MinIO. Có endpoint thì lỗi kết nối không bị skip. Có thể đặt
