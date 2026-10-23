@@ -22,8 +22,8 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   dùng cho AWS S3, Cloudflare R2 qua `S3_ENDPOINT`, MinIO cho dev). Chọn bằng `STORAGE_DRIVER=local|s3`.
   Khóa luôn `tenants/<tenantId>/<yyyy>/<mm>/<uuid>.<ext>` — không dùng tên file người dùng.
 - **AC**:
-  - [ ] Cùng bộ test hợp đồng (contract test) chạy qua cho `local` và `s3` (MinIO trong CI).
-  - [ ] Không có import `fs` ngoài driver local.
+  - [x] Cùng bộ test hợp đồng (contract test) chạy qua cho `local` và `s3` (MinIO trong CI).
+  - [x] Không có import `fs` ngoài driver local.
 - Agent: Codex · Cỡ: M
 
 ### E8-S02 · Upload an toàn

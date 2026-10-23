@@ -1,6 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { affectedChecks, e2eScope } from "./checks-map.mjs";
+import { affectedChecks, e2eScope, CHECKS } from "./checks-map.mjs";
+
+test("E8-S01: storage selects its contract suite and does not select unrelated suites", () => {
+  assert.equal(CHECKS.storage?.cmd, "bash scripts/local-ci.sh storage");
+  for (const file of ["packages/storage/src/index.ts", "packages/storage/package.json", "scripts/local-ci.sh", ".github/workflows/workspace.yml"]) {
+    assert.deepEqual(affectedChecks([file]), ["storage"]);
+  }
+  assert.ok(affectedChecks(["pnpm-lock.yaml"]).includes("storage"));
+  assert.ok(affectedChecks(["scripts/ci/checks-map.mjs"]).includes("storage"));
+  assert.deepEqual(affectedChecks(["packages/storage/README.md", "packages/storage/src/__tests__/storage.test.ts"]), []);
+});
+
+test("sửa bảng checks-map không kéo matrix/visual (ảnh chụp không phụ thuộc bảng; logic bảng do file test này kiểm)", () => {
+  const checks = affectedChecks(["scripts/ci/checks-map.mjs"]);
+  assert.ok(!checks.includes("matrix") && !checks.includes("visual"));
+  assert.ok(checks.includes("db") && checks.includes("e2e:tenant"));
+});
 
 // File thật của PR #52 (E6-S04): CI đỏ ở tenant.spec vì plan không chọn e2e tenant.
 const e6s04 = ["pnpm-lock.yaml", "packages/cms-ui/package.json","apps/admin/src/lib/appearance.ts", "apps/admin/src/components/AppearanceForm.tsx",
