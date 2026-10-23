@@ -148,7 +148,7 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
   - [ ] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
 - Phụ thuộc: S01, S02, E6-S02, E11-S05 · Agent: Codex · Cỡ: M
 
-### E7-S13 · Danh mục trang, thumbnail variant & dọn section đã xóa
+### E7-S13 · Danh mục trang, thumbnail variant & dọn section đã xóa ✅ · PR [#55](https://github.com/votuandi/landing-page-full-page-ui/pull/55)
 **Là** tenant gói Nâng cao, **tôi muốn** bật/tắt trang theo danh mục và chọn kiểu hiển thị qua ảnh xem trước, **để**
 dựng cấu trúc site đúng ý. (Tách từ E7-S04.)
 - **Chi tiết**: danh sách trang của site: bật/tắt trang theo danh mục (cần `pageStructure`, D21), kiểm bằng
