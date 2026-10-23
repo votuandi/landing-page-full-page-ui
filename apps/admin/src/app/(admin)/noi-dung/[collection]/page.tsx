@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { loadCollectionList, collectionTitle, parseCollectionQuery, type CollectionQuery } from "../../../../lib/collections.ts";
 import { collectionDeps } from "../../../../lib/collectionRuntime.ts";
 import { CollectionList } from "../../../../components/CollectionList.tsx";
+import { ProductCsv } from "../../../../components/ProductCsv.tsx";
 
 export default async function CollectionPage({ params, searchParams }: { params: Promise<{ collection: string }>; searchParams: Promise<CollectionQuery & { saved?: string }> }) {
   const [{ collection }, rawQuery] = await Promise.all([params, searchParams]);
@@ -18,6 +19,7 @@ export default async function CollectionPage({ params, searchParams }: { params:
       <Link href={`/noi-dung/${collection}/moi`} className="inline-flex min-h-11 items-center rounded-button bg-primary px-4 text-sm font-medium text-on-primary hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Thêm {definition.label.vi.toLowerCase()}</Link>
     </div>
     {rawQuery.saved === "1" && <p role="status" className="rounded-card border border-success/40 bg-success/10 px-4 py-3 text-sm font-medium text-success">Đã lưu nội dung</p>}
+    {definition.name === "product" && <ProductCsv />}
     <form method="get" role="search" aria-label={`Tìm ${definition.label.vi.toLowerCase()}`} className="flex flex-wrap items-end gap-3 rounded-card border border-line/15 bg-bg-elevated p-4">
       <label className="grid min-w-0 flex-1 basis-full gap-1 text-sm text-fg sm:basis-60">Tìm kiếm<input className={inputClass} name="q" defaultValue={query.q} maxLength={200} placeholder="Tiêu đề hoặc đường dẫn" /></label>
       <label className="grid gap-1 text-sm text-fg">Trạng thái<select className={inputClass} name="status" defaultValue={query.status ?? ""}>

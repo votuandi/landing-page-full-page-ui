@@ -137,6 +137,13 @@ Dev khác cổng: admin đặt `TENANT_PUBLIC_PORT=3212`; web đặt `ADMIN_PUBL
 Production dùng HTTPS, không thêm cổng. Bộ e2e admin tự chạy cả hai app, cần DB local và seed như phần kiểm tra.
 Lab `/lab/cms-content` dùng lưu giả và iframe mẫu cố định; kiểm độ trễ thực tế nằm trong `tooling/visual/admin.spec.ts`.
 
+## CSV sản phẩm
+
+Trang `/noi-dung/san-pham` có tải CSV, chọn file và xem trước từng dòng trước khi xác nhận nhập.
+Cần `content.edit` và `catalog`; gói không có `bilingual` chỉ được giữ nguyên tiêu đề tiếng Anh cũ.
+API GET `/api/san-pham/csv` tải file `san-pham.csv` với cache `private, no-store`.
+File UTF-8 dùng dấu phẩy, tối đa 500 kB và 1000 dòng; một dòng lỗi sẽ chặn toàn bộ file.
+
 ## Hồ sơ công ty và giao diện
 
 `/cai-dat` yêu cầu `settings.manage`, dùng SchemaForm trên schema chung `@solar/db/site-profile`.
