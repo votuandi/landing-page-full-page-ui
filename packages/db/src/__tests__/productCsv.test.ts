@@ -79,3 +79,14 @@ test("ambiguous strings and optional arrays round-trip through schema", () => {
     assert.deepEqual(result.inputs[0].title, p.title);
   }
 });
+test("hand-typed text starting with [ stays plain text", () => {
+  const title = "[DỮ LIỆU MẪU] Tấm pin [mới]", warranty = "[DỮ LIỆU MẪU] 10 năm";
+  const result = preview(edit({ slug: "moi", title_vi: title, warranty }));
+  assert.deepEqual(result.rows[0].errors, []);
+  assert.equal(result.inputs[0].title.vi, title);
+  assert.equal((result.inputs[0].data as { warranty: unknown }).warranty, warranty);
+  const saved = { ...product, slug: "moi", title: { vi: title }, data: { ...(product.data as object), warranty } };
+  const exported = parseCsv(exportProductsCsv([saved], [], []))[1];
+  assert.equal(exported[C.indexOf("title_vi")], title);
+  assert.equal(preview(exportProductsCsv([saved], [], []), [saved]).rows[0].kind, "unchanged");
+});

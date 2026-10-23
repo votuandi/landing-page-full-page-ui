@@ -8,13 +8,17 @@ type Column = typeof PRODUCT_CSV_COLUMNS[number];
 export type ProductCsvRefs = { categories: CollectionRow[]; brands: CollectionRow[] };
 export type ProductCsvPreview = { rows: { line: number; slug: string; kind: "create" | "update" | "unchanged" | "error"; errors: { column: string; message: string }[] }[]; inputs: CollectionInput[] };
 const arrayColumns = new Set(["segments", "images", "tech", "segment", "compatible"]);
+// Scalar columns hold exactly what the user typed (e.g. "[DỮ LIỆU MẪU] …"); only text/record columns may carry JSON.
+const plainColumns = new Set(["slug", "title_vi", "title_en", "status", "category", "brand", "price", "salePrice", "featured", "powerKw", "datasheet"]);
+const jsonCell = (key: string, cell: string) => arrayColumns.has(key) ? /^[\[{"]/.test(cell) : /^[{"]/.test(cell);
 // Escape existing apostrophes as well, so literal '=text and =text remain distinct.
 const dangerous = /^'*[=+\-@\t\r]/;
-function encode(value: unknown): string {
+function encode(value: unknown, key: string): string {
   let text: string;
   if (value == null) text = "";
+  else if (plainColumns.has(key)) text = String(value);
   else if (Array.isArray(value)) text = value.length && value.every(v => typeof v === "string" && v !== "" && !/[|]/.test(v) && !/^[\[{"]/.test(v)) ? value.join("|") : JSON.stringify(value);
-  else if (typeof value === "object" || typeof value === "string" && /^[\[{"]/.test(value)) text = JSON.stringify(value);
+  else if (typeof value === "object" || typeof value === "string" && jsonCell(key, value)) text = JSON.stringify(value);
   else text = String(value);
   return dangerous.test(text) ? "'" + text : text;
 }
@@ -25,7 +29,7 @@ export function productToCsvRow(row: CollectionRow, refs: ProductCsvRefs): strin
     slug: row.slug, title_vi: title?.vi, title_en: title?.en, status: row.status,
     category: refs.categories.find(r => r.id === row.categoryId)?.slug,
     brand: refs.brands.find(r => r.id === row.brandId)?.slug };
-  return PRODUCT_CSV_COLUMNS.map(key => encode(values[key]));
+  return PRODUCT_CSV_COLUMNS.map(key => encode(values[key], key));
 }
 export function exportProductsCsv(rows: CollectionRow[], categories: CollectionRow[], brands: CollectionRow[]): string {
   if (rows.length > 1000) throw new Error("Chỉ có thể xuất tối đa 1000 sản phẩm");
@@ -50,7 +54,7 @@ export function previewProductCsv(text: string, existing: CollectionRow[], refs:
     for (const key of PRODUCT_CSV_COLUMNS) {
       const cell = cells[key];
       try {
-        values[key] = /^[\[{"]/.test(cell) ? JSON.parse(cell) : arrayColumns.has(key) ? cell === "" ? key === "compatible" ? undefined : [] : cell.split("|") : cell;
+        values[key] = plainColumns.has(key) ? cell : jsonCell(key, cell) ? JSON.parse(cell) : arrayColumns.has(key) ? cell === "" ? key === "compatible" ? undefined : [] : cell.split("|") : cell;
       } catch { errors.push({ column: key, message: "JSON không hợp lệ" }); }
     }
     const slug = cells.slug.trim() || slugify(String(values.title_vi ?? "")), before = bySlug.get(slug);
