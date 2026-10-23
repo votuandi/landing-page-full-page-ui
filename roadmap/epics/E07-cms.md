@@ -162,7 +162,7 @@ dựng cấu trúc site đúng ý. (Tách từ E7-S04.)
 - Bằng chứng Codex: `.agent-runs/E7-S13/codex-report.md` (DB thật, unit, lab và admin e2e); PR: chờ Claude design pass/review.
 - Phụ thuộc: S04 · Agent: Claude · Cỡ: M
 
-### E7-S14 · Nhập/xuất CSV sản phẩm
+### E7-S14 · Nhập/xuất CSV sản phẩm ✅ · PR [#56](https://github.com/votuandi/landing-page-full-page-ui/pull/56)
 **Là** tenant gói có `catalog`, **tôi muốn** nhập và xuất danh sách sản phẩm bằng CSV, **để** cập nhật hàng loạt giá và
 thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
 - **Chi tiết**: xuất CSV (UTF-8 BOM, mở được bằng Excel) theo schema `product` dùng chung của E7-S06; nhập: xem trước
@@ -171,6 +171,8 @@ thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
 - **AC**:
   - [x] Xuất → nhập lại không chỉnh sửa → dữ liệu không đổi (round-trip).
   - [x] File có dòng lỗi → không ghi dòng nào, báo đúng dòng và cột lỗi.
+  Bằng chứng: `packages/db/src/__tests__/productCsv.int.test.ts` (round-trip, dòng lỗi chặn cả file), `conformance.test.ts`
+  › "product CSV round-trips every seeded product", e2e `admin.spec.ts` › "products: CSV export, preview error, import" (CI job `admin`).
 - Phụ thuộc: S06 · Agent: Codex · Cỡ: S
 
 ### E7-S15 · Font thương hiệu & favicon
