@@ -129,10 +129,9 @@ function describe(story, stories) {
   const branchType = routing.branchType[story.epic] ?? "feat";
   const pnpm = existsSync(join(root, "pnpm-workspace.yaml"));
   const deps = depStatus(story, stories);
-  // buildPolicy "epic-last": chỉ story cuối của epic chạy build; story khác bỏ build để tiết kiệm thời gian.
-  const epicIds = [...stories.values()].filter((s) => s.epic === story.epic).map((s) => s.id);
-  const epicLast = epicIds[epicIds.length - 1] === story.id;
-  const build = (routing.buildPolicy ?? "always") === "always" || epicLast;
+  // Story đến lượt regression chạy full + build; story khác chỉ package đổi so với base và package phụ thuộc chúng.
+  const regression = regressionState();
+  const build = (routing.buildPolicy ?? "always") === "always" || regression.due;
   return {
     ...story,
     kind,
@@ -158,13 +157,30 @@ function describe(story, stories) {
     commitType: branchType,
     planFile: `roadmap/plans/${story.id}.md`,
     runDir: `.agent-runs/${story.id}`,
-    epicLast,
+    regression,
     checks: pnpm
-      ? [`pnpm turbo run typecheck lint test${build ? " build" : ""}`]
+      ? [regression.due ? `pnpm turbo run typecheck lint test${build ? " build" : ""}` : `pnpm turbo run typecheck lint test${build ? " build" : ""} --filter=...[${routing.base}]`]
       : ["yarn typecheck", "yarn lint", "yarn test", ...(build ? ["yarn build"] : [])],
     depStatus: deps,
     ready: deps.every((d) => d.done),
   };
+}
+
+/**
+ * Regression toàn bộ theo nhịp (quyết định 23/10/2026): đếm PR đã merge (squash, tiêu đề kết thúc "(#n)") vào base kể từ
+ * `lastSha` trong roadmap/regression.json; story thứ `regressionEvery` chạy full. Không theo epic vì epic không xong tuần tự.
+ */
+function regressionState() {
+  const every = routing.regressionEvery ?? 6;
+  let lastSha;
+  try { ({ lastSha } = JSON.parse(readFileSync(join(root, "roadmap", "regression.json"), "utf8"))); } catch { return { due: false, since: 0, every }; }
+  for (const ref of [`origin/${routing.base}`, routing.base]) {
+    const r = spawnSync("git", ["log", "--format=%s", `${lastSha}..${ref}`], { cwd: root, encoding: "utf8" });
+    if (r.status !== 0) continue;
+    const since = r.stdout.split("\n").filter((s) => /\(#\d+\)$/.test(s.trim())).length;
+    return { due: since + 1 >= every, since, every, lastSha };
+  }
+  return { due: false, since: 0, every, lastSha };
 }
 
 // ---- progress: % tiến độ theo bước của /run-story + ước lượng thời gian còn lại từ lịch sử .agent-runs ----

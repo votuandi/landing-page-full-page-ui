@@ -55,7 +55,7 @@ for (const [policy, reviewPolicy, author, reviewer, conflict] of [
       const body = readFileSync(join(root, result.bodyFile), "utf8");
       assert.ok(body.includes(`Người viết: ${author} · Reviewer: ${reviewer}`));
       assert.equal(body.includes("Reviewer cùng loại agent"), conflict);
-      for (const text of ["Bằng chứng fixture", "Mọi AC đạt", "typecheck · lint · test", "epic-last", "lint:tokens", "e2e", "SHA cuối", "P0/P1", "Tài liệu/roadmap", "tenantId", "Dependency"]) assert.ok(body.includes(text), text);
+      for (const text of ["Bằng chứng fixture", "Mọi AC đạt", "typecheck · lint · test", "regression", "lint:tokens", "e2e", "SHA cuối", "P0/P1", "Tài liệu/roadmap", "tenantId", "Dependency"]) assert.ok(body.includes(text), text);
       assert.equal(body.includes("- [x]"), false, "Chưa verify/review: không tick DoD");
       // Verify xanh vẫn không chứng minh reviewer đã thực hiện review.
       writeFileSync(join(runDir, "verify.json"), JSON.stringify({ ok: true, checks: [], ac: "1/1", commits: 1, changedFiles: 2 }));
@@ -184,4 +184,48 @@ test("stale: chữ bị xóa khỏi source mà spec vẫn tìm → báo; chữ c
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("regression: story thứ `regressionEvery` kể từ lần regression trước chạy full + build; story khác chỉ package đổi", () => {
+  const root = mkdtempSync(join(tmpdir(), "solar-regression-"));
+  try {
+    const scripts = join(root, "scripts", "agents"), epics = join(root, "roadmap", "epics");
+    for (const dir of [scripts, epics]) mkdirSync(dir, { recursive: true });
+    copyScripts(root);
+    const routing = JSON.parse(readFileSync(join(source, "routing.json"), "utf8"));
+    writeFileSync(join(scripts, "routing.json"), JSON.stringify({ ...routing, regressionEvery: 3 }));
+    writeFileSync(join(epics, "E00-fixture.md"), "### E0-S01 · Fixture\n- [ ] AC\n- Agent: Codex · Cỡ: S\n");
+    writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: []\n");
+    const git = (...args) => assert.equal(spawnSync("git", args, { cwd: root }).status, 0, args.join(" "));
+    git("init", "-q", "-b", routing.base);
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "docs(roadmap): regression");
+    const last = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
+    writeFileSync(join(root, "roadmap", "regression.json"), JSON.stringify({ lastSha: last }));
+    const info = () => JSON.parse(spawnSync(process.execPath, [join(scripts, "story.mjs"), "info", "E0-S01"], { cwd: root, encoding: "utf8" }).stdout);
+    const merge = (n) => git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", `feat: [E0-S0${n}] x (#${n})`);
+
+    merge(1);
+    let S = info();
+    assert.deepEqual({ due: S.regression.due, since: S.regression.since }, { due: false, since: 1 });
+    assert.deepEqual(S.checks, [`pnpm turbo run typecheck lint test --filter=...[${routing.base}]`]);
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "docs(roadmap): E0-S01 done");
+    merge(2);
+    S = info();
+    assert.deepEqual({ due: S.regression.due, since: S.regression.since }, { due: true, since: 2 }, "story thứ 3 = regression");
+    assert.deepEqual(S.checks, ["pnpm turbo run typecheck lint test build"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("doctor run: lệnh không ra output quá --idle phút bị dừng (exit 124), lệnh xong bình thường giữ exit code", () => {
+  const doctor = join(source, "doctor.mjs");
+  const started = Date.now();
+  const hung = spawnSync(process.execPath, [doctor, "run", "--idle", "0.03", "--", process.execPath, "-e", "setTimeout(() => {}, 60000)"], { encoding: "utf8" });
+  assert.equal(hung.status, 124, hung.stdout + hung.stderr);
+  assert.match(hung.stderr, /TREO/);
+  assert.ok(Date.now() - started < 20000, "phải dừng sớm, không chờ lệnh 60 s");
+  const ok = spawnSync(process.execPath, [doctor, "run", "--idle", "1", "--", process.execPath, "-e", "console.log('xong'); process.exit(3)"], { encoding: "utf8" });
+  assert.equal(ok.status, 3);
+  assert.match(ok.stdout, /xong/);
 });

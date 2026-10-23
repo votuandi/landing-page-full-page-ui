@@ -5,10 +5,50 @@ on:
     branches: [mono-repo-multi-tenent]
   pull_request:
     branches: [mono-repo-multi-tenent]
+    # labeled: gắn nhãn `regression` chạy lại toàn bộ (nhãn khác bị bỏ qua).
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 jobs:
+  # Phạm vi kiểm của PR (scripts/ci/checks-map.mjs, cùng bảng với /run-story): story thường chỉ chạy unit/int của package
+  # bị ảnh hưởng + test e2e mới/sửa của story; story regression (nhãn `regression`) hoặc chạy tay → toàn bộ.
+  # Push lên base không chạy lại db/admin: PR đã kiểm trên đúng code đó.
+  changes:
+    if: github.event_name != 'push' && (github.event.action != 'labeled' || github.event.label.name == 'regression')
+    runs-on: ubuntu-latest
+    outputs:
+      db: ${{ steps.map.outputs.db }}
+      admin: ${{ steps.map.outputs.admin }}
+      admin_e2e: ${{ steps.map.outputs.admin_e2e }}
+      admin_grep: ${{ steps.map.outputs.admin_grep }}
+      admin_files: ${{ steps.map.outputs.admin_files }}
+      tenant_e2e: ${{ steps.map.outputs.tenant_e2e }}
+      tenant_grep: ${{ steps.map.outputs.tenant_grep }}
+      tenant_files: ${{ steps.map.outputs.tenant_files }}
+      preview_e2e: ${{ steps.map.outputs.preview_e2e }}
+      preview_grep: ${{ steps.map.outputs.preview_grep }}
+      preview_files: ${{ steps.map.outputs.preview_files }}
+      production_e2e: ${{ steps.map.outputs.production_e2e }}
+      production_grep: ${{ steps.map.outputs.production_grep }}
+      production_files: ${{ steps.map.outputs.production_files }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: map
+        shell: bash
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD' }}
+          FULL: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'regression') }}
+        run: |
+          args=(); [ "$FULL" = true ] && args=(--full)
+          node scripts/ci/checks-map.mjs "$BASE" --github-output "${args[@]}"
   db:
+    needs: changes
+    if: needs.changes.outputs.db == 'true' || needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -50,26 +90,44 @@ jobs:
       - uses: ./.github/actions/db-setup
       # Second seed proves the seed is idempotent.
       - run: pnpm db:seed
-      - run: pnpm --filter @solar/db test
-      - run: pnpm --filter web test:tenant
+      - if: needs.changes.outputs.db == 'true'
+        run: pnpm --filter @solar/db test
+      - if: needs.changes.outputs.db == 'true'
+        run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
+        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
         run: |
           for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a admin-e7-a.preview admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
             echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
           done
       - uses: actions/cache@v4
+        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
         with:
           path: ~/.cache/ms-playwright
           key: playwright-all-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
-      - run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts
-      - run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts
+      - if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
+        run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
+      - if: needs.changes.outputs.tenant_e2e == 'true'
+        env:
+          GREP: ${{ needs.changes.outputs.tenant_grep }}
+          FILES: ${{ needs.changes.outputs.tenant_files }}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts $FILES ${GREP:+--grep "$GREP"}
+      - if: needs.changes.outputs.preview_e2e == 'true'
+        env:
+          GREP: ${{ needs.changes.outputs.preview_grep }}
+          FILES: ${{ needs.changes.outputs.preview_files }}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.preview.config.ts $FILES ${GREP:+--grep "$GREP"}
       - name: Build tenant production app once
+        if: needs.changes.outputs.production_e2e == 'true'
         run: pnpm --filter web build
         env:
           MULTI_TENANT: "1"
       - name: Verify production cache invalidation, isolation, preview and reveal
-        run: pnpm --filter @solar/visual exec playwright test --config playwright.production.config.ts
+        if: needs.changes.outputs.production_e2e == 'true'
+        env:
+          GREP: ${{ needs.changes.outputs.production_grep }}
+          FILES: ${{ needs.changes.outputs.production_files }}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.production.config.ts $FILES ${GREP:+--grep "$GREP"}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -80,6 +138,8 @@ jobs:
             tooling/visual/test-results/production
   # Tách khỏi `db` để chạy song song (job `db` trước đây ~17 phút tuần tự).
   admin:
+    needs: changes
+    if: needs.changes.outputs.admin == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
@@ -121,17 +181,24 @@ jobs:
       - uses: ./.github/actions/db-setup
       - run: pnpm --filter admin test
       - uses: actions/cache@v4
+        if: needs.changes.outputs.admin_e2e == 'true'
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
-      - run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium
+      - if: needs.changes.outputs.admin_e2e == 'true'
+        run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - if: needs.changes.outputs.admin_e2e == 'true'
+        env:
+          GREP: ${{ needs.changes.outputs.admin_grep }}
+          FILES: ${{ needs.changes.outputs.admin_files }}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium $FILES ${GREP:+--grep "$GREP"}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: admin-browser-evidence
           path: tooling/visual/test-results/admin
   verify:
+    if: github.event.action != 'labeled' || github.event.label.name == 'regression'
     strategy:
       fail-fast: false
       matrix:

@@ -1,0 +1,6 @@
+{
+  "$comment": "Lần regression toàn bộ gần nhất (story.mjs đếm PR merge sau lastSha; routing.json regressionEvery). Cập nhật ở bước kết thúc của story regression.",
+  "lastSha": "89946c52df25dbba0b5b5cb92875160bd2bdc7fe",
+  "date": "2026-10-23",
+  "note": "PR #56 (E7-S14) chạy full db/admin/tenant/preview/production trên CI"
+}

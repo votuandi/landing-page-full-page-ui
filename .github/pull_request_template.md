@@ -17,7 +17,7 @@
 ## Kiểm tra
 
 - [ ] typecheck · lint · test qua (lệnh, exit code và bằng chứng)
-- [ ] Build qua khi buildPolicy yêu cầu (epic-last: story cuối epic; CI build mọi PR)
+- [ ] Build qua khi buildPolicy yêu cầu (regression: story đến lượt regression; CI build package đổi mọi PR)
 - [ ] `lint:tokens` (sau E2) · ảnh chụp 390/1440 (story UI)
 
 ## Checklist DoD (AGENTS.md §7)
