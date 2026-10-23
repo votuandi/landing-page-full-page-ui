@@ -2,6 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { parseCsv, toCsv } from "../../packages/db/src/csv";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const origin = (slug = "admin-e7-a") => `http://${slug}.admin.${platformDomain}:3300`;
@@ -33,6 +35,51 @@ test.beforeAll(async ({ request }) => {
   }
 });
 test.afterAll(() => fixture("cleanup"));
+
+test("products: CSV export, preview error, import", async ({ page }) => {
+  await login(page);
+  await page.goto(origin() + "/noi-dung/san-pham");
+  const csvPanel = page.getByRole("region", { name: "Nhập xuất CSV sản phẩm" });
+  const downloadPromise = page.waitForEvent("download");
+  await csvPanel.getByRole("link", { name: "Xuất CSV" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("san-pham.csv");
+  const bytes = await readFile((await download.path())!);
+  expect(bytes.subarray(0, 3).toString("hex")).toBe("efbbbf");
+  const rows = parseCsv(bytes.toString("utf8"));
+  const upload = async (records: string[][]) => {
+    await csvPanel.getByLabel("File CSV sản phẩm").setInputFiles({ name: "san-pham.csv", mimeType: "text/csv", buffer: Buffer.from(toCsv(records)) });
+    await csvPanel.getByRole("button", { name: "Xem trước", exact: true }).click();
+  };
+  await upload(rows);
+  await expect(csvPanel.getByText("Không đổi", { exact: true })).toHaveCount(rows.length - 1);
+  await expect(csvPanel.getByRole("button", { name: "Xác nhận nhập" })).toBeDisabled();
+  const valid = [...rows[1]];
+  const title = "[DỮ LIỆU MẪU] Sản phẩm CSV đã cập nhật";
+  valid[rows[0].indexOf("title_vi")] = title;
+  valid[rows[0].indexOf("price")] = "1999999999";
+  valid[rows[0].indexOf("salePrice")] = "";
+  const invalid = [...valid]; invalid[0] = "csv-error"; invalid[rows[0].indexOf("price")] = "khong-phai-so";
+  await upload([rows[0], valid, invalid]);
+  await expect(csvPanel.getByRole("alert")).toContainText("Dòng 3, cột price");
+  await expect(csvPanel.getByRole("button", { name: "Xác nhận nhập" })).toBeDisabled();
+  await expect(page.getByRole("link", { name: title, exact: true })).toHaveCount(0);
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E7-S14/csv-${width}.png`), fullPage: true });
+  }
+  await upload([rows[0], valid]);
+  await expect(csvPanel.getByText("Cập nhật", { exact: true })).toBeVisible();
+  await csvPanel.getByRole("button", { name: "Xác nhận nhập" }).click();
+  await expect(csvPanel.getByRole("status")).toContainText("Đã nhập 1 sản phẩm");
+  await expect(page.getByRole("link", { name: title, exact: true })).toBeVisible();
+  const verifyPromise = page.waitForEvent("download");
+  await csvPanel.getByRole("link", { name: "Xuất CSV" }).click();
+  const verified = parseCsv(await readFile((await (await verifyPromise).path())!, "utf8"));
+  expect(verified.find(r => r[0] === valid[0])?.[rows[0].indexOf("price")]).toBe("1999999999");
+});
 
 test("dashboard tiles by role", async ({ page, browser }) => {
   await login(page);
