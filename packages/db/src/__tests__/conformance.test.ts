@@ -7,6 +7,34 @@ import test from "node:test";
 import { loadPreset, siteStructureOf, validateSiteStructure } from "@solar/presets";
 import { plans, themeAllowed } from "@solar/plans";
 import { buildDemo } from "../../prisma/seed-data.ts";
+import { randomUUID } from "node:crypto";
+import { collectionInputSchema } from "../collections.ts";
+import { exportProductsCsv, previewProductCsv } from "../productCsv.ts";
+import type { CollectionRow } from "../collectionWrite.ts";
+
+test("product CSV round-trips every seeded product", () => {
+  for (const id of ["t15", "t12"] as const) {
+    const demo = buildDemo(id);
+    const wrap = (r: object) => ({ id: randomUUID(), publishedAt: new Date(), ...r }) as CollectionRow;
+    const categories = demo.collections.categories.map(wrap), brands = demo.collections.brands.map(wrap);
+    const products = demo.collections.products.map(p => wrap({ ...p, categoryId: categories.find(c => c.slug === p.categorySlug)!.id,
+      brandId: brands.find(b => b.slug === p.brandSlug)!.id, price: p.price ?? null, salePrice: p.salePrice ?? null }));
+    const csv = exportProductsCsv(products, categories, brands);
+    const result = previewProductCsv(csv, products, { categories, brands }, { bilingual: true });
+    assert.ok(result.rows.every(r => r.kind === "unchanged")); assert.equal(result.inputs.length, 0);
+    for (const p of products) {
+      const rebuilt = previewProductCsv(exportProductsCsv([p], categories, brands), [], { categories, brands }, { bilingual: true });
+      const original = collectionInputSchema("product").safeParse({
+        slug: p.slug, title: p.title, status: p.status, columns: { categoryId: p.categoryId, brandId: p.brandId, price: p.price, salePrice: p.salePrice, featured: p.featured, segments: p.segments }, data: p.data,
+      });
+      if (original.success) assert.deepEqual(collectionInputSchema("product").parse(rebuilt.inputs[0]), original.data);
+      else {
+        assert.equal(rebuilt.rows[0].kind, "error", p.slug);
+        for (const issue of original.error.issues) assert.ok(rebuilt.rows[0].errors.some(e => e.column === issue.path[1]), p.slug);
+      }
+    }
+  }
+});
 
 test("seed demo: theme được gói cho phép, render không rơi về theme fallback (E6-S04)", () => {
   for (const id of ["t15", "t12"] as const) {
