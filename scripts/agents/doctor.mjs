@@ -16,7 +16,7 @@ const sh = (cmd, args, timeout = 15000) => spawnSync(cmd, args, { cwd: root, enc
 
 function run(idleMinutes, command) {
   // Qua shell để chạy được pnpm.cmd trên Windows; quote tham số có khoảng trắng (C:\Program Files\…).
-  const quote = (arg) => !/[\s"'$`]/.test(arg) ? arg : windows ? `"${arg.replace(/"/g, '\\"')}"` : `'${arg.replace(/'/g, `'\\''`)}'`;
+  const quote = (arg) => !/[\s"'$`|&<>^%;()*?]/.test(arg) ? arg : windows ? `"${arg.replace(/"/g, '\\"')}"` : `'${arg.replace(/'/g, `'\\''`)}'`;
   const child = spawn(command.map(quote).join(" "), { cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"], detached: !windows, shell: true });
   let last = Date.now();
   for (const [from, to] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) from.on("data", (chunk) => { last = Date.now(); to.write(chunk); });
@@ -28,7 +28,8 @@ function run(idleMinutes, command) {
     else try { process.kill(-child.pid, "SIGKILL"); } catch { /* đã thoát */ }
     process.exit(124);
   }, Math.min(5000, idleMinutes * 60_000 / 2));
-  child.on("exit", (code) => { clearInterval(timer); process.exit(code ?? 1); });
+  // `close` (không phải `exit`): chờ stdout/stderr của lệnh xả hết rồi mới thoát.
+  child.on("close", (code) => { clearInterval(timer); process.exit(code ?? 1); });
 }
 
 const listening = (port) => new Promise((resolve) => {

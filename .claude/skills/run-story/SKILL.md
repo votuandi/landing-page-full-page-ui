@@ -251,8 +251,9 @@ Codex là người viết → làm bước này trong cùng lượt `solar-story
    hoặc `gh label list`; tạo nếu thiếu bằng MCP hoặc `gh label create "<nhãn>" --description "Người viết chính"`.
    Sau đó gắn nhãn bằng MCP hoặc `gh pr edit <số> --add-label "<nhãn>"`. Kiểm lại title, labels và reviewer trong body.
    Không thêm workflow có quyền ghi để gắn nhãn. Nếu lỗi quyền, ghi lỗi và phần còn chờ trong report.
-   `S.regression.due` → gắn thêm nhãn `regression` (tạo nếu thiếu, mô tả "Regression toàn bộ"): CI chạy mọi bộ toàn bộ,
-   kể cả test `@quarantine`; PR thường CI chỉ chạy phạm vi story.
+   `S.regression.due` → gắn thêm nhãn `regression` (tạo nếu thiếu, mô tả "Regression toàn bộ") rồi
+   `git commit --allow-empty -m "ci: regression [<ID>]"` + push: mọi lần push của PR mang nhãn chạy CI toàn bộ, kể cả
+   test `@quarantine` (gắn nhãn không tự chạy CI — tránh lượt chạy toàn skipped che kết quả đỏ). PR thường: phạm vi story.
 
 ## Bước 6 — Review theo routing và sửa tới khi merge được
 

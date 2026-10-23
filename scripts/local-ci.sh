@@ -64,7 +64,7 @@ db() {
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
-  local project=(); [ "$cfg" = admin ] && project=(--project chromium)
+  local project=(); [ "$cfg" = admin ] && project=(--project=chromium)
   pnpm --filter @solar/visual exec playwright test --config "playwright.$cfg.config.ts" "${project[@]}" "$@"
 }
 

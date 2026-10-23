@@ -5,8 +5,6 @@ on:
     branches: [mono-repo-multi-tenent]
   pull_request:
     branches: [mono-repo-multi-tenent]
-    # labeled: gắn nhãn `regression` chạy lại toàn bộ (nhãn khác bị bỏ qua).
-    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 jobs:
@@ -14,7 +12,7 @@ jobs:
   # bị ảnh hưởng + test e2e mới/sửa của story; story regression (nhãn `regression`) hoặc chạy tay → toàn bộ.
   # Push lên base không chạy lại db/admin: PR đã kiểm trên đúng code đó.
   changes:
-    if: github.event_name != 'push' && (github.event.action != 'labeled' || github.event.label.name == 'regression')
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     outputs:
       db: ${{ steps.map.outputs.db }}
@@ -191,14 +189,13 @@ jobs:
         env:
           GREP: ${{ needs.changes.outputs.admin_grep }}
           FILES: ${{ needs.changes.outputs.admin_files }}
-        run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project chromium $FILES ${GREP:+--grep "$GREP"}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project=chromium $FILES ${GREP:+--grep "$GREP"}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: admin-browser-evidence
           path: tooling/visual/test-results/admin
   verify:
-    if: github.event.action != 'labeled' || github.event.label.name == 'regression'
     strategy:
       fail-fast: false
       matrix:
@@ -211,7 +208,8 @@ jobs:
         shell: bash
     env:
       # PR: chỉ package đổi so với base + package phụ thuộc vào chúng. Push/dispatch: toàn repo (làm ấm cache).
-      TURBO_FILTER: ${{ github.event_name == 'pull_request' && format('--filter=...[origin/{0}]', github.base_ref) || '' }}
+      # Nhãn `regression`: toàn repo như push/dispatch.
+      TURBO_FILTER: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'regression') && format('--filter=...[origin/{0}]', github.base_ref) || '' }}
       # Remote cache tùy chọn: đặt secret TURBO_TOKEN + variable TURBO_TEAM; để trống thì dùng cache .turbo/cache.
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}

@@ -22,8 +22,6 @@ on:
       - '!**/*.md'
   pull_request:
     branches: [mono-repo-multi-tenent]
-    # labeled: gắn nhãn `regression` chạy lại toàn bộ (nhãn khác bị bỏ qua ở job changes).
-    types: [opened, synchronize, reopened, labeled]
     paths:
       - 'apps/web/**'
       - 'packages/config/**'
@@ -50,7 +48,6 @@ permissions:
 jobs:
   # Bộ kiểm theo file đổi (scripts/ci/checks-map.mjs, cùng bảng với /run-story): matrix chỉ chạy khi đầu vào của nó đổi.
   changes:
-    if: github.event.action != 'labeled' || github.event.label.name == 'regression'
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.map.outputs.matrix }}
@@ -160,6 +157,9 @@ jobs:
       - if: needs.changes.outputs.visual == 'true'
         shell: bash
         run: pnpm visual:test ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }}
+      # visual:test đã build web; chỉ chạy sections thì build ở đây (test:sections dùng `next start`).
+      - if: needs.changes.outputs.visual != 'true' && needs.changes.outputs.sections_e2e == 'true'
+        run: pnpm turbo run build --filter=web
       - if: needs.changes.outputs.sections_e2e == 'true'
         shell: bash
         env:

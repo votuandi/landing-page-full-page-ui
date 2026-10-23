@@ -70,3 +70,33 @@ test("e2e theo phạm vi: story đến lượt regression → mọi bộ e2e ch�
   const s = scope(["README.md"], "", { full: true });
   for (const name of ["e2e:tenant", "e2e:preview", "e2e:admin", "e2e:sections", "e2e:production"]) assert.equal(s[name].mode, "full", name);
 });
+
+test("e2e theo phạm vi: dòng cấp file sau một test (const, test.describe) → cả file; chỉ đổi import → cả file, không grep rỗng", () => {
+  const helperAfterTest = `diff --git a/tooling/visual/admin.spec.ts b/tooling/visual/admin.spec.ts
+@@ -50,0 +51 @@ test("A", async () => {
++const pick = (rows) => rows[0];
+`;
+  assert.equal(scope(["tooling/visual/admin.spec.ts"], helperAfterTest)["e2e:admin"].mode, "files");
+  const nested = `diff --git a/tooling/visual/admin.spec.ts b/tooling/visual/admin.spec.ts
+@@ -50,0 +51,4 @@ test("A", async () => {
++test("B", async () => {});
++test.describe("nhóm", () => {
++  test("C", async () => {});
++});
+`;
+  assert.equal(scope(["tooling/visual/admin.spec.ts"], nested)["e2e:admin"].mode, "files");
+  const importOnly = `diff --git a/tooling/visual/admin.spec.ts b/tooling/visual/admin.spec.ts
+@@ -1,0 +2 @@ import AxeBuilder from "@axe-core/playwright";
++import { readFile } from "node:fs/promises";
+`;
+  assert.equal(scope(["tooling/visual/admin.spec.ts"], importOnly)["e2e:admin"].mode, "files");
+});
+
+test("e2e theo phạm vi: đổi chữ ký của test (dòng test( bị thay) vẫn chỉ grep test đó", () => {
+  const signature = `diff --git a/tooling/visual/admin.spec.ts b/tooling/visual/admin.spec.ts
+@@ -38 +38 @@ test.afterAll(() => fixture("cleanup"));
+-test("products: CSV", async ({ page }) => {
++test("products: CSV", async ({ page }, info) => {
+`;
+  assert.equal(scope(["tooling/visual/admin.spec.ts"], signature)["e2e:admin"].grep, "products: CSV");
+});

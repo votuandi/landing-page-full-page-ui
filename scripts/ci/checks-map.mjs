@@ -56,7 +56,7 @@ export const CHECKS = {
     specs: ["tooling/visual/production.spec.ts"],
   },
   "e2e:preview": {
-    cmd: "bash scripts/local-ci.sh e2e preview --project chromium",
+    cmd: "bash scripts/local-ci.sh e2e preview --project=chromium",
     paths: [...shared, `${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/sites/`, `${web}app/api/`, "packages/db/src/",
       "packages/cache/", "apps/admin/src/lib/previewUrl.ts", "tooling/visual/preview.spec.ts", "tooling/visual/playwright.preview.config.ts"],
     specs: ["tooling/visual/preview.spec.ts"],
@@ -101,8 +101,11 @@ function changedTests(diff) {
     const code = line.slice(1);
     // Dòng trống và import không thuộc test nào; spec chạy theo test dùng chúng.
     if (!code.trim() || /^import\s/.test(code)) continue;
-    const title = line[0] === "+" ? TEST_TITLE.exec(code)?.[2] : undefined;
+    // Dòng `test("…"` bị xóa/thêm (đổi chữ ký, đổi tên): tên đó là test đang sửa; tên cũ không khớp test nào thì vô hại.
+    const title = TEST_TITLE.exec(code)?.[2];
     if (title) current = title;
+    // Dòng cấp file khác `test(` (const/helper, test.describe, hook) ảnh hưởng nhiều test; `});` vẫn thuộc test đang mở.
+    else if (/^\S/.test(code) && !/^[)}\];,]+$/.test(code.trim())) current = undefined;
     if (current) file.titles.add(current);
     else file.whole = true;
   }
@@ -120,7 +123,8 @@ export function e2eScope(files, diff, { full = false } = {}) {
   return suites.filter(([name]) => affected.includes(name)).map(([name, check]) => {
     const specs = check.specs.filter((spec) => tests[spec]);
     if (!specs.length) return { name, mode: "none" };
-    if (specs.some((spec) => tests[spec].whole)) return { name, mode: "files", files: specs };
+    // Chỉ đổi import (không test nào) cũng chạy cả file: không bao giờ grep rỗng (= chạy cả bộ).
+    if (specs.some((spec) => tests[spec].whole || !tests[spec].titles.size)) return { name, mode: "files", files: specs };
     return { name, mode: "grep", grep: [...new Set(specs.flatMap((spec) => [...tests[spec].titles]))].map(escapeRegex).join("|") };
   });
 }
