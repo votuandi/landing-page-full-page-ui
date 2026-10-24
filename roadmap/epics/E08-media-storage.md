@@ -16,6 +16,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
     put(key, body, { contentType, cacheControl }): Promise<void>;
     delete(key): Promise<void>;  list(prefix): AsyncIterable<string>;  head(key): Promise<Meta | null>;
     publicUrl(key): string;      signedUploadUrl?(key, opts): Promise<{ url, fields? }>;
+    get(key): Promise<Uint8Array | null>;  // E7-S10 (PR #59): đọc file để sao media khi khôi phục tenant
   }
   ```
   `local` (thư mục `STORAGE_LOCAL_ROOT`, URL `MEDIA_PUBLIC_BASE`, ghi file nguyên tử: tạm → rename), `s3` (`@aws-sdk/client-s3`,
