@@ -81,3 +81,39 @@ Dependency runtime: `@aws-sdk/client-s3` dùng API S3 tương thích R2/MinIO; `
 API tham khảo: [AWS SDK v3 S3](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_s3_code_examples.html),
 [HeadObject](https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html),
 [ListObjectsV2](https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html), [Zod refinements](https://zod.dev/api#refinements).
+# Upload an toàn (E8-S02)
+
+Upload dùng khóa server sinh `quarantine/<tenantId>/<uuid>`. Worker kiểm bytes rồi ghi
+`private/<tenantId>/yyyy/mm/<uuid>.<ext>`; chỉ xuất bản mới ghi `tenants/<tenantId>/…`.
+`publicUrl` từ chối mọi prefix khác `tenants/`. GET private đi qua admin, kiểm phiên/quyền/tenant,
+trả `private, no-store` và `nosniff`. Không coi UUID là quyền truy cập.
+
+S3/MinIO: áp dụng [public-read-policy.json](./public-read-policy.json), thay `BUCKET` bằng tên bucket.
+Tắt mọi public ACL/policy khác. CORS chỉ cho origin admin đã cấu hình PUT với Content-Type.
+Presigned PUT có hiệu lực 900 s, ký Content-Type và Content-Length; trình duyệt tự đặt Content-Length.
+Video 200 MB đi thẳng bucket, không qua Next. R2 không dùng presigned POST.
+
+R2: giữ bucket private, tắt `r2.dev` và không nối trực tiếp public custom domain vào bucket chung.
+Public access của R2 mở toàn bộ bucket, không phải policy S3 theo prefix.
+MEDIA_PUBLIC_BASE phải trỏ tới CDN/Cloudflare Worker chỉ cho GET/HEAD khóa `tenants/`, trả 403 cho prefix khác;
+Worker đọc bucket qua R2 binding. Presigned PUT vẫn đi thẳng S3 API endpoint.
+Nguồn: https://developers.cloudflare.com/r2/buckets/public-buckets/.
+
+Local: thư mục root phải ở ngoài Next public. Caddy chỉ phục vụ prefix public:
+
+```caddy
+handle_path /media/tenants/* {
+  root * /srv/solar/media/tenants
+  header X-Content-Type-Options nosniff
+  file_server
+}
+handle /media/* {
+  respond 403
+}
+```
+
+Không cấu hình file_server cho toàn bộ STORAGE_LOCAL_ROOT. Worker cron thu hồi upload quá 24 h.
+Crash giữa put và promote có thể để lại object không tham chiếu; E8-S06 dọn các object đó.
+Sharp bỏ metadata mặc định, không gọi keepMetadata/withMetadata.
+Nguồn: https://sharp.pixelplumbing.com/api-output/ và
+https://github.com/aws/aws-sdk-js-v3/tree/main/packages/s3-request-presigner.

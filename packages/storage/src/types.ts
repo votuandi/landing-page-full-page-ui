@@ -15,5 +15,5 @@ export interface StorageDriver {
   list(prefix: string): AsyncIterable<string>;
   head(key: string): Promise<Meta | null>;
   publicUrl(key: string): string;
-  signedUploadUrl?(key: string, options: PutOptions): Promise<{ url: string; fields?: Record<string, string> }>;
+  signedUploadUrl?(key: string, options: { contentType: string; contentLength: number; expiresIn?: number }): Promise<{ url: string; headers: Record<string, string> }>;
 }
