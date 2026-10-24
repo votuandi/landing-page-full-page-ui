@@ -75,7 +75,8 @@ Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh
 - Mọi truy vấn dữ liệu nội dung đi qua repository có `tenantId` bắt buộc; không gọi Prisma trực tiếp từ route/page.
 - Cache tag luôn có tiền tố tenant: `tenant:<id>`, `tenant:<id>:page:<slug>`, `tenant:<id>:collection:<name>`.
   Ngoại lệ duy nhất: dữ liệu toàn nền tảng dùng `platform:settings`, `platform:entitlements` (D19).
-- Khóa lưu media có tiền tố `tenants/<tenantId>/`. Không bao giờ dùng đường dẫn do người dùng gửi lên làm khóa.
+- Khóa media public có tiền tố `tenants/<tenantId>/`, private dùng `private/<tenantId>/`, upload cách ly dùng
+  `quarantine/<tenantId>/`. Chỉ `tenants/` được phục vụ public. Không bao giờ dùng đường dẫn do người dùng gửi lên làm khóa.
 - Hai realm tài khoản không lẫn nhau (D17): `apps/admin` chỉ nhận phiên `SiteUser` có `tenantId` trùng tenant của host và
   kiểm `requirePermission(...)` trên mọi Server Action/route; `apps/console` chỉ nhận phiên `PlatformAdmin`. Không thêm
   trường hoặc bảng nối `SiteUser` với `PlatformAdmin`. Truy vấn chéo tenant chỉ qua `forPlatform()` trong console/worker, có ghi `AuditLog`.

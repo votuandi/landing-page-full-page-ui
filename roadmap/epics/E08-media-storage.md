@@ -42,7 +42,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   - [ ] Upload video 200 MB qua presigned không đi qua server Next.js.
   - [ ] 10 upload đồng thời sát hạn mức → tổng không vượt `mediaGb`.
   - [ ] Media private của tenant B không đọc được khi biết khóa (test E14-S03).
-  - [ ] Dung lượng đã dùng hiển thị đúng trong admin.
+  - [x] Dung lượng đã dùng hiển thị đúng trong admin.
 - Phụ thuộc: S01, E6-S02, E7-S01 · Agent: Codex (review Claude adversarial) · Cỡ: L
 
 ### E8-S03 · Biến thể ảnh & phân phối
