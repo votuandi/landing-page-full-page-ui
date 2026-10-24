@@ -115,6 +115,25 @@ handle /media/* {
 Không cấu hình file_server cho toàn bộ STORAGE_LOCAL_ROOT. Worker cron thu hồi upload quá 24 h.
 Crash giữa put và promote có thể để lại object không tham chiếu; E8-S06 dọn các object đó.
 Sharp bỏ metadata mặc định, không gọi keepMetadata/withMetadata.
+
+### Biến thể ảnh (E8-S03)
+
+Job nền `media.scan` làm sạch ảnh rồi tạo sáu biến thể AVIF (quality 50) / WebP (quality 75),
+theo các mốc w640/w1280/w1920, không phóng to. `Media.variants` lưu mảng `{ key, format, width, height, size }`;
+width/height là kích thước thực, còn hậu tố w là mốc yêu cầu. GIF động/ảnh nhiều trang giữ bản gốc đã làm sạch,
+không sinh biến thể. File private và biến thể dùng `private, no-store`.
+
+Worker giới hạn sharp 50 megapixel, hạn chót chung 30 giây cho cả ảnh và các biến thể,
+`sharp.concurrency(1)` / `sharp.cache(false)`. Ảnh không an toàn/quá hạn bị reject và dọn output;
+lỗi storage vẫn được retry. Giới hạn tài nguyên container thuộc E10.
+
+Publish chép gốc và biến thể sang `tenants/<tenantId>/…`, CAS cập nhật khóa/visibility/variants cùng lúc,
+rồi dọn bản private (retry tiếp tục dọn nếu crash sau CAS). Khóa giữ UUID và dùng
+`public, max-age=31536000, immutable`. JSON variants cũ không khớp schema được giữ nguyên;
+backup/restore vẫn sao media bằng khóa, không lưu URL trong variants.
+
+Quota chỉ tính dung lượng bản gốc đã làm sạch; biến thể không cộng quota. Pipeline chỉ tạo tối đa sáu biến thể
+với chiều rộng không quá 1920 px; số pixel đầu vào vẫn bị chặn như trên. Phân phối srcset/loader/focal thuộc E8-S07.
 Reservation là cận trên cho file client gửi, không phải trần output sharp. Khi ảnh sạch nở kích thước,
 promote khóa Tenant và kiểm `used - reserved + actual` cùng trần loại, rồi lưu size thực; thiếu quota thì reject và dọn file.
 Media được tham chiếu lúc publish vẫn đang scan sẽ có job publish chờ/retry. Chỉ khử trùng job đang pending/processing;
