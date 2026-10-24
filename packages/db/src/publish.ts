@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { pageTag, siteTag } from "@solar/cache";
-import { migrateSectionData, pageConfigSchema, sectionRegistry } from "@solar/sections";
+import { collectRefs, migrateSectionData, pageConfigSchema, sectionRegistry } from "@solar/sections";
 import { validateSiteStructure, siteStructureOf } from "@solar/presets";
 import { canUse, limit } from "@solar/plans";
 import { Prisma } from "../generated/client.ts";
@@ -8,6 +8,7 @@ import { loadDisabledFeatures, type Db, type PlatformDb } from "./client.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import type { TenantRepo } from "./repository.ts";
 import { enqueueInvalidate } from "./invalidate.ts";
+import { publishMedia } from "./media.ts";
 
 const actorSchema = z.strictObject({ siteUserId: z.uuid().optional(), platformAdminId: z.uuid().optional() })
   .refine(actor => Number(!!actor.siteUserId) + Number(!!actor.platformAdminId) === 1, "Exactly one publisher is required");
@@ -107,6 +108,7 @@ export async function publishPage(db: Db | PlatformDb, tenantId: string, raw: Pu
         draftData: Prisma.DbNull, revision: { increment: 1 },
       });
       const saved = (await repo.sectionContent.get(content.id))!;
+      await publishMedia(repo, collectRefs(def.schema, saved.data).media);
       contents.push({ sectionId: saved.sectionId, type: saved.type, schemaVersion: saved.schemaVersion, data: saved.data });
     }
     await repo.page.update(page.id, { sections, draftSections: Prisma.DbNull, publishedAt: new Date() });

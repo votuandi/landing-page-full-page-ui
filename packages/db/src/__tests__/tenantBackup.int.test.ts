@@ -23,7 +23,7 @@ function normalized(bundle: TenantBackup) {
     for (const [index, row] of rows.entries()) ids.set(row.id, `${group}:${index}`);
   }
   function walk(value: unknown): unknown {
-    if (typeof value === "string") return ids.get(value) ?? value.replaceAll(`tenants/${bundle.source.tenantId}/`, "tenants/normalized/");
+    if (typeof value === "string") return ids.get(value) ?? value.replaceAll(`tenants/${bundle.source.tenantId}/`, "tenants/normalized/").replaceAll(`private/${bundle.source.tenantId}/`, "private/normalized/");
     if (Array.isArray(value)) return value.map(walk);
     if (value && typeof value === "object") return Object.fromEntries(Object.entries(value)
       .filter(([key]) => !["createdAt", "updatedAt"].includes(key)).map(([key, v]) => [key, walk(v)]));
@@ -50,6 +50,10 @@ test("tenant backup integration", { skip: !process.env.DATABASE_URL, timeout: 12
       const key = `tenants/${tenantId}/2026/10/a.webp`;
       files.set(key, new Uint8Array([1, 2, 3]));
       const media = await repo.media.create({ key, driver: "local", mime: "image/webp", size: 3, status: "ready" });
+      const privateKey = `private/${tenantId}/2026/10/private.webp`;
+      files.set(privateKey, new Uint8Array([1, 2, 3]));
+      await repo.media.create({ key: privateKey, driver: "local", mime: "image/webp", size: 3, status: "ready", visibility: "private" });
+      await repo.media.create({ key: `quarantine/${tenantId}/unfinished`, driver: "local", mime: "image/webp", size: 3, status: "quarantine", visibility: "private" });
       const root = await repo.productCategory.create({ slug: "root", title: { vi: "Gốc" } });
       const child = await repo.productCategory.create({ slug: "child", title: { vi: "Con" }, parentId: root.id });
       await repo.productCategory.create({ slug: "grandchild", title: { vi: "Cháu" }, parentId: child.id });
@@ -68,7 +72,9 @@ test("tenant backup integration", { skip: !process.env.DATABASE_URL, timeout: 12
         assert.equal(bundle.pages.length, await repo.page.count());
         assert.equal(bundle.pageVersions.length, await repo.pageVersion.count());
         assert.equal(bundle.sectionContents.length, await repo.sectionContent.count());
-        assert.equal(bundle.media.length, 1);
+        assert.equal(bundle.media.length, 2);
+        assert.ok(bundle.media.every(row => row.status === "ready"));
+        assert.ok(bundle.media.some(row => row.visibility === "private" && row.key.startsWith("private/")));
       });
       await t.test(`${id}: export excludes accounts, sessions and secrets`, () => {
         assert.doesNotMatch(JSON.stringify(bundle), /passwordHash|siteUser|owner@demo.vn|tokenHash|configEncrypted|backup-secret-sentinel/);

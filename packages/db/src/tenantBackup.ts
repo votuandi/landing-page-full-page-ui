@@ -57,7 +57,7 @@ export type BackupStorage = {
   delete(key: string): Promise<void>;
 };
 const records = (b: TenantBackup) => [b.site, ...b.pages, ...b.pageVersions, ...b.sectionContents, ...b.media, ...COLLECTIONS.flatMap(name => b.collections[name])];
-const validKey = (key: string, tenantId: string) => key.startsWith(`tenants/${tenantId}/`) &&
+const validKey = (key: string, tenantId: string) => ["tenants", "private"].some(prefix => key.startsWith(`${prefix}/${tenantId}/`)) &&
   key.split("/").every(part => /^[a-zA-Z0-9_.-]+$/.test(part) && part !== "." && part !== "..");
 
 export function parseTenantBackup(raw: unknown): TenantBackup {
@@ -73,9 +73,10 @@ export function parseTenantBackup(raw: unknown): TenantBackup {
 /** Exact UUID values only; embedded URLs keep their host and receive the new tenant key. */
 export function remapBackup(bundle: TenantBackup, tenantId: string): TenantBackup {
   const ids = new Map(records(bundle).map(row => [row.id.toLowerCase(), randomUUID()]));
-  const prefix = `tenants/${bundle.source.tenantId}/`;
   function walk(value: unknown): unknown {
-    if (typeof value === "string") return ids.get(value.toLowerCase()) ?? value.replaceAll(prefix, `tenants/${tenantId}/`);
+    if (typeof value === "string") return ids.get(value.toLowerCase()) ?? value
+      .replaceAll(`tenants/${bundle.source.tenantId}/`, `tenants/${tenantId}/`)
+      .replaceAll(`private/${bundle.source.tenantId}/`, `private/${tenantId}/`);
     if (Array.isArray(value)) return value.map(walk);
     if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, walk(child)]));
     return value;
@@ -100,7 +101,7 @@ export async function exportTenant(db: Db | PlatformDb, tenantId: string): Promi
     return parseTenantBackup(JSON.parse(JSON.stringify({ format: BACKUP_FORMAT, version: 1, exportedAt: new Date().toISOString(),
       source: { tenantId, slug: source.slug }, site: strip(siteData), pages: pages.map(strip), sectionContents: sections.map(strip),
       pageVersions: versions.map(row => ({ ...strip(row), publishedBySiteUserId: null, publishedByPlatformAdminId: null })),
-      collections, media: (await repo.media.list({ orderBy: { key: "asc" } })).map(strip),
+      collections, media: (await repo.media.list({ where: { status: "ready" }, orderBy: { key: "asc" } })).map(strip),
     })));
   }, { isolationLevel: "RepeatableRead", timeout: 30_000 });
 }
@@ -124,8 +125,8 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
     for (const media of bundle.media) {
       const keys = new Set<string>([media.key]);
       const visit = (value: unknown): void => {
-        if (typeof value === "string" && value.includes("tenants/")) {
-          const key = value.slice(value.indexOf("tenants/"));
+        if (typeof value === "string" && /(?:tenants|private)\//.test(value)) {
+          const key = value.slice(value.search(/(?:tenants|private)\//));
           if (!validKey(key, bundle.source.tenantId)) throw new TenantBackupError("Bản sao lưu chứa khóa media ngoài website nguồn");
           keys.add(key);
         } else if (Array.isArray(value)) value.forEach(visit);
@@ -135,7 +136,7 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
       for (const key of keys) {
         const bytes = await storage.get(key);
         if (bytes === null) throw new TenantBackupError("Không tìm thấy tệp media của bản sao lưu");
-        const target = key.replace(`tenants/${bundle.source.tenantId}/`, `tenants/${tenantId}/`);
+        const target = key.replace(`tenants/${bundle.source.tenantId}/`, `tenants/${tenantId}/`).replace(`private/${bundle.source.tenantId}/`, `private/${tenantId}/`);
         copied.push(target); // Clean partial writes as well as successful ones.
         await storage.put(target, bytes, { contentType: media.mime });
       }
