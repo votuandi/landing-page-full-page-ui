@@ -93,7 +93,8 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
       // Platform kill switches must not be embedded in a tenant's long-lived site entry.
       if (!site) return null;
       const result = { ...site, entitlements: { ...site.entitlements, disabled: disabledFeaturesSchema.parse(await loadDisabled()) } };
-      return { ...result, overrides: siteCanUse(result)("themeOverride") ? result.overrides : {} };
+      const allowed = siteCanUse(result)("themeOverride");
+      return { ...result, overrides: allowed ? result.overrides : {}, font: allowed ? result.overrides.font : undefined };
     },
     loadPublishedPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => read(() => loadPage(tenantId, siteId, slug, locale), cacheKey({ siteId, locale, mode: "published", parts: ["page", tenantId, slug] }), [tenantTag(tenantId), pageTag(tenantId, slug)]),
     loadDraftPage: (tenantId: string, siteId: string, slug: string, locale: "vi" | "en" = "vi") => loadPage(tenantId, siteId, slug, locale, true),

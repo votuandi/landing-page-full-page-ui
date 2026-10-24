@@ -13,6 +13,8 @@
     "lint:tokens": "solar-lint-tokens src"
   },
   "dependencies": {
+    "sharp": "0.35.5",
+    "@solar/storage": "workspace:*",
     "@solar/db": "workspace:*",
     "ioredis": "5.10.0",
     "@solar/presets": "workspace:*",
@@ -31,7 +33,6 @@
     "@solar/cache": "workspace:*"
   },
   "devDependencies": {
-    "@solar/storage": "workspace:*",
     "tsx": "4.23.15",
     "@types/node": "^20",
     "@types/react": "19.2.18",

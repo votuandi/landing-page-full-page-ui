@@ -30,6 +30,9 @@ const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap
   "lib/tenant/leadIntake.ts": /assertCan\(/, // POST /api/lead (tenant)
   "app/api/lead/route.ts": /tenantLeadHandler\(/,
+  // Favicon is included in every plan; the handler checks tenant ownership and public visibility.
+  "app/sites/[tenantId]/[siteId]/icon.png/route.ts": /tenantIcon\(tenantId, siteId, 64\)/,
+  "app/sites/[tenantId]/[siteId]/apple-icon.png/route.ts": /tenantIcon\(tenantId, siteId, 180\)/,
 };
 const src = join(process.cwd(), "src");
 const files = (dir: string): string[] => readdirSync(dir).flatMap((name) => {

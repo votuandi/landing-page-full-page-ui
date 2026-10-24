@@ -13,6 +13,15 @@ const repo = (extra: object = {}) => ({
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
 
+test("font override needs entitlement including live kill switch", async () => {
+  const row = await repo().site.first({ include: { tenant: true } }); assert.ok(row);
+  const font = { sans: "Manrope" };
+  for (const [planId, disabled, expected] of [["basic", [], undefined], ["premium", ["themeOverride"], undefined], ["premium", [], font]] as const) {
+    const site = await createSiteData(() => repo({ site: { first: async () => ({ ...row, themeOverrides: { font }, tenant: { ...row.tenant, planId } }) } }), async () => disabled).loadTenantSite(tenantId, siteId);
+    assert.deepEqual(site?.font, expected);
+  }
+});
+
 test("sitemap page listing filters disabled catalog pages while retaining landing pages", async () => {
   const pages = [{ slug: "", kind: "home" }, { slug: "ve-chung-toi", kind: "landing" }, { slug: "uu-dai", kind: "landing" }];
   const result = await createSiteData(() => repo({ page: { list: async () => pages } })).listPublishedPages(tenantId, siteId);

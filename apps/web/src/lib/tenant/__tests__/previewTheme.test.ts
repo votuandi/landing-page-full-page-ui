@@ -1,11 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { getTheme } from "@solar/themes";
+import { getTheme, withFontOverride } from "@solar/themes";
 import { applyPreviewTheme } from "../previewTheme";
 import { tenantRenderKey } from "../renderKey";
 import type { TenantSite } from "../siteData";
 const site = { tenantId: "tenant", siteId: "site", locale: "vi", theme: getTheme("t01")!, entitlements: { planId: "basic", disabled: [] }, context: { themeId: "t01" } } as unknown as TenantSite;
+
+test("preview font override applies to preview theme and falls back when weights incompatible", () => {
+  const source = { ...site, theme: getTheme("t15")!, font: { display: "Manrope" } };
+  const preview = applyPreviewTheme(source, "t01");
+  assert.equal(withFontOverride(preview.theme, preview.font) ?? preview.theme, preview.theme);
+  const compatible = applyPreviewTheme(source, "t07");
+  assert.equal(withFontOverride(compatible.theme, compatible.font)?.font.display, "Manrope");
+  assert.equal(source.theme.meta.id, "t15");
+});
 test("applyPreviewTheme previews locked theme without modifying published site", () => {
   assert.equal(applyPreviewTheme(site, "t15").theme.meta.id, "t15");
   assert.equal(applyPreviewTheme(site, "unknown"), site);

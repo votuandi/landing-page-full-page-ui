@@ -12,6 +12,27 @@ import { loadSystemPage } from "../../../components/tenant/SystemPages";
 import type { Collection } from "../collections";
 import { collectSitemapPaths } from "../seoData";
 import { siteOrigin, sitemapXml } from "../seo";
+import { createIconHandler } from "../icon";
+
+test("favicon of other tenant falls back without storage read (RLS)", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL }, async () => {
+  const db = getWebDb(), ops = createPlatformDb({ pool: 1 });
+  const tenantId = randomUUID(), otherId = randomUUID();
+  try {
+    for (const id of [tenantId, otherId]) await ops.tenant.create({ data: { id, slug: id, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const a = tenantRepository(tenantId), b = tenantRepository(otherId);
+    const media = await b.media.create({ key: `tenants/${otherId}/icon.png`, driver: "local", mime: "image/png", size: 10, status: "ready", visibility: "public" });
+    const site = await a.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15", profile: { brand: { favicon: media.id } } });
+    await a.domain.create({ siteId: site.id, hostname: `${tenantId}.localhost`, isPrimary: true, status: "active", verificationToken: randomUUID() });
+    let reads = 0;
+    const handler = createIconHandler({ loadSite: createSiteData(tenantRepository).loadTenantSite,
+      media: (id, mid) => tenantRepository(id).media.get(mid), storage: { get: async () => { reads++; return new Uint8Array(); } }, resize: async bytes => bytes });
+    const response = await handler(tenantId, site.id, 64);
+    assert.equal(response.status, 307); assert.equal(response.headers.get("location"), "/favicon.svg"); assert.equal(reads, 0);
+  } finally {
+    await ops.tenant.deleteMany({ where: { id: { in: [tenantId, otherId] } } });
+    await Promise.all([db.$disconnect(), ops.$disconnect()]);
+  }
+});
 
 test("Postgres: both seeded sites render distinct published content at shared slugs with scoped associations", {
   skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires seeded PostgreSQL 16",

@@ -1,5 +1,11 @@
 # web
 
+E7-S15: layout tenant áp font thương hiệu sau theme preview, dùng cùng theme đã kiểm cho CSS và preload.
+Hạ gói/tắt `themeOverride` dùng font theme; font hỏng hoặc thiếu weight fallback và ghi log không chứa dữ liệu thô.
+`/icon.png` (64×64), `/apple-icon.png` (180×180) được proxy rewrite theo tenant. Handler chỉ đọc media ready,
+public với khóa `tenants/<tenantId>/`, sinh PNG bằng sharp; media thiếu/sai tenant/ảnh hỏng trả 307 `/favicon.svg`
+và `no-store`. Metadata dùng `?v=<mediaId>` để đổi URL khi đổi ảnh. Production cần cấu hình storage như worker.
+
 ## Cache Components (E5-S06)
 
 `cacheComponents: true`. Trang tenant không đọc `headers()`/`cookies()` khi render: proxy rewrite sang
