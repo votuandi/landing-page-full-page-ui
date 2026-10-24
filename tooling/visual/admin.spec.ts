@@ -52,8 +52,7 @@ test("media: local PNG upload becomes private ready; HTML disguised as JPEG fail
     if (complete.status !== 202) throw new Error(`complete: ${complete.status}`);
     return id as string;
   }, { mime, base64 });
-  // Metadata padding lets the stripped PNG fit inside its reservation.
-  const png = await sharp({ create: { width: 1, height: 1, channels: 3, background: "red" } }).png().withExif({ IFD0: { Make: "[DỮ LIỆU MẪU]" } }).toBuffer();
+  const png = await sharp({ create: { width: 32, height: 32, channels: 3, background: "red" } }).png({ palette: true }).toBuffer();
   const id = await upload("image/png", png.toString("base64"));
   expect(fixture("media-scan", id)).toBe("ready");
   const read = await page.evaluate(async id => {

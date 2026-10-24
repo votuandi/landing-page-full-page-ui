@@ -4,6 +4,7 @@ import test from "node:test";
 import type { OutboxJob } from "@solar/db";
 import type { StorageDriver } from "@solar/storage";
 import { createMediaPublish, cleanupExpiredMedia } from "../handlers/mediaPublish.ts";
+import { PermanentError } from "../loop.ts";
 
 test("media.publish: ready private to public, stable target across retries, quarantine cron cleanup", async () => {
   const tenantId = randomUUID(), id = randomUUID();
@@ -20,4 +21,14 @@ test("media.publish: ready private to public, stable target across retries, quar
   files.set(`quarantine/${tenantId}/old`, Buffer.from("x"));
   await cleanupExpiredMedia({ expireStale: async () => [{ tenantId, key: `quarantine/${tenantId}/old` }], storage });
   assert.equal(files.size, 1);
+});
+
+test("I2: quarantine publish is retryable; failed media is a completed no-op", async () => {
+  const tenantId = randomUUID(), id = randomUUID();
+  const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "application/pdf", size: 8 };
+  const storage = { get: async () => { throw Error("must not read quarantine or failed content"); } } as unknown as StorageDriver;
+  const handle = createMediaPublish({ media: { get: async () => row, publish: async () => false }, storage });
+  const job: OutboxJob = { id: randomUUID(), tenantId, topic: "media.publish", payload: { tenantId, id }, idempotencyKey: `media.publish:${id}`, attempts: 1, createdAt: new Date(), runAt: new Date() };
+  await assert.rejects(handle(job), error => error instanceof Error && !(error instanceof PermanentError));
+  row.status = "failed"; await handle(job);
 });

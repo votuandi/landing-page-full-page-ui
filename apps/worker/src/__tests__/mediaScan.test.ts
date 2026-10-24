@@ -43,7 +43,7 @@ test("media.scan strips gps and all EXIF, trusts sniffed MIME, remains private a
   assert.ok((await sharp(jpeg).metadata()).exif);
   const gps = (await sharp(jpeg).metadata()).exif!;
   assert.ok(gps.includes(Buffer.from([0x25, 0x88])) || gps.includes(Buffer.from([0x88, 0x25])), "fixture must contain a GPS IFD pointer");
-  const f = setup(jpeg, "image/png", jpeg.length + 4096); await f.scan(job);
+  const f = setup(jpeg, "image/png"); await f.scan(job);
   assert.equal(f.row().status, "ready"); assert.equal(f.row().mime, "image/jpeg");
   assert.equal(f.row().visibility, "private"); assert.match(f.row().key, /^private\//);
   const bytes = f.files.get(f.row().key)!;
@@ -72,8 +72,22 @@ test("media.scan storage errors retry instead of rejecting content; foreign jobs
 test("media.scan accepts every allowlisted image encoding and strips metadata", async () => {
   for (const [format, mime] of [["png", "image/png"], ["gif", "image/gif"], ["webp", "image/webp"], ["avif", "image/avif"]] as const) {
     const bytes = await sharp({ create: { width: 4, height: 3, channels: 3, background: "red" } }).toFormat(format).toBuffer();
-    const f = setup(bytes, mime, bytes.length + 4096); await f.scan(job);
+    const f = setup(bytes, mime); await f.scan(job);
     assert.equal(f.row().status, "ready", `${format}: ${f.rejected}`);
     assert.equal(f.row().mime, mime);
+  }
+});
+
+test("I1: optimized palette PNG and low-quality JPEG grow after cleaning and become ready without padding", async () => {
+  const raw = Buffer.alloc(64 * 64 * 3);
+  for (let i = 0; i < raw.length; i++) raw[i] = (i * 13 + (i >> 5)) % 256;
+  for (const [format, mime] of [["png", "image/png"], ["jpeg", "image/jpeg"]] as const) {
+    const image = sharp(raw, { raw: { width: 64, height: 64, channels: 3 } });
+    const input = await (format === "png" ? image.png({ palette: true, colours: 8 }) : image.jpeg({ quality: 50 })).toBuffer();
+    const output = await sharp(input).rotate().toBuffer();
+    assert.ok(output.length > input.length, `${format}: fixture must reproduce growth`);
+    const f = setup(input, mime); await f.scan(job);
+    assert.equal(f.row().status, "ready", `${format}: ${f.rejected}`);
+    assert.equal(f.row().size, f.files.get(f.row().key)!.byteLength);
   }
 });

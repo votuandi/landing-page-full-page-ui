@@ -1,6 +1,6 @@
 import { z } from "zod";
 import sharp from "sharp";
-import type { OutboxJob, Promotion } from "@solar/db";
+import { MediaQuotaError, type OutboxJob, type Promotion } from "@solar/db";
 import { kindOf, privateKey, sniff, UPLOAD_LIMITS, type StorageDriver } from "@solar/storage";
 import { PermanentError } from "../loop.ts";
 
@@ -40,12 +40,17 @@ export function createMediaScan({ media, storage }: { media: ScanMedia; storage:
         const output = await sharp(bytes, { animated: true, limitInputPixels: 50_000_000 }).rotate().timeout({ seconds: 30 }).toBuffer({ resolveWithObject: true });
         body = output.data; width = output.info.width; height = output.info.height;
       } catch { return reject("invalid or unsafe image"); }
-      // Re-encoding must preserve the detected type and stay inside the quota reservation.
-      if (sniff(body)?.mime !== format.mime || body.byteLength > row.size || body.byteLength > UPLOAD_LIMITS.image) return reject("encoded image exceeds reservation or changes format");
+      if (sniff(body)?.mime !== format.mime || body.byteLength > UPLOAD_LIMITS.image) return reject("encoded image exceeds kind limit or changes format");
     }
     const key = privateKey(tenantId, format.ext);
     await storage.put(key, body, { contentType: format.mime, cacheControl: "private, no-store" });
-    const promoted = await media.promote(tenantId, id, { key, mime: format.mime, size: body.byteLength, width, height });
+    let promoted: boolean;
+    try { promoted = await media.promote(tenantId, id, { key, mime: format.mime, size: body.byteLength, width, height }); }
+    catch (error) {
+      await storage.delete(key);
+      if (error instanceof MediaQuotaError) return reject("quota: cleaned file exceeds tenant limit");
+      throw error;
+    }
     if (!promoted) await storage.delete(key);
     await storage.delete(row.key);
   };

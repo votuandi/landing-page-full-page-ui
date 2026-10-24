@@ -114,3 +114,23 @@ test("media: lifecycle releases reservations, isolates B, audits expiry and prom
     assert.equal(await repo.outbox.count({ where: { topic: "media.publish" } }), 1);
   } finally { await ops.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } }); await Promise.all([db.$disconnect(), ops.$disconnect()]); }
 });
+
+test("I1: actual size may exceed reservation only within kind limit and locked tenant quota", { skip: !process.env.DATABASE_URL }, async () => {
+  const db = createDb({ pool: 4 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID(), GB = 1024 ** 3;
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "basic", status: "active" } });
+    const repo = forTenant(db, tenantId);
+    const first = await reserveUpload(db, tenantId, { mime: "image/png", size: 10 }, "local");
+    const data = (id: string, size: number) => ({ key: `private/${tenantId}/${id}.png`, mime: "image/png", size });
+    assert.equal(await promoteMedia(db, tenantId, first.id, data(first.id, 20)), true);
+    assert.equal((await repo.media.get(first.id))?.size, 20);
+    await repo.media.create({ key: `private/${tenantId}/used`, driver: "local", mime: "video/mp4", size: GB - 50, status: "ready", visibility: "private" });
+    const rows = await Promise.all([reserveUpload(db, tenantId, { mime: "image/png", size: 10 }, "local"), reserveUpload(db, tenantId, { mime: "image/png", size: 10 }, "local")]);
+    const results = await Promise.allSettled(rows.map(row => promoteMedia(db, tenantId, row.id, data(row.id, 20))));
+    assert.equal(results.filter(result => result.status === "fulfilled").length, 1);
+    assert.ok(results.some(result => result.status === "rejected" && result.reason instanceof MediaQuotaError));
+    assert.equal(await mediaUsage(repo), GB);
+    const remaining = (await repo.media.list({ where: { status: "quarantine" } }))[0];
+    await assert.rejects(promoteMedia(db, tenantId, remaining.id, data(remaining.id, 15 * 1024 ** 2 + 1)), { status: 400 });
+  } finally { await ops.tenant.deleteMany({ where: { id: tenantId } }); await Promise.all([db.$disconnect(), ops.$disconnect()]); }
+});

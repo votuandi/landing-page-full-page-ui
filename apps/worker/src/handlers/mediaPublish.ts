@@ -10,7 +10,8 @@ export function createMediaPublish({ media, storage }: { media: {
   return async (job: OutboxJob) => {
     const { tenantId, id } = mediaJob(job, "media.publish");
     const row = await media.get(tenantId, id);
-    if (!row || row.status !== "ready") return;
+    if (!row || row.status === "failed") return;
+    if (row.status === "quarantine") throw new Error("media.publish: đang chờ kiểm tra tệp");
     if (row.visibility === "public") {
       ownedKey(row, "tenants");
       // Recover a crash after the DB update but before source deletion.

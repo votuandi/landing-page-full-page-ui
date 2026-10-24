@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { getPlan, limit } from "@solar/plans";
 import { kindOf, UPLOAD_LIMITS, quarantineKey } from "@solar/storage";
 import type { Db, PlatformDb } from "./client.ts";
@@ -25,15 +26,18 @@ export const usageStatuses = ["quarantine", "ready"] as const;
 export async function mediaUsage(repo: Pick<TenantRepo, "media">): Promise<number> {
   return (await repo.media.list({ where: { status: { in: [...usageStatuses] } }, select: { size: true } })).reduce((sum, row) => sum + row.size, 0);
 }
+async function lockedQuota(tx: Parameters<Parameters<typeof tenantTransaction>[2]>[0], tenantId: string) {
+  const [locked] = await tx.$queryRaw<{ id: string | null }[]>`SELECT public.lock_media_tenant(${tenantId}::uuid) AS id`;
+  if (!locked?.id) throw new MediaError("Không tìm thấy website.", 404);
+  const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: tenantId } });
+  const [usage] = await tx.$queryRaw<{ bytes: bigint }[]>`SELECT COALESCE(SUM(size::bigint), 0)::bigint AS bytes FROM public."Media" WHERE "tenantId" = ${tenantId}::uuid AND status::text = ANY(${[...usageStatuses]}::text[])`;
+  return { used: usage.bytes, max: BigInt(Math.floor((getPlan(tenant.planId) ? limit(tenant, "mediaGb") : 0) * 1024 ** 3)) };
+}
 export async function reserveUpload(db: Db | PlatformDb, tenantId: string, raw: unknown, driver: "local" | "s3") {
   const input = uploadInput(raw);
   return tenantTransaction(db, tenantId, async tx => {
-    const [locked] = await tx.$queryRaw<{ id: string | null }[]>`SELECT public.lock_media_tenant(${tenantId}::uuid) AS id`;
-    if (!locked?.id) throw new MediaError("Không tìm thấy website.", 404);
-    const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: tenantId } });
-    const [usage] = await tx.$queryRaw<{ bytes: bigint }[]>`SELECT COALESCE(SUM(size::bigint), 0)::bigint AS bytes FROM public."Media" WHERE "tenantId" = ${tenantId}::uuid AND status::text = ANY(${[...usageStatuses]}::text[])`;
-    const maxBytes = BigInt(Math.floor((getPlan(tenant.planId) ? limit(tenant, "mediaGb") : 0) * 1024 ** 3));
-    if (usage.bytes + BigInt(input.size) > maxBytes) throw new MediaQuotaError();
+    const quota = await lockedQuota(tx, tenantId);
+    if (quota.used + BigInt(input.size) > quota.max) throw new MediaQuotaError();
     return createTenantRepo(tx, tenantId).media.create({ ...input, driver, key: quarantineKey(tenantId), status: "quarantine", visibility: "private" });
   });
 }
@@ -57,10 +61,13 @@ export async function cancelUpload(db: Db | PlatformDb, tenantId: string, id: st
 export type Promotion = { key: string; mime: string; size: number; width?: number; height?: number };
 export async function promoteMedia(db: Db | PlatformDb, tenantId: string, id: string, data: Promotion): Promise<boolean> {
   if (!data.key.startsWith(`private/${tenantId}/`)) throw new MediaError("Khóa media không hợp lệ.");
-  return withTenantTransaction(db, tenantId, async repo => {
+  return tenantTransaction(db, tenantId, async tx => {
+    const quota = await lockedQuota(tx, tenantId);
+    const repo = createTenantRepo(tx, tenantId);
     const row = await repo.media.get(id);
     if (!row || row.status !== "quarantine") return false;
-    if (data.size > row.size) throw new MediaError("Tệp vượt dung lượng đã đặt chỗ.", 413);
+    uploadInput({ mime: data.mime, size: data.size });
+    if (quota.used - BigInt(row.size) + BigInt(data.size) > quota.max) throw new MediaQuotaError();
     return (await repo.media.update(id, { ...data, status: "ready", visibility: "private" }, { status: "quarantine", key: row.key })).count === 1;
   });
 }
@@ -88,11 +95,11 @@ export async function expireStaleMedia(db: PlatformDb, now = new Date()) {
 export async function publishMedia(repo: TenantRepo, ids: readonly string[]) {
   const uuids = [...new Set(ids.filter(id => z.uuid().safeParse(id).success).map(id => id.toLowerCase()))];
   if (!uuids.length) return;
-  for (const row of await repo.media.list({ where: { id: { in: uuids }, status: "ready", visibility: "private" }, orderBy: { id: "asc" } })) {
+  for (const row of await repo.media.list({ where: { id: { in: uuids }, status: { in: ["quarantine", "ready"] }, visibility: "private" }, orderBy: { id: "asc" } })) {
     // Serialize different pages publishing the same asset before checking the unique job key.
-    await repo.media.update(row.id, { visibility: "private" }, { visibility: "private" });
-    if (!await repo.outbox.first({ where: { idempotencyKey: `media.publish:${row.id}` } })) {
-      await repo.outbox.create({ topic: "media.publish", payload: { tenantId: row.tenantId, id: row.id }, idempotencyKey: `media.publish:${row.id}` });
+    if (!(await repo.media.update(row.id, { visibility: "private" }, { visibility: "private", status: { in: ["quarantine", "ready"] } })).count) continue;
+    if (!await repo.outbox.first({ where: { topic: "media.publish", status: { in: ["pending", "processing"] }, payload: { path: ["id"], equals: row.id } } })) {
+      await repo.outbox.create({ topic: "media.publish", payload: { tenantId: row.tenantId, id: row.id }, idempotencyKey: `media.publish:${row.id}:${randomUUID()}` });
     }
   }
 }
