@@ -119,7 +119,7 @@ E2E: 10 ca admin cũ qua; 3 ca mới qua trên build production, axe + 390/1440 
 Report và ảnh: `.agent-runs/E7-S07/codex-report.md`, `.agent-runs/E7-S07/screenshots/`.
 Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/votuandi/landing-page-full-page-ui/pull/50); CI job `db` chạy `admin.spec.ts` 13/13 qua.
 
-### E7-S10 · Sao lưu & khôi phục theo tenant
+### E7-S10 · Sao lưu & khôi phục theo tenant ✅ · PR [#59](https://github.com/votuandi/landing-page-full-page-ui/pull/59)
 - **Chi tiết**: học từ branch `develop` (backup JSON + zip media, lịch sử backup). Xuất toàn bộ dữ liệu một tenant
   (JSON + danh sách media) và khôi phục vào tenant mới (dùng cho nhân bản site, chuyển máy chủ). Backup toàn DB ở E10-S06.
 - **AC**: [x] Xuất → khôi phục sang tenant mới cho site giống hệt (ảnh chụp so khớp) · [x] Chỉ owner (hoặc super admin qua console) thực hiện được.
