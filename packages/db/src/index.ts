@@ -1,6 +1,7 @@
 export { createDb, createPlatformDb, loadDisabledFeatures, POOL_BUDGET } from "./client.ts";
 export { reserveUpload, uploadInput, mediaUsage, completeUpload, cancelUpload, promoteMedia, rejectMedia, expireStaleMedia, publishMedia, MediaError, MediaQuotaError } from "./media.ts";
-export type { Promotion } from "./media.ts";
+export { mediaVariantsSchema } from "./media.ts";
+export type { Promotion, MediaVariant } from "./media.ts";
 export type { Db, PlatformDb } from "./client.ts";
 export { withTenantTransaction } from "./tenantTransaction.ts";
 export type { TransactionOptions } from "./tenantTransaction.ts";

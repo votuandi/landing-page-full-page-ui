@@ -3,11 +3,31 @@ import { randomUUID } from "node:crypto";
 import test from "node:test";
 import { createDb, createPlatformDb } from "../client.ts";
 import { forTenant, forPlatform } from "../repository.ts";
-import { reserveUpload, mediaUsage, cancelUpload, completeUpload, promoteMedia, rejectMedia, expireStaleMedia, publishMedia, MediaQuotaError } from "../media.ts";
+import { reserveUpload, mediaUsage, cancelUpload, completeUpload, promoteMedia, rejectMedia, expireStaleMedia, publishMedia, MediaQuotaError, MediaError } from "../media.ts";
 import { sectionRegistry } from "@solar/sections";
 import { publishPage, saveDraft } from "../publish.ts";
 import { collectionDefs } from "../collections.ts";
 import { saveCollectionItem } from "../collectionWrite.ts";
+
+test("promote stores variants; promote rejects foreign variant keys", { skip: !process.env.DATABASE_URL }, async () => {
+  const db = createDb({ pool: 2 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "basic", status: "active" } });
+    const row = await reserveUpload(db, tenantId, { mime: "image/png", size: 100 }, "local");
+    const key = `private/${tenantId}/2026/10/${row.id}.png`;
+    const variant = { key: key.replace(/\.png$/, "-w640.avif"), format: "avif" as const, width: 640, height: 480, size: 60 };
+    for (const invalid of [`private/${randomUUID()}/x.avif`, `tenants/${tenantId}/x.avif`, `private/${tenantId}/../other/x.avif`]) {
+      await assert.rejects(promoteMedia(db, tenantId, row.id, { key, mime: "image/png", size: 80, variants: [{ ...variant, key: invalid }] }), MediaError);
+      assert.equal((await forTenant(db, tenantId).media.get(row.id))?.status, "quarantine");
+    }
+    assert.equal(await promoteMedia(db, tenantId, row.id, { key, mime: "image/png", size: 80, variants: [variant] }), true);
+    assert.deepEqual((await forTenant(db, tenantId).media.get(row.id))?.variants, [variant]);
+    assert.equal(await mediaUsage(forTenant(db, tenantId)), 80, "variants do not consume upload quota");
+  } finally {
+    await ops.tenant.deleteMany({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), ops.$disconnect()]);
+  }
+});
 
 test("media: concurrent reserve, release, expireStale, B cannot read A, publish enqueues", { skip: !process.env.DATABASE_URL, timeout: 60_000 }, async () => {
   const db = createDb({ pool: 10 }), ops = createPlatformDb({ pool: 2 });
