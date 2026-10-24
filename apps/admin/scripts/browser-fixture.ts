@@ -66,6 +66,15 @@ async function main() {
       const row = await repo.media.get(id);
       if (!row) throw new Error("Media fixture missing");
       process.stdout.write(row.status);
+    } else if (action === "media-use") {
+      const id = process.argv[3];
+      const project = await withTenantTransaction(db, tenantId, async repo => {
+        const site = await repo.site.first();
+        if (!site || !await repo.media.get(id)) throw new Error("Media/site fixture missing");
+        await repo.site.update(site.id, { profile: { ...site.profile as object, brand: { ...(site.profile as { brand?: object }).brand, favicon: id } } });
+        return repo.project.create({ slug: `media-${randomUUID()}`, title: { vi: "[DỮ LIỆU MẪU] Dự án media" }, coverMediaId: id });
+      });
+      process.stdout.write(project.id);
     } else if (action === "company-query") {
       const repo = forTenant(db, tenantId), site = await repo.site.first();
       if (!site) throw new Error("Site fixture missing");

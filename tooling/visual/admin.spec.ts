@@ -52,7 +52,7 @@ test("media status", async ({ page }, info) => {
   const png = await sharp({ create: { width: 32, height: 24, channels: 3, background: "red" } }).png().toBuffer();
   const id = await uploadImage(page, png, false);
   await page.reload();
-  const row = page.getByRole("row").filter({ has: page.getByRole("rowheader", { name: id, exact: true }) });
+  const row = page.locator(`[data-media-id="${id}"]`);
   await expect(row).toContainText("Đang xử lý");
   expect(fixture("media-scan", id)).toBe("ready");
   await page.reload();
@@ -60,7 +60,7 @@ test("media status", async ({ page }, info) => {
   const badId = await uploadImage(page, Buffer.from("<html>invalid image</html>"), false);
   expect(fixture("media-scan", badId)).toBe("failed");
   await page.reload();
-  await expect(page.getByRole("row").filter({ has: page.getByRole("rowheader", { name: badId, exact: true }) })).toContainText("Lỗi");
+  await expect(page.locator(`[data-media-id="${badId}"]`)).toContainText("Lỗi");
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -72,12 +72,101 @@ test("media status", async ({ page }, info) => {
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin("admin-e7-b") + "/media");
   await expect(page.getByRole("heading", { name: "Media", exact: true })).toBeVisible();
-  await expect(page.getByRole("rowheader", { name: id, exact: true })).toHaveCount(0);
+  await expect(page.locator(`[data-media-id="${id}"]`)).toHaveCount(0);
   await page.context().clearCookies();
   await login(page, "owner@demo.vn", password(), "admin-e8-media-denied");
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   expect((await page.goto(origin("admin-e8-media-denied") + "/media"))?.status()).toBe(403);
   await expect(page.getByRole("heading", { name: "Bạn không có quyền truy cập" })).toBeVisible();
+});
+
+test("media library: upload, alt, focal, usage, delete confirm", async ({ page, browser }, info) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/media");
+  const png = await sharp({ create: { width: 48, height: 32, channels: 3, background: "red" } }).png().toBuffer();
+  const prefix = `media-${Date.now()}`, first = `${prefix}-Mái nhà.png`, second = `${prefix}-hai.png`;
+  const transfer = await page.evaluateHandle(({ base64, first, second }) => {
+    const data = new DataTransfer(), bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    for (const name of [first, second]) data.items.add(new File([bytes], name, { type: "image/png" }));
+    data.items.add(new File(["bad"], "khong-ho-tro.exe", { type: "application/octet-stream" }));
+    return data;
+  }, { base64: png.toString("base64"), first, second });
+  await page.getByRole("region", { name: "Tải tệp lên" }).locator("div").first().dispatchEvent("drop", { dataTransfer: transfer });
+  await transfer.dispose();
+  await expect(page.getByText(`${first}: Đã tải lên · Đang xử lý`, { exact: true })).toBeVisible();
+  await expect(page.getByText(`${second}: Đã tải lên · Đang xử lý`, { exact: true })).toBeVisible();
+  await expect(page.getByText(/khong-ho-tro\.exe: Loại hoặc kích thước tệp/)).toBeVisible();
+  const firstCard = page.getByRole("list", { name: "Thư viện media" }).getByRole("listitem").filter({ hasText: first });
+  await expect(firstCard).toBeVisible();
+  const id = (await firstCard.getAttribute("data-media-id"))!;
+  const secondCard = page.getByRole("list", { name: "Thư viện media" }).getByRole("listitem").filter({ hasText: second });
+  const secondId = (await secondCard.getAttribute("data-media-id"))!;
+  expect(fixture("media-scan", id)).toBe("ready"); expect(fixture("media-scan", secondId)).toBe("ready");
+  await page.reload(); await expect(firstCard).toContainText("Thiếu alt (SEO)");
+  await page.getByLabel("Tìm tên hoặc alt").fill("mai nha"); await page.getByRole("button", { name: "Tìm và lọc" }).click();
+  await expect(firstCard).toBeVisible(); await expect(secondCard).toHaveCount(0);
+  await page.getByLabel("Loại tệp", { exact: true }).selectOption("video"); await page.getByRole("button", { name: "Tìm và lọc" }).click();
+  await expect(page.getByText("Không có tệp khớp tìm kiếm.", { exact: false })).toBeVisible();
+  await page.goto(origin() + `/media/${id}`);
+  await expect(page.getByRole("status").filter({ hasText: "Thiếu alt (SEO)" })).toBeVisible();
+  await page.getByRole("button", { name: "Lưu thông tin" }).click();
+  await expect(page.getByLabel("Alt tiếng Việt", { exact: true })).toBeFocused();
+  await page.getByLabel("Alt tiếng Việt", { exact: true }).fill("[DỮ LIỆU MẪU] Mái nhà điện mặt trời");
+  await page.getByLabel("Alt tiếng Anh", { exact: true }).fill("Sample roof");
+  const picker = page.getByRole("button", { name: "Chọn điểm lấy nét trên ảnh" });
+  await picker.click({ position: { x: 10, y: 10 } });
+  const clickedX = Number(await page.getByLabel("Tọa độ ngang (x)").inputValue());
+  expect(clickedX).toBeGreaterThan(0); expect(clickedX).toBeLessThan(1);
+  await picker.press("ArrowRight");
+  expect(Number(await page.getByLabel("Tọa độ ngang (x)").inputValue())).toBeCloseTo(Math.min(1, clickedX + 0.01));
+  await page.getByLabel("Tọa độ ngang (x)").fill("0.2"); await page.getByLabel("Tọa độ dọc (y)").fill("0.8");
+  await page.getByRole("button", { name: "Lưu thông tin" }).click();
+  await expect(page.getByText("Đã lưu thông tin media.")).toBeVisible();
+  await page.reload(); await expect(page.getByLabel("Tọa độ ngang (x)")).toHaveValue("0.2"); await expect(page.getByLabel("Tọa độ dọc (y)")).toHaveValue("0.8");
+  await expect(page.getByText("Thiếu alt (SEO)", { exact: false })).toHaveCount(0);
+  const projectId = fixture("media-use", id);
+  await page.reload(); await expect(page.getByRole("heading", { name: "Nơi đang dùng (2)" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Dự án ›/ })).toHaveAttribute("href", `/noi-dung/du-an/${projectId}`);
+  await page.getByRole("button", { name: "Xóa media", exact: true }).click();
+  await expect(page.getByLabel("Tôi hiểu và xác nhận xóa media đang được sử dụng.")).toBeFocused();
+  await expect(page).toHaveURL(origin() + `/media/${id}`);
+  expect(await page.evaluate(async id => {
+    const response = await fetch(`/api/media/${id}`, { method: "DELETE" });
+    const value = await response.json(); return { status: response.status, uses: value.uses.length };
+  }, id)).toEqual({ status: 409, uses: 2 });
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await info.attach(`media-library-detail-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    await page.goto(origin() + "/media");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await info.attach(`media-library-grid-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    await page.goto(origin() + `/media/${id}`);
+  }
+  // Native GET and Server Action forms remain usable before hydration / without JavaScript.
+  const noJs = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    await noJs.addCookies(await page.context().cookies()); const plain = await noJs.newPage();
+    await plain.goto(origin() + "/media"); await plain.getByLabel("Tìm tên hoặc alt").fill("dien mat troi");
+    await plain.getByRole("button", { name: "Tìm và lọc" }).click(); await expect(plain.locator(`[data-media-id="${id}"]`)).toBeVisible();
+    await plain.goto(origin() + `/media/${id}`); await plain.getByLabel("Tọa độ ngang (x)").fill("0.3");
+    await plain.getByRole("button", { name: "Lưu thông tin" }).click(); await expect(plain.getByText("Đã lưu thông tin media.")).toBeVisible();
+    await plain.reload(); await expect(plain.getByLabel("Tọa độ ngang (x)")).toHaveValue("0.3");
+    await plain.getByLabel("Tôi hiểu và xác nhận xóa media đang được sử dụng.").check();
+    await plain.getByRole("button", { name: "Xóa media", exact: true }).click(); await expect(plain).toHaveURL(origin() + "/media");
+    await expect(plain.locator(`[data-media-id="${id}"]`)).toHaveCount(0);
+  } finally { await noJs.close(); }
+  await page.context().clearCookies(); await login(page, "viewer_admin");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/media"); await expect(page.getByLabel("Kéo thả tệp hoặc chọn nhiều tệp")).toHaveCount(0);
+  await page.goto(origin() + `/media/${secondId}`); await expect(page.getByRole("button", { name: "Lưu thông tin" })).toHaveCount(0); await expect(page.getByRole("button", { name: "Xóa media" })).toHaveCount(0);
+  expect(await page.evaluate(async id => (await fetch(`/api/media/${id}`, { method: "DELETE" })).status, secondId)).toBe(403);
+  await page.context().clearCookies(); await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, "admin-e7-b");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  expect((await page.goto(origin("admin-e7-b") + `/media/${secondId}`))?.status()).toBe(404);
 });
 
 test("brand font and favicon", async ({ page }, info) => {

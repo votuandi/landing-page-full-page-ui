@@ -66,7 +66,10 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 ### E8-S05 · Thư viện media trong CMS
 - **Chi tiết**: lưới ảnh, tìm theo tên/alt, lọc loại, kéo thả upload nhiều file, sửa alt (bắt buộc với ảnh nội dung), chọn
   điểm focal, xem nơi đang dùng; xóa ảnh đang dùng → cảnh báo danh sách chỗ dùng.
-- **AC**: [ ] Không xóa được media đang được tham chiếu nếu không xác nhận · [ ] Alt trống hiện cảnh báo SEO.
+- **AC**: [x] Không xóa được media đang được tham chiếu nếu không xác nhận · [x] Alt trống hiện cảnh báo SEO.
+- **Bằng chứng**: `packages/db/src/__tests__/mediaLibrary.int.test.ts` (xác nhận, FK, tenant, race 409),
+  `apps/admin/src/__tests__/mediaLibrary.test.ts` (SEO); spec `media library: …` và `media status` trong
+  `tooling/visual/admin.spec.ts` đã viết, chờ Claude chạy browser/design pass và review trước PR.
 - Phụ thuộc: S02, E7-S02 · Agent: Claude · Cỡ: M
 
 ### E8-S06 · Dọn media mồ côi & chuyển driver
