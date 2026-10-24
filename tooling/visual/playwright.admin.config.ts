@@ -3,6 +3,9 @@ import { resolve } from "node:path";
 
 process.env.ADMIN_SESSION_SECRET ??= "admin-e2e-session-secret-0123456789abcdef";
 process.env.PREVIEW_SECRET ??= "admin-e2e-preview-secret-0123456789abcdef";
+process.env.STORAGE_DRIVER ??= "local";
+process.env.STORAGE_LOCAL_ROOT ??= resolve(__dirname, "test-results/admin/media");
+process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3300/media";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ??= "solar.localhost";
 

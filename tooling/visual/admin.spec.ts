@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { readFile } from "node:fs/promises";
+import sharp from "sharp";
 import { parseCsv, toCsv } from "../../packages/db/src/csv";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
@@ -35,6 +36,35 @@ test.beforeAll(async ({ request }) => {
   }
 });
 test.afterAll(() => fixture("cleanup"));
+
+test("media: local PNG upload becomes private ready; HTML disguised as JPEG fails scan", async ({ page }) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const upload = async (mime: string, base64: string) => page.evaluate(async ({ mime, base64 }) => {
+    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const reservation = await fetch("/api/media", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mime, size: bytes.length }) });
+    if (reservation.status !== 201) throw new Error(`reserve: ${reservation.status}`);
+    const { id, upload } = await reservation.json();
+    if (!upload.url.startsWith("/api/media/")) throw new Error("Requires STORAGE_DRIVER=local fixture");
+    const put = await fetch(upload.url, { method: upload.method, headers: upload.headers, body: bytes });
+    if (put.status !== 204) throw new Error(`put: ${put.status}`);
+    const complete = await fetch(`/api/media/${id}/complete`, { method: "POST" });
+    if (complete.status !== 202) throw new Error(`complete: ${complete.status}`);
+    return id as string;
+  }, { mime, base64 });
+  // Metadata padding lets the stripped PNG fit inside its reservation.
+  const png = await sharp({ create: { width: 1, height: 1, channels: 3, background: "red" } }).png().withExif({ IFD0: { Make: "[DỮ LIỆU MẪU]" } }).toBuffer();
+  const id = await upload("image/png", png.toString("base64"));
+  expect(fixture("media-scan", id)).toBe("ready");
+  const read = await page.evaluate(async id => {
+    const response = await fetch(`/api/media/${id}`);
+    return { status: response.status, cache: response.headers.get("cache-control"), type: response.headers.get("content-type"), nosniff: response.headers.get("x-content-type-options") };
+  }, id);
+  expect(read).toEqual({ status: 200, cache: "private, no-store", type: "image/png", nosniff: "nosniff" });
+  const badId = await upload("image/jpeg", Buffer.from("<html><script>alert(1)</script></html>").toString("base64"));
+  expect(fixture("media-scan", badId)).toBe("failed");
+  expect(await page.evaluate(async id => (await fetch(`/api/media/${id}`)).status, badId)).toBe(404);
+});
 
 test("owner downloads backup, staff is forbidden", async ({ page, browser }) => {
   await login(page);
