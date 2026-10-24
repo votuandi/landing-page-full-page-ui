@@ -115,5 +115,9 @@ handle /media/* {
 Không cấu hình file_server cho toàn bộ STORAGE_LOCAL_ROOT. Worker cron thu hồi upload quá 24 h.
 Crash giữa put và promote có thể để lại object không tham chiếu; E8-S06 dọn các object đó.
 Sharp bỏ metadata mặc định, không gọi keepMetadata/withMetadata.
+Reservation là cận trên cho file client gửi, không phải trần output sharp. Khi ảnh sạch nở kích thước,
+promote khóa Tenant và kiểm `used - reserved + actual` cùng trần loại, rồi lưu size thực; thiếu quota thì reject và dọn file.
+Media được tham chiếu lúc publish vẫn đang scan sẽ có job publish chờ/retry. Chỉ khử trùng job đang pending/processing;
+lần publish sau có thể tạo job mới khi job cũ done/failed. Các writer live và restore cũng enqueue theo refs hiện hành.
 Nguồn: https://sharp.pixelplumbing.com/api-output/ và
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages/s3-request-presigner.
