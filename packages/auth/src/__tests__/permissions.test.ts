@@ -2,6 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { effectivePermissions, PERMISSIONS, PERMISSION_GROUPS, PERMISSION_LABELS, ROLE_PERMISSIONS } from "../permissions.ts";
 
+test("site.backup is owner-only", () => {
+  for (const role of ["owner", "admin", "editor", "staff", "viewer", "client"] as const) {
+    assert.equal(effectivePermissions({ role, audience: "admin" }).has("site.backup"), role === "owner");
+    assert.equal(effectivePermissions({ role, audience: "storefront" }).has("site.backup"), false);
+  }
+  assert.equal(effectivePermissions({ role: "viewer", kind: "ghost", audience: "admin" }).has("site.backup"), true);
+  assert.equal(effectivePermissions({ role: "owner", audience: "admin", policy: { deny: ["site.backup"] } }).has("site.backup"), false);
+});
+
 test("roles are explicit, client has no admin permissions and storefront is isolated", () => {
   assert.equal(Object.keys(PERMISSION_LABELS).length, PERMISSIONS.length);
   assert.equal(effectivePermissions({ role: "client", audience: "admin" }).size, 0);
