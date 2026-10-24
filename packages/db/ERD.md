@@ -390,6 +390,8 @@ erDiagram
     Int height
     Json variants
     Json alt
+    String name
+    Json focal
     DateTime createdAt
   }
   Lead {

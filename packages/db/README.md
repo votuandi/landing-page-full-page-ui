@@ -417,3 +417,14 @@ Trang tắt vẫn giữ Page/content. `siteStructureOf` loại trang tắt khỏ
 `saveDraft`/`publishPage` đánh dấu `SectionContent.removedAt` khi ID không còn trong cả nháp và bản xuất bản;
 tham chiếu lại sẽ xóa dấu này. Snapshot mới chỉ chứa content của section đang xuất bản. Worker giữ content 30 ngày,
 kiểm lại Page và PageVersion mới nhất trước khi xóa; các version lịch sử vẫn giữ snapshot riêng.
+
+### Thư viện media (E8-S05)
+
+`mediaReferences` quét nội dung section hiện hành và bản nháp chưa bị gỡ, collection (cột FK và JSON), cùng profile
+website qua repository tenant. `updateMediaMeta` lưu alt/focal mặc định; alt/focal riêng trong từng chỗ dùng vẫn được giữ.
+`Media.name` chỉ dùng hiển thị/tìm kiếm, không tham gia tạo khóa storage. Backup cũ không có name/focal vẫn được nhập.
+
+`deleteMedia` chỉ xóa media ready/failed. Media đang dùng cần xác nhận; transaction gỡ FK, xóa hàng, ghi audit và enqueue
+invalidation nếu public. Caller dọn object gốc/variants sau commit; lỗi storage không phục hồi hàng đã xóa (E8-S06 dọn tiếp).
+**Giới hạn đã biết:** JSON trong section/collection/profile giữ UUID cũ sau xóa có xác nhận. Những nơi này sẽ mất ảnh;
+biên tập viên phải chọn ảnh thay thế. Luồng quarantine dùng cancel upload hiện hữu.

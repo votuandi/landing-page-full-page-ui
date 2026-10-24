@@ -13,8 +13,9 @@ export class MediaError extends Error {
 export class MediaQuotaError extends MediaError {
   constructor() { super("Vượt dung lượng media của gói dịch vụ.", 413); this.name = "MediaQuotaError"; }
 }
-export function uploadInput(raw: unknown): { mime: string; size: number } {
-  const parsed = z.strictObject({ mime: z.string(), size: z.number().int().positive() }).safeParse(raw);
+export const mediaNameSchema = z.string().transform(value => value.replace(/[\u0000-\u001f\u007f-\u009f/\\]/g, "").trim()).pipe(z.string().max(200));
+export function uploadInput(raw: unknown) {
+  const parsed = z.strictObject({ mime: z.string(), size: z.number().int().positive(), name: mediaNameSchema.optional() }).safeParse(raw);
   if (!parsed.success) throw new MediaError("Thông tin tệp không hợp lệ.");
   const { mime, size } = parsed.data, kind = kindOf(mime);
   if (!kind || size > UPLOAD_LIMITS[kind]) throw new MediaError("Loại hoặc kích thước tệp không được hỗ trợ.");

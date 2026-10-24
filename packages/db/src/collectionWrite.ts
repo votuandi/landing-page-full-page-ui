@@ -49,14 +49,16 @@ async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Colle
 const nextOrder = async (model: Delegate) => ((await model.first({ orderBy: { order: "desc" } }))?.order ?? -1) + 1;
 const invalidate = (repo: TenantRepo, tenantId: string, name: Collection) => enqueueInvalidate(repo, [collectionTag(tenantId, name)]);
 
-export async function publishItemMedia(repo: TenantRepo, name: Collection, row: Pick<CollectionRow, "status" | "data"> & { coverMediaId?: unknown; logoMediaId?: unknown; posterMediaId?: unknown }) {
-  if (row.status !== "published") return;
+export function collectionMediaIds(name: Collection, row: Pick<CollectionRow, "data"> & { coverMediaId?: unknown; logoMediaId?: unknown; posterMediaId?: unknown }) {
   const ids = collectRefs(collectionDefs[name].data, row.data).media;
   // Collection schemas also store bare media UUIDs and relational cover/logo columns.
   const data = row.data as Record<string, unknown> | null;
   const values = [row.coverMediaId, row.logoMediaId, row.posterMediaId, data?.image, data?.cover, data?.poster, ...(Array.isArray(data?.images) ? data.images : [])];
   ids.push(...values.filter((value): value is string => typeof value === "string" && z.uuid().safeParse(value).success));
-  await publishMedia(repo, ids);
+  return [...new Set(ids)];
+}
+export async function publishItemMedia(repo: TenantRepo, name: Collection, row: Pick<CollectionRow, "status" | "data"> & { coverMediaId?: unknown; logoMediaId?: unknown; posterMediaId?: unknown }) {
+  if (row.status === "published") await publishMedia(repo, collectionMediaIds(name, row));
 }
 
 async function writeItem(model: Delegate, name: Collection, input: CollectionInput, upsert = false) {

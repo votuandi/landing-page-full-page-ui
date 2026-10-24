@@ -1,0 +1,3 @@
+ALTER TABLE "Media"
+  ADD COLUMN "name" TEXT,
+  ADD COLUMN "focal" JSONB;

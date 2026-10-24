@@ -745,6 +745,8 @@ model Media {
   height     Int?
   variants   Json?
   alt        Json?
+  name       String?
+  focal      Json?
   projects   Project[]
   stories    Story[]
   posts      Post[]
