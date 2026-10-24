@@ -10,7 +10,7 @@ import ts from "typescript";
 import * as settings from "../lib/siteSettings.ts";
 import { setup } from "./siteSettings.test.ts";
 
-async function pageProps(page: "cai-dat" | "giao-dien", s: ReturnType<typeof setup>) {
+async function pageProps(page: "cai-dat" | "giao-dien", s: ReturnType<typeof setup>, whole = false) {
   const source = readFileSync(new URL(`../app/(admin)/${page}/page.tsx`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const imports: Record<string, unknown> = {
@@ -29,8 +29,19 @@ async function pageProps(page: "cai-dat" | "giao-dien", s: ReturnType<typeof set
     assert.ok(name in imports, `Unexpected import ${name}`);
     return imports[name];
   }, exports);
-  return (await exports.default()).props;
+  const props = (await exports.default()).props;
+  return page === "cai-dat" && !whole ? (props.children as { props: Record<string, unknown> }[])[0].props : props;
 }
+
+test("backup download link only renders for permitted settings sessions", async () => {
+  for (const role of ["owner", "admin"] as const) {
+    const s = setup(role);
+    const props = await pageProps("cai-dat", s, true);
+    const backup = (props.children as unknown[])[1];
+    assert.equal(Boolean(backup), role === "owner");
+    if (backup) assert.equal((backup as { props: { children: { props: { href?: string } }[] } }).props.children[2].props.href, "/api/sao-luu");
+  }
+});
 
 test("company settings falls back with a Vietnamese warning for invalid saved profile", async () => {
   for (const profile of [null, [], { hotline: "invalid" }, { brand: { url: "http://old.example" } }]) {
