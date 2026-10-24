@@ -36,6 +36,8 @@ test("I1 DB scan: unpadded palette PNG grows to actual ready size; tight quota r
     files.set(first.key, input); await scan(scanJob(tenantId, first.id));
     const ready = (await repo.media.get(first.id))!;
     assert.equal(ready.status, "ready"); assert.equal(ready.size, actual); assert.equal(ready.size, files.get(ready.key)!.byteLength);
+    assert.equal(Array.isArray(ready.variants) ? ready.variants.length : 0, 6);
+    const retained = [...files.keys()].sort();
     await repo.media.delete(first.id);
     await repo.media.create({ key: `private/${tenantId}/used`, driver: "local", mime: "video/mp4", size: 1024 ** 3 - input.byteLength, status: "ready", visibility: "private" });
     const second = await reserveUpload(db, tenantId, { mime: "image/png", size: input.byteLength }, "local");
@@ -45,7 +47,7 @@ test("I1 DB scan: unpadded palette PNG grows to actual ready size; tight quota r
     const audit = await repo.auditLog.first({ where: { action: "media.rejected", entityId: second.id } });
     assert.match(JSON.stringify(audit?.data), /quota/i);
     assert.equal(await storage.get(second.key), null);
-    assert.equal([...files.keys()].filter(key => key.startsWith("private/")).length, 1, "rejected output must be removed");
+    assert.deepEqual([...files.keys()].sort(), retained, "quota rejection removes its original and all variants, preserving existing media");
   } finally { await ops.tenant.deleteMany({ where: { id: tenantId } }); await Promise.all([db.$disconnect(), ops.$disconnect()]); }
 });
 
