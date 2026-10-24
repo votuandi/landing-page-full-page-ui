@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { SiteSettingsError } from "@solar/db";
 import { asset } from "@solar/db/collections";
-import { getTheme } from "@solar/themes";
+import { getTheme, FONT_FAMILIES, withFontOverride, themeFontFiles } from "@solar/themes";
 import { themeAllowed } from "@solar/plans";
 import { BRAND_COLOR_KEYS, colorChannelsToHex, RgbChannels, ThemeOverridesSchema, validateBrandOverrides, type ThemeTokens, type ThemeOverrides } from "@solar/tokens";
 import { settingsAction, type SiteSettingsDeps, type SettingsInput } from "./siteSettings.ts";
@@ -17,7 +17,19 @@ export function assertBrandContrast(theme: ThemeTokens, overrides: ThemeOverride
     throw new SiteSettingsError(`${labels[issue.key] ?? issue.key} (${issue.mode === "light" ? "sáng" : "tối"}) chỉ đạt ${issue.ratio.toFixed(1).replace(".", ",")}:1 với chữ trên nền, cần ≥ 4,5:1. Gợi ý: ${colorChannelsToHex(issue.suggestion)}`, 400);
   }
 }
-export function createAppearanceHandlers(deps: SiteSettingsDeps) {
+export function assertOverrides(theme: ThemeTokens, overrides: ThemeOverrides) {
+  assertBrandContrast(theme, overrides);
+  if (!withFontOverride(theme, overrides.font)) {
+    let reason = "Font không thuộc danh sách cho phép";
+    try { themeFontFiles({ ...theme, font: { ...theme.font, ...overrides.font } }); }
+    catch (error) { if (error instanceof Error && /weight \d+/.test(error.message)) reason = `Font ${Object.values(overrides.font ?? {}).join(", ")} thiếu độ đậm ${error.message.match(/weight (\d+)/)?.[1]}`; }
+    throw new SiteSettingsError(`${reason}. Gợi ý: chọn font khác hoặc đặt font theo theme trước khi đổi giao diện.`, 400);
+  }
+}
+export type AppearanceDeps = SiteSettingsDeps & {
+  media(tenantId: string, id: string): Promise<{ status: string; mime: string } | null>;
+};
+export function createAppearanceHandlers(deps: AppearanceDeps) {
   const run = (input: SettingsInput, context: ActionContext, work: Parameters<typeof settingsAction>[4]) => settingsAction("theme.manage", input, context, deps, work);
   const allowedTheme = (raw: unknown, planId?: string) => {
     const { themeId } = selectTheme.parse(raw), theme = getTheme(themeId);
@@ -28,8 +40,32 @@ export function createAppearanceHandlers(deps: SiteSettingsDeps) {
   return {
     theme: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, can, save) => {
       const theme = allowedTheme(raw, site.planId);
-      if (can("themeOverride")) assertBrandContrast(theme, ThemeOverridesSchema.parse(site.themeOverrides));
+      if (can("themeOverride")) assertOverrides(theme, ThemeOverridesSchema.parse(site.themeOverrides));
       return save({ themeId: theme.meta.id });
+    }),
+    fonts: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, can, save) => {
+      if (!can("themeOverride")) throw new SiteSettingsError("Gói hiện tại không hỗ trợ font thương hiệu", 403);
+      const font = ThemeOverridesSchema.shape.font.unwrap().parse(raw, { error: z.locales.vi().localeError });
+      if (Object.values(font).some(family => !FONT_FAMILIES.includes(family as typeof FONT_FAMILIES[number]))) throw new SiteSettingsError("Font không thuộc danh sách cho phép", 400);
+      const theme = getTheme(site.themeId);
+      if (!theme) throw new SiteSettingsError("Giao diện không tồn tại", 400);
+      const overrides = ThemeOverridesSchema.parse(site.themeOverrides);
+      if (Object.keys(font).length) overrides.font = font;
+      else delete overrides.font;
+      assertOverrides(theme, overrides);
+      return save({ themeOverrides: overrides });
+    }),
+    favicon: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, _can, save) => {
+      const { favicon } = z.strictObject({ favicon: z.uuid().nullable() }).parse(raw, { error: z.locales.vi().localeError });
+      if (favicon) {
+        const media = await deps.media(context.tenantId, favicon);
+        if (!media) throw new SiteSettingsError("Không tìm thấy ảnh", 404);
+        if (media.status !== "ready" || !["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif"].includes(media.mime)) throw new SiteSettingsError("Chọn ảnh PNG, JPEG, WebP, GIF hoặc AVIF đã xử lý xong", 400);
+      }
+      const profile = z.record(z.string(), z.unknown()).parse(site.profile);
+      const brand = z.record(z.string(), z.unknown()).parse(profile.brand ?? {});
+      delete brand.favicon;
+      return save({ profile: { ...profile, brand: { ...brand, ...(favicon ? { favicon } : {}) } } });
     }),
     colors: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, can, save) => {
       if (!can("themeOverride")) throw new SiteSettingsError("Gói hiện tại không hỗ trợ màu thương hiệu", 403);
@@ -57,7 +93,7 @@ export function createAppearanceHandlers(deps: SiteSettingsDeps) {
     }),
     preview: (input: SettingsInput, context: ActionContext) => run(input, context, async (raw, site, can) => {
       const theme = allowedTheme(raw);
-      if (can("themeOverride")) assertBrandContrast(theme, ThemeOverridesSchema.parse(site.themeOverrides));
+      if (can("themeOverride")) assertOverrides(theme, ThemeOverridesSchema.parse(site.themeOverrides));
       const url = new URL(await deps.preview(context.tenantId, site.id, context.slug));
       url.searchParams.set("theme", theme.meta.id);
       return { ok: true, url: url.toString() };

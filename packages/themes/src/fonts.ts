@@ -2,6 +2,16 @@ import { validateLabScope, type ThemeTokens } from "@solar/tokens";
 import { FONTS } from "./fonts.generated";
 
 export type FontFamily = keyof typeof FONTS;
+export const FONT_FAMILIES = Object.keys(FONTS) as FontFamily[];
+
+export function withFontOverride(theme: ThemeTokens, font?: { sans?: string; display?: string }): ThemeTokens | null {
+  if (!font || Object.keys(font).length === 0) return theme;
+  const next = { ...theme, font: { ...theme.font, ...font } };
+  try {
+    themeFontFiles(next);
+    return next;
+  } catch { return null; }
+}
 
 type FontFile = {
   readonly file: string;

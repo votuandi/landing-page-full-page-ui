@@ -3,6 +3,16 @@ import test from "node:test";
 import { tenantMetadata } from "../metadata";
 import { asset, contentImage } from "../contentSchemas";
 
+test("favicon icons include versioned PNG and apple or default SVG", () => {
+  const id = "00000000-0000-4000-8000-000000000001";
+  const site = { primaryHost: "a.localhost", name: "A", profile: { brand: { favicon: id } }, seo: {} };
+  assert.deepEqual(tenantMetadata(site, "/").icons, {
+    icon: [{ url: `/icon.png?v=${id}`, type: "image/png", sizes: "64x64" }],
+    apple: [{ url: `/apple-icon.png?v=${id}`, sizes: "180x180" }],
+  });
+  assert.deepEqual(tenantMetadata({ ...site, profile: {} }, "/").icons, { icon: "/favicon.svg" });
+});
+
 test("canonical and OG use primary host and public path, no rewrite/query/foreign brand", () => {
   const site = { primaryHost: "a.localhost", name: "Site A", profile: { name: { vi: "Brand A" } }, seo: { description: { vi: "Description A" }, ogImage: "/images/a.webp" } };
   const result = tenantMetadata(site, "/tin-tuc/shared?brand=B", "Title A", "Body A", { production: false, port: "3211" });

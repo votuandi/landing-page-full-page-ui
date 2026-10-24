@@ -3,6 +3,9 @@ import { resolve } from "node:path";
 
 // Shared by the dev server and the fixture script (it signs /api/revalidate after editing the DB).
 process.env.REVALIDATE_SECRET ??= "tenant-e2e-revalidate-secret-0123456789";
+process.env.STORAGE_DRIVER ??= "local";
+process.env.STORAGE_LOCAL_ROOT ??= resolve(__dirname, "test-results/tenant/media");
+process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3211/media";
 
 export default defineConfig({
   // One CI retry for `next dev` timing on loaded runners; Playwright still reports such tests as "flaky".

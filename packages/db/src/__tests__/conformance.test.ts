@@ -13,6 +13,19 @@ import { exportProductsCsv, previewProductCsv } from "../productCsv.ts";
 import type { CollectionRow } from "../collectionWrite.ts";
 import { parseTenantBackup } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
+import { ThemeOverridesSchema } from "../../../tokens/src/css";
+import { siteProfileSchema } from "../siteProfile.ts";
+
+test("themeOverrides of seeds parse (E7-S15)", () => {
+  for (const id of ["t15", "t12"] as const) {
+    const bundle = demoBackup(id);
+    assert.doesNotThrow(() => ThemeOverridesSchema.parse(bundle.site.themeOverrides));
+    assert.doesNotThrow(() => siteProfileSchema.parse(bundle.site.profile));
+  }
+  // Presets contain only a theme ID and sections; profile/overrides belong to the site.
+  assert.doesNotThrow(() => ThemeOverridesSchema.parse({}));
+  assert.doesNotThrow(() => siteProfileSchema.parse({}));
+});
 
 test("tenant backup bundle of every seed demo parses", () => {
   for (const id of ["t15", "t12"] as const) assert.doesNotThrow(() => parseTenantBackup(demoBackup(id)), id);

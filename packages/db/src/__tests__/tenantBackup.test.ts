@@ -4,6 +4,15 @@ import { randomUUID } from "node:crypto";
 import { parseTenantBackup, remapBackup, TenantBackupError } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 
+test("favicon media UUID is remapped on backup restore", () => {
+  const raw = demoBackup(), id = randomUUID();
+  const media = { id, key: `tenants/${raw.source.tenantId}/icon.png`, driver: "local", status: "ready", visibility: "public", mime: "image/png", size: 1, createdAt: raw.exportedAt };
+  const bundle = parseTenantBackup({ ...raw, site: { ...raw.site, profile: { brand: { favicon: id } } }, media: [media] });
+  const restored = remapBackup(bundle, randomUUID());
+  assert.equal((restored.site.profile as { brand: { favicon: string } }).brand.favicon, restored.media[0].id);
+  assert.notEqual(restored.media[0].id, id);
+});
+
 test("rejects foreign or newer bundles", () => {
   for (const input of ["{", {}, { ...demoBackup(), version: 2 }, { ...demoBackup(), format: "foreign" }, { ...demoBackup(), site: {} }, { ...demoBackup(), siteUser: [] }]) {
     assert.throws(() => parseTenantBackup(input), (e: unknown) => e instanceof TenantBackupError && e.status === 400 && /Bản sao lưu/.test(e.message));

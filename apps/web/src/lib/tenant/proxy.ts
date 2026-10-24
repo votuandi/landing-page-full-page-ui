@@ -8,7 +8,7 @@ import { cookieLocale, formatTenantContext } from "./routeContext";
 export function tenantRewritePath(request: NextRequest, record: { tenantId: string; siteId: string }, preview: boolean) {
   const { pathname, search } = request.nextUrl;
   const base = `/sites/${encodeURIComponent(record.tenantId)}/${encodeURIComponent(record.siteId)}`;
-  if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return `${base}${pathname}${search}`;
+  if (["/robots.txt", "/sitemap.xml", "/icon.png", "/apple-icon.png"].includes(pathname)) return `${base}${pathname}${search}`;
   return `${base}/${formatTenantContext({ locale: cookieLocale(request.cookies.get("solar-locale")?.value), preview })}${pathname}${search}`;
 }
 

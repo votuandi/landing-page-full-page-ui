@@ -8,6 +8,7 @@ import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
 import { createRedisCache } from "../src/lib/tenant/redis";
 import { randomUUID } from "node:crypto";
 import { signRevalidate, tenantTag } from "@solar/cache";
+import sharp from "sharp";
 
 // Fixtures write the DB directly, like admin will: drop the web server's content cache the same way (E5-S05).
 async function revalidate(tenantIds: Iterable<string>) {
@@ -136,7 +137,17 @@ async function main() {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
         touched.add(saved.tenantId);
-        if (action === "disable-about" || action === "enable-about") {
+        if (action === "brand-font-favicon") {
+          const site = (await repo.site.get(saved.siteId))!;
+          const key = `tenants/${saved.tenantId}/e7-s15/favicon.png`;
+          const bytes = await sharp({ create: { width: 24, height: 32, channels: 3, background: "red" } }).png().toBuffer();
+          await storageFromEnv().put(key, bytes, { contentType: "image/png" });
+          const media = await repo.media.create({ key, driver: "local", visibility: "public", status: "ready", mime: "image/png", size: bytes.length });
+          await repo.site.update(site.id, { themeOverrides: { ...site.themeOverrides as object, font: { sans: "Manrope" } }, profile: { ...site.profile as object, brand: { favicon: media.id } } });
+          console.log(media.id);
+        } else if (action === "brand-downgrade") {
+          await db.tenant.update({ where: { id: saved.tenantId }, data: { planId: "basic" } });
+        } else if (action === "disable-about" || action === "enable-about") {
           const site = (await repo.site.get(saved.siteId))!;
           await setPageTypes(db, saved.tenantId, { siteId: site.id, expected: site.pageTypes,
             pageTypes: action === "disable-about" ? site.pageTypes.filter(t => t !== "about") : [...new Set([...site.pageTypes, "about"])] });

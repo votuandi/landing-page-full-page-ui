@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import sharp from "sharp";
 
 function fixture(action: string) {
   return execFileSync(process.execPath, ["--import", "tsx", "scripts/tenant-browser-fixture.ts", action], { cwd: resolve(__dirname, "../../apps/web"), encoding: "utf8" });
@@ -12,6 +13,35 @@ const origin = (id: string) => `http://${id}.localhost:3211`;
 const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
+
+test("brand font and favicon", async ({ page, browser }) => {
+  test.setTimeout(180_000);
+  fixture("setup");
+  try {
+    const id = fixture("brand-font-favicon").trim();
+    await page.goto(origin("review"), { waitUntil: "networkidle" });
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--font-sans"))).toContain('"Manrope"');
+    await expect(page.locator('link[rel="preload"][as="font"][href*="manrope"]')).not.toHaveCount(0);
+    await expect(page.locator(`link[rel="icon"][href="/icon.png?v=${id}"]`)).toHaveCount(1);
+    await expect(page.locator(`link[rel="apple-touch-icon"][href="/apple-icon.png?v=${id}"]`)).toHaveCount(1);
+    for (const [path, size] of [["icon.png", 64], ["apple-icon.png", 180]] as const) {
+      const response = await page.request.get(`http://localhost:3211/${path}?v=${id}`, { headers: { Host: "review.localhost" } });
+      expect(response.status()).toBe(200); expect(response.headers()["content-type"]).toBe("image/png");
+      expect(await sharp(await response.body()).metadata()).toMatchObject({ width: size, height: size, format: "png" });
+    }
+    const noJs = await browser.newContext({ javaScriptEnabled: false });
+    try {
+      const ssr = await noJs.newPage(); await ssr.goto(origin("review"));
+      expect(await ssr.content()).toContain('--font-sans:"Manrope"');
+      await expect(ssr.locator(`link[rel="icon"][href="/icon.png?v=${id}"]`)).toHaveCount(1);
+    } finally { await noJs.close(); }
+    await page.goto(origin("t12"));
+    await expect(page.locator(`link[rel="icon"][href="/icon.png?v=${id}"]`)).toHaveCount(0);
+    fixture("brand-downgrade");
+    await page.goto(origin("review"));
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--font-sans"))).not.toContain('"Manrope"');
+  } finally { fixture("cleanup"); }
+});
 
 test("backup restore renders identical home", async ({ page }, info) => {
   test.setTimeout(180_000);

@@ -24,5 +24,5 @@ export function getTheme(id: string): ThemeTokens | undefined {
   return themes.find((theme) => theme.meta.id === id);
 }
 
-export { themeFontFamilies, themeFontFiles, themeFontCss } from "./fonts";
+export { FONT_FAMILIES, withFontOverride, themeFontFamilies, themeFontFiles, themeFontCss } from "./fonts";
 export type { FontFamily } from "./fonts";

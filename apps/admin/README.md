@@ -150,4 +150,8 @@ File UTF-8 dùng dấu phẩy, tối đa 500 kB và 1000 dòng; một dòng lỗ
 `/giao-dien` yêu cầu `theme.manage`: theme theo nhóm của gói, preview qua token một lần và cookie httpOnly,
 màu primary/secondary/accent (cần `themeOverride`), đường dẫn logo sáng/tối. Màu được kiểm AA trên cả client và server,
 đổi theme kiểm lại override đang lưu. Hạ gói giữ theme hiện tại, web bỏ override khi không còn entitlement.
-Mọi form gửi phiên bản `updatedAt`; xung đột 409 yêu cầu tải lại. Font override và favicon thuộc E7-S15.
+Mọi form gửi phiên bản `updatedAt`; xung đột 409 yêu cầu tải lại.
+
+E7-S15: panel Font chữ chọn font nội dung/tiêu đề từ danh sách self-host khi có `themeOverride`.
+Server kiểm family, weight và entitlement cả lúc lưu font lẫn đổi/xem thử theme. Favicon dùng mọi gói,
+chọn ảnh PNG/JPEG/WebP/GIF/AVIF ready của tenant; ảnh private đi qua pipeline publish sẵn có.

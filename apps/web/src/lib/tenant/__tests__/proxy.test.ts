@@ -15,6 +15,15 @@ const request = (host: string, path = "/", extra: Record<string, string> = {}) =
 const resolver = { resolve: async (host: string) => records.find((value) => value.hostname === host) ?? null };
 const proxy = createProxy(resolver, { enabled: true, production: false });
 
+test("icon routes rewrite tenant PNGs and preserve version query", async () => {
+  for (const path of ["/icon.png", "/apple-icon.png"]) {
+    assert.equal(unstable_doesMiddlewareMatch({ config, url: path }), true);
+    const response = await proxy(request("a.localhost", `${path}?v=media-id`));
+    const url = new URL(response.headers.get("x-middleware-rewrite")!);
+    assert.equal(url.pathname, `/sites/tenant-a/site-a${path}`); assert.equal(url.search, "?v=media-id");
+  }
+});
+
 test("preview frame-ancestors uses admin port in dev and no port in production", async t => {
   const previous = process.env.ADMIN_PUBLIC_PORT, domain = process.env.PLATFORM_DOMAIN;
   t.after(() => { if (previous === undefined) delete process.env.ADMIN_PUBLIC_PORT; else process.env.ADMIN_PUBLIC_PORT = previous; if (domain === undefined) delete process.env.PLATFORM_DOMAIN; else process.env.PLATFORM_DOMAIN = domain; });

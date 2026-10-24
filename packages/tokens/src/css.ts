@@ -2,6 +2,7 @@ import { z } from "zod";
 import { COLOR_KEYS, ColorSetSchema, GLASS_COLOR_KEYS, type ColorSet, type ThemeTokens } from "./schema";
 
 export const ThemeOverridesSchema = z.strictObject({
+  font: z.strictObject({ sans: z.string().max(60).optional(), display: z.string().max(60).optional() }).optional(),
   colors: z.strictObject({
     light: ColorSetSchema.partial().optional(),
     dark: ColorSetSchema.partial().optional(),

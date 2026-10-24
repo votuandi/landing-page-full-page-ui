@@ -1,10 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { COLOR_KEYS, GLASS_COLOR_KEYS, parseTheme } from "../schema";
-import { themeToCss, type ThemeOverrides } from "../css";
+import { themeToCss, ThemeOverridesSchema, type ThemeOverrides } from "../css";
 import { t15 as fixture } from "./fixtures/t15";
 
 const t15 = parseTheme(fixture);
+
+test("font override preserves colors and does not emit unvalidated font CSS", () => {
+  const colors = { light: { primary: "1 2 3" } };
+  const input = { colors, font: { sans: "Manrope", display: "Inter" } };
+  assert.deepEqual(ThemeOverridesSchema.parse(input), input);
+  assert.equal(themeToCss(t15, input), themeToCss(t15, { colors }));
+  for (const font of [{ typo: "Inter" }, { sans: "x".repeat(61) }, null]) {
+    assert.equal(ThemeOverridesSchema.safeParse({ font }).success, false);
+  }
+});
 const lightSelector = ':root,[data-theme="light"]';
 const darkSelector = '[data-theme="dark"]';
 const mediaSelector = ':root:not([data-theme])';

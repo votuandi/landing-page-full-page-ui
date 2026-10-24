@@ -26,6 +26,64 @@ async function login(page: Page, identifier = "owner@demo.vn", pass = password()
   await page.getByLabel("Mật khẩu", { exact: true }).fill(pass);
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
 }
+
+async function uploadImage(page: Page, png: Buffer) {
+  const id = await page.evaluate(async base64 => {
+    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const reservation = await fetch("/api/media", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mime: "image/png", size: bytes.length }) });
+    if (reservation.status !== 201) throw new Error(`reserve: ${reservation.status}`);
+    const { id, upload } = await reservation.json();
+    if (!upload.url.startsWith("/api/media/")) throw new Error("Requires STORAGE_DRIVER=local fixture");
+    const put = await fetch(upload.url, { method: upload.method, headers: upload.headers, body: bytes });
+    if (put.status !== 204) throw new Error(`put: ${put.status}`);
+    const complete = await fetch(`/api/media/${id}/complete`, { method: "POST" });
+    if (complete.status !== 202) throw new Error(`complete: ${complete.status}`);
+    return id as string;
+  }, png.toString("base64"));
+  expect(fixture("media-scan", id)).toBe("ready");
+  return id;
+}
+
+test("brand font and favicon", async ({ page }, info) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const png = await sharp({ create: { width: 24, height: 32, channels: 3, background: "red" } }).png().toBuffer();
+  // Upload from a settled page: a dev-mode dashboard reload would abort the in-page fetches.
+  await page.goto(origin() + "/giao-dien");
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toBeEnabled();
+  const id = await uploadImage(page, png);
+  await page.reload();
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toBeEnabled();
+  await page.getByLabel("Chữ nội dung", { exact: true }).selectOption("Manrope");
+  await page.getByLabel("Tiêu đề", { exact: true }).selectOption("Inter");
+  await page.getByRole("button", { name: "Lưu font", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Đã lưu thay đổi");
+  await page.reload();
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toHaveValue("Manrope");
+  await expect(page.getByLabel("Tiêu đề", { exact: true })).toHaveValue("Inter");
+  // Saving colors after fonts must preserve the font and obey the colors-only input schema.
+  await page.getByRole("button", { name: "Lưu màu thương hiệu", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Đã lưu thay đổi");
+  await page.locator(`input[name="favicon"][value="${id}"]`).check();
+  await page.getByRole("button", { name: "Lưu biểu tượng", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Đã lưu thay đổi");
+  await page.reload();
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toHaveValue("Manrope");
+  await expect(page.locator(`input[name="favicon"][value="${id}"]`)).toBeChecked();
+  expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await info.attach(`brand-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  }
+  await page.getByRole("radio", { name: "Biểu tượng mặc định", exact: true }).check();
+  await page.getByRole("button", { name: "Lưu biểu tượng", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Đã lưu thay đổi");
+  await page.getByLabel("Chữ nội dung", { exact: true }).selectOption("");
+  await page.getByLabel("Tiêu đề", { exact: true }).selectOption("");
+  await page.getByRole("button", { name: "Lưu font", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Đã lưu thay đổi");
+});
 test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
   fixture("setup");

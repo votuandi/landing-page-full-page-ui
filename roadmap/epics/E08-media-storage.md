@@ -27,7 +27,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   - [x] Không có import `fs` ngoài driver local.
 - Agent: Codex · Cỡ: M
 
-### E8-S02 · Upload an toàn
+### E8-S02 · Upload an toàn ✅ · PR [#60](https://github.com/votuandi/landing-page-full-page-ui/pull/60)
 **Là** tenant, **tôi muốn** tải ảnh/video lên nhanh và an toàn, **để** cập nhật nội dung dễ dàng.
 - **Chi tiết**: kiểm MIME bằng magic bytes (không tin phần mở rộng), giới hạn kích thước theo loại (ảnh 15 MB, video 200 MB,
   PDF 20 MB), chặn SVG có script (sanitize hoặc cấm SVG từ khách), xóa EXIF GPS.

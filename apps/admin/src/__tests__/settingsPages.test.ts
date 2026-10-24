@@ -21,6 +21,7 @@ async function pageProps(page: "cai-dat" | "giao-dien", s: ReturnType<typeof set
     "@solar/tokens": { ThemeOverridesSchema },
     "../../../lib/siteSettings.ts": settings,
     "../../../lib/siteSettingsRuntime.ts": { siteSettingsDeps: s.deps },
+    "../../../lib/appearanceRuntime.ts": { appearanceDeps: { ...s.deps, images: async () => [] } },
     "../../../components/SiteProfileForm.tsx": { SiteProfileForm: () => null },
     "../../../components/AppearanceForm.tsx": { AppearanceForm: () => null },
   };

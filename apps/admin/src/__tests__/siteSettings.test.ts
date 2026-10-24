@@ -4,6 +4,7 @@ import { effectivePermissions, type Session } from "@solar/auth";
 import { siteProfileSchema } from "@solar/db/site-profile";
 import { createAction, type ActionContext } from "../lib/action.ts";
 import { createAppearanceHandlers } from "../lib/appearance.ts";
+import type { AppearanceDeps } from "../lib/appearance.ts";
 import { createSiteSettingsHandlers, loadSiteSettings, settingsPayloadSchema, type SiteSettingsDeps, type SettingsSite } from "../lib/siteSettings.ts";
 
 export function setup(role: "owner" | "admin" | "editor" | "viewer" = "owner", enabled = true) {
@@ -12,7 +13,8 @@ export function setup(role: "owner" | "admin" | "editor" | "viewer" = "owner", e
   const session: Session = { id: "session", accountId: siteId, tenantId, realm: "site", audience: "admin", kind: "user", role, permissions: effectivePermissions({ role, audience: "admin" }), expiresAt: new Date(Date.now() + 10000), mustChangePassword: false };
   const context: ActionContext = { tenantId, slug: "mau", session };
   let site: SettingsSite = { id: siteId, planId: "premium", profile: { ...siteProfileSchema.parse({}), extra: { keep: 1 }, theme: { default: "dark", switcher: true } }, themeId: "t15", themeOverrides: {}, updatedAt: new Date(), locales: ["vi"], defaultLocale: "vi" };
-  const deps: SiteSettingsDeps = {
+  const deps: AppearanceDeps = {
+    media: async () => null,
     requirePermission: async permission => { if (!session.permissions.has(permission)) throw Object.assign(new Error("Forbidden"), { status: 403 }); return session; },
     tenant: async () => ({ tenantId, siteId }), entitlements: async () => () => enabled,
     load: async () => { reads++; return site; },
@@ -24,6 +26,8 @@ export function setup(role: "owner" | "admin" | "editor" | "viewer" = "owner", e
     profile: action("settings.manage", settingsPayloadSchema, handlers.profile),
     theme: action("theme.manage", settingsPayloadSchema, handlers.theme),
     colors: action("theme.manage", settingsPayloadSchema, handlers.colors),
+    fonts: action("theme.manage", settingsPayloadSchema, handlers.fonts),
+    favicon: action("theme.manage", settingsPayloadSchema, handlers.favicon),
     logos: action("theme.manage", settingsPayloadSchema, handlers.logos),
     preview: action("theme.manage", settingsPayloadSchema, handlers.preview),
   };
