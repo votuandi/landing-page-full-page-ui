@@ -15,7 +15,7 @@ export function BrandColorsForm({ theme, initial, pending, save }: { theme: Them
   const labels = { primary: "Màu chính", secondary: "Màu phụ", accent: "Màu nhấn" };
   const focus = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
   const ratio = (value: number) => `${value.toFixed(1).replace(".", ",")}:1`;
-  return <form className="min-w-0 space-y-4 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6" onSubmit={event => { event.preventDefault(); save(overrides); }}>
+  return <form className="min-w-0 space-y-4 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6" onSubmit={event => { event.preventDefault(); save({ colors: overrides.colors }); }}>
     <h2 className="text-lg font-semibold text-fg">Màu thương hiệu</h2>
     <p className="text-sm text-fg-muted">Chữ trên màu thương hiệu cần đạt tỷ lệ tương phản tối thiểu 4,5:1 để dễ đọc. Bấm “Dùng màu theme” để bỏ màu tùy chỉnh. Màu được kiểm theo theme đang dùng; khi đổi theme, màu tùy chỉnh được kiểm lại.</p>
     <fieldset disabled={pending} className="min-w-0 space-y-5"><legend className="sr-only">Chỉnh màu thương hiệu</legend>

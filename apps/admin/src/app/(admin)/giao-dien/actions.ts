@@ -6,3 +6,5 @@ export const saveTheme = action("theme.manage", settingsPayloadSchema, appearanc
 export const previewTheme = action("theme.manage", settingsPayloadSchema, appearanceHandlers.preview);
 export const saveColors = action("theme.manage", settingsPayloadSchema, appearanceHandlers.colors);
 export const saveLogos = action("theme.manage", settingsPayloadSchema, appearanceHandlers.logos);
+export const saveFonts = action("theme.manage", settingsPayloadSchema, appearanceHandlers.fonts);
+export const saveFavicon = action("theme.manage", settingsPayloadSchema, appearanceHandlers.favicon);

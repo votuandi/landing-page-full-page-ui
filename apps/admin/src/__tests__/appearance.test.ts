@@ -3,6 +3,68 @@ import { test } from "node:test";
 import { getTheme } from "@solar/themes";
 import { setup } from "./siteSettings.test.ts";
 
+test("fonts rejects unknown family and missing weight", async () => {
+  const s = setup();
+  for (const sans of ["Comic Sans", 'Inter";}', "__proto__", ""]) {
+    assert.equal((await s.actions.fonts({}, s.form({ sans }))).status, 400);
+  }
+  s.setSite({ themeId: "t01" });
+  const result = await s.actions.fonts({}, s.form({ display: "Manrope" }));
+  assert.equal(result.status, 400); assert.match(result.error!, /900/);
+  assert.equal(s.writes(), 0);
+});
+
+test("fonts requires themeOverride and permission", async () => {
+  for (const [role, enabled] of [["owner", false], ["viewer", true]] as const) {
+    const s = setup(role, enabled);
+    assert.equal((await s.actions.fonts({}, s.form({ sans: "Manrope" }))).status, 403);
+    assert.equal(s.writes(), 0);
+  }
+});
+
+test("fonts keeps colors and colors keeps font; empty fonts resets", async () => {
+  const s = setup(), colors = { light: { primary: getTheme("t15")!.colors.light.primary } };
+  s.setSite({ themeOverrides: { colors } });
+  assert.equal((await s.actions.fonts({}, s.form({ sans: "Manrope" }))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, { colors, font: { sans: "Manrope" } });
+  assert.equal((await s.actions.colors({}, s.form({}))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, { font: { sans: "Manrope" } });
+  assert.equal((await s.actions.fonts({}, s.form({}))).ok, true);
+  assert.deepEqual(s.site().themeOverrides, {});
+});
+
+test("theme and preview reject incompatible font before issuing token", async () => {
+  const s = setup(); s.setSite({ themeOverrides: { font: { display: "Manrope" } } });
+  let issued = 0; s.deps.preview = async () => { issued++; return "https://preview.localhost/"; };
+  for (const action of [s.actions.theme, s.actions.preview]) {
+    const result = await action({}, s.form({ themeId: "t01" }));
+    assert.equal(result.status, 400); assert.match(result.error!, /900/); assert.match(result.error!, /Gợi ý/);
+  }
+  assert.equal(s.writes(), 0); assert.equal(issued, 0);
+});
+
+const faviconId = "e7070000-0000-4000-8000-000000000099";
+test("favicon saves media id and preserves brand, accepts private for publish and clears", async () => {
+  const s = setup("owner", false);
+  s.deps.media = async (tenantId, id) => { assert.equal(tenantId, s.context.tenantId); assert.equal(id, faviconId); return { status: "ready", mime: "image/png" }; };
+  s.setSite({ profile: { brand: { logo: "/logo.svg", tagline: "[DỮ LIỆU MẪU]" }, extra: true } });
+  assert.equal((await s.actions.favicon({}, s.form({ favicon: faviconId }))).ok, true);
+  assert.deepEqual(s.site().profile, { brand: { logo: "/logo.svg", tagline: "[DỮ LIỆU MẪU]", favicon: faviconId }, extra: true });
+  assert.equal((await s.actions.favicon({}, s.form({ favicon: null }))).ok, true);
+  assert.deepEqual(s.site().profile, { brand: { logo: "/logo.svg", tagline: "[DỮ LIỆU MẪU]" }, extra: true });
+});
+
+test("favicon rejects foreign media, invalid uuid, missing payload, non-ready and unsupported mime", async () => {
+  const s = setup(); s.deps.media = async () => null;
+  assert.equal((await s.actions.favicon({}, s.form({ favicon: faviconId }))).status, 404);
+  for (const favicon of ["wrong", undefined, 1]) assert.equal((await s.actions.favicon({}, s.form({ favicon }))).status, 400);
+  for (const media of [{ status: "quarantine", mime: "image/png" }, { status: "failed", mime: "image/png" }, { status: "ready", mime: "image/svg+xml" }]) {
+    s.deps.media = async () => media;
+    assert.equal((await s.actions.favicon({}, s.form({ favicon: faviconId }))).status, 400);
+  }
+  assert.equal(s.writes(), 0);
+});
+
 test("saveColors rejects low contrast", async () => {
   const s = setup();
   const result = await s.actions.colors({}, s.form({ colors: { light: { primary: getTheme("t15")!.colors.light["on-primary"] } } }));
