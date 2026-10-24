@@ -45,7 +45,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   - [x] Dung lượng đã dùng hiển thị đúng trong admin.
 - Phụ thuộc: S01, E6-S02, E7-S01 · Agent: Codex (review Claude adversarial) · Cỡ: L
 
-### E8-S03 · Biến thể ảnh & phân phối
+### E8-S03 · Biến thể ảnh & phân phối ✅ · PR [#62](https://github.com/votuandi/landing-page-full-page-ui/pull/62)
 - **Chi tiết**: sau upload, `sharp` tạo `w640/w1280/w1920` AVIF + WebP, lưu `variants` trong `Media`; khóa biến thể đi cùng
   file gốc khi xuất bản, Cache-Control `public, max-age=31536000, immutable` (khóa có uuid).
   Phần phân phối (`<Media>` srcset, loader, focal, Lighthouse) tách sang E8-S07 (24/10/2026, plan quá ngưỡng 30 file).
