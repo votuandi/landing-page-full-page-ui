@@ -73,13 +73,13 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, fav
     }}>
       <fieldset disabled={!ready || pending} className="min-w-0 space-y-4"><legend className="text-lg font-semibold text-fg">Font chữ</legend>
         <p className="text-sm text-fg-muted">Chọn font thương hiệu hoặc dùng font theo theme. Font cần hỗ trợ đầy đủ độ đậm của theme.</p>
-        <div className="grid gap-4 md:grid-cols-2">{(["sans", "display"] as const).map(role => <label key={role} className="block space-y-2">
-          <span className="font-medium text-fg">{role === "sans" ? "Chữ nội dung" : "Tiêu đề"}</span>
-          <select name={role} defaultValue={overrides.font?.[role] ?? ""} className={`min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg ${focus}`}>
+        <div className="grid gap-4 md:grid-cols-2">{(["sans", "display"] as const).map(role => <div key={role} className="space-y-2">
+          <label htmlFor={`font-${role}`} className="block font-medium text-fg">{role === "sans" ? "Chữ nội dung" : "Tiêu đề"}</label>
+          <select id={`font-${role}`} name={role} defaultValue={overrides.font?.[role] ?? ""} className={`min-h-11 w-full rounded-input border border-line/20 bg-bg px-3 text-fg ${focus}`}>
             <option value="">Theo theme ({getTheme(currentTheme)!.font[role]})</option>
             {FONT_FAMILIES.map(family => <option key={family} value={family}>{family}</option>)}
           </select>
-        </label>)}</div>
+        </div>)}</div>
         <button className={primaryButton}>Lưu font</button>
       </fieldset>
     </form>}

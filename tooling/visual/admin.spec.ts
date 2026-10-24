@@ -48,8 +48,12 @@ test("brand font and favicon", async ({ page }, info) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   const png = await sharp({ create: { width: 24, height: 32, channels: 3, background: "red" } }).png().toBuffer();
-  const id = await uploadImage(page, png);
+  // Upload from a settled page: a dev-mode dashboard reload would abort the in-page fetches.
   await page.goto(origin() + "/giao-dien");
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toBeEnabled();
+  const id = await uploadImage(page, png);
+  await page.reload();
+  await expect(page.getByLabel("Chữ nội dung", { exact: true })).toBeEnabled();
   await page.getByLabel("Chữ nội dung", { exact: true }).selectOption("Manrope");
   await page.getByLabel("Tiêu đề", { exact: true }).selectOption("Inter");
   await page.getByRole("button", { name: "Lưu font", exact: true }).click();
