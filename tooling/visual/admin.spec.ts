@@ -36,6 +36,28 @@ test.beforeAll(async ({ request }) => {
 });
 test.afterAll(() => fixture("cleanup"));
 
+test("owner downloads backup, staff is forbidden", async ({ page, browser }) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/cai-dat");
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Tải bản sao lưu", exact: true }).click();
+  const download = await downloaded;
+  expect(download.suggestedFilename()).toMatch(/^admin-e7-a-backup-\d{4}-\d{2}-\d{2}\.json$/);
+  const text = await readFile((await download.path())!, "utf8"), bundle = JSON.parse(text);
+  expect(bundle.format).toBe("solar-tenant-backup"); expect(bundle.source.tenantId).toBe("e7000000-0000-4000-8000-000000000001");
+  expect(bundle.pages.some((p: { slug: string }) => p.slug === "")).toBe(true);
+  expect(text).not.toMatch(/passwordHash|siteUser|owner@demo.vn|tokenHash|configEncrypted/);
+  const context = await browser.newContext();
+  try {
+    const staff = await context.newPage(); await login(staff, "staff_admin");
+    await expect(staff.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    expect((await staff.request.get(origin() + "/api/sao-luu")).status()).toBe(403);
+    await staff.goto(origin() + "/cai-dat");
+    await expect(staff.getByRole("link", { name: "Tải bản sao lưu", exact: true })).toHaveCount(0);
+  } finally { await context.close(); }
+});
+
 test("products: CSV export, preview error, import", async ({ page }, info) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
