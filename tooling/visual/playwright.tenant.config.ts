@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 process.env.REVALIDATE_SECRET ??= "tenant-e2e-revalidate-secret-0123456789";
 process.env.STORAGE_DRIVER ??= "local";
 process.env.STORAGE_LOCAL_ROOT ??= resolve(__dirname, "test-results/tenant/media");
-process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3211/media";
+process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3212/media";
 
 export default defineConfig({
   // One CI retry for `next dev` timing on loaded runners; Playwright still reports such tests as "flaky".
@@ -14,9 +14,13 @@ export default defineConfig({
   use: { browserName: "chromium", viewport: { width: 1440, height: 900 }, locale: "vi-VN", navigationTimeout: 30_000, contextOptions: { reducedMotion: "reduce" }, trace: "retain-on-failure", screenshot: "only-on-failure",
     launchOptions: { args: ["--host-resolver-rules=MAP *.localhost 127.0.0.1"] } },
   expect: { timeout: 20_000 },
-  webServer: {
+  webServer: [{
     command: "pnpm --filter web dev --port 3211", cwd: resolve(__dirname, "../.."),
     url: "http://localhost:3211/favicon.svg", reuseExistingServer: !process.env.CI, timeout: 120_000,
     env: { MULTI_TENANT: "1", TENANT_PUBLIC_PORT: "3211", REVALIDATE_SECRET: process.env.REVALIDATE_SECRET, PLATFORM_DATABASE_URL: "", MIGRATION_DATABASE_URL: "", TEST_OWNER_DATABASE_URL: "", SEED_PASSWORD: "" },
-  },
+  }, {
+    command: "node tooling/visual/media-server.mjs", cwd: resolve(__dirname, "../.."),
+    url: "http://127.0.0.1:3212/media/tenants/health", reuseExistingServer: !process.env.CI, timeout: 30_000,
+    env: { STORAGE_LOCAL_ROOT: process.env.STORAGE_LOCAL_ROOT },
+  }],
 });

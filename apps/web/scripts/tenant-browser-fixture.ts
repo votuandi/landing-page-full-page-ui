@@ -71,6 +71,8 @@ async function main() {
       const host = "review.localhost", reviewSlug = "review-t15";
       const touched = new Set<string>([domain.tenantId]);
       if (action === "setup" || action === "cleanup") {
+        const previous = await forPlatform(db).tenants.bySlug(reviewSlug);
+        if (previous) for await (const key of storageFromEnv().list(`tenants/${previous.tenantId}/e8-s04/`)) await storageFromEnv().delete(key);
         // Remove the review tenant, plus review rows that older fixtures created inside the t15 tenant.
         await db.tenant.deleteMany({ where: { slug: reviewSlug } });
         const repo = forTenant(db, domain.tenantId);
@@ -137,7 +139,23 @@ async function main() {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
         touched.add(saved.tenantId);
-        if (action === "brand-font-favicon") {
+        if (action === "self-hosted-video") {
+          const storage = storageFromEnv();
+          const key = `tenants/${saved.tenantId}/e8-s04/${randomUUID()}.mp4`, posterKey = key.replace(/\.mp4$/, "-w640.webp");
+          const bytes = readFileSync(resolve("public/videos/shorts/ho-gia-dinh-1.mp4"));
+          const poster = await sharp({ create: { width: 360, height: 640, channels: 3, background: "red" } }).webp().toBuffer();
+          await storage.put(key, bytes, { contentType: "video/mp4" });
+          await storage.put(posterKey, poster, { contentType: "image/webp" });
+          const video = await repo.media.create({ key, driver: "local", visibility: "public", status: "ready", mime: "video/mp4", size: bytes.length,
+            variants: [{ key: posterKey, format: "webp", width: 360, height: 640, size: poster.length }] });
+          const original = buildDemo("t15").collections.stories[0];
+          const story = await repo.story.create({ slug: "self-hosted-video", title: { vi: "[DỮ LIỆU MẪU] Video tự host", en: "[DỮ LIỆU MẪU] Self-hosted video" }, status: "published", segment: "household", kind: "done", order: -1,
+            data: json({ ...original.data, poster: { id: video.id, alt: { vi: "Poster tự sinh" } }, source: { provider: "file", idOrSrc: video.id } }) });
+          const shorts = await repo.sectionContent.first({ where: { siteId: saved.siteId, pageId: saved.pageId, type: "shorts" } });
+          if (!shorts) throw Error("Review home must include shorts");
+          await repo.sectionContent.update(shorts.id, { data: json({ ...shorts.data as object, query: { collection: "stories", ids: [story.id], limit: 1, filter: {} } }) });
+          console.log(JSON.stringify({ url: storage.publicUrl(key), poster: storage.publicUrl(posterKey) }));
+        } else if (action === "brand-font-favicon") {
           const site = (await repo.site.get(saved.siteId))!;
           const key = `tenants/${saved.tenantId}/e7-s15/favicon.png`;
           const bytes = await sharp({ create: { width: 24, height: 32, channels: 3, background: "red" } }).png().toBuffer();
