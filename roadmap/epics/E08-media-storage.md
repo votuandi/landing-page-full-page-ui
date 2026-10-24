@@ -60,7 +60,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 ### E8-S04 · Video
 - **Chi tiết**: video Shorts ưu tiên nhúng YouTube/TikTok/Bunny Stream (rẻ, có adaptive streaming); video tự host (gói Cao cấp)
   lưu nguyên file + poster tự sinh (ffmpeg trong worker) — ghi rõ giới hạn băng thông trong gói.
-- **AC**: [ ] Shorts với `provider=file` phát được từ local và R2 · [x] Poster sinh tự động — worker `mediaScan.test.ts` + `mediaScan.int.test.ts` (ffmpeg thật, sáu biến thể AVIF/WebP).
+- **AC**: [x] Shorts với `provider=file` phát được từ local và R2 — e2e `tenant.spec.ts` › "shorts self-hosted video plays" (local, Range), worker `mediaScan.int.test.ts` › "s3 video publish serves range" (MinIO thay R2; R2 thật kiểm khi triển khai) · [x] Poster sinh tự động — worker `mediaScan.test.ts` + `mediaScan.int.test.ts` (ffmpeg thật, sáu biến thể AVIF/WebP).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
 ### E8-S05 · Thư viện media trong CMS
