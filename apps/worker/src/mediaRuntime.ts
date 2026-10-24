@@ -17,7 +17,8 @@ export function createMediaRuntime(db: PlatformDb) {
   };
   return {
     scan: (job: Parameters<ReturnType<typeof createMediaScan>>[0]) => createMediaScan({ media, storage: storageFromEnv() })(job),
-    publish: (job: Parameters<ReturnType<typeof createMediaPublish>>[0]) => createMediaPublish({ media, storage: storageFromEnv() })(job),
+    publish: (job: Parameters<ReturnType<typeof createMediaPublish>>[0]) => createMediaPublish({ media, storage: storageFromEnv(),
+      invalidate: (tenantId, job) => forTenant(db, tenantId).outbox.create(job) })(job),
     cleanup: () => cleanupExpiredMedia({ expireStale: now => forPlatform(db).media.expireStale(now), storage: storageFromEnv() }),
   };
 }

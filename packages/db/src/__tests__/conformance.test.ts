@@ -15,6 +15,12 @@ import { parseTenantBackup } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 import { ThemeOverridesSchema } from "../../../tokens/src/css";
 import { siteProfileSchema } from "../siteProfile.ts";
+import { storySource } from "@solar/sections";
+
+test("E8-S04: static seed story sources still parse alongside Media UUID file sources", () => {
+  for (const id of ["t15", "t12"] as const) for (const story of buildDemo(id).collections.stories) assert.doesNotThrow(() => storySource.parse(story.data.source));
+  assert.deepEqual(storySource.parse({ provider: "file", idOrSrc: "20c7d32c-e48f-40de-a9ea-3db1b71735c6" }), { provider: "file", idOrSrc: "20c7d32c-e48f-40de-a9ea-3db1b71735c6" });
+});
 
 test("themeOverrides of seeds parse (E7-S15)", () => {
   for (const id of ["t15", "t12"] as const) {

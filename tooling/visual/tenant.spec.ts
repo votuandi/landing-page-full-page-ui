@@ -14,6 +14,30 @@ const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
 
+test("shorts self-hosted video plays", async ({ page, browser }) => {
+  fixture("setup");
+  try {
+    const { url, poster } = JSON.parse(fixture("self-hosted-video")) as { url: string; poster: string };
+    expect((await page.goto(origin("review"), { waitUntil: "networkidle" }))?.status()).toBe(200);
+    const card = page.getByRole("button", { name: /Play video:.*Self-hosted video/ });
+    await expect(card).toBeVisible();
+    // Poster is already in SSR HTML when JavaScript is disabled.
+    const noJs = await browser.newContext({ javaScriptEnabled: false });
+    try {
+      const ssr = await noJs.newPage(); await ssr.goto(origin("review"));
+      await expect(ssr.getByRole("button", { name: /Play video:.*Self-hosted video/ }).locator("img")).toHaveAttribute("src", poster);
+    } finally { await noJs.close(); }
+    await card.click();
+    const video = page.getByRole("dialog", { name: /Self-hosted video/ }).locator("video");
+    await expect(video).toHaveAttribute("src", url);
+    await expect(video).toHaveAttribute("poster", poster);
+    await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).currentTime)).toBeGreaterThan(0);
+    const response = await page.request.get(url, { headers: { Range: "bytes=0-99" } });
+    expect(response.status()).toBe(206); expect(response.headers()["content-type"]).toBe("video/mp4");
+    expect((await response.body()).length).toBe(100);
+  } finally { fixture("cleanup"); }
+});
+
 test("brand font and favicon", async ({ page, browser }) => {
   test.setTimeout(180_000);
   fixture("setup");

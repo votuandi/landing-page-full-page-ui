@@ -45,7 +45,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   - [x] Dung lượng đã dùng hiển thị đúng trong admin.
 - Phụ thuộc: S01, E6-S02, E7-S01 · Agent: Codex (review Claude adversarial) · Cỡ: L
 
-### E8-S03 · Biến thể ảnh & phân phối
+### E8-S03 · Biến thể ảnh & phân phối ✅ · PR [#62](https://github.com/votuandi/landing-page-full-page-ui/pull/62)
 - **Chi tiết**: sau upload, `sharp` tạo `w640/w1280/w1920` AVIF + WebP, lưu `variants` trong `Media`; khóa biến thể đi cùng
   file gốc khi xuất bản, Cache-Control `public, max-age=31536000, immutable` (khóa có uuid).
   Phần phân phối (`<Media>` srcset, loader, focal, Lighthouse) tách sang E8-S07 (24/10/2026, plan quá ngưỡng 30 file).
@@ -60,7 +60,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 ### E8-S04 · Video
 - **Chi tiết**: video Shorts ưu tiên nhúng YouTube/TikTok/Bunny Stream (rẻ, có adaptive streaming); video tự host (gói Cao cấp)
   lưu nguyên file + poster tự sinh (ffmpeg trong worker) — ghi rõ giới hạn băng thông trong gói.
-- **AC**: [ ] Shorts với `provider=file` phát được từ local và R2 · [ ] Poster sinh tự động.
+- **AC**: [x] Shorts với `provider=file` phát được từ local và R2 — e2e `tenant.spec.ts` › "shorts self-hosted video plays" (local, Range), worker `mediaScan.int.test.ts` › "s3 video publish serves range" (MinIO thay R2; R2 thật kiểm khi triển khai) · [x] Poster sinh tự động — worker `mediaScan.test.ts` + `mediaScan.int.test.ts` (ffmpeg thật, sáu biến thể AVIF/WebP).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
 ### E8-S05 · Thư viện media trong CMS

@@ -34,6 +34,20 @@ config, chặn SSRF) thuộc E11-S02; hiện kênh chưa có sender sẽ dead ng
 
 Kiểm thử: `pnpm --filter worker test` (đặt `DATABASE_URL` + `PLATFORM_DATABASE_URL` để test Postgres không skip).
 
+## Video và poster (E8-S04)
+
+Worker cần `ffmpeg` + `ffprobe` trên PATH, hoặc đặt `FFMPEG_PATH`/`FFPROBE_PATH` tới executable
+(Windows: `C:\ffmpeg\bin\ffmpeg.exe`, `C:\ffmpeg\bin\ffprobe.exe`). Không dùng shell.
+Mỗi subprocess có timeout 60 giây, stdout tối đa 50 MB; quá hạn/đầu ra quá lớn bị SIGKILL rồi chờ đóng trước khi dọn thư mục tạm.
+Chỉ bật protocol file/pipe, không cho container upload kéo tài nguyên mạng. Thiếu executable (ENOENT) giữ job retry;
+video lỗi/không có stream hình/quá 10 phút bị reject và xóa quarantine. Giới hạn decode là 50 megapixel.
+Poster lấy ở `min(1, duration / 2)` giây, encode bằng cùng pipeline ảnh 30 giây; video gốc không bị transcode.
+Publish thành công ghi invalidate qua tenant outbox; retry khi đã-public cũng enqueue để phục hồi crash sau CAS.
+
+Test thật: `MEDIA_REQUIRE_FFMPEG=1 STORAGE_REQUIRE_S3=1 STORAGE_S3_TEST_ENDPOINT=http://127.0.0.1:59000 pnpm --filter worker test`
+(thêm env DB để chạy các test Postgres). Thiếu ffmpeg/MinIO có lý do skip khi không bật cờ bắt buộc; CI job DB bật cả hai.
+Video tự host giới hạn 200 MB/10 phút; băng thông tính vào CDN/VPS nền tảng, xem [gói dịch vụ](../../packages/plans/README.md).
+
 ## Cache invalidation (E5-S05)
 
 Topic `invalidate` gọi `POST /api/revalidate` tới mọi URL trong `WEB_REVALIDATE_URLS` (phân tách dấu phẩy).

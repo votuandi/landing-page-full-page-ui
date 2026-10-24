@@ -28,6 +28,18 @@ const page = (sections: object[]): PageConfig => pageConfigSchema.parse({ sectio
 const render = async (props: Omit<PageRendererProps, "site" | "registry">) =>
   renderToStaticMarkup(await PageRenderer({ site, registry, ...props }));
 
+test("trusted resolveData runs after final parse without reparsing resolved media URLs", async () => {
+  const def = defineSectionType({ type: "video-test", schemaVersion: 1, schema: z.object({ title: z.literal("uuid") }), defaults: { title: "uuid" }, meta: { label: { vi: "video" }, icon: "video" } });
+  const Variant: SectionVariant<typeof def> = ({ data }) => data.title;
+  const registry = createRegistry({ "video-test": defineVariants(def, "v1", { v1: async () => ({ default: Variant }) }) });
+  const html = renderToStaticMarkup(await PageRenderer({ site, registry,
+    page: page([{ id: "a", type: "video-test", variant: "v1", data: { title: "uuid" } }]),
+    loadData: () => ({ title: "uuid" }),
+    resolveData: async ({ data, site: context }) => { assert.deepEqual(data, { title: "uuid" }); assert.equal(context, site); return { title: "https://cdn.example/video.mp4" }; },
+  }));
+  assert.match(html, /https:\/\/cdn.example\/video.mp4/);
+});
+
 test("render đúng thứ tự cấu hình, bỏ section tắt và type lạ, gắn id neo", async (t) => {
   t.mock.method(console, "warn", () => {});
   const html = await render({ page: page([

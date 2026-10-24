@@ -1,6 +1,6 @@
 const basic = ["leadForm", "blog", "customDomain"] as const;
 const pro = [...basic, "calculator", "quoteForm", "packages", "faq", "testimonials", "stats", "energyMonitoring", "investmentModels", "trust", "social", "leadWebhook", "leadInbox", "sectionReorder", "variantSwitch", "pageStructure", "landingPages"] as const;
-const premium = [...pro, "shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "themeOverride", "builder", "abTest"] as const;
+const premium = [...pro, "shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "themeOverride", "builder", "abTest", "videoUpload"] as const;
 export const FEATURES = Object.freeze(premium);
 export type Feature = typeof FEATURES[number];
 export const PLAN_IDS = Object.freeze(["basic", "pro", "premium"] as const);
@@ -43,7 +43,7 @@ export function themeAllowed(planId: string, group: ThemeGroup): boolean { retur
 export const featureLabels: Readonly<Record<Feature, string>> = Object.freeze({
   leadForm: "Form liên hệ/tư vấn", blog: "Tin tức", customDomain: "Tên miền riêng + SSL",
   calculator: "Máy tính chi phí", quoteForm: "Form nhận báo giá", packages: "Gói giải pháp", faq: "Câu hỏi thường gặp", testimonials: "Đánh giá khách hàng", stats: "Số liệu", energyMonitoring: "Giám sát năng lượng / biểu đồ phụ tải", investmentModels: "Mô hình đầu tư", trust: "Chứng nhận / uy tín", social: "Mạng xã hội", leadWebhook: "Lead Webhook / Google Sheets", leadInbox: "Hộp thư lead", sectionReorder: "Sắp xếp section", variantSwitch: "Đổi variant", pageStructure: "Chọn cấu trúc trang",
-  shorts: "Video Shorts", tiktok: "TikTok", catalog: "Danh mục sản phẩm", quoteCart: "Giỏ báo giá", dealer: "Đại lý", branchMap: "Bản đồ chi nhánh", press: "Báo chí", bilingual: "Song ngữ VI/EN", leadExport: "Xuất lead", themeOverride: "Override màu/font", builder: "Builder kéo-thả", landingPages: "Trang landing", abTest: "A/B CTA",
+  shorts: "Video Shorts", tiktok: "TikTok", catalog: "Danh mục sản phẩm", quoteCart: "Giỏ báo giá", dealer: "Đại lý", branchMap: "Bản đồ chi nhánh", press: "Báo chí", bilingual: "Song ngữ VI/EN", leadExport: "Xuất lead", themeOverride: "Override màu/font", builder: "Builder kéo-thả", landingPages: "Trang landing", abTest: "A/B CTA", videoUpload: "Video tự host",
 });
 export const limitLabels: Readonly<Record<LimitKey, string>> = Object.freeze({ domains: "Số tên miền", mediaGb: "Media (GB)", pages: "Số trang do khách tạo", users: "Số người dùng" });
 export const themeLabels: Readonly<Record<ThemeGroup, string>> = Object.freeze({ classic: "Classic (minwy, t02–t04)", pro: "Pro (t05–t11)", signature: "Signature (t12–t15)" });

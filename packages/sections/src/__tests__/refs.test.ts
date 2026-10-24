@@ -4,6 +4,17 @@ import { z } from "zod";
 import { mediaRef } from "../fields/media";
 import { collectionQuery } from "../fields/collection";
 import { collectRefs } from "../refs";
+import { storySource } from "../collections/schemas";
+
+test("file video sources are media refs in required/optional/nested content, embeds are not", () => {
+  const id = "20c7d32c-e48f-40de-a9ea-3db1b71735c6";
+  for (const schema of [storySource, storySource.optional(), z.object({ video: z.object({ source: storySource }).optional() })]) {
+    const source = { provider: "file", idOrSrc: id };
+    assert.deepEqual(collectRefs(schema, schema instanceof z.ZodObject && "video" in schema.shape ? { video: { source } } : source).media, [id]);
+  }
+  assert.deepEqual(collectRefs(storySource, { provider: "youtube", idOrSrc: "abcdefgh" }).media, []);
+  assert.deepEqual(collectRefs(storySource, { provider: "bunny", idOrSrc: "https://cdn.example/video.mp4" }).media, []);
+});
 
 test("collects nested media and explicit collection IDs without treating arbitrary IDs as refs", () => {
   const schema = z.object({ images: z.array(mediaRef().optional()), query: collectionQuery("projects").default({ filter: {}, limit: 6 }), id: z.string() });

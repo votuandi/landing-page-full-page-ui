@@ -14,11 +14,13 @@ export type PageRendererProps = {
   canUse?: (feature: string) => boolean;
   /** Hydrate config đã parse (E5: truy vấn collection); kết quả được kiểm schema lần nữa. */
   loadData?: LoadSectionData;
+  /** Trusted server resolver, after validation (e.g. tenant Media UUID → public URL). */
+  resolveData?: LoadSectionData;
 };
 
 type Prepared = { section: PageSection; Variant?: SectionVariant<any>; data?: unknown };
 
-async function prepare(section: PageSection, { site, registry = sectionRegistry, loadData }: PageRendererProps):
+async function prepare(section: PageSection, { site, registry = sectionRegistry, loadData, resolveData }: PageRendererProps):
   Promise<Prepared | null> {
   const def = registry.getType(section.type);
   const resolved = registry.getVariant(section.type, section.variant);
@@ -35,7 +37,8 @@ async function prepare(section: PageSection, { site, registry = sectionRegistry,
       loadData ? loadData({ section, data: config, site }) : config,
       resolved.load(),
     ]);
-    return { section, Variant, data: parse(raw) };
+    const data = parse(raw);
+    return { section, Variant, data: resolveData ? await resolveData({ section, data, site }) : data };
   } catch (error) {
     console.error("[sections] chuẩn bị section lỗi", {
       tenantId: site.tenantId, sectionId: section.id, type: section.type, variant: resolved.variant, error: error instanceof Error ? error.name : "Error",

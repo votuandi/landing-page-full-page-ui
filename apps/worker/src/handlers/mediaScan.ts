@@ -3,6 +3,10 @@ import sharp, { type Sharp } from "sharp";
 import { MediaQuotaError, type MediaVariant, type OutboxJob, type Promotion } from "@solar/db";
 import { kindOf, privateKey, sniff, UPLOAD_LIMITS, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS, type StorageDriver } from "@solar/storage";
 import { PermanentError } from "../loop.ts";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { probeVideo, posterFrame, InvalidVideoError } from "../video.ts";
 
 export type JobMedia = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; variants?: unknown };
 class UnsafeImageError extends Error {}
@@ -20,7 +24,10 @@ export function ownedKey(row: JobMedia, prefix: "quarantine" | "private" | "tena
   if (!row.key.startsWith(`${prefix}/${row.tenantId}/`)) throw new PermanentError("media: khóa khác tenant hoặc vùng lưu trữ");
 }
 
-export function createMediaScan({ media, storage }: { media: ScanMedia; storage: StorageDriver }) {
+export function createMediaScan({ media, storage, video = { probe: probeVideo, frame: posterFrame } }: {
+  media: ScanMedia; storage: StorageDriver;
+  video?: { probe: typeof probeVideo; frame: typeof posterFrame };
+}) {
   return async (job: OutboxJob) => {
     const { tenantId, id } = mediaJob(job, "media.scan");
     const row = await media.get(tenantId, id);
@@ -34,6 +41,22 @@ export function createMediaScan({ media, storage }: { media: ScanMedia; storage:
     if (!bytes || !bytes.byteLength || bytes.byteLength > row.size) return reject("missing or oversized object");
     const format = sniff(bytes);
     if (!format || format.kind !== kindOf(row.mime) || bytes.byteLength > UPLOAD_LIMITS[format.kind]) return reject("unsupported content or size");
+    let body: Uint8Array = bytes, width: number | undefined, height: number | undefined, pages = 1;
+    let poster: Uint8Array | undefined;
+    if (format.kind === "video") {
+      const folder = await mkdtemp(join(tmpdir(), "solar-video-"));
+      try {
+        const path = join(folder, `input.${format.ext}`);
+        await writeFile(path, bytes);
+        const info = await video.probe(path);
+        if (info.duration > 600) throw new InvalidVideoError();
+        width = info.width; height = info.height;
+        poster = await video.frame(path, Math.min(1, info.duration / 2));
+      } catch (error) {
+        if (error instanceof InvalidVideoError) return reject("invalid or too long video");
+        throw error;
+      } finally { await rm(folder, { recursive: true, force: true }); }
+    }
     const deadline = Date.now() + 30_000;
     const encode = async (pipeline: Sharp) => {
       try {
@@ -44,7 +67,6 @@ export function createMediaScan({ media, storage }: { media: ScanMedia; storage:
         return output;
       } catch { throw new UnsafeImageError(); }
     };
-    let body: Uint8Array = bytes, width: number | undefined, height: number | undefined, pages = 1;
     if (format.kind === "image") {
       try {
         // Metadata is removed by default: https://sharp.pixelplumbing.com/api-output/
@@ -62,11 +84,11 @@ export function createMediaScan({ media, storage }: { media: ScanMedia; storage:
     };
     try {
       await put(key, body, format.mime);
-      if (format.kind === "image" && pages <= 1) {
+      if ((format.kind === "image" && pages <= 1) || poster) {
         for (const targetWidth of VARIANT_WIDTHS) for (const format of VARIANT_FORMATS) {
           let output: Awaited<ReturnType<typeof encode>>;
           try {
-            const image = sharp(body, { limitInputPixels: 50_000_000 }).resize({ width: targetWidth, withoutEnlargement: true });
+            const image = sharp(poster ?? body, { limitInputPixels: 50_000_000 }).resize({ width: targetWidth, withoutEnlargement: true });
             output = await encode(format === "avif" ? image.avif({ quality: 50 }) : image.webp({ quality: 75 }));
           } catch { throw new UnsafeImageError(); }
           const variant = { key: variantKey(key, targetWidth, format), format, width: output.info.width, height: output.info.height, size: output.data.byteLength };

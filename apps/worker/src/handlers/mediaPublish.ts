@@ -2,11 +2,12 @@ import { mediaVariantsSchema, type MediaVariant, type OutboxJob } from "@solar/d
 import { assertKey, type StorageDriver } from "@solar/storage";
 import { mediaJob, ownedKey, type JobMedia } from "./mediaScan.ts";
 import { PermanentError } from "../loop.ts";
+import { invalidationJob } from "@solar/cache";
 
-export function createMediaPublish({ media, storage }: { media: {
+export function createMediaPublish({ media, storage, invalidate }: { media: {
   get(tenantId: string, id: string): Promise<JobMedia | null>;
   publish(tenantId: string, id: string, key: string, previous: string, variants?: MediaVariant[]): Promise<boolean>;
-}; storage: StorageDriver }) {
+}; storage: StorageDriver; invalidate?: (tenantId: string, job: ReturnType<typeof invalidationJob>) => Promise<unknown> }) {
   return async (job: OutboxJob) => {
     const { tenantId, id } = mediaJob(job, "media.publish");
     const row = await media.get(tenantId, id);
@@ -22,6 +23,7 @@ export function createMediaPublish({ media, storage }: { media: {
     }
     const cleanup = () => Promise.all([row.key, ...(variants ?? []).map(v => v.key)].map(key => storage.delete(key.replace(/^tenants\//, "private/"))));
     if (row.visibility === "public") {
+      await invalidate?.(tenantId, invalidationJob([`tenant:${tenantId}`]));
       // Recover a crash after the DB update but before source deletion.
       await cleanup();
       return;
@@ -37,7 +39,10 @@ export function createMediaPublish({ media, storage }: { media: {
       if (!body) throw new PermanentError("media.publish: thiếu biến thể private");
       await storage.put(variant.key.replace(/^private\//, "tenants/"), body, { contentType: `image/${variant.format}`, cacheControl: "public, max-age=31536000, immutable" });
     }
-    if (await media.publish(tenantId, id, key, previous, publishedVariants)) await cleanup();
+    if (await media.publish(tenantId, id, key, previous, publishedVariants)) {
+      await invalidate?.(tenantId, invalidationJob([`tenant:${tenantId}`]));
+      await cleanup();
+    }
   };
 }
 

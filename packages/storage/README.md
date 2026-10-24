@@ -140,3 +140,17 @@ Media được tham chiếu lúc publish vẫn đang scan sẽ có job publish c
 lần publish sau có thể tạo job mới khi job cũ done/failed. Các writer live và restore cũng enqueue theo refs hiện hành.
 Nguồn: https://sharp.pixelplumbing.com/api-output/ và
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages/s3-request-presigner.
+
+### Video tự host (E8-S04)
+
+Chỉ gói Cao cấp có `videoUpload`: **200 MB/video, tối đa 10 phút**. Worker dùng ffprobe kiểm video thật,
+ffmpeg lấy khung ở `min(1, duration / 2)` giây, tạo sáu poster AVIF/WebP cùng UUID/prefix với video.
+File video giữ nguyên bytes; `Media.width/height` là kích thước video, quota chỉ tính file gốc.
+Publish sao cả video và poster sang public rồi enqueue invalidate tag `tenant:<id>`; retry phục hồi lỗi ghi outbox sau publish.
+Web chỉ resolve `source.provider=file` + Media UUID nếu ready/public/video của đúng tenant, khóa ở `tenants/<id>/`;
+UUID chưa resolve bị bỏ, video tùy chọn bị bỏ mà vẫn giữ nội dung cha. Không phát video private ở preview.
+
+Băng thông phát tính vào **CDN/VPS của nền tảng**; `mediaGb` chỉ giới hạn lưu trữ, chưa đo/giới hạn băng thông mỗi tenant.
+Ưu tiên nhúng YouTube/TikTok/Bunny Stream khi cần adaptive streaming hoặc nhiều lượt xem; chưa transcode/HLS.
+Local production phục vụ bằng Caddy như trên (hỗ trợ Range); S3/R2 cần policy public-read chỉ cho `tenants/`.
+E2E tenant dùng `tooling/visual/media-server.mjs` ở cổng 3212 (GET/HEAD, Range 206, nosniff, chặn private/quarantine).

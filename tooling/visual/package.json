@@ -6,7 +6,7 @@
     "typecheck": "tsc --noEmit",
     "thumbnails": "tsx thumbnails.mts",
     "lint": "eslint .",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/matrix-colors.test.js matrix-report.test.mjs matrix-baseline.test.mjs preset-tools.test.mjs",
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/matrix-colors.test.js matrix-report.test.mjs matrix-baseline.test.mjs preset-tools.test.mjs media-server.test.mjs",
     "matrix:test": "playwright test -c playwright.matrix.config.ts",
     "matrix:update": "playwright test -c playwright.matrix.config.ts --update-snapshots",
     "matrix:report": "node matrix-report.mjs",
