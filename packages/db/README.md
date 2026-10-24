@@ -1,5 +1,26 @@
 # @solar/db
 
+## Sao lưu & khôi phục tenant (E7-S10)
+
+Owner/phiên hỗ trợ tải JSON tại CMS → Cài đặt → Sao lưu (`GET /api/sao-luu`). Platform có thể chạy:
+
+```sh
+pnpm --filter @solar/db tenant:export --tenant demo-t15 --out ./demo-t15.json
+pnpm --filter @solar/db tenant:restore ./demo-t15.json --slug clone-t15 --plan premium
+```
+
+Script dùng `PLATFORM_DATABASE_URL` (role platform), ghi AuditLog. Restore tạo tenant mới ở trạng thái `trial`,
+đổi toàn bộ ID và khóa media, kiểm cấu trúc theo gói đích, sao tệp qua storage hiện tại. Slug đã có bị từ chối.
+JSON bao gồm site, page/version, section (cả draft/đã gỡ), 12 collection và danh sách media; không chứa tài khoản,
+phiên, token, tên miền, lead, tích hợp/bí mật, outbox hay audit cũ. Không có tài khoản nào được tạo ở tenant mới;
+platform cấp owner/tên miền sau khi khôi phục. Nút restore trong console thuộc E15-S03; hiện dùng script platform.
+
+Bundle không nhúng tệp media. Cần cấu hình storage và giữ tệp nguồn (cả variants) khi restore; chuyển máy chủ
+phải đồng bộ storage riêng (E10-S06). File thiếu hoặc ref lỗi khiến restore thất bại, rollback DB và dọn file đã sao
+(best-effort khi storage lỗi). Không thay đổi tenant nguồn. Bản sao lưu chứa nội dung công ty, cần lưu ở nơi riêng tư.
+Tenant đích dùng gói `--plan`; addon/feature override của nguồn không nằm trong bundle nội dung. Platform cần cấu hình
+lại các quyền lợi riêng đó nếu muốn kết quả render tương đương nguồn.
+
 ## Hồ sơ và giao diện site (E7-S07 / E7-S08)
 
 `@solar/db/site-profile` cung cấp `siteProfileSchema`, `companyProfileSchema`, `COMPANY_KEYS` và

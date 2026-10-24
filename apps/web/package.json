@@ -31,6 +31,7 @@
     "@solar/cache": "workspace:*"
   },
   "devDependencies": {
+    "@solar/storage": "workspace:*",
     "tsx": "4.23.15",
     "@types/node": "^20",
     "@types/react": "19.2.18",

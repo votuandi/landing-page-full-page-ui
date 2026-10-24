@@ -11,6 +11,12 @@ import { randomUUID } from "node:crypto";
 import { collectionInputSchema } from "../collections.ts";
 import { exportProductsCsv, previewProductCsv } from "../productCsv.ts";
 import type { CollectionRow } from "../collectionWrite.ts";
+import { parseTenantBackup } from "../tenantBackup.ts";
+import { demoBackup } from "./tenantBackup.fixture.ts";
+
+test("tenant backup bundle of every seed demo parses", () => {
+  for (const id of ["t15", "t12"] as const) assert.doesNotThrow(() => parseTenantBackup(demoBackup(id)), id);
+});
 
 test("product CSV round-trips every seeded product", () => {
   for (const id of ["t15", "t12"] as const) {

@@ -5,6 +5,8 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts", "./site-profile": "./src/siteProfile.ts" },
   "scripts": {
+    "tenant:export": "tsx scripts/tenant-export.ts",
+    "tenant:restore": "tsx scripts/tenant-restore.ts",
     "import:site-config": "tsx scripts/import-site-config.ts",
     "build": "prisma generate",
     "generate": "prisma generate",
@@ -30,6 +32,7 @@
     "@solar/plans": "workspace:*"
   },
   "devDependencies": {
+    "@solar/storage": "workspace:*",
     "@solar/config": "workspace:*",
     "@types/node": "20.19.37",
     "@types/pg": "8.23.1",
