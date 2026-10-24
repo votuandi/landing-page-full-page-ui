@@ -176,7 +176,7 @@ thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
   › "product CSV round-trips every seeded product", e2e `admin.spec.ts` › "products: CSV export, preview error, import" (CI job `admin`).
 - Phụ thuộc: S06 · Agent: Codex · Cỡ: S
 
-### E7-S15 · Font thương hiệu & favicon
+### E7-S15 · Font thương hiệu & favicon ✅ · PR [#61](https://github.com/votuandi/landing-page-full-page-ui/pull/61)
 **Là** chủ doanh nghiệp, **tôi muốn** chọn font và biểu tượng website, **để** hoàn thiện nhận diện thương hiệu.
 (Tách từ E7-S08.)
 - **Chi tiết**: font override theo danh sách cho phép, entitlement `themeOverride` và kiểm server; chọn ảnh favicon từ
