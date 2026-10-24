@@ -38,10 +38,10 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   Media gắn với nội dung nháp có `visibility=private` (phục vụ qua route có kiểm quyền / signed URL ngắn hạn), chỉ chuyển public
   khi nội dung được xuất bản. Khóa UUID không được coi là cơ chế phân quyền.
 - **AC**:
-  - [ ] File `.jpg` thực chất là HTML bị từ chối; file trong quarantine không truy cập được qua URL public.
-  - [ ] Upload video 200 MB qua presigned không đi qua server Next.js.
-  - [ ] 10 upload đồng thời sát hạn mức → tổng không vượt `mediaGb`.
-  - [ ] Media private của tenant B không đọc được khi biết khóa (test E14-S03).
+  - [x] File `.jpg` thực chất là HTML bị từ chối; file trong quarantine không truy cập được qua URL public.
+  - [x] Upload video 200 MB qua presigned không đi qua server Next.js.
+  - [x] 10 upload đồng thời sát hạn mức → tổng không vượt `mediaGb`.
+  - [x] Media private của tenant B không đọc được khi biết khóa (test E14-S03).
   - [x] Dung lượng đã dùng hiển thị đúng trong admin.
 - Phụ thuộc: S01, E6-S02, E7-S01 · Agent: Codex (review Claude adversarial) · Cỡ: L
 
