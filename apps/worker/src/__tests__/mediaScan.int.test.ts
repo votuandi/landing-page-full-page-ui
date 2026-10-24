@@ -7,6 +7,69 @@ import type { StorageDriver } from "@solar/storage";
 import { createMediaScan } from "../handlers/mediaScan.ts";
 import { createMediaPublish } from "../handlers/mediaPublish.ts";
 import { runOnce } from "../loop.ts";
+import { readFile, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { createLocalDriver } from "@solar/storage";
+import { videoS3Fixture } from "../../../../packages/storage/src/__tests__/video.fixture.ts";
+import { probeVideo, posterFrame, runVideoTool } from "../video.ts";
+
+const hasFfmpeg = [process.env.FFMPEG_PATH || "ffmpeg", process.env.FFPROBE_PATH || "ffprobe"].every(command => spawnSync(command, ["-version"], { windowsHide: true, stdio: "ignore" }).status === 0);
+const videoSkip = !hasFfmpeg && process.env.MEDIA_REQUIRE_FFMPEG !== "1" ? "ffmpeg/ffprobe missing; set MEDIA_REQUIRE_FFMPEG=1 in CI" : false;
+
+test("real ffmpeg poster", { skip: videoSkip, timeout: 60_000 }, async () => {
+  assert.ok(hasFfmpeg, "ffmpeg and ffprobe are required");
+  const folder = await mkdtemp(join(tmpdir(), "video-local-"));
+  try {
+    const storage = createLocalDriver({ root: folder, publicBase: "https://cdn.example/media" });
+    await videoPipeline(storage);
+    const audioOnly = await runVideoTool(process.env.FFMPEG_PATH || "ffmpeg", ["-v", "error", "-nostdin", "-f", "lavfi", "-i", "anullsrc", "-t", "0.2", "-vn", "-f", "mp4", "-movflags", "frag_keyframe+empty_moov", "pipe:1"]);
+    for (const bytes of [Buffer.from("000000186674797069736f6d", "hex"), Buffer.from("1a45dfa3", "hex"), audioOnly]) {
+      const tenantId = randomUUID(), id = randomUUID(), key = `quarantine/${tenantId}/${id}`;
+      await storage.put(key, bytes, { contentType: "video/mp4" }); let rejected = false;
+      await createMediaScan({ storage, media: {
+        get: async () => ({ tenantId, id, key, mime: "video/mp4", size: bytes.length, status: "quarantine", visibility: "private" }),
+        promote: async () => { throw Error("invalid video promoted"); }, reject: async () => { rejected = true; return true; },
+      } })(scanJob(tenantId, id));
+      assert.ok(rejected); assert.equal(await storage.get(key), null);
+    }
+  } finally { await rm(folder, { recursive: true, force: true }); }
+});
+
+test("s3 video publish serves range", { skip: videoSkip || (!process.env.STORAGE_S3_TEST_ENDPOINT && process.env.STORAGE_REQUIRE_S3 !== "1" ? "MinIO endpoint missing; STORAGE_REQUIRE_S3=1 makes it mandatory" : false), timeout: 60_000 }, async () => {
+  assert.ok(hasFfmpeg); assert.ok(process.env.STORAGE_S3_TEST_ENDPOINT, "STORAGE_S3_TEST_ENDPOINT required");
+  const fixture = await videoS3Fixture();
+  try {
+    const row = await videoPipeline(fixture.storage);
+    const response = await fetch(fixture.storage.publicUrl(row.key), { headers: { Range: "bytes=0-99" } });
+    assert.equal(response.status, 206); assert.equal(response.headers.get("content-type"), "video/mp4");
+    assert.equal((await response.arrayBuffer()).byteLength, 100);
+    assert.equal((await fetch(fixture.storage.publicUrl(row.variants[0].key))).status, 200);
+    assert.equal((await fetch(`${process.env.STORAGE_S3_TEST_ENDPOINT}/${new URL(fixture.storage.publicUrl(row.key)).pathname.split("/")[1]}/private/${row.tenantId}/x`)).status, 403);
+  } finally { await fixture.cleanup(); }
+});
+
+async function videoPipeline(storage: StorageDriver) {
+  const bytes = await readFile(new URL("../../../web/public/videos/shorts/ho-gia-dinh-1.mp4", import.meta.url));
+  const tenantId = randomUUID(), id = randomUUID();
+  let row = { tenantId, id, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "video/mp4", size: bytes.length, width: 0, height: 0, variants: [] as import("@solar/db").MediaVariant[] };
+  await storage.put(row.key, bytes, { contentType: row.mime });
+  const media = { get: async () => row, reject: async () => { throw Error("real video rejected"); },
+    promote: async (_tenant: string, _id: string, data: Parameters<typeof promoteMedia>[3]) => { row = { ...row, ...data, width: data.width!, height: data.height!, variants: data.variants!, status: "ready" }; return true; },
+    publish: async (_tenant: string, _id: string, key: string, _previous: string, variants?: import("@solar/db").MediaVariant[]) => { row = { ...row, key, visibility: "public", variants: variants! }; return true; },
+  };
+  let dimensions = { width: 0, height: 0 };
+  await createMediaScan({ media, storage, video: { probe: async path => { const result = await probeVideo(path); dimensions = result; return result; }, frame: posterFrame } })(scanJob(tenantId, id));
+  assert.equal(row.variants.length, 6); assert.equal(row.width, dimensions.width); assert.equal(row.height, dimensions.height);
+  for (const variant of row.variants) assert.ok((await sharp(await storage.get(variant.key) ?? undefined).metadata()).width);
+  assert.deepEqual(Buffer.from((await storage.get(row.key))!), bytes); assert.equal(row.size, bytes.length);
+  const { width, height } = await sharp((await storage.get(row.variants[0].key))!).metadata();
+  assert.ok(width && height && width < height, "vertical poster");
+  await createMediaPublish({ media, storage })({ ...scanJob(tenantId, id), topic: "media.publish" });
+  assert.equal(row.visibility, "public"); assert.ok(row.variants.every(v => v.key.startsWith(`tenants/${tenantId}/`)));
+  return row;
+}
 
 function memoryStorage() {
   const files = new Map<string, Uint8Array>();

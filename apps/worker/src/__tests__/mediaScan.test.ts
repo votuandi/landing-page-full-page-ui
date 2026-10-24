@@ -4,11 +4,49 @@ import test from "node:test";
 import sharp, { type Sharp } from "sharp";
 import type { OutboxJob, MediaVariant } from "@solar/db";
 import { readFile } from "node:fs/promises";
+import { access } from "node:fs/promises";
+import { dirname } from "node:path";
+import { InvalidVideoError } from "../video.ts";
 import { createMediaScan, type ScanMedia } from "../handlers/mediaScan.ts";
 import { sniff, type StorageDriver } from "@solar/storage";
 
 const tenantId = randomUUID(), id = randomUUID();
 const job: OutboxJob = { id: randomUUID(), tenantId, topic: "media.scan", payload: { tenantId, id }, idempotencyKey: `media.scan:${id}`, attempts: 1, createdAt: new Date(), runAt: new Date() };
+
+test("video poster variants; video stored unchanged", async () => {
+  const bytes = await readFile(new URL("../../../web/public/videos/shorts/ho-gia-dinh-1.mp4", import.meta.url));
+  const frame = await sharp({ create: { width: 36, height: 64, channels: 3, background: "red" } }).png().toBuffer();
+  for (const duration of [0.8, 600]) {
+    const f = setup(bytes, "video/mp4"); let path = "";
+    await createMediaScan({ media: f.media, storage: f.storage, video: {
+      probe: async input => { path = input; assert.deepEqual(await readFile(input), bytes); return { width: 36, height: 64, duration }; },
+      frame: async (input, at) => { assert.equal(input, path); assert.equal(at, Math.min(1, duration / 2)); return frame; },
+    } })(job);
+    const row = f.row();
+    assert.equal(row.status, "ready"); assert.equal(row.variants.length, 6); assert.equal(f.files.size, 7);
+    assert.equal(row.size, bytes.length); assert.deepEqual(f.files.get(row.key), bytes);
+    assert.deepEqual(row.variants.map(v => v.key), [640, 1280, 1920].flatMap(w => ["avif", "webp"].map(ext => row.key.replace(/\.mp4$/, `-w${w}.${ext}`))));
+    for (const v of row.variants) assert.equal(sniff(f.files.get(v.key)!)?.mime, `image/${v.format}`);
+    await assert.rejects(access(dirname(path)), { code: "ENOENT" });
+  }
+});
+
+test("video over 10 minutes rejected; invalid video rejected; ffmpeg timeout kills and rejects; missing ffmpeg retries", async () => {
+  const bytes = await readFile(new URL("../../../web/public/videos/shorts/ho-gia-dinh-1.mp4", import.meta.url));
+  for (const failure of ["duration", "probe", "frame", "timeout", "missing"]) {
+    const f = setup(bytes, "video/mp4"); let path = "";
+    const run = createMediaScan({ media: f.media, storage: f.storage, video: {
+      probe: async input => { path = input; if (failure === "probe") throw new InvalidVideoError(); return { duration: failure === "duration" ? 601 : 2, width: 36, height: 64 }; },
+      frame: async () => { if (failure === "missing") throw Object.assign(Error("spawn ENOENT"), { code: "ENOENT" }); throw new InvalidVideoError(); },
+    } });
+    if (failure === "missing") {
+      await assert.rejects(run(job), /ENOENT/); assert.equal(f.row().status, "quarantine"); assert.equal(f.rejected.length, 0); assert.equal(f.files.size, 1);
+    } else {
+      await run(job); assert.deepEqual(f.rejected, ["invalid or too long video"]); assert.equal(f.files.size, 0);
+    }
+    await assert.rejects(access(dirname(path)), { code: "ENOENT" });
+  }
+});
 function setup(bytes: Uint8Array | null, mime = "image/jpeg", reserved = bytes?.byteLength ?? 100) {
   let row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, mime, size: reserved, status: "quarantine", visibility: "private", variants: [] as MediaVariant[] };
   const files = new Map<string, Uint8Array>(); if (bytes) files.set(row.key, bytes);

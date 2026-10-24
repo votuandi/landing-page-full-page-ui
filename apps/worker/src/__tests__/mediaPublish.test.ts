@@ -6,6 +6,22 @@ import type { StorageDriver } from "@solar/storage";
 import { createMediaPublish, cleanupExpiredMedia } from "../handlers/mediaPublish.ts";
 import { PermanentError } from "../loop.ts";
 
+test("publish enqueues tenant invalidate; crash retries invalidate; CAS false does not invalidate", async () => {
+  for (const cas of [true, false]) {
+    const f = variantsSetup(); const tags: string[][] = []; let fail = true;
+    if (!cas) f.media.publish = async () => false;
+    const handle = createMediaPublish({ media: f.media, storage: f.storage, invalidate: async (tenant, job) => {
+      assert.equal(tenant, f.row.tenantId); assert.equal(job.topic, "invalidate");
+      assert.deepEqual(job.payload.tags, [`tenant:${tenant}`]);
+      if (fail) { fail = false; throw Error("outbox unavailable"); }
+      tags.push(job.payload.tags);
+    } });
+    if (cas) { await assert.rejects(handle(f.job), /outbox unavailable/); await handle(f.job); }
+    else await handle(f.job);
+    assert.equal(tags.length, cas ? 1 : 0);
+  }
+});
+
 function variantsSetup(variants: unknown = undefined) {
   const tenantId = randomUUID(), id = randomUUID(), original = `private/${tenantId}/2026/10/${id}.jpg`;
   const generated = [640, 1280, 1920].flatMap(width => (["avif", "webp"] as const).map(format => ({ key: original.replace(/\.jpg$/, `-w${width}.${format}`), format, width, height: width / 2, size: 4 })));
