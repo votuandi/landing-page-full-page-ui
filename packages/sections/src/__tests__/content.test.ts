@@ -3,7 +3,30 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { sectionRegistry } from "../registry";
-import { PriceTag } from "@solar/ui";
+import { PriceTag, MediaImage } from "@solar/ui";
+import { mediaSrc } from "../shared/media";
+
+test("storySource file accepts media uuid and keeps static paths, refuses external URLs", () => {
+  for (const value of ["20c7d32c-e48f-40de-a9ea-3db1b71735c6", "/videos/a.mp4"]) assert.ok(storySource.safeParse({ provider: "file", idOrSrc: value }).success);
+  for (const value of ["not-a-uuid", "http://x", "https://x/a.mp4", "//evil/x", "/../x"]) assert.equal(storySource.safeParse({ provider: "file", idOrSrc: value }).success, false);
+});
+
+test("mediaSrc permits HTTP only for localhost and 127.0.0.1 without credentials", () => {
+  for (const id of ["http://localhost:3212/media/a.webp", "http://127.0.0.1:3212/a.webp", "https://cdn.example/a.webp", "/images/a.webp"]) assert.equal(mediaSrc({ id, alt: { vi: "ảnh" } }), id);
+  for (const id of ["http://evil.test/a", "http://localhost.evil/a", "http://u:p@localhost/a", "javascript:alert(1)"]) assert.equal(mediaSrc({ id, alt: { vi: "ảnh" } }), undefined);
+});
+
+test("resolved file video URLs reach player; unresolved UUID never becomes video src", () => {
+  for (const idOrSrc of ["http://localhost:3212/media/tenants/a/a.mp4", "https://cdn.example/tenants/a/a.mp4", "/videos/a.mp4"]) assert.deepEqual(storyEmbed({ provider: "file", idOrSrc }), { kind: "video", src: idOrSrc });
+  assert.throws(() => storyEmbed({ provider: "file", idOrSrc: "20c7d32c-e48f-40de-a9ea-3db1b71735c6" }));
+  assert.throws(() => storyEmbed({ provider: "file", idOrSrc: "http://evil.test/a.mp4" }));
+});
+
+test("generated loopback poster renders directly in SSR without image optimizer", () => {
+  const src = "http://localhost:3212/media/tenants/a/poster-w640.webp";
+  const html = renderToStaticMarkup(createElement(MediaImage, { src, alt: "Poster", sizes: "220px" }));
+  assert.ok(html.includes(`src="${src}"`)); assert.doesNotMatch(html, /_next\/image/);
+});
 
 test("English PriceTag uses English contact, sale and compact amount labels", () => {
   const render = (props: Parameters<typeof PriceTag>[0]) => renderToStaticMarkup(createElement(PriceTag, { ...props, locale: "en" }));

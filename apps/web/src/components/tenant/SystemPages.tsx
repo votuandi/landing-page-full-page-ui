@@ -13,6 +13,7 @@ import { siteCanUse, type TenantSite } from "@/lib/tenant/siteData";
 import { text } from "@/lib/tenant/contentSchemas";
 import type { Route } from "@/lib/tenant/routes";
 import { breadcrumbJsonLd, faqJsonLd, productJsonLd, siteOrigin } from "@/lib/tenant/seo";
+import { tenantMediaResolver } from "@/lib/tenant/media";
 
 function Links({ items, prefix }: { items: { id: string; slug: string; title: string; excerpt?: string; image?: string; cover?: string; meta?: string; price?: string | number }[]; prefix: string }) {
   return <div className="grid gap-5 md:grid-cols-3">{items.map((item) => <article key={item.id} className="t15-card p-6">
@@ -111,7 +112,7 @@ export async function loadSystemPage(site: TenantSite, route: Exclude<Route, { k
 export async function SystemContent({ site, slug, config }: { site: TenantSite; slug: string; config: PageConfig }) {
   const t = (vi: string, en: string) => site.locale === "en" ? en : vi;
   const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
-  const sections = <PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(collections.source)} />;
+  const sections = <PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} resolveData={tenantMediaResolver(site)} loadData={createCollectionLoader(collections.source)} />;
   if (slug === "lien-he") return <><p>{site.profile.email}</p><a className="text-primary" href={`tel:${site.profile.hotline?.replace(/\s/g, "")}`}>{site.profile.hotline}</a>{sections}</>;
   if (slug === "ve-chung-toi") return <>{sections}
     <h2 className="text-2xl font-heading">{t("Chứng chỉ", "Certificates")}</h2><div className="grid gap-5 md:grid-cols-3">{(await collections.certificates()).map((item) => <article className="t15-card p-5" key={item.id}><Picture src={item.image} alt={item.title} /><h3>{item.title}</h3><p>{item.issuer} · {item.number} · {item.validUntil}</p></article>)}</div>

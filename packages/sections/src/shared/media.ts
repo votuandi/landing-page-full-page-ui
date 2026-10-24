@@ -9,7 +9,7 @@ export function mediaSrc(ref?: MediaRef): string | undefined {
     const decoded = decodeURIComponent(ref.id);
     if (/^\/(?!\/)/.test(decoded) && !/[\\\s?#]/.test(decoded) && !decoded.includes("..")) return ref.id;
     const url = new URL(ref.id);
-    if (url.protocol === "https:" && !url.username && !url.password) return ref.id;
+    if ((url.protocol === "https:" || url.protocol === "http:" && ["localhost", "127.0.0.1"].includes(url.hostname)) && !url.username && !url.password) return ref.id;
   } catch { /* UUIDs remain placeholders until E8. */ }
   return undefined;
 }

@@ -11,6 +11,7 @@ import { text } from "@/lib/tenant/contentSchemas";
 import { resolveRoute, routeEnabled } from "@/lib/tenant/routes";
 import { TENANT_CACHE_LIFE, tenantPageTags } from "@/lib/tenant/cacheTags";
 import { JsonLd, loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
+import { tenantMediaResolver } from "@/lib/tenant/media";
 
 async function cachedSite({ tenantId, siteId, locale, disabled, preview, themeId }: Key) {
   const site = await loadTenantSite(tenantId, siteId, locale);
@@ -50,7 +51,7 @@ export async function tenantPage(key: Key, slug: string) {
     const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
     content = page.kind === "system"
       ? <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>
-      : <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
+      : <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} resolveData={tenantMediaResolver(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
   }
   return { kind: "ok" as const, title: page?.title || system?.title, description: system?.description,
     image: system && "image" in system ? system.image as string | undefined : undefined, content };
@@ -68,7 +69,7 @@ export async function TenantChrome({ children, ...key }: Key & { children: React
   const collections = tenantCollections(site.tenantId, site.locale, site.siteId);
   const loadData = createCollectionLoader(collections.source);
   const cartEnabled = Boolean(site.widgets["quote-cart"]?.enabled && canUse("quoteCart"));
-  const chrome = (type: string) => <PageRenderer site={site.context} canUse={canUse} loadData={loadData}
+  const chrome = (type: string) => <PageRenderer site={site.context} canUse={canUse} loadData={loadData} resolveData={tenantMediaResolver(site)}
     page={{ sections: home.config.sections.filter((section) => section.type === type).map((section) => {
       if (type !== "site-header") return section;
       const data = section.data as { controls?: object };

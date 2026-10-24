@@ -9,6 +9,28 @@ import { publishPage, saveDraft } from "../publish.ts";
 import { collectionDefs } from "../collections.ts";
 import { saveCollectionItem } from "../collectionWrite.ts";
 
+test("file video refs publish independently of poster and reject cross-tenant sources", { skip: !process.env.DATABASE_URL }, async () => {
+  const db = createDb({ pool: 3 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID(), other = randomUUID();
+  try {
+    for (const id of [tenantId, other]) await ops.tenant.create({ data: { id, slug: id, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const repo = forTenant(db, tenantId);
+    const makeVideo = (tenant: string) => forTenant(db, tenant).media.create({ key: `private/${tenant}/${randomUUID()}.mp4`, driver: "local", mime: "video/mp4", size: 100, status: "ready", visibility: "private" });
+    const own = await makeVideo(tenantId), foreign = await makeVideo(other);
+    const defaults = collectionDefs.story.defaults;
+    const input = (id: string) => ({ ...defaults, slug: "self-hosted-story", status: "published" as const, data: { ...defaults.data as object, poster: "/images/poster.jpg", source: { provider: "file", idOrSrc: id } } });
+    // The source is the only UUID, so an unrelated poster cannot hide a missing media reference.
+    await assert.rejects(saveCollectionItem(db, tenantId, "story", input(foreign.id)), { status: 400 });
+    const draft = await saveCollectionItem(db, tenantId, "story", { ...input(own.id), status: "draft" });
+    assert.equal(await repo.outbox.count({ where: { topic: "media.publish" } }), 0);
+    await saveCollectionItem(db, tenantId, "story", { ...input(own.id), id: draft.id });
+    const job = await repo.outbox.first({ where: { topic: "media.publish" } });
+    assert.deepEqual(job?.payload, { tenantId, id: own.id });
+  } finally {
+    await ops.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } });
+    await Promise.all([db.$disconnect(), ops.$disconnect()]);
+  }
+});
+
 test("promote stores variants; promote rejects foreign variant keys", { skip: !process.env.DATABASE_URL }, async () => {
   const db = createDb({ pool: 2 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
   try {

@@ -18,7 +18,7 @@ export const storySource = z.object({
 }).refine(({ provider, idOrSrc }) => {
   if (provider === "youtube") return /^[\w-]{6,20}$/.test(idOrSrc);
   if (provider === "tiktok") return /^\d{6,25}$/.test(idOrSrc);
-  if (provider === "file") return localPath(idOrSrc);
+  if (provider === "file") return localPath(idOrSrc) || z.uuid().safeParse(idOrSrc).success;
   return https().safeParse(idOrSrc).success;
 }, { message: "Nguồn video không hợp lệ", path: ["idOrSrc"] });
 

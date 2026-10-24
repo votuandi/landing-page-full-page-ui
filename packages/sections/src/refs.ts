@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fieldRegistry } from "./fields/widget";
+import { storySource } from "./collections/schemas";
 
 export type CollectedRefs = { media: string[]; collections: Record<string, string[]> };
 
@@ -10,6 +11,7 @@ export function collectRefs(schema: z.ZodType, value: unknown): CollectedRefs {
     value !== null && typeof value === "object" && !Array.isArray(value);
   function walk(node: z.core.$ZodType, value: unknown): void {
     const meta = fieldRegistry.get(node);
+    if (node === storySource && object(value) && value.provider === "file" && typeof value.idOrSrc === "string") refs.media.push(value.idOrSrc);
     if (meta?.widget === "media" && object(value) && typeof value.id === "string") refs.media.push(value.id);
     if (meta?.widget === "collectionQuery" && meta.collection && object(value)) {
       // Define an own property even for names such as __proto__; unknown names are rejected by DB.
