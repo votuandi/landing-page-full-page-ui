@@ -46,13 +46,13 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 - Phụ thuộc: S01, E6-S02, E7-S01 · Agent: Codex (review Claude adversarial) · Cỡ: L
 
 ### E8-S03 · Biến thể ảnh & phân phối
-- **Chi tiết**: sau upload, `sharp` tạo `w640/w1280/w1920` AVIF + WebP, lưu `variants` trong `Media`; `<Media>` của
-  `packages/ui` chọn `srcset`; dùng `images.loader` tùy biến cho `next/image` trỏ thẳng file đã tối ưu (không tốn CPU tối ưu
-  lúc chạy). Cache-Control `public, max-age=31536000, immutable` (khóa có uuid). Ảnh có `focal` để crop đúng chủ thể.
-- **Target**: ảnh hero trang chủ ≤ 200 KB ở 1280px.
-  Giới hạn khi xử lý (sharp/ffmpeg): tối đa 50 megapixel, timeout 30 s/ảnh, 10 phút/video, giới hạn RAM/CPU của container worker.
-- **AC**: [ ] Lighthouse không báo "properly size images" ở trang chủ seed · [ ] Xử lý ảnh chạy nền (outbox/queue), UI hiển thị trạng thái ·
-  [ ] Ảnh "decompression bomb" bị từ chối, worker không chết.
+- **Chi tiết**: sau upload, `sharp` tạo `w640/w1280/w1920` AVIF + WebP, lưu `variants` trong `Media`; khóa biến thể đi cùng
+  file gốc khi xuất bản, Cache-Control `public, max-age=31536000, immutable` (khóa có uuid).
+  Phần phân phối (`<Media>` srcset, loader, focal, Lighthouse) tách sang E8-S07 (24/10/2026, plan quá ngưỡng 30 file).
+- **Target**: ảnh hero trang chủ ≤ 200 KB ở 1280px (biến thể w1280).
+  Giới hạn khi xử lý (sharp): tối đa 50 megapixel, timeout 30 s/ảnh, `sharp.concurrency(1)`; giới hạn RAM/CPU container → E10,
+  10 phút/video → S04.
+- **AC**: [ ] Xử lý ảnh chạy nền (outbox/queue), UI hiển thị trạng thái · [ ] Ảnh "decompression bomb" bị từ chối, worker không chết.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E8-S04 · Video
@@ -73,3 +73,14 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `pnpm storage:migrate --tenant <id> --from local --to s3` sao chép, kiểm checksum, cập nhật `driver`, revalidate.
 - **AC**: [ ] Chuyển 1 GB media sang R2 không có ảnh vỡ (crawler kiểm 0 lỗi 404) · [ ] Dry-run in danh sách trước khi xóa.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
+
+### E8-S07 · Phân phối ảnh biến thể
+- **Chi tiết** (tách từ S03): apps/web đổi `MediaRef` UUID (Media `ready` + `public` của đúng tenant) thành URL công khai khi
+  render trang; `<Media>` của `packages/ui` dựng `<picture>` AVIF + WebP với `srcset` từ biến thể qua `loader` theo từng ảnh
+  (`getImageProps`) — không bật `images.loader: "custom"` toàn cục vì nó tắt `/_next/image` của ảnh tĩnh. Các section dùng
+  `next/image` trực tiếp đi cùng đường đó. Ảnh có `focal` để crop đúng chủ thể (`object-position`). Media chuyển public →
+  worker enqueue invalidate tag tenant.
+- **Target**: ảnh hero trang chủ ≤ 200 KB ở 1280px, không tốn CPU tối ưu ảnh lúc chạy cho media đã upload.
+- **AC**: [ ] Lighthouse không báo "properly size images" ở trang chủ seed · [ ] Ảnh upload hiển thị bằng biến thể đúng kích
+  thước, không qua `/_next/image`.
+- Phụ thuộc: S03 · Agent: Codex · Cỡ: M
