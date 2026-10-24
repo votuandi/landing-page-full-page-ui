@@ -7,11 +7,22 @@ import test from "node:test";
 import { ESLint } from "eslint";
 import { CreateBucketCommand, DeleteBucketCommand, GetObjectCommand, HeadObjectCommand, PutBucketPolicyCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
-import { assertKey, createLocalDriver, createS3Driver, InvalidKeyError, mediaKey, storageFromEnv, sniff, kindOf, UPLOAD_LIMITS, quarantineKey, privateKey } from "../index.ts";
+import { assertKey, createLocalDriver, createS3Driver, InvalidKeyError, mediaKey, storageFromEnv, sniff, kindOf, UPLOAD_LIMITS, quarantineKey, privateKey, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS } from "../index.ts";
 import { badKeys, collect, runContract } from "./contract.ts";
 
 const publicBase = "https://cdn.example.com/m/";
 const tenant = "019a06e0-1234-7000-8000-000000000001";
+
+test("variantKey preserves original UUID and prefix for six deterministic variants", () => {
+  const original = privateKey(tenant, "jpg");
+  assert.deepEqual(VARIANT_WIDTHS, [640, 1280, 1920]);
+  assert.deepEqual(VARIANT_FORMATS, ["avif", "webp"]);
+  for (const width of VARIANT_WIDTHS) for (const format of VARIANT_FORMATS) {
+    assert.equal(variantKey(original, width, format), original.replace(/\.jpg$/, `-w${width}.${format}`));
+    assert.equal(variantKey(original.replace(/^private\//, "tenants/"), width, format), variantKey(original, width, format).replace(/^private\//, "tenants/"));
+  }
+  for (const key of ["../a.jpg", "a/../b.jpg", "a.jpg\n", "no-extension"]) assert.throws(() => variantKey(key, 640, "avif"), InvalidKeyError);
+});
 
 test("sniff: allowlisted magic bytes, never HTML or SVG", () => {
   const cases: Array<[Uint8Array, string]> = [

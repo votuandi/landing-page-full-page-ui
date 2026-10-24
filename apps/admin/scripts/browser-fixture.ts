@@ -11,6 +11,7 @@ const fixtures = [
   { id: "e7000000-0000-4000-8000-000000000003", slug: "nang-luong-solar", status: "active" as const },
   { id: "e7000000-0000-4000-8000-000000000004", slug: "admin-e7-paused", status: "suspended" as const },
   { id: "e7060000-0000-4000-8000-000000000001", slug: "admin-e7-collections-basic", status: "active" as const },
+  { id: "e8030000-0000-4000-8000-000000000001", slug: "admin-e8-media-denied", status: "active" as const, permissionPolicy: { deny: ["media.view"] } },
 ];
 async function main() {
   const db = createPlatformDb({ pool: 2 });

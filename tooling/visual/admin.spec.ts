@@ -27,7 +27,7 @@ async function login(page: Page, identifier = "owner@demo.vn", pass = password()
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
 }
 
-async function uploadImage(page: Page, png: Buffer) {
+async function uploadImage(page: Page, png: Buffer, scan = true) {
   const id = await page.evaluate(async base64 => {
     const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     const reservation = await fetch("/api/media", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mime: "image/png", size: bytes.length }) });
@@ -40,9 +40,45 @@ async function uploadImage(page: Page, png: Buffer) {
     if (complete.status !== 202) throw new Error(`complete: ${complete.status}`);
     return id as string;
   }, png.toString("base64"));
-  expect(fixture("media-scan", id)).toBe("ready");
+  if (scan) expect(fixture("media-scan", id)).toBe("ready");
   return id;
 }
+
+test("media status", async ({ page }, info) => {
+  await login(page);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/media");
+  await expect(page.getByRole("heading", { name: "Media", exact: true })).toBeVisible();
+  const png = await sharp({ create: { width: 32, height: 24, channels: 3, background: "red" } }).png().toBuffer();
+  const id = await uploadImage(page, png, false);
+  await page.reload();
+  const row = page.getByRole("row").filter({ has: page.getByRole("rowheader", { name: id, exact: true }) });
+  await expect(row).toContainText("Đang xử lý");
+  expect(fixture("media-scan", id)).toBe("ready");
+  await page.reload();
+  await expect(row).toContainText("Sẵn sàng · 6 biến thể");
+  const badId = await uploadImage(page, Buffer.from("<html>invalid image</html>"), false);
+  expect(fixture("media-scan", badId)).toBe("failed");
+  await page.reload();
+  await expect(page.getByRole("row").filter({ has: page.getByRole("rowheader", { name: badId, exact: true }) })).toContainText("Lỗi");
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await info.attach(`media-status-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+  }
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, "admin-e7-b");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin("admin-e7-b") + "/media");
+  await expect(page.getByRole("heading", { name: "Media", exact: true })).toBeVisible();
+  await expect(page.getByRole("rowheader", { name: id, exact: true })).toHaveCount(0);
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", password(), "admin-e8-media-denied");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  expect((await page.goto(origin("admin-e8-media-denied") + "/media"))?.status()).toBe(403);
+  await expect(page.getByRole("heading", { name: "Bạn không có quyền truy cập" })).toBeVisible();
+});
 
 test("brand font and favicon", async ({ page }, info) => {
   await login(page);

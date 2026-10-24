@@ -8,6 +8,15 @@ export class InvalidKeyError extends Error {
   }
 }
 
+export const VARIANT_WIDTHS = [640, 1280, 1920] as const;
+export const VARIANT_FORMATS = ["avif", "webp"] as const;
+
+export function variantKey(key: string, width: typeof VARIANT_WIDTHS[number], format: typeof VARIANT_FORMATS[number]): string {
+  assertKey(key);
+  if (!/\.[a-z0-9]+$/i.test(key) || !VARIANT_WIDTHS.includes(width) || !VARIANT_FORMATS.includes(format)) throw new InvalidKeyError();
+  return key.replace(/\.[a-z0-9]+$/i, `-w${width}.${format}`);
+}
+
 export function assertKey(key: string, { prefix = false }: { prefix?: boolean } = {}): void {
   if (prefix && key === "") return;
   const value = prefix && key.endsWith("/") ? key.slice(0, -1) : key;

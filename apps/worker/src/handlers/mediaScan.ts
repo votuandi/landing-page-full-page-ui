@@ -1,10 +1,11 @@
 import { z } from "zod";
-import sharp from "sharp";
-import { MediaQuotaError, type OutboxJob, type Promotion } from "@solar/db";
-import { kindOf, privateKey, sniff, UPLOAD_LIMITS, type StorageDriver } from "@solar/storage";
+import sharp, { type Sharp } from "sharp";
+import { MediaQuotaError, type MediaVariant, type OutboxJob, type Promotion } from "@solar/db";
+import { kindOf, privateKey, sniff, UPLOAD_LIMITS, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS, type StorageDriver } from "@solar/storage";
 import { PermanentError } from "../loop.ts";
 
-export type JobMedia = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number };
+export type JobMedia = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; variants?: unknown };
+class UnsafeImageError extends Error {}
 export type ScanMedia = {
   get(tenantId: string, id: string): Promise<JobMedia | null>;
   promote(tenantId: string, id: string, data: Promotion): Promise<boolean>;
@@ -33,25 +34,55 @@ export function createMediaScan({ media, storage }: { media: ScanMedia; storage:
     if (!bytes || !bytes.byteLength || bytes.byteLength > row.size) return reject("missing or oversized object");
     const format = sniff(bytes);
     if (!format || format.kind !== kindOf(row.mime) || bytes.byteLength > UPLOAD_LIMITS[format.kind]) return reject("unsupported content or size");
-    let body: Uint8Array = bytes, width: number | undefined, height: number | undefined;
+    const deadline = Date.now() + 30_000;
+    const encode = async (pipeline: Sharp) => {
+      try {
+        const remaining = deadline - Date.now();
+        if (remaining <= 0) throw new UnsafeImageError();
+        const output = await pipeline.timeout({ seconds: Math.max(1, Math.floor(remaining / 1000)) }).toBuffer({ resolveWithObject: true });
+        if (Date.now() >= deadline) throw new UnsafeImageError();
+        return output;
+      } catch { throw new UnsafeImageError(); }
+    };
+    let body: Uint8Array = bytes, width: number | undefined, height: number | undefined, pages = 1;
     if (format.kind === "image") {
       try {
         // Metadata is removed by default: https://sharp.pixelplumbing.com/api-output/
-        const output = await sharp(bytes, { animated: true, limitInputPixels: 50_000_000 }).rotate().timeout({ seconds: 30 }).toBuffer({ resolveWithObject: true });
-        body = output.data; width = output.info.width; height = output.info.height;
+        const output = await encode(sharp(bytes, { animated: true, limitInputPixels: 50_000_000 }).rotate());
+        body = output.data; width = output.info.width; height = output.info.height; pages = output.info.pages ?? 1;
       } catch { return reject("invalid or unsafe image"); }
       if (sniff(body)?.mime !== format.mime || body.byteLength > UPLOAD_LIMITS.image) return reject("encoded image exceeds kind limit or changes format");
     }
     const key = privateKey(tenantId, format.ext);
-    await storage.put(key, body, { contentType: format.mime, cacheControl: "private, no-store" });
-    let promoted: boolean;
-    try { promoted = await media.promote(tenantId, id, { key, mime: format.mime, size: body.byteLength, width, height }); }
+    const written: string[] = [], variants: MediaVariant[] = [];
+    const cleanup = () => Promise.all(written.map(key => storage.delete(key)));
+    const put = async (key: string, body: Uint8Array, contentType: string) => {
+      written.push(key);
+      await storage.put(key, body, { contentType, cacheControl: "private, no-store" });
+    };
+    try {
+      await put(key, body, format.mime);
+      if (format.kind === "image" && pages <= 1) {
+        for (const targetWidth of VARIANT_WIDTHS) for (const format of VARIANT_FORMATS) {
+          let output: Awaited<ReturnType<typeof encode>>;
+          try {
+            const image = sharp(body, { limitInputPixels: 50_000_000 }).resize({ width: targetWidth, withoutEnlargement: true });
+            output = await encode(format === "avif" ? image.avif({ quality: 50 }) : image.webp({ quality: 75 }));
+          } catch { throw new UnsafeImageError(); }
+          const variant = { key: variantKey(key, targetWidth, format), format, width: output.info.width, height: output.info.height, size: output.data.byteLength };
+          await put(variant.key, output.data, `image/${format}`);
+          variants.push(variant);
+        }
+      }
+      const promoted = await media.promote(tenantId, id, { key, mime: format.mime, size: body.byteLength, width, height, variants });
+      if (!promoted) await cleanup();
+    }
     catch (error) {
-      await storage.delete(key);
+      await cleanup();
+      if (error instanceof UnsafeImageError) return reject("invalid or unsafe image");
       if (error instanceof MediaQuotaError) return reject("quota: cleaned file exceeds tenant limit");
       throw error;
     }
-    if (!promoted) await storage.delete(key);
     await storage.delete(row.key);
   };
 }

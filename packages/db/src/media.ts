@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { getPlan, limit } from "@solar/plans";
-import { kindOf, UPLOAD_LIMITS, quarantineKey } from "@solar/storage";
+import { assertKey, kindOf, UPLOAD_LIMITS, quarantineKey, VARIANT_FORMATS } from "@solar/storage";
 import type { Db, PlatformDb } from "./client.ts";
 import { platformClient } from "./client.ts";
 import { tenantTransaction, withTenantTransaction } from "./tenantTransaction.ts";
@@ -58,9 +58,18 @@ export async function cancelUpload(db: Db | PlatformDb, tenantId: string, id: st
     return row;
   });
 }
-export type Promotion = { key: string; mime: string; size: number; width?: number; height?: number };
+export const mediaVariantsSchema = z.array(z.strictObject({
+  key: z.string(), format: z.enum(VARIANT_FORMATS),
+  width: z.number().int().positive().max(1920), height: z.number().int().positive(), size: z.number().int().positive(),
+})).max(6);
+export type MediaVariant = z.infer<typeof mediaVariantsSchema>[number];
+export type Promotion = { key: string; mime: string; size: number; width?: number; height?: number; variants?: MediaVariant[] };
 export async function promoteMedia(db: Db | PlatformDb, tenantId: string, id: string, data: Promotion): Promise<boolean> {
-  if (!data.key.startsWith(`private/${tenantId}/`)) throw new MediaError("Khóa media không hợp lệ.");
+  if (data.variants !== undefined && !mediaVariantsSchema.safeParse(data.variants).success) throw new MediaError("Biến thể media không hợp lệ.");
+  for (const key of [data.key, ...(data.variants ?? []).map(variant => variant.key)]) {
+    try { assertKey(key); } catch { throw new MediaError("Khóa media không hợp lệ."); }
+    if (!key.startsWith(`private/${tenantId}/`)) throw new MediaError("Khóa media không hợp lệ.");
+  }
   return tenantTransaction(db, tenantId, async tx => {
     const quota = await lockedQuota(tx, tenantId);
     const repo = createTenantRepo(tx, tenantId);
