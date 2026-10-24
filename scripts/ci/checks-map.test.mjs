@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { affectedChecks, e2eScope, CHECKS } from "./checks-map.mjs";
+import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
 
 test("E8-S01: storage selects its contract suite and does not select unrelated suites", () => {
   assert.equal(CHECKS.storage?.cmd, "bash scripts/local-ci.sh storage");
@@ -115,4 +115,33 @@ test("e2e theo phạm vi: đổi chữ ký của test (dòng test( bị thay) v�
 +test("products: CSV", async ({ page }, info) => {
 `;
   assert.equal(scope(["tooling/visual/admin.spec.ts"], signature)["e2e:admin"].grep, "products: CSV");
+});
+
+// PR #59 (E7-S10): apps/web/package.json chỉ thêm devDependency `@solar/storage: workspace:*` cho fixture e2e → 32 shard
+// matrix + visual compare chạy vô ích. Link workspace tới package ngoài đầu vào của bộ ảnh chụp không đổi pixel nào.
+const dirs = { "@solar/storage": "packages/storage/", "@solar/sections": "packages/sections/" };
+const web = (dev) => JSON.stringify({ name: "web", dependencies: { next: "15.5.4" }, devDependencies: { tailwindcss: "3.4.17", ...dev } });
+
+test("workspaceLinks: chỉ thêm/bớt/đổi link workspace → thư mục package; đổi khác → null", () => {
+  assert.deepEqual(workspaceLinks(web({}), web({ "@solar/storage": "workspace:*" }), dirs), ["packages/storage/"]);
+  assert.deepEqual(workspaceLinks(web({ "@solar/storage": "workspace:*" }), web({}), dirs), ["packages/storage/"]);
+  assert.equal(workspaceLinks(web({}), web({ tailwindcss: "3.4.18" }).replace("3.4.17", "3.4.18"), dirs), null, "tailwind đổi pixel");
+  assert.equal(workspaceLinks(web({}), web({ "@solar/storage": "workspace:*", "left-pad": "1.0.0" }), dirs), null);
+  assert.equal(workspaceLinks(web({}), web({ "@solar/khac": "workspace:*" }), dirs), null, "package không rõ thư mục");
+  const scripts = JSON.stringify({ ...JSON.parse(web({ "@solar/storage": "workspace:*" })), scripts: { dev: "next dev" } });
+  assert.equal(workspaceLinks(web({}), scripts, dirs), null);
+  assert.equal(workspaceLinks(undefined, web({}), dirs), null, "file mới");
+  assert.equal(workspaceLinks("{", web({}), dirs), null, "JSON hỏng");
+});
+
+const e7s10 = ["apps/web/package.json", "apps/web/scripts/tenant-browser-fixture.ts", "pnpm-lock.yaml", "packages/storage/src/types.ts",
+  "packages/db/src/tenantBackup.ts", "apps/admin/src/app/api/sao-luu/route.ts", "tooling/visual/tenant.spec.ts"];
+
+test("E7-S10: link workspace ngoài matrix/visual không kéo bộ ảnh chụp; e2e và bộ khác giữ nguyên", () => {
+  const checks = affectedChecks(e7s10, { links: { "apps/web/package.json": ["packages/storage/"] } });
+  assert.ok(!checks.includes("matrix") && !checks.includes("visual"), checks.join());
+  for (const name of ["db", "storage", "e2e:tenant", "e2e:admin"]) assert.ok(checks.includes(name), name);
+  assert.ok(affectedChecks(e7s10).includes("matrix"), "không có thông tin link → giữ hành vi cũ");
+  assert.ok(affectedChecks(["apps/web/package.json"], { links: { "apps/web/package.json": ["packages/sections/"] } }).includes("matrix"),
+    "link tới package thuộc matrix vẫn chạy");
 });

@@ -8,7 +8,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { affectedChecks, CHECKS, e2eScope, specDiff } from "../ci/checks-map.mjs";
+import { affectedChecks, CHECKS, e2eScope, manifestLinks, specDiff } from "../ci/checks-map.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
@@ -144,7 +144,7 @@ function verify(id, { skipChecks }) {
   const quote = (text) => `'${text.replace(/'/g, `'\\''`)}'`;
   const scope = e2eScope(changed, specDiff(S.base), { full });
   const requiredChecks = [
-    ...(full ? Object.keys(CHECKS) : affectedChecks(changed)).filter((name) => !name.startsWith("e2e:") && CHECKS[name].cmd.startsWith("bash"))
+    ...(full ? Object.keys(CHECKS) : affectedChecks(changed, { links: manifestLinks(S.base, changed) })).filter((name) => !name.startsWith("e2e:") && CHECKS[name].cmd.startsWith("bash"))
       .map((name) => ({ name, cmd: CHECKS[name].cmd })),
     ...scope.filter((s) => s.mode !== "none").map((s) => ({ name: s.name, cmd: `${CHECKS[s.name].cmd}${
       s.mode === "grep" ? ` -g ${quote(s.grep)}` : s.mode === "files" ? ` ${s.files.map((f) => f.replace("tooling/visual/", "")).join(" ")}` : ""}` })),

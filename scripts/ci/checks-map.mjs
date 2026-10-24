@@ -6,7 +6,7 @@
 //   node scripts/ci/checks-map.mjs <base-ref> --github-output [--full] → `<tên>=true|false` (bỏ `e2e:`) + `<bộ>_e2e/_grep/_files`
 // Tài liệu (*.md) và unit test không kích hoạt bộ nào. Đổi đầu vào của một bộ → sửa bảng này, test ở checks-map.test.mjs.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const shared = ["pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", "scripts/ci/checks-map.mjs"];
@@ -26,6 +26,8 @@ export const CHECKS = {
       "tooling/visual/package.json", ".github/workflows/visual.yml", "scripts/ci/visual-baseline-run.sh"],
     // Layout chỉ đọc dữ liệu preset t15; bộ kiểm cấu trúc trang không ảnh hưởng ảnh chụp.
     except: [`${web}lib/tenant/`, `${web}components/tenant/`, "packages/presets/src/structure.ts"],
+    // package.json chỉ đổi link workspace tới package ngoài `paths` không đổi pixel (PR #59: @solar/storage cho fixture e2e).
+    ignoreLinks: true,
   },
   // Ảnh chụp các trang công khai của t15 (CI: Visual regression / compare). Spec e2e đổi không kéo bộ này.
   visual: {
@@ -36,6 +38,7 @@ export const CHECKS = {
       "apps/web/postcss.config.mjs", "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/visual.spec.ts", "tooling/visual/routes.ts",
       "tooling/visual/playwright.config.ts", "tooling/visual/package.json", ".github/workflows/visual.yml"],
     except: [`${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
+    ignoreLinks: true,
   },
   db: {
     cmd: "bash scripts/local-ci.sh db",
@@ -84,11 +87,52 @@ export const CHECKS = {
 };
 
 const hit = (file, prefixes = []) => prefixes.some((p) => file === p || file.startsWith(p));
-/** Tên các bộ kiểm cần chạy cho danh sách file đổi. */
-export function affectedChecks(files) {
+/**
+ * Tên các bộ kiểm cần chạy cho danh sách file đổi. `links`: package.json → thư mục các package workspace mà nó chỉ
+ * thêm/bớt/đổi link (từ `workspaceLinks`); bộ có `ignoreLinks` bỏ qua file đó khi mọi package được link nằm ngoài bộ.
+ */
+export function affectedChecks(files, { links = {} } = {}) {
   // Tài liệu và unit test không đổi kết quả e2e/ảnh chụp (unit test đã chạy trong verify).
   const code = files.map((f) => f.replace(/\\/g, "/")).filter((f) => !f.endsWith(".md") && !/\/__tests__\/|\.test\.[cm]?[jt]sx?$/.test(f));
-  return Object.entries(CHECKS).filter(([, c]) => code.some((f) => hit(f, c.paths) && !hit(f, c.except))).map(([name]) => name);
+  const counts = (f, c) => hit(f, c.paths) && !hit(f, c.except) && !(c.ignoreLinks && links[f]?.every((dir) => !hit(dir, c.paths)));
+  return Object.entries(CHECKS).filter(([, c]) => code.some((f) => counts(f, c))).map(([name]) => name);
+}
+
+const DEPS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+/**
+ * Hai bản package.json chỉ khác nhau ở link `workspace:` → thư mục các package đó (theo `dirs`: tên → thư mục);
+ * còn đổi gì khác (phiên bản thư viện ngoài, scripts…), file mới, JSON hỏng hoặc package không rõ thư mục → null.
+ */
+export function workspaceLinks(before, after, dirs) {
+  let a, b;
+  try { a = JSON.parse(before); b = JSON.parse(after); } catch { return null; }
+  const names = new Set();
+  const strip = (pkg) => ({ ...pkg, ...Object.fromEntries(DEPS.filter((k) => pkg[k]).map((k) => [k,
+    Object.fromEntries(Object.entries(pkg[k]).filter(([name, version]) => !(String(version).startsWith("workspace:") && names.add(name))))])) });
+  const [sa, sb] = [strip(a), strip(b)];
+  const sorted = (pkg) => JSON.stringify(pkg, (_, v) => v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort()) : v);
+  if (sorted(sa) !== sorted(sb)) return null;
+  const changed = [...names].filter((n) => DEPS.some((k) => a[k]?.[n] !== b[k]?.[n]));
+  return changed.length && changed.every((n) => dirs[n]) ? changed.map((n) => dirs[n]) : null;
+}
+/** Tên → thư mục của mọi package trong workspace (apps/*, packages/*, tooling/*). */
+function workspaceDirs() {
+  const dirs = {};
+  for (const group of ["apps", "packages", "tooling"]) {
+    for (const dir of existsSync(group) ? readdirSync(group) : []) {
+      const manifest = `${group}/${dir}/package.json`;
+      if (existsSync(manifest)) dirs[JSON.parse(readFileSync(manifest, "utf8")).name] = `${group}/${dir}/`;
+    }
+  }
+  return dirs;
+}
+/** `links` cho affectedChecks: package.json đổi so với base (merge-base, như `base...HEAD`) chỉ ở link workspace. */
+export function manifestLinks(base, files) {
+  const show = (ref, file) => { try { return execFileSync("git", ["show", `${ref}:${file}`], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }); } catch { return undefined; } };
+  const manifests = files.map((f) => f.replace(/\\/g, "/")).filter((f) => f.endsWith("package.json"));
+  if (!manifests.length) return {};
+  const from = execFileSync("git", ["merge-base", base, "HEAD"], { encoding: "utf8" }).trim(), dirs = workspaceDirs();
+  return Object.fromEntries(manifests.map((f) => [f, workspaceLinks(show(from, f), show("HEAD", f), dirs)]).filter(([, dirsOf]) => dirsOf));
 }
 
 const TEST_TITLE = /^test\(\s*(["'`])((?:\\.|(?!\1).)*)\1/;
@@ -142,7 +186,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const files = (base === "--stdin" ? readFileSync(0, "utf8")
     : execFileSync("git", ["diff", "--name-only", `${base}...HEAD`], { encoding: "utf8" })).split(/\r?\n/).filter(Boolean);
   const full = rest.includes("--full");
-  const names = full ? Object.keys(CHECKS) : affectedChecks(files);
+  const names = full ? Object.keys(CHECKS) : affectedChecks(files, { links: base === "--stdin" ? {} : manifestLinks(base, files) });
   if (flag === "--github-output") {
     // `<bộ>=true|false` (bộ bị ảnh hưởng) + với e2e: `<bộ>_e2e`, `<bộ>_grep`, `<bộ>_files` cho bước playwright.
     const scope = Object.fromEntries(e2eScope(files, base === "--stdin" ? "" : specDiff(base), { full }).map((s) => [s.name, s]));
