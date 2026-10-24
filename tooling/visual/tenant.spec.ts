@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 function fixture(action: string) {
@@ -16,23 +16,34 @@ const projectSlug = "nha-pho-binh-thanh";
 test("backup restore renders identical home", async ({ page }, info) => {
   test.setTimeout(180_000);
   fixture("backup-restore");
+  // The source page is the baseline; it is written per run and never committed.
+  const snapshot = info.snapshotPath("backup-restore-home.png");
   try {
     await page.setViewportSize({ width: 1440, height: 900 });
     const capture = async (host: string) => {
       expect((await page.goto(origin(host), { waitUntil: "networkidle" }))?.status()).toBe(200);
+      // Dynamic islands (projects t14 tabs) select their first panel only after the chunk mounts.
+      await page.waitForFunction(() => document.querySelector("[role=tabpanel][hidden]") !== null);
       await page.evaluate(async () => {
         await document.fonts.ready;
-        await Promise.all(Array.from(document.images).map(img => img.decode().catch(() => undefined)));
+        // Off-screen lazy images never load on their own, so decode() would wait forever.
+        await Promise.all(Array.from(document.images).map(img => {
+          img.loading = "eager";
+          return Promise.race([img.decode().catch(() => undefined), new Promise(done => setTimeout(done, 5_000))]);
+        }));
       });
       return page.screenshot({ fullPage: true, animations: "disabled" });
     };
-    const reference = await capture("t15"), snapshot = info.snapshotPath("backup-restore-home.png");
+    const reference = await capture("t15");
     await mkdir(dirname(snapshot), { recursive: true }); await writeFile(snapshot, reference);
     const restored = await capture("clone");
     expect(restored).toMatchSnapshot("backup-restore-home.png", { maxDiffPixelRatio: 0.01 });
     await info.attach("source-home", { body: reference, contentType: "image/png" });
     await info.attach("restored-home", { body: restored, contentType: "image/png" });
-  } finally { fixture("backup-cleanup"); }
+  } finally {
+    fixture("backup-cleanup");
+    await rm(dirname(snapshot), { recursive: true, force: true });
+  }
 });
 
 test("disabled page type returns 404 and disappears from sitemap; re-enable preserves page", async ({ page }) => {

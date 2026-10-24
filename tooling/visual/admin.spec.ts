@@ -52,7 +52,8 @@ test("owner downloads backup, staff is forbidden", async ({ page, browser }) => 
   try {
     const staff = await context.newPage(); await login(staff, "staff_admin");
     await expect(staff.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
-    expect((await staff.request.get(origin() + "/api/sao-luu")).status()).toBe(403);
+    // Browser fetch, not APIRequestContext: Node cannot resolve *.localhost on Windows.
+    expect(await staff.evaluate(async () => (await fetch("/api/sao-luu")).status)).toBe(403);
     await staff.goto(origin() + "/cai-dat");
     await expect(staff.getByRole("link", { name: "Tải bản sao lưu", exact: true })).toHaveCount(0);
   } finally { await context.close(); }
