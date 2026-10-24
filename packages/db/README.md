@@ -28,6 +28,10 @@ lại các quyền lợi riêng đó nếu muốn kết quả render tương đ�
 `saveSiteSettings` qua entry chính nhận `(db, tenantId, siteId, patch, expectedUpdatedAt?)`; phiên bản cũ trả 409,
 site khác tenant trả 404. Site và outbox tag `tenant:<id>` được ghi trong cùng transaction. Caller kiểm quyền/gói.
 
+`profile.brand.favicon` lưu UUID media. `siteProfileMediaIds` thu cả favicon và ảnh team để enqueue publish khi lưu
+settings. Form thông tin công ty giữ favicon hiện tại; chỉ form Giao diện thay đổi trường này sau khi kiểm media.
+Backup/restore remap UUID favicon cùng các ID media khác.
+
 Nhập file cấu hình TypeScript tin cậy (script thực thi file):
 
 ```sh

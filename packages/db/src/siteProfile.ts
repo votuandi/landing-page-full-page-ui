@@ -19,7 +19,7 @@ const companyLegalSchema = z.object({
 });
 export const siteProfileSchema = z.object({
   name: textValue.optional(), description: textValue.optional(), email: z.email().optional(), hotline: phone.optional(),
-  brand: z.object({ legalName: textValue.optional(), tagline: textValue.optional(), logo: asset.optional(), logoDark: asset.optional(), logoText: z.string().max(4).optional(), foundedYear: z.number().int().min(1900).max(new Date().getFullYear()).optional(), url: https.optional() }).default({}),
+  brand: z.object({ legalName: textValue.optional(), tagline: textValue.optional(), logo: asset.optional(), logoDark: asset.optional(), favicon: z.uuid().optional(), logoText: z.string().max(4).optional(), foundedYear: z.number().int().min(1900).max(new Date().getFullYear()).optional(), url: https.optional() }).default({}),
   theme: z.object({ default: z.enum(["light", "dark"]).default("light"), switcher: z.boolean().default(false) }).default({ default: "light", switcher: false }),
   legal: companyLegalSchema.extend({ policies: z.array(z.object({ slug: z.string().regex(/^[a-z0-9-]+$/), title: textValue, summary: textValue, body: richText() })).default([]) }).prefault({}),
   zalo: z.object({ household: zaloContact.optional(), factory: zaloContact.optional(), project: zaloContact.optional() }).default({}),
@@ -43,17 +43,18 @@ export const siteProfileSchema = z.object({
 });
 
 export const COMPANY_KEYS = ["name", "description", "email", "hotline", "brand", "legal", "zalo", "messenger", "complaintHotline", "workingHours", "callbackHours", "socials", "stats", "reviews", "commitments", "popup", "topBar", "megaMenu"] as const;
-export const companyProfileSchema = siteProfileSchema.pick(Object.fromEntries(COMPANY_KEYS.map(key => [key, true])) as Record<typeof COMPANY_KEYS[number], true>).extend({ legal: companyLegalSchema.prefault({}) });
+export const companyProfileSchema = siteProfileSchema.pick(Object.fromEntries(COMPANY_KEYS.map(key => [key, true])) as Record<typeof COMPANY_KEYS[number], true>).extend({ brand: siteProfileSchema.shape.brand.unwrap().omit({ favicon: true }).default({}), legal: companyLegalSchema.prefault({}) });
 export type SiteProfile = z.output<typeof siteProfileSchema>;
-/** Team images are the profile's only media UUID fields; logos/SEO use asset URLs. */
+/** Profile media UUIDs participate in the same publish pipeline as section images. */
 export function siteProfileMediaIds(profile: unknown): string[] {
-  const parsed = siteProfileSchema.pick({ team: true }).safeParse(profile);
-  return parsed.success ? parsed.data.team.map(person => person.image).filter(image => z.uuid().safeParse(image).success) : [];
+  const parsed = siteProfileSchema.pick({ team: true, brand: true }).safeParse(profile);
+  return parsed.success ? [...new Set([parsed.data.brand.favicon, ...parsed.data.team.map(person => person.image)].filter((image): image is string => z.uuid().safeParse(image).success))] : [];
 }
 /** Only these fields belong to this form; preserve every other persisted key verbatim. */
 export function mergeCompanyProfile(current: unknown, company: unknown) {
   const before = z.record(z.string(), z.unknown()).parse(current);
   const input = companyProfileSchema.parse(company, { error: z.locales.vi().localeError });
   const { policies: _ignored, ...legal } = before.legal && typeof before.legal === "object" ? before.legal as Record<string, unknown> : {};
-  return { ...before, ...input, legal: { ...legal, ...input.legal, policies: (before.legal as { policies?: unknown })?.policies ?? [] } };
+  const favicon = (before.brand as { favicon?: unknown } | undefined)?.favicon;
+  return { ...before, ...input, brand: { ...input.brand, ...(favicon !== undefined ? { favicon } : {}) }, legal: { ...legal, ...input.legal, policies: (before.legal as { policies?: unknown })?.policies ?? [] } };
 }
