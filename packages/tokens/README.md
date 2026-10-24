@@ -42,9 +42,12 @@ const css = themeToCss(theme, overrides);
 ```
 
 `theme` phải được kiểm tra bằng `parseTheme()` trước khi truyền vào. Hàm luôn kiểm
-tra `overrides` bằng `ThemeOverridesSchema`: chỉ cho ghi đè màu light/dark hợp lệ,
-từ chối khóa lạ và chuỗi chèn CSS/HTML. `motion.easing` chứa `<`, `>`, `{`, `}`, `;`
+tra `overrides` bằng `ThemeOverridesSchema`: cho ghi đè màu light/dark hợp lệ và nhận `font: { sans?, display? }`,
+từ chối khóa lạ và chuỗi màu chèn CSS/HTML. `motion.easing` chứa `<`, `>`, `{`, `}`, `;`
 cũng bị từ chối. Override light và dark độc lập, không tự suy dark từ light.
+
+`themeToCss` không sinh CSS font. App phải kiểm font qua `withFontOverride` trong `@solar/themes`
+(allowlist và weight) trước khi dùng theme kết quả cho CSS font và preload.
 
 CSS có thứ tự màu ổn định theo `COLOR_KEYS` rồi `GLASS_COLOR_KEYS`: màu RGB dùng
 `--c-<key>`, kính dùng `--<key>`. Khối `:root,[data-theme="light"]` chứa màu light

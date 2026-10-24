@@ -18,6 +18,23 @@ const { t15, themeFontFamilies, themeFontFiles, themeFontCss } = themes;
 const { FONTS } = require("../fonts.generated.ts");
 const t11 = { ...t15, font: { ...t15.font, display: "Manrope" } };
 
+test("withFontOverride validates allowlist, weights and preserves theme", () => {
+  assert.equal(themes.withFontOverride(t15), t15);
+  const next = themes.withFontOverride(t15, { sans: "Manrope" });
+  assert.equal(next.font.sans, "Manrope");
+  assert.equal(next.font.display, t15.font.display);
+  assert.ok(themeFontFiles(next).some(file => file.startsWith("manrope")));
+  assert.match(themeFontCss(next), /--font-sans:"Manrope"/);
+  assert.equal(themes.withFontOverride(themes.t01, { display: "Manrope" }), null);
+  assert.equal(t15.font.sans, "Be Vietnam Pro");
+});
+
+test("rejects css injection name", () => {
+  for (const sans of ["Comic Sans", 'Inter";}body{', "__proto__", "", "Inter\n"]) {
+    assert.equal(themes.withFontOverride(t15, { sans }), null);
+  }
+});
+
 test("font CSS scoped giữ nguyên faces, mặc định giữ root và chặn injection", () => {
   const scope = '[data-lab-theme="t15"]';
   assert.equal(themeFontCss(t15, undefined, scope), themeFontCss(t15).replace(':root{', `${scope}{`));
