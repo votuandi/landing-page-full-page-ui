@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
 import { assertKey } from "../key.ts";
 import type { StorageDriver } from "../types.ts";
 
@@ -17,6 +17,18 @@ export function createS3Driver({ bucket, publicBase, client, maxKeys, ...config 
   const s3 = client ?? new S3Client(config);
   const base = publicBase.replace(/\/+$/, "");
   return {
+    async get(key) {
+      assertKey(key);
+      try {
+        const object = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+        if (!object.Body) throw new Error("Storage returned no object body");
+        return await object.Body.transformToByteArray();
+      } catch (error) {
+        const failure = error as { name?: string; $metadata?: { httpStatusCode?: number } } | null;
+        if (failure?.name === "NoSuchKey" || failure?.name === "NotFound" || failure?.$metadata?.httpStatusCode === 404) return null;
+        throw error;
+      }
+    },
     async put(key, body, { contentType, cacheControl }) {
       assertKey(key);
       await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType, CacheControl: cacheControl }));

@@ -9,6 +9,7 @@ export interface Meta {
 }
 
 export interface StorageDriver {
+  get(key: string): Promise<Uint8Array | null>;
   put(key: string, body: Uint8Array, options: PutOptions): Promise<void>;
   delete(key: string): Promise<void>;
   list(prefix: string): AsyncIterable<string>;

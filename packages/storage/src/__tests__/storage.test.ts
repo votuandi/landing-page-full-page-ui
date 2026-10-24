@@ -119,6 +119,7 @@ test("s3 validates every key before I/O without a running endpoint", async () =>
   for (const key of badKeys) {
     await assert.rejects(async () => driver.put(key, new Uint8Array(), { contentType: "text/plain" }), InvalidKeyError);
     await assert.rejects(async () => driver.head(key), InvalidKeyError);
+    await assert.rejects(async () => driver.get(key), InvalidKeyError);
     await assert.rejects(async () => driver.delete(key), InvalidKeyError);
     assert.throws(() => driver.publicUrl(key), InvalidKeyError);
     if (key !== "" && key !== "a/") await assert.rejects(() => collect(driver.list(key)), InvalidKeyError);
@@ -141,6 +142,25 @@ test("s3 head: only 404/NotFound becomes null; access and transport errors propa
     }
     failure = new Error("network unavailable");
     await assert.rejects(() => driver.head("tenants/t/key"), error => error === failure);
+  } finally { client.destroy(); }
+});
+
+test("s3 get returns bytes or null; access and transport errors propagate", async () => {
+  const client = new S3Client({ region: "auto" });
+  let failure: Error | undefined;
+  client.middlewareStack.add(() => async () => {
+    if (failure) throw failure;
+    return { response: {}, output: { $metadata: {}, Body: { transformToByteArray: async () => new Uint8Array([0, 255]) } } };
+  }, { step: "initialize" });
+  const driver = createS3Driver({ bucket: "test", region: "auto", publicBase, client });
+  try {
+    assert.deepEqual(await driver.get("tenants/t/key"), new Uint8Array([0, 255]));
+    for (const error of [Object.assign(new Error("missing"), { name: "NoSuchKey" }), Object.assign(new Error("missing"), { $metadata: { httpStatusCode: 404 } })]) {
+      failure = error; assert.equal(await driver.get("tenants/t/key"), null);
+    }
+    for (const error of [Object.assign(new Error("denied"), { $metadata: { httpStatusCode: 403 } }), new Error("network")]) {
+      failure = error; await assert.rejects(() => driver.get("tenants/t/key"), e => e === error);
+    }
   } finally { client.destroy(); }
 });
 

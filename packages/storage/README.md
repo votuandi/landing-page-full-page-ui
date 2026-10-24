@@ -13,6 +13,7 @@ await storage.put(key, bytes, {
   cacheControl: "public, max-age=31536000, immutable",
 });
 const metadata = await storage.head(key); // { size, contentType? } hoặc null
+const bytes = await storage.get(key); // Uint8Array hoặc null; lỗi quyền/kết nối vẫn ném tiếp.
 const url = storage.publicUrl(key);
 for await (const objectKey of storage.list(`tenants/${tenantId}/`)) {
   // Xử lý từng khóa, không cần nạp toàn bộ danh sách vào RAM.
