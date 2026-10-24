@@ -4,7 +4,10 @@ import { collectRefs, collectionSchemas, pageConfigSchema, sectionRegistry } fro
 import { canUse, limit, PLAN_IDS } from "@solar/plans";
 import { getPreset, presetStructure, siteStructureOf, validateSiteStructure } from "@solar/presets";
 import { COLLECTIONS, collectionDefs } from "./collections.ts";
-import { collectionRepository } from "./collectionWrite.ts";
+import { collectionRepository, publishItemMedia } from "./collectionWrite.ts";
+import { createTenantRepo } from "./repository.ts";
+import { publishMedia } from "./media.ts";
+import { siteProfileMediaIds } from "./siteProfile.ts";
 import { checkConnection, loadDisabledFeatures, platformClient, type Db, type PlatformDb } from "./client.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
@@ -195,6 +198,12 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
         const images = name === "product" ? data?.images : [data?.image, data?.cover, data?.poster];
         if (Array.isArray(images)) await assertRefsBelongToTenant(tx, tenantId, { media: images.filter((id): id is string => typeof id === "string" && uuid.safeParse(id).success) });
       }
+      const repo = createTenantRepo(tx, tenantId);
+      const livePages = new Map(mapped.pages.filter(page => page.publishedAt).map(page => [page.id, descriptors(page.sections)]));
+      const liveMedia = mapped.sectionContents.flatMap(row => livePages.get(row.pageId)?.some(section => section.id === row.sectionId)
+        ? collectRefs(sectionRegistry.getType(row.type)!.schema, row.data).media : []);
+      await publishMedia(repo, [...siteProfileMediaIds(mapped.site.profile), ...liveMedia]);
+      for (const name of COLLECTIONS) for (const row of mapped.collections[name]) await publishItemMedia(repo, name, row);
       await tx.auditLog.create({ data: { tenantId, actorType: "system", action: "tenant.backup.restore", entity: "Tenant", entityId: tenantId,
         data: { sourceSlug: bundle.source.slug, counts: { pages: mapped.pages.length, sections: mapped.sectionContents.length,
           media: mapped.media.length, ...Object.fromEntries(COLLECTIONS.map(name => [name, mapped.collections[name].length])) } } } });

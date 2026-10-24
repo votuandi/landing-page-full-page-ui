@@ -4,6 +4,7 @@ import { after, before, describe, test } from "node:test";
 import { createPlatformDb, type PlatformDb } from "../client.ts";
 import { forTenant } from "../repository.ts";
 import { runSectionsMigrate } from "../sectionsMigrate.ts";
+import { sectionRegistry } from "@solar/sections";
 
 describe("section data migrations on PostgreSQL", { skip: !process.env.DATABASE_URL && "DATABASE_URL missing: requires migrated Postgres 16" }, () => {
   let db: PlatformDb;
@@ -56,5 +57,24 @@ describe("section data migrations on PostgreSQL", { skip: !process.env.DATABASE_
     assert.equal(snapshot.contents[0].data.custom, "Snapshot");
     assert.deepEqual(snapshot.contents[0].data.channels, []);
     assert.deepEqual(await runSectionsMigrate({ db: isolated, log: () => {} }), { changed: 0, errors: 0 });
+  });
+  test("I3: migrating live section data enqueues its media while draft and historic refs remain private", async () => {
+    const repo = forTenant(db, tenantId), site = (await repo.site.first())!;
+    const images = [];
+    for (let i = 0; i < 2; i++) images.push(await repo.media.create({ key: `private/${tenantId}/${randomUUID()}.png`, driver: "local", mime: "image/png", size: 10, status: "ready", visibility: "private" }));
+    const page = await repo.page.create({ siteId: site.id, slug: "live-media", sections: [{ id: "hero", type: "hero" }], publishedAt: new Date() });
+    await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: "hero", type: "hero", schemaVersion: 1,
+      data: { ...sectionRegistry.types.hero.defaults, image: { id: images[0].id, alt: { vi: "[DỮ LIỆU MẪU]" } } },
+      draftData: { ...sectionRegistry.types.hero.defaults, image: { id: images[1].id, alt: { vi: "[DỮ LIỆU MẪU]" } } } });
+    await repo.pageVersion.create({ pageId: page.id, revision: 1, snapshot: { contents: [{ type: "hero", schemaVersion: 1,
+      data: { ...sectionRegistry.types.hero.defaults, image: { id: images[1].id, alt: { vi: "[DỮ LIỆU MẪU]" } } } }] } });
+    const isolated = new Proxy(db, { get(target, key) {
+      if (key === "tenant") return { findMany: () => target.tenant.findMany({ where: { id: tenantId }, select: { id: true } }) };
+      return Reflect.get(target, key);
+    } });
+    const result = await runSectionsMigrate({ db: isolated, log: () => {} });
+    assert.equal(result.errors, 0);
+    const jobs = await repo.outbox.list({ where: { topic: "media.publish" } });
+    assert.deepEqual(jobs.map(job => (job.payload as { id: string }).id), [images[0].id]);
   });
 });

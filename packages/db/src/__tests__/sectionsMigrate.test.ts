@@ -38,6 +38,7 @@ test("database runner batches two tenants and continues past corrupt rows and sn
     };
   }
   const db = {
+    async $transaction<T>(work: (tx: PlatformDb) => Promise<T>) { return work(this as unknown as PlatformDb); },
     tenant: { async findMany() { return tenants.map((id) => ({ id })); } },
     sectionContent: delegate([...sections, bad]), pageVersion: delegate(snapshots),
   } as unknown as PlatformDb;
@@ -154,6 +155,7 @@ test("runner paginates PageVersion, skips future versions and continues after da
     };
   }
   const db = {
+    async $transaction<T>(work: (tx: PlatformDb) => Promise<T>) { return work(this as unknown as PlatformDb); },
     tenant: { async findMany() { return [{ id: tenantId }]; } },
     sectionContent: delegate("SectionContent", sections), pageVersion: delegate("PageVersion", versions),
   } as unknown as PlatformDb;

@@ -49,7 +49,7 @@ async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Colle
 const nextOrder = async (model: Delegate) => ((await model.first({ orderBy: { order: "desc" } }))?.order ?? -1) + 1;
 const invalidate = (repo: TenantRepo, tenantId: string, name: Collection) => enqueueInvalidate(repo, [collectionTag(tenantId, name)]);
 
-async function publishItemMedia(repo: TenantRepo, name: Collection, row: CollectionRow) {
+export async function publishItemMedia(repo: TenantRepo, name: Collection, row: Pick<CollectionRow, "status" | "data"> & { coverMediaId?: unknown; logoMediaId?: unknown; posterMediaId?: unknown }) {
   if (row.status !== "published") return;
   const ids = collectRefs(collectionDefs[name].data, row.data).media;
   // Collection schemas also store bare media UUIDs and relational cover/logo columns.

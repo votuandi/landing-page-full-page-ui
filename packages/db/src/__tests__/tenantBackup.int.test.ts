@@ -81,6 +81,26 @@ test("tenant backup integration", { skip: !process.env.DATABASE_URL, timeout: 12
         assert.ok(bundle.pageVersions.every(row => row.publishedBySiteUserId === null));
       });
       const clone = await restore(bundle, storage), cloned = forTenant(runtime, clone.tenantId);
+      await t.test(`${id}: I3 restore enqueues live section, collection and team refs while retaining draft media private`, async () => {
+        const live = structuredClone(bundle);
+        const make = (name: string) => {
+          const row = { ...live.media.find(media => media.visibility === "private")!, id: randomUUID(), key: `private/${tenantId}/2026/10/${name}.webp` };
+          live.media.push(row); files.set(row.key, new Uint8Array([1, 2, 3])); return row.id;
+        };
+        const sectionId = make("live-section"), collectionId = make("live-collection"), teamId = make("live-team"), draftId = make("draft-only");
+        const home = live.pages.find(page => page.slug === "")!;
+        const hero = live.sectionContents.find(row => row.pageId === home.id && row.type === "hero")!;
+        hero.data = { ...hero.data as object, image: { id: sectionId, alt: { vi: "[DỮ LIỆU MẪU]" } } };
+        hero.draftData = { ...hero.data as object, image: { id: draftId, alt: { vi: "[DỮ LIỆU MẪU]" } } };
+        const service = live.collections.service[0];
+        service.data = { ...service.data as object, image: collectionId }; service.status = "published";
+        live.site.profile = { ...live.site.profile as object, team: [{ name: "[DỮ LIỆU MẪU]", role: "[DỮ LIỆU MẪU]", image: teamId }] };
+        const restored = await restore(live, storage), restoredRepo = forTenant(runtime, restored.tenantId);
+        const publishedIds = (await restoredRepo.outbox.list({ where: { topic: "media.publish" } })).map(row => (row.payload as { id: string }).id);
+        const targets = await restoredRepo.media.list();
+        for (const name of ["live-section", "live-collection", "live-team"]) assert.ok(publishedIds.includes(targets.find(row => row.key.endsWith(`/${name}.webp`))!.id), name);
+        assert.ok(!publishedIds.includes(targets.find(row => row.key.endsWith("/draft-only.webp"))!.id));
+      });
       await t.test(`${id}: restore round-trips demo tenants`, async () => assert.deepEqual(normalized(await exportTenant(runtime, clone.tenantId)), normalized(bundle)));
       await t.test(`${id}: restore creates no accounts`, async () => {
         assert.equal(await cloned.siteUser.count(), 0); assert.equal(await cloned.siteSession.count(), 0); assert.equal(await cloned.siteToken.count(), 0);

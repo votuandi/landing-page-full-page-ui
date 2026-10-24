@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { tenantTag } from "@solar/cache";
 import type { Db, PlatformDb } from "./client.ts";
-import { siteProfileSchema } from "./siteProfile.ts";
+import { siteProfileSchema, siteProfileMediaIds } from "./siteProfile.ts";
+import { publishMedia } from "./media.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import { enqueueInvalidate } from "./invalidate.ts";
 
@@ -28,7 +29,9 @@ export async function saveSiteSettings(db: Db | PlatformDb, tenantId: string, si
     const value = { ...parsed.data, ...(patch.profile ? { profile: patch.profile } : {}) };
     const saved = await repo.site.update(siteId, value as Parameters<typeof repo.site.update>[1], { updatedAt: site.updatedAt });
     if (!saved.count) throw conflict();
+    const updated = (await repo.site.get(siteId))!;
+    await publishMedia(repo, siteProfileMediaIds(updated.profile));
     await enqueueInvalidate(repo, [tenantTag(tenantId)]);
-    return (await repo.site.get(siteId))!;
+    return updated;
   });
 }

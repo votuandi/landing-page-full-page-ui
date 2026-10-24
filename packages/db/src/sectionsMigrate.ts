@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
-import { migrateSnapshot, sectionRegistry } from "@solar/sections";
+import { collectRefs, migrateSnapshot, sectionRegistry } from "@solar/sections";
 import { Prisma, type SectionContent, type PageVersion } from "../generated/client.ts";
 import type { PlatformDb } from "./client.ts";
 import { createTenantRepo } from "./repository.ts";
 import { migrateSectionRow } from "./sectionContent.ts";
+import { publishMedia } from "./media.ts";
 
 type Options = { db?: PlatformDb; dryRun?: boolean; file?: string; log?: (line: string) => void };
 
@@ -65,9 +66,16 @@ export async function runSectionsMigrate({ db, dryRun = false, file, log = conso
           try {
             const next = migrateSectionRow(row);
             if (next.changed) {
-              if (!dryRun) await repo.sectionContent.update(row.id, {
-                schemaVersion: next.schemaVersion, data: next.data as Prisma.InputJsonValue,
-                draftData: next.draftData == null ? Prisma.DbNull : next.draftData as Prisma.InputJsonValue,
+              if (!dryRun) await db.$transaction(async tx => {
+                const scoped = createTenantRepo(tx, tenant.id);
+                await scoped.sectionContent.update(row.id, {
+                  schemaVersion: next.schemaVersion, data: next.data as Prisma.InputJsonValue,
+                  draftData: next.draftData == null ? Prisma.DbNull : next.draftData as Prisma.InputJsonValue,
+                });
+                const page = await scoped.page.get(row.pageId);
+                if (page?.publishedAt && Array.isArray(page.sections) && page.sections.some(section => section && typeof section === "object" && "id" in section && section.id === row.sectionId)) {
+                  await publishMedia(scoped, collectRefs(sectionRegistry.getType(row.type)!.schema, next.data).media);
+                }
               });
               result.changed++;
               record(tenant.id, "SectionContent", row.type, row.schemaVersion, next.schemaVersion);

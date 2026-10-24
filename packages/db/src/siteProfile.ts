@@ -45,6 +45,11 @@ export const siteProfileSchema = z.object({
 export const COMPANY_KEYS = ["name", "description", "email", "hotline", "brand", "legal", "zalo", "messenger", "complaintHotline", "workingHours", "callbackHours", "socials", "stats", "reviews", "commitments", "popup", "topBar", "megaMenu"] as const;
 export const companyProfileSchema = siteProfileSchema.pick(Object.fromEntries(COMPANY_KEYS.map(key => [key, true])) as Record<typeof COMPANY_KEYS[number], true>).extend({ legal: companyLegalSchema.prefault({}) });
 export type SiteProfile = z.output<typeof siteProfileSchema>;
+/** Team images are the profile's only media UUID fields; logos/SEO use asset URLs. */
+export function siteProfileMediaIds(profile: unknown): string[] {
+  const parsed = siteProfileSchema.pick({ team: true }).safeParse(profile);
+  return parsed.success ? parsed.data.team.map(person => person.image).filter(image => z.uuid().safeParse(image).success) : [];
+}
 /** Only these fields belong to this form; preserve every other persisted key verbatim. */
 export function mergeCompanyProfile(current: unknown, company: unknown) {
   const before = z.record(z.string(), z.unknown()).parse(current);
