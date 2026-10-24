@@ -163,6 +163,9 @@ importers:
         specifier: 4.6.5
         version: 4.6.5
     devDependencies:
+      '@solar/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@solar/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -399,6 +402,9 @@ importers:
         specifier: 4.6.5
         version: 4.6.5
     devDependencies:
+      '@solar/storage':
+        specifier: workspace:*
+        version: link:../storage
       '@solar/config':
         specifier: workspace:*
         version: link:../config

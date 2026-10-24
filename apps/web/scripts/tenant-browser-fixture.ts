@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import { createPlatformDb, forPlatform, forTenant, setPageTypes, type Prisma } from "@solar/db";
+import { createPlatformDb, exportTenant, restoreTenant, forPlatform, forTenant, setPageTypes, type Prisma } from "@solar/db";
+import { storageFromEnv } from "@solar/storage";
 import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
@@ -39,6 +40,33 @@ async function main() {
     try {
       const domain = await forPlatform(db).domains.resolve("t15.localhost");
       if (!domain) throw new Error("Seed t15 before browser tests");
+      if (action === "backup-restore" || action === "backup-cleanup") {
+        const slug = "e2e-clone", hostname = "clone.localhost";
+        const storage = storageFromEnv({ ...process.env, STORAGE_LOCAL_ROOT: process.env.STORAGE_LOCAL_ROOT ?? ".test-dist/backup-media",
+          MEDIA_PUBLIC_BASE: process.env.MEDIA_PUBLIC_BASE ?? "http://localhost:3211/media" });
+        const old = await forPlatform(db).tenants.bySlug(slug);
+        const touched = new Set<string>();
+        if (old) {
+          touched.add(old.tenantId);
+          await db.tenant.delete({ where: { id: old.tenantId } });
+          for await (const key of storage.list(`tenants/${old.tenantId}/`)) await storage.delete(key);
+        }
+        if (action === "backup-restore") {
+          const bundle = await exportTenant(db, domain.tenantId);
+          const clone = await restoreTenant(db, storage, bundle, { slug, planId: "premium" });
+          touched.add(clone.tenantId);
+          const site = (await forTenant(db, clone.tenantId).site.first())!;
+          await forTenant(db, clone.tenantId).domain.create({ siteId: site.id, hostname, isPrimary: true, status: "active", verificationToken: randomUUID() });
+          console.log(JSON.stringify(clone));
+        }
+        await revalidate(touched);
+        if (process.env.REDIS_URL) {
+          const redis = createRedisCache(process.env.REDIS_URL);
+          try { await redis.ready; await redis.store.del([`tenancy:host:${hostname}`]); await redis.bus.publish([hostname]); }
+          finally { redis.close(); }
+        }
+        return;
+      }
       const host = "review.localhost", reviewSlug = "review-t15";
       const touched = new Set<string>([domain.tenantId]);
       if (action === "setup" || action === "cleanup") {

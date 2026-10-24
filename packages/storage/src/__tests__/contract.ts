@@ -48,6 +48,14 @@ export function runContract(name: string, makeDriver: () => Promise<ContractFixt
     it("head thiếu", async () => {
       assert.equal(await fixture.driver.head(`${prefix}missing.txt`), null);
     });
+    it("get returns bytes or null", async () => {
+      const key = `${prefix}read.bin`;
+      assert.equal(await fixture.driver.get(key), null);
+      await fixture.driver.put(key, new Uint8Array([0, 1, 255]), options);
+      assert.deepEqual(await fixture.driver.get(key), new Uint8Array([0, 1, 255]));
+      await fixture.driver.put(key, new Uint8Array(), options);
+      assert.deepEqual(await fixture.driver.get(key), new Uint8Array());
+    });
     it("delete", async () => {
       const key = `${prefix}delete.txt`;
       await fixture.driver.put(key, Buffer.from("x"), options);
@@ -76,6 +84,7 @@ export function runContract(name: string, makeDriver: () => Promise<ContractFixt
         await assert.rejects(async () => fixture.driver.put(key, Buffer.from("x"), options), InvalidKeyError, key);
         await assert.rejects(async () => fixture.driver.delete(key), InvalidKeyError, key);
         await assert.rejects(async () => fixture.driver.head(key), InvalidKeyError, key);
+        await assert.rejects(async () => fixture.driver.get(key), InvalidKeyError, key);
         assert.throws(() => fixture.driver.publicUrl(key), InvalidKeyError, key);
         // Empty and trailing-slash prefixes are explicitly valid for list.
         if (key !== "" && key !== "a/") {

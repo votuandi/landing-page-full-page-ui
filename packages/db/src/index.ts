@@ -32,3 +32,5 @@ export type { CollectionInput, CollectionRow } from "./collectionWrite.ts";
 export { saveSiteSettings, SiteSettingsError } from "./siteSettings.ts";
 export type { SiteSettingsPatch } from "./siteSettings.ts";
 export { setPageTypes } from "./siteStructure.ts";
+export { BACKUP_FORMAT, tenantBackupSchema, parseTenantBackup, remapBackup, exportTenant, restoreTenant, TenantBackupError } from "./tenantBackup.ts";
+export type { TenantBackup, BackupStorage } from "./tenantBackup.ts";

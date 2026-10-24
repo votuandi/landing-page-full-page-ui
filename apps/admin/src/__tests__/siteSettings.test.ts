@@ -6,7 +6,7 @@ import { createAction, type ActionContext } from "../lib/action.ts";
 import { createAppearanceHandlers } from "../lib/appearance.ts";
 import { createSiteSettingsHandlers, loadSiteSettings, settingsPayloadSchema, type SiteSettingsDeps, type SettingsSite } from "../lib/siteSettings.ts";
 
-export function setup(role: "owner" | "editor" | "viewer" = "owner", enabled = true) {
+export function setup(role: "owner" | "admin" | "editor" | "viewer" = "owner", enabled = true) {
   let reads = 0, writes = 0;
   const tenantId = "e7070000-0000-4000-8000-000000000001", siteId = "e7070000-0000-4000-8000-000000000002";
   const session: Session = { id: "session", accountId: siteId, tenantId, realm: "site", audience: "admin", kind: "user", role, permissions: effectivePermissions({ role, audience: "admin" }), expiresAt: new Date(Date.now() + 10000), mustChangePassword: false };

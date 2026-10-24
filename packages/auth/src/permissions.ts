@@ -5,7 +5,7 @@ export const PERMISSIONS = [
   "media.view", "media.manage", "leads.view", "leads.manage", "theme.manage", "domains.manage", "email.manage",
   "billing.view", "users.view", "users.manage", "settings.manage", "audit.view", "clients.view", "clients.manage",
   "bookings.view", "bookings.manage", "account.password", "account.totp", "users.resetPassword",
-  "users.transferOwner", "users.delete", "storefront.account", "storefront.cart", "storefront.booking",
+  "users.transferOwner", "users.delete", "site.backup", "storefront.account", "storefront.cart", "storefront.booking",
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 export type Role = "owner" | "admin" | "editor" | "staff" | "viewer" | "client";
@@ -23,12 +23,13 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   "bookings.view": "Xem lịch hẹn", "bookings.manage": "Quản lý lịch hẹn", "account.password": "Đổi mật khẩu", "account.totp": "Quản lý xác thực hai bước",
   "users.resetPassword": "Đặt lại mật khẩu nhân viên", "users.transferOwner": "Chuyển chủ sở hữu", "users.delete": "Xóa nhân viên",
   "storefront.account": "Tài khoản khách hàng", "storefront.cart": "Giỏ hàng", "storefront.booking": "Đặt lịch hẹn",
+  "site.backup": "Sao lưu website",
 };
 const storefront = PERMISSIONS.filter(p => p.startsWith("storefront."));
 const owner = PERMISSIONS.filter(p => !p.startsWith("storefront."));
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   owner,
-  admin: owner.filter(p => p !== "users.transferOwner"),
+  admin: owner.filter(p => p !== "users.transferOwner" && p !== "site.backup"),
   editor: ["dashboard.view", "pages.view", "pages.edit", "pages.publish", "pages.structure", "content.edit", "media.view", "media.manage", "account.password", "account.totp"],
   staff: ["dashboard.view", "leads.view", "leads.manage", "clients.view", "bookings.view", "bookings.manage", "media.view", "account.password", "account.totp"],
   viewer: ["dashboard.view", "pages.view", "media.view", "account.password", "account.totp"],

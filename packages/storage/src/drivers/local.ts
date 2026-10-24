@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 import { assertKey, InvalidKeyError } from "../key.ts";
 import type { StorageDriver } from "../types.ts";
@@ -45,6 +45,11 @@ export function createLocalDriver({ root, publicBase }: LocalDriverOptions): Sto
   }
 
   return {
+    async get(key) {
+      const target = pathFor(key);
+      try { return new Uint8Array(await readFile(target)); }
+      catch (error) { if (missing(error)) return null; throw error; }
+    },
     async put(key, body) {
       const target = pathFor(key);
       const temporaryDirectory = resolve(directory, ".tmp");

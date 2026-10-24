@@ -6,6 +6,6 @@
     "types": ["node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*.ts", "prisma/**/*.ts", "scripts/sections-migrate.ts", "scripts/plans-sync.ts", "scripts/import-site-config.ts", "scripts/rls-bench.ts", "prisma.config.ts"],
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "scripts/sections-migrate.ts", "scripts/plans-sync.ts", "scripts/import-site-config.ts", "scripts/tenant-export.ts", "scripts/tenant-restore.ts", "scripts/rls-bench.ts", "prisma.config.ts"],
   "exclude": ["node_modules"]
 }

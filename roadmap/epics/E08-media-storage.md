@@ -8,7 +8,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 
 ---
 
-### E8-S01 · Interface `StorageDriver` + driver local và S3
+### E8-S01 · Interface `StorageDriver` + driver local và S3 ✅ · PR [#58](https://github.com/votuandi/landing-page-full-page-ui/pull/58)
 **Là** dev, **tôi muốn** một API lưu file duy nhất, **để** deploy VPS hay AWS không phải sửa code.
 - **Chi tiết**: `packages/storage`:
   ```ts

@@ -17,11 +17,11 @@ export type SiteSettingsDeps = {
 export const settingsPayloadSchema = z.object({ payload: z.string().max(500_000), updatedAt: z.iso.datetime() });
 export type SettingsInput = z.output<typeof settingsPayloadSchema>;
 export async function loadSiteSettings(permission: "settings.manage" | "theme.manage", deps: SiteSettingsDeps) {
-  await deps.requirePermission(permission);
+  const session = await deps.requirePermission(permission);
   const tenant = await deps.tenant();
   const [site, can] = await Promise.all([deps.load(tenant.tenantId, tenant.siteId), deps.entitlements()]);
   if (!site) throw new SiteSettingsError("Không tìm thấy website", 404);
-  return { site, can };
+  return { site, can, session };
 }
 export async function settingsAction(permission: "settings.manage" | "theme.manage", input: SettingsInput, context: ActionContext, deps: SiteSettingsDeps,
   work: (data: unknown, site: SettingsSite, can: (feature: string) => boolean, save: (patch: SiteSettingsPatch) => Promise<ActionResult>) => Promise<ActionResult>): Promise<ActionResult> {
