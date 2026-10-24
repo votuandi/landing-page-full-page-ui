@@ -182,6 +182,10 @@ thông số mà không sửa từng bản ghi. (Tách từ E7-S06.)
 - **Chi tiết**: font override theo danh sách cho phép, entitlement `themeOverride` và kiểm server; chọn ảnh favicon từ
   media đúng tenant, sinh `icon.png`/`apple-icon.png`, cập nhật metadata và invalidation. Hạ gói dùng font theme gốc.
 - **AC**:
-  - [ ] Chỉ chọn được font trong danh sách cho phép khi có entitlement; font lạ hoặc ngoài gói bị server từ chối.
-  - [ ] Chọn favicon từ media → icon trình duyệt/Apple đúng tenant, không đọc được media tenant khác.
-- Phụ thuộc: S08, E8-S02 · Agent: Claude · Cỡ: M
+  - [x] Chỉ chọn được font trong danh sách cho phép khi có entitlement; font lạ hoặc ngoài gói bị server từ chối.
+  - [x] Chọn favicon từ media → icon trình duyệt/Apple đúng tenant, không đọc được media tenant khác.
+- Bằng chứng: unit font/schema/appearance/siteData/metadata/proxy; sharp thật sinh PNG 64×64 và 180×180;
+  integration PostgreSQL/RLS kiểm từ chối media tenant khác, publish/invalidation và xung đột 409.
+  Hai spec `brand font and favicon` (tenant/admin) đã viết; chờ Claude chạy e2e và review trước PR.
+  Báo cáo: `.agent-runs/E7-S15/codex-report.md`. Chưa tạo PR.
+- Phụ thuộc: S08, E8-S02 · Agent: Codex · Cỡ: M
