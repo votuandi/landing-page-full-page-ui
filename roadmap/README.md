@@ -137,6 +137,7 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | Override màu/font (`themeOverride`) | — | — | Có |
 | Builder kéo-thả (`builder`) | — | — | Có |
 | A/B CTA (`abTest`) | — | — | Có |
+| Video tự host (`videoUpload`) | — | — | Có |
 | Số tên miền | 1 | 1 | 3 |
 | Media (GB) | 1 | 5 | 20 |
 | Số trang do khách tạo | 1 | 3 | 20 |

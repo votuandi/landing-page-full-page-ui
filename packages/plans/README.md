@@ -1,7 +1,7 @@
 # @solar/plans
 
 Nguồn quyền sản phẩm duy nhất là `plans.ts`: ba gói Cơ bản / Nâng cao / Cao cấp, nhóm theme,
-31 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
+32 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
 `isPlanId` / `isFeature` kiểm tên cả ở biên DB. Package không phụ thuộc DB, React, Next hoặc sections.
 
 ```sh
@@ -83,6 +83,14 @@ Cửa sổ 24 giờ bù gián đoạn ngắn; gián đoạn dài hơn cần vậ
 
 Notification mặc định tìm owner và ghi metadata `[notify]`, chưa gửi email/Telegram thật. Adapter gửi thật thuộc E11-S02;
 adapter nhận khóa idempotency để xử lý retry an toàn.
+
+## Video tự host (E8-S04)
+
+`videoUpload` thuộc gói Cao cấp (cũng theo trial, addon, override và kill switch chung).
+Admin kiểm quyền trước đặt chỗ/presign; server render cũng kiểm quyền khi đổi Media UUID thành URL public.
+Mỗi video tối đa **200 MB, 10 phút**, lưu nguyên file và sinh poster AVIF/WebP; chưa có transcode/HLS.
+Băng thông phát video tính vào **CDN/VPS của nền tảng**, không phải hạn mức `mediaGb` (dung lượng lưu trữ).
+Chưa đo/giới hạn băng thông riêng từng tenant; nên nhúng YouTube/TikTok hoặc dùng Bunny Stream cho adaptive streaming.
 
 ## Thanh toán thủ công (E6-S05)
 

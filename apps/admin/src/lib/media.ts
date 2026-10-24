@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { MediaError, uploadInput } from "@solar/db";
-import type { StorageDriver } from "@solar/storage";
+import { kindOf, type StorageDriver } from "@solar/storage";
+import { EntitlementError } from "@solar/plans";
 import type { ActionContext } from "./action.ts";
 
 export type UploadRow = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; driver: "local" | "s3" };
@@ -28,11 +29,11 @@ async function boundedBody(request: Request, max: number): Promise<Uint8Array> {
 }
 
 /** route() supplies the authenticated host tenant, permission and same-origin checks. */
-export function createMediaHandlers({ store, storage }: { store: MediaStore; storage(): StorageDriver }) {
+export function createMediaHandlers({ store, storage, canUploadVideo }: { store: MediaStore; storage(): StorageDriver; canUploadVideo(): Promise<boolean> }) {
   const guarded = (handler: (request: Request, context: ActionContext) => Promise<Response>) => async (request: Request, context: ActionContext) => {
     try { return await handler(request, context); }
     catch (error) {
-      if (error instanceof MediaError) return Response.json({ error: error.message }, { status: error.status });
+      if (error instanceof MediaError || error instanceof EntitlementError) return Response.json({ error: error.message }, { status: error.status });
       throw error;
     }
   };
@@ -48,7 +49,9 @@ export function createMediaHandlers({ store, storage }: { store: MediaStore; sto
       let raw: unknown;
       try { raw = JSON.parse(Buffer.from(await boundedBody(request, 2048)).toString("utf8")); }
       catch (error) { if (error instanceof MediaError) throw error; throw new MediaError("Thông tin tệp không hợp lệ."); }
-      const input = uploadInput(raw), driver = storage();
+      const input = uploadInput(raw);
+      if (kindOf(input.mime) === "video" && !await canUploadVideo()) throw new EntitlementError("videoUpload", 403, "Gói dịch vụ hiện tại không có tính năng Video tự host.");
+      const driver = storage();
       const row = await store.reserve(tenantId, input, driver.signedUploadUrl ? "s3" : "local");
       try {
         const upload = driver.signedUploadUrl ? await driver.signedUploadUrl(row.key, { contentType: row.mime, contentLength: row.size, expiresIn: 900 })

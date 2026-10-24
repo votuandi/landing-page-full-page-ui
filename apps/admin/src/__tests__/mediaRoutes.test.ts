@@ -7,7 +7,7 @@ import { createRoute } from "../lib/action.ts";
 import { createMediaHandlers, type MediaStore } from "../lib/media.ts";
 
 const tenantId = randomUUID(), id = randomUUID(), base = "http://demo.admin.solar.localhost";
-function setup(s3 = false) {
+function setup(s3 = false, videoUpload = false) {
   const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "image/png", size: 8, driver: s3 ? "s3" as const : "local" as const };
   const files = new Map<string, Uint8Array>(); const calls: string[] = [];
   const store: MediaStore = {
@@ -20,13 +20,22 @@ function setup(s3 = false) {
     list: async function* () {}, publicUrl: () => { throw Error("private"); },
     ...(s3 ? { signedUploadUrl: async () => ({ url: "http://minio:9000/bucket/quarantine", headers: { "Content-Type": "image/png" } }) } : {}),
   };
-  const handlers = createMediaHandlers({ store, storage: () => storage });
+  const handlers = createMediaHandlers({ store, storage: () => storage, canUploadVideo: async () => videoUpload });
   const owner: Session = { id: "session", tenantId, role: "owner", realm: "site", audience: "admin", kind: "user", mustChangePassword: false,
     expiresAt: new Date(Date.now() + 60_000), permissions: effectivePermissions({ role: "owner", audience: "admin" }) };
   const route = (session: Session | null = owner, tenant = tenantId) => createRoute(async () => ({ session, tenantId: tenant, slug: "demo" }));
   const request = (suffix = "", method = "GET", body?: string, origin = base) => new Request(`${base}/api/media/${id}${suffix}`, { method, headers: { Origin: origin, Host: new URL(base).host }, body });
   return { row, calls, files, handlers, route, owner, request };
 }
+
+test("video upload requires videoUpload before reservation or presign; images remain available", async () => {
+  for (const s3 of [false, true]) for (const allowed of [false, true]) for (const mime of ["video/mp4", "video/quicktime", "video/webm", "image/png"]) {
+    const f = setup(s3, allowed);
+    const response = await f.route()("media.manage", f.handlers.reserve)(f.request("", "POST", JSON.stringify({ mime, size: 8 })));
+    assert.equal(response.status, allowed || mime === "image/png" ? 201 : 403);
+    assert.equal(f.calls.includes("reserve"), response.status === 201);
+  }
+});
 
 test("media routes: reserve gives PUT target, complete requires a present bounded object", async () => {
   for (const s3 of [false, true]) {
