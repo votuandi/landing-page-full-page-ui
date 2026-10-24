@@ -8,7 +8,7 @@ export default async function Media() {
   return <section className="space-y-6">
     <h1 className="text-2xl font-semibold text-fg">Media</h1>
     <p className="text-fg-muted">Trạng thái của 50 tệp tải lên gần nhất. Tải lại trang để xem trạng thái mới.</p>
-    {rows.length === 0 ? <p>Chưa có tệp nào được tải lên.</p> : <div className="min-w-0 overflow-x-auto rounded-card border border-line/20 bg-bg-elevated">
+    {rows.length === 0 ? <p>Chưa có tệp nào được tải lên.</p> : <div role="region" aria-label="Tệp tải lên gần đây" tabIndex={0} className="min-w-0 overflow-x-auto rounded-card border border-line/20 bg-bg-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
       <table className="w-full text-left text-sm">
         <caption className="p-4 text-left font-semibold">Tệp tải lên gần đây</caption>
         <thead><tr className="border-b border-line/20">
