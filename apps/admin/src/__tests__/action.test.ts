@@ -32,3 +32,13 @@ test("action rejects forged previous state and hides internal errors; route retu
   assert.equal(response.status, 401); assert.equal(response.headers.get("cache-control"), "private, no-store");
   assert.equal((await response.text()).includes("private"), false);
 });
+test("route same-origin check uses the tenant Host, not the server's internal request.url", async () => {
+  // `next start` builds request.url from its own hostname (localhost:<port>); the browser Origin carries the tenant host.
+  const route = createRoute(async () => ({ tenantId: "a", slug: "a", session: owner }))("dashboard.view", async () => Response.json({ ok: true }));
+  const post = (origin?: string) => route(new Request("http://localhost:3300/api/x", { method: "POST",
+    headers: { host: "a.admin.solar.localhost:3300", ...origin ? { origin } : {} } }));
+  assert.equal((await post("http://a.admin.solar.localhost:3300")).status, 200);
+  assert.equal((await post("http://evil.test")).status, 403);
+  assert.equal((await post("http://localhost:3300")).status, 403);
+  assert.equal((await post()).status, 403);
+});

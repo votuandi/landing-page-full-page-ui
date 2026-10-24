@@ -24,7 +24,7 @@ function setup(s3 = false) {
   const owner: Session = { id: "session", tenantId, role: "owner", realm: "site", audience: "admin", kind: "user", mustChangePassword: false,
     expiresAt: new Date(Date.now() + 60_000), permissions: effectivePermissions({ role: "owner", audience: "admin" }) };
   const route = (session: Session | null = owner, tenant = tenantId) => createRoute(async () => ({ session, tenantId: tenant, slug: "demo" }));
-  const request = (suffix = "", method = "GET", body?: string, origin = base) => new Request(`${base}/api/media/${id}${suffix}`, { method, headers: { Origin: origin }, body });
+  const request = (suffix = "", method = "GET", body?: string, origin = base) => new Request(`${base}/api/media/${id}${suffix}`, { method, headers: { Origin: origin, Host: new URL(base).host }, body });
   return { row, calls, files, handlers, route, owner, request };
 }
 
@@ -46,7 +46,7 @@ test("media routes: reserve gives PUT target, complete requires a present bounde
 test("media routes: local body overflow cancels immediately without storing partial bytes; s3 rejects local upload", async () => {
   const f = setup(); let cancelled = false, pulled = 0;
   const stream = new ReadableStream({ pull(c) { pulled++; c.enqueue(Buffer.alloc(9)); }, cancel() { cancelled = true; } }, { highWaterMark: 0 });
-  const request = new Request(`${base}/api/media/${id}/upload`, { method: "PUT", headers: { Origin: base }, body: stream, duplex: "half" } as RequestInit);
+  const request = new Request(`${base}/api/media/${id}/upload`, { method: "PUT", headers: { Origin: base, Host: new URL(base).host }, body: stream, duplex: "half" } as RequestInit);
   assert.equal((await f.route()("media.manage", f.handlers.upload)(request)).status, 413);
   assert.ok(cancelled); assert.equal(pulled, 1); assert.equal(f.files.size, 0);
   assert.equal((await f.route()("media.manage", f.handlers.upload)(f.request("/upload", "PUT", "12345678"))).status, 204);

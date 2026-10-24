@@ -43,7 +43,7 @@ test("media: local PNG upload becomes private ready; HTML disguised as JPEG fail
   const upload = async (mime: string, base64: string) => page.evaluate(async ({ mime, base64 }) => {
     const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     const reservation = await fetch("/api/media", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mime, size: bytes.length }) });
-    if (reservation.status !== 201) throw new Error(`reserve: ${reservation.status}`);
+    if (reservation.status !== 201) throw new Error(`reserve: ${reservation.status} ${await reservation.text()}`);
     const { id, upload } = await reservation.json();
     if (!upload.url.startsWith("/api/media/")) throw new Error("Requires STORAGE_DRIVER=local fixture");
     const put = await fetch(upload.url, { method: upload.method, headers: upload.headers, body: bytes });
