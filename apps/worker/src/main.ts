@@ -5,16 +5,21 @@ import { createLeadDeliver } from "./handlers/leadDeliver.ts";
 import { createLogNotifier, createNotify } from "./handlers/notify.ts";
 
 import { invalidateTopic } from "./handlers/invalidate.ts";
+import { createMediaRuntime } from "./mediaRuntime.ts";
 
 const db = createPlatformDb({ pool: POOL_BUDGET.worker });
 const notify = createNotify({ notifier: createLogNotifier(db) });
 const overrideExpiry = every(5 * 60_000, () => forPlatform(db).tenants.scanExpiredOverrides({ now: new Date() }));
 const billing = startBillingCron(forPlatform(db).billing);
 const sectionCleanup = every(6 * 60 * 60_000, () => forPlatform(db).sectionContents.purgeRemoved({ now: new Date() }));
+const media = createMediaRuntime(db);
+const mediaCleanup = every(60 * 60_000, media.cleanup);
 const worker = startWorker({
   outbox: forPlatform(db).outbox,
   topics: {
     invalidate: invalidateTopic,
+    "media.scan": { handle: media.scan },
+    "media.publish": { handle: media.publish },
     "lead.deliver": { handle: createLeadDeliver({ db, senders: {} }) },
     "notify.plan-changed": { handle: notify },
     "notify.renewal": { handle: notify },
@@ -24,5 +29,5 @@ const worker = startWorker({
 console.log("[worker] đang chạy");
 
 for (const signal of ["SIGTERM", "SIGINT"] as const) {
-  process.once(signal, () => void Promise.all([worker.stop(), overrideExpiry.stop(), billing.stop(), sectionCleanup.stop()]).then(() => db.$disconnect()).then(() => process.exit(0)));
+  process.once(signal, () => void Promise.all([worker.stop(), overrideExpiry.stop(), billing.stop(), sectionCleanup.stop(), mediaCleanup.stop()]).then(() => db.$disconnect()).then(() => process.exit(0)));
 }
