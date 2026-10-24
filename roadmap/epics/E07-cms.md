@@ -122,8 +122,9 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
 ### E7-S10 · Sao lưu & khôi phục theo tenant
 - **Chi tiết**: học từ branch `develop` (backup JSON + zip media, lịch sử backup). Xuất toàn bộ dữ liệu một tenant
   (JSON + danh sách media) và khôi phục vào tenant mới (dùng cho nhân bản site, chuyển máy chủ). Backup toàn DB ở E10-S06.
-- **AC**: [ ] Xuất → khôi phục sang tenant mới cho site giống hệt (ảnh chụp so khớp) · [ ] Chỉ owner (hoặc super admin qua console) thực hiện được.
+- **AC**: [ ] Xuất → khôi phục sang tenant mới cho site giống hệt (ảnh chụp so khớp) · [x] Chỉ owner (hoặc super admin qua console) thực hiện được.
   Bản xuất **không** chứa `SiteUser`/mật khẩu/phiên; khôi phục vào tenant mới không mang theo tài khoản.
+  E7-S10: quyền/zero accounts có unit + DB integration; super admin hiện dùng script platform `tenant:restore`, nút console ở E15-S03. So khớp ảnh chờ Claude chạy spec mới `backup restore renders identical home` trước khi tick AC đầu.
 - Phụ thuộc: E8-S01 · Agent: Codex · Cỡ: M
 
 ### E7-S11 · Dashboard của site ✅ · PR [#54](https://github.com/votuandi/landing-page-full-page-ui/pull/54)
