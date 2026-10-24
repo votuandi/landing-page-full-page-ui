@@ -53,7 +53,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   Giới hạn khi xử lý (sharp): tối đa 50 megapixel, timeout 30 s/ảnh, `sharp.concurrency(1)`; giới hạn RAM/CPU container → E10,
   10 phút/video → S04.
 - **AC**:
-  - [ ] Xử lý ảnh chạy nền (outbox/queue), UI hiển thị trạng thái — pipeline/unit/int đã kiểm; chờ e2e admin "media status".
+  - [x] Xử lý ảnh chạy nền (outbox/queue), UI hiển thị trạng thái — job `media.scan`; e2e `admin.spec.ts` › "media status".
   - [x] Ảnh "decompression bomb" bị từ chối, worker không chết — worker `mediaScan.test.ts`: "decompression bomb rejected, worker survives".
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
