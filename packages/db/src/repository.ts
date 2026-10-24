@@ -10,6 +10,7 @@ import { outboxRepository } from "./outbox.ts";
 import { changeTenantPlan, scanExpiredOverrides, type TenantPlanChange } from "./tenantPlan.ts";
 import { runBillingCron } from "./billing.ts";
 import { purgeRemoved } from "./sectionCleanup.ts";
+import { expireStaleMedia } from "./media.ts";
 
 const repositoryModels = [...tenantModels, ...optionalTenantModels];
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
@@ -158,6 +159,7 @@ function platformRepository(db: PlatformDb) {
     outbox: outboxRepository(db),
     billing: { run: (options?: { now?: Date }) => runBillingCron(db, options) },
     sectionContents: { purgeRemoved: (options?: { now?: Date }) => purgeRemoved(db, options) },
+    media: { expireStale: (now?: Date) => expireStaleMedia(db, now) },
     tenants: {
       bySlug: (slug: string) => resolveTenantSlug(db, slug),
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),

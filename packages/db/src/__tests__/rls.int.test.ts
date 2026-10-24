@@ -96,7 +96,7 @@ describe("Postgres RLS through real app_runtime connections (no repository/Prism
     }
     assert.deepEqual((await runtime.query(`SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
       WHERE n.nspname='public' AND has_function_privilege('app_runtime',p.oid,'EXECUTE') ORDER BY p.proname`)).rows,
-    [{ proname: "is_ghost_session_active" }, { proname: "platform_disabled_features" }, { proname: "redeem_ghost_grant" }, { proname: "resolve_tenant_host" }, { proname: "resolve_tenant_slug" }]);
+    [{ proname: "is_ghost_session_active" }, { proname: "lock_media_tenant" }, { proname: "platform_disabled_features" },{ proname: "redeem_ghost_grant" }, { proname: "resolve_tenant_host" }, { proname: "resolve_tenant_slug" }]);
     const c = await owner.connect(), probe = `rls_probe_${randomUUID().replaceAll("-", "")}`;
     try {
       await c.query("BEGIN"); await c.query("SET LOCAL ROLE app_owner");
@@ -227,8 +227,8 @@ describe("Postgres RLS through real app_runtime connections (no repository/Prism
     const functions=(await platform.query(`SELECT p.proname,p.prosecdef,p.proconfig,r.rolname,
       EXISTS (SELECT FROM aclexplode(p.proacl) acl WHERE acl.grantee=0 AND acl.privilege_type='EXECUTE') AS public_execute
       FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace JOIN pg_roles r ON r.oid=p.proowner
-      WHERE n.nspname='public' AND p.proname IN ('resolve_tenant_host','resolve_tenant_slug','redeem_ghost_grant','platform_disabled_features','is_ghost_session_active')`)).rows;
-    assert.equal(functions.length,5);
+      WHERE n.nspname='public' AND p.proname IN ('resolve_tenant_host','resolve_tenant_slug','redeem_ghost_grant','platform_disabled_features','is_ghost_session_active','lock_media_tenant')`)).rows;
+    assert.equal(functions.length,6);
     for(const f of functions) { assert.equal(f.prosecdef,true); assert.equal(f.rolname,'app_platform'); assert.equal(f.public_execute,false); assert.deepEqual(f.proconfig,['search_path=pg_catalog, pg_temp']); }
     // E6-S02 kill switch: runtime reads only the disabled names through the bridge, never the PlatformSetting table.
     const saved=(await platform.query(`SELECT value FROM public."PlatformSetting" WHERE key='features.disabled'`)).rows[0];

@@ -5,12 +5,49 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { ESLint } from "eslint";
-import { CreateBucketCommand, GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { assertKey, createLocalDriver, createS3Driver, InvalidKeyError, mediaKey, storageFromEnv } from "../index.ts";
+import { CreateBucketCommand, DeleteBucketCommand, GetObjectCommand, HeadObjectCommand, PutBucketPolicyCommand, S3Client } from "@aws-sdk/client-s3";
+import { randomUUID } from "node:crypto";
+import { assertKey, createLocalDriver, createS3Driver, InvalidKeyError, mediaKey, storageFromEnv, sniff, kindOf, UPLOAD_LIMITS, quarantineKey, privateKey } from "../index.ts";
 import { badKeys, collect, runContract } from "./contract.ts";
 
 const publicBase = "https://cdn.example.com/m/";
 const tenant = "019a06e0-1234-7000-8000-000000000001";
+
+test("sniff: allowlisted magic bytes, never HTML or SVG", () => {
+  const cases: Array<[Uint8Array, string]> = [
+    [Buffer.from([255, 216, 255]), "image/jpeg"], [Buffer.from("89504e470d0a1a0a", "hex"), "image/png"],
+    [Buffer.from("GIF89a"), "image/gif"], [Buffer.from("RIFF0000WEBP"), "image/webp"],
+    [Buffer.from("000000186674797061766966", "hex"), "image/avif"],
+    [Buffer.from("000000186674797069736f6d", "hex"), "video/mp4"],
+    [Buffer.from("000000186674797071742020", "hex"), "video/quicktime"],
+    [Buffer.from("1a45dfa3", "hex"), "video/webm"], [Buffer.from("%PDF-1.7"), "application/pdf"],
+  ];
+  for (const [bytes, mime] of cases) assert.equal(sniff(bytes)?.mime, mime);
+  for (const bytes of [Buffer.from("<html>bad.jpg"), Buffer.from("<svg><script/></svg>"), Buffer.alloc(0), Buffer.from("ftyp")]) assert.equal(sniff(bytes), null);
+  assert.equal(kindOf("image/svg+xml"), null);
+  assert.deepEqual(UPLOAD_LIMITS, { image: 15 * 1024 ** 2, video: 200 * 1024 ** 2, pdf: 20 * 1024 ** 2 });
+});
+
+test("publicUrl prefix: quarantine and private are never public", () => {
+  for (const driver of [createLocalDriver({ root: "./unused", publicBase }), createS3Driver({ bucket: "unused", region: "auto", publicBase })]) {
+    for (const key of [quarantineKey(tenant), privateKey(tenant, "jpg"), "other/file"]) assert.throws(() => driver.publicUrl(key), InvalidKeyError);
+    assert.match(driver.publicUrl(mediaKey(tenant, "jpg")), /\/tenants\//);
+  }
+  assert.throws(() => quarantineKey("../bad"));
+  assert.throws(() => privateKey(tenant, "../bad"));
+});
+
+test("signedUploadUrl binds length and content type with a 15 minute expiry", async () => {
+  const driver = createS3Driver({ bucket: "test", region: "us-east-1", publicBase, endpoint: "http://localhost:9000", forcePathStyle: true, credentials: { accessKeyId: "test", secretAccessKey: "test" } });
+  const result = await driver.signedUploadUrl!(quarantineKey(tenant), { contentType: "image/png", contentLength: 123 });
+  const url = new URL(result.url);
+  assert.equal(url.host, "localhost:9000");
+  assert.equal(url.searchParams.get("X-Amz-Expires"), "900");
+  assert.ok(url.searchParams.get("X-Amz-SignedHeaders")?.includes("content-length"));
+  assert.ok(url.searchParams.get("X-Amz-SignedHeaders")?.includes("content-type"));
+  assert.equal(url.searchParams.has("x-amz-checksum-crc32"), false, "presign must not bind the checksum of an empty body");
+  assert.deepEqual(result.headers, { "Content-Type": "image/png" });
+});
 
 test("mediaKey: UUID, normalized extension, UTC and uniqueness", () => {
   const now = new Date("2026-02-01T06:30:00+07:00");
@@ -165,6 +202,29 @@ test("s3 get returns bytes or null; access and transport errors propagate", asyn
 });
 
 const endpoint = process.env.STORAGE_S3_TEST_ENDPOINT;
+test("contract s3: policy denies private/quarantine; signedUploadUrl enforces length and MIME", { skip: !endpoint, timeout: 60_000 }, async () => {
+  const bucket = `solar-upload-${randomUUID()}`;
+  const client = new S3Client({ endpoint, region: "us-east-1", forcePathStyle: true,
+    credentials: { accessKeyId: process.env.STORAGE_S3_TEST_ACCESS_KEY_ID ?? "minioadmin", secretAccessKey: process.env.STORAGE_S3_TEST_SECRET_ACCESS_KEY ?? "minioadmin" } });
+  const driver = createS3Driver({ bucket, client, region: "us-east-1", publicBase: `${endpoint}/${bucket}` });
+  const keys = [mediaKey(tenant, "pdf"), privateKey(tenant, "pdf"), quarantineKey(tenant)];
+  try {
+    await client.send(new CreateBucketCommand({ Bucket: bucket }));
+    const policy = (await readFile(new URL("../../public-read-policy.json", import.meta.url), "utf8")).replaceAll("BUCKET", bucket);
+    await client.send(new PutBucketPolicyCommand({ Bucket: bucket, Policy: policy }));
+    for (const key of keys) await driver.put(key, Buffer.from("%PDF-1.7"), { contentType: "application/pdf" });
+    for (const [index, key] of keys.entries()) assert.equal((await fetch(`${endpoint}/${bucket}/${key}`)).status, index === 0 ? 200 : 403);
+    const signed = await driver.signedUploadUrl!(keys[2], { contentType: "application/pdf", contentLength: 8 });
+    assert.equal((await fetch(signed.url, { method: "PUT", headers: signed.headers, body: Buffer.from("%PDF-1.7") })).status, 200);
+    assert.equal((await fetch(signed.url, { method: "PUT", headers: signed.headers, body: Buffer.from("%PDF-1.7x") })).status, 403);
+    assert.equal((await fetch(signed.url, { method: "PUT", headers: { "Content-Type": "text/html" }, body: Buffer.from("%PDF-1.7") })).status, 403);
+    const video = await driver.signedUploadUrl!(keys[2], { contentType: "video/mp4", contentLength: 200 * 1024 ** 2 });
+    assert.equal(new URL(video.url).host, new URL(endpoint!).host);
+  } finally {
+    try { for (const key of keys) await driver.delete(key); await client.send(new DeleteBucketCommand({ Bucket: bucket })); }
+    finally { client.destroy(); }
+  }
+});
 test("s3 endpoint is mandatory when STORAGE_REQUIRE_S3=1", () => {
   if (process.env.STORAGE_REQUIRE_S3 === "1") assert.ok(endpoint, "STORAGE_S3_TEST_ENDPOINT is required when STORAGE_REQUIRE_S3=1");
 });

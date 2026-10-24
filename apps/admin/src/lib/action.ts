@@ -42,6 +42,11 @@ async function loadContext(): Promise<ActionContext> {
   return { tenantId: tenant.tenantId, slug: tenant.slug, session: await getAdminSession() };
 }
 export const action = createAction(loadContext);
+function sameHost(request: Request) {
+  const origin = request.headers.get("origin"), host = request.headers.get("host");
+  if (!origin || !host) return false;
+  try { return new URL(origin).host === host; } catch { return false; }
+}
 export function createRoute(load: Loader) {
   return function route(permission: Access, handler: (request: Request, context: ActionContext) => Promise<Response>) {
     const run = async (request: Request) => {
@@ -49,8 +54,9 @@ export function createRoute(load: Loader) {
       try {
         const context = await load();
         authorize(context.session, context.tenantId, permission);
-        // Read routes need no CSRF token. Any future mutation route must be same-origin.
-        if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && request.headers.get("origin") !== new URL(request.url).origin) throw new ForbiddenError();
+        // Read routes need no CSRF token. Mutations must come from the tenant host: compare with Host (the one
+        // getTenant() resolved), not request.url — `next start` builds that from its own hostname.
+        if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && !sameHost(request)) throw new ForbiddenError();
         response = await handler(request, context);
       } catch (error) {
         const result = failure(error);

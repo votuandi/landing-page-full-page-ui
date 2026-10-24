@@ -16,7 +16,7 @@ function setup() {
     tenantId,
     async leads() { calls.push("leads"); return { today: 0, week: 0, stale: 0, sources: [] }; },
     async content() { calls.push("content"); return []; },
-    async media() { calls.push("media"); return { sizes: [], subject }; },
+    async media() { calls.push("media"); return { bytes: 0, subject }; },
     async domain() { calls.push("domain"); return { primary: null, fallback: "demo.solar.vn" }; },
     async plan() { calls.push("plan"); return subject; },
     async activity() { calls.push("activity"); return []; },
@@ -69,16 +69,16 @@ test("sample marker detection", async () => {
 });
 test("media usage vs plan limit", async () => {
   const { deps, subject } = setup();
-  deps.media = async () => ({ sizes: [{ size: 512 * 1024 ** 2 }], subject });
+  deps.media = async () => ({ bytes: 512 * 1024 ** 2, subject });
   let media = (await loadDashboard(session(), deps, now)).media!;
   assert.equal(media.label, "0,5 / 1 GB"); assert.equal(media.percent, 50); assert.equal(media.warning, false);
-  deps.media = async () => ({ sizes: [{ size: 2 * 1024 ** 3 }], subject: { ...subject, limitOverrides: { mediaGb: { add: 1, reason: "test" } } } });
+  deps.media = async () => ({ bytes: 2 * 1024 ** 3, subject: { ...subject, limitOverrides: { mediaGb: { add: 1, reason: "test" } } } });
   media = (await loadDashboard(session(), deps, now)).media!;
   assert.equal(media.limitGb, 2); assert.equal(media.percent, 100); assert.equal(media.warning, true);
-  deps.media = async () => ({ sizes: [{ size: 2 * 1024 ** 3 }], subject });
+  deps.media = async () => ({ bytes: 2 * 1024 ** 3, subject });
   assert.equal((await loadDashboard(session(), deps, now)).media?.percent, 200);
   for (const size of [0, 100]) {
-    deps.media = async () => ({ sizes: [{ size }], subject: { ...subject, planId: "unknown" } });
+    deps.media = async () => ({ bytes: size, subject: { ...subject, planId: "unknown" } });
     media = (await loadDashboard(session(), deps, now)).media!;
     assert.ok(Number.isFinite(media.percent)); assert.equal(media.warning, size > 0);
   }

@@ -14,7 +14,7 @@ export type DashboardDeps = {
   tenantId: string;
   leads(windows: LeadWindows): Promise<{ today: number; week: number; stale: number; sources: { source: string }[] }>;
   content(): Promise<ContentPage[]>;
-  media(): Promise<{ sizes: { size: number }[]; subject: EntitlementSubject }>;
+  media(): Promise<{ bytes: number; subject: EntitlementSubject }>;
   domain(): Promise<{ primary: { hostname: string; status: string } | null; fallback: string }>;
   plan(): Promise<PlanSubject>;
   activity(): Promise<{ id: string; action: string; createdAt: Date }[]>;
@@ -72,8 +72,8 @@ export async function loadDashboard(session: Session, deps: DashboardDeps, now =
       const drafts = pages.filter(page => page.draftSections != null || page.sectionContents.some(section => section.draftData != null)).map(summary);
       return { samples, drafts };
     }) : undefined,
-    session.permissions.has("media.view") ? deps.media().then(({ sizes, subject }) => {
-      const bytes = sizes.reduce((sum, row) => sum + row.size, 0), usedGb = bytes / 1024 ** 3;
+    session.permissions.has("media.view") ? deps.media().then(({ bytes, subject }) => {
+      const usedGb = bytes / 1024 ** 3;
       const limitGb = limit(subject, "mediaGb", { now });
       const percent = limitGb > 0 ? usedGb / limitGb * 100 : bytes > 0 ? 100 : 0;
       const format = (value: number) => value.toLocaleString("vi-VN", { maximumFractionDigits: 2 });

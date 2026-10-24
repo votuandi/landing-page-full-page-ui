@@ -17,6 +17,7 @@
     "@dnd-kit/utilities": "3.2.2",
     "@solar/auth": "workspace:*",
     "@solar/db": "workspace:*",
+    "@solar/storage": "workspace:*",
     "@solar/core": "workspace:*",
     "@solar/plans": "workspace:*",
     "@solar/presets": "workspace:*",

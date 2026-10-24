@@ -4,7 +4,7 @@
 // Story thêm quy tắc như vậy → thêm một test ở đây (plan mục "Dữ liệu có sẵn chịu ảnh hưởng").
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadPreset, siteStructureOf, validateSiteStructure } from "@solar/presets";
+import { loadPreset, presets, siteStructureOf, validateSiteStructure } from "@solar/presets";
 import { plans, themeAllowed } from "@solar/plans";
 import { buildDemo } from "../../prisma/seed-data.ts";
 import { randomUUID } from "node:crypto";
@@ -16,6 +16,11 @@ import { demoBackup } from "./tenantBackup.fixture.ts";
 
 test("tenant backup bundle of every seed demo parses", () => {
   for (const id of ["t15", "t12"] as const) assert.doesNotThrow(() => parseTenantBackup(demoBackup(id)), id);
+});
+
+test("E8-S02: bundled seeds/presets contain no private or quarantine storage keys", () => {
+  for (const id of ["t15", "t12"] as const) assert.doesNotMatch(JSON.stringify(buildDemo(id)), /(?:private|quarantine)\/[0-9a-f-]{36}\//);
+  for (const preset of presets) assert.doesNotMatch(JSON.stringify(preset), /(?:private|quarantine)\/[0-9a-f-]{36}\//);
 });
 
 test("product CSV round-trips every seeded product", () => {

@@ -754,6 +754,8 @@ model Media {
 
   @@unique([tenantId, id])
   @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([status, createdAt])
 }
 
 model Lead {

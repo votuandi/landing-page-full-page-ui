@@ -56,6 +56,15 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "media-scan") {
+      const { createMediaRuntime } = await import("../../worker/src/mediaRuntime.ts");
+      const id = process.argv[3], repo = forTenant(db, tenantId);
+      const job = await repo.outbox.first({ where: { topic: "media.scan", idempotencyKey: `media.scan:${id}` } });
+      if (!job) throw new Error("Media scan job missing");
+      await createMediaRuntime(db).scan(job);
+      const row = await repo.media.get(id);
+      if (!row) throw new Error("Media fixture missing");
+      process.stdout.write(row.status);
     } else if (action === "company-query") {
       const repo = forTenant(db, tenantId), site = await repo.site.first();
       if (!site) throw new Error("Site fixture missing");

@@ -30,3 +30,11 @@ test("rejects duplicate ids and media keys outside the source tenant", () => {
   const media = { id: randomUUID(), key: `tenants/${randomUUID()}/a.webp`, driver: "local", status: "ready", visibility: "public", mime: "image/webp", size: 1, createdAt: raw.exportedAt };
   assert.throws(() => parseTenantBackup({ ...demoBackup(), media: [media] }), TenantBackupError);
 });
+
+test("private ready media retains its prefix when restoring; quarantine is not a backup asset", () => {
+  const raw = demoBackup(), target = randomUUID();
+  const media = { id: randomUUID(), key: `private/${raw.source.tenantId}/2026/10/a.jpg`, driver: "local", status: "ready", visibility: "private", mime: "image/jpeg", size: 1, createdAt: raw.exportedAt };
+  const bundle = parseTenantBackup({ ...raw, media: [media] });
+  assert.equal(remapBackup(bundle, target).media[0].key, `private/${target}/2026/10/a.jpg`);
+  assert.throws(() => parseTenantBackup({ ...raw, media: [{ ...media, key: `quarantine/${raw.source.tenantId}/x`, status: "quarantine" }] }), TenantBackupError);
+});

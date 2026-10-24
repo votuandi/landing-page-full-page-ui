@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { collectRefs } from "@solar/sections";
 import { collectionTag } from "@solar/cache";
-import { COLLECTIONS, collectionInputSchema, slugify, type Collection } from "./collections.ts";
+import { COLLECTIONS, collectionDefs, collectionInputSchema, slugify, type Collection } from "./collections.ts";
+import { publishMedia } from "./media.ts";
 import type { Db, PlatformDb } from "./client.ts";
 import type { TenantRepo } from "./repository.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
@@ -47,6 +49,16 @@ async function transaction<T>(db: Db | PlatformDb, tenantId: string, name: Colle
 const nextOrder = async (model: Delegate) => ((await model.first({ orderBy: { order: "desc" } }))?.order ?? -1) + 1;
 const invalidate = (repo: TenantRepo, tenantId: string, name: Collection) => enqueueInvalidate(repo, [collectionTag(tenantId, name)]);
 
+export async function publishItemMedia(repo: TenantRepo, name: Collection, row: Pick<CollectionRow, "status" | "data"> & { coverMediaId?: unknown; logoMediaId?: unknown; posterMediaId?: unknown }) {
+  if (row.status !== "published") return;
+  const ids = collectRefs(collectionDefs[name].data, row.data).media;
+  // Collection schemas also store bare media UUIDs and relational cover/logo columns.
+  const data = row.data as Record<string, unknown> | null;
+  const values = [row.coverMediaId, row.logoMediaId, row.posterMediaId, data?.image, data?.cover, data?.poster, ...(Array.isArray(data?.images) ? data.images : [])];
+  ids.push(...values.filter((value): value is string => typeof value === "string" && z.uuid().safeParse(value).success));
+  await publishMedia(repo, ids);
+}
+
 async function writeItem(model: Delegate, name: Collection, input: CollectionInput, upsert = false) {
   checkName(name);
   const parsed = collectionInputSchema(name).safeParse(input, { error: z.locales.vi().localeError });
@@ -76,13 +88,18 @@ async function writeItem(model: Delegate, name: Collection, input: CollectionInp
 export async function saveCollectionItem(db: Db | PlatformDb, tenantId: string, name: Collection, input: CollectionInput): Promise<{ id: string; slug: string }> {
   return transaction(db, tenantId, name, async (repo, model) => {
     const result = await writeItem(model, name, input);
+    await publishItemMedia(repo, name, (await model.get(result.id))!);
     if (result.published) await invalidate(repo, tenantId, name);
     return { id: result.id, slug: result.slug };
   });
 }
 async function writeItems(repo: TenantRepo, model: Delegate, tenantId: string, inputs: CollectionInput[]) {
   let published = false;
-  for (const input of inputs) published = (await writeItem(model, "product", input, true)).published || published;
+  for (const input of inputs) {
+    const result = await writeItem(model, "product", input, true);
+    await publishItemMedia(repo, "product", (await model.get(result.id))!);
+    published = result.published || published;
+  }
   if (published) await invalidate(repo, tenantId, "product");
 }
 export async function importCollectionItems(db: Db | PlatformDb, tenantId: string, name: "product", inputs: CollectionInput[]) {

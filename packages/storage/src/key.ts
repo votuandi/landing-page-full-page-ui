@@ -25,3 +25,15 @@ export function mediaKey(tenantId: string, ext: string, now = new Date()): strin
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");
   return `tenants/${tenantId}/${year}/${month}/${randomUUID()}.${extension}`;
 }
+
+export function privateKey(tenantId: string, ext: string, now = new Date()): string {
+  return mediaKey(tenantId, ext, now).replace(/^tenants\//, "private/");
+}
+export function quarantineKey(tenantId: string): string {
+  if (!z.uuid().safeParse(tenantId).success) throw new InvalidKeyError();
+  return `quarantine/${tenantId}/${randomUUID()}`;
+}
+export function assertPublicKey(key: string): void {
+  assertKey(key);
+  if (!key.startsWith("tenants/") || key.split("/").length < 3) throw new InvalidKeyError();
+}

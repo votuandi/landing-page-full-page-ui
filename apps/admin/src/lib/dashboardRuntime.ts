@@ -1,4 +1,4 @@
-import { withTenantTransaction, type Db, type TenantRepo } from "@solar/db";
+import { mediaUsage, withTenantTransaction, type Db, type TenantRepo } from "@solar/db";
 import type { DashboardDeps } from "./dashboard.ts";
 
 /** Context comes from the verified host, never from request parameters or form data. */
@@ -28,11 +28,11 @@ export function createDashboardDeps(db: Db, context: { tenantId: string; siteId:
         sectionContents: { where: { tenantId }, select: { data: true, draftData: true } } },
     })),
     media: () => withTenantTransaction(db, tenantId, async repo => {
-      const [sizes, tenant] = await Promise.all([
-        repo.media.list({ where: { status: { not: "failed" } }, select: { size: true } }),
+      const [bytes, tenant] = await Promise.all([
+        mediaUsage(repo),
         subject(repo),
       ]);
-      return { sizes, subject: tenant };
+      return { bytes, subject: tenant };
     }),
     domain: () => withTenantTransaction(db, tenantId, async repo => ({
       primary: await repo.domain.first({ where: { siteId, isPrimary: true }, orderBy: { hostname: "asc" }, select: { hostname: true, status: true } }),

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
-import { assertKey, InvalidKeyError } from "../key.ts";
+import { assertKey, assertPublicKey, InvalidKeyError } from "../key.ts";
 import type { StorageDriver } from "../types.ts";
 
 export interface LocalDriverOptions {
@@ -78,6 +78,7 @@ export function createLocalDriver({ root, publicBase }: LocalDriverOptions): Sto
       } catch (error) { if (missing(error)) return null; throw error; }
     },
     publicUrl(key) {
+      assertPublicKey(key);
       pathFor(key);
       return `${base}/${key}`;
     },

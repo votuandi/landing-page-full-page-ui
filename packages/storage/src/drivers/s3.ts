@@ -1,5 +1,6 @@
 import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
-import { assertKey } from "../key.ts";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { assertKey, assertPublicKey } from "../key.ts";
 import type { StorageDriver } from "../types.ts";
 
 export interface S3DriverOptions {
@@ -15,8 +16,19 @@ export interface S3DriverOptions {
 
 export function createS3Driver({ bucket, publicBase, client, maxKeys, ...config }: S3DriverOptions): StorageDriver {
   const s3 = client ?? new S3Client(config);
+  // Presigning has no Body: automatic CRC32 would bind the checksum of an empty upload.
+  const signingClient = new S3Client({ ...config, region: s3.config.region, credentials: s3.config.credentials,
+    endpoint: s3.config.endpoint, forcePathStyle: s3.config.forcePathStyle, requestChecksumCalculation: "WHEN_REQUIRED" });
   const base = publicBase.replace(/\/+$/, "");
   return {
+    async signedUploadUrl(key, { contentType, contentLength, expiresIn = 900 }) {
+      assertKey(key);
+      if (!Number.isSafeInteger(contentLength) || contentLength <= 0 || expiresIn < 1 || expiresIn > 900) throw new Error("Invalid upload constraints");
+      const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType, ContentLength: contentLength });
+      // https://github.com/aws/aws-sdk-js-v3/tree/main/packages/s3-request-presigner
+      const url = await getSignedUrl(signingClient, command, { expiresIn, signableHeaders: new Set(["content-type", "content-length"]) });
+      return { url, headers: { "Content-Type": contentType } };
+    },
     async get(key) {
       assertKey(key);
       try {
@@ -59,7 +71,7 @@ export function createS3Driver({ bucket, publicBase, client, maxKeys, ...config 
       }
     },
     publicUrl(key) {
-      assertKey(key);
+      assertPublicKey(key);
       return `${base}/${key}`;
     },
   };
