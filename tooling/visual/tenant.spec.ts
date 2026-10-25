@@ -36,12 +36,20 @@ test("media crawl has no 404", async ({ page }) => {
       return [...urls];
     });
     expect(urls).toContain(url); expect(urls).toContain(poster);
-    const failures: string[] = [];
-    for (const address of urls) {
+    // Node API requests cannot resolve *.localhost on Windows: HEAD those same-origin URLs from the page, the media
+    // server (cross-origin, no CORS) from Node.
+    const sameSite = urls.filter(address => new URL(address).hostname.endsWith(".localhost"));
+    const failures = await page.evaluate(async addresses => (await Promise.all(addresses.map(async address => {
+      try { const response = await fetch(address, { method: "HEAD" }); return response.ok ? null : `${response.status} ${address}`; }
+      catch { return `network ${address}`; }
+    }))).filter(Boolean), sameSite);
+    for (const address of urls.filter(address => !sameSite.includes(address))) {
       try { const response = await page.request.head(address); if (!response.ok()) failures.push(`${response.status()} ${address}`); }
       catch { failures.push(`network ${address}`); }
     }
     expect(failures).toEqual([]);
+    // Same Windows limitation for the Node crawler (covered by scripts/media-crawl.test.mjs); CI runs it on Ubuntu.
+    if (process.platform === "win32") return;
     const crawl = JSON.parse(execFileSync(process.execPath, [resolve(__dirname, "../../scripts/media-crawl.mjs"), origin("review")], { encoding: "utf8" })) as { checked: number; failures: unknown[] };
     expect(crawl.checked).toBeGreaterThan(0); expect(crawl.failures).toEqual([]);
   } finally { fixture("cleanup"); }
