@@ -45,9 +45,9 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 - **AC**:
   - [x] Test: 2 instance, revalidate qua instance A → instance B trả bản mới ở request kế tiếp.
   - [x] Test cạnh tranh: render chậm bắt đầu trước invalidation, ghi xong sau → không được phục vụ.
-  - [ ] Restart Redis / ngắt pub/sub giữa chừng → không instance nào phục vụ bản đã bị vô hiệu hóa.
+  - [x] Restart Redis / ngắt pub/sub giữa chừng → không instance nào phục vụ bản đã bị vô hiệu hóa.
   - [x] 100 request đồng thời vào key hết hạn → 1 lần render.
-  - [ ] Redis chết → site vẫn phục vụ (fallback render, cảnh báo), không 500.
+  - [x] Redis chết → site vẫn phục vụ (fallback render, cảnh báo), không 500.
 - Phụ thuộc: E5-S05 (hợp đồng) · Agent: Claude (review Codex adversarial) · Cỡ: L
 
 ### E10-S04 · Môi trường AWS
