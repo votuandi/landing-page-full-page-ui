@@ -20,8 +20,13 @@ test("media crawl has no 404", async ({ page }) => {
   try {
     const { url, poster } = JSON.parse(fixture("self-hosted-video")) as { url: string; poster: string };
     await page.goto(origin("review"), { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: /Play video:.*Self-hosted video/ }).click();
-    const media = page.getByRole("dialog", { name: /Self-hosted video/ }).locator("video");
+    const dialog = page.getByRole("dialog", { name: /Self-hosted video/ });
+    // A click before hydration is a no-op (README flaky list); retry until the dialog opens.
+    await expect(async () => {
+      await page.getByRole("button", { name: /Play video:.*Self-hosted video/ }).click();
+      await expect(dialog).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 30_000 });
+    const media = dialog.locator("video");
     await expect(media).toHaveAttribute("src", url);
     await expect(media).toHaveAttribute("poster", poster);
     // Include mounted video alongside SSR image/source srcsets.
