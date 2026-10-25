@@ -1,5 +1,4 @@
 import { ArrowRightIcon, Battery100Icon, BoltIcon, CpuChipIcon, LightBulbIcon, SunIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
 import { MediaImage, delay } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
 import { pickLocale } from "../fields";
@@ -51,7 +50,7 @@ export default function HeroT12({ data, site }: SectionPropsOf<typeof hero>) {
         <div aria-hidden className="absolute left-1/2 top-[54%] h-[66%] w-[66%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow-primary-25" />
         {["left-[8%] top-[18%]", "right-[10%] top-[8%]", "left-[14%] bottom-[16%]", "right-[22%] bottom-[6%]"].map((pos) => <span key={pos} aria-hidden className={`absolute h-2 w-2 rounded-full bg-accent shadow-lg ${pos}`} />)}
         <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[12%] h-[90%] w-[60%] overflow-hidden rounded-b-media rounded-t-full border-6 border-glass-tint/15 bg-bg-tint shadow-hero">
-          {src ? <Image src={src} alt={t(data.image.alt)} fill priority className="object-cover" style={{ objectPosition: focal ? `${focal.x * 100}% ${focal.y * 100}%` : "72% center" }} sizes="(max-width:1024px) 70vw, 360px" /> : <MediaImage alt={t(data.image.alt)} priority sizes="360px" />}
+          {src ? <MediaImage src={src} alt={t(data.image.alt)} priority className="object-cover" focal={focal} style={{ objectPosition: "72% center" }} sizes="(max-width:1024px) 70vw, 360px" /> : <MediaImage alt={t(data.image.alt)} priority sizes="360px" />}
           <div className="absolute inset-0 bg-gradient-to-t from-scrim/55 via-transparent to-glass-tint/10" />
         </div>
         <div aria-hidden data-reveal="zoom" style={delay(0.6)} className="pointer-events-none absolute inset-0 text-on-media">

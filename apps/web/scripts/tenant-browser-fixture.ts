@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import { createPlatformDb, exportTenant, restoreTenant, forPlatform, forTenant, setPageTypes, type Prisma } from "@solar/db";
-import { storageFromEnv } from "@solar/storage";
+import { createPlatformDb, exportTenant, restoreTenant, forPlatform, forTenant, setPageTypes, type Prisma, type MediaVariant } from "@solar/db";
+import { storageFromEnv, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS } from "@solar/storage";
 import { widgetRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
@@ -73,6 +73,7 @@ async function main() {
       if (action === "setup" || action === "cleanup") {
         const previous = await forPlatform(db).tenants.bySlug(reviewSlug);
         if (previous) for await (const key of storageFromEnv().list(`tenants/${previous.tenantId}/e8-s04/`)) await storageFromEnv().delete(key);
+        if (previous) for await (const key of storageFromEnv().list(`tenants/${previous.tenantId}/e8-s07/`)) await storageFromEnv().delete(key);
         // Remove the review tenant, plus review rows that older fixtures created inside the t15 tenant.
         await db.tenant.deleteMany({ where: { slug: reviewSlug } });
         const repo = forTenant(db, domain.tenantId);
@@ -139,7 +140,30 @@ async function main() {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
         touched.add(saved.tenantId);
-        if (action === "self-hosted-video") {
+        if (action === "uploaded-image") {
+          const storage = storageFromEnv();
+          const key = `tenants/${saved.tenantId}/e8-s07/${randomUUID()}.jpg`;
+          const body = await sharp(readFileSync(resolve("public/images/solar-installation-hero.jpg"))).rotate().toBuffer();
+          const metadata = await sharp(body).metadata();
+          await storage.put(key, body, { contentType: "image/jpeg" });
+          const variants: MediaVariant[] = [];
+          for (const width of VARIANT_WIDTHS) for (const format of VARIANT_FORMATS) {
+            const image = sharp(body).resize({ width, withoutEnlargement: true });
+            const output = await (format === "avif" ? image.avif({ quality: 50 }) : image.webp({ quality: 75 })).toBuffer({ resolveWithObject: true });
+            const variant = { key: variantKey(key, width, format), format, width: output.info.width, height: output.info.height, size: output.data.length };
+            await storage.put(variant.key, output.data, { contentType: `image/${format}` });
+            variants.push(variant);
+          }
+          const media = await repo.media.create({ key, driver: "local", visibility: "public", status: "ready", mime: "image/jpeg", size: body.length, width: metadata.width, height: metadata.height,
+            focal: { x: 0.5, y: 0.5 }, variants });
+          const hero = await repo.sectionContent.first({ where: { siteId: saved.siteId, pageId: saved.pageId, type: "hero" } });
+          if (!hero) throw Error("Review home must include hero");
+          await repo.sectionContent.update(hero.id, { data: json({ ...hero.data as object, slides: undefined, image: { id: media.id, alt: { vi: "[DỮ LIỆU MẪU] Ảnh upload", en: "[SAMPLE DATA] Uploaded image" }, focal: { x: 0.2, y: 0.8 } } }) });
+          const page = (await repo.page.get(saved.pageId))!;
+          // Full-width hero makes viewport → stored variant selection explicit at DPR 1.
+          await repo.page.update(page.id, { sections: json((page.sections as { type: string; variant: string }[]).map(section => section.type === "hero" ? { ...section, variant: "minwy" } : section)) });
+          console.log(JSON.stringify({ base: storage.publicUrl(key).replace(/\.jpg$/, "") }));
+        } else if (action === "self-hosted-video") {
           const storage = storageFromEnv();
           const key = `tenants/${saved.tenantId}/e8-s04/${randomUUID()}.mp4`, posterKey = key.replace(/\.mp4$/, "-w640.webp");
           const bytes = readFileSync(resolve("public/videos/shorts/ho-gia-dinh-1.mp4"));

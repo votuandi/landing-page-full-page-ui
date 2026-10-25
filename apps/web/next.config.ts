@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     // Next 16 chỉ cho phép quality 75 mặc định; Hero dùng quality={70}
     qualities: [70, 75],
+    // 480: lưới 3 cột ở desktop (~400–460px) không phải tải bản 640w (Lighthouse "properly size images", E8-S07).
+    // Phải nằm trong deviceSizes: với `sizes` có 100vw, Next bỏ mọi bậc < deviceSizes[0].
+    deviceSizes: [480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     remotePatterns: [
       {
         protocol: "https",

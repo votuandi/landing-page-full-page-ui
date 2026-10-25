@@ -72,14 +72,17 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `tooling/visual/admin.spec.ts` (upload kéo thả, alt, focal, nơi dùng, xóa 409/xác nhận, axe 390/1440, tắt JS, viewer).
 - Phụ thuộc: S02, E7-S02 · Agent: Claude · Cỡ: M
 
-### E8-S06 · Dọn media mồ côi & chuyển driver
+### E8-S06 · Dọn media mồ côi & chuyển driver ✅ · PR [#65](https://github.com/votuandi/landing-page-full-page-ui/pull/65)
 - **Chi tiết**: cron tuần (học từ `CRON.md` của develop) liệt kê media không được tham chiếu > 30 ngày — tham chiếu tính cả
   `draftData`, `draftSections`, `PageVersion` và bản backup còn giữ → xóa; lệnh
   `pnpm storage:migrate --tenant <id> --from local --to s3` sao chép, kiểm checksum, cập nhật `driver`, revalidate.
-- **AC**: [ ] Chuyển 1 GB media sang R2 không có ảnh vỡ (crawler kiểm 0 lỗi 404) · [ ] Dry-run in danh sách trước khi xóa.
-- **Bằng chứng đang kiểm**: test `mediaOrphans.int`, `mediaRetention`, `storageMigrate.int`, `storageMigrate`, worker `mediaOrphans`;
-  crawler `scripts/media-crawl.mjs` + spec `tenant.spec.ts` › "media crawl has no 404". Chờ generate/deploy client mới,
-  kiểm DB/MinIO và e2e; 1 GB R2 thật theo `packages/storage/README.md`. AC giữ mở tới khi đủ bằng chứng.
+- **Quyết định** (25/10/2026): driver hỗn hợp theo tenant — `Tenant.storageDriver`, runtime đọc theo `Media.driver` từng row.
+- **AC**: [ ] Chuyển 1 GB media sang R2 không có ảnh vỡ (crawler kiểm 0 lỗi 404) — `[ngoài agent]`: MinIO `storageMigrate.int`
+  + e2e `tenant.spec.ts` › "media crawl has no 404" đã qua; R2 thật 1 GB chạy lúc triển khai theo `packages/storage/README.md`
+  · [x] Dry-run in danh sách trước khi xóa — `mediaOrphans.int.test.ts` (dry-run, CLI exit 1 khi tenant lỗi), worker `mediaOrphans.test.ts`.
+- **Bằng chứng**: db `mediaOrphans.int` (30 ngày, race khóa hàng, nháp/version/backup), `mediaRetention`, `storageMigrate(.int)`
+  (MinIO, checksum, idempotent), `conformance` (15 preset + seed), worker `mediaOrphans`, storage `config`; crawler
+  `scripts/media-crawl.mjs`.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E8-S07 · Phân phối ảnh biến thể
@@ -89,6 +92,9 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `next/image` trực tiếp đi cùng đường đó. Ảnh có `focal` để crop đúng chủ thể (`object-position`). Media chuyển public →
   worker enqueue invalidate tag tenant.
 - **Target**: ảnh hero trang chủ ≤ 200 KB ở 1280px, không tốn CPU tối ưu ảnh lúc chạy cho media đã upload.
-- **AC**: [ ] Lighthouse không báo "properly size images" ở trang chủ seed · [ ] Ảnh upload hiển thị bằng biến thể đúng kích
-  thước, không qua `/_next/image`.
+- **AC**: [x] Lighthouse không báo "properly size images" ở trang chủ seed — Lighthouse 12.8.2 `uses-responsive-images`
+  score 1 (t15/t12, mobile + desktop) + e2e `tenant.spec.ts` › "homepage images properly sized" (heuristic Lighthouse,
+  cuộn cả trang) · [x] Ảnh upload hiển thị bằng biến thể đúng kích thước, không qua `/_next/image` — e2e `tenant.spec.ts` ›
+  "uploaded image uses variants", web `media.test.ts`, ui `mediaUrl.test.ts`, sections `Media.test.tsx`; Target ≤ 200 KB
+  @1280 — worker `mediaScan.test.ts` › "hero w1280 under 200 KB" (có từ S03).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M

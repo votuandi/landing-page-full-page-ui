@@ -14,6 +14,75 @@ const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
 
+test("uploaded image uses variants", async ({ browser }) => {
+  test.setTimeout(180_000);
+  fixture("setup");
+  try {
+    const { base } = JSON.parse(fixture("uploaded-image")) as { base: string };
+    for (const javaScriptEnabled of [true, false]) for (const [width, variant] of [[1280, 1280], [390, 640]]) {
+      const context = await browser.newContext({ javaScriptEnabled, viewport: { width, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+      try {
+        const page = await context.newPage();
+        const errors: string[] = [], requests: string[] = [];
+        page.on("pageerror", error => errors.push(error.message));
+        page.on("request", request => requests.push(request.url()));
+        const response = page.waitForResponse(`${base}-w${variant}.avif`);
+        await page.goto(origin("review"), { waitUntil: "networkidle" });
+        expect((await response).status()).toBe(200);
+        const hero = page.locator('[data-section-type="hero"] picture');
+        await expect(hero.locator('source[type="image/avif"]')).toHaveCount(1);
+        const image = hero.locator("img");
+        await expect(image).toBeVisible();
+        await expect.poll(() => image.evaluate(node => (node as HTMLImageElement).currentSrc)).toBe(`${base}-w${variant}.avif`);
+        expect(await image.evaluate(node => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+        await expect(image).toHaveCSS("object-position", "20% 80%");
+        expect(requests.filter(url => url.startsWith(base))).toEqual([`${base}-w${variant}.avif`]);
+        expect(requests.filter(url => url.includes("/_next/image") && decodeURIComponent(url).includes(base))).toEqual([]);
+        expect(errors).toEqual([]);
+      } finally { await context.close(); }
+    }
+  } finally { fixture("cleanup"); }
+});
+
+test("homepage images properly sized", async ({ browser }) => {
+  test.setTimeout(240_000);
+  for (const id of ["t15", "t12"]) for (const viewport of [{ width: 412, height: 823, dpr: 1.75 }, { width: 1350, height: 940, dpr: 1 }]) {
+    const context = await browser.newContext({ viewport, deviceScaleFactor: viewport.dpr, reducedMotion: "reduce" });
+    try {
+      const page = await context.newPage();
+      await page.goto(origin(id), { waitUntil: "networkidle" });
+      // Stricter than Lighthouse: visit the whole page so lazy images enter the same audit as the hero.
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight) {
+          window.scrollTo(0, y);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      });
+      await page.waitForLoadState("networkidle");
+      const images = await page.locator("img").evaluateAll(async nodes => {
+        const images = nodes.filter((image): image is HTMLImageElement => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0 && image.getBoundingClientRect().width > 0 && image.getBoundingClientRect().height > 0);
+        return Promise.all(images.map(async image => {
+          const { width, height } = image.getBoundingClientRect();
+          const bytes = [...new Uint8Array(await (await fetch(image.currentSrc)).arrayBuffer())];
+          const timing = performance.getEntriesByName(image.currentSrc).find(entry => entry.entryType === "resource") as PerformanceResourceTiming | undefined;
+          const breakpoints = !!image.srcset || image.parentElement instanceof HTMLPictureElement;
+          return { src: image.currentSrc, width, height, dpr: window.devicePixelRatio, encodedBodySize: timing?.encodedBodySize || bytes.length, bytes, breakpoints };
+        }));
+      });
+      expect(images.length).toBeGreaterThan(5);
+      const waste: { src: string; wastedBytes: number }[] = [];
+      for (const image of images) {
+        const metadata = await sharp(Buffer.from(image.bytes)).metadata();
+        expect(metadata.width).toBeGreaterThan(0); expect(metadata.height).toBeGreaterThan(0);
+        const wastedBytes = image.encodedBodySize * (1 - image.width * image.height * image.dpr ** 2 / (metadata.width! * metadata.height!));
+        // Lighthouse `uses-responsive-images`: 12 KiB allowance with srcset/<picture> breakpoints, 4 KiB otherwise.
+        if (wastedBytes >= (image.breakpoints ? 12 : 4) * 1024) waste.push({ src: image.src, wastedBytes: Math.round(wastedBytes) });
+      }
+      expect(waste, `${id} ${viewport.width}px DPR ${viewport.dpr}`).toEqual([]);
+    } finally { await context.close(); }
+  }
+});
+
 test("media crawl has no 404", async ({ page }) => {
   test.setTimeout(180_000);
   fixture("setup");

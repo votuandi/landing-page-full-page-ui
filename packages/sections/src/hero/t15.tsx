@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowRightIcon, Battery100Icon, BoltIcon, CpuChipIcon, LightBulbIcon, PlayIcon, SunIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MediaImage, delay } from "@solar/ui";
@@ -84,7 +83,7 @@ export default function HeroT15({ data, site }: SectionPropsOf<typeof hero>) {
 
           <div data-hero="up" style={delay(0.15)} className="absolute bottom-0 left-[10%] h-[88%] w-[62%] overflow-hidden rounded-b-hero rounded-t-full border-6 border-bg-elevated bg-bg-tint shadow-hero">
             {src
-              ? <Image src={src} alt={t(data.image.alt)} fill priority quality={70} className="object-cover" style={focal && { objectPosition: `${focal.x * 100}% ${focal.y * 100}%` }} sizes="(max-width:1024px) 62vw, 370px" />
+              ? <MediaImage src={src} alt={t(data.image.alt)} priority quality={70} className="object-cover" focal={focal} sizes="(max-width:1024px) 62vw, 370px" />
               : <MediaImage alt={t(data.image.alt)} sizes="370px" priority />}
             <div className="absolute inset-0 bg-gradient-to-t from-scrim/45 to-transparent" />
           </div>

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { formatMoneyShort, formatNumber } from "@solar/core";
 import { MediaImage } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
@@ -24,7 +23,7 @@ export default function ProjectsT10({ data, site, sectionId }: SectionPropsOf<ty
             const quote = storyQuoteLink(item, site.locale, t(data.ctaLabel));
             const body = <>
               <div className="relative aspect-[4/3] overflow-hidden">
-                {src ? <Image src={src} alt={t(item.image.alt)} fill sizes="(min-width:1024px) 390px, (min-width:768px) 48vw, 95vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                {src ? <MediaImage src={src} alt={t(item.image.alt)} focal={item.image.focal} sizes="(min-width:1024px) 390px, (min-width:768px) 48vw, 95vw" className="object-cover transition duration-500 group-hover:scale-105" />
                   : <MediaImage alt={t(item.image.alt)} sizes="390px" />}
                 <span className="absolute bottom-4 left-4 rounded-full bg-bg-elevated px-3 py-1 text-xs font-bold text-fg">{t(data.segmentLabels[item.segment])} · {item.location}</span>
               </div>

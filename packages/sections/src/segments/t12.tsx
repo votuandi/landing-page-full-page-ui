@@ -1,5 +1,4 @@
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
 import { SEGMENT_SLUGS } from "@solar/core";
 import { MediaImage, SectionHead } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
@@ -22,7 +21,7 @@ export default function SegmentsT12({ data, site, sectionId }: SectionPropsOf<ty
           <SegmentLink segment={item.segment} anchor={data.targetAnchor} href={`?phan-khuc=${SEGMENT_SLUGS[item.segment]}#${data.targetAnchor}`}
             className="group relative block overflow-hidden rounded-media border-4 border-glass-border text-left shadow-package transition motion-safe:hover:-translate-y-1.5">
             <span className="relative block aspect-[4/3] bg-bg-tint md:aspect-[3/4] lg:aspect-[10/9]">
-              {mediaSrc(item.image) ? <Image src={mediaSrc(item.image)!} alt={t(item.image.alt)} fill loading="lazy" style={item.image.focal && { objectPosition: `${item.image.focal.x * 100}% ${item.image.focal.y * 100}%` }} sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition duration-motion-slow motion-safe:group-hover:scale-[1.05]" /> : <MediaImage alt={t(item.image.alt)} sizes="33vw" />}
+              {mediaSrc(item.image) ? <MediaImage src={mediaSrc(item.image)!} alt={t(item.image.alt)} focal={item.image.focal} sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition duration-motion-slow motion-safe:group-hover:scale-[1.05]" /> : <MediaImage alt={t(item.image.alt)} sizes="33vw" />}
               <span className="absolute inset-0 bg-gradient-to-t from-scrim/85 via-scrim/15 to-transparent" />
             </span>
             <span className="absolute left-4 top-4 grid h-11 w-11 place-items-center rounded-input border border-on-media/20 bg-scrim/60 text-on-media backdrop-blur-xl"><SegmentIcon segment={item.segment} className="h-5 w-5" /></span>
