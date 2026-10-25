@@ -1,5 +1,11 @@
 # @solar/db
 
+## Kiểm tra sẵn sàng (E10-S01)
+
+`checkConnection(db, { fresh: true })` chạy lại truy vấn xác minh kết nối và role cô lập trên pool hiện có, dành cho
+`/api/health`. Probe chỉ kiểm hạ tầng, không đọc dữ liệu tenant. Cách gọi `checkConnection(db)` giữ nguyên kiểm role
+được cache cho repository. Route health giới hạn 2 giây/check và chỉ trả trạng thái, không trả chi tiết lỗi hoặc URL.
+
 ## Sao lưu & khôi phục tenant (E7-S10)
 
 Owner/phiên hỗ trợ tải JSON tại CMS → Cài đặt → Sao lưu (`GET /api/sao-luu`). Platform có thể chạy:
