@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
-import { exec } from "node:child_process";
+import { exec, execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { test, type TestContext } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
@@ -210,4 +210,15 @@ test("untagged data obeys restart floor; concurrent invalidated hits render once
   const values = await Promise.all(Array.from({ length: 100 }, () => f.ca.cached(async () => { calls++; return "new"; }, options)));
   assert.ok(values.every(value => value === "new"));
   assert.equal(calls, 1);
+});
+
+test("cache connections never keep a script or test process alive", redis, async () => {
+  const script = `import { cached, invalidate } from "./src/index.ts";
+const tag = "tenant:${randomUUID()}";
+console.log(await cached(async () => "ok", { keyParts: "${randomUUID()}", tags: [tag] }));
+await invalidate([tag]);`;
+  const started = Date.now();
+  const { stdout } = await promisify(execFile)(process.execPath, ["--import", "tsx", "--input-type=module", "-e", script], { cwd: new URL("../..", import.meta.url), timeout: 10_000 });
+  assert.equal(stdout.trim(), "ok");
+  assert.ok(Date.now() - started < 10_000);
 });

@@ -47,6 +47,9 @@ export function createRedisCore(url, { now = Date.now, skewMs = 1000, log = cons
   const ready = new Promise(resolve => { markReady = () => resolve(undefined); });
   const checkReady = () => { if (commandReady && subscribed) markReady(); };
   for (const connection of [command, subscriber]) {
+    // The cache must not keep scripts and test processes alive; servers stay up through their own listeners.
+    // In-flight commands still hold the loop through ioredis' per-command `commandTimeout` timer.
+    connection.on("connect", () => connection.stream?.unref());
     connection.on("error", reset);
     connection.on("close", reset);
   }
