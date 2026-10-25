@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CheckCircleIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { MediaImage, delay } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
@@ -17,7 +16,7 @@ export default function LeadFormT15({ data, site, sectionId }: SectionPropsOf<ty
       <div className="grid lg:grid-cols-2">
         <div data-reveal="left" className="relative min-h-[52vh] overflow-hidden lg:min-h-[640px]">
           {src
-            ? <Image src={src} alt={t(data.image.alt)} fill loading="lazy" className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
+            ? <MediaImage src={src} alt={t(data.image.alt)} className="object-cover" focal={data.image.focal} sizes="(max-width:1024px) 100vw, 50vw" />
             : <MediaImage alt={t(data.image.alt)} sizes="50vw" />}
           <div className="absolute inset-0 bg-gradient-to-t from-scrim/90 via-scrim/50 to-scrim/5" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-on-media sm:p-10 xl:p-16">

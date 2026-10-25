@@ -1,8 +1,8 @@
-import Image from "next/image";
+import { ResponsiveImage } from "@solar/ui";
 
 /** Logo thương hiệu: ảnh nếu có, không thì biểu tượng lá + mặt trời vẽ bằng token và tên công ty (từ đầu tiên đậm). */
 export function BrandMark({ name, logoSrc }: { name: string; logoSrc?: string }) {
-  if (logoSrc) return <Image src={logoSrc} alt={name} width={184} height={48} className="h-11 w-auto" priority />;
+  if (logoSrc) return <ResponsiveImage src={logoSrc} alt={name} width={184} height={48} className="h-11 w-auto" priority />;
   const [first, ...rest] = name.split(" ");
   return (
     <span className="flex min-w-0 items-center gap-2.5">

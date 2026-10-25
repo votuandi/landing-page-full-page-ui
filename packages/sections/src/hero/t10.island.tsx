@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { SunIcon } from "@heroicons/react/24/outline";
 import { MediaImage } from "@solar/ui";
 import type { Segment } from "@solar/core";
@@ -52,7 +51,7 @@ export default function HeroT10({ titleId, badge, base, note, primary, secondary
         <div className="relative pb-8">
           <div className="relative aspect-[4/4.3] overflow-hidden rounded-b-media rounded-t-full bg-bg-sky sm:aspect-[4/3.6]">
             {view.image.src
-              ? <Image key={view.image.src} src={view.image.src} alt={view.image.alt} fill priority sizes="(min-width:1024px) 570px, 95vw" className="object-cover" />
+              ? <MediaImage key={view.image.src} src={view.image.src} alt={view.image.alt} priority sizes="(min-width:1024px) 570px, 95vw" className="object-cover" />
               : <MediaImage alt={view.image.alt} sizes="570px" priority />}
           </div>
           {card && (

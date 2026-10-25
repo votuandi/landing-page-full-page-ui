@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { SEGMENT_SLUGS } from "@solar/core";
 import { MediaImage, SectionHead } from "@solar/ui";
@@ -30,7 +29,7 @@ export default function SegmentsT15({ data, site, sectionId }: SectionPropsOf<ty
                   className="t15-card t15-card-hover group relative flex w-full flex-col overflow-hidden text-left">
                   <span className="relative block aspect-[4/3] overflow-hidden bg-bg-tint">
                     {src
-                      ? <Image src={src} alt={t(item.image.alt)} fill loading="lazy" sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
+                      ? <MediaImage src={src} alt={t(item.image.alt)} focal={item.image.focal} sizes="(max-width:1024px) 50vw, 300px" className="object-cover transition duration-700 group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
                       : <MediaImage alt={t(item.image.alt)} sizes="300px" />}
                     <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-scrim/60 to-transparent" />
                     {item.saving && <span className="absolute bottom-3 left-3 rounded-full bg-accent px-2.5 py-1 text-2xs font-black text-on-accent shadow">{t(data.savingLabel)} {item.saving}</span>}

@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
 import { ArrowRightIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { formatMoneyShort, formatNumber, type Segment } from "@solar/core";
 import { MediaImage, PriceTag } from "@solar/ui";
@@ -52,7 +51,7 @@ export default function PackagesIsland({ head, tabs, items, defaultSegment, maxP
       <div className="mt-10 grid gap-5 lg:grid-cols-[.8fr_2.2fr]">
         <div data-reveal="left" className="relative hidden min-h-[440px] overflow-hidden rounded-media border-4 border-bg-elevated shadow-package lg:block">
           {tab.cover.src
-            ? <Image key={tab.cover.src} src={tab.cover.src} alt={tab.cover.alt} fill className="object-cover" sizes="25vw" />
+            ? <MediaImage key={tab.cover.src} src={tab.cover.src} alt={tab.cover.alt} className="object-cover" sizes="25vw" />
             : <MediaImage alt={tab.cover.alt} sizes="25vw" />}
           <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-scrim/10 to-transparent" />
           <div className="absolute inset-x-4 bottom-4 rounded-3xl border border-on-media/25 bg-on-media/15 p-5 text-on-media backdrop-blur-xl">

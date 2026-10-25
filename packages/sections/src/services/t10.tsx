@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { MediaImage } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
 import { pickLocale } from "../fields";
@@ -20,7 +19,7 @@ export default function ServicesT10({ data, site, sectionId }: SectionPropsOf<ty
             return (
               <article key={item.id} className={`${T10.card} overflow-hidden`}>
                 <div className="relative aspect-[4/3]">
-                  {src ? <Image src={src} alt={t(item.image.alt)} fill sizes="(min-width:768px) 33vw, 95vw" className="object-cover" />
+                  {src ? <MediaImage src={src} alt={t(item.image.alt)} focal={item.image.focal} sizes="(min-width:768px) 33vw, 95vw" className="object-cover" />
                     : <MediaImage alt={t(item.image.alt)} sizes="33vw" />}
                 </div>
                 <div className="p-6">

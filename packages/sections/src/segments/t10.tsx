@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { SEGMENT_SLUGS } from "@solar/core";
 import { MediaImage } from "@solar/ui";
 import type { SectionPropsOf } from "../define";
@@ -32,7 +31,7 @@ export default function SegmentsT10({ data, site, sectionId }: SectionPropsOf<ty
               <div data-reveal="up" className={`relative pb-6 lg:pb-7 ${i % 2 ? "lg:order-2" : ""}`}>
                 <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-bg-sky lg:aspect-[4/5]"
                   style={i % 2 ? { borderTopRightRadius: PHOTO_RADIUS } : { borderTopLeftRadius: PHOTO_RADIUS }}>
-                  {src ? <Image src={src} alt={t(item.image.alt)} fill sizes="(min-width:1024px) 48vw, 95vw" className="object-cover" />
+                  {src ? <MediaImage src={src} alt={t(item.image.alt)} focal={item.image.focal} sizes="(min-width:1024px) 48vw, 95vw" className="object-cover" />
                     : <MediaImage alt={t(item.image.alt)} sizes="48vw" />}
                 </div>
                 {item.tag && (
