@@ -85,7 +85,7 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `scripts/media-crawl.mjs`.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
-### E8-S07 · Phân phối ảnh biến thể
+### E8-S07 · Phân phối ảnh biến thể ✅ · PR [#67](https://github.com/votuandi/landing-page-full-page-ui/pull/67)
 - **Chi tiết** (tách từ S03): apps/web đổi `MediaRef` UUID (Media `ready` + `public` của đúng tenant) thành URL công khai khi
   render trang; `<Media>` của `packages/ui` dựng `<picture>` AVIF + WebP với `srcset` từ biến thể qua `loader` theo từng ảnh
   (`getImageProps`) — không bật `images.loader: "custom"` toàn cục vì nó tắt `/_next/image` của ảnh tĩnh. Các section dùng
