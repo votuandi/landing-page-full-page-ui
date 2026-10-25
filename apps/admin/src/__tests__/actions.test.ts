@@ -51,6 +51,15 @@ test("every server export and route method has real permission metadata", async 
       assert.doesNotMatch(source, /["']use server["']/);
       continue;
     }
+    // The infrastructure probe is public and reads no tenant content. Exempt only this exact route.
+    if (file === resolve("src/app/api/health/route.ts")) {
+      assert.equal(serverModule, false);
+      const probe = await import(pathToFileURL(file).href);
+      assert.deepEqual(Object.keys(probe).sort(), ["GET", "dynamic"]);
+      assert.equal(probe.dynamic, "force-dynamic");
+      assert.equal(typeof probe.GET, "function");
+      continue;
+    }
     const expected = exportsOf(source, isRoute ? "route" : "action");
     const actual = await import(pathToFileURL(file).href);
     assert.deepEqual(Object.keys(actual).filter(key => key !== "default").sort(), expected.map(e => e.name).sort());

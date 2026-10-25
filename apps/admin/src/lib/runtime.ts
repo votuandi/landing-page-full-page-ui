@@ -16,7 +16,7 @@ function createRuntime() {
   const limiter = createLoginLimiter({ primary: redis ? redisCounter(redis) : undefined });
   const realm = createRealm({ name: "site", secret, sessionTtl: 7 * 86400_000, idleTtl: 12 * 3600_000,
     secure: process.env.NODE_ENV === "production", store: siteStore(db, { audience: "admin" }), limiter });
-  return { db, realm, limiter, secret, platform,
+  return { db, redis, realm, limiter, secret, platform,
     resolveHost: createHostResolver(slug => forPlatform(db).tenants.bySlug(slug), platform),
     async close() { redis?.disconnect(); await db.$disconnect(); },
   };
