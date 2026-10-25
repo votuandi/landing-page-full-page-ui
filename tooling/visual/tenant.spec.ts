@@ -51,7 +51,7 @@ test("homepage images properly sized", async ({ browser }) => {
     try {
       const page = await context.newPage();
       await page.goto(origin(id), { waitUntil: "networkidle" });
-      // Visit the whole page so lazy images enter the same audit as the hero.
+      // Stricter than Lighthouse: visit the whole page so lazy images enter the same audit as the hero.
       await page.evaluate(async () => {
         for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight) {
           window.scrollTo(0, y);
@@ -65,7 +65,8 @@ test("homepage images properly sized", async ({ browser }) => {
           const { width, height } = image.getBoundingClientRect();
           const bytes = [...new Uint8Array(await (await fetch(image.currentSrc)).arrayBuffer())];
           const timing = performance.getEntriesByName(image.currentSrc).find(entry => entry.entryType === "resource") as PerformanceResourceTiming | undefined;
-          return { src: image.currentSrc, width, height, dpr: window.devicePixelRatio, encodedBodySize: timing?.encodedBodySize || bytes.length, bytes };
+          const breakpoints = !!image.srcset || image.parentElement instanceof HTMLPictureElement;
+          return { src: image.currentSrc, width, height, dpr: window.devicePixelRatio, encodedBodySize: timing?.encodedBodySize || bytes.length, bytes, breakpoints };
         }));
       });
       expect(images.length).toBeGreaterThan(5);
@@ -74,7 +75,8 @@ test("homepage images properly sized", async ({ browser }) => {
         const metadata = await sharp(Buffer.from(image.bytes)).metadata();
         expect(metadata.width).toBeGreaterThan(0); expect(metadata.height).toBeGreaterThan(0);
         const wastedBytes = image.encodedBodySize * (1 - image.width * image.height * image.dpr ** 2 / (metadata.width! * metadata.height!));
-        if (wastedBytes >= 4 * 1024) waste.push({ src: image.src, wastedBytes: Math.round(wastedBytes) });
+        // Lighthouse `uses-responsive-images`: 12 KiB allowance with srcset/<picture> breakpoints, 4 KiB otherwise.
+        if (wastedBytes >= (image.breakpoints ? 12 : 4) * 1024) waste.push({ src: image.src, wastedBytes: Math.round(wastedBytes) });
       }
       expect(waste, `${id} ${viewport.width}px DPR ${viewport.dpr}`).toEqual([]);
     } finally { await context.close(); }
