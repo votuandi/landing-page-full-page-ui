@@ -19,7 +19,8 @@ test("cache handlers config: native JS default handler without ISR cacheHandler"
       if (typeof handler[method] !== 'function') throw Error(method);
     }
     if (globalThis[Symbol.for('solar.cache.redis')]) throw Error('fallback opened Redis');
-  `], { env: { ...process.env, REDIS_URL: "" }, timeout: 5000 });
+  // Generous bound: a cold Node import of Next's default handler took 5.6s while turbo ran every package in parallel.
+  `], { env: { ...process.env, REDIS_URL: "" }, timeout: 30_000 });
 });
 
 test("cache handlers config survives Next's Node 20 config transpiler", async () => {
