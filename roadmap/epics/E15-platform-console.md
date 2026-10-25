@@ -48,6 +48,7 @@ quyền vận hành khỏi tài khoản của khách.
   - Super admin quản lý các super admin khác (thêm, khóa, buộc đặt lại 2FA). Không tự khóa được chính mình hoặc admin cuối cùng.
   - Menu: Tổng quan, Customer, Site, Tài khoản site, Tính năng & quyền, Cấu hình nền tảng, Thống kê, Nhật ký, Super admin.
   - Kết nối DB bằng role `app_platform` (E5-S09) qua `forPlatform()`.
+  - Docker dùng `Dockerfile --build-arg APP=console` (E10-S01); bật standalone + health DB/Redis và thêm `console` vào matrix `.github/workflows/images.yml` khi app được tạo.
 - **AC**:
   - [ ] Đăng nhập console bằng email/mật khẩu của một `SiteUser` (seed dùng cùng email `owner@demo.vn`) → thất bại.
   - [ ] Chưa nhập TOTP → không vào được trang nào ngoài màn hình 2FA.

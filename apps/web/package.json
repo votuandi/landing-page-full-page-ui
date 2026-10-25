@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/apps/web/src/lib/__tests__/registerWorkspace.js --test .test-dist/apps/web/src/lib/__tests__/sectionCollections.test.js .test-dist/apps/web/src/lib/__tests__/labMatrix.test.js && pnpm test:tenant",
+    "test": "tsc -p tsconfig.test.json && node --require ./.test-dist/apps/web/src/lib/__tests__/registerWorkspace.js --test .test-dist/apps/web/src/lib/__tests__/sectionCollections.test.js .test-dist/apps/web/src/lib/__tests__/labMatrix.test.js .test-dist/apps/web/src/lib/__tests__/health.test.js && pnpm test:tenant",
     "test:tenant": "node scripts/test-tenant.mjs",
     "lint:tokens": "solar-lint-tokens src"
   },

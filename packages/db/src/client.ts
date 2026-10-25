@@ -16,7 +16,7 @@ const { clients, platforms } = state.solarDbConnections ??= { clients: new WeakM
 function connectClient(url: string, pool: number, role: "app_runtime" | "app_platform") {
   const base = new PrismaClient({ adapter: new PrismaPg({ connectionString: url, max: pool }), omit: { siteUser: secret, platformAdmin: secret } });
   let checked: Promise<void> | undefined;
-  const ready = () => checked ??= (async () => {
+  const check = async () => {
     const [row] = await base.$queryRaw<{ valid: boolean }[]>`
       SELECT (current_user = ${role} AND session_user = ${role} AND NOT r.rolsuper AND NOT r.rolbypassrls
         AND NOT r.rolcreatedb AND NOT r.rolcreaterole
@@ -26,7 +26,8 @@ function connectClient(url: string, pool: number, role: "app_runtime" | "app_pla
           AND NOT pg_catalog.pg_has_role(current_user,'app_platform','MEMBER')))) AS valid
       FROM pg_catalog.pg_roles r WHERE r.rolname=current_user`;
     if (!row?.valid) throw new Error(`Database connection requires isolated ${role} credentials (no ownership or bypass)`);
-  })();
+  };
+  const ready = () => checked ??= check();
   const client = base.$extends({
     name: "database-role-and-tenant-guard",
     query: { async $allOperations({ model, operation, args, query }) {
@@ -40,7 +41,7 @@ function connectClient(url: string, pool: number, role: "app_runtime" | "app_pla
       return query(args);
     } },
   });
-  return { client, ready };
+  return { client, ready, check };
 }
 
 export const POOL_BUDGET = { web: 10, admin: 5, worker: 5 } as const;
@@ -87,10 +88,11 @@ export function internalClient(db: Db | PlatformDb) {
   if (!entry) throw new Error("Requires a client returned by createDb/createPlatformDb");
   return entry.client;
 }
-export function checkConnection(db: Db | PlatformDb) {
+export function checkConnection(db: Db | PlatformDb, { fresh = false }: { fresh?: boolean } = {}) {
   const entry = clients.get(db);
   if (!entry) throw new Error("Unknown database client");
-  return entry.ready();
+  // Readiness probes must detect outages after the initial credential check.
+  return fresh ? entry.check() : entry.ready();
 }
 export function platformClient(db: PlatformDb) {
   if (!platforms.has(db)) throw new Error("forPlatform requires createPlatformDb credentials");

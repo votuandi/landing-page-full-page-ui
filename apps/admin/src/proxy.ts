@@ -30,4 +30,4 @@ export async function proxy(request: NextRequest) {
 }
 // getTenant() resolves and verifies Host again in route(); bypass proxy's 10 MB body cloning.
 // Next 16.3.8: dist/server/config-shared.d.ts, experimental.proxyClientMaxBodySize.
-export const config = { matcher: ["/((?!_next/static|_next/image|fonts/|favicon.ico|api/media/[^/]+/upload/?$).*)"] };
+export const config = { matcher: ["/((?!api/health/?$|_next/static|_next/image|fonts/|favicon.ico|api/media/[^/]+/upload/?$).*)"] };
