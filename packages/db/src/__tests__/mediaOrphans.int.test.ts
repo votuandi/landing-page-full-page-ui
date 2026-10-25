@@ -43,29 +43,35 @@ test("orphans: first sweep never deletes; deletes after 30 days; dry-run; re-ref
   } finally { await db.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } }); await db.$disconnect(); }
 });
 
-test("orphans: concurrent reference aborts delete even when the section writer uses ReadCommitted", { skip: !process.env.DATABASE_URL, timeout: 15_000 }, async () => {
-  const db = createPlatformDb({ pool: 2 }), tenantId = randomUUID();
-  let sweep: Promise<void> | undefined;
+test("orphans: concurrent reference blocks the sweep, which then keeps the media", { skip: !process.env.DATABASE_URL, timeout: 15_000 }, async () => {
+  // Writer transaction + sweep tenant lookup + sweep transaction need separate connections.
+  const db = createPlatformDb({ pool: 3 }), tenantId = randomUUID();
+  let sweep: Promise<unknown[]> | undefined;
   try {
     await db.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium" } });
     const repo = forTenant(db, tenantId), now = new Date();
     const media = await repo.media.create({ key: `private/${tenantId}/race.png`, driver: "local", mime: "image/png", size: 1, status: "ready", orphanedAt: new Date(+now - 31 * day) });
     const site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
     const page = await repo.page.create({ siteId: site.id, slug: "", sections: [] });
+    // Warm the lazily imported sweep module so the blocked-lock probe below does not race module loading.
+    await forPlatform(db).media.sweepOrphans({ tenantId, now, dryRun: true });
     await tenantTransaction(db, tenantId, async tx => {
       const [{ pid }] = await tx.$queryRaw<{ pid: number }[]>`SELECT pg_backend_pid() AS pid`;
       await createTenantRepo(tx, tenantId).sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: "hero", type: "hero", data: { ...sectionRegistry.types.hero.defaults, image: { id: media.id } } });
-      sweep = assert.rejects(forPlatform(db).media.sweepOrphans({ tenantId, now }), error => !!error && typeof error === "object" && "code" in error && error.code === "P2034");
+      sweep = forPlatform(db).media.sweepOrphans({ tenantId, now });
       let blocked = false;
       for (let attempt = 0; attempt < 100; attempt++) {
+        // pg_stat_activity is snapshotted per transaction; refresh it or the probe never sees the sweep arrive.
+        await tx.$queryRaw`SELECT pg_catalog.pg_stat_clear_snapshot()::text`;
         const [result] = await tx.$queryRaw<{ blocked: boolean }[]>`SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_stat_activity a WHERE ${pid} = ANY(pg_catalog.pg_blocking_pids(a.pid))) AS blocked`;
         if (result.blocked) { blocked = true; break; }
         await new Promise(resolve => setTimeout(resolve, 20));
       }
       assert.ok(blocked, "sweep must reach the row locked by the uncommitted reference write");
     }, { timeout: 10_000 });
-    await sweep;
-    assert.ok(await repo.media.get(media.id));
+    // The sweep waited for the writer's commit, then saw the reference.
+    assert.deepEqual(await sweep, []);
+    assert.equal((await repo.media.get(media.id))?.orphanedAt, null);
     assert.equal(await repo.auditLog.count({ where: { action: "media.orphan_deleted" } }), 0);
   } finally { await sweep?.catch(() => undefined); await db.tenant.deleteMany({ where: { id: tenantId } }); await db.$disconnect(); }
 });

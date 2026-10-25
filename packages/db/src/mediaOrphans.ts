@@ -4,7 +4,8 @@ import { assertKey, type StorageKind } from "@solar/storage";
 import { siteTag } from "@solar/cache";
 import type { PlatformDb } from "./client.ts";
 import { platformClient } from "./client.ts";
-import { withTenantTransaction } from "./tenantTransaction.ts";
+import { tenantTransaction } from "./tenantTransaction.ts";
+import { createTenantRepo } from "./repository.ts";
 import { mediaReferenceIds, backupMediaReferenceIds } from "./mediaRetention.ts";
 import { parseTenantBackup } from "./tenantBackup.ts";
 import { mediaVariantsSchema } from "./media.ts";
@@ -38,7 +39,12 @@ export async function sweepOrphanMedia(db: PlatformDb, { tenantId, now = new Dat
   const tenants = await platformClient(db).tenant.findMany({ where: tenantId ? { id: tenantId } : {}, select: { id: true } });
   const deleted: OrphanMedia[] = [], cutoff = new Date(+now - 30 * 86400_000);
   for (const tenant of tenants) {
-    const rows = await withTenantTransaction(db, tenant.id, async repo => {
+    // ReadCommitted + row locks instead of Serializable: the sweep scans whole tables, and SSI predicate locks would abort
+    // unrelated tenants' Serializable writes. Lock candidates first so the reference scan sees every committed writer;
+    // writers touch the referenced row (repository checkRefs), so an in-flight reference blocks this lock until it commits.
+    const rows = await tenantTransaction(db, tenant.id, async tx => {
+      await tx.$queryRaw`SELECT id FROM public."Media" WHERE "tenantId" = ${tenant.id}::uuid AND status = 'ready' AND "orphanedAt" < ${cutoff} FOR UPDATE`;
+      const repo = createTenantRepo(tx, tenant.id);
       const refs = await mediaReferenceIds(repo);
       for (const id of protect.get(tenant.id) ?? []) refs.add(id.toLowerCase());
       const candidates: OrphanMedia[] = [];
@@ -61,7 +67,7 @@ export async function sweepOrphanMedia(db: PlatformDb, { tenantId, now = new Dat
         candidates.push(candidate);
       }
       return candidates;
-    }, { isolationLevel: "Serializable", timeout: 30_000 });
+    }, { timeout: 30_000 });
     deleted.push(...rows);
   }
   return deleted;

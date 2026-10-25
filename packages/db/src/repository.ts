@@ -92,8 +92,9 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
     } else if (name === "site") mediaIds.push(...siteProfileMediaIds(data.profile));
     else if (name === "page") {
       const { descriptorMediaIds } = await import("./mediaRetention.ts");
-      mediaIds.push(...descriptorMediaIds(data.sections), ...descriptorMediaIds(data.draftSections));
-    } else if (name === "pageVersion" && data.snapshot !== undefined) {
+      // Writes may carry Prisma null sentinels or update operators; only literal arrays hold descriptors.
+      for (const value of [data.sections, data.draftSections]) if (Array.isArray(value)) mediaIds.push(...descriptorMediaIds(value));
+    } else if (name === "pageVersion" && data.snapshot && typeof data.snapshot === "object") {
       mediaIds.push(...(await import("./mediaRetention.ts")).snapshotMediaIds(data.snapshot));
     }
     const ids = [...new Set(mediaIds.filter(id => uuid.test(id)).map(id => id.toLowerCase()))];
