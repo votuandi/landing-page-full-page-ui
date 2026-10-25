@@ -33,8 +33,9 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 
 ### E10-S03 · Cache ISR dùng chung (Redis)
 **Là** chủ dự án, **tôi muốn** mọi bản `web` thấy cùng một cache, **để** khách lưu nội dung là mọi người thấy bản mới.
-- **Chi tiết**: cài hợp đồng `packages/cache` của E5-S05 bằng Redis, gồm cả `cacheHandler` (ISR/route) và `cacheHandlers`
-  (`"use cache"`, Next 16) — hai API có hợp đồng khác nhau, viết hai adapter. Chống dữ liệu cũ do cạnh tranh:
+- **Chi tiết**: cài hợp đồng data cache `packages/cache` của E5-S05 và `cacheHandlers.default`
+  (`"use cache"`, Next 16) bằng Redis. Không cấu hình `cacheHandler` ISR/route: route tenant động không đi qua incremental
+  cache; route tĩnh build sẵn giữ handler mặc định để đọc được bản build. Chống dữ liệu cũ do cạnh tranh:
   - Mỗi tag có **dấu thời gian vô hiệu hóa bền vững** trong Redis (`tag:<t>:invalidatedAt`); entry cache lưu thời điểm bắt đầu
     render; khi đọc, entry bắt đầu trước `invalidatedAt` của bất kỳ tag nào → coi như hết hạn. Nhờ vậy render đang chạy dở
     ghi lại bản cũ cũng không được phục vụ.
@@ -42,10 +43,10 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   - Chống dồn render (stampede): khóa ngắn `SET NX` theo key, instance khác phục vụ bản cũ hợp lệ trong lúc chờ.
   - Không có `REDIS_URL` → cache bộ nhớ (dev).
 - **AC**:
-  - [ ] Test: 2 instance, revalidate qua instance A → instance B trả bản mới ở request kế tiếp.
-  - [ ] Test cạnh tranh: render chậm bắt đầu trước invalidation, ghi xong sau → không được phục vụ.
+  - [x] Test: 2 instance, revalidate qua instance A → instance B trả bản mới ở request kế tiếp.
+  - [x] Test cạnh tranh: render chậm bắt đầu trước invalidation, ghi xong sau → không được phục vụ.
   - [ ] Restart Redis / ngắt pub/sub giữa chừng → không instance nào phục vụ bản đã bị vô hiệu hóa.
-  - [ ] 100 request đồng thời vào key hết hạn → 1 lần render.
+  - [x] 100 request đồng thời vào key hết hạn → 1 lần render.
   - [ ] Redis chết → site vẫn phục vụ (fallback render, cảnh báo), không 500.
 - Phụ thuộc: E5-S05 (hợp đồng) · Agent: Claude (review Codex adversarial) · Cỡ: L
 
