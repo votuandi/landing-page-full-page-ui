@@ -4,15 +4,19 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createLocalDriver, storageFor, type StorageDriver } from "@solar/storage";
+import { createLocalDriver, type StorageDriver } from "@solar/storage";
 import { createPlatformDb } from "../client.ts";
 import { forTenant, forPlatform } from "../repository.ts";
 import { reserveUpload } from "../media.ts";
+// Own throwaway bucket: CI's db job has a MinIO endpoint but no pre-created bucket.
+import { videoS3Fixture } from "../../../storage/src/__tests__/video.fixture.ts";
 
-test("migrate: only target tenant; source kept; checksum; idempotent; private; skips non-ready; dry-run", { skip: !process.env.DATABASE_URL || !process.env.STORAGE_S3_TEST_ENDPOINT, timeout: 60_000 }, async () => {
+const s3Skip = !process.env.STORAGE_S3_TEST_ENDPOINT && process.env.STORAGE_REQUIRE_S3 !== "1" ? "MinIO endpoint missing; STORAGE_REQUIRE_S3=1 makes it mandatory" : false;
+test("migrate: only target tenant; source kept; checksum; idempotent; private; skips non-ready; dry-run", { skip: !process.env.DATABASE_URL || s3Skip, timeout: 60_000 }, async () => {
+  assert.ok(process.env.STORAGE_S3_TEST_ENDPOINT, "STORAGE_S3_TEST_ENDPOINT required");
   const db = createPlatformDb({ pool: 2 }), tenantId = randomUUID(), other = randomUUID(), root = await mkdtemp(join(tmpdir(), "solar-migrate-"));
   const local = createLocalDriver({ root, publicBase: "https://local.example" });
-  const s3 = storageFor("s3", { MEDIA_PUBLIC_BASE: "https://s3.example", S3_BUCKET: process.env.STORAGE_S3_TEST_BUCKET, S3_ENDPOINT: process.env.STORAGE_S3_TEST_ENDPOINT, S3_REGION: "us-east-1", S3_FORCE_PATH_STYLE: "true", S3_ACCESS_KEY_ID: process.env.STORAGE_S3_TEST_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY: process.env.STORAGE_S3_TEST_SECRET_ACCESS_KEY });
+  const { storage: s3, cleanup } = await videoS3Fixture();
   const storage = (driver: "local" | "s3") => driver === "local" ? local : s3;
   const keys: string[] = [];
   try {
@@ -42,7 +46,7 @@ test("migrate: only target tenant; source kept; checksum; idempotent; private; s
     const missing = await repo.media.create({ key: `private/${tenantId}/missing.png`, driver: "local", mime: "image/png", size: 5, status: "ready" });
     await assert.rejects(migrate(options), /thiếu|Không tìm thấy/i);
     assert.equal((await repo.media.get(missing.id))?.driver, "local");
-  } finally { for (const key of keys) await s3.delete(key); await db.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } }); await db.$disconnect(); await rm(root, { recursive: true, force: true }); }
+  } finally { await cleanup(); await db.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } }); await db.$disconnect(); await rm(root, { recursive: true, force: true }); }
 });
 
 test("migrate: checksum mismatch keeps row source; unknown tenant and invalid target do not write", { skip: !process.env.DATABASE_URL }, async () => {
