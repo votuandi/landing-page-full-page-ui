@@ -8,13 +8,14 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 
 ---
 
-### E10-S01 · Image Docker cho `web`, `admin` và `console`
+### E10-S01 · Image Docker cho `web`, `admin` và `console` ✅ · PR [#68](https://github.com/votuandi/landing-page-full-page-ui/pull/68)
 **Là** dev vận hành, **tôi muốn** image nhỏ, build một lần chạy mọi nơi, **để** deploy nhanh và nhất quán.
 - **Chi tiết**: Dockerfile đa giai đoạn dùng `turbo prune --docker` + Next `output: "standalone"`; Prisma client gộp
   vào image; user không root; healthcheck `/api/health` (kiểm DB, Redis). Thay Dockerfile cũ (đang tham chiếu prisma
   của develop). Tag image theo commit SHA, đẩy lên GHCR (và ECR cho AWS).
 - **Target**: image `web` ≤ 250 MB; khởi động ≤ 5 s.
-- **AC**: [ ] CI build và đẩy image khi merge · [ ] Container chạy với `read_only: true` (trừ thư mục tạm/khi dùng storage local).
+- **AC**: [x] CI build và đẩy image khi merge — workflow `Images` run 40191894668: smoke + push GHCR `<repo>-web|admin:<sha>` (ECR khi có biến AWS; console thêm ở E15-S02) ·
+  [x] Container chạy với `read_only: true` (trừ thư mục tạm/khi dùng storage local) — `infra/docker/smoke.sh` (web 242,8 MB, khởi động ~2,9 s).
 - Agent: Codex · Cỡ: M
 
 ### E10-S02 · Môi trường VPS: compose + Caddy
