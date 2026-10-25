@@ -100,8 +100,10 @@ export function affectedChecks(files, { links = {} } = {}) {
 
 const DEPS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
 /**
- * Hai bản package.json chỉ khác nhau ở link `workspace:` → thư mục các package đó (theo `dirs`: tên → thư mục);
- * còn đổi gì khác (phiên bản thư viện ngoài, scripts…), file mới, JSON hỏng hoặc package không rõ thư mục → null.
+ * Hai bản package.json chỉ khác nhau ở link `workspace:` và/hoặc script **mới thêm** → thư mục các package được link
+ * (theo `dirs`: tên → thư mục; chỉ thêm script → []). Script mới không đổi lệnh có sẵn (build, visual:test…) nên không đổi
+ * pixel (PR #65). Còn đổi gì khác (phiên bản thư viện ngoài, sửa/xóa script cũ…), file mới, JSON hỏng hoặc package không
+ * rõ thư mục → null.
  */
 export function workspaceLinks(before, after, dirs) {
   let a, b;
@@ -109,11 +111,14 @@ export function workspaceLinks(before, after, dirs) {
   const names = new Set();
   const strip = (pkg) => ({ ...pkg, ...Object.fromEntries(DEPS.filter((k) => pkg[k]).map((k) => [k,
     Object.fromEntries(Object.entries(pkg[k]).filter(([name, version]) => !(String(version).startsWith("workspace:") && names.add(name))))])) });
-  const [sa, sb] = [strip(a), strip(b)];
+  const added = Object.keys(b.scripts ?? {}).filter((k) => !Object.hasOwn(a.scripts ?? {}, k));
+  const kept = Object.fromEntries(Object.entries(b.scripts ?? {}).filter(([k]) => !added.includes(k)));
+  const [sa, sb] = [strip(a), strip({ ...b, scripts: a.scripts === undefined && !Object.keys(kept).length ? undefined : kept })];
   const sorted = (pkg) => JSON.stringify(pkg, (_, v) => v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort()) : v);
   if (sorted(sa) !== sorted(sb)) return null;
   const changed = [...names].filter((n) => DEPS.some((k) => a[k]?.[n] !== b[k]?.[n]));
-  return changed.length && changed.every((n) => dirs[n]) ? changed.map((n) => dirs[n]) : null;
+  if (!changed.length) return added.length ? [] : null;
+  return changed.every((n) => dirs[n]) ? changed.map((n) => dirs[n]) : null;
 }
 /** Tên → thư mục của mọi package trong workspace (apps/*, packages/*, tooling/*). */
 function workspaceDirs() {
