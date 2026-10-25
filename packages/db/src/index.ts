@@ -41,4 +41,5 @@ export { mediaReferences, updateMediaMeta, deleteMedia, MediaInUseError, mediaFo
 export type { MediaUse } from "./mediaLibrary.ts";
 export { mediaReferenceIds, backupMediaReferenceIds } from "./mediaRetention.ts";
 export { loadBackupMediaProtection } from "./mediaOrphans.ts";
-export type { OrphanMedia, OrphanOptions } from "./mediaOrphans.ts";
+export type { OrphanMedia, OrphanOptions, OrphanTenantError } from "./mediaOrphans.ts";
+export { runMediaOrphans } from "./mediaOrphanCleanup.ts";

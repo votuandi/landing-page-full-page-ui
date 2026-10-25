@@ -1,9 +1,8 @@
-import { forTenant, forPlatform, promoteMedia, rejectMedia, loadBackupMediaProtection, type MediaVariant, type PlatformDb } from "@solar/db";
+import { forTenant, forPlatform, promoteMedia, rejectMedia, loadBackupMediaProtection, runMediaOrphans, type MediaVariant, type PlatformDb } from "@solar/db";
 import { storageFor, type StorageKind } from "@solar/storage";
 import sharp from "sharp";
 import { createMediaScan } from "./handlers/mediaScan.ts";
 import { createMediaPublish, cleanupExpiredMedia } from "./handlers/mediaPublish.ts";
-import { runMediaOrphans } from "./handlers/mediaOrphans.ts";
 
 export function createMediaRuntime(db: PlatformDb) {
   sharp.concurrency(1);

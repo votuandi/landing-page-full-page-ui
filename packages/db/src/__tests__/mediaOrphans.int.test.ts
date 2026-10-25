@@ -7,6 +7,8 @@ import { forTenant, forPlatform } from "../repository.ts";
 import { reserveUpload } from "../media.ts";
 import { tenantTransaction } from "../tenantTransaction.ts";
 import { createTenantRepo } from "../repository.ts";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const day = 86400_000;
 test("orphans: first sweep never deletes; deletes after 30 days; dry-run; re-referenced clears orphanedAt; tenant isolation; skips non-ready", { skip: !process.env.DATABASE_URL }, async () => {
@@ -41,6 +43,35 @@ test("orphans: first sweep never deletes; deletes after 30 days; dry-run; re-ref
     assert.ok(await foreign.media.get(otherRow.id));
     assert.equal(await repo.auditLog.count({ where: { action: "media.orphan_deleted" } }), 1);
   } finally { await db.tenant.deleteMany({ where: { id: { in: [tenantId, other] } } }); await db.$disconnect(); }
+});
+
+test("orphans: corrupt tenant is logged and later tenants still sweep; CLI exits 1", { skip: !process.env.DATABASE_URL }, async () => {
+  const db = createPlatformDb({ pool: 2 }), ids = [randomUUID(), randomUUID(), randomUUID()].sort();
+  try {
+    for (const [index, tenantId] of ids.entries()) {
+      await db.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+      const repo = forTenant(db, tenantId);
+      const site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+      const page = await repo.page.create({ siteId: site.id, slug: "", sections: [] });
+      await repo.media.create({ key: `private/${tenantId}/a.png`, driver: "local", mime: "image/png", status: "ready", size: 1, orphanedAt: new Date(Date.now() - 31 * day) });
+      // Model retained legacy data that today's writer would reject.
+      await tenantTransaction(db, tenantId, async tx => {
+        if (index === 0) await tx.page.update({ where: { id: page.id, tenantId }, data: { sections: [{ type: "removed-type", data: {} }] } });
+        if (index === 1) await tx.pageVersion.create({ data: { tenantId, pageId: page.id, revision: 1, snapshot: { contents: "broken" } } });
+      });
+    }
+    const failures: { tenantId: string; message: string }[] = [];
+    const rows = await forPlatform(db).media.sweepOrphans({ dryRun: true, onTenantError: error => { failures.push(error); } });
+    assert.ok(rows.some(row => row.tenantId === ids[2]), "healthy later tenant remains in the result");
+    for (const tenantId of ids.slice(0, 2)) {
+      assert.ok(failures.some(error => error.tenantId === tenantId && error.message));
+      assert.equal(await forTenant(db, tenantId).media.count(), 1);
+    }
+    const script = fileURLToPath(new URL("../../scripts/media-orphans.ts", import.meta.url));
+    const cli = spawnSync(process.execPath, ["--import", "tsx", script, "--tenant", ids[0], "--dry-run"], { encoding: "utf8", timeout: 15_000, env: { ...process.env, MEDIA_BACKUP_DIR: "" } });
+    assert.equal(cli.status, 1, cli.stdout + cli.stderr);
+    assert.ok((cli.stdout + cli.stderr).includes(ids[0]), "CLI reports the failed tenant");
+  } finally { await db.tenant.deleteMany({ where: { id: { in: ids } } }); await db.$disconnect(); }
 });
 
 test("orphans: concurrent reference blocks the sweep, which then keeps the media", { skip: !process.env.DATABASE_URL, timeout: 15_000 }, async () => {
