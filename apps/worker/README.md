@@ -1,5 +1,12 @@
 # worker
 
+Cron media mồ côi (E8-S06) chạy ngay khi khởi động rồi mỗi 7 ngày, không chồng lượt; shutdown chờ cron hoàn tất.
+Đặt `MEDIA_BACKUP_DIR` tới thư mục JSON `tenant:export` còn giữ. Mọi backup được đọc/validate trước mutation;
+file hỏng dừng lượt. Quét Serializable theo tenant, bảo vệ live/draft/descriptor/version/nội dung backup.
+Lần đầu đánh dấu, chỉ xóa ready mồ côi hơn 30 ngày, ghi audit hệ thống + invalidate public trong transaction.
+Log danh sách trước xóa; tệp gốc/biến thể xóa sau commit bằng driver của row. Driver hỗn hợp cần đủ env cả hai kho.
+CLI dry-run và migration: xem [storage](../../packages/storage/README.md) và [CRON.md](../../CRON.md).
+
 Cron section cleanup (E7-S13) gọi `forPlatform(db).sectionContents.purgeRemoved({ now })` ngay khi khởi động và mỗi 6 giờ.
 Chỉ xóa content có `removedAt` quá 30 ngày, không còn trong descriptor nháp/xuất bản và snapshot PageVersion mới nhất.
 Cron khóa Page như luồng lưu/xuất bản và recheck trong câu DELETE; nhiều worker không xóa trùng hoặc xóa hàng vừa khôi phục.
