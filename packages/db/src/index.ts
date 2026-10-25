@@ -39,3 +39,6 @@ export { BACKUP_FORMAT, tenantBackupSchema, parseTenantBackup, remapBackup, expo
 export type { TenantBackup, BackupStorage } from "./tenantBackup.ts";
 export { mediaReferences, updateMediaMeta, deleteMedia, MediaInUseError, mediaFocalSchema } from "./mediaLibrary.ts";
 export type { MediaUse } from "./mediaLibrary.ts";
+export { mediaReferenceIds, backupMediaReferenceIds } from "./mediaRetention.ts";
+export { loadBackupMediaProtection } from "./mediaOrphans.ts";
+export type { OrphanMedia, OrphanOptions } from "./mediaOrphans.ts";

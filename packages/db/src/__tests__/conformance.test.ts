@@ -16,6 +16,16 @@ import { demoBackup } from "./tenantBackup.fixture.ts";
 import { ThemeOverridesSchema } from "../../../tokens/src/css";
 import { siteProfileSchema } from "../siteProfile.ts";
 import { storySource } from "@solar/sections";
+import { backupMediaReferenceIds } from "../mediaRetention.ts";
+import { defaultDriver } from "@solar/storage";
+
+test("E8-S06: every bundled seed resolves fallback driver and retention scans its content", () => {
+  for (const id of ["t15", "t12"] as const) {
+    const bundle = parseTenantBackup(demoBackup(id));
+    assert.equal(defaultDriver({}), "local");
+    assert.ok(backupMediaReferenceIds(bundle) instanceof Set);
+  }
+});
 
 test("E8-S04: static seed story sources still parse alongside Media UUID file sources", () => {
   for (const id of ["t15", "t12"] as const) for (const story of buildDemo(id).collections.stories) assert.doesNotThrow(() => storySource.parse(story.data.source));

@@ -118,12 +118,23 @@ test("tenant backup integration", { skip: !process.env.DATABASE_URL, timeout: 12
         await assert.rejects(restore(bundle, storage, clone.slug), (e: unknown) => e instanceof Error && "status" in e && e.status === 409);
         assert.equal(files.size, before);
       });
-      await t.test(`${id}: missing media file aborts restore`, async () => {
+      await t.test(`${id}: missing referenced media file aborts restore`, async () => {
         const before = await countClones(); const broken = structuredClone(bundle);
         broken.media.push({ ...bundle.media[0], id: randomUUID(), key: `tenants/${tenantId}/missing.webp` });
+        broken.site.profile = { ...broken.site.profile as object, brand: { favicon: broken.media.at(-1)!.id } };
         const keys = [...files.keys()];
         await assert.rejects(restore(broken, storage), /Không tìm thấy tệp/);
         assert.equal(await countClones(), before); assert.deepEqual([...files.keys()], keys);
+      });
+      await t.test(`${id}: missing unreferenced media skipped; restore reads row driver and writes target driver`, async () => {
+        const raw = structuredClone(bundle);
+        raw.media.push({ ...bundle.media[0], id: randomUUID(), key: `tenants/${tenantId}/unused-missing.webp` });
+        const target = await restoreTenant(ops, storage, raw, { slug: `${clonePrefix}${randomUUID().slice(0, 8)}`, planId: "premium" }, { source: kind => { assert.equal(kind, "local"); return storage; }, driver: "s3" });
+        tenants.add(target.tenantId);
+        assert.equal(target.skipped, 1);
+        const rows = await forTenant(runtime, target.tenantId).media.list();
+        assert.equal(rows.length, bundle.media.length);
+        assert.ok(rows.every(row => row.driver === "s3"));
       });
       await t.test(`${id}: dangling ref rolls back restore`, async () => {
         const broken = structuredClone(bundle), section = broken.sectionContents.find(s => s.type === "projects")!;

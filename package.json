@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "storage:migrate": "pnpm --filter @solar/db storage:migrate",
+    "media:orphans": "pnpm --filter @solar/db media:orphans",
     "import:site-config": "pnpm --filter @solar/db import:site-config",
     "dev": "turbo run dev",
     "build": "turbo run build",

@@ -81,7 +81,7 @@ export async function deleteMedia(db: Db | PlatformDb, tenantId: string, id: str
       if (!(await repo.media.delete(id)).count) throw missing();
       await repo.auditLog.create({ actorType: "site_user", action: "media.deleted", entity: "Media", entityId: id, data: { uses } });
       if (row.visibility === "public") await enqueueInvalidate(repo, [siteTag(tenantId)]);
-      return { keys: [...new Set([row.key, ...(mediaVariantsSchema.safeParse(row.variants).data ?? []).map(variant => variant.key)])] };
+      return { driver: row.driver, keys: [...new Set([row.key, ...(mediaVariantsSchema.safeParse(row.variants).data ?? []).map(variant => variant.key)])] };
     }, { isolationLevel: "Serializable" });
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && ["P2003", "P2034"].includes(String(error.code))) throw new MediaError("Dữ liệu vừa thay đổi. Vui lòng tải lại và xác nhận lại.", 409);
