@@ -39,7 +39,7 @@ export function storageFor(kind: StorageKind, env: Record<string, string | undef
   const selected = kind === "local"
     ? { STORAGE_LOCAL_ROOT: env.STORAGE_LOCAL_ROOT }
     : Object.fromEntries(Object.entries(env).filter(([key]) => key.startsWith("S3_")));
-  const result = schema.safeParse({ ...selected, STORAGE_DRIVER: kind, MEDIA_PUBLIC_BASE: env[`MEDIA_PUBLIC_BASE_${kind.toUpperCase()}`] ?? env.MEDIA_PUBLIC_BASE });
+  const result = schema.safeParse({ ...selected, STORAGE_DRIVER: kind, MEDIA_PUBLIC_BASE: env[`MEDIA_PUBLIC_BASE_${kind.toUpperCase()}`] || env.MEDIA_PUBLIC_BASE });
   if (!result.success) {
     // Never include Zod's input values or credential-bearing URLs in configuration errors.
     throw new Error(`Cấu hình lưu trữ không hợp lệ: ${[...new Set(result.error.issues.map(issue => issue.path[0]))].join(", ")}`);

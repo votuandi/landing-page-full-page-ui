@@ -11,3 +11,10 @@ test("storageFor per driver validates only selected configuration and prefers it
   assert.throws(() => defaultDriver({ STORAGE_DRIVER: "invalid" }), /STORAGE_DRIVER/);
   assert.throws(() => storageFor("s3", { ...env, S3_BUCKET: undefined }), /S3_BUCKET/);
 });
+
+test("empty per-driver public bases fall back to MEDIA_PUBLIC_BASE", () => {
+  for (const kind of ["local", "s3"] as const) {
+    const env = { STORAGE_LOCAL_ROOT: ".media", S3_BUCKET: "test", MEDIA_PUBLIC_BASE: "https://fallback.example", MEDIA_PUBLIC_BASE_LOCAL: "", MEDIA_PUBLIC_BASE_S3: "" };
+    assert.equal(storageFor(kind, env).publicUrl("tenants/a/x"), "https://fallback.example/tenants/a/x");
+  }
+});
