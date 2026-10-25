@@ -10,6 +10,7 @@ on:
       - .github/workflows/images.yml
       - .github/actions/db-setup/**
       - apps/*/next.config.ts
+      - apps/*/tsconfig*.json
       - apps/*/src/app/api/health/**
       - apps/*/src/lib/health.ts
       - apps/*/src/lib/runtime.ts
