@@ -96,5 +96,5 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   score 1 (t15/t12, mobile + desktop) + e2e `tenant.spec.ts` › "homepage images properly sized" (heuristic Lighthouse,
   cuộn cả trang) · [x] Ảnh upload hiển thị bằng biến thể đúng kích thước, không qua `/_next/image` — e2e `tenant.spec.ts` ›
   "uploaded image uses variants", web `media.test.ts`, ui `mediaUrl.test.ts`, sections `Media.test.tsx`; Target ≤ 200 KB
-  @1280 — worker `mediaScan.int.test.ts`.
+  @1280 — worker `mediaScan.test.ts` › "hero w1280 under 200 KB" (có từ S03).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
