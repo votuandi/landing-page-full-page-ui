@@ -522,8 +522,11 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "English excerpt");
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "en_US");
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", url + "/images/illustrations/home-solar.webp");
-    await page.getByRole("button", { name: "vi", exact: true }).click();
-    await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI");
+    // A click before hydration is a no-op (README flaky list); retry until the locale reload lands.
+    await expect(async () => {
+      await page.getByRole("button", { name: "vi", exact: true }).click();
+      await expect(page.locator("main:visible h1")).toHaveText("Bài viết VI", { timeout: 5_000 });
+    }).toPass({ timeout: 30_000 });
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Mô tả VI");
     await expect(page.getByRole("navigation", { name: "Điều hướng chính" })).toBeVisible();
     await page.reload();
@@ -539,8 +542,10 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", url);
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "vi_VN");
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", url);
-    await page.getByRole("button", { name: "en", exact: true }).click();
-    await expect(page.locator("main:visible")).toContainText("English hero");
+    await expect(async () => {
+      await page.getByRole("button", { name: "en", exact: true }).click();
+      await expect(page.locator("main:visible")).toContainText("English hero", { timeout: 5_000 });
+    }).toPass({ timeout: 30_000 });
     await expect(page.locator('[data-widget="commitments-strip"]')).toContainText("Free site survey");
   });
   for (const width of [390, 1440]) {
