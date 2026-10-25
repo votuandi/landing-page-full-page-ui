@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
+  output: "standalone",
   transpilePackages: ["@solar/auth", "@solar/db", "@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/cms-ui", "@solar/presets"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   poweredByHeader: false,
