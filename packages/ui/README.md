@@ -24,6 +24,19 @@ App truyền label đã dịch để hỗ trợ EN; package không phụ thuộc
 Ví dụ mọi primitive và hook nằm ở `/lab/ui`: chỉ mở trong dev hoặc production có `LAB_ENABLED=true` lúc build.
 Route không được index, không có trong sitemap.
 
-Kiểm tra: `pnpm --filter @solar/ui typecheck`, `lint`, `lint:tokens`.
+`MediaImage` nhận `src?`, `alt`, `sizes`, `priority?`, `className?`, `focal?: { x, y }` (0–1),
+`style?`, `quality?`; mặc định fill và lazy. Cha phải có kích thước và position relative. Thiếu src → placeholder token.
+`Wordmark` và `ResponsiveImage` (cùng props ảnh Next, dùng cho logo kích thước cố định) đi chung đường render ảnh.
+
+Ảnh upload do resolver server đổi UUID thành `encodeMediaUrl(publicUrlW1920Webp, [width640, width1280, width1920], focal?)`.
+Codec `mediaUrl.ts` là nơi duy nhất định nghĩa fragment `#m=…&f=…`; fragment không gửi đến storage.
+`parseMediaUrl` kiểm metadata rồi chọn biến thể nhỏ nhất đủ width, giới hạn ở ảnh lớn nhất có thật.
+Primitive render `<picture>` AVIF + WebP bằng loader riêng qua
+[`getImageProps`](https://nextjs.org/docs/app/api-reference/components/image#getimageprops), srcset có width thật và loại trùng.
+Focal trong URL ưu tiên prop focal, truyền thành object-position. Ảnh tĩnh vẫn dùng Next optimizer;
+ảnh HTTP(S) gốc của `MediaImage` dùng unoptimized. Không bật loader toàn cục.
+
+Kiểm tra: `pnpm --filter @solar/ui test`, `typecheck`, `lint`, `lint:tokens`.
+Test SSR primitive ở `@solar/sections` (tái dùng react-dom và runner sẵn có).
 `lint:tokens` dùng ESLint rule AST của `@solar/eslint-plugin`; bỏ qua `brand-icons/` và comment thật
 `token-exempt: <lý do không rỗng>` trên cùng dòng hoặc ngay phía trên. Test rule nằm trong package plugin. Không dùng exemption cho style của app thông thường.
