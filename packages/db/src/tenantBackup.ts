@@ -48,7 +48,7 @@ export const tenantBackupSchema = z.strictObject({
     faq: z.array(collectionShapes.faq), service: z.array(collectionShapes.service), certificate: z.array(collectionShapes.certificate), pressItem: z.array(collectionShapes.pressItem) }),
   media: z.array(z.strictObject({ ...identity, key: z.string(), driver: z.enum(["local", "s3"]), visibility: z.enum(["public", "private"]),
     status: z.enum(["quarantine", "ready", "failed"]), mime: z.string(), size: z.int().nonnegative(), width: z.int().nullable().optional(),
-    height: z.int().nullable().optional(), variants: json.optional(), alt: json.optional() })),
+    height: z.int().nullable().optional(), variants: json.optional(), alt: json.optional(), name: z.string().nullable().optional(), focal: json.optional() })),
 });
 export type TenantBackup = z.infer<typeof tenantBackupSchema>;
 export class TenantBackupError extends Error {
@@ -161,7 +161,7 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
       // The bundle is schema-validated; this boundary normalizes nullable Prisma JSON fields.
       async function insert(name: "site" | "page" | "pageVersion" | "sectionContent" | "media" | typeof COLLECTIONS[number], row: object) {
         const data: Record<string, unknown> = { ...row, tenantId };
-        for (const field of ["draftSections", "draftData", "variants", "alt"]) if (data[field] === null) data[field] = Prisma.DbNull;
+        for (const field of ["draftSections", "draftData", "variants", "alt", "focal"]) if (data[field] === null) data[field] = Prisma.DbNull;
         for (const field of ["title", "themeOverrides", "profile", "widgets", "seo", "sections", "snapshot", "data"]) {
           if (data[field] === null) data[field] = field === "title" && name === "page" ? Prisma.DbNull : Prisma.JsonNull;
         }

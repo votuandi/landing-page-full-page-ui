@@ -3,6 +3,12 @@ import test from "node:test";
 import { uploadInput, MediaError, mediaUsage, publishMedia } from "../media.ts";
 import type { TenantRepo } from "../repository.ts";
 
+test("uploadInput sanitizes display name without accepting storage keys", () => {
+  assert.equal(uploadInput({ mime: "image/png", size: 1, name: " ../a\u0000\\.png " }).name, "..a.png");
+  assert.throws(() => uploadInput({ mime: "image/png", size: 1, name: "a".repeat(201) }), MediaError);
+  assert.throws(() => uploadInput({ mime: "image/png", size: 1, key: "tenants/other/a.png" }), MediaError);
+});
+
 test("limits: reject SVG, invalid integer sizes and every over-limit kind before DB", () => {
   for (const mime of ["image/svg+xml", "text/html", "image/jpg", ""]) assert.throws(() => uploadInput({ mime, size: 1 }), MediaError);
   for (const size of [0, -1, 0.5, NaN, Infinity]) assert.throws(() => uploadInput({ mime: "image/jpeg", size }), MediaError);

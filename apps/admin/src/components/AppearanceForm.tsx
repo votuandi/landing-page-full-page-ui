@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { themes, getTheme, FONT_FAMILIES } from "@solar/themes";
@@ -97,7 +98,7 @@ export function AppearanceForm({ themeId, planId, overrides, logo, logoDark, fav
             <img src={`/api/media/${image.id}`} alt="" width={40} height={40} loading="lazy" className="size-10 shrink-0 rounded-media object-cover" />
             <span className="min-w-0 break-words text-sm">{image.alt || image.id}</span>
           </label>)}</div>
-        {!images.length && <p className="text-sm text-fg-muted">Chưa có ảnh. <a className={`text-primary underline ${focus}`} href="/media">Tải ảnh lên thư viện</a> rồi quay lại để chọn.</p>}
+        {!images.length && <p className="text-sm text-fg-muted">Chưa có ảnh. <Link className={`text-primary underline ${focus}`} href="/media">Tải ảnh lên thư viện</Link> rồi quay lại để chọn.</p>}
         <button className={primaryButton}>Lưu biểu tượng</button>
       </fieldset>
     </form>

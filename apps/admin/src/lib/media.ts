@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MediaError, uploadInput } from "@solar/db";
+import { MediaError, MediaInUseError, uploadInput } from "@solar/db";
 import { kindOf, type StorageDriver } from "@solar/storage";
 import { EntitlementError } from "@solar/plans";
 import type { ActionContext } from "./action.ts";
@@ -7,12 +7,20 @@ import type { ActionContext } from "./action.ts";
 export type UploadRow = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; driver: "local" | "s3" };
 export type MediaStore = {
   get(tenantId: string, id: string): Promise<UploadRow | null>;
-  reserve(tenantId: string, input: { mime: string; size: number }, driver: "local" | "s3"): Promise<UploadRow>;
+  reserve(tenantId: string, input: { mime: string; size: number; name?: string }, driver: "local" | "s3"): Promise<UploadRow>;
   complete(tenantId: string, id: string): Promise<void>;
   cancel(tenantId: string, id: string): Promise<UploadRow>;
+  remove(tenantId: string, id: string, options: { confirm: boolean }): Promise<{ keys: string[] }>;
 };
+/** Object cleanup is best effort after the database transaction commits. Never log private keys. */
+export async function removeMediaObjects(storage: StorageDriver, keys: readonly string[]) {
+  for (const key of keys) {
+    try { await storage.delete(key); }
+    catch { console.error("Không thể dọn object media sau khi xóa bản ghi."); }
+  }
+}
 const missing = () => new MediaError("Không tìm thấy media.", 404);
-async function boundedBody(request: Request, max: number): Promise<Uint8Array> {
+async function boundedBody(request: Request, max: number, allowEmpty = false): Promise<Uint8Array> {
   if (!request.body) throw new MediaError("Thiếu nội dung tệp.");
   const reader = request.body.getReader(), chunks: Uint8Array[] = [];
   let size = 0;
@@ -23,7 +31,7 @@ async function boundedBody(request: Request, max: number): Promise<Uint8Array> {
       if (size > max) { await reader.cancel(); throw new MediaError("Tệp vượt dung lượng đã đặt chỗ.", 413); }
       chunks.push(value);
     }
-    if (!size) throw new MediaError("Tệp rỗng.");
+    if (!size && !allowEmpty) throw new MediaError("Tệp rỗng.");
     return Buffer.concat(chunks, size);
   } finally { reader.releaseLock(); }
 }
@@ -33,6 +41,7 @@ export function createMediaHandlers({ store, storage, canUploadVideo }: { store:
   const guarded = (handler: (request: Request, context: ActionContext) => Promise<Response>) => async (request: Request, context: ActionContext) => {
     try { return await handler(request, context); }
     catch (error) {
+      if (error instanceof MediaInUseError) return Response.json({ error: error.message, uses: error.uses }, { status: error.status });
       if (error instanceof MediaError || error instanceof EntitlementError) return Response.json({ error: error.message }, { status: error.status });
       throw error;
     }
@@ -77,9 +86,19 @@ export function createMediaHandlers({ store, storage, canUploadVideo }: { store:
       return Response.json({ id: row.id, status: "quarantine" }, { status: 202 });
     }),
     remove: guarded(async (request, context) => {
-      const row = await find(request, context, "quarantine");
-      await storage().delete(row.key);
-      await store.cancel(context.tenantId, row.id);
+      const row = await find(request, context);
+      if (row.status === "quarantine") {
+        await storage().delete(row.key);
+        await store.cancel(context.tenantId, row.id);
+      } else {
+        let raw: unknown = {};
+        const bytes = await boundedOptionalDeleteBody(request);
+        try { if (bytes.length) raw = JSON.parse(bytes); } catch { throw new MediaError("Xác nhận xóa không hợp lệ."); }
+        const parsed = z.strictObject({ confirm: z.boolean().default(false) }).safeParse(raw);
+        if (!parsed.success) throw new MediaError("Xác nhận xóa không hợp lệ.");
+        const { keys } = await store.remove(context.tenantId, row.id, parsed.data);
+        await removeMediaObjects(storage(), keys);
+      }
       return new Response(null, { status: 204 });
     }),
     read: guarded(async (request, context) => {
@@ -93,4 +112,10 @@ export function createMediaHandlers({ store, storage, canUploadVideo }: { store:
       } });
     }),
   };
+}
+
+async function boundedOptionalDeleteBody(request: Request): Promise<string> {
+  if (!request.body) return "";
+  // Next.js passes an empty stream (not null) for a body-less DELETE.
+  return Buffer.from(await boundedBody(request, 2048, true)).toString("utf8");
 }

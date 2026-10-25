@@ -4,6 +4,14 @@ import { randomUUID } from "node:crypto";
 import { parseTenantBackup, remapBackup, TenantBackupError } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 
+test("media backup accepts legacy missing metadata and preserves name and focal", () => {
+  const raw = demoBackup();
+  const media = { id: randomUUID(), key: `private/${raw.source.tenantId}/a.png`, driver: "local", visibility: "private", status: "ready", mime: "image/png", size: 1, createdAt: raw.exportedAt };
+  assert.equal(parseTenantBackup({ ...raw, media: [media] }).media[0].name, undefined);
+  const row = parseTenantBackup({ ...raw, media: [{ ...media, name: "Mái nhà.png", focal: { x: 0.2, y: 0.8 } }] }).media[0];
+  assert.equal(row.name, "Mái nhà.png"); assert.deepEqual(row.focal, { x: 0.2, y: 0.8 });
+});
+
 test("favicon media UUID is remapped on backup restore", () => {
   const raw = demoBackup(), id = randomUUID();
   const media = { id, key: `tenants/${raw.source.tenantId}/icon.png`, driver: "local", status: "ready", visibility: "public", mime: "image/png", size: 1, createdAt: raw.exportedAt };

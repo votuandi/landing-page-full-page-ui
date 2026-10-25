@@ -5,6 +5,7 @@ import { effectivePermissions, type Session } from "@solar/auth";
 import type { StorageDriver } from "@solar/storage";
 import { createRoute } from "../lib/action.ts";
 import { createMediaHandlers, type MediaStore } from "../lib/media.ts";
+import { MediaInUseError } from "@solar/db";
 
 const tenantId = randomUUID(), id = randomUUID(), base = "http://demo.admin.solar.localhost";
 function setup(s3 = false, videoUpload = false) {
@@ -14,6 +15,7 @@ function setup(s3 = false, videoUpload = false) {
     get: async (tenant, key) => tenant === tenantId && key === id ? { ...row } : null,
     reserve: async () => { calls.push("reserve"); return { ...row }; },
     complete: async () => { calls.push("complete"); }, cancel: async () => { calls.push("cancel"); return { ...row }; },
+    remove: async (_tenant, _id, options) => { calls.push(`remove:${options.confirm}`); return { keys: [row.key, `${row.key}-variant`] }; },
   };
   const storage: StorageDriver = { get: async key => files.get(key) ?? null, put: async (key, bytes) => { calls.push("put"); files.set(key, bytes); },
     delete: async key => { files.delete(key); }, head: async key => files.has(key) ? { size: files.get(key)!.length } : null,
@@ -84,12 +86,34 @@ test("media routes: permission and same-origin gate mutations before accessing s
   assert.deepEqual(f.calls, []);
 });
 
-test("media routes: cancel only accepts quarantine and preserves ready objects", async () => {
+test("media routes: quarantine cancels; ready deletion commits before deleting objects", async () => {
   const f = setup(), remove = f.route()("media.manage", f.handlers.remove);
   f.files.set(f.row.key, Buffer.from("x"));
   assert.equal((await remove(f.request("", "DELETE"))).status, 204);
   assert.ok(f.calls.includes("cancel")); assert.equal(f.files.size, 0);
   f.row.status = "ready"; f.files.set(f.row.key, Buffer.from("x"));
-  assert.equal((await remove(f.request("", "DELETE"))).status, 404);
-  assert.equal(f.files.size, 1);
+  assert.equal((await remove(f.request("", "DELETE"))).status, 204);
+  assert.ok(f.calls.includes("remove:false")); assert.equal(f.files.size, 0);
+});
+
+test("media library delete: confirm conflict returns uses, viewer denied, cross tenant, storage failure after commit", async () => {
+  const f = setup(); f.row.status = "ready";
+  const uses = [{ kind: "site" as const, label: "Website", href: "/cai-dat" }];
+  const handlers = createMediaHandlers({
+    store: { get: async () => f.row, reserve: async () => f.row, complete: async () => {}, cancel: async () => f.row,
+      remove: async (_tenant, _id, { confirm }) => { if (!confirm) throw new MediaInUseError(uses); f.calls.push("committed"); return { keys: [f.row.key] }; } },
+    storage: () => ({ delete: async () => { assert.ok(f.calls.includes("committed")); throw Error("internal key must not leak"); } }) as unknown as StorageDriver,
+    canUploadVideo: async () => true,
+  });
+  const remove = f.route()("media.manage", handlers.remove);
+  const conflict = await remove(f.request("", "DELETE")); assert.equal(conflict.status, 409); assert.deepEqual((await conflict.json()).uses, uses);
+  // Next.js gives a body-less DELETE an empty stream, not null: still "not confirmed", never "Tệp rỗng".
+  const empty = new Request(f.request("", "DELETE"), { body: new ReadableStream({ start: c => c.close() }), duplex: "half" } as RequestInit);
+  const emptyConflict = await remove(empty); assert.equal(emptyConflict.status, 409); assert.deepEqual((await emptyConflict.json()).uses, uses);
+  const result = await remove(f.request("", "DELETE", JSON.stringify({ confirm: true }))); assert.equal(result.status, 204); assert.equal(await result.text(), "");
+  assert.equal((await remove(f.request("", "DELETE", '{"confirm":"true"}'))).status, 400);
+  const viewer = { ...f.owner, permissions: effectivePermissions({ role: "viewer", audience: "admin" }) };
+  assert.equal((await f.route(viewer)("media.manage", handlers.remove)(f.request("", "DELETE"))).status, 403);
+  const other = randomUUID();
+  assert.equal((await f.route({ ...f.owner, tenantId: other }, other)("media.manage", handlers.remove)(f.request("", "DELETE"))).status, 404);
 });

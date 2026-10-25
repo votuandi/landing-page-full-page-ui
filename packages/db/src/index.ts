@@ -37,3 +37,5 @@ export type { SiteSettingsPatch } from "./siteSettings.ts";
 export { setPageTypes } from "./siteStructure.ts";
 export { BACKUP_FORMAT, tenantBackupSchema, parseTenantBackup, remapBackup, exportTenant, restoreTenant, TenantBackupError } from "./tenantBackup.ts";
 export type { TenantBackup, BackupStorage } from "./tenantBackup.ts";
+export { mediaReferences, updateMediaMeta, deleteMedia, MediaInUseError, mediaFocalSchema } from "./mediaLibrary.ts";
+export type { MediaUse } from "./mediaLibrary.ts";
