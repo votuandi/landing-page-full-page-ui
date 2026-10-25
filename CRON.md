@@ -20,8 +20,13 @@ Thư mục backup ở ngoài public, chỉ process vận hành được ghi. Dù
 retention/backup DB vật lý do hạ tầng quản lý, không có endpoint cron công khai.
 
 Lần quét đầu ghi `orphanedAt`, không xóa. Tham chiếu lại xóa dấu mồ côi. Chỉ ready có dấu cũ hơn 30 ngày mới đủ điều kiện.
-Mỗi tenant dùng transaction Serializable, ghi `media.orphan_deleted`, invalidate public cùng transaction;
-race làm transaction abort sẽ giữ tệp. Sau commit mới xóa gốc/biến thể đúng prefix tenant, đúng `Media.driver`.
+Mỗi tenant dùng ReadCommitted, khóa ứng viên bằng `SELECT … FOR UPDATE` trước khi tính tham chiếu.
+Writer gắn ref chạm row media trong cùng transaction; sweep chờ khóa rồi thấy ref đã commit và giữ media.
+Ghi `media.orphan_deleted` và invalidate `tenant:<id>` cho media public cùng transaction; private không enqueue.
+Trước khi xóa row, resolve driver của row đang khóa; thiếu cấu hình thì log và bỏ qua row đó.
+Lỗi dữ liệu/timeout của một tenant rollback tenant đó, log danh sách tenant lỗi và tiếp tục tenant sau;
+CLI trả exit 1 nếu có tenant lỗi, kể cả dry-run. Backup hỏng vẫn dừng toàn lượt trước khi quét.
+Sau commit mới xóa gốc/biến thể đúng prefix tenant, đúng `Media.driver`.
 Log danh sách trước khi xóa. Lỗi xóa object sau commit cần vận hành xử lý từ log/audit vì row đã xóa;
 quét object không có row nằm ngoài story. Cấu hình đủ storage/backup trên worker.
 

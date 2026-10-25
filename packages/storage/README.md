@@ -30,7 +30,9 @@ await storage.delete(key); // Idempotent khi khóa không tồn tại.
 | Biến | Giá trị |
 |---|---|
 | `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3` |
-| `MEDIA_PUBLIC_BASE` | Bắt buộc: URL HTTP(S) gốc phục vụ media/CDN, có thể có path; bỏ slash cuối khi ghép khóa |
+| `MEDIA_PUBLIC_BASE` | URL HTTP(S) media/CDN dùng fallback khi base riêng của driver thiếu/rỗng; có thể có path |
+| `MEDIA_PUBLIC_BASE_LOCAL` / `MEDIA_PUBLIC_BASE_S3` | Base riêng ưu tiên theo driver; trống dùng `MEDIA_PUBLIC_BASE`; mỗi driver được dùng phải resolve được một base hợp lệ |
+| `MEDIA_BACKUP_DIR` | Worker/CLI: thư mục JSON `tenant:export` còn giữ, ở ngoài public; phải đặt khi có backup cần bảo vệ |
 | `STORAGE_LOCAL_ROOT` | Bắt buộc cho local; thư mục do ops quản lý, cùng filesystem với `.tmp` bên trong |
 | `S3_BUCKET` | Bắt buộc cho s3 |
 | `S3_REGION` | Mặc định `auto`; AWS dùng region bucket, R2 dùng `auto`, MinIO test dùng `us-east-1` |
@@ -39,7 +41,9 @@ await storage.delete(key); // Idempotent khi khóa không tồn tại.
 | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | Đi cặp; thiếu cả hai dùng credential chain mặc định của SDK/IAM role |
 
 Lỗi cấu hình chỉ liệt kê tên biến thiếu/sai; không đưa giá trị, secret hay URL có credentials vào thông báo.
-`publicUrl` dùng `MEDIA_PUBLIC_BASE` cho cả hai driver; không tự suy domain bucket từ endpoint API.
+`publicUrl` ưu tiên base riêng theo driver, fallback `MEDIA_PUBLIC_BASE` khi biến riêng thiếu/rỗng;
+không tự suy domain bucket từ endpoint API. Xem mẫu env ở `apps/web/.env.example`, `apps/admin/.env.example`;
+worker dùng cùng cấu hình storage và cần đặt `MEDIA_BACKUP_DIR` tới thư mục backup đang giữ.
 
 ## Khóa và giới hạn
 
