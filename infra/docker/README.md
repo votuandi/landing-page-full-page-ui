@@ -44,7 +44,7 @@ bash infra/docker/smoke.sh admin solar-admin:dev
 
 Windows Docker Desktop: đặt `SMOKE_NETWORK=bridge`; đổi host của `DATABASE_URL` và `REDIS_URL` từ `localhost` sang
 `host.docker.internal`, giữ nguyên port từ `.env.ci.local`. Script publish cổng ngẫu nhiên ở loopback. Git Bash cần
-`MSYS_NO_PATHCONV=1` khi truyền đường dẫn container. Không bật shell tracing vì biến chứa secret.
+`MSYS_NO_PATHCONV=1` khi truyền đường dẫn container, kèm `TMPDIR` dạng `C:/…` (docker.exe không hiểu `/tmp` của Git Bash). Không bật shell tracing vì biến chứa secret.
 
 Script dọn container qua trap, yêu cầu UID 1001, root filesystem read-only, health 200, Docker healthy, startup ≤5s,
 web ≤250 MiB (262144000 bytes), tenant page + Next image 200 (admin: trang đăng nhập), không EROFS/EACCES, DB lỗi

@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Tests import worker/admin, which `turbo prune web` leaves out of the Docker build; `pnpm typecheck` covers them.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   transpilePackages: ["@solar/cache", "@solar/core", "@solar/ui", "@solar/themes", "@solar/tokens", "@solar/sections", "@solar/cms-ui", "@solar/presets", "@solar/db", "@solar/plans"],
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   // E5-S06: data and UI caches are tagged per tenant (`tenantPageTags`); `/api/revalidate` expires them by tag.

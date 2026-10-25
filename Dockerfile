@@ -22,12 +22,15 @@ COPY --from=prune /app/out/full/ ./
 RUN pnpm turbo run build --filter="$APP" --env-mode=loose \
     && mkdir -p "apps/$APP/public"
 
-FROM node:22.22.0-alpine3.23 AS runner
+# The standalone server only needs the node binary; leaving npm/yarn/corepack behind keeps web under 250 MB.
+FROM alpine:3.23 AS runner
 ARG APP
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 --ingroup nodejs nextjs
+RUN apk add --no-cache libstdc++ \
+    && addgroup -S -g 1001 nodejs \
+    && adduser -S -D -H -u 1001 -G nodejs nextjs
+COPY --from=base /usr/local/bin/node /usr/local/bin/node
 COPY --from=build --chown=nextjs:nodejs /app/apps/${APP}/.next/standalone/ ./
 COPY --from=build --chown=nextjs:nodejs /app/apps/${APP}/.next/static/ ./apps/${APP}/.next/static/
 COPY --from=build --chown=nextjs:nodejs /app/apps/${APP}/public/ ./apps/${APP}/public/
