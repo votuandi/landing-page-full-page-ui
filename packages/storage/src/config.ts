@@ -4,6 +4,12 @@ import { createS3Driver } from "./drivers/s3.ts";
 import type { StorageDriver } from "./types.ts";
 
 const httpUrl = z.url({ protocol: /^https?$/ });
+export type StorageKind = "local" | "s3";
+export function defaultDriver(env: Record<string, string | undefined> = process.env): StorageKind {
+  const parsed = z.enum(["local", "s3"]).default("local").safeParse(env.STORAGE_DRIVER);
+  if (!parsed.success) throw new Error("Cấu hình lưu trữ không hợp lệ: STORAGE_DRIVER");
+  return parsed.data;
+}
 const schema = z.object({
   STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),
   MEDIA_PUBLIC_BASE: httpUrl,
@@ -26,7 +32,14 @@ const schema = z.object({
     { path: ["S3_SECRET_ACCESS_KEY"], message: "Thiếu biến môi trường.", when: () => true });
 
 export function storageFromEnv(env: Record<string, string | undefined> = process.env): StorageDriver {
-  const result = schema.safeParse(env);
+  return storageFor(defaultDriver(env), env);
+}
+
+export function storageFor(kind: StorageKind, env: Record<string, string | undefined> = process.env): StorageDriver {
+  const selected = kind === "local"
+    ? { STORAGE_LOCAL_ROOT: env.STORAGE_LOCAL_ROOT }
+    : Object.fromEntries(Object.entries(env).filter(([key]) => key.startsWith("S3_")));
+  const result = schema.safeParse({ ...selected, STORAGE_DRIVER: kind, MEDIA_PUBLIC_BASE: env[`MEDIA_PUBLIC_BASE_${kind.toUpperCase()}`] ?? env.MEDIA_PUBLIC_BASE });
   if (!result.success) {
     // Never include Zod's input values or credential-bearing URLs in configuration errors.
     throw new Error(`Cấu hình lưu trữ không hợp lệ: ${[...new Set(result.error.issues.map(issue => issue.path[0]))].join(", ")}`);

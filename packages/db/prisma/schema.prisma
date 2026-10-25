@@ -154,6 +154,7 @@ model Tenant {
   featureOverrides  Json              @default("{}")
   limitOverrides    Json              @default("{}")
   permissionPolicy  Json              @default("{}")
+  storageDriver     StorageDriver?
   plan              Plan              @relation(fields: [planId], references: [id])
   customer          Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
   siteUsers         SiteUser[]
@@ -747,6 +748,7 @@ model Media {
   alt        Json?
   name       String?
   focal      Json?
+  orphanedAt DateTime?
   projects   Project[]
   stories    Story[]
   posts      Post[]
@@ -758,6 +760,7 @@ model Media {
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([status, createdAt])
+  @@index([status, orphanedAt])
 }
 
 model Lead {
