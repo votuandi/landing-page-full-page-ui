@@ -14,6 +14,39 @@ const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
 
+test("media crawl has no 404", async ({ page }) => {
+  test.setTimeout(180_000);
+  fixture("setup");
+  try {
+    const { url, poster } = JSON.parse(fixture("self-hosted-video")) as { url: string; poster: string };
+    await page.goto(origin("review"), { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: /Play video:.*Self-hosted video/ }).click();
+    const media = page.getByRole("dialog", { name: /Self-hosted video/ }).locator("video");
+    await expect(media).toHaveAttribute("src", url);
+    await expect(media).toHaveAttribute("poster", poster);
+    // Include mounted video alongside SSR image/source srcsets.
+    const urls = await page.locator("img, source, video, audio").evaluateAll(elements => {
+      const urls = new Set<string>();
+      for (const node of elements) for (const attribute of ["src", "poster", "srcset"]) {
+        const value = node.getAttribute(attribute);
+        if (!value) continue;
+        const items = attribute === "srcset" ? value.split(/,\s*/).map(part => part.trim().split(/\s+/)[0]) : [value];
+        for (const item of items) { const resolved = new URL(item, document.baseURI); if (["http:", "https:"].includes(resolved.protocol)) urls.add(resolved.href); }
+      }
+      return [...urls];
+    });
+    expect(urls).toContain(url); expect(urls).toContain(poster);
+    const failures: string[] = [];
+    for (const address of urls) {
+      try { const response = await page.request.head(address); if (!response.ok()) failures.push(`${response.status()} ${address}`); }
+      catch { failures.push(`network ${address}`); }
+    }
+    expect(failures).toEqual([]);
+    const crawl = JSON.parse(execFileSync(process.execPath, [resolve(__dirname, "../../scripts/media-crawl.mjs"), origin("review")], { encoding: "utf8" })) as { checked: number; failures: unknown[] };
+    expect(crawl.checked).toBeGreaterThan(0); expect(crawl.failures).toEqual([]);
+  } finally { fixture("cleanup"); }
+});
+
 test("shorts self-hosted video plays", async ({ page, browser }) => {
   fixture("setup");
   try {
