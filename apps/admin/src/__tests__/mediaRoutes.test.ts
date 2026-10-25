@@ -107,6 +107,9 @@ test("media library delete: confirm conflict returns uses, viewer denied, cross 
   });
   const remove = f.route()("media.manage", handlers.remove);
   const conflict = await remove(f.request("", "DELETE")); assert.equal(conflict.status, 409); assert.deepEqual((await conflict.json()).uses, uses);
+  // Next.js gives a body-less DELETE an empty stream, not null: still "not confirmed", never "Tệp rỗng".
+  const empty = new Request(f.request("", "DELETE"), { body: new ReadableStream({ start: c => c.close() }), duplex: "half" } as RequestInit);
+  const emptyConflict = await remove(empty); assert.equal(emptyConflict.status, 409); assert.deepEqual((await emptyConflict.json()).uses, uses);
   const result = await remove(f.request("", "DELETE", JSON.stringify({ confirm: true }))); assert.equal(result.status, 204); assert.equal(await result.text(), "");
   assert.equal((await remove(f.request("", "DELETE", '{"confirm":"true"}'))).status, 400);
   const viewer = { ...f.owner, permissions: effectivePermissions({ role: "viewer", audience: "admin" }) };

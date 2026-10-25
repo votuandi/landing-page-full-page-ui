@@ -20,7 +20,7 @@ export async function removeMediaObjects(storage: StorageDriver, keys: readonly 
   }
 }
 const missing = () => new MediaError("Không tìm thấy media.", 404);
-async function boundedBody(request: Request, max: number): Promise<Uint8Array> {
+async function boundedBody(request: Request, max: number, allowEmpty = false): Promise<Uint8Array> {
   if (!request.body) throw new MediaError("Thiếu nội dung tệp.");
   const reader = request.body.getReader(), chunks: Uint8Array[] = [];
   let size = 0;
@@ -31,7 +31,7 @@ async function boundedBody(request: Request, max: number): Promise<Uint8Array> {
       if (size > max) { await reader.cancel(); throw new MediaError("Tệp vượt dung lượng đã đặt chỗ.", 413); }
       chunks.push(value);
     }
-    if (!size) throw new MediaError("Tệp rỗng.");
+    if (!size && !allowEmpty) throw new MediaError("Tệp rỗng.");
     return Buffer.concat(chunks, size);
   } finally { reader.releaseLock(); }
 }
@@ -116,5 +116,6 @@ export function createMediaHandlers({ store, storage, canUploadVideo }: { store:
 
 async function boundedOptionalDeleteBody(request: Request): Promise<string> {
   if (!request.body) return "";
-  return Buffer.from(await boundedBody(request, 2048)).toString("utf8");
+  // Next.js passes an empty stream (not null) for a body-less DELETE.
+  return Buffer.from(await boundedBody(request, 2048, true)).toString("utf8");
 }
