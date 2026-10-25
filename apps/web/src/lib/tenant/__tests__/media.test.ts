@@ -3,6 +3,7 @@ import test from "node:test";
 import { randomUUID } from "node:crypto";
 import type { TenantRepo } from "@solar/db";
 import { createMediaResolver } from "../media";
+import { storageFor } from "@solar/storage";
 
 const tenantId = randomUUID(), id = randomUUID();
 const key = `tenants/${tenantId}/2026/10/${id}.mp4`;
@@ -10,6 +11,16 @@ const poster = { key: key.replace(/\.mp4$/, "-w640.webp"), format: "webp", width
 const source = { provider: "file", idOrSrc: id };
 const row = { id, tenantId, key, status: "ready", visibility: "public", mime: "video/mp4", variants: [poster] };
 const storage = { publicUrl: (key: string) => `https://cdn.example/${key}` };
+
+test("row driver selects migrated URL and lazy configuration leaves static pages independent of S3", async () => {
+  const repo = { media: { list: async () => [{ ...row, driver: "s3" }] } } as unknown as TenantRepo;
+  const resolver = createMediaResolver(tenantId, kind => storageFor(kind, { STORAGE_LOCAL_ROOT: ".media", MEDIA_PUBLIC_BASE: "https://local.example", MEDIA_PUBLIC_BASE_S3: "https://s3.example", S3_BUCKET: "test" }), () => true, repo);
+  const result = await resolver({ data: { source } }) as { source: { idOrSrc: string } };
+  assert.equal(result.source.idOrSrc, `https://s3.example/${key}`);
+  const missingConfig = createMediaResolver(tenantId, kind => storageFor(kind, { STORAGE_LOCAL_ROOT: ".media", MEDIA_PUBLIC_BASE: "https://local.example" }), () => true, repo);
+  assert.deepEqual(await missingConfig({ data: { title: "Static" } }), { title: "Static" });
+  await assert.rejects(missingConfig({ data: { source } }), /S3_BUCKET/);
+});
 function setup(rows = [row], allowed = true) {
   const queries: unknown[] = [];
   const repo = { media: { list: async (args: unknown) => { queries.push(args); return rows; } } } as unknown as TenantRepo;

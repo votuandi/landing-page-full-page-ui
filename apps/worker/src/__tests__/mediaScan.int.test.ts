@@ -29,7 +29,7 @@ test("real ffmpeg poster", { skip: videoSkip, timeout: 60_000 }, async () => {
       const tenantId = randomUUID(), id = randomUUID(), key = `quarantine/${tenantId}/${id}`;
       await storage.put(key, bytes, { contentType: "video/mp4" }); let rejected = false;
       await createMediaScan({ storage, media: {
-        get: async () => ({ tenantId, id, key, mime: "video/mp4", size: bytes.length, status: "quarantine", visibility: "private" }),
+        get: async () => ({ tenantId, id, key, mime: "video/mp4", size: bytes.length, status: "quarantine", visibility: "private", driver: "local" }),
         promote: async () => { throw Error("invalid video promoted"); }, reject: async () => { rejected = true; return true; },
       } })(scanJob(tenantId, id));
       assert.ok(rejected); assert.equal(await storage.get(key), null);
@@ -53,7 +53,7 @@ test("s3 video publish serves range", { skip: videoSkip || (!process.env.STORAGE
 async function videoPipeline(storage: StorageDriver) {
   const bytes = await readFile(new URL("../../../web/public/videos/shorts/ho-gia-dinh-1.mp4", import.meta.url));
   const tenantId = randomUUID(), id = randomUUID();
-  let row = { tenantId, id, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "video/mp4", size: bytes.length, width: 0, height: 0, variants: [] as import("@solar/db").MediaVariant[] };
+  let row = { tenantId, id, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "video/mp4", size: bytes.length, width: 0, height: 0, variants: [] as import("@solar/db").MediaVariant[], driver: "local" as const };
   await storage.put(row.key, bytes, { contentType: row.mime });
   const media = { get: async () => row, reject: async () => { throw Error("real video rejected"); },
     promote: async (_tenant: string, _id: string, data: Parameters<typeof promoteMedia>[3]) => { row = { ...row, ...data, width: data.width!, height: data.height!, variants: data.variants!, status: "ready" }; return true; },

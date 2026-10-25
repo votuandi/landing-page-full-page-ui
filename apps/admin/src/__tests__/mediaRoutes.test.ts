@@ -8,6 +8,22 @@ import { createMediaHandlers, type MediaStore } from "../lib/media.ts";
 import { MediaInUseError } from "@solar/db";
 
 const tenantId = randomUUID(), id = randomUUID(), base = "http://demo.admin.solar.localhost";
+
+test("reserve uses tenant driver and read/complete/delete use row driver", async () => {
+  const f = setup(true);
+  const selected: string[] = [];
+  const driver: StorageDriver = { get: async () => Buffer.from("s3"), put: async () => {}, delete: async () => {}, head: async () => ({ size: 8 }), list: async function* () {}, publicUrl: key => key,
+    signedUploadUrl: async () => ({ url: "https://s3.example/upload", headers: {} }) };
+  const handlers = createMediaHandlers({ store: { get: async () => f.row, reserve: async () => f.row, complete: async () => {}, cancel: async () => f.row, remove: async () => ({ keys: [f.row.key], driver: "s3" }) },
+    storage: kind => { selected.push(kind); assert.equal(kind, "s3"); return driver; }, defaultDriver: () => "local", canUploadVideo: async () => false });
+  const call = (handler: typeof handlers.reserve, method: string, body?: string) => f.route()("media.manage", handler)(f.request("", method, body));
+  assert.equal((await (await call(handlers.reserve, "POST", JSON.stringify({ mime: "image/png", size: 8 }))).json()).upload.url, "https://s3.example/upload");
+  assert.equal((await call(handlers.complete, "POST")).status, 202);
+  f.row.status = "ready"; f.row.key = `private/${tenantId}/${id}.png`;
+  assert.equal(await (await call(handlers.read, "GET")).text(), "s3");
+  assert.equal((await call(handlers.remove, "DELETE")).status, 204);
+  assert.ok(selected.length >= 4);
+});
 function setup(s3 = false, videoUpload = false) {
   const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "image/png", size: 8, driver: s3 ? "s3" as const : "local" as const };
   const files = new Map<string, Uint8Array>(); const calls: string[] = [];
@@ -15,7 +31,7 @@ function setup(s3 = false, videoUpload = false) {
     get: async (tenant, key) => tenant === tenantId && key === id ? { ...row } : null,
     reserve: async () => { calls.push("reserve"); return { ...row }; },
     complete: async () => { calls.push("complete"); }, cancel: async () => { calls.push("cancel"); return { ...row }; },
-    remove: async (_tenant, _id, options) => { calls.push(`remove:${options.confirm}`); return { keys: [row.key, `${row.key}-variant`] }; },
+    remove: async (_tenant, _id, options) => { calls.push(`remove:${options.confirm}`); return { driver: row.driver, keys: [row.key, `${row.key}-variant`] }; },
   };
   const storage: StorageDriver = { get: async key => files.get(key) ?? null, put: async (key, bytes) => { calls.push("put"); files.set(key, bytes); },
     delete: async key => { files.delete(key); }, head: async key => files.has(key) ? { size: files.get(key)!.length } : null,
@@ -101,7 +117,7 @@ test("media library delete: confirm conflict returns uses, viewer denied, cross 
   const uses = [{ kind: "site" as const, label: "Website", href: "/cai-dat" }];
   const handlers = createMediaHandlers({
     store: { get: async () => f.row, reserve: async () => f.row, complete: async () => {}, cancel: async () => f.row,
-      remove: async (_tenant, _id, { confirm }) => { if (!confirm) throw new MediaInUseError(uses); f.calls.push("committed"); return { keys: [f.row.key] }; } },
+      remove: async (_tenant, _id, { confirm }) => { if (!confirm) throw new MediaInUseError(uses); f.calls.push("committed"); return { driver: f.row.driver, keys: [f.row.key] }; } },
     storage: () => ({ delete: async () => { assert.ok(f.calls.includes("committed")); throw Error("internal key must not leak"); } }) as unknown as StorageDriver,
     canUploadVideo: async () => true,
   });

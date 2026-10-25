@@ -1,12 +1,12 @@
 import { reserveUpload, completeUpload, cancelUpload, deleteMedia, forTenant } from "@solar/db";
-import { storageFromEnv } from "@solar/storage";
+import { storageFor } from "@solar/storage";
 import { getRuntime } from "./runtime.ts";
 import { createMediaHandlers } from "./media.ts";
 import { getSiteEntitlements } from "./entitlements.ts";
 
 export const mediaHandlers = createMediaHandlers({
   canUploadVideo: async () => (await getSiteEntitlements())("videoUpload"),
-  storage: () => storageFromEnv(),
+  storage: storageFor,
   store: {
     get: (tenantId, id) => forTenant(getRuntime().db, tenantId).media.get(id),
     reserve: (tenantId, input, driver) => reserveUpload(getRuntime().db, tenantId, input, driver),

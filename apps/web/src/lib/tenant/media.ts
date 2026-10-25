@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { mediaVariantsSchema, type TenantRepo } from "@solar/db";
-import { assertKey, storageFromEnv, type StorageDriver } from "@solar/storage";
+import { assertKey, storageFor, type StorageKind, type StorageDriver } from "@solar/storage";
 import { mediaSrc, storySource } from "@solar/sections";
 import { tenantRepository, siteCanUse, type TenantSite } from "./siteData";
 
@@ -10,7 +10,8 @@ const uuid = (value: unknown): value is string => z.uuid().safeParse(value).succ
 const file = (value: unknown): value is ObjectData & { provider: "file"; idOrSrc: string } => object(value) && value.provider === "file" && typeof value.idOrSrc === "string";
 
 /** Runs only on validated server data; never reads request cookies in cached renders. */
-export function createMediaResolver(tenantId: string, storage: Pick<StorageDriver, "publicUrl">, canUse: (feature: string) => boolean, repo?: Pick<TenantRepo, "media">) {
+export function createMediaResolver(tenantId: string, storage: Pick<StorageDriver, "publicUrl"> | ((kind: StorageKind) => Pick<StorageDriver, "publicUrl">), canUse: (feature: string) => boolean, repo?: Pick<TenantRepo, "media">) {
+  const driver = (kind: StorageKind) => typeof storage === "function" ? storage(kind) : storage;
   const publicKey = (key: string) => {
     try { assertKey(key); return key.startsWith(`tenants/${tenantId}/`); } catch { return false; }
   };
@@ -32,7 +33,7 @@ export function createMediaResolver(tenantId: string, storage: Pick<StorageDrive
       if (file(value)) {
         if (!uuid(value.idOrSrc)) return storySource.safeParse(value).success ? value : undefined;
         const video = videos.get(value.idOrSrc.toLowerCase());
-        return video ? { ...value, idOrSrc: storage.publicUrl(video.key) } : undefined;
+        return video ? { ...value, idOrSrc: driver(video.driver).publicUrl(video.key) } : undefined;
       }
       const result: ObjectData = {};
       for (const [key, item] of Object.entries(value)) {
@@ -46,7 +47,7 @@ export function createMediaResolver(tenantId: string, storage: Pick<StorageDrive
         const video = videos.get(source.idOrSrc.toLowerCase());
         const variants = mediaVariantsSchema.safeParse(video?.variants).data ?? [];
         const poster = variants.find(v => v.format === "webp" && v.key.endsWith("-w640.webp") && publicKey(v.key));
-        if (poster) result.poster = { ...value.poster, id: storage.publicUrl(poster.key) };
+        if (poster && video) result.poster = { ...value.poster, id: driver(video.driver).publicUrl(poster.key) };
       }
       return result;
     };
@@ -56,5 +57,5 @@ export function createMediaResolver(tenantId: string, storage: Pick<StorageDrive
 
 export function tenantMediaResolver(site: TenantSite) {
   // Storage configuration is needed only when a Media UUID resolves, not on static pages.
-  return createMediaResolver(site.tenantId, { publicUrl: key => storageFromEnv().publicUrl(key) }, siteCanUse(site));
+  return createMediaResolver(site.tenantId, storageFor, siteCanUse(site));
 }

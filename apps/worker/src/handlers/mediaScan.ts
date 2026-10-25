@@ -1,14 +1,14 @@
 import { z } from "zod";
 import sharp, { type Sharp } from "sharp";
 import { MediaQuotaError, type MediaVariant, type OutboxJob, type Promotion } from "@solar/db";
-import { kindOf, privateKey, sniff, UPLOAD_LIMITS, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS, type StorageDriver } from "@solar/storage";
+import { kindOf, privateKey, sniff, UPLOAD_LIMITS, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS, type StorageDriver, type StorageKind } from "@solar/storage";
 import { PermanentError } from "../loop.ts";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { probeVideo, posterFrame, InvalidVideoError } from "../video.ts";
 
-export type JobMedia = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; variants?: unknown };
+export type JobMedia = { id: string; tenantId: string; key: string; status: string; visibility: string; mime: string; size: number; variants?: unknown; driver: StorageKind };
 class UnsafeImageError extends Error {}
 export type ScanMedia = {
   get(tenantId: string, id: string): Promise<JobMedia | null>;
@@ -24,14 +24,15 @@ export function ownedKey(row: JobMedia, prefix: "quarantine" | "private" | "tena
   if (!row.key.startsWith(`${prefix}/${row.tenantId}/`)) throw new PermanentError("media: khóa khác tenant hoặc vùng lưu trữ");
 }
 
-export function createMediaScan({ media, storage, video = { probe: probeVideo, frame: posterFrame } }: {
-  media: ScanMedia; storage: StorageDriver;
+export function createMediaScan({ media, storage: resolveStorage, video = { probe: probeVideo, frame: posterFrame } }: {
+  media: ScanMedia; storage: StorageDriver | ((kind: StorageKind) => StorageDriver);
   video?: { probe: typeof probeVideo; frame: typeof posterFrame };
 }) {
   return async (job: OutboxJob) => {
     const { tenantId, id } = mediaJob(job, "media.scan");
     const row = await media.get(tenantId, id);
     if (!row || row.status === "ready") return;
+    const storage = typeof resolveStorage === "function" ? resolveStorage(row.driver) : resolveStorage;
     ownedKey(row, "quarantine");
     if (row.status === "failed") { await storage.delete(row.key); return; }
     const reject = async (reason: string) => { await media.reject(tenantId, id, reason); await storage.delete(row.key); };
