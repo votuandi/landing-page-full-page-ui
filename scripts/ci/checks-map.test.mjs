@@ -128,10 +128,27 @@ test("workspaceLinks: chỉ thêm/bớt/đổi link workspace → thư mục pac
   assert.equal(workspaceLinks(web({}), web({ tailwindcss: "3.4.18" }).replace("3.4.17", "3.4.18"), dirs), null, "tailwind đổi pixel");
   assert.equal(workspaceLinks(web({}), web({ "@solar/storage": "workspace:*", "left-pad": "1.0.0" }), dirs), null);
   assert.equal(workspaceLinks(web({}), web({ "@solar/khac": "workspace:*" }), dirs), null, "package không rõ thư mục");
-  const scripts = JSON.stringify({ ...JSON.parse(web({ "@solar/storage": "workspace:*" })), scripts: { dev: "next dev" } });
-  assert.equal(workspaceLinks(web({}), scripts, dirs), null);
+  const withScripts = (deps, scripts) => JSON.stringify({ ...JSON.parse(web(deps)), scripts });
+  assert.equal(workspaceLinks(withScripts({}, { dev: "next dev" }), withScripts({}, { dev: "next dev --turbo" }), dirs), null, "sửa script cũ");
+  assert.equal(workspaceLinks(withScripts({}, { dev: "next dev" }), withScripts({}, {}), dirs), null, "xóa script cũ");
+  assert.equal(workspaceLinks(withScripts({}, { dev: "next dev" }), withScripts({ left: "1.0.0" }, { dev: "next dev", x: "y" }), dirs), null,
+    "script mới kèm dependency ngoài");
   assert.equal(workspaceLinks(undefined, web({}), dirs), null, "file mới");
   assert.equal(workspaceLinks("{", web({}), dirs), null, "JSON hỏng");
+});
+
+// PR #65 (E8-S06): package.json gốc chỉ thêm script `storage:migrate`, `media:orphans` → 32 shard matrix + visual compare
+// chạy vô ích. Script mới không đổi lệnh có sẵn (build, visual:test…) nên không đổi pixel.
+test("workspaceLinks: chỉ thêm script mới (có hoặc không kèm link workspace) → không kéo bộ ảnh chụp", () => {
+  const root = (scripts, deps = {}) => JSON.stringify({ name: "root", scripts, devDependencies: { turbo: "2.11.7", ...deps } });
+  const before = root({ build: "turbo run build" }), after = root({ "storage:migrate": "pnpm --filter @solar/db storage:migrate", build: "turbo run build" });
+  assert.deepEqual(workspaceLinks(before, after, dirs), []);
+  assert.deepEqual(workspaceLinks(root(undefined), root({ dev: "turbo run dev" }), dirs), [], "trước đó chưa có scripts");
+  assert.deepEqual(workspaceLinks(before, root({ x: "y", build: "turbo run build" }, { "@solar/storage": "workspace:*" }), dirs), ["packages/storage/"]);
+  assert.equal(workspaceLinks(before, before.replace("\"name\"", " \"name\""), dirs), null, "không đổi gì đáng kể → giữ hành vi cũ");
+  const checks = affectedChecks(["package.json", "packages/db/src/storageMigrate.ts"], { links: { "package.json": workspaceLinks(before, after, dirs) } });
+  assert.ok(!checks.includes("matrix") && !checks.includes("visual"), checks.join());
+  assert.ok(checks.includes("db"), checks.join());
 });
 
 const e7s10 = ["apps/web/package.json", "apps/web/scripts/tenant-browser-fixture.ts", "pnpm-lock.yaml", "packages/storage/src/types.ts",
