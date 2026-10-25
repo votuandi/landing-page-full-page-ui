@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { resolve } from "node:path";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -8,7 +9,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "ioredis"],
   // E5-S06: data and UI caches are tagged per tenant (`tenantPageTags`); `/api/revalidate` expires them by tag.
   cacheComponents: true,
-  // Read-only containers keep ISR in memory; shared Redis cache follows in E10-S03.
+  // Loaded at runtime: builds need no Redis; tenant routes use data + use-cache, not the ISR handler.
+  cacheHandlers: { default: resolve(import.meta.dirname, "cache-handler.mjs") },
+  // Read-only containers keep the remaining static ISR entries in memory.
   experimental: { globalNotFound: true, isrFlushToDisk: false },
   compress: true,
   poweredByHeader: false,
