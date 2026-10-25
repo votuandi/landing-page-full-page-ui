@@ -82,6 +82,27 @@ function memoryStorage() {
 }
 const scanJob = (tenantId: string, id: string): OutboxJob => ({ id: randomUUID(), tenantId, topic: "media.scan", payload: { tenantId, id }, idempotencyKey: `media.scan:${id}`, attempts: 1, createdAt: new Date(), runAt: new Date() });
 
+test("hero w1280 under 200KB", async () => {
+  const bytes = await readFile(new URL("../../../web/public/images/solar-installation-hero.jpg", import.meta.url));
+  const tenantId = randomUUID(), id = randomUUID(), key = `quarantine/${tenantId}/${id}`;
+  const { storage, files } = memoryStorage();
+  files.set(key, bytes);
+  let variants: import("@solar/db").MediaVariant[] = [];
+  await createMediaScan({ storage, media: {
+    get: async () => ({ tenantId, id, key, mime: "image/jpeg", size: bytes.length, status: "quarantine", visibility: "private", driver: "local" }),
+    promote: async (_tenant, _id, data) => { variants = data.variants!; return true; },
+    reject: async () => { throw Error("hero rejected"); },
+  } })(scanJob(tenantId, id));
+  assert.equal(variants.length, 6);
+  for (const format of ["avif", "webp"]) {
+    const variant = variants.find(v => v.key.endsWith(`-w1280.${format}`))!;
+    assert.ok(variant, format); assert.equal(variant.width, 1280);
+    assert.ok(variant.size <= 200_000, `${format}: ${variant.size} bytes`);
+    assert.equal(files.get(variant.key)!.byteLength, variant.size);
+    assert.equal((await sharp(files.get(variant.key)!).metadata()).format, format === "avif" ? "heif" : "webp");
+  }
+});
+
 test("I1 DB scan: unpadded palette PNG grows to actual ready size; tight quota rejects with quota reason", { skip: !process.env.DATABASE_URL }, async () => {
   const db = createDb({ pool: 3 }), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
   const { files, storage } = memoryStorage();
