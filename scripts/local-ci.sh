@@ -80,6 +80,11 @@ up() {
 
 db() {
   load_env
+  minio_up
+  # Cùng env MinIO với job `db` của workspace.yml (không có bucket sẵn): int test S3 chạy thật, không SKIP (E8-S06).
+  export STORAGE_REQUIRE_S3=1 STORAGE_S3_TEST_ENDPOINT="http://127.0.0.1:$MINIO_PORT" \
+    STORAGE_S3_TEST_ACCESS_KEY_ID=minioadmin STORAGE_S3_TEST_SECRET_ACCESS_KEY=minioadmin
+  unset STORAGE_S3_TEST_BUCKET
   pnpm --filter @solar/db test
   pnpm --filter web test:tenant
   pnpm --filter admin test
