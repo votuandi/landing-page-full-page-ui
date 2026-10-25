@@ -15,7 +15,34 @@ import { parseTenantBackup } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 import { ThemeOverridesSchema } from "../../../tokens/src/css";
 import { siteProfileSchema } from "../siteProfile.ts";
-import { storySource } from "@solar/sections";
+import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
+import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
+import { COLLECTIONS, collectionDefs } from "../collections.ts";
+
+test("E8-S06: every preset retains all section media references in descriptors and snapshots", () => {
+  for (const preset of presets) {
+    const sections = loadPreset(preset.id).page.sections;
+    const expected = sections.flatMap(section => collectRefs(sectionRegistry.getType(section.type)!.schema, section.data).media);
+    assert.ok(expected.length > 0, `${preset.id}: fixture must exercise media refs`);
+    for (const collected of [descriptorMediaIds(sections), snapshotMediaIds({ sections: [], contents: sections }), snapshotMediaIds({ sections, contents: [] })]) {
+      for (const id of expected) assert.ok(collected.includes(id), `${preset.id}: collector lost ${id}`);
+    }
+  }
+});
+
+test("E8-S06: every seed backup retains all media referenced by content, drafts and history", () => {
+  for (const id of ["t15", "t12"] as const) {
+    const bundle = parseTenantBackup(demoBackup(id));
+    const expected = [
+      ...collectRefs(siteProfileSchema, bundle.site.profile).media,
+      ...bundle.sectionContents.flatMap(section => [section.data, section.draftData].flatMap(data => collectRefs(sectionRegistry.getType(section.type)!.schema, data).media)),
+      ...COLLECTIONS.flatMap(name => bundle.collections[name].flatMap(row => collectRefs(collectionDefs[name].data, row.data).media)),
+    ];
+    assert.ok(expected.length > 0, `${id}: seed must exercise media refs`);
+    const retained = backupMediaReferenceIds(bundle);
+    for (const mediaId of expected) assert.ok(retained.has(mediaId.toLowerCase()), `${id}: collector lost ${mediaId}`);
+  }
+});
 
 test("E8-S04: static seed story sources still parse alongside Media UUID file sources", () => {
   for (const id of ["t15", "t12"] as const) for (const story of buildDemo(id).collections.stories) assert.doesNotThrow(() => storySource.parse(story.data.source));

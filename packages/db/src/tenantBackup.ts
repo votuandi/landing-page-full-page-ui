@@ -12,6 +12,8 @@ import { checkConnection, loadDisabledFeatures, platformClient, type Db, type Pl
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
 import { Prisma } from "../generated/client.ts";
+import { defaultDriver, type StorageKind } from "@solar/storage";
+import { backupMediaReferenceIds } from "./mediaRetention.ts";
 
 export const BACKUP_FORMAT = "solar-tenant-backup";
 const uuid = z.uuid(), date = z.iso.datetime(), json = z.json();
@@ -92,7 +94,7 @@ export async function exportTenant(db: Db | PlatformDb, tenantId: string): Promi
   return withTenantTransaction(db, tenantId, async repo => {
     const site = await repo.site.first({ include: { tenant: { select: { slug: true } } } });
     if (!site) throw new TenantBackupError("Không tìm thấy website", 404);
-    const strip = (row: object) => { const { tenantId: _tenant, ...rest } = row as Record<string, unknown>; return rest; };
+    const strip = (row: object) => { const { tenantId: _tenant, orphanedAt: _orphaned, ...rest } = row as Record<string, unknown>; return rest; };
     const pages = await repo.page.list({ orderBy: { slug: "asc" } });
     const pageSlug = new Map(pages.map(page => [page.id, page.slug]));
     const orderPage = (a: { pageId: string }, b: { pageId: string }) => (pageSlug.get(a.pageId) ?? "").localeCompare(pageSlug.get(b.pageId) ?? "");
@@ -115,13 +117,14 @@ const snapshotSchema = z.object({ contents: z.array(z.object({ type: z.string(),
 const descriptors = (value: unknown) => pageConfigSchema.parse({ sections: Array.isArray(value)
   ? value.map(section => ({ ...section as object, data: undefined })) : value }).sections;
 
-export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw: unknown, options: z.input<typeof restoreOptions>) {
+export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw: unknown, options: z.input<typeof restoreOptions>, routing?: { source(kind: StorageKind): BackupStorage; driver: StorageKind }) {
   const bundle = parseTenantBackup(raw), parsed = restoreOptions.safeParse(options);
   if (!parsed.success) throw new TenantBackupError("Thông tin website khôi phục không hợp lệ");
   const input = parsed.data, client = platformClient(db);
   await checkConnection(db);
   if (await client.tenant.findUnique({ where: { slug: input.slug }, select: { id: true } })) throw new TenantBackupError("Tên website đã tồn tại", 409);
   const tenantId = randomUUID(), mapped = remapBackup(bundle, tenantId), copied: string[] = [];
+  const referenced = backupMediaReferenceIds(bundle), skippedIds = new Set<string>(), driver = routing?.driver ?? defaultDriver();
   const disabled = await loadDisabledFeatures(db);
   try {
     // Variants are separate stored files too; only keys owned by the source tenant may be read.
@@ -136,16 +139,26 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
         else if (value && typeof value === "object") Object.values(value).forEach(visit);
       };
       visit(media.variants);
+      const source = routing?.source(media.driver) ?? storage;
+      // Check all files before copying this row, so skipping an unused row never leaves partial objects.
+      const objects: { key: string; bytes: Uint8Array }[] = [];
       for (const key of keys) {
-        const bytes = await storage.get(key);
-        if (bytes === null) throw new TenantBackupError("Không tìm thấy tệp media của bản sao lưu");
+        const bytes = await source.get(key);
+        if (bytes === null) {
+          if (referenced.has(media.id.toLowerCase())) throw new TenantBackupError("Không tìm thấy tệp media của bản sao lưu");
+          skippedIds.add(media.id); break;
+        }
+        objects.push({ key, bytes });
+      }
+      if (skippedIds.has(media.id)) continue;
+      for (const { key, bytes } of objects) {
         const target = key.replace(`tenants/${bundle.source.tenantId}/`, `tenants/${tenantId}/`).replace(`private/${bundle.source.tenantId}/`, `private/${tenantId}/`);
         copied.push(target); // Clean partial writes as well as successful ones.
         await storage.put(target, bytes, { contentType: media.mime });
       }
     }
     await client.$transaction(async tx => {
-      const tenant = await tx.tenant.create({ data: { id: tenantId, slug: input.slug, name: input.name ?? mapped.site.name, planId: input.planId, status: "trial" } });
+      const tenant = await tx.tenant.create({ data: { id: tenantId, slug: input.slug, name: input.name ?? mapped.site.name, planId: input.planId, status: "trial", storageDriver: driver } });
       const can = canUse(tenant, { disabled });
       const preset = getPreset(mapped.site.presetId ?? mapped.site.themeId);
       if (!preset) throw new TenantBackupError("Bản sao lưu chứa preset không hợp lệ");
@@ -168,7 +181,8 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
         const delegate = tx[name] as unknown as { create(input: { data: Record<string, unknown> }): Promise<unknown> };
         await delegate.create({ data });
       }
-      for (const row of mapped.media) await insert("media", row);
+      const retained = bundle.media.map((row, index) => skippedIds.has(row.id) ? null : mapped.media[index]).filter(row => row !== null);
+      for (const row of retained) await insert("media", { ...row, driver });
       const pending = [...mapped.collections.productCategory], inserted = new Set<string>();
       while (pending.length) {
         const index = pending.findIndex(row => !row.parentId || inserted.has(row.parentId));
@@ -206,7 +220,7 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
       for (const name of COLLECTIONS) for (const row of mapped.collections[name]) await publishItemMedia(repo, name, row);
       await tx.auditLog.create({ data: { tenantId, actorType: "system", action: "tenant.backup.restore", entity: "Tenant", entityId: tenantId,
         data: { sourceSlug: bundle.source.slug, counts: { pages: mapped.pages.length, sections: mapped.sectionContents.length,
-          media: mapped.media.length, ...Object.fromEntries(COLLECTIONS.map(name => [name, mapped.collections[name].length])) } } } });
+          media: retained.length, skipped: skippedIds.size, ...Object.fromEntries(COLLECTIONS.map(name => [name, mapped.collections[name].length])) } } } });
     }, { timeout: 30_000 });
   } catch (error) {
     await Promise.allSettled([...new Set(copied)].map(key => storage.delete(key)));
@@ -215,5 +229,5 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
     if (error instanceof z.ZodError) throw new TenantBackupError();
     throw error;
   }
-  return { tenantId, slug: input.slug };
+  return { tenantId, slug: input.slug, skipped: skippedIds.size };
 }

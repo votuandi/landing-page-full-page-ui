@@ -9,7 +9,7 @@ function setup(patch: object = {}) {
   let reads = 0;
   const deps = {
     loadSite: async () => ({ profile: { brand: { favicon: id } } }),
-    media: async (tenant: string, mediaId: string) => { assert.equal(tenant, tenantId); assert.equal(mediaId, id); return { tenantId, status: "ready", visibility: "public", key: `tenants/${tenantId}/icon.png` }; },
+    media: async (tenant: string, mediaId: string) => { assert.equal(tenant, tenantId); assert.equal(mediaId, id); return { tenantId, status: "ready", visibility: "public", key: `tenants/${tenantId}/icon.png`, driver: "local" as const }; },
     storage: { get: async () => { reads++; return new Uint8Array([1, 2]); } },
     resize: async (_bytes: Uint8Array, size: number) => new Uint8Array([size]),
     ...patch,
@@ -25,6 +25,13 @@ test("icon resizes to requested 64 and 180 with public PNG headers", async () =>
     assert.equal(response.headers.get("cache-control"), "public, max-age=86400");
     assert.deepEqual(new Uint8Array(await response.arrayBuffer()), new Uint8Array([size]));
   }
+});
+
+test("icon selects row driver", async () => {
+  let selected = "";
+  const f = setup({ media: async () => ({ tenantId, status: "ready", visibility: "public", key: `tenants/${tenantId}/icon.png`, driver: "s3" }),
+    storage: (kind: string) => { selected = kind; return { get: async () => new Uint8Array([1]) }; } });
+  assert.equal((await f.handle(tenantId, siteId, 64)).status, 200); assert.equal(selected, "s3");
 });
 
 test("icon real sharp converts a rectangular JPEG to 64 and 180 PNG and corrupt bytes fall back", async () => {

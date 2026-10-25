@@ -28,6 +28,7 @@ erDiagram
     Json featureOverrides
     Json limitOverrides
     Json permissionPolicy
+    StorageDriver storageDriver
     DateTime createdAt
     DateTime updatedAt
   }
@@ -392,6 +393,7 @@ erDiagram
     Json alt
     String name
     Json focal
+    DateTime orphanedAt
     DateTime createdAt
   }
   Lead {

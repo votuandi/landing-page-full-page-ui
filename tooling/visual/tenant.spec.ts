@@ -14,6 +14,52 @@ const postSlug = "tien-dien-2-trieu-nen-lap-bao-nhieu-kwp";
 const productSlug = "helionyx-nova-n-590w";
 const projectSlug = "nha-pho-binh-thanh";
 
+test("media crawl has no 404", async ({ page }) => {
+  test.setTimeout(180_000);
+  fixture("setup");
+  try {
+    const { url, poster } = JSON.parse(fixture("self-hosted-video")) as { url: string; poster: string };
+    await page.goto(origin("review"), { waitUntil: "networkidle" });
+    const dialog = page.getByRole("dialog", { name: /Self-hosted video/ });
+    // A click before hydration is a no-op (README flaky list); retry until the dialog opens.
+    await expect(async () => {
+      await page.getByRole("button", { name: /Play video:.*Self-hosted video/ }).click();
+      await expect(dialog).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 30_000 });
+    const media = dialog.locator("video");
+    await expect(media).toHaveAttribute("src", url);
+    await expect(media).toHaveAttribute("poster", poster);
+    // Include mounted video alongside SSR image/source srcsets.
+    const urls = await page.locator("img, source, video, audio").evaluateAll(elements => {
+      const urls = new Set<string>();
+      for (const node of elements) for (const attribute of ["src", "poster", "srcset"]) {
+        const value = node.getAttribute(attribute);
+        if (!value) continue;
+        const items = attribute === "srcset" ? value.split(/,\s*/).map(part => part.trim().split(/\s+/)[0]) : [value];
+        for (const item of items) { const resolved = new URL(item, document.baseURI); if (["http:", "https:"].includes(resolved.protocol)) urls.add(resolved.href); }
+      }
+      return [...urls];
+    });
+    expect(urls).toContain(url); expect(urls).toContain(poster);
+    // Node API requests cannot resolve *.localhost on Windows: HEAD those same-origin URLs from the page, the media
+    // server (cross-origin, no CORS) from Node.
+    const sameSite = urls.filter(address => new URL(address).hostname.endsWith(".localhost"));
+    const failures = await page.evaluate(async addresses => (await Promise.all(addresses.map(async address => {
+      try { const response = await fetch(address, { method: "HEAD" }); return response.ok ? null : `${response.status} ${address}`; }
+      catch { return `network ${address}`; }
+    }))).filter(Boolean), sameSite);
+    for (const address of urls.filter(address => !sameSite.includes(address))) {
+      try { const response = await page.request.head(address); if (!response.ok()) failures.push(`${response.status()} ${address}`); }
+      catch { failures.push(`network ${address}`); }
+    }
+    expect(failures).toEqual([]);
+    // Same Windows limitation for the Node crawler (covered by scripts/media-crawl.test.mjs); CI runs it on Ubuntu.
+    if (process.platform === "win32") return;
+    const crawl = JSON.parse(execFileSync(process.execPath, [resolve(__dirname, "../../scripts/media-crawl.mjs"), origin("review")], { encoding: "utf8" })) as { checked: number; failures: unknown[] };
+    expect(crawl.checked).toBeGreaterThan(0); expect(crawl.failures).toEqual([]);
+  } finally { fixture("cleanup"); }
+});
+
 test("shorts self-hosted video plays", async ({ page, browser }) => {
   fixture("setup");
   try {

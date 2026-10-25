@@ -5,6 +5,8 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts", "./site-profile": "./src/siteProfile.ts" },
   "scripts": {
+    "storage:migrate": "tsx scripts/storage-migrate.ts",
+    "media:orphans": "tsx scripts/media-orphans.ts",
     "tenant:export": "tsx scripts/tenant-export.ts",
     "tenant:restore": "tsx scripts/tenant-restore.ts",
     "import:site-config": "tsx scripts/import-site-config.ts",

@@ -48,7 +48,7 @@ test("video over 10 minutes rejected; invalid video rejected; ffmpeg timeout kil
   }
 });
 function setup(bytes: Uint8Array | null, mime = "image/jpeg", reserved = bytes?.byteLength ?? 100) {
-  let row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, mime, size: reserved, status: "quarantine", visibility: "private", variants: [] as MediaVariant[] };
+  let row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, mime, size: reserved, status: "quarantine", visibility: "private", variants: [] as MediaVariant[], driver: "local" as const };
   const files = new Map<string, Uint8Array>(); if (bytes) files.set(row.key, bytes);
   const rejected: string[] = [];
   const media: ScanMedia = {
@@ -73,6 +73,12 @@ test("media.scan: html as jpeg, svg, oversize, kind mismatch and missing object 
     const f = setup(bytes, mime, reserved); await f.scan(job);
     assert.equal(f.row().status, "failed"); assert.equal(f.files.size, 0); assert.equal(f.rejected.length, 1);
   }
+});
+
+test("scan selects row driver", async () => {
+  const f = setup(Buffer.from("%PDF-1.7"), "application/pdf", 8), selected: string[] = [];
+  await createMediaScan({ media: f.media, storage: kind => { selected.push(kind); return f.storage; } })(job);
+  assert.deepEqual(selected, ["local"]); assert.equal(f.row().status, "ready");
 });
 
 test("variants: six AVIF/WebP widths", async () => {

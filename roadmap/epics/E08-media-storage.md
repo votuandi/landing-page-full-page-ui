@@ -77,6 +77,9 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `draftData`, `draftSections`, `PageVersion` và bản backup còn giữ → xóa; lệnh
   `pnpm storage:migrate --tenant <id> --from local --to s3` sao chép, kiểm checksum, cập nhật `driver`, revalidate.
 - **AC**: [ ] Chuyển 1 GB media sang R2 không có ảnh vỡ (crawler kiểm 0 lỗi 404) · [ ] Dry-run in danh sách trước khi xóa.
+- **Bằng chứng đang kiểm**: test `mediaOrphans.int`, `mediaRetention`, `storageMigrate.int`, `storageMigrate`, worker `mediaOrphans`;
+  crawler `scripts/media-crawl.mjs` + spec `tenant.spec.ts` › "media crawl has no 404". Chờ generate/deploy client mới,
+  kiểm DB/MinIO và e2e; 1 GB R2 thật theo `packages/storage/README.md`. AC giữ mở tới khi đủ bằng chứng.
 - Phụ thuộc: S01 · Agent: Codex · Cỡ: M
 
 ### E8-S07 · Phân phối ảnh biến thể

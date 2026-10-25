@@ -6,6 +6,18 @@ import type { StorageDriver } from "@solar/storage";
 import { createMediaPublish, cleanupExpiredMedia } from "../handlers/mediaPublish.ts";
 import { PermanentError } from "../loop.ts";
 
+test("row driver routes publish and cleanup; driver changed during publish retries", async () => {
+  const f = variantsSetup(), selected: string[] = [];
+  const handle = createMediaPublish({ media: f.media, storage: kind => { selected.push(kind); return f.storage; } });
+  await handle(f.job);
+  assert.deepEqual(selected, ["local"]);
+  await cleanupExpiredMedia({ expireStale: async () => [{ tenantId: f.row.tenantId, key: `quarantine/${f.row.tenantId}/old`, driver: "s3" }], storage: kind => { selected.push(kind); return f.storage; } });
+  assert.equal(selected.at(-1), "s3");
+  const race = variantsSetup();
+  race.media.publish = async () => { race.row.driver = "s3"; return false; };
+  await assert.rejects(createMediaPublish({ media: race.media, storage: race.storage })(race.job), /driver|thay đổi/);
+});
+
 test("publish enqueues tenant invalidate; crash retries invalidate; CAS false does not invalidate", async () => {
   for (const cas of [true, false]) {
     const f = variantsSetup(); const tags: string[][] = []; let fail = true;
@@ -25,7 +37,7 @@ test("publish enqueues tenant invalidate; crash retries invalidate; CAS false do
 function variantsSetup(variants: unknown = undefined) {
   const tenantId = randomUUID(), id = randomUUID(), original = `private/${tenantId}/2026/10/${id}.jpg`;
   const generated = [640, 1280, 1920].flatMap(width => (["avif", "webp"] as const).map(format => ({ key: original.replace(/\.jpg$/, `-w${width}.${format}`), format, width, height: width / 2, size: 4 })));
-  const row = { id, tenantId, key: original, status: "ready", visibility: "private", mime: "image/jpeg", size: 4, variants: variants === undefined ? generated : variants };
+  const row = { id, tenantId, key: original, status: "ready", visibility: "private", mime: "image/jpeg", size: 4, variants: variants === undefined ? generated : variants, driver: "local" as "local" | "s3" };
   const files = new Map<string, Uint8Array>([original, ...generated.map(v => v.key)].map(key => [key, Buffer.from("data")]));
   const copies: { key: string; contentType: string; cacheControl?: string }[] = [];
   let published = 0;
@@ -96,7 +108,7 @@ test("publish CAS false retains private original and variants for retry", async 
 
 test("media.publish: ready private to public, stable target across retries, quarantine cron cleanup", async () => {
   const tenantId = randomUUID(), id = randomUUID();
-  const row = { id, tenantId, key: `private/${tenantId}/2026/10/${id}.pdf`, status: "ready", visibility: "private", mime: "application/pdf", size: 8 };
+  const row = { id, tenantId, key: `private/${tenantId}/2026/10/${id}.pdf`, status: "ready", visibility: "private", mime: "application/pdf", size: 8, driver: "local" as const };
   const old = row.key, target = old.replace(/^private\//, "tenants/");
   const files = new Map<string, Uint8Array>([[old, Buffer.from("%PDF-1.7")]]);
   const storage = { get: async (k: string) => files.get(k) ?? null, put: async (k: string, b: Buffer) => { files.set(k, b); }, delete: async (k: string) => { files.delete(k); } } as unknown as StorageDriver;
@@ -107,13 +119,13 @@ test("media.publish: ready private to public, stable target across retries, quar
   assert.deepEqual([...files.keys()], [target]);
   await handle(job); assert.deepEqual([...files.keys()], [target]);
   files.set(`quarantine/${tenantId}/old`, Buffer.from("x"));
-  await cleanupExpiredMedia({ expireStale: async () => [{ tenantId, key: `quarantine/${tenantId}/old` }], storage });
+  await cleanupExpiredMedia({ expireStale: async () => [{ tenantId, key: `quarantine/${tenantId}/old`, driver: "local" }], storage });
   assert.equal(files.size, 1);
 });
 
 test("I2: quarantine publish is retryable; failed media is a completed no-op", async () => {
   const tenantId = randomUUID(), id = randomUUID();
-  const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "application/pdf", size: 8 };
+  const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "application/pdf", size: 8, driver: "local" as const };
   const storage = { get: async () => { throw Error("must not read quarantine or failed content"); } } as unknown as StorageDriver;
   const handle = createMediaPublish({ media: { get: async () => row, publish: async () => false }, storage });
   const job: OutboxJob = { id: randomUUID(), tenantId, topic: "media.publish", payload: { tenantId, id }, idempotencyKey: `media.publish:${id}`, attempts: 1, createdAt: new Date(), runAt: new Date() };

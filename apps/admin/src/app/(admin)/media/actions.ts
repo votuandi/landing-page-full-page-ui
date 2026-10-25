@@ -4,7 +4,7 @@ import { z } from "zod";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { deleteMedia, updateMediaMeta, MediaError } from "@solar/db";
-import { storageFromEnv } from "@solar/storage";
+import { storageFor } from "@solar/storage";
 import { action } from "../../../lib/action.ts";
 import { getRuntime } from "../../../lib/runtime.ts";
 import { removeMediaObjects } from "../../../lib/media.ts";
@@ -25,8 +25,8 @@ export const saveMedia = action("media.manage", idSchema.extend({ vi: z.string()
 });
 export const removeMedia = action("media.manage", idSchema.extend({ confirm: z.literal("on").optional() }), async (input, { tenantId }) => {
   try {
-    const { keys } = await deleteMedia(getRuntime().db, tenantId, input.id, { confirm: input.confirm === "on" });
-    await removeMediaObjects(storageFromEnv(), keys);
+    const { keys, driver } = await deleteMedia(getRuntime().db, tenantId, input.id, { confirm: input.confirm === "on" });
+    await removeMediaObjects(storageFor(driver), keys);
   } catch (error) { return mediaFailure(error); }
   revalidatePath("/media", "layout");
   redirect("/media");

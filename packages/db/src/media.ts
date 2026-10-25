@@ -32,14 +32,14 @@ async function lockedQuota(tx: Parameters<Parameters<typeof tenantTransaction>[2
   if (!locked?.id) throw new MediaError("Không tìm thấy website.", 404);
   const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: tenantId } });
   const [usage] = await tx.$queryRaw<{ bytes: bigint }[]>`SELECT COALESCE(SUM(size::bigint), 0)::bigint AS bytes FROM public."Media" WHERE "tenantId" = ${tenantId}::uuid AND status::text = ANY(${[...usageStatuses]}::text[])`;
-  return { used: usage.bytes, max: BigInt(Math.floor((getPlan(tenant.planId) ? limit(tenant, "mediaGb") : 0) * 1024 ** 3)) };
+  return { used: usage.bytes, max: BigInt(Math.floor((getPlan(tenant.planId) ? limit(tenant, "mediaGb") : 0) * 1024 ** 3)), driver: tenant.storageDriver };
 }
 export async function reserveUpload(db: Db | PlatformDb, tenantId: string, raw: unknown, driver: "local" | "s3") {
   const input = uploadInput(raw);
   return tenantTransaction(db, tenantId, async tx => {
     const quota = await lockedQuota(tx, tenantId);
     if (quota.used + BigInt(input.size) > quota.max) throw new MediaQuotaError();
-    return createTenantRepo(tx, tenantId).media.create({ ...input, driver, key: quarantineKey(tenantId), status: "quarantine", visibility: "private" });
+    return createTenantRepo(tx, tenantId).media.create({ ...input, driver: quota.driver ?? driver, key: quarantineKey(tenantId), status: "quarantine", visibility: "private" });
   });
 }
 const missing = () => new MediaError("Không tìm thấy media.", 404);

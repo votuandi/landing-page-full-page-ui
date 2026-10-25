@@ -3,7 +3,7 @@ import type { Prisma } from "../generated/client.ts";
 import { platformClient, resolveTenantHost, resolveTenantSlug, isPlatformDb, type Db, type PlatformDb } from "./client.ts";
 import { withTenantTransaction } from "./tenantTransaction.ts";
 import type { DomainStatus, TenantStatus } from "../generated/enums.ts";
-import { assertRefsBelongToTenant, CrossTenantRefError } from "./refs.ts";
+import { assertRefsBelongToTenant, CrossTenantRefError, type TenantRefs } from "./refs.ts";
 import { tenantModels, optionalTenantModels } from "./tenantScope.ts";
 import { Prisma as PrismaValues } from "../generated/client.ts";
 import { outboxRepository } from "./outbox.ts";
@@ -11,6 +11,10 @@ import { changeTenantPlan, scanExpiredOverrides, type TenantPlanChange } from ".
 import { runBillingCron } from "./billing.ts";
 import { purgeRemoved } from "./sectionCleanup.ts";
 import { expireStaleMedia } from "./media.ts";
+import { COLLECTIONS } from "./collections.ts";
+import { siteProfileMediaIds } from "./siteProfile.ts";
+import type { OrphanOptions } from "./mediaOrphans.ts";
+import type { MigrateOptions } from "./storageMigrate.ts";
 
 const repositoryModels = [...tenantModels, ...optionalTenantModels];
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
@@ -69,14 +73,35 @@ export function createTenantRepo(db: DbClient, tenantId: string): TenantRepo {
     return rest;
   };
   async function checkRefs(name: DelegateName, data: Input) {
+    const mediaIds: string[] = [];
+    const refsToCheck: TenantRefs[] = [];
     if (name === "sectionContent") {
       const type = typeof data.type === "string" ? sectionRegistry.getType(data.type) : null;
       if (!type) throw new CrossTenantRefError([{ kind: "sectionType", ids: [String(data.type)] }]);
-      for (const value of [data.data, data.draftData]) await assertRefsBelongToTenant(db, tenantId, collectRefs(type.schema, value));
+      for (const value of [data.data, data.draftData]) {
+        const refs = collectRefs(type.schema, value);
+        refsToCheck.push(refs);
+        mediaIds.push(...refs.media);
+      }
     } else if (Object.hasOwn(collectionNames, name)) {
       const collection = collectionNames[name as keyof typeof collectionNames];
-      await assertRefsBelongToTenant(db, tenantId, collectRefs(collectionSchemas[collection], data.data));
+      refsToCheck.push(collectRefs(collectionSchemas[collection], data.data));
     }
+    if ((COLLECTIONS as readonly string[]).includes(name)) {
+      mediaIds.push(...(await import("./collectionWrite.ts")).collectionMediaIds(name as typeof COLLECTIONS[number], { ...data, data: data.data as Prisma.JsonValue }));
+    } else if (name === "site") mediaIds.push(...siteProfileMediaIds(data.profile));
+    else if (name === "page") {
+      const { descriptorMediaIds } = await import("./mediaRetention.ts");
+      // Writes may carry Prisma null sentinels or update operators; only literal arrays hold descriptors.
+      for (const value of [data.sections, data.draftSections]) if (Array.isArray(value)) mediaIds.push(...descriptorMediaIds(value));
+    } else if (name === "pageVersion" && data.snapshot && typeof data.snapshot === "object") {
+      mediaIds.push(...(await import("./mediaRetention.ts")).snapshotMediaIds(data.snapshot));
+    }
+    const ids = [...new Set(mediaIds.filter(id => uuid.test(id)).map(id => id.toLowerCase()))];
+    // Touch the row with the reference write: a Serializable sweep on an older snapshot must abort.
+    if (ids.length) await db.media.updateMany({ where: { tenantId, id: { in: ids }, orphanedAt: { not: null } }, data: { orphanedAt: null } });
+    // Check after the write/lock too: a sweep may have won the race and removed the asset.
+    for (const refs of refsToCheck) await assertRefsBelongToTenant(db, tenantId, refs);
   }
   function repository(name: DelegateName) {
     // Prisma delegates have different generic call signatures; keep the cast at this single runtime boundary.
@@ -159,7 +184,10 @@ function platformRepository(db: PlatformDb) {
     outbox: outboxRepository(db),
     billing: { run: (options?: { now?: Date }) => runBillingCron(db, options) },
     sectionContents: { purgeRemoved: (options?: { now?: Date }) => purgeRemoved(db, options) },
-    media: { expireStale: (now?: Date) => expireStaleMedia(db, now) },
+    media: { expireStale: (now?: Date) => expireStaleMedia(db, now),
+      sweepOrphans: async (options?: OrphanOptions) => (await import("./mediaOrphans.ts")).sweepOrphanMedia(db, options),
+      migrate: async (options: MigrateOptions) => (await import("./storageMigrate.ts")).migrateTenantStorage(db, options),
+    },
     tenants: {
       bySlug: (slug: string) => resolveTenantSlug(db, slug),
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),

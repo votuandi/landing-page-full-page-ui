@@ -30,7 +30,9 @@ await storage.delete(key); // Idempotent khi khóa không tồn tại.
 | Biến | Giá trị |
 |---|---|
 | `STORAGE_DRIVER` | `local` (mặc định) hoặc `s3` |
-| `MEDIA_PUBLIC_BASE` | Bắt buộc: URL HTTP(S) gốc phục vụ media/CDN, có thể có path; bỏ slash cuối khi ghép khóa |
+| `MEDIA_PUBLIC_BASE` | URL HTTP(S) media/CDN dùng fallback khi base riêng của driver thiếu/rỗng; có thể có path |
+| `MEDIA_PUBLIC_BASE_LOCAL` / `MEDIA_PUBLIC_BASE_S3` | Base riêng ưu tiên theo driver; trống dùng `MEDIA_PUBLIC_BASE`; mỗi driver được dùng phải resolve được một base hợp lệ |
+| `MEDIA_BACKUP_DIR` | Worker/CLI: thư mục JSON `tenant:export` còn giữ, ở ngoài public; phải đặt khi có backup cần bảo vệ |
 | `STORAGE_LOCAL_ROOT` | Bắt buộc cho local; thư mục do ops quản lý, cùng filesystem với `.tmp` bên trong |
 | `S3_BUCKET` | Bắt buộc cho s3 |
 | `S3_REGION` | Mặc định `auto`; AWS dùng region bucket, R2 dùng `auto`, MinIO test dùng `us-east-1` |
@@ -39,7 +41,9 @@ await storage.delete(key); // Idempotent khi khóa không tồn tại.
 | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | Đi cặp; thiếu cả hai dùng credential chain mặc định của SDK/IAM role |
 
 Lỗi cấu hình chỉ liệt kê tên biến thiếu/sai; không đưa giá trị, secret hay URL có credentials vào thông báo.
-`publicUrl` dùng `MEDIA_PUBLIC_BASE` cho cả hai driver; không tự suy domain bucket từ endpoint API.
+`publicUrl` ưu tiên base riêng theo driver, fallback `MEDIA_PUBLIC_BASE` khi biến riêng thiếu/rỗng;
+không tự suy domain bucket từ endpoint API. Xem mẫu env ở `apps/web/.env.example`, `apps/admin/.env.example`;
+worker dùng cùng cấu hình storage và cần đặt `MEDIA_BACKUP_DIR` tới thư mục backup đang giữ.
 
 ## Khóa và giới hạn
 
@@ -113,7 +117,7 @@ handle /media/* {
 ```
 
 Không cấu hình file_server cho toàn bộ STORAGE_LOCAL_ROOT. Worker cron thu hồi upload quá 24 h.
-Crash giữa put và promote có thể để lại object không tham chiếu; E8-S06 dọn các object đó.
+Crash giữa put và promote có thể để lại object không có row; quét object không có row nằm ngoài E8-S06.
 Sharp bỏ metadata mặc định, không gọi keepMetadata/withMetadata.
 
 ### Biến thể ảnh (E8-S03)
@@ -154,3 +158,38 @@ Băng thông phát tính vào **CDN/VPS của nền tảng**; `mediaGb` chỉ gi
 Ưu tiên nhúng YouTube/TikTok/Bunny Stream khi cần adaptive streaming hoặc nhiều lượt xem; chưa transcode/HLS.
 Local production phục vụ bằng Caddy như trên (hỗ trợ Range); S3/R2 cần policy public-read chỉ cho `tenants/`.
 E2E tenant dùng `tooling/visual/media-server.mjs` ở cổng 3212 (GET/HEAD, Range 206, nosniff, chặn private/quarantine).
+
+### Driver hỗn hợp, migration và retention (E8-S06)
+
+`Tenant.storageDriver` chọn driver upload mới; null dùng `STORAGE_DRIVER` (mặc định local).
+Đọc/scan/publish/xóa chọn driver theo `Media.driver`, nên các tenant hoặc các row cùng tenant có thể ở kho khác nhau.
+`storageFor(kind)` chỉ kiểm cấu hình driver đó. URL ưu tiên `MEDIA_PUBLIC_BASE_LOCAL` / `MEDIA_PUBLIC_BASE_S3`,
+fallback `MEDIA_PUBLIC_BASE`; khi chạy hỗn hợp hãy cấu hình hai base riêng.
+
+Sau deploy migration và generate client, cấu hình cả local lẫn S3/R2 cho CLI, worker, admin và web.
+Nạp biến môi trường DB platform; dùng slug tenant:
+
+```bash
+pnpm storage:migrate --tenant cong-ty-a --from local --to s3 --dry-run
+pnpm storage:migrate --tenant cong-ty-a --from local --to s3
+node scripts/media-crawl.mjs https://cong-ty-a.example/ https://cong-ty-a.example/du-an
+```
+
+CLI in `{copied,bytes,skipped,remaining}`; dry-run không ghi DB/object. Lệnh thật đổi driver upload mới trước,
+chép gốc và biến thể từng row ready, đọc lại kiểm SHA-256 rồi mới đổi driver row và enqueue `tenant:<id>`.
+Nguồn luôn giữ để URL CDN cũ vẫn chạy. Lỗi thiếu tệp/checksum giữ driver nguồn trên row đó; row đã chuyển vẫn dùng được.
+Sửa lỗi rồi chạy lại. `remaining > 0` nghĩa là cần chạy lại; upload quarantine đang xử lý được chuyển sau khi ready.
+Giữ cấu hình cả hai driver đến khi upload cũ hoàn tất; chờ outbox invalidate trước crawler.
+R2 dùng `S3_ENDPOINT`, `S3_BUCKET`, cặp khóa và CDN base chặn private/quarantine như phần policy ở trên.
+
+Kiểm 1 GB R2 thật khi triển khai: chọn tenant thử có ≥ 1 GB gốc/biến thể, ghi tổng byte nguồn, chạy dry-run rồi migrate;
+lưu JSON kết quả và crawler trên mọi trang công khai sau invalidation. Yêu cầu `remaining=0`, crawler `failures=[]`,
+media private vẫn cần quyền, local giữ nguyên để khôi phục. MinIO kiểm giao thức thay R2, không chứng minh băng thông R2 thật.
+
+Cron tuần và `pnpm media:orphans --dry-run [--tenant slug]` tính live, nháp, descriptor cũ, mọi version và nội dung backup
+còn giữ trong `MEDIA_BACKUP_DIR` (file JSON `tenant:export`; thư mục không public).
+Lần đầu chỉ đặt `orphanedAt`; tham chiếu lại thì xóa dấu. Chỉ ready mồ côi hơn 30 ngày mới xóa row và khóa thuộc tenant.
+Dry-run in `[{tenantId,id,key,orphanedAt}]`, không đánh dấu/xóa. Backup hỏng dừng cả lượt trước mọi mutation.
+Inventory `media[]` không tự bảo vệ media mà nội dung backup không dùng.
+Restore đọc driver từng row nguồn, ghi driver đích; thiếu tệp không dùng bỏ row và đếm `skipped`, thiếu tệp đang dùng thì dừng.
+Xem [cron](../../CRON.md). Không xóa nguồn sau migration hoặc quét object không có row.

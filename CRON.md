@@ -1,83 +1,43 @@
-# Weekly cron: backup and orphaned media cleanup
+# Cron trong worker
 
-This project runs a **weekly cron job** (every **Saturday at 2:00 AM**) that:
+`apps/worker/src/main.ts` dùng `every()`: chạy ngay khi khởi động, đợi hoàn tất rồi hẹn lượt kế tiếp.
+Không chồng lượt trong một process; SIGTERM/SIGINT đợi tác vụ đang chạy trước khi đóng DB.
 
-1. **Database backup** – Exports the database to `public/backup/database-backup-{timestamp}.json` and logs to backup history with `performerUsername="auto_backup_weekly"` and `performerId=0`.
-2. **Media backup** – Zips `public/` (excluding `backup`, `logs`) to `public/backup/backup_{timestamp}.zip` and logs to backup history with the same performer.
-3. **Orphaned media cleanup** – Deletes files under `public/images/` and `public/videos/` (and subdirectories) that are **not** referenced in the database.
+| Công việc | Chu kỳ | Phạm vi |
+|---|---|---|
+| Override hết hạn | 5 phút | Quét thay đổi quyền, audit + invalidate |
+| Gia hạn | 1 giờ | Nhắc hạn / khóa sau ân hạn |
+| Section đã gỡ | 6 giờ | Nội dung đã gỡ > 30 ngày |
+| Upload quá hạn | 1 giờ | Quarantine > 24 giờ, dọn theo driver row |
+| Media mồ côi | 7 ngày | Ready không tham chiếu > 30 ngày |
 
-## Referenced paths (never deleted)
+## Media mồ côi (E8-S06)
 
-- `Banner.backgroundImage`
-- `HeroContent.videoUrl`
-- `News.imageUrl`
-- `Partner.image`
-- `Product.imageUrl`
-- `ProductCategory.imageUrl`
-- `Project.imageUrl`
-- `Service.image`
-- `StorageMedia.path`
+Tham chiếu gồm section live/draftData, Page.sections/draftSections cũ có data, mọi PageVersion.snapshot,
+collection, site profile và nội dung các bản backup JSON còn giữ trong `MEDIA_BACKUP_DIR`.
+Inventory `media[]` của backup không phải tham chiếu. File JSON hỏng hoặc thư mục cấu hình không đọc được dừng cả lượt.
+Thư mục backup ở ngoài public, chỉ process vận hành được ghi. Dùng `tenant:export` để tạo bundle;
+retention/backup DB vật lý do hạ tầng quản lý, không có endpoint cron công khai.
 
-## Protected files (never deleted)
-
-- `public/images/logo.*` (e.g. `logo.png`, `logo.svg`)
-- `public/images/our_story.webp`
-
----
-
-## VPS setup (no Vercel cron)
-
-Set a strong **CRON_SECRET** in your environment so only your cron runner can call the endpoint.
-
-### Option A: System crontab
-
-1. Add to your `.env` (or server env):
-
-   ```env
-   CRON_SECRET=your-long-random-secret-here
-   ```
-
-2. Ensure the Next.js app is running (e.g. `pm2 start npm --name "next" -- start`).
-
-3. Add a crontab entry (run `crontab -e`):
-
-   ```cron
-   0 2 * * 6 curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" "http://localhost:3000/api/cron/cleanup-orphaned-media"
-   ```
-
-   Replace `YOUR_CRON_SECRET` and the URL if your app runs on another host/port. Use the same value as in your app’s `CRON_SECRET` env.
-
-### Option B: Node script with node-cron
-
-1. In `.env`:
-
-   ```env
-   CRON_SECRET=your-long-random-secret-here
-   BASE_URL=http://localhost:3000
-   # Optional: cron expression (default 0 2 * * 6 = Saturday 2:00 AM). Example: 0 3 * * 0 = Sunday 3:00 AM
-   CRON_SCHEDULE=0 2 * * 6
-   ```
-
-2. Run the cron script in the background (e.g. with pm2):
-
-   ```bash
-   npm run cron:weekly
-   ```
-
-   Or with pm2:
-
-   ```bash
-   pm2 start npm --name "weekly-cron" -- run cron:weekly
-   ```
-
-   The script uses **CRON_SCHEDULE** (cron expression; default `0 2 * * 6` = Saturday 2:00 AM) and timezone **TZ** (default `Asia/Ho_Chi_Minh`). The Next.js app must be running for the HTTP call to succeed.
-
----
-
-## Manual run
+Lần quét đầu ghi `orphanedAt`, không xóa. Tham chiếu lại xóa dấu mồ côi. Chỉ ready có dấu cũ hơn 30 ngày mới đủ điều kiện.
+Mỗi tenant dùng ReadCommitted, khóa ứng viên bằng `SELECT … FOR UPDATE` trước khi tính tham chiếu.
+Writer gắn ref chạm row media trong cùng transaction; sweep chờ khóa rồi thấy ref đã commit và giữ media.
+Ghi `media.orphan_deleted` và invalidate `tenant:<id>` cho media public cùng transaction; private không enqueue.
+Trước khi xóa row, resolve driver của row đang khóa; thiếu cấu hình thì log và bỏ qua row đó.
+Lỗi dữ liệu/timeout của một tenant rollback tenant đó, log danh sách tenant lỗi và tiếp tục tenant sau;
+CLI trả exit 1 nếu có tenant lỗi, kể cả dry-run. Backup hỏng vẫn dừng toàn lượt trước khi quét.
+Sau commit mới xóa gốc/biến thể đúng prefix tenant, đúng `Media.driver`.
+Log danh sách trước khi xóa. Lỗi xóa object sau commit cần vận hành xử lý từ log/audit vì row đã xóa;
+quét object không có row nằm ngoài story. Cấu hình đủ storage/backup trên worker.
 
 ```bash
-curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" "http://localhost:3000/api/cron/cleanup-orphaned-media"
+pnpm media:orphans --dry-run
+pnpm media:orphans --dry-run --tenant cong-ty-a
+pnpm media:orphans --tenant cong-ty-a
 ```
 
-Response includes `deletedCount`, `deleted` (paths), and any backup errors.
+Dry-run in JSON `[{tenantId,id,key,orphanedAt}]`, không ghi dấu, không xóa DB hay object.
+CLI và worker dùng `PLATFORM_DATABASE_URL` (role `app_platform`), thao tác qua `forPlatform()` + repository tenant.
+Không dùng `app_runtime` để quét chéo tenant.
+
+Chuyển kho, checksum, crawler và kiểm 1 GB R2 thật: [storage README](packages/storage/README.md).
