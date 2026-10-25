@@ -92,6 +92,9 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
   `next/image` trực tiếp đi cùng đường đó. Ảnh có `focal` để crop đúng chủ thể (`object-position`). Media chuyển public →
   worker enqueue invalidate tag tenant.
 - **Target**: ảnh hero trang chủ ≤ 200 KB ở 1280px, không tốn CPU tối ưu ảnh lúc chạy cho media đã upload.
-- **AC**: [ ] Lighthouse không báo "properly size images" ở trang chủ seed · [ ] Ảnh upload hiển thị bằng biến thể đúng kích
-  thước, không qua `/_next/image`.
+- **AC**: [x] Lighthouse không báo "properly size images" ở trang chủ seed — Lighthouse 12.8.2 `uses-responsive-images`
+  score 1 (t15/t12, mobile + desktop) + e2e `tenant.spec.ts` › "homepage images properly sized" (heuristic Lighthouse,
+  cuộn cả trang) · [x] Ảnh upload hiển thị bằng biến thể đúng kích thước, không qua `/_next/image` — e2e `tenant.spec.ts` ›
+  "uploaded image uses variants", web `media.test.ts`, ui `mediaUrl.test.ts`, sections `Media.test.tsx`; Target ≤ 200 KB
+  @1280 — worker `mediaScan.int.test.ts`.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
