@@ -39,13 +39,18 @@ export function createRateLimiter({ primary, fallback = memoryCounter() }: { pri
 }
 export type RateLimiter = ReturnType<typeof createRateLimiter>;
 
-const state = globalThis as typeof globalThis & { solarRateLimiter?: RateLimiter };
-export function getRateLimiter() {
+const state = globalThis as typeof globalThis & { solarRateLimiter?: RateLimiter; solarRateLimitRedis?: Redis };
+export function getRateLimitRedis() {
   const url = process.env.REDIS_URL;
-  return state.solarRateLimiter ??= createRateLimiter({ primary: url ? redisCounter(new Redis(url, {
+  if (!url) return undefined;
+  return state.solarRateLimitRedis ??= new Redis(url, {
     // Queue while connecting (bounded by commandTimeout) so the first requests after boot share the Redis quota.
     enableOfflineQueue: true, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1_000,
-  }).on("error", () => undefined)) : undefined });
+  }).on("error", () => undefined);
+}
+export function getRateLimiter() {
+  const redis = getRateLimitRedis();
+  return state.solarRateLimiter ??= createRateLimiter({ primary: redis ? redisCounter(redis) : undefined });
 }
 
 /** First hop of `x-forwarded-for` (set by Caddy), then `x-real-ip`. */

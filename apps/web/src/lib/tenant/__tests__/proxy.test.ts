@@ -15,6 +15,15 @@ const request = (host: string, path = "/", extra: Record<string, string> = {}) =
 const resolver = { resolve: async (host: string) => records.find((value) => value.hostname === host) ?? null };
 const proxy = createProxy(resolver, { enabled: true, production: false });
 
+test("health bypasses host proxy", () => {
+  for (const url of ["/api/health", "/api/health/", "/api/health?probe=1"]) {
+    assert.equal(unstable_doesMiddlewareMatch({ config, url }), false, url);
+  }
+  for (const url of ["/api/lead", "/api/health-private", "/api/health/other"]) {
+    assert.equal(unstable_doesMiddlewareMatch({ config, url }), true, url);
+  }
+});
+
 test("icon routes rewrite tenant PNGs and preserve version query", async () => {
   for (const path of ["/icon.png", "/apple-icon.png"]) {
     assert.equal(unstable_doesMiddlewareMatch({ config, url: path }), true);
