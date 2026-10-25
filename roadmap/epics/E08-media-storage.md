@@ -63,13 +63,13 @@ dạng AVIF/WebP đúng kích thước; LCP ảnh hero ≤ 2,5 s trên 4G.
 - **AC**: [x] Shorts với `provider=file` phát được từ local và R2 — e2e `tenant.spec.ts` › "shorts self-hosted video plays" (local, Range), worker `mediaScan.int.test.ts` › "s3 video publish serves range" (MinIO thay R2; R2 thật kiểm khi triển khai) · [x] Poster sinh tự động — worker `mediaScan.test.ts` + `mediaScan.int.test.ts` (ffmpeg thật, sáu biến thể AVIF/WebP).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
-### E8-S05 · Thư viện media trong CMS
+### E8-S05 · Thư viện media trong CMS ✅ · PR [#64](https://github.com/votuandi/landing-page-full-page-ui/pull/64)
 - **Chi tiết**: lưới ảnh, tìm theo tên/alt, lọc loại, kéo thả upload nhiều file, sửa alt (bắt buộc với ảnh nội dung), chọn
   điểm focal, xem nơi đang dùng; xóa ảnh đang dùng → cảnh báo danh sách chỗ dùng.
 - **AC**: [x] Không xóa được media đang được tham chiếu nếu không xác nhận · [x] Alt trống hiện cảnh báo SEO.
 - **Bằng chứng**: `packages/db/src/__tests__/mediaLibrary.int.test.ts` (xác nhận, FK, tenant, race 409),
   `apps/admin/src/__tests__/mediaLibrary.test.ts` (SEO); spec `media library: …` và `media status` trong
-  `tooling/visual/admin.spec.ts` đã viết, chờ Claude chạy browser/design pass và review trước PR.
+  `tooling/visual/admin.spec.ts` (upload kéo thả, alt, focal, nơi dùng, xóa 409/xác nhận, axe 390/1440, tắt JS, viewer).
 - Phụ thuộc: S02, E7-S02 · Agent: Claude · Cỡ: M
 
 ### E8-S06 · Dọn media mồ côi & chuyển driver
