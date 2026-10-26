@@ -43,3 +43,4 @@ export { mediaReferenceIds, backupMediaReferenceIds } from "./mediaRetention.ts"
 export { loadBackupMediaProtection } from "./mediaOrphans.ts";
 export type { OrphanMedia, OrphanOptions, OrphanTenantError } from "./mediaOrphans.ts";
 export { runMediaOrphans } from "./mediaOrphanCleanup.ts";
+export { rotateIntegrationSecrets } from "./secretsRotate.ts";

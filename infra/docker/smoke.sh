@@ -109,7 +109,7 @@ pass 'no EROFS / EACCES'
 docker rm -f "$container" >/dev/null
 container=''
 start=$(date +%s%3N)
-start_container 'postgresql://invalid:invalid@127.0.0.1:1/unavailable?connect_timeout=1'
+start_container 'postgresql://app_runtime:invalid@127.0.0.1:1/unavailable?connect_timeout=1'
 while [[ $(health_code) != 503 ]]; do
   [[ $(( $(date +%s%3N) - start )) -le 5000 ]] || fail 'bad DB did not return 503 within 5 seconds'
   sleep 0.1
@@ -117,4 +117,21 @@ done
 [[ $(( $(date +%s%3N) - start )) -le 5000 ]] || fail 'bad DB response > 5 seconds'
 assert_health error error
 pass 'bad DB is uncached 503 without details'
+docker rm -f "$container" >/dev/null
+container=''
+write_env ''
+# Do not supply DATABASE_URL at all: prove startup validation, before any request.
+sed '/^DATABASE_URL=/d' "$temp/env" > "$temp/missing-env"
+container=$(docker run "${args[@]}" --env-file "$temp/missing-env" "$image")
+start=$(date +%s)
+while [[ $(docker inspect --format '{{.State.Running}}' "$container") == true ]]; do
+  [[ $(( $(date +%s) - start )) -le 10 ]] || fail 'missing DATABASE_URL did not stop container'
+  sleep 0.1
+done
+[[ $(docker inspect --format '{{.State.ExitCode}}' "$container") == 1 ]] || fail 'missing DATABASE_URL exit code'
+docker logs "$container" > "$temp/missing.log" 2>&1
+grep -q 'DATABASE_URL' "$temp/missing.log" || fail 'missing DATABASE_URL diagnostic'
+if grep -Fq -- "$DATABASE_URL" "$temp/missing.log"; then fail 'startup log leaked DATABASE_URL'; fi
+if [[ $app == admin ]] && grep -Fq -- "$ADMIN_SESSION_SECRET" "$temp/missing.log"; then fail 'startup log leaked session secret'; fi
+pass 'missing DATABASE_URL exits 1 with name-only diagnostic'
 printf 'PASS  %s smoke\n' "$app"
