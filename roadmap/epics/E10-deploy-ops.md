@@ -31,7 +31,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   - [ ] Deploy phiên bản mới: không có request lỗi 5xx (đo bằng k6 trong lúc deploy).
 - Phụ thuộc: S01, E9-S02 · Agent: Codex · Cỡ: L
 
-### E10-S03 · Cache ISR dùng chung (Redis)
+### E10-S03 · Cache ISR dùng chung (Redis) ✅ · PR [#69](https://github.com/votuandi/landing-page-full-page-ui/pull/69)
 **Là** chủ dự án, **tôi muốn** mọi bản `web` thấy cùng một cache, **để** khách lưu nội dung là mọi người thấy bản mới.
 - **Chi tiết**: cài hợp đồng data cache `packages/cache` của E5-S05 và `cacheHandlers.default`
   (`"use cache"`, Next 16) bằng Redis. Không cấu hình `cacheHandler` ISR/route: route tenant động không đi qua incremental
