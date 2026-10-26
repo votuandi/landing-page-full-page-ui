@@ -28,6 +28,6 @@ export function createMemoryCache({ maxEntries = 5000, ttlMs = 24 * 60 * 60 * 10
     const invalid = new Set(tags);
     for (const [key, entry] of entries) if (entry.tags.some(tag => invalid.has(tag))) entries.delete(key);
   }
-  return { cached, invalidate };
+  return { cached, invalidate, evict(keyParts: CacheOptions["keyParts"]) { entries.delete(JSON.stringify(keyParts)); }, clear() { entries.clear(); } };
 }
-export type ContentCache = ReturnType<typeof createMemoryCache>;
+export type ContentCache = Pick<ReturnType<typeof createMemoryCache>, "cached" | "invalidate">;

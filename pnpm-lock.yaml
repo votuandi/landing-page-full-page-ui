@@ -272,6 +272,10 @@ importers:
         version: 5.9.3
 
   packages/cache:
+    dependencies:
+      ioredis:
+        specifier: 5.10.0
+        version: 5.10.0
     devDependencies:
       '@solar/config':
         specifier: workspace:*
