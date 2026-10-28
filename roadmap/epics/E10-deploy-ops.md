@@ -62,7 +62,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   - [ ] Ước tính chi phí hàng tháng ghi trong `infra/aws/README.md`.
 - Phụ thuộc: S01, S03, E8-S01, E9-S03 · Agent: Codex · Cỡ: L
 
-### E10-S05 · Cấu hình & bí mật
+### E10-S05 · Cấu hình & bí mật ✅ · PR [#70](https://github.com/votuandi/landing-page-full-page-ui/pull/70)
 - **Chi tiết**: `packages/env` kiểm biến môi trường bằng zod lúc khởi động (thiếu → không start, thông báo rõ); bí mật tích hợp
   của tenant (token Telegram, webhook) mã hóa AES-GCM bằng khóa `APP_ENCRYPTION_KEY` (hỗ trợ xoay khóa). `.env.example` đầy đủ.
   Secret phiên riêng cho từng realm (`ADMIN_SESSION_SECRET`, `CONSOLE_SESSION_SECRET`, D17); `DATABASE_URL` của console dùng
