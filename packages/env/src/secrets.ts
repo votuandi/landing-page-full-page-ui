@@ -1,6 +1,13 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { validKeyRing } from "./keyFormat.ts";
 
+export type SecretContext = { tenantId: string; integrationId: string };
+function secretAad(context: SecretContext): Buffer {
+  if (!context || typeof context.tenantId !== "string" || !context.tenantId
+    || typeof context.integrationId !== "string" || !context.integrationId) throw new Error("Bí mật cần ngữ cảnh tenant và integration");
+  return Buffer.from(JSON.stringify(["solar:lead-integration:v1", context.tenantId, context.integrationId]), "utf8");
+}
+
 function keyRing(value = process.env.APP_ENCRYPTION_KEY) {
   if (!value || !validKeyRing(value)) throw new Error("APP_ENCRYPTION_KEY cần danh sách khóa base64 32 byte, không trùng");
   const keys = value.split(",").map(key => {
@@ -17,24 +24,28 @@ function envelope(value: string) {
   if (body.length < 16 || body.toString("base64url") !== match[3]) throw new Error("Bí mật không hợp lệ");
   return { kid: match[1], iv, body };
 }
-export function encryptSecret(text: string, keys?: string): string {
+export function encryptSecret(text: string, keys: string | undefined, context: SecretContext): string {
+  const aad = secretAad(context);
   const key = keyRing(keys)[0], iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", key.bytes, iv);
+  cipher.setAAD(aad);
   const body = Buffer.concat([cipher.update(text, "utf8"), cipher.final(), cipher.getAuthTag()]);
   return `v1.${key.kid}.${iv.toString("base64url")}.${body.toString("base64url")}`;
 }
-export function decryptSecret(value: string, keys?: string): string {
+export function decryptSecret(value: string, keys: string | undefined, context: SecretContext): string {
+  const aad = secretAad(context);
   const ring = keyRing(keys), { kid, iv, body } = envelope(value);
   const key = ring.find(key => key.kid === kid);
   if (!key) throw new Error("Bí mật: khóa không còn trong danh sách");
   try {
     const decipher = createDecipheriv("aes-256-gcm", key.bytes, iv);
+    decipher.setAAD(aad);
     decipher.setAuthTag(body.subarray(-16));
     return Buffer.concat([decipher.update(body.subarray(0, -16)), decipher.final()]).toString("utf8");
   } catch { throw new Error("Bí mật không hợp lệ"); }
 }
-export function needsRotation(value: string, keys?: string): boolean {
+export function needsRotation(value: string, keys: string | undefined, context: SecretContext): boolean {
   const active = keyRing(keys)[0];
-  decryptSecret(value, keys);
+  decryptSecret(value, keys, context);
   return envelope(value).kid !== active.kid;
 }

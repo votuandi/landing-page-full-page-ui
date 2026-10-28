@@ -4,12 +4,12 @@ import { createPlatformDb, rotateIntegrationSecrets } from "../src/index.ts";
 
 loadEnv(workerEnv);
 // Validate the key ring before opening the database, including an empty database.
-encryptSecret("");
+encryptSecret("", undefined, { tenantId: "startup", integrationId: "key-check" });
 const db = createPlatformDb({ pool: 2 });
 try {
-  const result = await rotateIntegrationSecrets(db, value => {
+  const result = await rotateIntegrationSecrets(db, (value, context) => {
     if (!value.startsWith("v1.")) return null;
-    return needsRotation(value) ? encryptSecret(decryptSecret(value)) : value;
+    return needsRotation(value, undefined, context) ? encryptSecret(decryptSecret(value, undefined, context), undefined, context) : value;
   });
   console.log(JSON.stringify({ action: "secrets.rotate", ...result }));
 } catch {
