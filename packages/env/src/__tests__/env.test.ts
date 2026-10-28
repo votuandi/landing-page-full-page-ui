@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { adminEnv, consoleEnv, loadEnv, webEnv, workerEnv } from "../index.ts";
 
@@ -64,6 +66,59 @@ test("env.example khớp schema", () => {
     const keys = [...example.matchAll(/^([A-Z][A-Z0-9_]*)=/gm)].map(match => match[1]).sort();
     assert.deepEqual(keys, Object.keys(schema.shape).sort(), app);
   }
+});
+test("mọi biến runtime app và dependency có trong schema và env.example", () => {
+  const root = fileURLToPath(new URL("../../../../", import.meta.url));
+  const packages = new Map(readdirSync(join(root, "packages")).flatMap(dir => {
+    const manifest = join(root, "packages", dir, "package.json");
+    return existsSync(manifest) ? [[JSON.parse(readFileSync(manifest, "utf8")).name, join(root, "packages", dir)] as const] : [];
+  }));
+  // Next/Node inject these runtime selectors; they are not application configuration.
+  const allow = new Set(["NODE_ENV", "NEXT_RUNTIME", "NEXT_PHASE"]);
+  function sources(dir: string): string[] {
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+      if (["__tests__", "scripts", "fixtures", "__fixtures__"].includes(entry.name) || /\.(test|fixture)\.[cm]?[jt]sx?$/.test(entry.name)) return [];
+      const path = join(dir, entry.name);
+      return entry.isDirectory() ? sources(path) : /\.[cm]?[jt]sx?$/.test(entry.name) ? [path] : [];
+    });
+  }
+  const missing: string[] = [];
+  for (const [app, schema] of [["web", webEnv], ["admin", adminEnv], ["worker", workerEnv]] as const) {
+    const dirs = new Set<string>();
+    function visit(dir: string) {
+      if (dirs.has(dir)) return;
+      dirs.add(dir);
+      const manifest = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+      for (const name of Object.keys(manifest.dependencies ?? {})) if (packages.has(name)) visit(packages.get(name)!);
+    }
+    visit(join(root, "apps", app));
+    const example = readFileSync(join(root, "apps", app, ".env.example"), "utf8");
+    const exampleKeys = new Set([...example.matchAll(/^([A-Z][A-Z0-9_]*)=/gm)].map(match => match[1]));
+    for (const dir of dirs) for (const path of sources(join(dir, "src"))) {
+      const source = readFileSync(path, "utf8");
+      const names = new Set([...source.matchAll(/process\.env(?:\.([A-Z][A-Z0-9_]*)|\[["']([A-Z][A-Z0-9_]*)["']\])/g)].map(match => match[1] ?? match[2]));
+      if (dir === packages.get("@solar/storage")) {
+        // Storage accepts an env object and selects S3 keys dynamically; include its literal schema keys too.
+        for (const match of source.matchAll(/\b(?:STORAGE|S3|MEDIA)_[A-Z][A-Z0-9_]*\b/g)) if (!match[0].endsWith("_")) names.add(match[0]);
+      }
+      for (const name of names) if (!allow.has(name)) {
+        if (!Object.hasOwn(schema.shape, name)) missing.push(`${app}: schema thiếu ${name}`);
+        if (!exampleKeys.has(name)) missing.push(`${app}: env.example thiếu ${name}`);
+      }
+    }
+  }
+  assert.deepEqual([...new Set(missing)].sort(), []);
+});
+test("storage/media/lab env tùy chọn nhưng kiểm định dạng khi có", () => {
+  for (const [schema, base] of [[webEnv, {}], [adminEnv, admin], [workerEnv, { PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar" }]] as const) {
+    assert.ok(schema.safeParse(base).success);
+    for (const patch of [{ STORAGE_DRIVER: "r2" }, { S3_ENDPOINT: "file:///secret" }, { S3_FORCE_PATH_STYLE: "1" }, { STORAGE_LOCAL_ROOT: "bad\0path" }])
+      assert.ok(!schema.safeParse({ ...base, ...patch }).success, JSON.stringify(patch));
+    assert.ok(schema.safeParse({ ...base, STORAGE_DRIVER: "s3", S3_REGION: "auto", S3_ENDPOINT: "https://example.r2.cloudflarestorage.com", S3_FORCE_PATH_STYLE: "true" }).success);
+  }
+  assert.ok(!webEnv.safeParse({ LAB_ENABLED: "1" }).success);
+  assert.ok(!workerEnv.safeParse({ PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar", MEDIA_REQUIRE_FFMPEG: "true" }).success);
 });
 test("index không import node:crypto", () => {
   for (const file of ["index.ts", "keyFormat.ts"]) {

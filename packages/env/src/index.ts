@@ -14,7 +14,14 @@ const domain = text.regex(/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/, "tên miền không h
 const database = (role: string) => url(["postgres:", "postgresql:"]).refine(value => {
   try { return decodeURIComponent(new URL(value).username) === role; } catch { return false; }
 }, `phải dùng role ${role}`);
+const path = optional(text.refine(value => !value.includes("\0"), "đường dẫn không hợp lệ"));
+const bool = optional(z.enum(["true", "false"], { error: "chỉ nhận true hoặc false" }));
+const port = optional(text.refine(value => /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 65535, "cổng phải từ 1 đến 65535"));
 const common = {
+  DATABASE_URL: optional(database("app_runtime")), PLATFORM_DATABASE_URL: optional(database("app_platform")),
+  STORAGE_DRIVER: optional(z.enum(["local", "s3"], { error: "chỉ nhận local hoặc s3" })),
+  STORAGE_LOCAL_ROOT: path, S3_ENDPOINT: http, S3_BUCKET: optional(text), S3_REGION: optional(text),
+  S3_ACCESS_KEY_ID: optional(text), S3_SECRET_ACCESS_KEY: optional(text), S3_FORCE_PATH_STYLE: bool,
   APP_ENCRYPTION_KEY: optional(text.refine(validKeyRing, "cần danh sách khóa base64 32 byte, không trùng")),
   REDIS_URL: optional(url(["redis:", "rediss:"])),
   MEDIA_PUBLIC_BASE: http, MEDIA_PUBLIC_BASE_LOCAL: http, MEDIA_PUBLIC_BASE_S3: http,
@@ -22,9 +29,11 @@ const common = {
 };
 const preview = { PLATFORM_DOMAIN: optional(domain), PREVIEW_SECRET: optional(secret) };
 export const adminEnv = z.object({ ...common, ...preview,
+  TENANT_PUBLIC_PORT: port,
   DATABASE_URL: database("app_runtime"), PLATFORM_DOMAIN: domain, ADMIN_SESSION_SECRET: secret,
 });
 export const webEnv = z.object({ ...common, ...preview,
+  LAB_ENABLED: bool, TENANT_PUBLIC_PORT: port, ADMIN_PUBLIC_PORT: port,
   DATABASE_URL: optional(database("app_runtime")), MULTI_TENANT: optional(z.enum(["0", "1"], { error: "chỉ nhận 0 hoặc 1" })),
   NEXT_PUBLIC_SITE_URL: http, NEXT_PUBLIC_DEMO_MODE: optional(text), NEXT_PUBLIC_TEMPLATE_CTA_URL: optional(text),
   NEXT_PUBLIC_PRICING_URL: optional(text), NEXT_PUBLIC_SITE_MODE: optional(text), NEXT_PUBLIC_CATALOG_ENABLED: optional(text),
@@ -36,6 +45,8 @@ export const webEnv = z.object({ ...common, ...preview,
   if (env.MULTI_TENANT === "1" && !env.DATABASE_URL) ctx.addIssue({ code: "custom", path: ["DATABASE_URL"], message: "bắt buộc khi MULTI_TENANT=1" });
 });
 export const workerEnv = z.object({ ...common,
+  FFMPEG_PATH: path, FFPROBE_PATH: path,
+  MEDIA_REQUIRE_FFMPEG: optional(z.enum(["0", "1"], { error: "chỉ nhận 0 hoặc 1" })),
   PLATFORM_DATABASE_URL: database("app_platform"), REVALIDATE_SECRET: optional(text), WEB_REVALIDATE_URLS: httpList,
 });
 export const consoleEnv = z.object({ ...common, PLATFORM_DATABASE_URL: database("app_platform"),
