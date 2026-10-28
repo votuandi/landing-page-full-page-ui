@@ -10,6 +10,7 @@
     "test": "node scripts/test.mjs"
   },
   "dependencies": {
+    "@solar/env": "workspace:*",
     "@solar/db": "workspace:*",
     "@solar/storage": "workspace:*",
     "sharp": "0.35.5",

@@ -5,6 +5,7 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts", "./site-profile": "./src/siteProfile.ts" },
   "scripts": {
+    "secrets:rotate": "tsx scripts/secrets-rotate.ts",
     "storage:migrate": "tsx scripts/storage-migrate.ts",
     "media:orphans": "tsx scripts/media-orphans.ts",
     "tenant:export": "tsx scripts/tenant-export.ts",
@@ -35,6 +36,7 @@
     "@solar/storage": "workspace:*"
   },
   "devDependencies": {
+    "@solar/env": "workspace:*",
     "@solar/config": "workspace:*",
     "@types/node": "20.19.37",
     "@types/pg": "8.23.1",

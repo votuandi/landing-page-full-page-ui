@@ -189,6 +189,8 @@ function platformRepository(db: PlatformDb) {
       migrate: async (options: MigrateOptions) => (await import("./storageMigrate.ts")).migrateTenantStorage(db, options),
     },
     tenants: {
+      listIds: (after?: string) => client.tenant.findMany({ select: { id: true }, orderBy: { id: "asc" },
+        take: 100, ...(after ? { where: { id: { gt: after } } } : {}) }),
       bySlug: (slug: string) => resolveTenantSlug(db, slug),
       changePlan: (input: TenantPlanChange) => changeTenantPlan(db, input),
       scanExpiredOverrides: (options?: { now?: Date }) => scanExpiredOverrides(db, options),
