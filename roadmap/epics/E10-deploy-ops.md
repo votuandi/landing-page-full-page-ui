@@ -67,7 +67,8 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   của tenant (token Telegram, webhook) mã hóa AES-GCM bằng khóa `APP_ENCRYPTION_KEY` (hỗ trợ xoay khóa). `.env.example` đầy đủ.
   Secret phiên riêng cho từng realm (`ADMIN_SESSION_SECRET`, `CONSOLE_SESSION_SECRET`, D17); `DATABASE_URL` của console dùng
   role `app_platform`, của web/admin dùng `app_runtime` (E5-S09).
-- **AC**: [ ] Thiếu `DATABASE_URL` → container dừng với thông báo · [x] Không bí mật nào nằm trong log.
+- **AC**: [x] Thiếu `DATABASE_URL` → container dừng với thông báo — `infra/docker/smoke.sh` web/admin: exit 1, log chỉ có tên biến ·
+  [x] Không bí mật nào nằm trong log — `packages/env` test sentinel + smoke không thấy `DATABASE_URL`/session secret trong log.
 - Agent: Codex · Cỡ: S
 
 ### E10-S06 · Sao lưu & khôi phục
