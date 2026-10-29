@@ -50,6 +50,7 @@ for (const origin of ["projects", "shorts"]) {
     await expect(calc.getByText(/Đang hỏi giá: Công trình tương tự:/)).toBeVisible();
     await calc.getByLabel("Họ và tên").fill("Khách kiểm thử");
     await calc.getByLabel("Số điện thoại di động").fill("0901234500");
+    await calc.locator('[name="consent"]').check();
     await calc.getByRole("button", { name: "Nhận báo giá chi tiết" }).click();
     await expect.poll(() => body?.source).toBe("story-cta");
     expect(body?.segment).toBe("Hộ gia đình");

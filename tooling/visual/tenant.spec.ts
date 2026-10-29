@@ -622,6 +622,7 @@ test.describe("review fixtures: EN, complete cart lookup, mobile controls and th
     await page.goto(url + "/giai-phap/solar-gia-dinh", { waitUntil: "networkidle" });
     await page.getByLabel("Full name", { exact: false }).fill("Review");
     await page.getByLabel("Mobile number", { exact: false }).fill("0901234567");
+    await page.locator('main [name="consent"]').check();
     // E11-S01: tenant leads are stored; forms filled faster than 3 s are silently ignored, so wait like a person.
     await page.waitForTimeout(3_100);
     const response = page.waitForResponse((response) => response.url().endsWith("/api/lead"));
@@ -688,7 +689,7 @@ test("spoofed headers cannot select B; tenant lead API stores real leads and ign
   // Spoofed tenant headers are replaced by the proxy; the lead is stored for the host's tenant.
   const stored = await request.post("http://localhost:3211/api/lead", {
     headers: { Host: "t15.localhost", "x-tenant-id": "B", "x-site-id": "B" },
-    data: { name: "[DỮ LIỆU MẪU] E2E", phone: "0901234501", source: "contact", elapsedMs: 5_000 },
+    data: { name: "[DỮ LIỆU MẪU] E2E", phone: "0901234501", consent: true, source: "contact", elapsedMs: 5_000 },
   });
   expect(stored.status()).toBe(200);
   expect((await stored.json()).id).toEqual(expect.any(String));

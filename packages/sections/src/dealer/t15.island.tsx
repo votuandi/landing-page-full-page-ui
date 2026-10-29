@@ -6,6 +6,7 @@ import { PROVINCES, isVnMobile } from "@solar/core";
 import type { Locale } from "../site";
 import { useFillTimer } from "../shared/useFillTimer";
 import { TurnstileField } from "../shared/TurnstileField";
+import { LeadConsent } from "../shared/LeadConsent";
 
 type FormText = { title: string; description?: string; businessTypes: string[]; submitLabel: string; successTitle: string; successMessage: string };
 function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
@@ -26,6 +27,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
     if (!isVnMobile(data.phone || "")) next.phone = en ? "Invalid mobile number" : "Số di động chưa đúng";
     if (!PROVINCES.some((p) => p.name === data.province)) next.province = en ? "Choose a province" : "Chọn tỉnh/thành";
     if (!text.businessTypes.includes(data.businessType)) next.businessType = en ? "Choose a business type" : "Chọn loại hình kinh doanh";
+    if (!data.consent) next.consent = en ? "Please agree to the processing of your details." : "Vui lòng đồng ý cho phép xử lý thông tin để tư vấn và báo giá";
     setErrors(next);
     if (Object.keys(next).length) {
       (event.currentTarget.elements.namedItem(Object.keys(next)[0]) as HTMLElement | null)?.focus();
@@ -50,6 +52,7 @@ function DealerForm({ text, locale }: { text: FormText; locale: Locale }) {
     <label className="t15-label">{en ? "Business type" : "Loại hình kinh doanh"} *<select name="businessType" defaultValue="" className="t15-input min-h-12" {...aria("businessType")}><option value="" disabled>{en ? "Choose a business type" : "Chọn loại hình"}</option>{text.businessTypes.map((type) => <option key={type}>{type}</option>)}</select>{error("businessType")}</label>
     <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     <TurnstileField className="sm:col-span-2" resetKey={failures} />
+    <LeadConsent className="sm:col-span-2" text={en ? "I agree to the processing of my details to receive dealer advice." : "Tôi đồng ý cho phép xử lý thông tin để tư vấn đăng ký đại lý."} error={errors.consent} />
     <button disabled={status === "sending"} className="t15-button t15-button-primary min-h-12 disabled:opacity-60 sm:col-span-2">{status === "sending" ? (en ? "Sending…" : "Đang gửi…") : text.submitLabel}</button>
     {status === "error" && <p role="alert" className="text-sm font-bold text-danger sm:col-span-2">{message}</p>}
   </form>;

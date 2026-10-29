@@ -25,7 +25,7 @@ test("Postgres: a lead posted on tenant A's host is stored only in A, with its o
     const response = await handler(new Request(`http://${a.hostname}/api/lead`, {
       method: "POST", headers: { "x-tenant-id": a.tenantId, "x-site-id": a.siteId },
       // A forged tenant in the body is ignored.
-      body: JSON.stringify({ name: "Khách A", phone, source: "contact", elapsedMs: MIN_FILL_MS, tenantId: b.tenantId,
+      body: JSON.stringify({ name: "Khách A", phone, consent: true, source: "contact", elapsedMs: MIN_FILL_MS, tenantId: b.tenantId,
         zalo: "0901", address: " Q1 ", email: "a@b.vn", message: "Mái tôn", segment: "Hộ gia đình", page: "/lien-he", website: "",
         province: "Đồng Nai", businessType: "Đại lý cấp 1", estimate: { kWp: 6.5, roof: "tôn", storage: true },
         items: [{ sku: "pin-550", name: "Tấm pin 550W", qty: 12 }] }),
@@ -49,7 +49,7 @@ test("Postgres: a lead posted on tenant A's host is stored only in A, with its o
     // B's host cannot store a lead under A's site.
     const crossed = await handler(new Request(`http://${b.hostname}/api/lead`, {
       method: "POST", headers: { "x-tenant-id": b.tenantId, "x-site-id": a.siteId },
-      body: JSON.stringify({ name: "Khách B", phone, source: "contact", elapsedMs: MIN_FILL_MS }),
+      body: JSON.stringify({ name: "Khách B", phone, consent: true, source: "contact", elapsedMs: MIN_FILL_MS }),
     }));
     assert.equal(crossed.status, 404);
   } finally {
@@ -76,7 +76,7 @@ test("Postgres E11-S02: intake basic giữ lead nhưng không tạo job webhook/
       limiter: createRateLimiter(), verifyTurnstile: async () => true,
     });
     const response = await handler(new Request("http://basic.localhost/api/lead", { method: "POST", headers: { "x-tenant-id": tenantId, "x-site-id": siteId },
-      body: JSON.stringify({ name: "[DỮ LIỆU MẪU]", phone: "0901234598", source: "contact", elapsedMs: MIN_FILL_MS }) }));
+      body: JSON.stringify({ name: "[DỮ LIỆU MẪU]", phone: "0901234598", consent: true, source: "contact", elapsedMs: MIN_FILL_MS }) }));
     assert.equal(response.status, 200);
     const { id } = await response.json();
     assert.ok(await platform.lead.findUnique({ where: { id } }));

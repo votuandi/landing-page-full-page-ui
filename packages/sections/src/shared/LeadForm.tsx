@@ -3,6 +3,7 @@
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { useFillTimer } from "./useFillTimer";
 import { TurnstileField } from "./TurnstileField";
+import { LeadConsent } from "./LeadConsent";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
 import type { Locale } from "../site";
@@ -56,6 +57,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
   const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [consentError, setConsentError] = useState("");
   const elapsedMs = useFillTimer();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -64,6 +66,8 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
     const form = new FormData(event.currentTarget);
     if (!isVnMobile(String(form.get("phone") || ""))) { setPhoneError(ui.badPhone); return; }
     setPhoneError("");
+    if (!form.get("consent")) { setConsentError(locale === "en" ? "Please agree to the processing of your details." : "Vui lòng đồng ý cho phép xử lý thông tin để tư vấn và báo giá"); event.currentTarget.querySelector<HTMLInputElement>('[name="consent"]')?.focus(); return; }
+    setConsentError("");
     setStatus("sending");
     setError("");
     try {
@@ -111,6 +115,7 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
       </div>
       {children && <div className={span}>{children}</div>}
       <TurnstileField className={span} resetKey={failures} />
+      <LeadConsent className={span} text={`${locale === "en" ? "I agree: " : "Tôi đồng ý: "}${text.privacy}`} error={consentError} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? ui.sending : text.submit}
       </button>
@@ -119,7 +124,6 @@ export function LeadForm({ locale, source, fields, text, getExtra, onSuccess, co
           {error}{text.fallbackPhone && <> {ui.orCall} <a className="underline" href={`tel:${normalizeVnPhone(text.fallbackPhone)}`}>{text.fallbackPhone}</a>.</>}
         </p>
       )}
-      <p className={`text-xs leading-5 text-fg-subtle ${span}`}>{text.privacy}</p>
     </form>
   );
 }

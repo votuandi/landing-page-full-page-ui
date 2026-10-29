@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { calculateSolar } from "@solar/core";
+import { LeadConsent } from "../shared/LeadConsent";
+
+test("lead consent: SSR renders a required unchecked checkbox and visible error", () => {
+  const html = renderToStaticMarkup(createElement(LeadConsent, { text: "Tôi đồng ý", error: "Vui lòng đồng ý" }));
+  assert.match(html, /type="checkbox"/); assert.match(html, /name="consent"/); assert.match(html, /required=""/);
+  assert.ok(!html.includes("checked=")); assert.match(html, /Tôi đồng ý/); assert.match(html, /role="alert"/);
+});
 
 test("t07 variants render shared defaults in VI/EN under t07 and t15", async () => {
   for (const type of ["hero", "segments", "energy-monitoring", "process"]) {
