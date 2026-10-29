@@ -284,8 +284,10 @@ Chi tiết cache và ranh giới `Host` ở [web/README](../../apps/web/README.m
 
 ## Lead và outbox (E11-S01)
 
-- `createLead(db, tenantId, siteId, lead)`: một `withTenantTransaction` ghi `Lead` + một `Outbox{topic:"lead.deliver"}` cho
-  mỗi `LeadIntegration` đang bật (khóa `lead.deliver:<leadId>:<integrationId>`). Lỗi bất kỳ → không có lead thiếu job.
+- `createLead(db, tenantId, siteId, lead, { kinds })`: một `withTenantTransaction` ghi `Lead` + một `Outbox{topic:"lead.deliver"}` cho
+  mỗi `LeadIntegration` đang bật thuộc `kinds` (khóa `lead.deliver:<leadId>:<integrationId>`). Intake tính danh sách từ gói,
+  override và kill switch; email/Telegram luôn có, webhook/Sheets cần `leadWebhook`. Caller nội bộ/test S01 có thể bỏ
+  options để giữ hành vi mọi kênh bật. Lỗi bất kỳ → không có lead thiếu job.
 - `forPlatform(platformDb).outbox` (chỉ client `app_platform`, dùng ở worker/console): `claim` (SKIP LOCKED + lease),
   `complete`, `fail` (backoff `backoffMs`, dead = `failed` sau `maxAgeMs`), `resend`, `enqueue` (bỏ qua khóa trùng).
   Chi tiết ngữ nghĩa: `apps/worker/README.md`.

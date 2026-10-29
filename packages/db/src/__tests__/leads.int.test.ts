@@ -7,6 +7,22 @@ import { createDb, createLead, createPlatformDb, forPlatform, forTenant } from "
 const skip = !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL && process.env.TEST_OWNER_DATABASE_URL)
   && "DATABASE_URL/PLATFORM_DATABASE_URL/TEST_OWNER_DATABASE_URL missing: requires migrated PostgreSQL 16";
 
+test("Postgres createLead: bỏ kênh ngoài gói dù còn enabled", { skip }, async () => {
+  const db = createDb({ pool: 1 }), platform = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  try {
+    await platform.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "basic", status: "active" } });
+    const repo = forTenant(db, tenantId), site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    for (const kind of ["telegram", "webhook", "google_sheets"] as const) await repo.leadIntegration.create({ kind, name: kind, configEncrypted: "test" });
+    const result = await createLead(db, tenantId, site.id, { source: "contact", phone: "0901234567", data: {} }, { kinds: ["email", "telegram"] });
+    assert.equal(result.jobs, 1);
+    const jobs = await repo.outbox.list();
+    assert.equal((jobs[0].payload as { kind: string }).kind, "telegram");
+  } finally {
+    await platform.lead.deleteMany({ where: { tenantId } }); await platform.tenant.deleteMany({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), platform.$disconnect()]);
+  }
+});
+
 test("Postgres createLead: a failing outbox insert rolls back the lead (E11-S01, D14)", { skip }, async () => {
   const db = createDb({ pool: 1 }), platform = createPlatformDb({ pool: 1 });
   const owner = new pg.Pool({ connectionString: process.env.TEST_OWNER_DATABASE_URL, max: 1 });
