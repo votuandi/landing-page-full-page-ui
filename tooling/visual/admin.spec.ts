@@ -15,7 +15,7 @@ test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và
   const slug = "admin-e11-leads", url = origin(slug);
   fixture("lead-inbox-setup");
   await login(page, "owner@demo.vn", password(), slug);
-  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 }); // first authenticated render may be a cold next dev compile
   await page.goto(url + "/lead");
   await expect(page.getByRole("heading", { name: "Hộp thư lead", exact: true })).toBeVisible();
   const publicPage = await page.context().newPage();
@@ -27,12 +27,16 @@ test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và
       await publicPage.goto(`http://${slug}.${platformDomain}:3212/`, { waitUntil: "networkidle" });
       if (source === "popup") await publicPage.locator('[data-widget="contact-dock"]').getByRole("button", { name: "Nhận tư vấn", exact: true }).click();
       if (source === "quote-cart") {
-        await publicPage.locator('[data-section-type="products"]').getByRole("button", { name: /Thêm vào giỏ/ }).first().click();
+        // Products t15 links to the catalog; the cart widget reads localStorage like widgets.spec.ts.
+        await publicPage.evaluate(() => localStorage.setItem("t15-quote-cart", JSON.stringify([{ sku: "lead-inbox-product", qty: 2 }])));
+        await publicPage.reload({ waitUntil: "networkidle" });
         await publicPage.locator('[data-widget="quote-cart"]').getByRole("button", { name: "Mở giỏ báo giá" }).click();
       }
       const form = source === "dealer" ? publicPage.locator('[data-section-type="dealer"] form')
         : source === "home-bottom" ? publicPage.locator('[data-section-type="lead-form"] form') : publicPage.getByRole("dialog").locator("form");
       const name = `[DỮ LIỆU MẪU] Inbox ${Date.now()} ${source}`;
+      // A click before hydration natively GET-submits the form (trace: `/?name=…`), skipping the client consent check.
+      await expect.poll(() => form.evaluate(element => Object.keys(element).some(key => key.startsWith("__reactProps$"))), { timeout: 60_000 }).toBe(true);
       await form.locator('[name="name"]').fill(name);
       await form.locator('[name="phone"]').fill(`09012345${String(index).padStart(2, "0")}`);
       if (source === "dealer") { await form.locator('[name="province"]').selectOption({ index: 1 }); await form.locator('[name="businessType"]').selectOption({ index: 1 }); }
@@ -56,10 +60,15 @@ test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và
       await expect(row).toContainText("Chờ gửi");
       await expect(row).not.toContainText("Không có kênh gửi cho lead này.");
       if (index === 0) await row.getByLabel("Ghi chú", { exact: true }).fill("Bản nháp đang gõ");
-      if (index > 0) await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toHaveValue("Bản nháp đang gõ");
+      if (index > 0) {
+        // A live refresh must keep the open row open, not only the hidden textarea value.
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"] details`).first()).toHaveAttribute("open", "");
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toBeVisible();
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toHaveValue("Bản nháp đang gõ");
+      }
     }
     const first = page.locator(`[data-lead-id="${submitted[0].id}"]`);
-    await first.getByLabel("Trạng thái", { exact: true }).selectOption("quoted");
+    await first.locator('select[name="status"]').selectOption("quoted");
     await first.getByLabel("Ghi chú", { exact: true }).fill('=1+1,"ghi chú"');
     await first.getByLabel("Người phụ trách").selectOption({ label: "[DỮ LIỆU MẪU] Owner" });
     await first.getByRole("button", { name: "Lưu lead", exact: true }).click();
@@ -123,7 +132,7 @@ test("lead inbox: tab ẩn dừng poll, lỗi mạng hồi phục và nhãn đ�
   const slug = "admin-e11-leads";
   fixture("lead-inbox-setup");
   await login(page, "owner@demo.vn", password(), slug);
-  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
   await page.addInitScript(() => Object.defineProperty(document, "hidden", { configurable: true, get: () => true }));
   let polls = 0;
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
@@ -345,6 +354,14 @@ test.beforeAll(async ({ request }) => {
   // Warm new routes before timing user flows against next dev.
   for (const path of ["/", "/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
+    expect(response.status(), path).toBeLessThan(500);
+  }
+  // The lead inbox measures ≤5 s from submit to row; a cold next dev compile of these routes alone takes longer.
+  for (const path of ["/api/lead/moi-nhat", "/api/lead/csv"]) {
+    await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
+  }
+  for (const [method, path] of [["GET", "/"], ["POST", "/api/lead"]] as const) {
+    const response = await request.fetch(`http://localhost:3212${path}`, { method, headers: { Host: `admin-e7-a.${platformDomain}:3212` }, data: method === "POST" ? {} : undefined, timeout: 180_000, maxRetries: 2 });
     expect(response.status(), path).toBeLessThan(500);
   }
 });
