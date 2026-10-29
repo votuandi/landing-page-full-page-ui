@@ -70,7 +70,7 @@ export default async function Leads({ searchParams }: { searchParams: Promise<Re
           <div className="min-w-0"><h2 className="break-words text-lg font-semibold text-fg">{row.name || "Chưa có tên"}</h2>
             <a href={`tel:${row.phone}`} className={`rounded-button font-medium tabular-nums text-primary underline ${ring}`} translate="no">{row.phone}</a></div>
           <span className={`${pill} ${statusTone[row.status] ?? statusTone.spam}`}>{leadStatuses[row.status]}</span></div>
-        <dl className="mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:gap-x-6 lg:grid-cols-3">
           {[["Nguồn", sourceLabel(row.source)], ["Phân khúc", row.segment || "—"], ["Tỉnh/thành", info.province], ["Dự toán", info.estimate], ["Sản phẩm", info.items], ["Ngày nhận", vnTime(row.createdAt)]].map(([name, value]) => <div key={name} className="min-w-0"><dt className="text-fg-muted">{name}</dt><dd className="break-words text-fg">{value}</dd></div>)}
         </dl>
         <details className="group mt-4 border-t border-line/15 pt-2"><summary className={`min-h-11 cursor-pointer rounded-button py-2.5 font-semibold text-fg ${ring}`}>Chi tiết và chăm sóc lead</summary>
