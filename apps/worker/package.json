@@ -10,6 +10,7 @@
     "test": "node scripts/test.mjs"
   },
   "dependencies": {
+    "@solar/leads": "workspace:*",
     "@solar/env": "workspace:*",
     "@solar/db": "workspace:*",
     "@solar/storage": "workspace:*",
