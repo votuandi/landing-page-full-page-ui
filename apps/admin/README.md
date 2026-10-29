@@ -137,6 +137,18 @@ Dev khác cổng: admin đặt `TENANT_PUBLIC_PORT=3212`; web đặt `ADMIN_PUBL
 Production dùng HTTPS, không thêm cổng. Bộ e2e admin tự chạy cả hai app, cần DB local và seed như phần kiểm tra.
 Lab `/lab/cms-content` dùng lưu giả và iframe mẫu cố định; kiểm độ trễ thực tế nằm trong `tooling/visual/admin.spec.ts`.
 
+## Hộp thư lead (E11-S03)
+
+`/lead` yêu cầu `leads.view` và `leadInbox` (Nâng cao trở lên). Danh sách lọc theo trạng thái, nguồn, ngày Việt Nam,
+tên/SĐT; tối đa 100 lead mỗi trang. Tab đang mở kiểm lead mới mỗi 3 giây; ghi chú đang gõ giữ nguyên khi cập nhật.
+Chi tiết có nhu cầu, dự toán, giỏ sản phẩm, thời điểm đồng ý và trạng thái gửi kênh. `leads.manage` được sửa trạng thái,
+ghi chú, gửi lại job thất bại và xác nhận xóa lead cùng các job chưa hoàn tất. Lead cũ chưa ghi đồng ý hiện “—”.
+
+Gói Cao cấp có `leadAssign` (người phụ trách/chi nhánh cùng tenant) và `leadExport`: GET `/api/lead/csv` dùng cùng bộ lọc,
+UTF-8 BOM, CRLF và chống công thức Excel. GET `/api/lead/moi-nhat` chỉ trả dấu mốc thay đổi, không trả nội dung khách hàng.
+Trang/API dùng `private, no-store`; audit chỉ chứa ID, tên trường thay đổi hoặc bộ lọc không chứa từ khóa tìm kiếm.
+Form website yêu cầu checkbox đồng ý và lưu `data.consentAt` do server cấp.
+
 ## CSV sản phẩm
 
 Trang `/noi-dung/san-pham` có tải CSV, chọn file và xem trước từng dòng trước khi xác nhận nhập.

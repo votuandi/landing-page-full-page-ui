@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueueInvalidate } from "@solar/db";
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
-import { sectionRegistry } from "@solar/sections";
+import { sectionRegistry, widgetRegistry } from "@solar/sections";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const fixtures = [
@@ -12,6 +12,8 @@ const fixtures = [
   { id: "e7000000-0000-4000-8000-000000000004", slug: "admin-e7-paused", status: "suspended" as const },
   { id: "e7060000-0000-4000-8000-000000000001", slug: "admin-e7-collections-basic", status: "active" as const },
   { id: "e8030000-0000-4000-8000-000000000001", slug: "admin-e8-media-denied", status: "active" as const, permissionPolicy: { deny: ["media.view"] } },
+  { id: "e1100300-0000-4000-8000-000000000001", slug: "admin-e11-leads", status: "active" as const },
+  { id: "e1100300-0000-4000-8000-000000000002", slug: "admin-e11-other", status: "active" as const },
 ];
 async function main() {
   const db = createPlatformDb({ pool: 2 });
@@ -41,7 +43,7 @@ async function main() {
               await repo.auditLog.create({ action: '"☀"'.repeat(80), entity: "Site", entityId: site.id });
               await repo.page.create({ siteId: site.id, slug: "dashboard-draft", title: { vi: "[DỮ LIỆU MẪU] Bản nháp tổng quan" }, sections: [], draftSections: [] });
             }
-            if (index === 0) for (const [username, role] of [["editor_admin", "editor"], ["viewer_admin", "viewer"], ["staff_admin", "staff"], ["customer_client", "client"]] as const) {
+            if (index === 0 || fixture.slug === "admin-e11-leads") for (const [username, role] of [["editor_admin", "editor"], ["viewer_admin", "viewer"], ["staff_admin", "staff"], ["customer_client", "client"]] as const) {
               await repo.siteUser.create({ username, name: "[DỮ LIỆU MẪU]", role, status: "active", passwordHash: hashes[0] });
             }
             if (index === 2) for (const [username, expired] of [["nangluongsolar_admin", false], ["expired_admin", true]] as const) {
@@ -57,6 +59,42 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "lead-inbox-setup") {
+      const id = fixtures.find(f => f.slug === "admin-e11-leads")!.id;
+      const json = (value: unknown) => JSON.parse(JSON.stringify(value));
+      await db.tenant.update({ where: { id }, data: { planId: "premium", permissionPolicy: {} } });
+      await withTenantTransaction(db, id, async repo => {
+        const site = await repo.site.first(), home = await repo.page.first({ where: { slug: "", kind: "home" } });
+        if (!site || !home) throw new Error("Lead inbox fixture requires global setup");
+        const { buildDemo } = await import("../../../packages/db/prisma/seed-data.ts");
+        const original = buildDemo("t15").collections.products[0];
+        if (!await repo.product.first({ where: { slug: "lead-inbox-product" } })) await repo.product.create({ slug: "lead-inbox-product", title: { vi: "[DỮ LIỆU MẪU] Pin hộp thư" }, status: "published", data: json(original.data), price: 1000000 });
+        const descriptors = ["hero", "lead-form", "dealer", "products"].map(type => ({ id: `inbox-${type}`, type, variant: "t15", enabled: true }));
+        for (const section of descriptors) {
+          const def = sectionRegistry.getType(section.type)!;
+          const data = json({ ...def.defaults as object, ...(section.type === "products" ? { query: { collection: "products", limit: 8, filter: {} } } : {}) });
+          const old = await repo.sectionContent.first({ where: { pageId: home.id, sectionId: section.id } });
+          if (old) await repo.sectionContent.update(old.id, { data });
+          else await repo.sectionContent.create({ siteId: site.id, pageId: home.id, sectionId: section.id, type: section.type, data });
+        }
+        await repo.page.update(home.id, { sections: descriptors, publishedAt: new Date() });
+        const widgets = Object.fromEntries(["contact-dock", "consult-popup", "quote-cart"].map(type => [type, { enabled: true, variant: "t15", data: json({ ...widgetRegistry.getType(type)!.defaults as object, ...(type === "consult-popup" ? { autoOpen: false } : {}), ...(type === "quote-cart" ? { query: { collection: "products", limit: 48, filter: {} } } : {}) }) }]));
+        await repo.site.update(site.id, { themeId: "t15", widgets });
+        if (!await repo.leadIntegration.first()) await repo.leadIntegration.create({ kind: "telegram", name: "[DỮ LIỆU MẪU] Hộp thư", configEncrypted: "test", enabled: true });
+        await enqueueInvalidate(repo, [`tenant:${id}`], [`admin-e11-leads.${platformDomain}`]);
+      });
+    } else if (action === "lead-inbox-plan") {
+      const planId = process.argv[3];
+      if (!["premium", "pro", "basic"].includes(planId)) throw new Error("Invalid plan");
+      await db.tenant.update({ where: { id: fixtures.find(f => f.slug === "admin-e11-leads")!.id }, data: { planId } });
+    } else if (action === "lead-inbox-policy") {
+      const deny = process.argv[3] === "view-only" ? ["leads.manage"] : [];
+      await db.tenant.update({ where: { id: fixtures.find(f => f.slug === "admin-e11-leads")!.id }, data: { permissionPolicy: { deny } } });
+    } else if (action === "lead-inbox-fail") {
+      const repo = forTenant(db, fixtures.find(f => f.slug === "admin-e11-leads")!.id);
+      const jobs = await repo.outbox.list({ where: { topic: "lead.deliver", payload: { path: ["leadId"], equals: process.argv[3] } } });
+      if (!jobs.length) throw new Error("Expected delivery job");
+      for (const job of jobs) await repo.outbox.update(job.id, { status: "failed", attempts: 3 });
     } else if (action === "media-scan") {
       const { createMediaRuntime } = await import("../../worker/src/mediaRuntime.ts");
       const id = process.argv[3], repo = forTenant(db, tenantId);

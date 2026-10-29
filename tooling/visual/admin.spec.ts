@@ -9,12 +9,142 @@ import { parseCsv, toCsv } from "../../packages/db/src/csv";
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const origin = (slug = "admin-e7-a") => `http://${slug}.admin.${platformDomain}:3300`;
 const password = () => `${process.env.SEED_PASSWORD!}-t15`;
+
+test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và quyền", async ({ page, browser }, info) => {
+  test.setTimeout(240000);
+  const slug = "admin-e11-leads", url = origin(slug);
+  fixture("lead-inbox-setup");
+  await login(page, "owner@demo.vn", password(), slug);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(url + "/lead");
+  await expect(page.getByRole("heading", { name: "Hộp thư lead", exact: true })).toBeVisible();
+  const publicPage = await page.context().newPage();
+  await publicPage.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
+  const submitted: { id: string; name: string; source: string }[] = [];
+  try {
+    for (const [index, source] of ["home-bottom", "dealer", "popup", "quote-cart"].entries()) {
+      await publicPage.bringToFront();
+      await publicPage.goto(`http://${slug}.${platformDomain}:3212/`, { waitUntil: "networkidle" });
+      if (source === "popup") await publicPage.locator('[data-widget="contact-dock"]').getByRole("button", { name: "Nhận tư vấn", exact: true }).click();
+      if (source === "quote-cart") {
+        await publicPage.locator('[data-section-type="products"]').getByRole("button", { name: /Thêm vào giỏ/ }).first().click();
+        await publicPage.locator('[data-widget="quote-cart"]').getByRole("button", { name: "Mở giỏ báo giá" }).click();
+      }
+      const form = source === "dealer" ? publicPage.locator('[data-section-type="dealer"] form')
+        : source === "home-bottom" ? publicPage.locator('[data-section-type="lead-form"] form') : publicPage.getByRole("dialog").locator("form");
+      const name = `[DỮ LIỆU MẪU] Inbox ${Date.now()} ${source}`;
+      await form.locator('[name="name"]').fill(name);
+      await form.locator('[name="phone"]').fill(`09012345${String(index).padStart(2, "0")}`);
+      if (source === "dealer") { await form.locator('[name="province"]').selectOption({ index: 1 }); await form.locator('[name="businessType"]').selectOption({ index: 1 }); }
+      if (index === 0) {
+        await expect(form.locator('[name="consent"]')).not.toBeChecked();
+        await form.locator('button[type="submit"], button:not([type])').click();
+        await expect(form.getByRole("alert")).toContainText("Vui lòng đồng ý");
+        await expect(form.locator('[name="name"]')).toHaveValue(name);
+      }
+      await form.locator('[name="consent"]').check();
+      await publicPage.waitForTimeout(3100);
+      const received = publicPage.waitForResponse(res => res.url().endsWith("/api/lead") && res.request().method() === "POST");
+      await form.locator('button[type="submit"], button:not([type])').click();
+      const response = await received; expect(response.status()).toBe(200);
+      const { id } = await response.json(); expect(id).toEqual(expect.any(String)); submitted.push({ id, name, source });
+      await page.bringToFront();
+      const row = page.locator(`[data-lead-id="${id}"]`);
+      await expect(row).toBeVisible({ timeout: 5000 });
+      await expect(row).toContainText(name);
+      await row.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+      await expect(row).toContainText("Chờ gửi");
+      await expect(row).not.toContainText("Không có kênh gửi cho lead này.");
+      if (index === 0) await row.getByLabel("Ghi chú", { exact: true }).fill("Bản nháp đang gõ");
+      if (index > 0) await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toHaveValue("Bản nháp đang gõ");
+    }
+    const first = page.locator(`[data-lead-id="${submitted[0].id}"]`);
+    await first.getByLabel("Trạng thái", { exact: true }).selectOption("quoted");
+    await first.getByLabel("Ghi chú", { exact: true }).fill('=1+1,"ghi chú"');
+    await first.getByLabel("Người phụ trách").selectOption({ label: "[DỮ LIỆU MẪU] Owner" });
+    await first.getByRole("button", { name: "Lưu lead", exact: true }).click();
+    await expect(first).toContainText("Đã lưu lead");
+    await page.reload(); await expect(first).toContainText("Báo giá");
+    await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await expect(first.getByLabel("Ghi chú", { exact: true })).toHaveValue('=1+1,"ghi chú"');
+    fixture("lead-inbox-fail", submitted[0].id); await page.reload();
+    await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await first.getByRole("button", { name: "Gửi lại", exact: true }).click();
+    await expect(first).toContainText("Chờ gửi");
+    const cookies = await page.context().cookies(url);
+    const csv = await page.request.get("http://127.0.0.1:3300/api/lead/csv?trang-thai=quoted", { headers: { Host: `${slug}.admin.${platformDomain}:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; ") } });
+    expect(csv.status()).toBe(200); expect(csv.headers()["cache-control"]).toBe("private, no-store");
+    const bytes = await csv.body(); expect([...bytes.subarray(0, 3)]).toEqual([239, 187, 191]);
+    expect(parseCsv(bytes.toString("utf8")).slice(1).some(row => row.includes(submitted[0].name) && row.includes('\'=1+1,"ghi chú"'))).toBe(true);
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+      await info.attach(`lead-inbox-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    }
+    fixture("lead-inbox-policy", "view-only"); await page.reload();
+    await expect(page.getByRole("button", { name: "Lưu lead", exact: true })).toHaveCount(0);
+    fixture("lead-inbox-policy", "restore"); fixture("lead-inbox-plan", "pro"); await page.reload();
+    await expect(page.getByRole("link", { name: "Xuất CSV" })).toHaveCount(0);
+    expect(await page.evaluate(async () => (await fetch("/api/lead/csv")).status)).toBe(403);
+    fixture("lead-inbox-plan", "basic");
+    expect(await page.evaluate(async () => (await fetch("/api/lead/moi-nhat")).status)).toBe(403);
+    fixture("lead-inbox-plan", "premium");
+    const otherContext = await browser.newContext(), other = await otherContext.newPage();
+    try {
+      await login(other, "owner@demo.vn", password(), "admin-e11-other");
+      await expect(other.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+      await other.goto(origin("admin-e11-other") + "/lead");
+      for (const { id } of submitted) await expect(other.locator(`[data-lead-id="${id}"]`)).toHaveCount(0);
+      for (const identifier of ["viewer_admin", "editor_admin"]) {
+        await page.context().clearCookies(); await login(page, identifier, password(), slug);
+        await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+        expect((await page.goto(url + "/lead"))?.status()).toBe(403);
+        expect(await page.evaluate(async () => (await fetch("/api/lead/csv")).status)).toBe(403);
+      }
+    } finally { await otherContext.close(); }
+    await page.context().clearCookies(); await login(page, "staff_admin", password(), slug);
+    await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    await page.goto(url + "/lead");
+    const last = page.locator(`[data-lead-id="${submitted[3].id}"]`);
+    await last.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await last.getByText("Xóa lead theo yêu cầu", { exact: true }).click();
+    await last.getByRole("button", { name: "Xác nhận xóa lead", exact: true }).click(); await expect(last).toHaveCount(0);
+  } finally { fixture("lead-inbox-plan", "premium"); fixture("lead-inbox-policy", "restore"); await publicPage.close(); }
+});
 async function apiSession(page: Page, slug = "admin-e7-a") {
   const cookies = await page.context().cookies(origin(slug));
   return page.request.get("http://127.0.0.1:3300/api/session", { headers: {
     Host: `${slug}.admin.${platformDomain}:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "),
   } });
 }
+
+test("lead inbox: tab ẩn dừng poll, lỗi mạng hồi phục và nhãn đồng ý không cần JS", async ({ page, browser }) => {
+  const slug = "admin-e11-leads";
+  fixture("lead-inbox-setup");
+  await login(page, "owner@demo.vn", password(), slug);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.addInitScript(() => Object.defineProperty(document, "hidden", { configurable: true, get: () => true }));
+  let polls = 0;
+  const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
+  await page.route("**/api/lead/moi-nhat", async route => {
+    polls++;
+    if (polls === 1) await route.abort("failed");
+    else await route.fulfill({ json: { latest: "test-new-lead" } });
+  });
+  await page.goto(origin(slug) + "/lead");
+  await page.waitForTimeout(3300); expect(polls).toBe(0);
+  await page.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => false }); document.dispatchEvent(new Event("visibilitychange")); });
+  await expect.poll(() => polls).toBeGreaterThanOrEqual(2);
+  await expect(page.getByText("Có lead mới", { exact: true })).toBeVisible(); expect(errors).toEqual([]);
+  const plainContext = await browser.newContext({ javaScriptEnabled: false }), plain = await plainContext.newPage();
+  try {
+    await plain.goto(`http://${slug}.${platformDomain}:3212/`);
+    const consent = plain.locator('[data-section-type="lead-form"] [name="consent"]');
+    await expect(consent).toBeVisible(); await expect(consent).not.toBeChecked();
+    await expect(consent).toHaveAttribute("required", ""); await expect(consent.locator("..")).toContainText("Tôi đồng ý");
+  } finally { await plainContext.close(); }
+});
 function fixture(...args: string[]) {
   return execFileSync(process.execPath, ["--import", "tsx", "scripts/browser-fixture.ts", ...args], {
     cwd: resolve(__dirname, "../../apps/admin"), encoding: "utf8", timeout: 180_000,

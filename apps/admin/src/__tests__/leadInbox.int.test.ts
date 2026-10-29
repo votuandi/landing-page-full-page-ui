@@ -1,0 +1,62 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { randomUUID } from "node:crypto";
+import { createDb, createPlatformDb, forTenant, listLeads, updateLead, deleteLead, resendLead, latestLeadAt, leadWeeklySources } from "@solar/db";
+
+const skip = !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "requires migrated PostgreSQL";
+test("leadInbox list filters, cursor, legacy lead, update status, assign, resend, delete and cross-tenant", { skip }, async () => {
+  const db = createDb({ pool: 1 }), platform = createPlatformDb({ pool: 1 });
+  const a = randomUUID(), b = randomUUID(), actor = { type: "site_user" as const, id: randomUUID() };
+  try {
+    for (const id of [a, b]) await platform.tenant.create({ data: { id, slug: id, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const ra = forTenant(db, a), rb = forTenant(db, b);
+    const lead = await ra.lead.create({ source: "dealer", phone: "0901234567", name: "[DỮ LIỆU MẪU]", data: {} });
+    const other = await rb.lead.create({ source: "contact", phone: "0901234568", data: {} });
+    assert.equal(lead.note, null); assert.equal(lead.assigneeId, null);
+    const user = await rb.siteUser.create({ name: "[DỮ LIỆU MẪU]", role: "staff" });
+    const branch = await rb.branch.create({ slug: "mau", title: { vi: "[DỮ LIỆU MẪU]" }, data: {} });
+    assert.equal(await updateLead(db, a, lead.id, { assigneeId: user.id }, actor), false);
+    assert.equal(await updateLead(db, a, lead.id, { branchId: branch.id }, actor), false);
+    assert.equal(await updateLead(db, a, other.id, { status: "quoted" }, actor), false);
+    assert.equal(await updateLead(db, a, lead.id, { status: "quoted", note: "Gọi lại" }, actor), true);
+    const ownUser = await ra.siteUser.create({ name: "[DỮ LIỆU MẪU]", role: "staff" });
+    const ownBranch = await ra.branch.create({ slug: "mau", title: { vi: "[DỮ LIỆU MẪU]" }, data: {} });
+    assert.equal(await updateLead(db, a, lead.id, { assigneeId: ownUser.id, branchId: ownBranch.id }, actor), true);
+    assert.equal((await ra.lead.get(lead.id))?.assigneeId, ownUser.id);
+    await ra.siteUser.delete(ownUser.id); await ra.branch.delete(ownBranch.id);
+    assert.equal((await ra.lead.get(lead.id))?.assigneeId, null); assert.equal((await ra.lead.get(lead.id))?.branchId, null);
+    assert.equal((await listLeads(db, a, { status: "quoted", source: "dealer", q: "0901" })).rows.length, 1);
+    assert.equal((await listLeads(db, a, { source: "contact" })).rows.length, 0);
+    assert.equal((await listLeads(db, a, { from: "2099-01-01T00:00:00Z" })).rows.length, 0);
+    for (let i = 0; i < 3; i++) await ra.lead.create({ source: "contact", phone: "0901234567", data: {}, createdAt: lead.createdAt });
+    await ra.lead.create({ source: "contact", phone: "0901234567", data: {}, status: "spam" });
+    const first = await listLeads(db, a, {}, { limit: 2 });
+    const second = await listLeads(db, a, {}, { limit: 2, cursor: first.cursor! });
+    assert.equal(new Set([...first.rows, ...second.rows].map(row => row.id)).size, 4);
+    assert.equal(second.cursor, null);
+    assert.deepEqual((await listLeads(db, a, {}, { cursor: other.id })).rows, []);
+    assert.deepEqual((await listLeads(db, a, {}, { cursor: randomUUID() })).rows, []);
+    const weekly = await leadWeeklySources(db, a);
+    assert.equal(weekly.reduce((sum, row) => sum + row.count, 0), 4);
+    assert.equal(weekly.find(row => row.source === "dealer")?.count, 1);
+    const job = await ra.outbox.create({ topic: "lead.deliver", payload: { leadId: lead.id, kind: "telegram" }, idempotencyKey: randomUUID(), status: "failed" });
+    const done = await ra.outbox.create({ topic: "lead.deliver", payload: { leadId: lead.id }, idempotencyKey: randomUUID(), status: "done" });
+    const foreign = await rb.outbox.create({ topic: "lead.deliver", payload: { leadId: other.id }, idempotencyKey: randomUUID(), status: "failed" });
+    assert.equal(await resendLead(db, a, lead.id, foreign.id, actor), false);
+    assert.equal(await resendLead(db, a, other.id, job.id, actor), false);
+    assert.equal(await resendLead(db, a, lead.id, done.id, actor), false);
+    assert.equal(await resendLead(db, a, lead.id, job.id, actor), true);
+    assert.equal((await ra.outbox.get(job.id))?.status, "pending");
+    assert.equal((await listLeads(db, a, { q: "0901" })).rows.find(row => row.id === lead.id)?.jobs.length, 2);
+    assert.ok(await latestLeadAt(db, a));
+    assert.equal(await deleteLead(db, a, other.id, actor), false);
+    assert.equal(await deleteLead(db, a, lead.id, actor), true);
+    assert.equal(await ra.outbox.get(job.id), null); assert.ok(await ra.outbox.get(done.id)); assert.ok(await rb.lead.get(other.id));
+    const audit = await ra.auditLog.first({ where: { action: "lead.delete" } });
+    assert.ok(audit); assert.ok(!JSON.stringify(audit).includes("0901234567")); assert.ok(!JSON.stringify(audit).includes("Gọi lại"));
+  } finally {
+    await platform.lead.deleteMany({ where: { tenantId: { in: [a, b] } } });
+    await platform.tenant.deleteMany({ where: { id: { in: [a, b] } } });
+    await Promise.all([db.$disconnect(), platform.$disconnect()]);
+  }
+});
