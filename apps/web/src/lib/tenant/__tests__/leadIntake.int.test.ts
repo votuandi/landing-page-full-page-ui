@@ -67,6 +67,8 @@ test("Postgres E11-S02: intake basic giữ lead nhưng không tạo job webhook/
   try {
     await platform.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU] Lead basic", planId: "basic", status: "active" } });
     await platform.site.create({ data: { id: siteId, tenantId, name: "[DỮ LIỆU MẪU]", themeId: "t15" } });
+    // loadTenantSite only serves sites with a verified primary domain.
+    await platform.domain.create({ data: { tenantId, siteId, hostname: `basic-${tenantId.slice(0, 8)}.localhost`, isPrimary: true, status: "active", verificationToken: "test" } });
     for (const kind of ["webhook", "google_sheets", "telegram"] as const) await platform.leadIntegration.create({ data: { tenantId, kind, name: kind, configEncrypted: "test" } });
     const handler = createTenantLeadHandler({
       loadSite: createSiteData(tenantRepository).loadTenantSite,
