@@ -23,13 +23,13 @@ export default async function Leads({ searchParams }: { searchParams: Promise<Re
   const manage = session.permissions.has("leads.manage");
   // Read the watermark first: a lead arriving during list rendering must still trigger the next refresh.
   const latest = await leadInboxDeps.latest(tenantId);
-  const [page, weekly, users, branches, sources] = await Promise.all([
-    leadInboxDeps.list(tenantId, filters, { cursor: params.get("cursor") ?? undefined }),
-    leadWeeklySources(getRuntime().db, tenantId),
-    can("leadAssign") ? repo.siteUser.list({ where: { role: { not: "client" } }, select: { id: true, name: true }, orderBy: { name: "asc" } }) : [],
-    can("leadAssign") ? repo.branch.list({ select: { id: true, title: true }, orderBy: { order: "asc" } }) : [],
-    repo.lead.list({ where: { status: { not: "spam" } }, distinct: ["source"], select: { source: true }, orderBy: { source: "asc" } }),
-  ]);
+  // Sequential on purpose: each call is its own tenant transaction holding a connection. In parallel, one page took the
+  // whole admin pool (5) and starved login, layout and the 3 s live poll of other tabs (P2028).
+  const page = await leadInboxDeps.list(tenantId, filters, { cursor: params.get("cursor") ?? undefined });
+  const weekly = await leadWeeklySources(getRuntime().db, tenantId);
+  const users = can("leadAssign") ? await repo.siteUser.list({ where: { role: { not: "client" } }, select: { id: true, name: true }, orderBy: { name: "asc" } }) : [];
+  const branches = can("leadAssign") ? await repo.branch.list({ select: { id: true, title: true }, orderBy: { order: "asc" } }) : [];
+  const sources = await repo.lead.list({ where: { status: { not: "spam" } }, distinct: ["source"], select: { source: true }, orderBy: { source: "asc" } });
   const stats = weeklyStats(weekly), csvParams = new URLSearchParams(params); csvParams.delete("cursor");
   const nextParams = new URLSearchParams(params); if (page.cursor) nextParams.set("cursor", page.cursor);
   return <section className="min-w-0 space-y-6">
