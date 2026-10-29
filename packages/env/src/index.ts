@@ -18,6 +18,8 @@ const path = optional(text.refine(value => !value.includes("\0"), "đường d�
 const bool = optional(z.enum(["true", "false"], { error: "chỉ nhận true hoặc false" }));
 const port = optional(text.refine(value => /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 65535, "cổng phải từ 1 đến 65535"));
 const common = {
+  TELEGRAM_BOT_TOKEN: optional(text), TELEGRAM_BOT_USERNAME: optional(text.regex(/^[A-Za-z0-9_]{5,32}$/, "tên bot Telegram không hợp lệ")),
+  RESEND_API_KEY: optional(text), LEAD_EMAIL_FROM: optional(text),
   DATABASE_URL: optional(database("app_runtime")), PLATFORM_DATABASE_URL: optional(database("app_platform")),
   STORAGE_DRIVER: optional(z.enum(["local", "s3"], { error: "chỉ nhận local hoặc s3" })),
   STORAGE_LOCAL_ROOT: path, S3_ENDPOINT: http, S3_BUCKET: optional(text), S3_REGION: optional(text),
@@ -38,7 +40,7 @@ export const webEnv = z.object({ ...common, ...preview,
   NEXT_PUBLIC_SITE_URL: http, NEXT_PUBLIC_DEMO_MODE: optional(text), NEXT_PUBLIC_TEMPLATE_CTA_URL: optional(text),
   NEXT_PUBLIC_PRICING_URL: optional(text), NEXT_PUBLIC_SITE_MODE: optional(text), NEXT_PUBLIC_CATALOG_ENABLED: optional(text),
   LEAD_ADAPTERS: optional(text), LEAD_WEBHOOK_URL: http, LEAD_WEBHOOK_TOKEN: optional(text),
-  GOOGLE_SHEETS_WEBAPP_URL: http, GOOGLE_SHEETS_SECRET: optional(text), TELEGRAM_BOT_TOKEN: optional(text), TELEGRAM_CHAT_ID: optional(text),
+  GOOGLE_SHEETS_WEBAPP_URL: http, GOOGLE_SHEETS_SECRET: optional(text), TELEGRAM_CHAT_ID: optional(text),
   PLATFORM_DOMAINS: optional(text), NOINDEX_DOMAINS: optional(text), REVALIDATE_SECRET: optional(text),
   WEB_REVALIDATE_URLS: httpList, TURNSTILE_SITE_KEY: optional(text), TURNSTILE_SECRET_KEY: optional(text),
 }).superRefine((env, ctx) => {

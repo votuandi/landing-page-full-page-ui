@@ -9,10 +9,11 @@ export type LeadInput = {
 };
 
 /** D14: the lead and one `lead.deliver` job per enabled channel commit together, or not at all. */
-export function createLead(db: Db | PlatformDb, tenantId: string, siteId: string, lead: LeadInput) {
+export function createLead(db: Db | PlatformDb, tenantId: string, siteId: string, lead: LeadInput, options?: { kinds: readonly string[] }) {
   return withTenantTransaction(db, tenantId, async repo => {
     const row = await repo.lead.create({ siteId, ...lead });
-    const integrations = await repo.leadIntegration.list({ where: { enabled: true }, select: { id: true, kind: true }, orderBy: { id: "asc" } });
+    const enabled = await repo.leadIntegration.list({ where: { enabled: true }, select: { id: true, kind: true }, orderBy: { id: "asc" } });
+    const integrations = enabled.filter(channel => !options || options.kinds.includes(channel.kind));
     for (const { id, kind } of integrations) {
       await repo.outbox.create({
         topic: "lead.deliver", payload: { leadId: row.id, integrationId: id, kind }, idempotencyKey: `lead.deliver:${row.id}:${id}`,

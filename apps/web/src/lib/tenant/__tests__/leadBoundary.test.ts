@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import https from "node:https";
+import { syncBuiltinESMExports } from "node:module";
+import { EventEmitter } from "node:events";
+import { PassThrough } from "node:stream";
 import { POST } from "../../../app/api/lead/route";
 import { leadFeatures, leadSourceFeature } from "../entitlements";
 import { createTenantLeadHandler, LEAD_LIMITS, MIN_FILL_MS, toLeadInput, verifyTurnstile } from "../leadIntake";
@@ -7,6 +11,7 @@ import { createRateLimiter, memoryCounter, redisCounter } from "../rateLimit";
 import { parseLead } from "../../leads/parse";
 import type { SiteEntitlements } from "../siteData";
 import type { LeadInput } from "@solar/db";
+import type { ChannelKind } from "@solar/leads";
 
 const tenantId = "00000000-0000-4000-8000-000000000001", siteId = "00000000-0000-4000-8000-000000000002";
 const entitlements = (patch: Partial<SiteEntitlements> = {}): SiteEntitlements =>
@@ -35,6 +40,23 @@ test("tenant without quoteCart: POST /api/lead with source quote-cart → 403 in
   // Kill switch on an allowed feature also closes the endpoint.
   assert.equal((await setup({ disabled: ["calculator"] }).handler(post(lead("calculator")))).status, 403);
   assert.equal(saved.length, 1);
+});
+
+test("E11-S02: intake chỉ enqueue kinds được gói/override/kill switch cho phép", async () => {
+  for (const [patch, expected] of [
+    [{ planId: "basic" }, ["email", "telegram"]],
+    [{ planId: "pro" }, ["email", "telegram", "webhook", "google_sheets"]],
+    [{ planId: "pro", disabled: ["leadWebhook"] }, ["email", "telegram"]],
+    [{ planId: "pro", featureOverrides: { leadWebhook: { on: false, reason: "Tạm tắt" } } }, ["email", "telegram"]],
+  ] as [Partial<SiteEntitlements>, ChannelKind[]][]) {
+    let received: readonly string[] = [];
+    const handler = createTenantLeadHandler({
+      loadSite: async () => ({ entitlements: entitlements(patch) }), limiter: createRateLimiter(), verifyTurnstile: async () => true,
+      saveLead: async (_t, _s, _lead, { kinds }) => { received = kinds; return { id: "saved" }; },
+    });
+    assert.equal((await handler(post(lead("contact")))).status, 200);
+    assert.deepEqual(received, expected);
+  }
 });
 
 test("payload cannot unlock features through an allowed source (E5-S04 contract)", async () => {
@@ -279,13 +301,24 @@ test("IP quota is per tenant: A's 11th request from one IP → 429, B from the s
 });
 
 test("legacy single-site path dispatches the full cleaned t15 payload to the env adapters", async (t) => {
-  const original = globalThis.fetch;
-  const env = { LEAD_ADAPTERS: process.env.LEAD_ADAPTERS, LEAD_WEBHOOK_URL: process.env.LEAD_WEBHOOK_URL };
+  const env = { LEAD_ADAPTERS: process.env.LEAD_ADAPTERS, LEAD_WEBHOOK_URL: process.env.LEAD_WEBHOOK_URL, LEAD_WEBHOOK_TOKEN: process.env.LEAD_WEBHOOK_TOKEN };
   const sent: Record<string, unknown>[] = [];
-  globalThis.fetch = (async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init.body))); return new Response("ok"); }) as typeof fetch;
-  process.env.LEAD_ADAPTERS = "webhook"; process.env.LEAD_WEBHOOK_URL = "https://hooks.example.test/lead";
+  // E11-S02: tenant URLs use Node HTTPS with pinned DNS rather than fetch.
+  t.mock.method(https, "request", ((_url: URL, options: { headers: Record<string, string> }, callback: (response: unknown) => void) => {
+    assert.equal(options.headers.Authorization, "Bearer legacy-token");
+    assert.ok(options.headers["X-Solar-Signature"]);
+    const request = new EventEmitter() as EventEmitter & { end(body: string): void };
+    request.end = body => {
+      sent.push(JSON.parse(body));
+      const response = new PassThrough(); Object.assign(response, { statusCode: 200, headers: {} });
+      callback(response); response.end("ok");
+    };
+    return request;
+  }) as unknown as typeof https.request);
+  syncBuiltinESMExports();
+  process.env.LEAD_ADAPTERS = "webhook"; process.env.LEAD_WEBHOOK_URL = "https://hooks.example.test/lead"; process.env.LEAD_WEBHOOK_TOKEN = "legacy-token";
   t.after(() => {
-    globalThis.fetch = original;
+    t.mock.restoreAll(); syncBuiltinESMExports();
     for (const [key, value] of Object.entries(env)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
   });
   const response = await POST(new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify({

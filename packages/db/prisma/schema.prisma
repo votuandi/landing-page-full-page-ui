@@ -126,6 +126,7 @@ enum OutboxStatus {
 }
 
 enum IntegrationKind {
+  email
   webhook
   google_sheets
   telegram

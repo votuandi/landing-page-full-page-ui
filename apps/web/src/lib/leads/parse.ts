@@ -1,5 +1,5 @@
 import { isVnMobile, normalizeVnPhone } from "@solar/core";
-import type { Lead } from "./types";
+import type { Lead } from "@solar/leads";
 
 export const str = (value: unknown, max = 300) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 

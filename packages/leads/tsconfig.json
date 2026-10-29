@@ -1,0 +1,5 @@
+{
+  "extends": "@solar/config/tsconfig.base.json",
+  "compilerOptions": { "lib": ["es2023", "dom"], "types": ["node"], "allowImportingTsExtensions": true },
+  "include": ["src/**/*.ts"]
+}

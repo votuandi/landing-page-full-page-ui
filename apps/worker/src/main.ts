@@ -1,5 +1,6 @@
 import { createPlatformDb, forPlatform, POOL_BUDGET } from "@solar/db";
 import { loadEnv, workerEnv } from "@solar/env";
+import { createLeadSenders } from "@solar/leads";
 import { every, startWorker } from "./loop.ts";
 import { startBillingCron } from "./billing.ts";
 import { createLeadDeliver } from "./handlers/leadDeliver.ts";
@@ -8,7 +9,7 @@ import { createLogNotifier, createNotify } from "./handlers/notify.ts";
 import { invalidateTopic } from "./handlers/invalidate.ts";
 import { createMediaRuntime } from "./mediaRuntime.ts";
 
-loadEnv(workerEnv);
+const env = loadEnv(workerEnv);
 const db = createPlatformDb({ pool: POOL_BUDGET.worker });
 const notify = createNotify({ notifier: createLogNotifier(db) });
 const overrideExpiry = every(5 * 60_000, () => forPlatform(db).tenants.scanExpiredOverrides({ now: new Date() }));
@@ -23,7 +24,7 @@ const worker = startWorker({
     invalidate: invalidateTopic,
     "media.scan": { handle: media.scan },
     "media.publish": { handle: media.publish },
-    "lead.deliver": { handle: createLeadDeliver({ db, senders: {} }) },
+    "lead.deliver": { handle: createLeadDeliver({ db, senders: createLeadSenders(env) }) },
     "notify.plan-changed": { handle: notify },
     "notify.renewal": { handle: notify },
     "notify.suspended": { handle: notify },

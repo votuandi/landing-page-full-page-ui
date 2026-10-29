@@ -13,6 +13,18 @@ function invalid(schema: Parameters<typeof loadEnv>[0], values: NodeJS.ProcessEn
   return lines.join("\n");
 }
 test("admin env hợp lệ", () => assert.equal(loadEnv(adminEnv, admin).PLATFORM_DOMAIN, admin.PLATFORM_DOMAIN));
+
+test("E11-S02: env giữ cấu hình lead optional qua admin/web/worker/console và kiểm bot username", () => {
+  const lead = { TELEGRAM_BOT_TOKEN: "test-token", TELEGRAM_BOT_USERNAME: "solar_demo_bot", RESEND_API_KEY: "test-resend", LEAD_EMAIL_FROM: "Solar <lead@x.vn>" };
+  for (const [schema, base] of [[adminEnv, admin], [webEnv, {}], [workerEnv, { PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar" }],
+    [consoleEnv, { PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar", CONSOLE_SESSION_SECRET: "b".repeat(32) }]] as const) {
+    const parsed = loadEnv(schema, { ...base, ...lead });
+    for (const [key, value] of Object.entries(lead)) assert.equal(parsed[key as keyof typeof parsed], value);
+    const empty = loadEnv(schema, { ...base, ...Object.fromEntries(Object.keys(lead).map(key => [key, ""])) });
+    for (const key of Object.keys(lead)) assert.equal(empty[key as keyof typeof empty], undefined);
+    assert.ok(!schema.safeParse({ ...base, TELEGRAM_BOT_USERNAME: "bad/<script>" }).success);
+  }
+});
 test("chuỗi rỗng = thiếu", () => assert.match(invalid(adminEnv, { ...admin, DATABASE_URL: "" }), /DATABASE_URL/));
 test("liệt kê mọi lỗi", () => {
   const log = invalid(adminEnv, {});

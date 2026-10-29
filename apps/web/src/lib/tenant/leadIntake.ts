@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { assertCan } from "@solar/plans";
+import { assertCan, can } from "@solar/plans";
 import { createLead, type LeadInput } from "@solar/db";
 import { parseLead, str } from "@/lib/leads/parse";
-import type { Lead } from "@/lib/leads/types";
+import type { Lead, ChannelKind } from "@solar/leads";
 import { entitlementResponse, leadFeatures } from "./entitlements";
 import { clientIp, getRateLimiter, type RateLimiter } from "./rateLimit";
 import { loadTenantSite, type SiteEntitlements } from "./siteData";
@@ -14,7 +14,7 @@ export const LEAD_LIMITS = { ip: { limit: 10, windowMs: 60_000 }, phone: { limit
 
 type Deps = {
   loadSite: (tenantId: string, siteId: string) => Promise<{ entitlements: SiteEntitlements } | null>;
-  saveLead: (tenantId: string, siteId: string, lead: LeadInput) => Promise<{ id: string }>;
+  saveLead: (tenantId: string, siteId: string, lead: LeadInput, options: { kinds: ChannelKind[] }) => Promise<{ id: string }>;
   limiter: RateLimiter;
   verifyTurnstile?: (token: string, ip: string) => Promise<boolean>;
 };
@@ -80,7 +80,9 @@ export function createTenantLeadHandler({ loadSite, saveLead, limiter, verifyTur
     }
 
     try {
-      const { id } = await saveLead(tenantId, siteId, toLeadInput(parsed.lead));
+      const kinds: ChannelKind[] = ["email", "telegram"];
+      if (can(site.entitlements, "leadWebhook", { disabled: site.entitlements.disabled })) kinds.push("webhook", "google_sheets");
+      const { id } = await saveLead(tenantId, siteId, toLeadInput(parsed.lead), { kinds });
       return json({ ok: true, id });
     } catch (error) { return unavailable(error, tenantId, siteId); }
   };
@@ -90,7 +92,7 @@ let handler: ReturnType<typeof createTenantLeadHandler> | undefined;
 // Lazy so single-site mode never opens Prisma or Redis.
 export const tenantLeadHandler = (request: Request) => (handler ??= createTenantLeadHandler({
   loadSite: loadTenantSite,
-  saveLead: (tenantId, siteId, lead) => createLead(getWebDb(), tenantId, siteId, lead),
+  saveLead: (tenantId, siteId, lead, options) => createLead(getWebDb(), tenantId, siteId, lead, options),
   // Resolved per call: building the handler must not open Redis (requests rejected earlier never need it).
   limiter: (key, limit, windowMs) => getRateLimiter()(key, limit, windowMs),
 }))(request);

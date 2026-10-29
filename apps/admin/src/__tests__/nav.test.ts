@@ -11,7 +11,7 @@ const links = (nav: ReturnType<typeof adminNav>) => nav.flatMap(group => group.i
 
 test("owner navigation contains all story screens in order and the account group", () => {
   const nav = adminNav({ permissions, can });
-  assert.deepEqual(links(nav).map(item => item.href), ["/", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/cai-dat", "/ten-mien", "/email", "/nhan-vien", "/goi", "/doi-mat-khau", "/tai-khoan/bao-mat"]);
+  assert.deepEqual(links(nav).map(item => item.href), ["/", "/trang", "/noi-dung", "/media", "/lead", "/giao-dien", "/cai-dat", "/cai-dat/kenh-nhan-lead", "/ten-mien", "/email", "/nhan-vien", "/goi", "/doi-mat-khau", "/tai-khoan/bao-mat"]);
   assert.equal(nav[1].label, "Tài khoản của tôi");
 });
 
@@ -45,7 +45,7 @@ test("ghost has no account security group; empty navigation groups are removed",
 });
 
 test("current matches root exactly and nested routes only at a path boundary", () => {
-  for (const [pathname, expected] of [["/", ["/"]], ["/nhan-vien/x", ["/nhan-vien"]], ["/nhan-vien-khac", []], [null, []], [undefined, []]] as const) {
+  for (const [pathname, expected] of [["/", ["/"]], ["/nhan-vien/x", ["/nhan-vien"]], ["/cai-dat/kenh-nhan-lead", ["/cai-dat/kenh-nhan-lead"]], ["/nhan-vien-khac", []], [null, []], [undefined, []]] as const) {
     assert.deepEqual(links(adminNav({ permissions, can, pathname })).filter(item => item.current).map(item => item.href), expected);
   }
 });

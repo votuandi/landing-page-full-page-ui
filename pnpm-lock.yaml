@@ -44,6 +44,9 @@ importers:
       '@solar/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@solar/leads':
+        specifier: workspace:*
+        version: link:../../packages/leads
       '@solar/plans':
         specifier: workspace:*
         version: link:../../packages/plans
@@ -138,6 +141,9 @@ importers:
       '@solar/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@solar/leads':
+        specifier: workspace:*
+        version: link:../../packages/leads
       '@solar/plans':
         specifier: workspace:*
         version: link:../../packages/plans
@@ -226,6 +232,9 @@ importers:
       '@solar/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@solar/leads':
+        specifier: workspace:*
+        version: link:../../packages/leads
       '@solar/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -457,6 +466,31 @@ importers:
 
   packages/env:
     dependencies:
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@solar/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 20.19.37
+        version: 20.19.37
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/leads:
+    dependencies:
+      '@solar/env':
+        specifier: workspace:*
+        version: link:../env
       zod:
         specifier: 4.6.5
         version: 4.6.5

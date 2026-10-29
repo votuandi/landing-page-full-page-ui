@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { randomUUID } from "node:crypto";
 import { createLead, createPlatformDb, forPlatform } from "@solar/db";
 import { getWebDb } from "../db";
 import { createTenantLeadHandler, MIN_FILL_MS } from "../leadIntake";
@@ -14,7 +15,7 @@ test("Postgres: a lead posted on tenant A's host is stored only in A, with its o
   const [a, b] = await Promise.all(["t15", "t12"].map((id) => forPlatform(db).domains.resolve(`${id}.localhost`)));
   assert.ok(a && b && a.tenantId !== b.tenantId);
   const handler = createTenantLeadHandler({
-    loadSite: data.loadTenantSite, saveLead: (tenantId, siteId, lead) => createLead(db, tenantId, siteId, lead),
+    loadSite: data.loadTenantSite, saveLead: (tenantId, siteId, lead, options) => createLead(db, tenantId, siteId, lead, options),
     limiter: createRateLimiter(), verifyTurnstile: async () => true,
   });
   const integration = await platform.leadIntegration.create({ data: { tenantId: a.tenantId, kind: "webhook", name: "[DỮ LIỆU MẪU] test", configEncrypted: "test" } });
@@ -56,5 +57,33 @@ test("Postgres: a lead posted on tenant A's host is stored only in A, with its o
     await platform.lead.deleteMany({ where: { phone } });
     await platform.leadIntegration.delete({ where: { id: integration.id } });
     await platform.$disconnect();
+  }
+});
+
+test("Postgres E11-S02: intake basic giữ lead nhưng không tạo job webhook/Sheets đang enabled", {
+  skip: !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "requires migrated PostgreSQL 16",
+}, async () => {
+  const db = getWebDb(), platform = createPlatformDb({ pool: 1 }), tenantId = randomUUID(), siteId = randomUUID();
+  try {
+    await platform.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU] Lead basic", planId: "basic", status: "active" } });
+    await platform.site.create({ data: { id: siteId, tenantId, name: "[DỮ LIỆU MẪU]", themeId: "t15" } });
+    // loadTenantSite only serves sites with a verified primary domain.
+    await platform.domain.create({ data: { tenantId, siteId, hostname: `basic-${tenantId.slice(0, 8)}.localhost`, isPrimary: true, status: "active", verificationToken: "test" } });
+    for (const kind of ["webhook", "google_sheets", "telegram"] as const) await platform.leadIntegration.create({ data: { tenantId, kind, name: kind, configEncrypted: "test" } });
+    const handler = createTenantLeadHandler({
+      loadSite: createSiteData(tenantRepository).loadTenantSite,
+      saveLead: (tid, sid, lead, options) => createLead(db, tid, sid, lead, options),
+      limiter: createRateLimiter(), verifyTurnstile: async () => true,
+    });
+    const response = await handler(new Request("http://basic.localhost/api/lead", { method: "POST", headers: { "x-tenant-id": tenantId, "x-site-id": siteId },
+      body: JSON.stringify({ name: "[DỮ LIỆU MẪU]", phone: "0901234598", source: "contact", elapsedMs: MIN_FILL_MS }) }));
+    assert.equal(response.status, 200);
+    const { id } = await response.json();
+    assert.ok(await platform.lead.findUnique({ where: { id } }));
+    const jobs = await platform.outbox.findMany({ where: { tenantId, topic: "lead.deliver" } });
+    assert.equal(jobs.length, 1); assert.equal((jobs[0].payload as { kind: string }).kind, "telegram");
+  } finally {
+    await platform.lead.deleteMany({ where: { tenantId } });
+    await platform.tenant.deleteMany({ where: { id: tenantId } }); await platform.$disconnect();
   }
 });

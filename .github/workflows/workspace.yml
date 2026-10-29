@@ -24,6 +24,9 @@ jobs:
       tenant_e2e: ${{ steps.map.outputs.tenant_e2e }}
       tenant_grep: ${{ steps.map.outputs.tenant_grep }}
       tenant_files: ${{ steps.map.outputs.tenant_files }}
+      turnstile_e2e: ${{ steps.map.outputs.turnstile_e2e }}
+      turnstile_grep: ${{ steps.map.outputs.turnstile_grep }}
+      turnstile_files: ${{ steps.map.outputs.turnstile_files }}
       preview_e2e: ${{ steps.map.outputs.preview_e2e }}
       preview_grep: ${{ steps.map.outputs.preview_grep }}
       preview_files: ${{ steps.map.outputs.preview_files }}
@@ -82,7 +85,7 @@ jobs:
         run: docker logs solar-storage-minio
   db:
     needs: changes
-    if: needs.changes.outputs.db == 'true' || needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
+    if: needs.changes.outputs.db == 'true' || needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.turnstile_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -150,23 +153,29 @@ jobs:
       - if: needs.changes.outputs.db == 'true'
         run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
-        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
+        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.turnstile_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
         run: |
           for host in preview-e5-t15 preview-e5-t12 preview-e5-t15.preview preview-e5-t12.preview preview-e5-t15.admin admin-e7-a admin-e7-a.preview admin-e7-a.admin admin-e7-b.admin nang-luong-solar.admin admin-e7-paused.admin missing.admin; do
             echo "127.0.0.1 $host.$E2E_PLATFORM_DOMAIN" | sudo tee -a /etc/hosts
           done
       - uses: actions/cache@v4
-        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
+        if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.turnstile_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
         with:
           path: ~/.cache/ms-playwright
           key: playwright-all-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
+      - if: needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.turnstile_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
         run: pnpm --filter @solar/visual exec playwright install --with-deps chromium webkit firefox
       - if: needs.changes.outputs.tenant_e2e == 'true'
         env:
           GREP: ${{ needs.changes.outputs.tenant_grep }}
           FILES: ${{ needs.changes.outputs.tenant_files }}
         run: pnpm --filter @solar/visual exec playwright test --config playwright.tenant.config.ts $FILES ${GREP:+--grep "$GREP"}
+      - name: Turnstile forms (sequential after tenant)
+        if: needs.changes.outputs.turnstile_e2e == 'true'
+        env:
+          GREP: ${{ needs.changes.outputs.turnstile_grep }}
+          FILES: ${{ needs.changes.outputs.turnstile_files }}
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.turnstile.config.ts $FILES ${GREP:+--grep "$GREP"}
       - if: needs.changes.outputs.preview_e2e == 'true'
         env:
           GREP: ${{ needs.changes.outputs.preview_grep }}
@@ -189,6 +198,7 @@ jobs:
           name: tenant-browser-evidence
           path: |
             tooling/visual/test-results/tenant
+            tooling/visual/test-results/turnstile
             tooling/visual/test-results/preview
             tooling/visual/test-results/production
   # Tách khỏi `db` để chạy song song (job `db` trước đây ~17 phút tuần tự).
