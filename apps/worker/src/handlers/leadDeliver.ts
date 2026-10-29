@@ -19,9 +19,9 @@ export function createLeadDeliver({ db, senders, repository = forTenant }: { db:
     const { leadId, integrationId } = payload.data;
     const repo = repository(db, job.tenantId);
     const [lead, integration] = await Promise.all([repo.lead.get(leadId), repo.leadIntegration.get(integrationId)]);
-    // A privacy deletion can race a claimed job: settle it quietly without delivering PII.
-    if (!lead) return;
-    if (!integration) throw new PermanentError("lead.deliver: kênh nhận không còn tồn tại");
+    // Also covers a privacy deletion racing a claimed job: deleteLead removed the row, so going dead is a no-op there,
+    // while forged cross-tenant jobs keep their dead audit (E11-S01).
+    if (!lead || !integration) throw new PermanentError("lead.deliver: lead hoặc kênh nhận không còn tồn tại");
     // Channel turned off after the lead arrived: nothing to send.
     if (!integration.enabled) return;
     const sender = senders[integration.kind];

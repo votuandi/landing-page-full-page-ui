@@ -86,6 +86,8 @@ db() {
     STORAGE_S3_TEST_ACCESS_KEY_ID=minioadmin STORAGE_S3_TEST_SECRET_ACCESS_KEY=minioadmin
   unset STORAGE_S3_TEST_BUCKET
   pnpm --filter @solar/db test
+  # Job `db` của CI chạy cả worker (outbox.int.test); thiếu bước này E11-S03 lọt hồi quy tới CI.
+  pnpm --filter worker test
   pnpm --filter web test:tenant
   pnpm --filter admin test
 }
