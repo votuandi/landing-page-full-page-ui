@@ -13,13 +13,13 @@ test("leadInbox list filters, cursor, legacy lead, update status, assign, resend
     const lead = await ra.lead.create({ source: "dealer", phone: "0901234567", name: "[DỮ LIỆU MẪU]", data: {} });
     const other = await rb.lead.create({ source: "contact", phone: "0901234568", data: {} });
     assert.equal(lead.note, null); assert.equal(lead.assigneeId, null);
-    const user = await rb.siteUser.create({ name: "[DỮ LIỆU MẪU]", role: "staff" });
+    const user = await rb.siteUser.create({ username: "lead_b_staff", name: "[DỮ LIỆU MẪU]", role: "staff" });
     const branch = await rb.branch.create({ slug: "mau", title: { vi: "[DỮ LIỆU MẪU]" }, data: {} });
     assert.equal(await updateLead(db, a, lead.id, { assigneeId: user.id }, actor), false);
     assert.equal(await updateLead(db, a, lead.id, { branchId: branch.id }, actor), false);
     assert.equal(await updateLead(db, a, other.id, { status: "quoted" }, actor), false);
     assert.equal(await updateLead(db, a, lead.id, { status: "quoted", note: "Gọi lại" }, actor), true);
-    const ownUser = await ra.siteUser.create({ name: "[DỮ LIỆU MẪU]", role: "staff" });
+    const ownUser = await ra.siteUser.create({ username: "lead_a_staff", name: "[DỮ LIỆU MẪU]", role: "staff" });
     const ownBranch = await ra.branch.create({ slug: "mau", title: { vi: "[DỮ LIỆU MẪU]" }, data: {} });
     assert.equal(await updateLead(db, a, lead.id, { assigneeId: ownUser.id, branchId: ownBranch.id }, actor), true);
     assert.equal((await ra.lead.get(lead.id))?.assigneeId, ownUser.id);
