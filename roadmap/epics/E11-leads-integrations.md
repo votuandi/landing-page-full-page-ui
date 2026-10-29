@@ -34,7 +34,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   không tự theo redirect sang host khác, kiểm lại IP lúc kết nối (chống DNS rebinding), timeout 10 s, giới hạn kích thước phản hồi.
 - **Chuyển từ E11-S01 (review PR #41, người dùng chốt 15/10/2026)**: e2e Playwright bật Turnstile (widget giả + khóa test
   Cloudflare cho Siteverify trên CI) trên 3 form — token vào request, `503 → reset widget → token mới → 200`, giữ dữ liệu form.
-- **AC**: [x] Mỗi kênh có test với mock · [ ] Kênh theo gói (webhook/Sheets từ gói Nâng cao) ·
+- **AC**: [x] Mỗi kênh có test với mock · [x] Kênh theo gói (webhook/Sheets từ gói Nâng cao) ·
   [x] Webhook trỏ `http://127.0.0.1`, `http://169.254.169.254`, host phân giải ra IP nội bộ, hoặc redirect sang chúng → bị từ chối.
 - Bằng chứng unit: `packages/leads/src/__tests__/{channels,safeRequest,config}.test.ts`;
   gói có unit admin/intake, còn chờ DB thật (`leads.int.test.ts`, `leadChannels.int.test.ts`) và e2e `turnstile.spec.ts`.
