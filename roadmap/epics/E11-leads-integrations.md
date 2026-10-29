@@ -26,7 +26,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 - PR: #41 (gộp E5-S05, E6-S03, E6-S05). Bằng chứng: `apps/worker/README.md`, `leadIntake.int.test.ts`, `outbox.int.test.ts`, `leads.int.test.ts`.
 - Agent: Codex · Cỡ: M
 
-### E11-S02 · Kênh nhận lead theo tenant
+### E11-S02 · Kênh nhận lead theo tenant ✅ · PR [#71](https://github.com/votuandi/landing-page-full-page-ui/pull/71)
 - **Chi tiết**: chuyển `lib/leads/*` của t15 thành `packages/leads`, cấu hình trong DB (mã hóa): email (Resend/SES/SMTP),
   Telegram (bot của nền tảng + chat id khách, hướng dẫn `/start`), Zalo OA (backlog), webhook (Zapier/Make/n8n/CRM, có ký
   HMAC), Google Sheets (Apps Script `scripts/lead-google-apps-script.gs`). Nút "Gửi thử".
