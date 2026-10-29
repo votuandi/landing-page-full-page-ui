@@ -89,7 +89,7 @@ test("every content FK uses the tenant composite key without cascading tenant ch
       checked++;
     }
   }
-  assert.equal(checked, 17, "must inspect all composite relations in this schema");
+  assert.equal(checked, 19, "must inspect all composite relations in this schema");
 });
 
 test("SQL migrations enforce the same tenant identities and composite foreign keys", () => {
@@ -103,7 +103,7 @@ test("SQL migrations enforce the same tenant identities and composite foreign ke
     assert.match(target, /^"tenantId", "\w+"$/, `${source} -> ${relation}`);
     checked++;
   }
-  assert.equal(checked, 17);
+  assert.equal(checked, 19);
 });
 
 test("account migration keeps DB checks in sync with core slug rules (D17, D21)", () => {

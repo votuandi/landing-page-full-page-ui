@@ -113,6 +113,7 @@ enum MediaStatus {
 enum LeadStatus {
   new
   contacted
+  quoted
   won
   lost
   spam
@@ -289,6 +290,7 @@ model SiteUser {
   sessions              SiteSession[]
   tokens                SiteToken[]
   pageVersions          PageVersion[]
+  assignedLeads         Lead[]
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
   tenant                Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -645,6 +647,7 @@ model Branch {
   data        Json          @default("{}")
   publishedAt DateTime?
   isPrimary   Boolean       @default(false)
+  leads       Lead[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -776,6 +779,11 @@ model Lead {
   message   String?
   data      Json
   status    LeadStatus @default(new)
+  note      String?
+  assigneeId String?   @db.Uuid
+  branchId   String?   @db.Uuid
+  assignee   SiteUser? @relation(fields: [tenantId, assigneeId], references: [tenantId, id], onDelete: SetNull, onUpdate: Restrict)
+  branch     Branch?   @relation(fields: [tenantId, branchId], references: [tenantId, id], onDelete: SetNull, onUpdate: Restrict)
   site      Site?      @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -784,6 +792,7 @@ model Lead {
   @@unique([tenantId, id])
   @@index([tenantId])
   @@index([tenantId, createdAt])
+  @@index([tenantId, status, createdAt])
 }
 
 model Outbox {

@@ -408,6 +408,9 @@ erDiagram
     String message
     Json data
     LeadStatus status
+    String note
+    String assigneeId
+    String branchId
     DateTime createdAt
     DateTime updatedAt
   }
@@ -492,6 +495,8 @@ erDiagram
   Tenant ||--o{ PressItem : "tenantId"
   Tenant ||--o{ Service : "tenantId"
   Tenant ||--o{ Media : "tenantId"
+  SiteUser |o--o{ Lead : "tenantId, assigneeId"
+  Branch |o--o{ Lead : "tenantId, branchId"
   Site |o--o{ Lead : "tenantId, siteId"
   Tenant ||--o{ Lead : "tenantId"
   Tenant |o--o{ Outbox : "tenantId"

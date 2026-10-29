@@ -19,7 +19,9 @@ export function createLeadDeliver({ db, senders, repository = forTenant }: { db:
     const { leadId, integrationId } = payload.data;
     const repo = repository(db, job.tenantId);
     const [lead, integration] = await Promise.all([repo.lead.get(leadId), repo.leadIntegration.get(integrationId)]);
-    if (!lead || !integration) throw new PermanentError("lead.deliver: lead hoặc kênh nhận không còn tồn tại");
+    // A privacy deletion can race a claimed job: settle it quietly without delivering PII.
+    if (!lead) return;
+    if (!integration) throw new PermanentError("lead.deliver: kênh nhận không còn tồn tại");
     // Channel turned off after the lead arrived: nothing to send.
     if (!integration.enabled) return;
     const sender = senders[integration.kind];

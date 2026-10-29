@@ -3,7 +3,7 @@ import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { createLeadSenders, ChannelError, sealConfig } from "@solar/leads";
 import { createLeadDeliver } from "../handlers/leadDeliver.ts";
-import { PermanentError } from "../loop.ts";
+import { PermanentError, runOnce } from "../loop.ts";
 import { forTenant, type Db, type OutboxJob } from "@solar/db";
 
 const keys = Buffer.alloc(32, 7).toString("base64");
@@ -15,6 +15,18 @@ const job = { tenantId, payload: { leadId, integrationId } } as OutboxJob;
 // The repository still checks tenant id on every lookup; fake only the Prisma I/O boundary.
 const db = {} as Db;
 const repository = (() => ({ lead: { get: async () => lead }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;
+
+test("lead deleted: claimed job completes without sending or failing", async () => {
+  let sent = false, completed = false;
+  const missing = (() => ({ lead: { get: async () => null }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;
+  const handle = createLeadDeliver({ db, repository: missing, senders: { telegram: { supportsIdempotency: false, send: async () => { sent = true; } } } });
+  await runOnce({ topics: { "lead.deliver": { handle } }, outbox: {
+    claim: async () => [{ ...job, topic: "lead.deliver" }],
+    complete: async () => { completed = true; return false; }, // deletion already removed the outbox row
+    fail: async () => { assert.fail("a deleted lead must not retry"); },
+  } });
+  assert.equal(sent, false); assert.equal(completed, true);
+});
 test("worker config hỏng → dead; lỗi retry giữ nguyên", async () => {
   for (const [error, permanent] of [[new ChannelError("Cấu hình kênh không hợp lệ", true), true], [new ChannelError("500"), false]] as const) {
     const handle = createLeadDeliver({ db, repository, senders: { telegram: { supportsIdempotency: false, send: async () => { throw error; } } } });

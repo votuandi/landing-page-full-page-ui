@@ -29,7 +29,7 @@ export const tenantRelations: Record<string, Record<string, string>> = {
   },
   // Platform rows have no tenant, so nested tenant connects from them are always rejected.
   PlatformAdmin: { pageVersions: "PageVersion" }, GhostGrant: { sessions: "SiteSession" },
-  SiteUser: { sessions: "SiteSession", tokens: "SiteToken", pageVersions: "PageVersion" },
+  SiteUser: { sessions: "SiteSession", tokens: "SiteToken", pageVersions: "PageVersion", assignedLeads: "Lead" },
   SiteSession: { siteUser: "SiteUser" }, SiteToken: { siteUser: "SiteUser" },
   PreviewToken: { site: "Site" }, Domain: { site: "Site" }, Site: { domains: "Domain", previewTokens: "PreviewToken", pages: "Page", sectionContents: "SectionContent", leads: "Lead" },
   Page: { site: "Site", versions: "PageVersion", sectionContents: "SectionContent" },
@@ -38,7 +38,8 @@ export const tenantRelations: Record<string, Record<string, string>> = {
   ProductCategory: { parent: "ProductCategory", children: "ProductCategory", products: "Product" },
   Project: { coverMedia: "Media" }, Story: { posterMedia: "Media" }, Post: { coverMedia: "Media" },
   Brand: { logoMedia: "Media", products: "Product" },
-  Media: { projects: "Project", stories: "Story", posts: "Post", brands: "Brand" }, Lead: { site: "Site" },
+  Media: { projects: "Project", stories: "Story", posts: "Post", brands: "Brand" }, Lead: { site: "Site", assignee: "SiteUser", branch: "Branch" },
+  Branch: { leads: "Lead" },
 };
 
 type Input = Record<string, unknown>;
