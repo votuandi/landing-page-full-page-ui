@@ -24,6 +24,8 @@ async function widget(page: Page) {
     })();` }));
 }
 async function exercise(page: Page, path: string, selector: string, dealer = false) {
+  // The timed consult popup would cover the form's submit button.
+  await page.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
   await widget(page);
   const bodies: Record<string, unknown>[] = [];
   await page.route("**/api/lead", async route => {

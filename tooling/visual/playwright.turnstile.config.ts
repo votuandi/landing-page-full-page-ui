@@ -5,6 +5,8 @@ process.env.REVALIDATE_SECRET ??= "turnstile-e2e-revalidate-secret-0123456789";
 process.env.TENANT_PUBLIC_PORT = "3213";
 process.env.STORAGE_DRIVER ??= "local";
 process.env.STORAGE_LOCAL_ROOT ??= resolve(__dirname, "test-results/turnstile/media");
+// The tenant fixture script validates storage config; images are not served in this suite.
+process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3212/media";
 
 // Run sequentially after tenant: both suites use apps/web/.next.
 export default defineConfig({
