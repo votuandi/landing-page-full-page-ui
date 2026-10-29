@@ -815,3 +815,65 @@ test("owner shell lists every story screen, marks the current page, and main adm
     }
   }
 });
+
+test("lead channels: telegram CRUD, gửi thử, SSRF, webhook key once, plan gate, axe and keyboard (E11-S02)", async ({ page }) => {
+  test.setTimeout(240_000);
+  await login(page); await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin() + "/cai-dat/kenh-nhan-lead");
+  await expect(page.getByRole("heading", { name: "Kênh nhận lead", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Kết nối Telegram" }).getByRole("listitem")).toHaveCount(3);
+  const status = page.getByRole("status").first(), name = `[DỮ LIỆU MẪU] Telegram ${Date.now()}`;
+  const kind = page.getByRole("combobox", { name: "Loại kênh" });
+  // Keyboard only: type the name, choose the kind, fill the chat id, submit with Enter.
+  await page.getByRole("textbox", { name: "Tên kênh" }).focus(); await page.keyboard.type(name);
+  await kind.focus(); await kind.selectOption("telegram");
+  await page.getByRole("textbox", { name: "Chat id" }).fill("-1001234567");
+  await page.keyboard.press("Enter");
+  await expect(status).toContainText("Đã lưu kênh nhận lead");
+  const row = page.getByRole("listitem").filter({ hasText: name });
+  await expect(row).toContainText("Telegram · Đang bật · Chat id …4567");
+  // Secrets never reach the page: only the last 4 digits of the chat id are rendered.
+  expect(await page.content()).not.toContain("-1001234567");
+  await row.getByRole("button", { name: `Gửi thử ${name}` }).click();
+  await expect(status).toContainText("Nền tảng chưa cấu hình Telegram");
+  await row.getByRole("button", { name: `Tắt ${name}` }).click();
+  await expect(status).toContainText("Đã tắt kênh"); await expect(row).toContainText("Đã tắt");
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E11-S02/screenshots/lead-channels-${width}.png`), fullPage: true });
+  }
+  // AC3 through the UI: an internal address is refused before anything is stored.
+  await page.getByRole("textbox", { name: "Tên kênh" }).fill("[DỮ LIỆU MẪU] Webhook nội bộ");
+  await kind.selectOption("webhook");
+  await page.getByRole("textbox", { name: "URL HTTPS nhận lead" }).fill("https://169.254.169.254/latest/meta-data");
+  await page.getByRole("button", { name: "Lưu kênh" }).click();
+  await expect(status).toContainText("URL bị chặn");
+  await expect(page.getByRole("listitem").filter({ hasText: "Webhook nội bộ" })).toHaveCount(0);
+  // A public webhook gets a server-generated signing key, shown once.
+  const hook = `[DỮ LIỆU MẪU] Webhook ${Date.now()}`;
+  await page.getByRole("textbox", { name: "Tên kênh" }).fill(hook);
+  await page.getByRole("textbox", { name: "URL HTTPS nhận lead" }).fill("https://example.com/solar-hook");
+  await page.getByRole("button", { name: "Lưu kênh" }).click();
+  await expect(status).toContainText("Khóa ký webhook chỉ hiển thị lần này");
+  const key = await status.locator("code").textContent();
+  expect(key?.length).toBeGreaterThanOrEqual(32);
+  await page.reload();
+  await expect(page.getByRole("listitem").filter({ hasText: hook })).toContainText("example.com");
+  expect(await page.content()).not.toContain(key!);
+  page.on("dialog", dialog => void dialog.accept());
+  for (const label of [name, hook]) {
+    await page.getByRole("button", { name: `Xóa ${label}` }).click();
+    await expect(status).toContainText("Đã xóa kênh");
+    await expect(page.getByRole("listitem").filter({ hasText: label })).toHaveCount(0);
+  }
+  // Basic plan: webhook and Sheets are offered but cannot be saved (AC2).
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", password(), "admin-e7-collections-basic");
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin("admin-e7-collections-basic") + "/cai-dat/kenh-nhan-lead");
+  await page.getByRole("combobox", { name: "Loại kênh" }).selectOption("google_sheets");
+  await expect(page.getByText("Webhook và Google Sheets cần gói Nâng cao trở lên.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Lưu kênh" })).toBeDisabled();
+});
