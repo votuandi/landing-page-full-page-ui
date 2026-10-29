@@ -39,8 +39,18 @@ tác dụng phụ (gửi lead, revalidate cache, cron gói/gia hạn). Chạy: `
 | `lead.deliver` | `createLead` (`@solar/db`), một job / lead × kênh, khóa `lead.deliver:<leadId>:<integrationId>` | `createLeadDeliver({ senders })`; sender nhận `idempotencyKey = <leadId>:<integrationId>` |
 
 **Số lần gửi**: kênh có `supportsIdempotency: true` (bỏ qua key đã nhận) → **đúng 1 lần**; kênh không hỗ trợ → **ít nhất
-1 lần** (worker chết sau khi gửi mà trước khi đánh dấu xong → gửi lại sau khi hết lease). Sender thật theo kênh (giải mã
-config, chặn SSRF) thuộc E11-S02; hiện kênh chưa có sender sẽ dead ngay với lỗi "chưa hỗ trợ kênh".
+1 lần** (worker chết sau khi gửi mà trước khi đánh dấu xong → gửi lại sau khi hết lease).
+E11-S02 dùng `createLeadSenders(env)` của [@solar/leads](../../packages/leads/README.md), giải mã AAD theo tenant/integration.
+
+| Kênh | Idempotency / giao nhận | Lỗi |
+|---|---|---|
+| Email Resend | Idempotency-Key (trong cửa sổ lưu key của Resend) | 4xx trừ 408/429 → dead |
+| Telegram | Ít nhất một lần | 400/403 → dead; 429/5xx → retry |
+| Webhook ký HMAC | Ít nhất một lần, receiver dùng X-Solar-Idempotency-Key để dedupe | SSRF/redirect/config hỏng → dead |
+| Google Sheets Apps Script | Ít nhất một lần | Guard HTTPS/redirect; 4xx → dead (trừ 408/429) |
+
+Thiếu env nền tảng hoặc lỗi mạng/timeout → retry theo outbox tối đa 24 h. Không log config, URL, secret hay response body.
+Worker cần cùng `APP_ENCRYPTION_KEY` với admin. Kênh chưa có sender (deploy cũ) dead ngay với lỗi "chưa hỗ trợ kênh".
 
 Kiểm thử: `pnpm --filter worker test` (đặt `DATABASE_URL` + `PLATFORM_DATABASE_URL` để test Postgres không skip).
 
