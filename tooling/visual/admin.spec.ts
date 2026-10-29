@@ -59,23 +59,23 @@ test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và
       await row.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
       await expect(row).toContainText("Chờ gửi");
       await expect(row).not.toContainText("Không có kênh gửi cho lead này.");
-      if (index === 0) await row.getByLabel("Ghi chú", { exact: true }).fill("Bản nháp đang gõ");
+      if (index === 0) await row.locator('textarea[name="note"]').fill("Bản nháp đang gõ");
       if (index > 0) {
         // A live refresh must keep the open row open, not only the hidden textarea value.
         await expect(page.locator(`[data-lead-id="${submitted[0].id}"] details`).first()).toHaveAttribute("open", "");
-        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toBeVisible();
-        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).getByLabel("Ghi chú", { exact: true })).toHaveValue("Bản nháp đang gõ");
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).locator('textarea[name="note"]')).toBeVisible();
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).locator('textarea[name="note"]')).toHaveValue("Bản nháp đang gõ");
       }
     }
     const first = page.locator(`[data-lead-id="${submitted[0].id}"]`);
     await first.locator('select[name="status"]').selectOption("quoted");
-    await first.getByLabel("Ghi chú", { exact: true }).fill('=1+1,"ghi chú"');
+    await first.locator('textarea[name="note"]').fill('=1+1,"ghi chú"');
     await first.getByLabel("Người phụ trách").selectOption({ label: "[DỮ LIỆU MẪU] Owner" });
     await first.getByRole("button", { name: "Lưu lead", exact: true }).click();
     await expect(first).toContainText("Đã lưu lead");
     await page.reload(); await expect(first).toContainText("Báo giá");
     await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
-    await expect(first.getByLabel("Ghi chú", { exact: true })).toHaveValue('=1+1,"ghi chú"');
+    await expect(first.locator('textarea[name="note"]')).toHaveValue('=1+1,"ghi chú"');
     fixture("lead-inbox-fail", submitted[0].id); await page.reload();
     await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
     await first.getByRole("button", { name: "Gửi lại", exact: true }).click();
