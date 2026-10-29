@@ -12,6 +12,7 @@ export const ADMIN_NAV: { label?: string; items: NavEntry[] }[] = [
     { href: "/lead", label: "Lead", permission: "leads.view", feature: "leadInbox" },
     { href: "/giao-dien", label: "Giao diện", permission: "theme.manage" },
     { href: "/cai-dat", label: "Thông tin công ty", permission: "settings.manage" },
+    { href: "/cai-dat/kenh-nhan-lead", label: "Kênh nhận lead", permission: "settings.manage" },
     { href: "/ten-mien", label: "Tên miền", permission: "domains.manage", feature: "customDomain" },
     { href: "/email", label: "Email theo tên miền", permission: "email.manage", feature: "customDomain" },
     { href: "/nhan-vien", label: "Tài khoản & nhân viên", permission: "users.view" },
@@ -28,9 +29,12 @@ export function adminNav({ permissions, can, pathname }: {
   can: (feature: string) => boolean;
   pathname?: string | null;
 }): AdminNavGroup[] {
+  const visible = (item: NavEntry) => permissions.has(item.permission) && (!item.feature || can(item.feature));
+  const active = ADMIN_NAV.flatMap(group => group.items).filter(visible)
+    .filter(item => pathname === item.href || (item.href !== "/" && pathname?.startsWith(`${item.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return ADMIN_NAV.map(group => ({
     label: group.label,
-    items: group.items.filter(item => permissions.has(item.permission) && (!item.feature || can(item.feature)))
-      .map(({ href, label }) => ({ href, label, current: pathname === href || (href !== "/" && Boolean(pathname?.startsWith(`${href}/`))) })),
+    items: group.items.filter(visible).map(({ href, label }) => ({ href, label, current: href === active })),
   })).filter(group => group.items.length > 0);
 }
