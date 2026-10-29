@@ -49,9 +49,9 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   bảo vệ dữ liệu cá nhân — có checkbox đồng ý trên form).
 - **Chuyển từ E11-S01 (review PR #41)**: e2e submit thật (timer ≥ 3 s) qua mọi form tenant — section LeadForm, dealer, popup,
   giỏ báo giá — kiểm lead + outbox xuất hiện trong hộp thư đúng tenant.
-- **AC**: [ ] Lead mới hiện ≤ 5 s không cần tải lại · [x] Xuất CSV đúng UTF-8 mở được bằng Excel.
+- **AC**: [x] Lead mới hiện ≤ 5 s không cần tải lại · [x] Xuất CSV đúng UTF-8 mở được bằng Excel. PR [#72](https://github.com/votuandi/landing-page-full-page-ui/pull/72)
 - **Bằng chứng E11-S03**: `apps/admin/src/__tests__/leadInbox.test.ts` kiểm BOM UTF-8, CRLF, tiếng Việt, quote và chống công thức;
-  spec `tooling/visual/admin.spec.ts` ("lead inbox…") kiểm 4 form thật, poll, giữ ghi chú, quyền/gói, CSV, resend/xóa và tenant isolation — chờ Claude chạy sau migrate/generate và design pass. Chưa có PR.
+  spec `tooling/visual/admin.spec.ts` ("lead inbox…") kiểm 4 form thật, poll, giữ ghi chú, quyền/gói, CSV, resend/xóa và tenant isolation — xanh local 29/10/2026 (2/2, mỗi lead hiện ≤ 5 s sau POST; axe A/AA 390/1440).
 - Phụ thuộc: S01, E7-S02 · Agent: Claude · Cỡ: M
 
 ### E11-S04 · Email theo tên miền (Zoho Mail / Google Workspace)
