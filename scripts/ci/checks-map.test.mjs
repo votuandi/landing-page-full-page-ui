@@ -2,6 +2,19 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
 
+test("E11-S02: adapter lead không đổi pixel; Turnstile chọn bộ riêng và đúng scope", () => {
+  for (const file of ["apps/web/src/lib/leads/index.ts", "apps/web/src/lib/leads/parse.ts", "packages/leads/src/index.ts"]) {
+    const checks = affectedChecks([file]);
+    assert.ok(!checks.includes("matrix") && !checks.includes("visual"));
+  }
+  assert.equal(CHECKS["e2e:turnstile"]?.cmd, "bash scripts/local-ci.sh e2e turnstile");
+  assert.ok(affectedChecks(["tooling/visual/turnstile.spec.ts"]).includes("e2e:turnstile"));
+  assert.ok(affectedChecks(["packages/leads/src/index.ts"]).includes("db"));
+  const diff = 'diff --git a/tooling/visual/turnstile.spec.ts b/tooling/visual/turnstile.spec.ts\n@@ -0,0 +1 @@\n+test("Turnstile: section", async () => {});';
+  const scope = e2eScope(["tooling/visual/turnstile.spec.ts"], diff);
+  assert.deepEqual(scope.find(s => s.name === "e2e:turnstile"), { name: "e2e:turnstile", mode: "grep", grep: "Turnstile: section" });
+});
+
 test("E8-S01: storage selects its contract suite and does not select unrelated suites", () => {
   assert.equal(CHECKS.storage?.cmd, "bash scripts/local-ci.sh storage");
   for (const file of ["packages/storage/src/index.ts", "packages/storage/package.json", "scripts/local-ci.sh", ".github/workflows/workspace.yml"]) {

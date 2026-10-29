@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
 import { createPlatformDb, exportTenant, restoreTenant, forPlatform, forTenant, setPageTypes, type Prisma, type MediaVariant } from "@solar/db";
 import { storageFromEnv, variantKey, VARIANT_WIDTHS, VARIANT_FORMATS } from "@solar/storage";
-import { widgetRegistry } from "@solar/sections";
+import { widgetRegistry, sectionRegistry } from "@solar/sections";
 import { buildDemo } from "../../../packages/db/prisma/seed-data";
 import { seedDemoTenant } from "../../../packages/db/prisma/seed-demo";
 import { createRedisCache } from "../src/lib/tenant/redis";
@@ -140,7 +140,23 @@ async function main() {
         const saved = JSON.parse(readFileSync(file, "utf8")) as { tenantId: string; siteId: string; pageId: string; products: string[]; postId: string };
         const repo = forTenant(db, saved.tenantId);
         touched.add(saved.tenantId);
-        if (action === "uploaded-image") {
+        if (action === "turnstile") {
+          const site = (await repo.site.get(saved.siteId))!;
+          await repo.site.update(site.id, { locales: ["vi", "en"], defaultLocale: "vi" });
+          const page = (await repo.page.get(saved.pageId))!;
+          const sections = page.sections as { id: string; type: string; variant: string; enabled: boolean; anchor?: string }[];
+          for (const type of ["lead-form", "dealer"]) {
+            let descriptor = sections.find(section => section.type === type);
+            if (!descriptor) { descriptor = { id: randomUUID(), type, variant: "t15", enabled: true, anchor: type }; sections.push(descriptor); }
+            descriptor.enabled = true; descriptor.variant = "t15";
+            const definition = sectionRegistry.getType(type)!;
+            const content = await repo.sectionContent.first({ where: { pageId: page.id, sectionId: descriptor.id } });
+            if (content) await repo.sectionContent.update(content.id, { data: json(definition.defaults) });
+            else await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: descriptor.id, type, schemaVersion: definition.schemaVersion, data: json(definition.defaults) });
+          }
+          await repo.page.update(page.id, { sections: json(sections) });
+          // Setup seeds the t15 service collection, including solar-gia-dinh, for the third form.
+        } else if (action === "uploaded-image") {
           const storage = storageFromEnv();
           const key = `tenants/${saved.tenantId}/e8-s07/${randomUUID()}.jpg`;
           const body = await sharp(readFileSync(resolve("public/images/solar-installation-hero.jpg"))).rotate().toBuffer();

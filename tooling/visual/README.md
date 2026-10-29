@@ -159,6 +159,15 @@ Mỗi shard upload report/JSON/trace 14 ngày kể cả khi fail. Report giữ p
 JSON reporter chưa hoàn tất; trạng thái test lỗi vẫn do Playwright/CI quyết định. Thời gian CI cần xác nhận trên PR.
 Push base sinh matrix baseline theo cùng shard, gộp và kiểm đủ tập PNG rồi mới xuất artifact `matrix-baseline` 90 ngày.
 
+## Turnstile 3 form (E11-S02)
+
+`bash scripts/local-ci.sh e2e turnstile` chạy `turnstile.spec.ts` tuần tự sau tenant (cùng `.next`, cổng riêng 3213).
+Fixture `tenant-browser-fixture.ts setup` + `turnstile` tạo tenant review t15, bật section lead-form/dealer và đặt tiếng Việt;
+trang `/giai-phap/solar-gia-dinh` dùng collection đã seed. `cleanup` xóa tenant và dữ liệu test sau bộ.
+Widget giả ở browser; request đầu chèn 503, reset đổi token và giữ name/phone, request thứ hai chạy API + DB + Siteverify thật.
+Test secret Cloudflare chỉ nhận `XXXX.DUMMY.TOKEN.XXXX`, vì vậy token đầu có hậu tố `.spent` (không tới Siteverify),
+token sau reset là dummy chuẩn. Không dùng khóa thật. [Cloudflare test keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/).
+
 ## Thumbnail section (E7-S13)
 
 Chạy web server với `LAB_ENABLED=true`, rồi `pnpm --filter @solar/visual thumbnails`.

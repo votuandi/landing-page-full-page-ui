@@ -25,7 +25,7 @@ export const CHECKS = {
       "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/matrix", "tooling/visual/playwright.matrix.config.ts",
       "tooling/visual/package.json", ".github/workflows/visual.yml", "scripts/ci/visual-baseline-run.sh"],
     // Layout chỉ đọc dữ liệu preset t15; bộ kiểm cấu trúc trang không ảnh hưởng ảnh chụp.
-    except: [`${web}lib/tenant/`, `${web}components/tenant/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, "packages/presets/src/structure.ts"],
     // package.json chỉ đổi link workspace tới package ngoài `paths` không đổi pixel (PR #59: @solar/storage cho fixture e2e).
     ignoreLinks: true,
   },
@@ -37,12 +37,12 @@ export const CHECKS = {
       `${web}components/`, `${web}config/`, `${web}i18n/`, `${web}lib/`, `${web}data/`, "apps/web/public/", "apps/web/tailwind.config.ts",
       "apps/web/postcss.config.mjs", "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/visual.spec.ts", "tooling/visual/routes.ts",
       "tooling/visual/playwright.config.ts", "tooling/visual/package.json", ".github/workflows/visual.yml"],
-    except: [`${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
     ignoreLinks: true,
   },
   db: {
     cmd: "bash scripts/local-ci.sh db",
-    paths: [...shared, "packages/db/", "packages/plans/", "packages/presets/", "packages/sections/", "packages/cache/",
+    paths: [...shared, "packages/db/", "packages/leads/", "packages/plans/", "packages/presets/", "packages/sections/", "packages/cache/",
       "packages/auth/", "packages/platform/", `${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/sites/`, "apps/admin/src/"],
   },
   storage: {
@@ -56,6 +56,13 @@ export const CHECKS = {
       "tooling/visual/playwright.tenant.config.ts"],
     except: [`${web}app/(site)/lab/`],
     specs: ["tooling/visual/tenant.spec.ts"],
+  },
+  "e2e:turnstile": {
+    cmd: "bash scripts/local-ci.sh e2e turnstile",
+    paths: [...shared, "packages/leads/", `${web}lib/leads/`, `${web}lib/tenant/leadIntake.ts`, `${web}app/api/lead/`,
+      "packages/sections/src/shared/", "packages/sections/src/dealer/", `${web}components/LeadForm.tsx`,
+      "apps/web/scripts/tenant-browser-fixture.ts", "tooling/visual/turnstile.spec.ts", "tooling/visual/playwright.turnstile.config.ts"],
+    specs: ["tooling/visual/turnstile.spec.ts"],
   },
   "e2e:production": {
     cmd: "bash scripts/local-ci.sh e2e production",
