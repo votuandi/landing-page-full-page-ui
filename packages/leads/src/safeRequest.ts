@@ -23,7 +23,8 @@ function parseUrl(value: string) {
 }
 async function addresses(host: string, resolve: Resolver) {
   const literal = host.replace(/^\[|\]$/g, "");
-  const records = isIP(literal) ? [{ address: literal, family: isIP(literal) }] : await resolve(host);
+  const records = isIP(literal) ? [{ address: literal, family: isIP(literal) }]
+    : await resolve(host).catch(() => { throw new ChannelError("Không phân giải được tên miền của URL"); });
   if (!records.length || records.some(row => !publicIp(row.address) || isIP(row.address) !== row.family)) throw new ChannelError("URL bị chặn: địa chỉ mạng nội bộ hoặc không công khai", true);
   return records;
 }

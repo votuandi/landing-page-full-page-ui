@@ -4,6 +4,7 @@ import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import type { request as httpsRequest } from "node:https";
 import { assertPublicUrl, safeRequest } from "../safeRequest.ts";
+import { ChannelError } from "../errors.ts";
 
 const publicDns = async () => [{ address: "93.184.216.34", family: 4 }];
 test("chỉ https, cổng 443, không credentials", async () => {
@@ -70,4 +71,13 @@ test("socket lookup hỗ trợ Node autoSelectFamily (all:true) và ghim toàn b
     return req;
   }) as unknown as typeof httpsRequest;
   assert.equal((await safeRequest("https://host", {}, { request, resolve: publicDns, timeoutMs: 50 })).body, "ok");
+});
+
+// Admin shows a form error instead of a 500; the worker retries, since DNS failures can be transient.
+test("tên miền không phân giải được → ChannelError có thể retry, không lộ lỗi DNS gốc", async () => {
+  const missing = async () => { throw Object.assign(new Error("getaddrinfo ENOTFOUND crm.exampel.vn"), { code: "ENOTFOUND" }); };
+  for (const run of [() => assertPublicUrl("https://crm.exampel.vn/hook", missing), () => safeRequest("https://crm.exampel.vn/hook", {}, { resolve: missing })]) {
+    await assert.rejects(run(), (error: unknown) =>
+      error instanceof ChannelError && error.message === "Không phân giải được tên miền của URL" && !error.permanent);
+  }
 });
