@@ -728,7 +728,9 @@ test("collections: create project, publish, duplicate, reorder", async ({ page }
   }).toPass({ timeout: 60_000 });
   await remove(copy);
   await remove(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "Đà Nẵng E7-S06" }));
-  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem")).toHaveCount(0);
+  // Only this test's rows: "media library" leaves its fixture project ("Dự án media") in the same tenant, so the list
+  // is not empty when the whole file runs.
+  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "Đà Nẵng E7-S06" })).toHaveCount(0);
 });
 
 test("collections: basic tenant hides catalog and direct route is 404", async ({ page }) => {
