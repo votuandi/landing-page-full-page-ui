@@ -83,9 +83,10 @@ xóa hết replica. Redis/shared cache triển khai ở E10-S03. Xem [hợp đ�
 - `notify.plan-changed`: được tạo cùng transaction đổi gói/audit; `createNotify({ notifier })` chuyển tenant, kind,
   payload và `idempotencyKey` ổn định cho adapter. Payload khác tenant bị từ chối vĩnh viễn; lỗi adapter đi qua retry outbox.
   Các topic `notify.*` mới phải đăng ký trong `main.ts` trước khi worker nhận chúng.
-- Adapter mặc định `createLogNotifier` tìm SiteUser `owner` theo tenant (email/contactPhone) và chỉ log `[notify]` metadata
-  (owner ID, có kênh liên hệ hay không), không log địa chỉ/số điện thoại. **Chưa gửi email/Telegram**; adapter thật ở E11-S02.
-  Adapter thật cần dùng idempotency key để tránh gửi trùng khi worker chết sau khi gửi.
+- Có `RESEND_API_KEY` + `MAIL_FROM`: `createEmailNotifier` gửi email tiếng Việt cho từng owner đúng tenant có email,
+  status khác disabled (kể cả tenant suspended), key `<jobKey>:<ownerId>`. Thiếu cấu hình: cảnh báo lúc khởi động rồi
+  `createLogNotifier` chỉ log metadata (owner ID, có kênh liên hệ hay không), không log địa chỉ/số điện thoại.
+  Job notify đã log sẽ hoàn tất; thêm cấu hình sau đó không phát lại các job này.
 - Cron `override-expiry` gọi `forPlatform(db).tenants.scanExpiredOverrides({ now })` ngay khi khởi động và mỗi 5 phút sau
   khi hoàn tất; không chồng lượt, lỗi được log rồi thử ở chu kỳ tiếp theo. Khóa outbox theo tenant/thời điểm hết hạn bảo đảm
   nhiều worker/lần quét không tạo trùng. Quét bù 24 giờ, không xóa override; ghi audit hệ thống cùng transaction enqueue.
@@ -105,6 +106,18 @@ Nhắc mốc nhỏ nhất trong 14/7/1 ngày còn lại, không nhắc sau khi h
 và enqueue invalidation gồm tag tenant và mọi hostname. Transaction/row lock bảo vệ đổi gói đồng thời;
 khóa outbox theo tenant, expiry ISO và milestone chống sinh trùng qua nhiều worker/lượt quét.
 Ngày hết hạn null không bị billing xử lý. Xem [thanh toán thủ công](../../packages/plans/README.md#thanh-toán-thủ-công-e6-s05).
+
+## Email hệ thống (E11-S05)
+
+`mail.send` xử lý payload từ admin `{to, template, url}`; template `invite`, `reset_password`, `magic_link`.
+Giữ key `auth:<tokenId>`; link quá TTL 72 giờ / 1 giờ / 15 phút từ createdAt được bỏ qua rồi hoàn tất.
+Topic này bật `redact`: khi done/dead, payload thành `{redacted:true}` với cùng điều kiện lease; khi retry vẫn giữ
+payload. Lead và topic khác không đổi. Không gửi lại job auth đã redact, hãy yêu cầu link mới.
+`notify.domain-warning` dùng `{tenantId, hostname, reason}` để gửi owner; bên phát hiện/enqueue thuộc E9-S05.
+`notify.plan-changed` có from/to; renewal có days (1/7/14) + expiresAt ISO; suspended có expiresAt ISO.
+Payload sai hoặc kind lạ là permanent; lỗi Resend 4xx trừ 408/429 đi dead, còn network/timeout/5xx/thiếu env retry.
+Đường gửi Resend chỉ bảo đảm dedupe trong cửa sổ giữ key 24 giờ; xem giới hạn và cách cấu hình trong
+[runbook tiếng Việt](../../infra/mail/README.md). Kiểm mail-tester/Gmail do người vận hành chạy, chưa là bằng chứng AC.
 
 Test đồng hồ giả cron giờ/notification chạy offline trong worker. `packages/db/src/__tests__/billing.int.test.ts`
 kiểm mốc nhắc, ân hạn, audit, host invalidation, gia hạn, no-op và chạy đồng thời trên Postgres;

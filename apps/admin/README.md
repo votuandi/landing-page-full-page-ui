@@ -76,8 +76,10 @@ Next dev có thể ghi đè Cache-Control HTML thành `no-cache, must-revalidate
 - Lời mời dùng `SiteToken(invite)` 72 giờ; reset 1 giờ; magic 15 phút. DB lưu SHA-256, consume CAS trong transaction.
   Reset/nhận mời cập nhật mật khẩu, thu hồi mọi audience/session và vô hiệu token còn lại.
   Magic vẫn kiểm TOTP, yêu cầu POST xác nhận để trình quét link email không tự đăng nhập/tiêu token.
-- Token và email được ghi cùng transaction vào Outbox `mail.send` (`{to, template, url}`). Gửi email thật thuộc E11-S05;
-  không in link/token ra log kể cả dev. Debug local bằng Outbox qua công cụ quản trị DB được cấp quyền.
+- Token và email được ghi cùng transaction vào Outbox `mail.send` (`{to, template, url}`). Worker gửi qua Resend (E11-S05);
+  cần `RESEND_API_KEY` + `MAIL_FROM` của worker, xem [runbook](../../infra/mail/README.md).
+  Không in link/token ra log kể cả dev. Payload bị xóa sau khi job done/dead; debug local chỉ qua công cụ quản trị DB
+  được cấp quyền khi job còn chờ, không gửi lại job auth đã redact.
   Phản hồi yêu cầu link luôn giống nhau, gồm hướng dẫn tài khoản chỉ có SĐT, không tiết lộ email tồn tại.
 - `/tai-khoan/khoi-phuc` gợi ý thêm email/SĐT sau đổi mật khẩu; cập nhật/xác minh thông tin thuộc luồng tiếp theo.
   `createAccounts(...).createSiteInvite` là helper server kiểm `users.manage` cho E7-S12.

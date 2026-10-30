@@ -6,7 +6,7 @@ Không trả cấu hình đã giải mã về client. Khóa ký webhook sinh 32 
 
 | Kênh | Biến nền tảng | Cấu hình tenant | Idempotency |
 |---|---|---|---|
-| Email qua Resend HTTP | RESEND_API_KEY, LEAD_EMAIL_FROM | 1–5 địa chỉ nhận | Resend `Idempotency-Key`, trong cửa sổ lưu key của dịch vụ |
+| Email qua Resend HTTP | RESEND_API_KEY, MAIL_FROM (LEAD_EMAIL_FROM ghi đè tùy chọn) | 1–5 địa chỉ nhận | Resend `Idempotency-Key`, trong cửa sổ lưu key của dịch vụ |
 | Telegram | TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME | chat id | Ít nhất một lần |
 | Webhook | APP_ENCRYPTION_KEY | URL HTTPS | Ít nhất một lần; receiver tự dedupe qua X-Solar-Idempotency-Key |
 | Google Sheets | APP_ENCRYPTION_KEY | URL Apps Script /exec, secret | Ít nhất một lần; script mẫu hiện có không dedupe |
@@ -23,3 +23,9 @@ Host cố định Telegram/Resend dùng fetch timeout 10 giây, không theo redi
 4xx trừ 408/429, cấu hình hỏng, SSRF là permanent; timeout/network/5xx/thiếu env là retry. Lỗi không ghi URL/token/provider body.
 
 Chạy `pnpm --filter @solar/leads test`, `typecheck`, `lint`.
+
+Email hệ thống và lead dùng chung `sendMail(mail, key, env, fetcher?)`: timeout 10 giây, không theo redirect,
+không đưa URL/token/provider body vào lỗi. `authMail` và `notifyMail` tạo text + HTML tiếng Việt, escape HTML và bỏ CRLF
+trong subject; không đọc thời gian hiện tại để nội dung retry ổn định. `notifyMail` trả null nếu kind lạ;
+worker validate payload trước khi gọi. Email auth luôn gửi từ `MAIL_FROM`, lead ưu tiên `LEAD_EMAIL_FROM` nếu có.
+Hướng dẫn SPF/DKIM/DMARC và kiểm mail-tester: [infra/mail](../../infra/mail/README.md).
