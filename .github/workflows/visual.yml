@@ -134,7 +134,8 @@ jobs:
               pnpm --filter web exec next build --webpack
             )
             # merge-base may predate tooling/visual; keep its dependencies/source untouched.
-            VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update
+            # Same selection as the comparison below: an unstable `@quarantine` route must not fail the baseline.
+            VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }}
             test -n "$(find "$snapshot_dir" -name '*.png' -print -quit)"
           fi
       # `@quarantine`: test flaky đã biết (tooling/visual/README.md), chỉ chạy ở regression.
