@@ -1027,3 +1027,180 @@ test("lead channels: telegram CRUD, gửi thử, SSRF, webhook key once, plan ga
   await expect(page.getByText("Webhook và Google Sheets cần gói Nâng cao trở lên.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Lưu kênh" })).toBeDisabled();
 });
+
+async function inviteStaff(page: Page, name: string, identifier: string) {
+  await page.getByLabel("Họ và tên").fill(name);
+  await page.getByLabel("Email hoặc số điện thoại").fill(identifier);
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+}
+const staffRow = (page: Page, name: string) => page.getByRole("listitem").filter({ hasText: name });
+// Role labels also appear as <option>s in the row's own select, so assert on the description value.
+const staffValue = (page: Page, name: string, value: string) => staffRow(page, name).locator("dd", { hasText: value });
+async function staffAction(page: Page, name: string, button: string, done: string) {
+  const row = staffRow(page, name);
+  if (!await row.locator("details").evaluate((node: HTMLDetailsElement) => node.open)) await row.locator("summary").click();
+  await row.getByRole("button", { name: button }).click();
+  await expect(page.getByText(done)).toBeVisible();
+}
+async function acceptStaffInvite(page: Page, site: string, url: string, pass: string) {
+  // Production builds emit https links; the suite serves plain http.
+  const { pathname, search } = new URL(url);
+  await page.goto(origin(site) + pathname + search);
+  await page.getByLabel("Mật khẩu mới", { exact: true }).fill(pass);
+  await page.getByLabel("Nhập lại mật khẩu mới").fill(pass);
+  await page.getByRole("button", { name: "Kích hoạt và đăng nhập" }).click();
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+}
+
+test("staff: mời email/SĐT, đổi vai trò, khóa, gỡ và phiên hết hiệu lực ở request kế tiếp", async ({ page, browser }) => {
+  const site = "admin-e11-other", phone = "0912345678", email = "[DỮ LIỆU MẪU] Nhân viên email", mobile = "[DỮ LIỆU MẪU] Nhân viên Zalo";
+  const staffPassword = `${process.env.SEED_PASSWORD}-Staff!password`;
+  page.on("dialog", dialog => void dialog.accept());
+  await login(page, "owner@demo.vn", password(), site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(site) + "/nhan-vien");
+  await expect(page.getByRole("heading", { level: 1, name: "Tài khoản & nhân viên" })).toBeVisible();
+
+  await inviteStaff(page, email, "NV.Email@Demo.vn");
+  await expect(page.getByText("Đã gửi lời mời qua email.")).toBeVisible();
+  await expect(staffRow(page, email)).toContainText("Chờ nhận lời mời");
+  await expect(page.getByLabel("Link mời dùng một lần")).toHaveCount(0);
+  await inviteStaff(page, mobile, "khong-hop-le");
+  await expect(page.getByText("Vui lòng nhập email hoặc số điện thoại Việt Nam hợp lệ")).toBeVisible();
+  await inviteStaff(page, mobile, "nv.email@demo.vn");
+  await expect(page.getByText("Email hoặc số điện thoại đã có tài khoản trong site này")).toBeVisible();
+
+  await inviteStaff(page, mobile, "+84 912 345 678");
+  const link = await page.getByLabel("Link mời dùng một lần").inputValue();
+  expect(new URL(link).pathname).toBe("/moi");
+  await expect(staffRow(page, mobile)).toContainText(phone);
+
+  const context = await browser.newContext(), staff = await context.newPage();
+  try {
+    await acceptStaffInvite(staff, site, link, staffPassword);
+    await page.reload();
+    await expect(staffRow(page, mobile)).toContainText("Đang hoạt động");
+    await expect(staffRow(page, mobile)).not.toContainText("Chưa đăng nhập");
+
+    await staffRow(page, mobile).locator("summary").click();
+    await staffRow(page, mobile).getByLabel(`Vai trò mới của ${mobile}`).selectOption("viewer");
+    await staffRow(page, mobile).getByRole("button", { name: "Đổi vai trò" }).click();
+    await expect(staffValue(page, mobile, "Chỉ xem")).toBeVisible();
+    await staff.reload();
+    await expect(staff).toHaveURL(/\/dang-nhap/);
+
+    await staffAction(page, mobile, "Khóa", "Đã cập nhật nhân viên.");
+    await expect(staffRow(page, mobile)).toContainText("Đã khóa");
+    await login(staff, phone, staffPassword, site);
+    await expect(staff.getByText("Thông tin đăng nhập không đúng")).toBeVisible();
+    await staffAction(page, mobile, "Mở khóa", "Đã cập nhật nhân viên.");
+    await expect(staffRow(page, mobile)).toContainText("Đang hoạt động");
+    await login(staff, phone, staffPassword, site);
+    await expect(staff.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+
+    await staffAction(page, mobile, "Gỡ", "Đã gỡ nhân viên và thu hồi mọi phiên đăng nhập.");
+    await expect(staffRow(page, mobile)).toHaveCount(0);
+    await staff.reload();
+    await expect(staff).toHaveURL(/\/dang-nhap/);
+    await staffAction(page, email, "Gỡ", "Đã gỡ nhân viên và thu hồi mọi phiên đăng nhập.");
+  } finally { await context.close(); }
+});
+
+test("staff: vượt giới hạn gói bị từ chối, UI báo rõ và gợi ý nâng gói", async ({ page }) => {
+  const site = "admin-e7-collections-basic";
+  await login(page, "owner@demo.vn", password(), site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(site) + "/nhan-vien");
+  await expect(page.getByText("1/1")).toBeVisible();
+  await expect(page.getByText("Đã dùng hết chỗ của gói.")).toBeVisible();
+  await inviteStaff(page, "[DỮ LIỆU MẪU] Vượt gói", "vuot-goi@demo.vn");
+  await expect(page.getByText('Vượt giới hạn "Số người dùng" của gói (tối đa 1).')).toBeVisible();
+  await expect(staffRow(page, "[DỮ LIỆU MẪU] Vượt gói")).toHaveCount(0);
+  await page.getByRole("button", { name: "Yêu cầu nâng gói" }).click();
+  const dialog = page.getByRole("dialog", { name: "Nâng cấp: Số người dùng" });
+  await dialog.getByRole("button", { name: "Gửi yêu cầu" }).click();
+  await expect(dialog.getByText("Đã gửi yêu cầu nâng cấp.")).toBeVisible();
+});
+
+test("staff: chuyển client thành nhân viên, chuyển quyền owner rồi trả lại", async ({ page, browser }) => {
+  const site = "admin-e11-other", name = "[DỮ LIỆU MẪU] Khách hàng", heir = "[DỮ LIỆU MẪU] Người nhận quyền";
+  const heirPassword = `${process.env.SEED_PASSWORD}-Heir!password`;
+  fixture("staff-client");
+  page.on("dialog", dialog => void dialog.accept());
+  await login(page, "owner@demo.vn", password(), site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(site) + "/nhan-vien");
+  await expect(staffRow(page, name)).toHaveCount(0);
+  await inviteStaff(page, name, "0987654321");
+  await page.getByRole("button", { name: "Xác nhận chuyển thành nhân viên" }).click();
+  await expect(staffValue(page, name, "Nhân viên")).toBeVisible();
+  await staffAction(page, name, "Chuyển thành khách hàng", "Đã cập nhật nhân viên.");
+  await expect(staffRow(page, name)).toHaveCount(0);
+
+  await inviteStaff(page, heir, "0933333333");
+  const link = await page.getByLabel("Link mời dùng một lần").inputValue();
+  const context = await browser.newContext(), other = await context.newPage();
+  try {
+    await acceptStaffInvite(other, site, link, heirPassword);
+    await page.reload();
+    const row = staffRow(page, heir);
+    await row.locator("summary").click();
+    await row.getByRole("button", { name: "Chuyển quyền chủ sở hữu" }).click();
+    await expect(page).toHaveURL(/\/dang-nhap/);
+    await login(other, "0933333333", heirPassword, site);
+    await expect(other.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    await other.goto(origin(site) + "/nhan-vien");
+    await expect(staffValue(other, "owner@demo.vn", "Quản trị viên")).toBeVisible();
+    other.on("dialog", dialog => void dialog.accept());
+    await staffRow(other, "owner@demo.vn").locator("summary").click();
+    await staffRow(other, "owner@demo.vn").getByRole("button", { name: "Chuyển quyền chủ sở hữu" }).click();
+    await expect(other).toHaveURL(/\/dang-nhap/);
+  } finally { await context.close(); }
+  await login(page, "owner@demo.vn", password(), site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(site) + "/nhan-vien");
+  await staffAction(page, heir, "Gỡ", "Đã gỡ nhân viên");
+  await expect(staffValue(page, "owner@demo.vn", "Chủ sở hữu")).toBeVisible();
+});
+
+test("staff: danh sách và phiên qua axe, 390/1440, bàn phím, đăng xuất thiết bị khác, tắt JS", async ({ page, browser }, info) => {
+  const site = "admin-e11-leads";
+  await login(page, "owner@demo.vn", password(), site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  const context = await browser.newContext(), other = await context.newPage();
+  try {
+    await login(other, "owner@demo.vn", password(), site);
+    await expect(other.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    await page.goto(origin(site) + "/nhan-vien");
+    const editor = page.getByRole("listitem").filter({ has: page.locator("dd", { hasText: "Biên tập viên" }) });
+    await expect(editor).toHaveCount(1);
+    await expect(page.locator("dd", { hasText: "Khách hàng" })).toHaveCount(0);
+    await expect(page.getByText("editor_admin")).toBeVisible();
+    await editor.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    await expect(editor.getByRole("button", { name: "Khóa" })).toBeVisible();
+    for (const [path, name] of [["/nhan-vien", "nhan-vien"], ["/tai-khoan/bao-mat", "bao-mat"]]) {
+      await page.goto(origin(site) + path);
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
+        if (path === "/nhan-vien") await page.locator("details").first().evaluate((node: HTMLDetailsElement) => { node.open = true; });
+        await page.screenshot({ path: info.outputPath(`${name}-${width}.png`), fullPage: true });
+        const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+        expect(violations.map(v => `${v.id}: ${v.nodes.map(n => n.target.join(" ")).join(", ")}`), `${path} @${width}`).toEqual([]);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${path} @${width}`).toBe(true);
+      }
+    }
+    await expect(page.getByText("Thiết bị này")).toHaveCount(1);
+    await page.getByRole("button", { name: "Đăng xuất các thiết bị khác" }).click();
+    await expect(page.getByText("Đã đăng xuất các thiết bị khác.")).toBeVisible();
+    await other.goto(origin(site) + "/nhan-vien");
+    await expect(other).toHaveURL(/\/dang-nhap/);
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 1, name: "Bảo mật tài khoản" })).toBeVisible();
+  } finally { await context.close(); }
+  const noScript = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() }), plain = await noScript.newPage();
+  try {
+    await plain.goto(origin(site) + "/nhan-vien");
+    await expect(plain.getByText("Biên tập viên").first()).toBeVisible();
+  } finally { await noScript.close(); }
+});
