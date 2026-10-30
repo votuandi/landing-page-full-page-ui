@@ -39,6 +39,11 @@ test("fail closed: a run with no declared diff to explain the failure stays red"
   assert.equal(judge(broken, ["lead-form"]).ok, false);
 });
 
+test("a size-only mismatch is a screenshot diff too (real message of calculator/t12--t10.png)", () => {
+  const size = "Error: expect(locator).toHaveScreenshot(expected) failed\n\n  Expected an image 1440px by 1221px, received 1440px by 1249px. \n\n  Snapshot: calculator/t12--t10.png";
+  assert.equal(judge(report([["calculator/t10", "unexpected", size]]), ["calculator"]).ok, true);
+});
+
 test("toHaveScreenshot failures that are not a pixel diff stay red", () => {
   const unstable = "Error: expect(page).toHaveScreenshot(expected) failed\n\n  Timeout: 15000ms\n  Failed to take two consecutive stable screenshots.";
   assert.equal(judge(report([["lead-form/t01", "unexpected", unstable]]), ["lead-form"]).ok, false);

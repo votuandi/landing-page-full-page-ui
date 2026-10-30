@@ -13,12 +13,12 @@ export function intendedFrom(body) {
 }
 
 const declared = (title, intended) => intended.some(entry => entry.startsWith("/") ? title === entry : title.startsWith(`${entry}/`));
-// Only a real pixel diff: `toHaveScreenshot` also fails on timeouts and "two consecutive stable screenshots".
+// Only a real image diff (pixels or size): `toHaveScreenshot` also fails on timeouts and "two consecutive stable screenshots".
 // eslint-disable-next-line no-control-regex
 const plain = (message = "") => message.replace(/\u001b\[[0-9;]*m/g, "");
 const screenshotOnly = (results) => {
   const errors = results.flatMap(r => r.errors ?? []);
-  return errors.length > 0 && errors.every(e => /\d+ pixels \(ratio/.test(plain(e.message)));
+  return errors.length > 0 && errors.every(e => /\d+ pixels \(ratio|Expected an image \d+px by \d+px, received \d+px by \d+px/.test(plain(e.message)));
 };
 
 export function judge(report, intended) {
