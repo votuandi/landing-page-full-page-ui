@@ -136,7 +136,7 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
 - **AC**: [x] Tải ≤ 1 s với 10.000 lead · [x] Viewer chỉ thấy ô được phép, không lộ số liệu lead.
 - Phụ thuộc: S02, E11-S01 · Agent: Claude · Cỡ: M
 
-### E7-S12 · Tài khoản & nhân viên của site
+### E7-S12 · Tài khoản & nhân viên của site ✅ · PR [#74](https://github.com/votuandi/landing-page-full-page-ui/pull/74)
 **Là** owner/admin của site, **tôi muốn** thêm nhân viên, gán vai trò, khóa hoặc gỡ tài khoản, **để** tự quản lý người được vào CMS.
 - **Chi tiết**: trang này chỉ quản lý nhân viên; tài khoản `client` quản lý ở E16-S04. Danh sách `SiteUser` nhân viên (tên, email/SĐT, vai trò, trạng thái, đăng nhập gần nhất, 2FA); mời bằng email hoặc SĐT
   (tài khoản chỉ có SĐT → link mời dùng 1 lần để gửi qua Zalo); đổi vai trò, khóa/mở, gỡ (thu hồi mọi phiên); xem phiên
