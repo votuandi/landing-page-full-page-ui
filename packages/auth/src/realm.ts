@@ -9,9 +9,9 @@ export type RealmName = "site" | "platform";
 export interface Account {
   id: string; tenantId?: string; email?: string | null; phone?: string | null; username?: string | null; name: string;
   status: "active" | "invited" | "unverified" | "locked" | "disabled"; role?: Role; passwordHash: string | null; totpSecret: string | null; totpBackupCodes: string[];
-  mustChangePassword: boolean; tempPasswordExpiresAt: Date | null; totpLastStep: number | null;
+  mustChangePassword: boolean; tempPasswordExpiresAt: Date | null; totpLastStep: number | null; lastLoginAt?: Date | null;
 }
-export type AccountPatch = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpLastStep" | "totpBackupCodes" | "mustChangePassword" | "tempPasswordExpiresAt" | "status" | "role">>;
+export type AccountPatch = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpLastStep" | "totpBackupCodes" | "mustChangePassword" | "tempPasswordExpiresAt" | "status" | "role" | "lastLoginAt">>;
 export type AccountExpected = Partial<Pick<Account, "passwordHash" | "totpSecret" | "totpLastStep" | "totpBackupCodes">>;
 export interface StoredSession {
   id: string; tokenHash: string; tenantId?: string; accountId?: string; kind: SessionKind; audience?: Audience;
@@ -136,6 +136,11 @@ export function createRealm({ name, cookieName, secret, sessionTtl, idleTtl, sto
     const token = randomBytes(32).toString("base64url");
     await store.createSession({ tokenHash: sha256(token), tenantId: account.tenantId, accountId: account.id, kind: "user", audience: store.audience,
       expiresAt: new Date(now() + sessionTtl), lastSeenAt: new Date(now()), ip: input.ip, userAgent: input.userAgent });
+    // A display timestamp must not prevent an otherwise valid login.
+    if (name === "site") {
+      try { await store.updateAccount(account.id, { lastLoginAt: new Date(now()) }, account.tenantId); }
+      catch { /* Best effort; the session has already been issued. */ }
+    }
     await limiter.succeed(attempt);
     return { ok: true, ...await issued(sign(token), { tenantOfHost: account.tenantId }) };
   }
