@@ -81,8 +81,9 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 - **AC**:
   - [x] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
   - [x] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
-  - [ ] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
-- Bằng chứng phần Codex: `senderDomain.test.ts` (db eligibility), `senderDomains.test.ts`, `channels.test.ts`,
-  `leadDeliver.test.ts`, admin `senderDomain.test.ts`/`nav.test.ts`. Đã viết migration/RLS và `senderDomain.int.test.ts`;
-  AC cách ly chờ Claude generate/migrate + chạy DB thật. Design pass, e2e và regression chưa chạy.
+  - [x] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
+- Bằng chứng: `packages/db/src/__tests__/senderDomain.{test,int.test}.ts` (RLS, unique hostname trên Postgres thật),
+  `packages/leads/src/__tests__/{senderDomains,channels}.test.ts`, `apps/worker/src/__tests__/leadDeliver.test.ts`,
+  `apps/admin/src/__tests__/{senderDomain,nav}.test.ts`, e2e `tooling/visual/admin.spec.ts` › "tên miền gửi…".
+  Nhà cung cấp được mock; thử Resend thật do người vận hành làm theo `infra/mail/README.md` mục 5.
 - Phụ thuộc: S02, S05 · Agent: Claude · Cỡ: M
