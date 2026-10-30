@@ -240,15 +240,6 @@ test.beforeAll(async ({ request }) => {
 });
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
-  // On CI `next dev` leaves 1–2 of the ~12 concurrent cold /_next/image requests unanswered forever (traces of PR #69/#72:
-  // always shorts posters, every other image < 1 s), so `networkidle` never settles. This suite checks tenant isolation,
-  // not the optimizer: serve the source file instead. Image sizing/variants stay covered by the `browser.newContext`
-  // tests above and by the production-build visual/matrix jobs.
-  await page.route("**/_next/image?**", route => {
-    const target = new URL(route.request().url());
-    const source = target.searchParams.get("url");
-    return source ? route.continue({ url: new URL(source, target.origin).toString() }) : route.continue();
-  });
 });
 test("A/B/A/B share one instance: theme, content, chrome and metadata follow the host", async ({ page }, info) => {
   test.setTimeout(180_000);
