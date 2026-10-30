@@ -79,7 +79,10 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   cấp gửi (Resend Domains API), hiển thị bản ghi DNS cần thêm và nút "Kiểm tra". Chỉ dùng tên miền đã xác minh làm `from`;
   chưa xác minh hoặc hết gói thì quay về tên miền nền tảng, không mất lead.
 - **AC**:
-  - [ ] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
-  - [ ] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
+  - [x] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
+  - [x] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
   - [ ] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
+- Bằng chứng phần Codex: `senderDomain.test.ts` (db eligibility), `senderDomains.test.ts`, `channels.test.ts`,
+  `leadDeliver.test.ts`, admin `senderDomain.test.ts`/`nav.test.ts`. Đã viết migration/RLS và `senderDomain.int.test.ts`;
+  AC cách ly chờ Claude generate/migrate + chạy DB thật. Design pass, e2e và regression chưa chạy.
 - Phụ thuộc: S02, S05 · Agent: Claude · Cỡ: M
