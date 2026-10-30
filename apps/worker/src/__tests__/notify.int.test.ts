@@ -17,7 +17,7 @@ test("email notifier: only reachable owners of tenant; suspended tenant still re
     const owner = await db.siteUser.create({ data: { tenantId, name: "[DỮ LIỆU MẪU] Owner", email: "owner@example.vn", role: "owner", status: "active" } });
     for (const data of [
       { tenantId, email: "disabled@example.vn", role: "owner", status: "disabled" },
-      { tenantId, email: null, role: "owner", status: "active" },
+      { tenantId, username: "owner_no_email", role: "owner", status: "active" },
       { tenantId, email: "staff@example.vn", role: "staff", status: "active" },
       { tenantId, email: "client@example.vn", role: "client", status: "active" },
       { tenantId: otherId, email: "other@example.vn", role: "owner", status: "active" },
