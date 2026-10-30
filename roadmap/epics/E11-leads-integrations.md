@@ -66,10 +66,11 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   - [ ] Super admin xem danh sách tenant đã bấm link đối tác và trạng thái (để đối soát hoa hồng).
 - Phụ thuộc: E9-S01 · Agent: Claude · Cỡ: M
 
-### E11-S05 · Email gửi đi từ nền tảng
+### E11-S05 · Email gửi đi từ nền tảng ✅ · PR [#73](https://github.com/votuandi/landing-page-full-page-ui/pull/73)
 - **Chi tiết**: email hệ thống (mời thành viên, magic link, thông báo lead, cảnh báo tên miền) gửi qua Resend hoặc Amazon SES từ
   tên miền nền tảng có SPF/DKIM/DMARC. Gửi "thay mặt" tên miền khách tách sang E11-S06 (người dùng chốt 30/10/2026).
 - **AC**: [ ] Email hệ thống vào hộp thư chính Gmail (mail-tester ≥ 9/10).
+- **Còn mở**: AC mail-tester chưa đo, cần tên miền và API key thật (`infra/mail/README.md`). ✅ ở đây chỉ nghĩa là đã merge.
 - Phụ thuộc: E10-S05 · Agent: Codex · Cỡ: S
 
 ### E11-S06 · Gửi thông báo lead thay mặt tên miền khách
