@@ -1,6 +1,6 @@
-import { createPlatformDb, forPlatform, POOL_BUDGET } from "@solar/db";
+import { createPlatformDb, forPlatform, POOL_BUDGET, findLeadSender, demoteSendingDomain } from "@solar/db";
 import { loadEnv, workerEnv } from "@solar/env";
-import { createLeadSenders, sendMail, type MailSender } from "@solar/leads";
+import { createLeadSenders, sendMail, senderFrom, type MailSender } from "@solar/leads";
 import { every, startWorker } from "./loop.ts";
 import { startBillingCron } from "./billing.ts";
 import { createLeadDeliver } from "./handlers/leadDeliver.ts";
@@ -28,7 +28,10 @@ const worker = startWorker({
     invalidate: invalidateTopic,
     "media.scan": { handle: media.scan },
     "media.publish": { handle: media.publish },
-    "lead.deliver": { handle: createLeadDeliver({ db, senders: createLeadSenders(env) }) },
+    "lead.deliver": { handle: createLeadDeliver({ db, senders: createLeadSenders(env), senderFor: async tenantId => {
+      const row = await findLeadSender(db, tenantId);
+      return row ? { hostname: row.hostname, from: senderFrom(row.name, row.hostname), onRejected: () => demoteSendingDomain(db, tenantId, row.hostname) } : null;
+    } }) },
     "mail.send": { handle: createMailSend({ send }), redact: true },
     "notify.plan-changed": { handle: notify },
     "notify.renewal": { handle: notify },
