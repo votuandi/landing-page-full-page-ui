@@ -144,7 +144,7 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
   Đổi một `client` thành nhân viên (hoặc ngược lại) chỉ owner làm được, có xác nhận.
   Kiểm trùng tên đăng nhập trong site (D17). Admin không nâng ai lên owner, không sửa owner; chỉ owner chuyển quyền owner.
 - **AC**:
-  - [ ] Mời vượt giới hạn `users` của gói → server từ chối, UI báo rõ và gợi ý nâng gói.
+  - [x] Mời vượt giới hạn `users` của gói → server từ chối, UI báo rõ và gợi ý nâng gói.
   - [x] Không gỡ/khóa được owner cuối cùng; admin không đổi được vai trò của owner (test server).
   - [x] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
 - Bằng chứng Codex: `.agent-runs/E7-S12/codex-report.md` (unit + DB server). Chờ Claude áp migration FK publisher,
