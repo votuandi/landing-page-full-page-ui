@@ -145,8 +145,10 @@ Claude design pass + review (2 vòng, APPROVE) · PR [#50](https://github.com/vo
   Kiểm trùng tên đăng nhập trong site (D17). Admin không nâng ai lên owner, không sửa owner; chỉ owner chuyển quyền owner.
 - **AC**:
   - [ ] Mời vượt giới hạn `users` của gói → server từ chối, UI báo rõ và gợi ý nâng gói.
-  - [ ] Không gỡ/khóa được owner cuối cùng; admin không đổi được vai trò của owner (test server).
-  - [ ] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
+  - [x] Không gỡ/khóa được owner cuối cùng; admin không đổi được vai trò của owner (test server).
+  - [x] Gỡ user → phiên đang mở của user đó hết hiệu lực ở request kế tiếp.
+- Bằng chứng Codex: `.agent-runs/E7-S12/codex-report.md` (unit + DB server). Chờ Claude áp migration FK publisher,
+  design pass và spec e2e cho luồng nhân viên/limit; chưa có PR.
 - Phụ thuộc: S01, S02, E6-S02, E11-S05 · Agent: Codex · Cỡ: M
 
 ### E7-S13 · Danh mục trang, thumbnail variant & dọn section đã xóa ✅ · PR [#55](https://github.com/votuandi/landing-page-full-page-ui/pull/55)
