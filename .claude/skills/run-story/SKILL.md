@@ -30,7 +30,7 @@ Tham số: `$ARGUMENTS`
   Ngoại lệ: test e2e mới/vừa sửa chạy riêng (`-g`) ngay khi viết xong — vòng 1–3′, không đợi CI.
 - **Spec e2e do Claude viết và chạy** (retro E11-S03): sandbox Codex không chạy được Playwright/dev server/Docker, spec
   "viết mù" tốn ~5 giờ vòng chạy–sửa. Codex làm logic + unit/int; Claude viết spec e2e và chạy `-g` ngay.
-- e2e local chạy production build (`local-ci.sh e2e` mặc định `E2E_SERVER=start`, tự build khi source mới hơn,
+- e2e `-g` chạy production build (`local-ci.sh e2e … -g` → `E2E_SERVER=start`, tự build khi source mới hơn; cả bộ vẫn `next dev` như CI,
   heap Node 3 GB). Trước mỗi lượt: `doctor.mjs` (bộ nhớ ảo còn trống + tiến trình mồ côi của phiên trước).
 - Một phiên Claude cho mỗi giai đoạn (plan+thực thi / kiểm local / CI+review): phiên kéo dài nhiều giờ làm cửa sổ VS Code
   phình 3–5 GB và crash OOM (E11-S03: 8 lần/ngày). Lệnh dài dùng `doctor.mjs run`, ghi log ra file để phiên sau đọc tiếp.
