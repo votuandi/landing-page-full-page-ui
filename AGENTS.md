@@ -49,6 +49,7 @@ Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck 
 (test DB thật) và `… e2e <tenant|preview|admin|production|sections>` — bộ nào phải chạy lấy từ bảng
 `scripts/ci/checks-map.mjs` (`run.mjs verify` in ra; CI dùng cùng bảng để chọn job và test). Sandbox Codex không dùng được
 Docker, nên Claude chạy các bước này; Codex trong sandbox cũng không chạy `pnpm turbo`, `prisma generate`, dev server, Playwright.
+Vì vậy **spec e2e do Claude viết và chạy ngay** (retro E11-S03); `local-ci.sh e2e` chạy production build (`E2E_SERVER=start`).
 **Phạm vi test** (23/10/2026): mỗi story chỉ test code mới của nó — unit/int package bị ảnh hưởng + test e2e mới/sửa
 (CI và local cùng phạm vi). **Regression toàn bộ** mỗi `regressionEvery` (6) PR đã merge (`roadmap/regression.json`,
 `S.regression`): story đó chạy mọi bộ + build, PR gắn nhãn `regression`. Không theo epic, không nightly.

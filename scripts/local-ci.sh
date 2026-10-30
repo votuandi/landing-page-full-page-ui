@@ -92,10 +92,26 @@ db() {
   pnpm --filter admin test
 }
 
+# Build an app only when a source is newer than its last build (E2E_SERVER=start serves that build).
+build_if_stale() {
+  local app=$1 id="apps/$1/.next/BUILD_ID" newer
+  [ -f "$id" ] && newer=$(find "apps/$app/src" "apps/$app/public" packages -newer "$id" -type f \
+    \( -name '*.ts' -o -name '*.tsx' -o -name '*.css' -o -name '*.json' \) -not -path '*/node_modules/*' -not -path '*/generated/*' -print -quit 2>/dev/null)
+  if [ ! -f "$id" ] || [ -n "$newer" ]; then echo "→ build $app${newer:+ ($newer mới hơn bản build)}"; pnpm --filter "$app" build; fi
+}
+
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
   local project=(); [ "$cfg" = admin ] && project=(--project=chromium)
+  # E11-S03: two `next dev --webpack` servers per admin run (3–7 GB each) ran Windows out of commit and crashed VS Code
+  # 8 times; cold compiles also caused most local timeouts. Serve production builds locally; E2E_SERVER=dev keeps the old way.
+  export E2E_SERVER=${E2E_SERVER:-start}
+  if [ "$E2E_SERVER" = start ]; then
+    case "$cfg" in admin) build_if_stale admin; build_if_stale web ;; *) build_if_stale web ;; esac
+  fi
+  # A runaway server then dies alone instead of exhausting commit memory for the whole machine.
+  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=3072}"
   pnpm --filter @solar/visual exec playwright test --config "playwright.$cfg.config.ts" "${project[@]}" "$@"
 }
 
