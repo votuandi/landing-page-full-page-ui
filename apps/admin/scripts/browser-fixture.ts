@@ -134,6 +134,10 @@ async function main() {
       const owner = await forTenant(db, tenantId).siteUser.first({ where: { email: "owner@demo.vn" }, omit: { totpSecret: false } });
       if (!owner?.totpSecret) throw new Error("Owner has no TOTP secret");
       process.stdout.write(totp(owner.totpSecret));
+    } else if (action === "totp-reset") {
+      // A TOTP test that failed before "Tắt xác thực hai bước" must not lock the owner out of every later test.
+      const repo = forTenant(db, tenantId), owner = await repo.siteUser.first({ where: { email: "owner@demo.vn" } });
+      if (owner) await repo.siteUser.update(owner.id, { totpSecret: null, totpBackupCodes: [], totpLastStep: null });
     } else if (action === "mail") {
       const purpose = process.argv[3];
       const job = await forTenant(db, tenantId).outbox.first({ where: { topic: "mail.send", payload: { path: ["template"], equals: purpose } }, orderBy: { createdAt: "desc" } });

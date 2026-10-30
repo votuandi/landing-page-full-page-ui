@@ -350,7 +350,9 @@ test("brand font and favicon", async ({ page }, info) => {
 });
 test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
-  fixture("setup");
+  // Tenants are created once per run by admin.global-setup.ts; this hook reruns only after a failure (new worker), so it
+  // just undoes state a half-finished test can leave behind, then warms routes.
+  fixture("totp-reset");
   // Warm new routes before timing user flows against next dev.
   for (const path of ["/", "/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
@@ -365,7 +367,6 @@ test.beforeAll(async ({ request }) => {
     expect(response.status(), path).toBeLessThan(500);
   }
 });
-test.afterAll(() => fixture("cleanup"));
 
 test("media: local PNG upload becomes private ready; HTML disguised as JPEG fails scan", async ({ page }) => {
   await login(page);

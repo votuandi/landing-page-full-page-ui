@@ -12,7 +12,7 @@ process.env.APP_ENCRYPTION_KEY ??= "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ??= "solar.localhost";
 
 export default defineConfig({
-  testDir: ".", testMatch: "admin.spec.ts", workers: 1, retries: process.env.CI ? 1 : 0, timeout: 120_000,
+  testDir: ".", testMatch: "admin.spec.ts", globalSetup: "./admin.global-setup.ts", workers: 1, retries: process.env.CI ? 1 : 0, timeout: 120_000,
   reporter: "list", outputDir: "test-results/admin", expect: { timeout: 20_000 },
   use: { viewport: { width: 1280, height: 900 }, locale: "vi-VN", navigationTimeout: 90_000,
     contextOptions: { reducedMotion: "reduce" }, trace: "retain-on-failure", screenshot: "only-on-failure" },
