@@ -41,7 +41,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 - Phụ thuộc: S01, E10-S05 · Agent: Codex · Cỡ: M
 - Backlog: Zalo OA triển khai ở story sau; E11-S02 dùng Resend HTTP cho email, chưa thêm SES/SMTP.
 
-### E11-S03 · Hộp thư lead trong CMS
+### E11-S03 · Hộp thư lead trong CMS ✅ · PR [#72](https://github.com/votuandi/landing-page-full-page-ui/pull/72)
 **Là** nhân viên kinh doanh của tenant, **tôi muốn** xem, lọc và cập nhật trạng thái lead, **để** chăm sóc khách kịp thời.
 - **Chi tiết**: danh sách lead (nguồn, phân khúc, tỉnh, kết quả dự toán, sản phẩm trong giỏ), trạng thái
   `mới|đã liên hệ|báo giá|chốt|hủy`, ghi chú, gán người phụ trách/chi nhánh (gói Cao cấp), xuất CSV (gói Cao cấp),
