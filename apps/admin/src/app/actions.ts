@@ -1,11 +1,11 @@
 "use server";
 
 import { z } from "zod";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { action, type ActionContext } from "../lib/action.ts";
 import { getRuntime } from "../lib/runtime.ts";
-import { requestInfo, setSessionCookie } from "../lib/auth.ts";
+import { origin, requestInfo, setSessionCookie } from "../lib/auth.ts";
 import { sealChallenge, openChallenge } from "../lib/challenge.ts";
 import { AccountInputError, createAccounts } from "../lib/accounts.ts";
 
@@ -33,12 +33,6 @@ async function finish(result: Awaited<ReturnType<ReturnType<typeof getRuntime>["
   await setSessionCookie(result.cookie);
   redirect(result.session.mustChangePassword ? "/doi-mat-khau" : "/");
 }
-async function origin(context: ActionContext) {
-  const h = (await headers()).get("host")!;
-  const port = h.includes(":") ? `:${h.split(":")[1]}` : "";
-  return `${process.env.NODE_ENV === "production" ? "https" : "http"}://${context.slug}.admin.${getRuntime().platform}${port}`;
-}
-
 export const loginAction = action("public", z.object({ identifier, password }), async (input, context) => {
   const result = await getRuntime().realm.login({ ...input, tenantId: context.tenantId, ...await requestInfo() });
   if (!result.ok && result.reason === "totp_required") {

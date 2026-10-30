@@ -8,6 +8,7 @@ import { assertPageFeature, getSiteEntitlements } from "./entitlements.ts";
 import { getRuntime } from "./runtime.ts";
 import { authorize, type Access } from "./gate.ts";
 import { requestHost } from "./hostContext.ts";
+import type { ActionContext } from "./action.ts";
 
 export const getTenant = cache(async () => {
   // Resolve Host again at the trust boundary; never trust a caller-supplied x-tenant-id.
@@ -50,4 +51,9 @@ export async function requestInfo() {
   const h = await headers();
   // Caddy must overwrite these headers; never expose the app port directly in production.
   return { ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown", userAgent: (h.get("user-agent") ?? "").slice(0, 512) };
+}
+export async function origin(context: ActionContext) {
+  const h = (await headers()).get("host")!;
+  const port = h.includes(":") ? `:${h.split(":")[1]}` : "";
+  return `${process.env.NODE_ENV === "production" ? "https" : "http"}://${context.slug}.admin.${getRuntime().platform}${port}`;
 }

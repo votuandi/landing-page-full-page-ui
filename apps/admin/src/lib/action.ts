@@ -4,13 +4,13 @@ import { authorize, type Access } from "./gate.ts";
 import { AccountInputError } from "./accounts.ts";
 import type { ProductCsvPreview } from "@solar/db";
 
-export type ActionResult = { ok?: boolean; error?: string; status?: number; message?: string; secret?: string; uri?: string; codes?: string[]; updatedAt?: string; url?: string; csvRows?: ProductCsvPreview["rows"] };
+export type ActionResult = { ok?: boolean; error?: string; status?: number; message?: string; secret?: string; uri?: string; codes?: string[]; updatedAt?: string; url?: string; limit?: boolean; clientId?: string; csvRows?: ProductCsvPreview["rows"] };
 export type ActionContext = { tenantId: string; slug: string; session: Session | null };
 export type AdminAction = (previous: ActionResult, form: FormData) => Promise<ActionResult>;
 type Loader = () => Promise<ActionContext>;
 function failure(error: unknown): ActionResult | null {
   if (error instanceof ForbiddenError || error instanceof MustChangePasswordError || error instanceof UnauthenticatedError || error instanceof AccountInputError) {
-    return { ok: false, status: error.status, error: error.message };
+    return { ok: false, status: error.status, error: error.message, ...(error instanceof AccountInputError ? error.details : {}) };
   }
   // Let Next handle redirect/notFound/forbidden control flow without relying on private internals.
   if (error instanceof Error && "digest" in error) return null;

@@ -157,14 +157,16 @@ async function main() {
     } else if (action === "invite") {
       const { createDb } = await import("@solar/db");
       const { createLoginLimiter } = await import("@solar/auth");
-      const { createAccounts } = await import("../src/lib/accounts.ts");
+      const { createStaff } = await import("../src/lib/staff.ts");
       const runtime = createDb({ pool: 1 });
       try {
         const limiter = createLoginLimiter();
         const realm = createRealm({ name: "site", secret: process.env.ADMIN_SESSION_SECRET!, secure: false, sessionTtl: 3600_000, idleTtl: 3600_000, store: siteStore(runtime, { audience: "admin" }), limiter });
         const owner = await realm.login({ identifier: "owner@demo.vn", password: `${password}-t15`, tenantId, ip: "fixture", userAgent: "Playwright", totp: process.argv[3] });
         if (!owner.ok) throw new Error("Owner fixture login failed");
-        const raw = await createAccounts({ db: runtime, realm, limiter }).createSiteInvite(owner.session, tenantId, { email: "staff-e2e@demo.vn", name: "[DỮ LIỆU MẪU] Staff", role: "staff" }, `http://admin-e7-a.admin.${platformDomain}:3300`);
+        await createStaff({ db: runtime, realm, limiter }).invite(owner.session, tenantId, { identifier: "staff-e2e@demo.vn", name: "[DỮ LIỆU MẪU] Staff", role: "staff" }, `http://admin-e7-a.admin.${platformDomain}:3300`);
+        const job = await forTenant(runtime, tenantId).outbox.first({ where: { topic: "mail.send", payload: { path: ["to"], equals: "staff-e2e@demo.vn" } }, orderBy: { createdAt: "desc" } });
+        const raw = new URL((job!.payload as { url: string }).url).searchParams.get("token")!;
         process.stdout.write(raw);
       } finally { await runtime.$disconnect(); }
     } else throw new Error("Unknown fixture action");

@@ -3,9 +3,17 @@ import { test } from "node:test";
 import { z } from "zod";
 import { effectivePermissions, type Session } from "@solar/auth";
 import { createAction, createRoute } from "../lib/action.ts";
+import { AccountInputError } from "../lib/accounts.ts";
 
 const owner: Session = { id: "s", tenantId: "a", realm: "site", audience: "admin", role: "owner", kind: "user", mustChangePassword: false,
   expiresAt: new Date(), permissions: effectivePermissions({ role: "owner", audience: "admin" }) };
+test("staff errors preserve limit and client conversion details", async () => {
+  const make = createAction(async () => ({ tenantId: "a", slug: "a", session: owner }));
+  for (const details of [{ limit: true }, { clientId: "client" }]) {
+    const action = make("users.manage", z.object({}), async () => { throw new AccountInputError("Thông báo", 409, details); });
+    assert.deepEqual(await action({}, new FormData()), { ok: false, status: 409, error: "Thông báo", ...details });
+  }
+});
 test("action parses untrusted input and checks permissions before running the handler", async () => {
   let ran = false;
   const handler = async () => { ran = true; return { ok: true }; };

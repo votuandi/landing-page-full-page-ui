@@ -49,6 +49,10 @@ const activityLabels: Record<string, string> = {
   "site.settings.update": "Cập nhật cài đặt site", "site.import-config": "Nhập cấu hình site",
   "tenant.plan.change": "Thay đổi gói dịch vụ", "plan.upgrade_requested": "Yêu cầu nâng gói",
   "tenant.renewal.reminded": "Nhắc gia hạn gói", "tenant.suspend.expired": "Gói đã hết hạn",
+  "staff.invited": "Mời nhân viên", "staff.invite_resent": "Gửi lại lời mời nhân viên",
+  "staff.role_changed": "Đổi vai trò nhân viên", "staff.locked": "Khóa nhân viên", "staff.unlocked": "Mở khóa nhân viên",
+  "staff.removed": "Gỡ nhân viên", "staff.owner_transferred": "Chuyển chủ sở hữu", "staff.client_converted": "Chuyển loại tài khoản",
+  "staff.sessions_revoked": "Đăng xuất thiết bị khác",
 };
 export function activityLabel(action: string): string { return Object.hasOwn(activityLabels, action) ? activityLabels[action] : action; }
 
