@@ -6,6 +6,7 @@ import { createRealm, hashPassword, totp, createLoginLimiter } from "@solar/auth
 import { siteStore } from "@solar/auth/db";
 import { authorize } from "../lib/gate.ts";
 import { createAccounts } from "../lib/accounts.ts";
+import { createStaff } from "../lib/staff.ts";
 
 describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL ? "requires DATABASE_URL and PLATFORM_DATABASE_URL; Claude chạy cuối PR" : false }, () => {
   let db: ReturnType<typeof createDb>, ops: ReturnType<typeof createPlatformDb>;
@@ -100,8 +101,15 @@ describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DA
   test("invite is 72h, tenant-bound, one-use; privileged invite helper rejects editor", async () => {
     const owner = await login(); assert.equal(owner.ok, true);
     const edit = await login("editor_admin"); assert.equal(edit.ok, true);
-    await assert.rejects(accounts.createSiteInvite(edit.session, a, { email: "staff@demo.vn", name: "[DỮ LIỆU MẪU]", role: "staff" }, "http://a.admin.solar.localhost:3300"), { status: 403 });
-    const raw = await accounts.createSiteInvite(owner.session, a, { email: "staff@demo.vn", name: "[DỮ LIỆU MẪU]", role: "staff" }, "http://a.admin.solar.localhost:3300");
+    const staff = createStaff({ db, limiter: createLoginLimiter(), idleTtl: 3600_000 });
+    // This auth fixture uses a custom plan; give it a supported users limit and a site.
+    await ops.tenant.update({ where: { id: a }, data: { planId: "premium" } });
+    await forTenant(db, a).site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    const input = { identifier: "staff@demo.vn", name: "[DỮ LIỆU MẪU]", role: "staff" as const };
+    await assert.rejects(staff.invite(edit.session, a, input, "http://a.admin.solar.localhost:3300"), { status: 403 });
+    await staff.invite(owner.session, a, input, "http://a.admin.solar.localhost:3300");
+    const job = await forTenant(db, a).outbox.first({ where: { topic: "mail.send", payload: { path: ["to"], equals: input.identifier } }, orderBy: { createdAt: "desc" } });
+    const raw = new URL((job!.payload as { url: string }).url).searchParams.get("token")!;
     const token = await forTenant(db, a).siteToken.first({ where: { purpose: "invite" } });
     assert.ok(Math.abs(token!.expiresAt.getTime() - Date.now() - 72 * 3600_000) < 5000);
     await assert.rejects(accounts.setPassword(b, raw, password, "invite"));

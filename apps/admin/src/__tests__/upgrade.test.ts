@@ -20,6 +20,13 @@ function setup() {
   const send = (feature = "shorts", message = "Tư vấn giúp tôi") => { const f = new FormData(); f.set("feature", feature); f.set("message", message); return action({}, f); };
   return { context, rows, send, deps, later: () => { now = new Date(now.getTime() + 86_400_000); } };
 }
+
+test("accepts limit:users", async () => {
+  const s = setup();
+  s.deps.entitlements = async () => { throw new Error("limits are not feature availability"); };
+  assert.equal((await s.send("limit:users")).ok, true);
+  assert.equal(s.rows[0]?.feature, "limit:users");
+});
 test("ghi AuditLog qua dependency tenant, feature, message, actor", async () => {
   const s = setup(); assert.equal((await s.send()).ok, true);
   assert.equal(s.rows.length, 1); assert.equal(s.rows[0].tenantId, s.context.tenantId);

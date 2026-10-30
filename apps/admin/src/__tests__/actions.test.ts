@@ -5,10 +5,26 @@ import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 import ts from "typescript";
 import { PERMISSIONS } from "@solar/auth";
+import { effectivePermissions } from "@solar/auth";
+import { createAction } from "../lib/action.ts";
+import { z } from "zod";
 
 const publicActions = new Set(["loginAction", "loginTotpAction", "forgotPasswordAction", "requestMagicAction", "resetPasswordAction", "acceptInviteAction", "magicLoginAction", "magicTotpAction"]);
 // Upgrade requests are available to authenticated tenant staff, independent of editing permissions.
 const sessionActions = new Set(["logoutAction", "requestUpgrade"]);
+test("staff actions reject editor before executing handlers", async () => {
+  const actions = await import("../app/(admin)/nhan-vien/actions.ts");
+  const expected = { inviteStaff: "users.manage", resendStaffInvite: "users.manage", changeStaffRole: "users.manage", lockStaff: "users.manage", removeStaff: "users.delete", transferStaffOwner: "users.transferOwner", convertClientToStaff: "users.manage", convertStaffToClient: "users.manage" } as const;
+  for (const [name, permission] of Object.entries(expected)) {
+    assert.equal(actions[name as keyof typeof actions].permission, permission);
+    let called = false;
+    const wrapped = createAction(async () => ({ tenantId: "a", slug: "a", session: { realm: "site", tenantId: "a", audience: "admin", id: "s", kind: "user", role: "editor", expiresAt: new Date(), mustChangePassword: false,
+      permissions: effectivePermissions({ role: "editor", audience: "admin" }) } }))(permission, z.object({}), async () => { called = true; return { ok: true }; });
+    assert.equal((await wrapped({}, new FormData())).status, 403); assert.equal(called, false);
+  }
+  const security = await import("../app/(admin)/tai-khoan/bao-mat/actions.ts");
+  assert.equal(security.logoutOtherSessions.permission, "account.totp");
+});
 function exportsOf(source: string, wrapper: "action" | "route") {
   const file = ts.createSourceFile("check.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const exports: { name: string; permission: string }[] = [];

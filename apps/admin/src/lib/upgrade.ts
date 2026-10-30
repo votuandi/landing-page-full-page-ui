@@ -4,7 +4,7 @@ import type { ActionContext, ActionResult } from "./action.ts";
 import { authorize } from "./gate.ts";
 
 export const upgradeSchema = z.object({
-  feature: z.union([z.enum(FEATURES), z.enum(["theme:classic", "theme:pro", "theme:signature"])]),
+  feature: z.union([z.enum(FEATURES), z.enum(["theme:classic", "theme:pro", "theme:signature", "limit:users"])]),
   message: z.string().trim().max(1000).optional(),
 });
 export type UpgradeRecord = { tenantId: string; actorId: string; feature: string; message?: string };
@@ -20,7 +20,7 @@ export function createUpgradeHandler(deps: UpgradeDeps) {
     if (!session.accountId || session.kind === "ghost") return { ok: false, status: 403, error: "Phiên hiện tại không hỗ trợ yêu cầu nâng cấp" };
     const tenant = await deps.tenant();
     if (tenant.tenantId !== context.tenantId) return { ok: false, status: 403, error: "Website không hợp lệ" };
-    const available = input.feature.startsWith("theme:")
+    const available = input.feature === "limit:users" ? false : input.feature.startsWith("theme:")
       ? themeAllowed(tenant.planId, input.feature.slice(6) as ThemeGroup)
       : (await deps.entitlements())(input.feature);
     if (available) return { ok: false, status: 400, error: "Tính năng đã có trong gói hiện tại" };

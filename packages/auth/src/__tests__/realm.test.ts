@@ -24,6 +24,17 @@ function setup(options: { forced?: boolean; role?: "owner" | "client"; audience?
   return { realm, store, input, host, login, now: () => time, advance: (ms: number) => { time += ms; } };
 }
 
+test("login records lastLoginAt; failed login leaves it unchanged", async () => {
+  const t = setup();
+  await t.login();
+  assert.equal((await t.store.getAccount("user-a", "a"))?.lastLoginAt?.getTime(), t.now());
+  t.advance(1000);
+  assert.equal((await t.realm.login({ ...t.input, password: "wrong" })).ok, false);
+  assert.equal((await t.store.getAccount("user-a", "a"))?.lastLoginAt?.getTime(), t.now() - 1000);
+  t.store.updateAccount = async () => { throw new Error("unavailable"); };
+  assert.equal((await t.login()).ok, true, "timestamp failure does not block login");
+});
+
 test("verified one-use token login checks tenant, status, TOTP and atomic consumption before issuing a session", async () => {
   const t = setup();
   const input = { accountId: "user-a", tenantId: "a", ip: "ip", userAgent: "test" };

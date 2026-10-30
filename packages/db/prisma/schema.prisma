@@ -439,7 +439,8 @@ model PageVersion {
   publishedBySiteUserId      String?        @db.Uuid
   publishedByPlatformAdminId String?        @db.Uuid
   page                       Page           @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
-  publishedBySiteUser        SiteUser?      @relation(fields: [tenantId, publishedBySiteUserId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
+  // SQL migration nulls only publishedBySiteUserId, preserving the required tenantId.
+  publishedBySiteUser        SiteUser?      @relation(fields: [tenantId, publishedBySiteUserId], references: [tenantId, id], onDelete: SetNull, onUpdate: Restrict)
   publishedByPlatformAdmin   PlatformAdmin? @relation(fields: [publishedByPlatformAdminId], references: [id], onDelete: SetNull)
   createdAt                  DateTime       @default(now())
   tenant                     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)

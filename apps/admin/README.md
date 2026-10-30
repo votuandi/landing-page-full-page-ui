@@ -82,7 +82,23 @@ Next dev có thể ghi đè Cache-Control HTML thành `no-cache, must-revalidate
   được cấp quyền khi job còn chờ, không gửi lại job auth đã redact.
   Phản hồi yêu cầu link luôn giống nhau, gồm hướng dẫn tài khoản chỉ có SĐT, không tiết lộ email tồn tại.
 - `/tai-khoan/khoi-phuc` gợi ý thêm email/SĐT sau đổi mật khẩu; cập nhật/xác minh thông tin thuộc luồng tiếp theo.
-  `createAccounts(...).createSiteInvite` là helper server kiểm `users.manage` cho E7-S12.
+  `createStaff(...).invite` kiểm `users.manage`, actor hiện tại và giới hạn `users` trong transaction Serializable.
+
+## Nhân viên và phiên đăng nhập (E7-S12)
+
+`/nhan-vien` chỉ liệt kê nhân viên, không có tài khoản `client`. Danh sách hiển thị trạng thái, vai trò, lần đăng nhập
+gần nhất và trạng thái 2FA; không chuyển credential sang client. Mời bằng email gửi Outbox, chỉ lời mời bằng SĐT trả link
+72 giờ dùng một lần để chủ site gửi riêng. Gửi lại mời thay token và có giới hạn tần suất.
+
+Giới hạn `users` tính cả người đang chờ mời/đã khóa, bỏ qua client và tài khoản disabled. Tenant đã vượt gói vẫn quản lý
+nhân viên hiện có; khi thêm/chuyển client thành nhân viên, server từ chối và UI cho gửi yêu cầu nâng gói `limit:users`.
+Admin không sửa owner; chỉ owner thật chuyển quyền owner hoặc chuyển client ↔ nhân viên. Chặn tự khóa/gỡ/hạ vai trò,
+bảo vệ owner active cuối cùng kể cả thao tác đồng thời. Thay đổi quyền/khóa/gỡ/chuyển loại thu hồi mọi audience/session.
+Đổi vai trò khi đang chờ mời giữ nguyên link kích hoạt. Gỡ xóa cứng tài khoản nhưng giữ lịch sử xuất bản (publisher SET NULL,
+tenantId giữ nguyên); cần migration `20261030120000_e7_s12_page_version_publisher`.
+
+`/tai-khoan/bao-mat` hiển thị phiên của chính mình và cho đăng xuất mọi phiên khác, giữ phiên hiện tại. Ghost không dùng
+luồng bảo mật tài khoản, gỡ/chuyển owner hoặc chuyển loại tài khoản; thao tác nhân viên được phép có audit gắn grant.
 
 ## Thêm action/route
 
