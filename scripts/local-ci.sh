@@ -114,8 +114,10 @@ e2e() {
   if [ "$E2E_SERVER" = start ]; then
     case "$cfg" in admin) build_if_stale admin; build_if_stale web ;; *) build_if_stale web ;; esac
   fi
-  # A runaway server then dies alone instead of exhausting commit memory for the whole machine.
-  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=3072}"
+  # A runaway server then dies alone instead of exhausting commit memory for the whole machine. next dev needs more: it
+  # restarts itself near the heap limit, and that restart crashes on Windows (ENOTEMPTY in .next/dev/types).
+  local heap=3072; [ "$E2E_SERVER" = dev ] && heap=6144
+  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=$heap}"
   pnpm --filter @solar/visual exec playwright test --config "playwright.$cfg.config.ts" "${project[@]}" "$@"
 }
 
