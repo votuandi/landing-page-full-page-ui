@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { intendedFrom, judge } from "./visual-intended.mjs";
 
-const diff = "Screenshot comparison failed:\n\n  2120 pixels (ratio 0.01 of all image pixels) are different.";
+const diff = "Error: expect(locator).toHaveScreenshot(expected) failed\n\n  Expected an image 1440px by 1223px, received 1440px by 1251px. 47180 pixels (ratio 0.03 of all image pixels) are different.";
 const report = (tests) => ({ suites: [{ specs: tests.map(([title, status, message]) => ({ title, tests: [{ status, results: [{ errors: message ? [{ message }] : [] }] }] })) }] });
 
 test("PR body: one `Visual intended:` line, comma separated, case and spacing tolerant", () => {
@@ -26,7 +26,22 @@ test("a declared cell failing for another reason (timeout, contrast, off-token) 
   assert.deepEqual(result.unintended, ["lead-form/t01"]);
 });
 
-test("nothing declared, or no failure at all", () => {
+test("nothing declared keeps real diffs red; a flaky test is not a failure", () => {
   assert.equal(judge(report([["lead-form/t01", "unexpected", diff]]), []).ok, false);
-  assert.equal(judge(report([["lead-form/t01", "flaky", diff], ["hero/t01", "expected"]]), []).ok, true);
+  assert.equal(judge(report([["lead-form/t01", "unexpected", diff], ["hero/t01", "flaky", diff]]), ["lead-form"]).ok, true);
+});
+
+// Called only after Playwright exited non-zero: "no failed test" then means the run itself broke (build, webServer, stale report).
+test("fail closed: a run with no declared diff to explain the failure stays red", () => {
+  assert.equal(judge({ suites: [] }, ["lead-form"]).ok, false);
+  assert.equal(judge(report([["hero/t01", "expected"]]), ["lead-form"]).ok, false);
+  const broken = { ...report([["lead-form/t01", "unexpected", diff]]), errors: [{ message: "Timed out waiting 60000ms from config.webServer." }] };
+  assert.equal(judge(broken, ["lead-form"]).ok, false);
+});
+
+test("toHaveScreenshot failures that are not a pixel diff stay red", () => {
+  const unstable = "Error: expect(page).toHaveScreenshot(expected) failed\n\n  Timeout: 15000ms\n  Failed to take two consecutive stable screenshots.";
+  assert.equal(judge(report([["lead-form/t01", "unexpected", unstable]]), ["lead-form"]).ok, false);
+  const colored = diff.replace("47180 pixels", "\u001b[31m47180 pixels\u001b[39m");
+  assert.equal(judge(report([["lead-form/t01", "unexpected", colored]]), ["lead-form"]).ok, true);
 });

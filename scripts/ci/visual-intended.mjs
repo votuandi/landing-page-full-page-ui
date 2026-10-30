@@ -13,9 +13,12 @@ export function intendedFrom(body) {
 }
 
 const declared = (title, intended) => intended.some(entry => entry.startsWith("/") ? title === entry : title.startsWith(`${entry}/`));
+// Only a real pixel diff: `toHaveScreenshot` also fails on timeouts and "two consecutive stable screenshots".
+// eslint-disable-next-line no-control-regex
+const plain = (message = "") => message.replace(/\u001b\[[0-9;]*m/g, "");
 const screenshotOnly = (results) => {
   const errors = results.flatMap(r => r.errors ?? []);
-  return errors.length > 0 && errors.every(e => /Screenshot comparison failed|toHaveScreenshot/.test(e.message ?? ""));
+  return errors.length > 0 && errors.every(e => /\d+ pixels \(ratio/.test(plain(e.message)));
 };
 
 export function judge(report, intended) {
@@ -26,13 +29,16 @@ export function judge(report, intended) {
   };
   for (const suite of report.suites ?? []) walk(suite);
   const unintended = [...new Set(failed.filter(f => !declared(f.title, intended) || !screenshotOnly(f.results)).map(f => f.title))];
-  return { ok: unintended.length === 0, failed: failed.length, unintended };
+  // Runs only after Playwright exited non-zero: no failed test, or run-level errors, mean the run itself broke (fail closed).
+  const broken = (report.errors ?? []).length > 0 || failed.length === 0;
+  return { ok: !broken && unintended.length === 0, failed: failed.length, unintended, broken };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const intended = intendedFrom(process.env.PR_BODY);
-  const { ok, failed, unintended } = judge(JSON.parse(readFileSync(process.argv[2], "utf8")), intended);
+  const { ok, failed, unintended, broken } = judge(JSON.parse(readFileSync(process.argv[2], "utf8")), intended);
   if (ok) console.log(`::notice::${failed} visual diff(s), all declared in the PR body (Visual intended: ${intended.join(", ")}). Review the report artifact.`);
+  else if (broken) console.log("::error::Playwright failed without any screenshot diff to explain it (build, webServer or run-level error).");
   else console.log(`::error::Visual failures not declared as intended screenshot diffs: ${unintended.join(", ")}${intended.length ? "" : " (PR body has no `Visual intended:` line)"}`);
   process.exit(ok ? 0 : 1);
 }
