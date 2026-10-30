@@ -101,7 +101,7 @@ describe("admin authentication with PostgreSQL and RLS", { skip: !process.env.DA
   test("invite is 72h, tenant-bound, one-use; privileged invite helper rejects editor", async () => {
     const owner = await login(); assert.equal(owner.ok, true);
     const edit = await login("editor_admin"); assert.equal(edit.ok, true);
-    const staff = createStaff({ db, realm, limiter: createLoginLimiter() });
+    const staff = createStaff({ db, limiter: createLoginLimiter(), idleTtl: 3600_000 });
     // This auth fixture uses a custom plan; give it a supported users limit and a site.
     await ops.tenant.update({ where: { id: a }, data: { planId: "premium" } });
     await forTenant(db, a).site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });

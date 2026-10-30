@@ -1,23 +1,23 @@
 import { createHash, randomBytes } from "node:crypto";
 import { z } from "zod";
 import { withTenantTransaction, type Db, type TenantRepo } from "@solar/db";
-import { effectivePermissions, ForbiddenError, type createRealm, type LoginLimiter, type Permission, type Session } from "@solar/auth";
+import { effectivePermissions, ForbiddenError, type LoginLimiter, type Permission, type Session } from "@solar/auth";
 import { assertWithinLimit, EntitlementError, limit } from "@solar/plans";
 import { AccountInputError } from "./accounts.ts";
 import { authorize } from "./gate.ts";
 import { leadActor } from "./leadInbox.ts";
-import { inviteSchema, roleSchema, type StaffRole } from "./staffInput.ts";
+import { inviteSchema, roleSchema, type inviteFormSchema, type StaffRole } from "./staffInput.ts";
 
 const missing = () => new AccountInputError("Không tìm thấy nhân viên", 404);
 const conflict = () => new AccountInputError("Dữ liệu vừa thay đổi. Vui lòng thử lại.", 409);
 const duplicate = () => new AccountInputError("Email hoặc số điện thoại đã có tài khoản trong site này", 409);
 const staffWhere = { role: { not: "client" as const }, status: { not: "disabled" as const } };
-const rowSelect = { id: true, name: true, email: true, phone: true, role: true, status: true, lastLoginAt: true, totpSecret: true } as const;
+const rowSelect = { id: true, name: true, email: true, phone: true, username: true, role: true, status: true, lastLoginAt: true, totpSecret: true } as const;
 type SiteUser = NonNullable<Awaited<ReturnType<TenantRepo["siteUser"]["get"]>>>;
-type StaffRow = Pick<SiteUser, "id" | "name" | "email" | "phone" | "role" | "status"> & { lastLoginAt: string | null; hasTotp: boolean };
+type StaffRow = Pick<SiteUser, "id" | "name" | "email" | "phone" | "username" | "role" | "status"> & { lastLoginAt: string | null; hasTotp: boolean };
 type Access = { repo: TenantRepo; actor: Session; ghostGrantId?: string };
 
-export function createStaff({ db, limiter, now = Date.now }: { db: Db; realm: ReturnType<typeof createRealm>; limiter: LoginLimiter; now?: () => number }) {
+export function createStaff({ db, limiter, idleTtl, now = Date.now }: { db: Db; limiter: LoginLimiter; idleTtl: number; now?: () => number }) {
   async function transaction<T>(session: Session, tenantId: string, permission: Permission, work: (access: Access) => Promise<T>): Promise<T> {
     authorize(session, tenantId, permission);
     for (let attempt = 0; ; attempt++) {
@@ -106,10 +106,10 @@ export function createStaff({ db, limiter, now = Date.now }: { db: Db; realm: Re
       return { users, used: await repo.siteUser.count({ where: staffWhere }), max: limit(site.tenant, "users", { now: new Date(now()) }) };
     });
   }
-  async function invite(session: Session, tenantId: string, input: z.input<typeof inviteSchema>, origin: string) {
+  async function invite(session: Session, tenantId: string, input: z.input<typeof inviteFormSchema>, origin: string) {
     authorize(session, tenantId, "users.manage");
     const parsed = inviteSchema.safeParse(input);
-    if (!parsed.success) throw new AccountInputError("Vui lòng kiểm tra tên, email/SĐT và vai trò (tên tối đa 100 ký tự)");
+    if (!parsed.success) throw new AccountInputError(parsed.error.issues[0].message);
     const { loginId, name, role } = parsed.data;
     return transaction(session, tenantId, "users.manage", async access => {
       const existing = await access.repo.siteUser.first({ where: { [loginId.kind]: loginId.value } });
@@ -198,7 +198,7 @@ export function createStaff({ db, limiter, now = Date.now }: { db: Db; realm: Re
   async function sessions(session: Session, tenantId: string) {
     return transaction(session, tenantId, "account.totp", async ({ repo, actor }) => {
       if (!actor.accountId || actor.kind === "ghost") throw new ForbiddenError();
-      const rows = await repo.siteSession.list({ where: { siteUserId: actor.accountId, expiresAt: { gt: new Date(now()) } }, orderBy: { lastSeenAt: "desc" },
+      const rows = await repo.siteSession.list({ where: { siteUserId: actor.accountId, expiresAt: { gt: new Date(now()) }, lastSeenAt: { gt: new Date(now() - idleTtl) } }, orderBy: { lastSeenAt: "desc" },
         select: { id: true, audience: true, ip: true, userAgent: true, lastSeenAt: true, createdAt: true } });
       return rows.map(row => ({ ...row, current: row.id === actor.id, createdAt: row.createdAt.toISOString(), lastSeenAt: row.lastSeenAt.toISOString() }));
     });

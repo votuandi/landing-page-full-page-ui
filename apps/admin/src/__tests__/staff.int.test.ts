@@ -26,7 +26,7 @@ describe("staff with PostgreSQL and RLS", { skip: !process.env.DATABASE_URL || !
     const owner = await user("owner");
     const limiter = createLoginLimiter({ ipLimit: 1000, maxFailures: 100 });
     const realm = createRealm({ name: "site", secret: "s".repeat(32), store: siteStore(db, { audience: "admin" }), limiter, sessionTtl: 86400_000, idleTtl: 3600_000 });
-    const service = createStaff({ db, realm, limiter });
+    const service = createStaff({ db, limiter, idleTtl: 12 * 3600_000 });
     async function login(email = owner.email!, audience: "admin" | "storefront" = "admin") {
       const r = audience === "admin" ? realm : createRealm({ name: "site", secret: "s".repeat(32), store: siteStore(db, { audience }), sessionTtl: 86400_000, idleTtl: 3600_000 });
       const result = await r.login({ identifier: email, password, tenantId, ip: "test", userAgent: "node:test" });
@@ -147,6 +147,9 @@ describe("staff with PostgreSQL and RLS", { skip: !process.env.DATABASE_URL || !
     const s = await setup(), other = await s.login(), storefront = await s.login(s.owner.email!, "storefront");
     const rows = await s.service.sessions(s.session, s.tenantId); assert.equal(rows.length, 3); assert.equal(rows.filter(r => r.current).length, 1);
     assert.equal("tokenHash" in rows[0], false);
+    await s.repo.siteSession.update(other.session.id, { lastSeenAt: new Date(Date.now() - 13 * 3600_000) });
+    assert.equal((await s.service.sessions(s.session, s.tenantId)).some(row => row.id === other.session.id), false);
+    await s.repo.siteSession.update(other.session.id, { lastSeenAt: new Date() });
     await s.service.logoutOtherSessions(s.session, s.tenantId);
     assert.ok(await s.realm.getSession(s.logged.cookie.value, { tenantOfHost: s.tenantId }));
     for (const l of [other, storefront]) assert.equal(await l.realm.getSession(l.cookie.value, { tenantOfHost: s.tenantId }), null);
@@ -162,7 +165,7 @@ describe("staff with PostgreSQL and RLS", { skip: !process.env.DATABASE_URL || !
   });
   test("resend invite is rate limited", async () => {
     const s = await setup(); await s.invite(); const user = await s.repo.siteUser.first({ where: { status: "invited" } });
-    const limited = createStaff({ db, realm: s.realm, limiter: createLoginLimiter({ maxFailures: 1 }) });
+    const limited = createStaff({ db, limiter: createLoginLimiter({ maxFailures: 1 }), idleTtl: 12 * 3600_000 });
     await limited.resendInvite(s.session, s.tenantId, user!.id, "https://test.vn");
     await assert.rejects(limited.resendInvite(s.session, s.tenantId, user!.id, "https://test.vn"), { status: 429 });
   });

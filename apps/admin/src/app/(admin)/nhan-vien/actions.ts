@@ -4,14 +4,14 @@ import { action, type ActionResult } from "../../../lib/action.ts";
 import { origin } from "../../../lib/auth.ts";
 import { getRuntime } from "../../../lib/runtime.ts";
 import { createStaff } from "../../../lib/staff.ts";
-import { changeRoleSchema, inviteSchema, lockSchema, staffIdSchema } from "../../../lib/staffInput.ts";
+import { changeRoleSchema, inviteFormSchema, lockSchema, staffIdSchema } from "../../../lib/staffInput.ts";
 
 const service = () => createStaff(getRuntime());
 function refreshed(result: ActionResult = { ok: true, message: "Đã cập nhật nhân viên." }) {
   revalidatePath("/nhan-vien");
   return result;
 }
-export const inviteStaff = action("users.manage", inviteSchema, async (input, c) => {
+export const inviteStaff = action("users.manage", inviteFormSchema, async (input, c) => {
   const result = await service().invite(c.session!, c.tenantId, input, await origin(c));
   return refreshed({ ok: true, ...result });
 });

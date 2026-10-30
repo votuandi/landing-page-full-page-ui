@@ -14,9 +14,10 @@ function createRuntime() {
     enableOfflineQueue: true, maxRetriesPerRequest: 0, commandTimeout: 500, connectTimeout: 1000,
   }).on("error", () => undefined) : undefined;
   const limiter = createLoginLimiter({ primary: redis ? redisCounter(redis) : undefined });
-  const realm = createRealm({ name: "site", secret, sessionTtl: 7 * 86400_000, idleTtl: 12 * 3600_000,
+  const idleTtl = 12 * 3600_000;
+  const realm = createRealm({ name: "site", secret, sessionTtl: 7 * 86400_000, idleTtl,
     secure: process.env.NODE_ENV === "production", store: siteStore(db, { audience: "admin" }), limiter });
-  return { db, redis, realm, limiter, secret, platform,
+  return { db, redis, realm, limiter, idleTtl, secret, platform,
     resolveHost: createHostResolver(slug => forPlatform(db).tenants.bySlug(slug), platform),
     async close() { redis?.disconnect(); await db.$disconnect(); },
   };
