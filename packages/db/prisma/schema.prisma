@@ -185,6 +185,7 @@ model Tenant {
   leads             Lead[]
   outbox            Outbox[]
   leadIntegrations  LeadIntegration[]
+  sendingDomain     SendingDomain?
   auditLogs         AuditLog[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -813,6 +814,28 @@ model Outbox {
   @@unique([tenantId, id])
   @@index([tenantId])
   @@index([status, runAt])
+}
+
+enum SendingDomainStatus {
+  pending
+  verified
+  failed
+}
+
+model SendingDomain {
+  id         String              @id @default(uuid(7)) @db.Uuid
+  tenantId   String              @db.Uuid @unique
+  hostname   String              @unique
+  status     SendingDomainStatus @default(pending)
+  providerId String?
+  records    Json                @default("[]")
+  verifiedAt DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id])
+  @@index([tenantId])
 }
 
 model LeadIntegration {
