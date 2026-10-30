@@ -1,7 +1,7 @@
 {
   "name": "@solar/leads", "version": "0.0.0", "private": true, "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "test": "node --import tsx --test src/__tests__/config.test.ts src/__tests__/safeRequest.test.ts src/__tests__/channels.test.ts", "typecheck": "tsc --noEmit", "lint": "eslint ." },
+  "scripts": { "test": "node --import tsx --test src/__tests__/config.test.ts src/__tests__/safeRequest.test.ts src/__tests__/channels.test.ts src/__tests__/mail.test.ts", "typecheck": "tsc --noEmit", "lint": "eslint ." },
   "dependencies": { "@solar/env": "workspace:*", "zod": "4.6.5" },
   "devDependencies": { "@solar/config": "workspace:*", "@types/node": "20.19.37", "eslint": "9.39.5", "tsx": "4.23.15", "typescript": "5.9.3" }
 }

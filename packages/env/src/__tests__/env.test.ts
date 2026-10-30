@@ -132,6 +132,13 @@ test("storage/media/lab env tùy chọn nhưng kiểm định dạng khi có", (
   assert.ok(!webEnv.safeParse({ LAB_ENABLED: "1" }).success);
   assert.ok(!workerEnv.safeParse({ PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar", MEDIA_REQUIRE_FFMPEG: "true" }).success);
 });
+test("MAIL_FROM is optional, empty is unset, and configured sender survives parsing", () => {
+  for (const [schema, base] of [[webEnv, {}], [adminEnv, admin], [workerEnv, { PLATFORM_DATABASE_URL: "postgresql://app_platform@localhost/solar" }]] as const) {
+    assert.equal(schema.parse({ ...base, MAIL_FROM: "" }).MAIL_FROM, undefined);
+    assert.equal(schema.parse({ ...base, MAIL_FROM: "Solar <mail@example.vn>" }).MAIL_FROM, "Solar <mail@example.vn>");
+  }
+});
+
 test("index không import node:crypto", () => {
   for (const file of ["index.ts", "keyFormat.ts"]) {
     const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
