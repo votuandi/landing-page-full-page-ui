@@ -9,11 +9,13 @@ export type Topic = {
   handle: (job: OutboxJob) => Promise<void>;
   /** Age after which a failing job goes dead; default 24 h. `Infinity` = retry forever (cache invalidation). */
   maxAgeMs?: number;
+  /** Remove sensitive payload only once the job is done or dead. */
+  redact?: boolean;
 };
 type Outbox = {
   claim(options: { limit?: number; leaseMs?: number; topics?: readonly string[]; tenantId?: string; now?: Date }): Promise<OutboxJob[]>;
-  complete(job: OutboxJob, options?: { now?: Date }): Promise<boolean>;
-  fail(job: OutboxJob, error: unknown, options?: { now?: Date; maxAgeMs?: number; dead?: boolean }): Promise<"dead" | "retry">;
+  complete(job: OutboxJob, options?: { now?: Date; redact?: boolean }): Promise<boolean>;
+  fail(job: OutboxJob, error: unknown, options?: { now?: Date; maxAgeMs?: number; dead?: boolean; redact?: boolean }): Promise<"dead" | "retry">;
 };
 export type RunOptions = { outbox: Outbox; topics: Readonly<Record<string, Topic>>; now?: () => Date; limit?: number; leaseMs?: number; tenantId?: string };
 
@@ -25,9 +27,9 @@ export async function runOnce({ outbox, topics, now = () => new Date(), limit, l
     const topic = topics[job.topic];
     try {
       await topic.handle(job);
-      await outbox.complete(job, { now: now() });
+      await outbox.complete(job, { now: now(), redact: topic.redact });
     } catch (error) {
-      await outbox.fail(job, error, { now: now(), maxAgeMs: topic.maxAgeMs, dead: error instanceof PermanentError });
+      await outbox.fail(job, error, { now: now(), maxAgeMs: topic.maxAgeMs, dead: error instanceof PermanentError, redact: topic.redact });
     }
   }));
   const failed = results.find((result) => result.status === "rejected");

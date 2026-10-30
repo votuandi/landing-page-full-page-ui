@@ -4,9 +4,81 @@ import { randomUUID } from "node:crypto";
 import { createDb, createLead, createPlatformDb, forPlatform, forTenant, type OutboxJob } from "@solar/db";
 import { runOnce } from "../loop.ts";
 import { createLeadDeliver, type LeadSender } from "../handlers/leadDeliver.ts";
+import { createMailSend } from "../handlers/mail.ts";
+import { sendMail } from "@solar/leads";
 
 const skip = !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "DATABASE_URL/PLATFORM_DATABASE_URL missing: requires migrated PostgreSQL 16";
 const MIN = 60_000;
+
+test("Postgres outbox redact: terminal only, lease guarded, lead payload unchanged", { skip }, async () => {
+  const db = createPlatformDb({ pool: 2 }), repo = forPlatform(db).outbox;
+  const tenantId = randomUUID();
+  await db.tenant.create({ data: { id: tenantId, slug: `redact-${tenantId}`, name: "[DỮ LIỆU MẪU] Redact", planId: "pro" } });
+  try {
+    const now = new Date();
+    const payload = { to: "owner@example.vn", template: "invite", url: "https://site.vn/moi?token=private-token" };
+    for (const topic of ["mail.send", "lead.deliver"]) await repo.enqueue([
+      { tenantId, topic, payload, idempotencyKey: `${topic}:${tenantId}:done`, runAt: now },
+      { tenantId, topic, payload, idempotencyKey: `${topic}:${tenantId}:dead`, runAt: now },
+    ]);
+    const jobs = await repo.claim({ tenantId, now, leaseMs: MIN });
+    assert.equal(jobs.length, 4);
+    for (const job of jobs) {
+      const redact = job.topic === "mail.send";
+      const stale = { ...job, runAt: new Date(job.runAt.getTime() - 1) };
+      assert.equal(await repo.complete(stale, { redact, now }), false);
+      await repo.fail(stale, Error("invalid"), { redact, dead: true, now });
+      let row = await db.outbox.findUniqueOrThrow({ where: { id: job.id } });
+      assert.equal(row.status, "processing");
+      assert.deepEqual(row.payload, payload);
+      assert.equal(await db.auditLog.count({ where: { entityId: job.id, action: "outbox.dead" } }), 0);
+      if (job.idempotencyKey.endsWith(":done")) await repo.complete(job, { redact, now });
+      else {
+        await repo.fail(job, Error("offline"), { redact, now });
+        row = await db.outbox.findUniqueOrThrow({ where: { id: job.id } });
+        assert.equal(row.status, "pending");
+        assert.deepEqual(row.payload, payload, "retry must preserve token for next attempt");
+        const retryAt = new Date(row.runAt.getTime() + 1);
+        const [retry] = await repo.claim({ tenantId, topics: [job.topic], now: retryAt });
+        assert.equal(retry.id, job.id);
+        await repo.fail(retry, Error("invalid"), { redact, dead: true, now: retryAt });
+      }
+      row = await db.outbox.findUniqueOrThrow({ where: { id: job.id } });
+      assert.equal(row.status, job.idempotencyKey.endsWith(":done") ? "done" : "failed");
+      assert.deepEqual(row.payload, redact ? { redacted: true } : payload);
+    }
+    // Failure at retry age limit also redacts, even without a permanent error.
+    await repo.enqueue([{ tenantId, topic: "mail.send", payload, idempotencyKey: `aged:${tenantId}`, runAt: now }]);
+    const [aged] = await repo.claim({ tenantId, now });
+    await repo.fail(aged, Error("offline"), { redact: true, maxAgeMs: 0, now: new Date(aged.createdAt.getTime() + 1) });
+    assert.deepEqual((await db.outbox.findUniqueOrThrow({ where: { id: aged.id } })).payload, { redacted: true });
+
+    // Exercise the real mail boundary through the loop: fetch exceptions cannot reach lastError/audit/log verbatim.
+    await repo.enqueue([{ tenantId, topic: "mail.send", payload, idempotencyKey: `network:${tenantId}`, runAt: now }]);
+    const retryNow = new Date(Date.now() + 1000);
+    const send = createMailSend({ now: () => retryNow.getTime(), send: (mail, key) => sendMail(mail, key,
+      { RESEND_API_KEY: "test", MAIL_FROM: "mail@example.vn" }, async () => { throw Error(payload.url); }) });
+    await runOnce({ outbox: repo, tenantId, now: () => retryNow, topics: { "mail.send": { handle: send, redact: true } } });
+    let network = await db.outbox.findUniqueOrThrow({ where: { idempotencyKey: `network:${tenantId}` } });
+    assert.equal(network.status, "pending");
+    assert.deepEqual(network.payload, payload);
+    assert.doesNotMatch(network.lastError!, /private-token|https:|owner@/);
+    const [networkRetry] = await repo.claim({ tenantId, topics: ["mail.send"], now: new Date(network.runAt.getTime() + 1) });
+    let safeError: unknown;
+    try { await send(networkRetry); } catch (error) { safeError = error; }
+    assert.ok(safeError instanceof Error);
+    await repo.fail(networkRetry, safeError, { dead: true, redact: true });
+    network = await db.outbox.findUniqueOrThrow({ where: { id: network.id } });
+    assert.equal(network.status, "failed");
+    assert.deepEqual(network.payload, { redacted: true });
+    const audit = await db.auditLog.findMany({ where: { tenantId, entityId: network.id } });
+    assert.equal(audit.length, 1);
+    assert.doesNotMatch(JSON.stringify(audit), /private-token|https:|owner@/);
+  } finally {
+    await db.tenant.delete({ where: { id: tenantId } });
+    await db.$disconnect();
+  }
+});
 
 /** Records every delivery; an idempotent channel drops repeated keys like a real one would. */
 function channel(supportsIdempotency: boolean, failures = 0) {

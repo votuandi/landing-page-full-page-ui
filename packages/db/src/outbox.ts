@@ -35,16 +35,20 @@ export function outboxRepository(db: PlatformDb) {
           ORDER BY "runAt" LIMIT ${limit} FOR UPDATE SKIP LOCKED)
         RETURNING id, "tenantId", topic, payload, "idempotencyKey", attempts, "createdAt", "runAt"`;
     },
-    async complete(job: OutboxJob, { now = new Date() }: Clock = {}) {
-      return (await client.outbox.updateMany({ where: claimed(job), data: { status: "done", processedAt: now, lastError: null } })).count === 1;
+    async complete(job: OutboxJob, { now = new Date(), redact = false }: Clock & { redact?: boolean } = {}) {
+      return (await client.outbox.updateMany({ where: claimed(job), data: { status: "done", processedAt: now, lastError: null,
+        ...(redact ? { payload: { redacted: true } } : {}),
+      } })).count === 1;
     },
     /** Retry with backoff, or go dead once `maxAgeMs` (default 24 h) has passed or the error is permanent. */
-    async fail(job: OutboxJob, error: unknown, { now = new Date(), maxAgeMs = DAY, dead = false }: Clock & { maxAgeMs?: number; dead?: boolean } = {}) {
+    async fail(job: OutboxJob, error: unknown, { now = new Date(), maxAgeMs = DAY, dead = false, redact = false }: Clock & { maxAgeMs?: number; dead?: boolean; redact?: boolean } = {}) {
       const lastError = (error instanceof Error ? error.message : String(error)).slice(0, 1000);
       if (dead || now.getTime() - job.createdAt.getTime() >= maxAgeMs) {
         // State change and audit commit together; a crash in between leaves the job claimable again.
         const count = await client.$transaction(async tx => {
-          const { count } = await tx.outbox.updateMany({ where: claimed(job), data: { status: "failed", processedAt: now, lastError } });
+          const { count } = await tx.outbox.updateMany({ where: claimed(job), data: { status: "failed", processedAt: now, lastError,
+            ...(redact ? { payload: { redacted: true } } : {}),
+          } });
           if (count) await tx.auditLog.create({ data: { tenantId: job.tenantId, actorType: "system", action: "outbox.dead", entity: "Outbox", entityId: job.id, data: { topic: job.topic, attempts: job.attempts, lastError } } });
           return count;
         });

@@ -1,17 +1,21 @@
 import { createPlatformDb, forPlatform, POOL_BUDGET } from "@solar/db";
 import { loadEnv, workerEnv } from "@solar/env";
-import { createLeadSenders } from "@solar/leads";
+import { createLeadSenders, sendMail, type MailSender } from "@solar/leads";
 import { every, startWorker } from "./loop.ts";
 import { startBillingCron } from "./billing.ts";
 import { createLeadDeliver } from "./handlers/leadDeliver.ts";
-import { createLogNotifier, createNotify } from "./handlers/notify.ts";
+import { createEmailNotifier, createLogNotifier, createNotify } from "./handlers/notify.ts";
+import { createMailSend } from "./handlers/mail.ts";
 
 import { invalidateTopic } from "./handlers/invalidate.ts";
 import { createMediaRuntime } from "./mediaRuntime.ts";
 
 const env = loadEnv(workerEnv);
 const db = createPlatformDb({ pool: POOL_BUDGET.worker });
-const notify = createNotify({ notifier: createLogNotifier(db) });
+const send: MailSender = (mail, key) => sendMail(mail, key, env);
+const emailConfigured = Boolean(env.RESEND_API_KEY && env.MAIL_FROM);
+if (!emailConfigured) console.warn("[worker] Thiếu RESEND_API_KEY / MAIL_FROM: notify chỉ ghi metadata; mail.send sẽ retry.");
+const notify = createNotify({ notifier: emailConfigured ? createEmailNotifier(db, send) : createLogNotifier(db) });
 const overrideExpiry = every(5 * 60_000, () => forPlatform(db).tenants.scanExpiredOverrides({ now: new Date() }));
 const billing = startBillingCron(forPlatform(db).billing);
 const sectionCleanup = every(6 * 60 * 60_000, () => forPlatform(db).sectionContents.purgeRemoved({ now: new Date() }));
@@ -25,9 +29,11 @@ const worker = startWorker({
     "media.scan": { handle: media.scan },
     "media.publish": { handle: media.publish },
     "lead.deliver": { handle: createLeadDeliver({ db, senders: createLeadSenders(env) }) },
+    "mail.send": { handle: createMailSend({ send }), redact: true },
     "notify.plan-changed": { handle: notify },
     "notify.renewal": { handle: notify },
     "notify.suspended": { handle: notify },
+    "notify.domain-warning": { handle: notify },
   },
 });
 console.log("[worker] đang chạy");
