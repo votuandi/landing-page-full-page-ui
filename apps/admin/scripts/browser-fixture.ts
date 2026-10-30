@@ -88,6 +88,15 @@ async function main() {
         if (!await repo.leadIntegration.first()) await repo.leadIntegration.create({ kind: "telegram", name: "[DỮ LIỆU MẪU] Hộp thư", configEncrypted: "test", enabled: true });
         await enqueueInvalidate(repo, [`tenant:${id}`], [`admin-e11-leads.${platformDomain}`]);
       });
+    } else if (action === "sender-domain") {
+      const id = fixtures.find(f => f.slug === process.argv[3])!.id, status = process.argv[4], repo = forTenant(db, id);
+      const row = await repo.sendingDomain.first();
+      if (row) await repo.sendingDomain.delete(row.id);
+      if (status === "pending" || status === "verified") await repo.sendingDomain.create({ hostname: "mail.congty-mau.vn", status, providerId: "e1106000-0000-4000-8000-000000000001", records: [
+        { record: "DKIM", name: "resend._domainkey.mail", type: "TXT", value: `p=${"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQ".repeat(8)}` },
+        { record: "SPF", name: "send.mail", type: "MX", value: "feedback-smtp.ap-northeast-1.amazonses.com", priority: 10 },
+        { record: "SPF", name: "send.mail", type: "TXT", value: "v=spf1 include:amazonses.com ~all" },
+      ] });
     } else if (action === "lead-inbox-plan") {
       const planId = process.argv[3];
       if (!["premium", "pro", "basic"].includes(planId)) throw new Error("Invalid plan");
