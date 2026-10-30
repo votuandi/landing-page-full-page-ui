@@ -28,6 +28,7 @@ export function parseLead(body: Record<string, unknown>, now = new Date()): { le
   const name = str(body.name, 120);
   if (!name) return { error: "Vui lòng nhập họ tên" };
   if (!isVnMobile(phone)) return { error: "Số điện thoại di động không hợp lệ" };
+  if (![true, "on", "true", "1", 1].includes(body.consent as string | boolean | number)) return { error: "Vui lòng đồng ý cho phép xử lý thông tin để tư vấn và báo giá" };
   return { lead: {
     name, phone,
     zalo: str(body.zalo, 30) || undefined,
@@ -42,5 +43,6 @@ export function parseLead(body: Record<string, unknown>, now = new Date()): { le
     items: cleanItems(body.items),
     page: str(body.page, 200) || undefined,
     submittedAt: now.toISOString(),
+    consentAt: now.toISOString(),
   } };
 }

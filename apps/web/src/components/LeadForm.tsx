@@ -3,7 +3,7 @@
 import { FormEvent, useId, useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { isVnMobile } from "@solar/core";
-import { TurnstileField, useFillTimer } from "@solar/sections";
+import { LeadConsent, TurnstileField, useFillTimer } from "@solar/sections";
 import type { Lead } from "@/lib/leads/types";
 import { SITE_CONFIG, primaryHotline, telHref } from "@/config/site";
 import { useLang } from "@/i18n/LangProvider";
@@ -43,6 +43,7 @@ export default function LeadForm({
   const [failures, setFailures] = useState(0);
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [consentError, setConsentError] = useState("");
   // Tenant sites (service pages, quote cart) reject forms without these (E11-S01).
   const elapsedMs = useFillTimer();
 
@@ -53,6 +54,8 @@ export default function LeadForm({
     const phone = String(form.get("phone") || "");
     if (!isVnMobile(phone)) { setPhoneError(tr("Số di động chưa đúng (vd. 0901 234 567)", "Invalid mobile number (e.g. 0901 234 567)")); return; }
     setPhoneError("");
+    if (!form.get("consent")) { setConsentError(tr("Vui lòng đồng ý cho phép xử lý thông tin để tư vấn và báo giá", "Please agree to the processing of your details.")); event.currentTarget.querySelector<HTMLInputElement>('[name="consent"]')?.focus(); return; }
+    setConsentError("");
     setStatus("sending");
     setError("");
     try {
@@ -99,6 +102,7 @@ export default function LeadForm({
       </div>
       {children && <div className={span}>{children}</div>}
       <TurnstileField className={span} resetKey={failures} />
+      <LeadConsent className={span} text={tr("Tôi đồng ý cho phép xử lý thông tin để tư vấn và báo giá; không chia sẻ cho bên thứ ba.", "I agree to the processing of my details for consultation and quotes, without sharing with third parties.")} error={consentError} />
       <button disabled={status === "sending"} className={`t15-button t15-button-accent min-h-12 text-base disabled:opacity-60 ${span}`}>
         {status === "sending" ? tr("Đang gửi…", "Sending…") : submitLabel || tr("Nhận báo giá chi tiết", "Get a detailed quote")}
       </button>
@@ -107,7 +111,6 @@ export default function LeadForm({
           {error}{hotline && <> {tr("Hoặc gọi", "Or call")} <a className="underline" href={telHref(hotline)}>{hotline}</a>.</>}
         </p>
       )}
-      <p className={`text-xs leading-5 text-fg-subtle ${span}`}>{tr("Thông tin chỉ dùng để tư vấn & báo giá, không chia sẻ cho bên thứ ba.", "Your details are only used for consultation and quotes, never shared.")}</p>
     </form>
   );
 }

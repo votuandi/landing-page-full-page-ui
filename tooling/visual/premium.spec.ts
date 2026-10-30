@@ -84,6 +84,7 @@ test("dealer validates inputs, supports keyboard tabs and submits a dealer lead"
   await expect(dealer.getByLabel("Số điện thoại")).toHaveAttribute("aria-invalid", "true");
   expect(body).toBeUndefined();
   await dealer.getByLabel("Số điện thoại").fill("0901234500");
+  await dealer.locator('[name="consent"]').check();
   await dealer.getByLabel("Tỉnh/thành").selectOption("Hà Nội");
   await dealer.getByLabel("Loại hình kinh doanh").selectOption("Đội thi công lắp đặt");
   await dealer.getByRole("button", { name: "Đăng ký làm đại lý", exact: true }).click();
@@ -103,6 +104,7 @@ test("dealer displays a failed request and allows retry", async ({ page }) => {
   const dealer = page.locator('[data-section-type="dealer"]');
   await dealer.getByLabel("Họ và tên").fill("Đại lý kiểm thử");
   await dealer.getByLabel("Số điện thoại").fill("0901234500");
+  await dealer.locator('[name="consent"]').check();
   await dealer.getByLabel("Tỉnh/thành").selectOption("Hà Nội");
   await dealer.getByLabel("Loại hình kinh doanh").selectOption("Đội thi công lắp đặt");
   await dealer.getByRole("button", { name: "Đăng ký làm đại lý", exact: true }).click();

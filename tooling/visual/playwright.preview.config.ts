@@ -1,5 +1,6 @@
 import { defineConfig } from "@playwright/test";
 import { resolve } from "node:path";
+import { appServer } from "./appServer";
 
 process.env.REVALIDATE_SECRET ??= "preview-e2e-revalidate-secret-0123456789";
 process.env.PREVIEW_SECRET ??= "preview-e2e-cookie-secret-0123456789abcdef";
@@ -22,7 +23,7 @@ export default defineConfig({
     { name: "firefox", use: { browserName: "firefox" } },
   ],
   webServer: {
-    command: "pnpm --filter web dev --port 3212", cwd: resolve(__dirname, "../.."),
+    command: appServer("web", 3212), cwd: resolve(__dirname, "../.."),
     url: "http://localhost:3212/favicon.svg", reuseExistingServer: !process.env.CI, timeout: 120_000,
     // libsoup needs a PSL suffix (com); unknown localhost suffixes fall back to comparing full hosts.
     env: { MULTI_TENANT: "1", PLATFORM_DOMAIN: platformDomain, PREVIEW_SECRET: process.env.PREVIEW_SECRET,

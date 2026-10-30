@@ -3,7 +3,7 @@ import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { createLeadSenders, ChannelError, sealConfig } from "@solar/leads";
 import { createLeadDeliver } from "../handlers/leadDeliver.ts";
-import { PermanentError } from "../loop.ts";
+import { PermanentError, runOnce } from "../loop.ts";
 import { forTenant, type Db, type OutboxJob } from "@solar/db";
 
 const keys = Buffer.alloc(32, 7).toString("base64");
@@ -15,6 +15,19 @@ const job = { tenantId, payload: { leadId, integrationId } } as OutboxJob;
 // The repository still checks tenant id on every lookup; fake only the Prisma I/O boundary.
 const db = {} as Db;
 const repository = (() => ({ lead: { get: async () => lead }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;
+
+test("lead missing (deleted or forged cross-tenant): never sends, goes dead — a no-op when deletion removed the row", async () => {
+  let sent = false, dead = false;
+  const missing = (() => ({ lead: { get: async () => null }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;
+  const handle = createLeadDeliver({ db, repository: missing, senders: { telegram: { supportsIdempotency: false, send: async () => { sent = true; } } } });
+  await runOnce({ topics: { "lead.deliver": { handle } }, outbox: {
+    claim: async () => [{ ...job, topic: "lead.deliver" }],
+    complete: async () => { assert.fail("a missing lead must not complete silently: forged jobs need the dead audit (E11-S01)"); },
+    // deleteLead removes the row in its transaction, so the real fail() updates 0 rows and writes no audit.
+    fail: async (_job, _error, options) => { dead = options?.dead === true; return "dead" as const; },
+  } });
+  assert.equal(sent, false); assert.equal(dead, true);
+});
 test("worker config hỏng → dead; lỗi retry giữ nguyên", async () => {
   for (const [error, permanent] of [[new ChannelError("Cấu hình kênh không hợp lệ", true), true], [new ChannelError("500"), false]] as const) {
     const handle = createLeadDeliver({ db, repository, senders: { telegram: { supportsIdempotency: false, send: async () => { throw error; } } } });

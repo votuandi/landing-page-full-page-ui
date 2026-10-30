@@ -28,6 +28,12 @@ Tham số: `$ARGUMENTS`
 - Sửa code bằng Edit/Write theo đoạn; không dùng script python/sed có escape phức tạp để sửa code (dễ hỏng, tốn lượt).
 - Build web và chạy e2e **một lần ở cuối** mỗi vòng thực thi/sửa, không sau mỗi chỉnh nhỏ. Chỉ in đuôi log khi lỗi.
   Ngoại lệ: test e2e mới/vừa sửa chạy riêng (`-g`) ngay khi viết xong — vòng 1–3′, không đợi CI.
+- **Spec e2e do Claude viết và chạy** (retro E11-S03): sandbox Codex không chạy được Playwright/dev server/Docker, spec
+  "viết mù" tốn ~5 giờ vòng chạy–sửa. Codex làm logic + unit/int; Claude viết spec e2e và chạy `-g` ngay.
+- e2e `-g` chạy production build (`local-ci.sh e2e … -g` → `E2E_SERVER=start`, tự build khi source mới hơn; cả bộ vẫn `next dev` như CI,
+  heap Node 3 GB). Trước mỗi lượt: `doctor.mjs` (bộ nhớ ảo còn trống + tiến trình mồ côi của phiên trước).
+- Một phiên Claude cho mỗi giai đoạn (plan+thực thi / kiểm local / CI+review): phiên kéo dài nhiều giờ làm cửa sổ VS Code
+  phình 3–5 GB và crash OOM (E11-S03: 8 lần/ngày). Lệnh dài dùng `doctor.mjs run`, ghi log ra file để phiên sau đọc tiếp.
 - Không đổi branch giữa chừng để "thử" script; kiểm tra script ngay trên branch đang làm.
 - Không tự viết script chụp ảnh/probe trình duyệt: MCP `playwright` → lỗi thì `playwright-cli` → bằng chứng lâu dài thì
   spec trong `tooling/visual`.
@@ -233,6 +239,8 @@ Codex là người viết → làm bước này trong cùng lượt `solar-story
 
 1. `git ls-remote --exit-code --heads origin <S.base>` không có → `git push -u origin <S.base>` (báo một dòng).
 2. `git push -u origin <S.branch>` (không `--force`; lỗi → báo nguyên văn, dừng).
+   Story cố ý đổi pixel (design pass, section/theme): thêm vào body dòng `Visual intended: <type>, …, /<route>` **trước khi push**
+   (`tooling/visual/README.md` › Thay đổi giao diện có chủ đích); không khai báo thì `compare`/`matrix` đỏ.
 3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó, thử lần
    lượt, cách nào được thì dừng:
    1. GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải).

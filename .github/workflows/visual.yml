@@ -134,13 +134,21 @@ jobs:
               pnpm --filter web exec next build --webpack
             )
             # merge-base may predate tooling/visual; keep its dependencies/source untouched.
-            VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update
+            # Same selection as the comparison below: an unstable `@quarantine` route must not fail the baseline.
+            VISUAL_WEB_ROOT="$baseline_root" pnpm --filter @solar/visual visual:update ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }}
             test -n "$(find "$snapshot_dir" -name '*.png' -print -quit)"
           fi
       # `@quarantine`: test flaky đã biết (tooling/visual/README.md), chỉ chạy ở regression.
+      # Diffs the PR body declares (`Visual intended: lead-form, /lien-he`) pass; anything else stays red.
       - if: needs.changes.outputs.visual == 'true'
         shell: bash
-        run: pnpm visual:test ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }}
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # The baseline step wrote the same report; a stale one must not explain this run.
+          rm -f tooling/visual/test-results/visual-run.json
+          pnpm visual:test ${{ needs.changes.outputs.full != 'true' && '--grep-invert @quarantine' || '' }} \
+            || node scripts/ci/visual-intended.mjs tooling/visual/test-results/visual-run.json
       # visual:test đã build web; chỉ chạy sections thì build ở đây (test:sections dùng `next start`).
       - if: needs.changes.outputs.visual != 'true' && needs.changes.outputs.sections_e2e == 'true'
         run: pnpm turbo run build --filter=web
@@ -150,8 +158,9 @@ jobs:
           GREP: ${{ needs.changes.outputs.sections_grep }}
           FILES: ${{ needs.changes.outputs.sections_files }}
         run: pnpm --filter @solar/visual test:sections $FILES ${GREP:+--grep "$GREP"}
+      # Also on success: accepted intended diffs must stay reviewable.
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: visual-report
           path: |
@@ -221,7 +230,13 @@ jobs:
         timeout-minutes: 6
       - name: Compare section shard (budget 6 minutes)
         if: github.event_name == 'pull_request'
-        run: pnpm --filter @solar/visual matrix:test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/8
+        shell: bash
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          rm -f tooling/visual/test-results/matrix-run.json
+          pnpm --filter @solar/visual matrix:test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/8 \
+            || node scripts/ci/visual-intended.mjs tooling/visual/test-results/matrix-run.json
         timeout-minutes: 6
       - run: pnpm --filter @solar/visual matrix:report
         if: always()

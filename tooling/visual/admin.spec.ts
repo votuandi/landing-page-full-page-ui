@@ -9,12 +9,151 @@ import { parseCsv, toCsv } from "../../packages/db/src/csv";
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost";
 const origin = (slug = "admin-e7-a") => `http://${slug}.admin.${platformDomain}:3300`;
 const password = () => `${process.env.SEED_PASSWORD!}-t15`;
+
+test("lead inbox: mọi form tenant, live ≤5s, draft note, CSV, chăm sóc và quyền", async ({ page, browser }, info) => {
+  test.setTimeout(240000);
+  const slug = "admin-e11-leads", url = origin(slug);
+  fixture("lead-inbox-setup");
+  await login(page, "owner@demo.vn", password(), slug);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 }); // first authenticated render may be a cold next dev compile
+  await page.goto(url + "/lead");
+  await expect(page.getByRole("heading", { name: "Hộp thư lead", exact: true })).toBeVisible();
+  const publicPage = await page.context().newPage();
+  await publicPage.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
+  const submitted: { id: string; name: string; source: string }[] = [];
+  try {
+    for (const [index, source] of ["home-bottom", "dealer", "popup", "quote-cart"].entries()) {
+      await publicPage.bringToFront();
+      await publicPage.goto(`http://${slug}.${platformDomain}:3212/`, { waitUntil: "networkidle" });
+      if (source === "popup") await publicPage.locator('[data-widget="contact-dock"]').getByRole("button", { name: "Nhận tư vấn", exact: true }).click();
+      if (source === "quote-cart") {
+        // Products t15 links to the catalog; the cart widget reads localStorage like widgets.spec.ts.
+        await publicPage.evaluate(() => localStorage.setItem("t15-quote-cart", JSON.stringify([{ sku: "lead-inbox-product", qty: 2 }])));
+        await publicPage.reload({ waitUntil: "networkidle" });
+        await publicPage.locator('[data-widget="quote-cart"]').getByRole("button", { name: "Mở giỏ báo giá" }).click();
+      }
+      const form = source === "dealer" ? publicPage.locator('[data-section-type="dealer"] form')
+        : source === "home-bottom" ? publicPage.locator('[data-section-type="lead-form"] form') : publicPage.getByRole("dialog").locator("form");
+      const name = `[DỮ LIỆU MẪU] Inbox ${Date.now()} ${source}`;
+      // A click before hydration natively GET-submits the form (trace: `/?name=…`), skipping the client consent check.
+      await expect.poll(() => form.evaluate(element => Object.keys(element).some(key => key.startsWith("__reactProps$"))), { timeout: 60_000 }).toBe(true);
+      await form.locator('[name="name"]').fill(name);
+      await form.locator('[name="phone"]').fill(`09012345${String(index).padStart(2, "0")}`);
+      if (source === "dealer") { await form.locator('[name="province"]').selectOption({ index: 1 }); await form.locator('[name="businessType"]').selectOption({ index: 1 }); }
+      if (index === 0) {
+        await expect(form.locator('[name="consent"]')).not.toBeChecked();
+        await form.locator('button[type="submit"], button:not([type])').click();
+        await expect(form.getByRole("alert")).toContainText("Vui lòng đồng ý");
+        await expect(form.locator('[name="name"]')).toHaveValue(name);
+      }
+      await form.locator('[name="consent"]').check();
+      await publicPage.waitForTimeout(3100);
+      const received = publicPage.waitForResponse(res => res.url().endsWith("/api/lead") && res.request().method() === "POST");
+      await form.locator('button[type="submit"], button:not([type])').click();
+      const response = await received; expect(response.status()).toBe(200);
+      const { id } = await response.json(); expect(id).toEqual(expect.any(String)); submitted.push({ id, name, source });
+      await page.bringToFront();
+      const row = page.locator(`[data-lead-id="${id}"]`);
+      await expect(row).toBeVisible({ timeout: 5000 });
+      await expect(row).toContainText(name);
+      await row.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+      await expect(row).toContainText("Chờ gửi");
+      await expect(row).not.toContainText("Không có kênh gửi cho lead này.");
+      if (index === 0) await row.locator('textarea[name="note"]').fill("Bản nháp đang gõ");
+      if (index > 0) {
+        // A live refresh must keep the open row open, not only the hidden textarea value.
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"] details`).first()).toHaveAttribute("open", "");
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).locator('textarea[name="note"]')).toBeVisible();
+        await expect(page.locator(`[data-lead-id="${submitted[0].id}"]`).locator('textarea[name="note"]')).toHaveValue("Bản nháp đang gõ");
+      }
+    }
+    const first = page.locator(`[data-lead-id="${submitted[0].id}"]`);
+    await first.locator('select[name="status"]').selectOption("quoted");
+    await first.locator('textarea[name="note"]').fill('=1+1,"ghi chú"');
+    await first.getByLabel("Người phụ trách").selectOption({ label: "[DỮ LIỆU MẪU] Owner" });
+    await first.getByRole("button", { name: "Lưu lead", exact: true }).click();
+    await expect(first).toContainText("Đã lưu lead");
+    await page.reload(); await expect(first).toContainText("Báo giá");
+    await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await expect(first.locator('textarea[name="note"]')).toHaveValue('=1+1,"ghi chú"');
+    fixture("lead-inbox-fail", submitted[0].id); await page.reload();
+    await first.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await first.getByRole("button", { name: "Gửi lại", exact: true }).click();
+    await expect(first).toContainText("Chờ gửi");
+    const cookies = await page.context().cookies(url);
+    const csv = await page.request.get("http://127.0.0.1:3300/api/lead/csv?trang-thai=quoted", { headers: { Host: `${slug}.admin.${platformDomain}:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; ") } });
+    expect(csv.status()).toBe(200); expect(csv.headers()["cache-control"]).toBe("private, no-store");
+    const bytes = await csv.body(); expect([...bytes.subarray(0, 3)]).toEqual([239, 187, 191]);
+    expect(parseCsv(bytes.toString("utf8")).slice(1).some(row => row.includes(submitted[0].name) && row.includes('\'=1+1,"ghi chú"'))).toBe(true);
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+      await info.attach(`lead-inbox-${width}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    }
+    fixture("lead-inbox-policy", "view-only"); await page.reload();
+    await expect(page.getByRole("button", { name: "Lưu lead", exact: true })).toHaveCount(0);
+    fixture("lead-inbox-policy", "restore"); fixture("lead-inbox-plan", "pro"); await page.reload();
+    await expect(page.getByRole("link", { name: "Xuất CSV" })).toHaveCount(0);
+    expect(await page.evaluate(async () => (await fetch("/api/lead/csv")).status)).toBe(403);
+    fixture("lead-inbox-plan", "basic");
+    expect(await page.evaluate(async () => (await fetch("/api/lead/moi-nhat")).status)).toBe(403);
+    fixture("lead-inbox-plan", "premium");
+    const otherContext = await browser.newContext(), other = await otherContext.newPage();
+    try {
+      await login(other, "owner@demo.vn", password(), "admin-e11-other");
+      await expect(other.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+      await other.goto(origin("admin-e11-other") + "/lead");
+      for (const { id } of submitted) await expect(other.locator(`[data-lead-id="${id}"]`)).toHaveCount(0);
+      for (const identifier of ["viewer_admin", "editor_admin"]) {
+        await page.context().clearCookies(); await login(page, identifier, password(), slug);
+        await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+        expect((await page.goto(url + "/lead"))?.status()).toBe(403);
+        expect(await page.evaluate(async () => (await fetch("/api/lead/csv")).status)).toBe(403);
+      }
+    } finally { await otherContext.close(); }
+    await page.context().clearCookies(); await login(page, "staff_admin", password(), slug);
+    await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+    await page.goto(url + "/lead");
+    const last = page.locator(`[data-lead-id="${submitted[3].id}"]`);
+    await last.getByText("Chi tiết và chăm sóc lead", { exact: true }).click();
+    await last.getByText("Xóa lead theo yêu cầu", { exact: true }).click();
+    await last.getByRole("button", { name: "Xác nhận xóa lead", exact: true }).click(); await expect(last).toHaveCount(0);
+  } finally { fixture("lead-inbox-plan", "premium"); fixture("lead-inbox-policy", "restore"); await publicPage.close(); }
+});
 async function apiSession(page: Page, slug = "admin-e7-a") {
   const cookies = await page.context().cookies(origin(slug));
   return page.request.get("http://127.0.0.1:3300/api/session", { headers: {
     Host: `${slug}.admin.${platformDomain}:3300`, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "),
   } });
 }
+
+test("lead inbox: tab ẩn dừng poll, lỗi mạng hồi phục và nhãn đồng ý không cần JS", async ({ page, browser }) => {
+  const slug = "admin-e11-leads";
+  fixture("lead-inbox-setup");
+  await login(page, "owner@demo.vn", password(), slug);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+  await page.addInitScript(() => Object.defineProperty(document, "hidden", { configurable: true, get: () => true }));
+  let polls = 0;
+  const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
+  await page.route("**/api/lead/moi-nhat", async route => {
+    polls++;
+    if (polls === 1) await route.abort("failed");
+    else await route.fulfill({ json: { latest: "test-new-lead" } });
+  });
+  await page.goto(origin(slug) + "/lead");
+  await page.waitForTimeout(3300); expect(polls).toBe(0);
+  await page.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, get: () => false }); document.dispatchEvent(new Event("visibilitychange")); });
+  await expect.poll(() => polls).toBeGreaterThanOrEqual(2);
+  await expect(page.getByText("Có lead mới", { exact: true })).toBeVisible(); expect(errors).toEqual([]);
+  const plainContext = await browser.newContext({ javaScriptEnabled: false }), plain = await plainContext.newPage();
+  try {
+    await plain.goto(`http://${slug}.${platformDomain}:3212/`);
+    const consent = plain.locator('[data-section-type="lead-form"] [name="consent"]');
+    await expect(consent).toBeVisible(); await expect(consent).not.toBeChecked();
+    await expect(consent).toHaveAttribute("required", ""); await expect(consent.locator("..")).toContainText("Tôi đồng ý");
+  } finally { await plainContext.close(); }
+});
 function fixture(...args: string[]) {
   return execFileSync(process.execPath, ["--import", "tsx", "scripts/browser-fixture.ts", ...args], {
     cwd: resolve(__dirname, "../../apps/admin"), encoding: "utf8", timeout: 180_000,
@@ -211,14 +350,23 @@ test("brand font and favicon", async ({ page }, info) => {
 });
 test.beforeAll(async ({ request }) => {
   test.setTimeout(600_000);
-  fixture("setup");
+  // Tenants are created once per run by admin.global-setup.ts; this hook reruns only after a failure (new worker), so it
+  // just undoes state a half-finished test can leave behind, then warms routes.
+  fixture("owner-reset");
   // Warm new routes before timing user flows against next dev.
   for (const path of ["/", "/dang-nhap", "/api/session", "/quen-mat-khau", "/link-dang-nhap", "/dat-lai-mat-khau", "/moi", "/auth/magic", "/doi-mat-khau", "/ten-mien", "/goi", "/nhan-vien", "/tai-khoan/bao-mat", "/tai-khoan/khoi-phuc", "/trang", `/trang/${fixture("home-page")}`, "/noi-dung", "/media", "/lead", "/giao-dien", "/email"]) {
     const response = await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
     expect(response.status(), path).toBeLessThan(500);
   }
+  // The lead inbox measures ≤5 s from submit to row; a cold next dev compile of these routes alone takes longer.
+  for (const path of ["/api/lead/moi-nhat", "/api/lead/csv"]) {
+    await request.get(`http://localhost:3300${path}`, { headers: { Host: `admin-e7-a.admin.${platformDomain}:3300` }, timeout: 180_000, maxRetries: 2 });
+  }
+  for (const [method, path] of [["GET", "/"], ["POST", "/api/lead"]] as const) {
+    const response = await request.fetch(`http://localhost:3212${path}`, { method, headers: { Host: `admin-e7-a.${platformDomain}:3212` }, data: method === "POST" ? {} : undefined, timeout: 180_000, maxRetries: 2 });
+    expect(response.status(), path).toBeLessThan(500);
+  }
 });
-test.afterAll(() => fixture("cleanup"));
 
 test("media: local PNG upload becomes private ready; HTML disguised as JPEG fails scan", async ({ page }) => {
   await login(page);
@@ -581,7 +729,9 @@ test("collections: create project, publish, duplicate, reorder", async ({ page }
   }).toPass({ timeout: 60_000 });
   await remove(copy);
   await remove(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "Đà Nẵng E7-S06" }));
-  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem")).toHaveCount(0);
+  // Only this test's rows: "media library" leaves its fixture project ("Dự án media") in the same tenant, so the list
+  // is not empty when the whole file runs.
+  await expect(page.getByRole("list", { name: "Danh sách nội dung" }).getByRole("listitem").filter({ hasText: "Đà Nẵng E7-S06" })).toHaveCount(0);
 });
 
 test("collections: basic tenant hides catalog and direct route is 404", async ({ page }) => {
@@ -791,7 +941,7 @@ test("invite and reset forms work without JavaScript and consume each link once"
     }
     await login(page, "owner@demo.vn", resetPassword);
     await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
-  } finally { await context.close(); }
+  } finally { await context.close(); fixture("owner-reset"); }
 });
 
 test("owner shell lists every story screen, marks the current page, and main admin pages pass axe", async ({ page }, info) => {

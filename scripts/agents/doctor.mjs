@@ -7,6 +7,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { connect } from "node:net";
+import { freemem } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -68,6 +69,18 @@ async function check() {
     const pid = portOwner(port);
     if (!(await responds(port))) fail(`Cổng ${port} (PID ${pid}) có server không trả lời — tắt: ${windows ? `taskkill /F /T /PID ${pid}` : `kill ${pid}`} (tiến trình của sandbox Codex cần quyền admin)`);
     else warn(`Cổng ${port} (PID ${pid}) đang có server — Playwright sẽ dùng lại; không phải server của phiên này thì tắt đi`);
+  }
+  // E11-S03: 8 VS Code OOM crashes in one day — Windows ran out of commit (RAM + pagefile) while two `next dev` servers
+  // grew to 3–7 GB each. Leftovers of a killed session keep that memory; check both before starting e2e.
+  const freeGb = windows ? Number(sh("powershell", ["-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory"]).stdout) / 1024 ** 2 : freemem() / 1024 ** 3;
+  if (freeGb < 6) fail(`Bộ nhớ ảo còn ${freeGb.toFixed(1)} GB — e2e sẽ làm VS Code crash (OOM); đóng app nặng hoặc tăng pagefile`);
+  else if (freeGb < 14) warn(`Bộ nhớ ảo còn ${freeGb.toFixed(1)} GB — e2e admin cần ~10–14 GB; đóng app nặng nếu chạy cả bộ`);
+  const leftovers = windows
+    ? sh("powershell", ["-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | ? { $_.CommandLine -match 'next(\\.js)?\"? (dev|start)|next-server|playwright.+cli\\.js\"? test(?!-server)' } | % { \"$($_.ProcessId) $($_.CommandLine.Substring(0,[Math]::Min(90,$_.CommandLine.Length)))\" }"]).stdout
+    : sh("pgrep", ["-af", "next (dev|start)|next-server|playwright.*test"]).stdout;
+  for (const line of (leftovers ?? "").split("\n").map((l) => l.trim()).filter(Boolean)) {
+    const pid = line.split(" ")[0];
+    warn(`Tiến trình còn sống (phiên trước?): ${line} — không phải của phiên này thì tắt: ${windows ? `taskkill /F /T /PID ${pid}` : `kill ${pid}`}`);
   }
   const lock = join(root, ".git", "index.lock");
   if (existsSync(lock) && Date.now() - statSync(lock).mtimeMs > 60_000) fail("`.git/index.lock` tồn tại > 1 phút — không còn tiến trình git thì xóa file");

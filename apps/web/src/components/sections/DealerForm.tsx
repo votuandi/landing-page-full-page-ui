@@ -6,6 +6,7 @@ import { siteConfig } from "@/config/site.config";
 import { primaryBranch, telHref } from "@/config/site";
 import { PROVINCES } from "@/config/solar";
 import { isVnMobile } from "@solar/core";
+import { LeadConsent, TurnstileField, useFillTimer } from "@solar/sections";
 import { useLang } from "@/i18n/LangProvider";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -17,9 +18,12 @@ export default function DealerForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+  const elapsedMs = useFillTimer();
+  const [failures, setFailures] = useState(0);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === "sending") return;
     const form = new FormData(e.currentTarget);
     const data = Object.fromEntries(form.entries()) as Record<string, string>;
     const next: Record<string, string> = {};
@@ -27,6 +31,7 @@ export default function DealerForm() {
     if (!isVnMobile(data.phone || "")) next.phone = tr("Số di động chưa đúng (vd. 0901 234 567)", "Invalid mobile number");
     if (!data.province) next.province = tr("Chọn tỉnh/thành", "Choose a province");
     if (!data.businessType) next.businessType = tr("Chọn loại hình kinh doanh", "Choose a business type");
+    if (!data.consent) next.consent = tr("Vui lòng đồng ý cho phép xử lý thông tin để tư vấn và báo giá", "Please agree to the processing of your details.");
     setErrors(next);
     if (Object.keys(next).length) {
       (e.currentTarget.querySelector(`[name="${Object.keys(next)[0]}"]`) as HTMLElement | null)?.focus();
@@ -37,7 +42,7 @@ export default function DealerForm() {
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, source: "dealer", segment: "Đăng ký đại lý" }),
+        body: JSON.stringify({ ...data, source: "dealer", segment: "Đăng ký đại lý", elapsedMs: elapsedMs(), page: window.location.pathname }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.message || "");
@@ -45,6 +50,7 @@ export default function DealerForm() {
     } catch (err) {
       setMessage((err as Error).message);
       setStatus("error");
+      setFailures(value => value + 1);
     }
   }
 
@@ -77,6 +83,8 @@ export default function DealerForm() {
         </select>{err("businessType")}
       </label>
       <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+      <TurnstileField className="sm:col-span-2" resetKey={failures} />
+      <LeadConsent className="sm:col-span-2" text={tr("Tôi đồng ý cho phép xử lý thông tin để tư vấn đăng ký đại lý.", "I agree to the processing of my details to receive dealer advice.")} error={errors.consent} />
       <button disabled={status === "sending"} className="t15-button t15-button-primary min-h-12 text-base disabled:opacity-60 sm:col-span-2">
         {status === "sending" ? tr("Đang gửi…", "Sending…") : tr("Đăng ký làm đại lý", "Apply to become a dealer")}
       </button>

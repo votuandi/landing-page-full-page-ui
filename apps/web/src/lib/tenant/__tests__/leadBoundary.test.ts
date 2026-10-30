@@ -18,7 +18,7 @@ const entitlements = (patch: Partial<SiteEntitlements> = {}): SiteEntitlements =
   ({ planId: "pro", addons: [], status: "active", createdAt: new Date("2026-01-01T00:00:00Z"), disabled: [], ...patch });
 const post = (body: string, ip = "203.0.113.1", headers: Record<string, string> = { "x-tenant-id": tenantId, "x-site-id": siteId }) =>
   new Request("http://a.localhost/api/lead", { method: "POST", headers: { ...headers, "x-forwarded-for": `${ip}, 10.0.0.1` }, body });
-const lead = (source: string, extra: object = {}) => JSON.stringify({ name: "A", phone: "0901234500", source, elapsedMs: MIN_FILL_MS, ...extra });
+const lead = (source: string, extra: object = {}) => JSON.stringify({ name: "A", phone: "0901234500", source, consent: true, elapsedMs: MIN_FILL_MS, ...extra });
 
 function setup(patch: Partial<SiteEntitlements> = {}, opts: { save?: () => Promise<{ id: string }>; turnstile?: boolean } = {}) {
   const saved: { tenantId: string; siteId: string; lead: LeadInput }[] = [];
@@ -131,7 +131,7 @@ test("rate limiter falls back to memory when Redis is down; storage failure → 
 
 test("route wiring: tenant headers go to the tenant handler; single-site keeps the env adapters", async () => {
   // No `elapsedMs`: the tenant handler answers before the rate limiter, so no Redis connection is opened here.
-  const body = JSON.stringify({ name: "A", phone: "0901234500", source: "contact" });
+  const body = JSON.stringify({ name: "A", phone: "0901234500", source: "contact", consent: true });
   const tenant = await POST(new Request("http://a.localhost/api/lead", { method: "POST", headers: { "x-tenant-id": "a" }, body }));
   assert.deepEqual([tenant.status, await tenant.json()], [200, { ok: true }]);
   const legacy = await POST(new Request("http://localhost/api/lead", { method: "POST", body }));
@@ -145,6 +145,7 @@ test("lead sources map to the features in the packages/plans README table", () =
 
 test("parseLead keeps the t15 payload contract: trims, bounds and normalizes every field", () => {
   const parsed = parseLead({
+    consent: true,
     name: `  ${"N".repeat(200)} `, phone: "+84 901 234 567", zalo: "0901", address: " Q1 ", email: "a@b.vn", message: "m".repeat(3000),
     source: "quote cart!", segment: "Hộ gia đình", province: "TP. Hồ Chí Minh", businessType: "Đại lý", page: "/gio-hang",
     estimate: { kWp: 5, ok: true, note: "x".repeat(300), nested: { no: 1 } },
@@ -161,7 +162,7 @@ test("parseLead keeps the t15 payload contract: trims, bounds and normalizes eve
   assert.deepEqual(lead.items, [{ sku: "p1", name: "Tấm pin", qty: 2 }, { sku: "p2", name: "Inverter", qty: 999 }]);
   assert.equal(lead.submittedAt, "2026-10-15T00:00:00.000Z");
   assert.deepEqual(toLeadInput(lead).data, { zalo: "0901", address: "Q1", province: "TP. Hồ Chí Minh", businessType: "Đại lý",
-    estimate: lead.estimate, items: lead.items, page: "/gio-hang", submittedAt: "2026-10-15T00:00:00.000Z" });
+    estimate: lead.estimate, items: lead.items, page: "/gio-hang", submittedAt: "2026-10-15T00:00:00.000Z", consentAt: "2026-10-15T00:00:00.000Z" });
   assert.deepEqual(parseLead({ phone: "0901234567" }), { error: "Vui lòng nhập họ tên" });
   assert.deepEqual(parseLead({ name: "A", phone: "0281234567" }), { error: "Số điện thoại di động không hợp lệ" });
 });
@@ -278,12 +279,12 @@ test("rate-limit keys are per tenant: A exhausting its IP and phone quota does n
 test("parseLead bounds: 30 estimate entries, 50 items, qty defaults to 1 and clamps to 1..999", () => {
   const estimate = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`k${i}`, i]));
   const items = Array.from({ length: 60 }, (_, i) => ({ sku: `s${i}`, name: `n${i}`, qty: [undefined, "x", 0, -5, 0.4][i % 5] }));
-  const parsed = parseLead({ name: "A", phone: "0901234567", estimate, items });
+  const parsed = parseLead({ name: "A", phone: "0901234567", estimate, items, consent: true });
   assert.ok("lead" in parsed);
   assert.equal(Object.keys(parsed.lead.estimate ?? {}).length, 30);
   assert.equal(parsed.lead.items?.length, 50);
   assert.deepEqual(new Set(parsed.lead.items?.map((item) => item.qty)), new Set([1]));
-  const arrayEstimate = parseLead({ name: "A", phone: "0901234567", estimate: [1, 2], items: "x" });
+  const arrayEstimate = parseLead({ name: "A", phone: "0901234567", estimate: [1, 2], items: "x", consent: true });
   assert.ok("lead" in arrayEstimate);
   assert.deepEqual([arrayEstimate.lead.estimate, arrayEstimate.lead.items], [undefined, undefined]);
 });
@@ -322,13 +323,15 @@ test("legacy single-site path dispatches the full cleaned t15 payload to the env
     for (const [key, value] of Object.entries(env)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
   });
   const response = await POST(new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify({
+    consent: true,
     name: " Khách ", phone: "+84 901 234 567", zalo: "0901", address: "Q1", email: "a@b.vn", message: "Mái tôn", source: "quote-cart",
     segment: "Hộ gia đình", province: "Đồng Nai", businessType: "Đại lý", page: "/gio-hang",
     estimate: { kWp: 6.5, storage: true }, items: [{ sku: "pin-550", name: "Tấm pin", qty: 3 }],
   }) }));
   assert.deepEqual(await response.json(), { ok: true, mode: "live", delivered: ["webhook"] });
   assert.equal(sent.length, 1);
-  const { submittedAt, ...lead } = sent[0];
+  const { submittedAt, consentAt, ...lead } = sent[0];
+  assert.equal(consentAt, submittedAt);
   assert.equal(typeof submittedAt, "string");
   assert.deepEqual(lead, { name: "Khách", phone: "0901234567", zalo: "0901", address: "Q1", email: "a@b.vn", message: "Mái tôn",
     source: "quote-cart", segment: "Hộ gia đình", province: "Đồng Nai", businessType: "Đại lý",

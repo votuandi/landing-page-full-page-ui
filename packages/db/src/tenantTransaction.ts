@@ -2,6 +2,8 @@ import { checkConnection, internalClient, type Db, type PlatformDb } from "./cli
 import { createTenantRepo, type TenantRepo } from "./repository.ts";
 
 export type TransactionOptions = { isolationLevel?: "RepeatableRead" | "Serializable"; timeout?: number };
+// Prisma's default 2 s turned a briefly busy pool (admin: 5) into a crashed page (P2028): queue instead.
+const MAX_WAIT_MS = 10_000;
 
 // Internal callback accepts SQL for the ghost bridge; public callers only receive TenantRepo.
 export async function tenantTransaction<T>(db: Db | PlatformDb, tenantId: string,
@@ -11,7 +13,7 @@ export async function tenantTransaction<T>(db: Db | PlatformDb, tenantId: string
   return internalClient(db).$transaction(async tx => {
     await tx.$queryRaw`SELECT pg_catalog.set_config('app.tenant_id', ${tenantId.toLowerCase()}, true)`;
     return work(tx);
-  }, options);
+  }, { maxWait: MAX_WAIT_MS, ...options });
 }
 
 export function withTenantTransaction<T>(db: Db | PlatformDb, tenantId: string, work: (repo: TenantRepo) => Promise<T>, options?: TransactionOptions): Promise<T> {

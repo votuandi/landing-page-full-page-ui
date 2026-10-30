@@ -22,9 +22,10 @@ for (const attach of [true, false]) test(`quote cart ${attach ? "attaches" : "om
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("checkbox", { name: "Đính kèm kết quả dự toán" })).toBeChecked();
   await expect(dialog).toContainText("Trang trại · 12 kWp · tiết kiệm ~2.000.000 đ/tháng");
-  if (!attach) await dialog.getByRole("checkbox").uncheck();
+  if (!attach) await dialog.getByRole("checkbox", { name: "Đính kèm kết quả dự toán" }).uncheck();
   await dialog.getByLabel("Họ và tên").fill("Khách báo giá");
   await dialog.getByLabel("Số điện thoại di động").fill("0901234567");
+  await dialog.locator('[name="consent"]').check();
   await dialog.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
   await expect(dialog.getByRole("status")).toContainText("Đã gửi yêu cầu báo giá!");
   expect(body?.estimate).toEqual(attach ? estimate : undefined);
@@ -60,6 +61,7 @@ test("contact dock opens advice with form, traps focus, sends popup lead and res
   await expect(close).toBeFocused();
   await dialog.getByLabel("Họ và tên").fill("Khách mẫu");
   await dialog.getByLabel("Số điện thoại di động").fill("0901234567");
+  await dialog.locator('[name="consent"]').check();
   await dialog.getByRole("button", { name: "Gọi lại cho tôi" }).click();
   await expect(dialog.getByRole("status")).toBeVisible();
   expect(body?.source).toBe("popup");
@@ -153,6 +155,7 @@ test("quote cart filters unknown SKUs, changes quantity, traps focus and clears 
   await dialog.getByRole("button", { name: /Giảm số lượng/ }).click();
   await dialog.getByLabel("Họ và tên").fill("Khách báo giá");
   await dialog.getByLabel("Số điện thoại di động").fill("0901234567");
+  await dialog.locator('[name="consent"]').check();
   await dialog.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
   await expect(dialog.getByRole("alert")).toHaveText("Thử gửi lại");
   await expect(opener.locator("[data-cart-count]")).toHaveText("2");

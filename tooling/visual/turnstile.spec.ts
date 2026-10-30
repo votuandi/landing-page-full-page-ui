@@ -38,6 +38,7 @@ async function exercise(page: Page, path: string, selector: string, dealer = fal
   await expect(form.locator('input[name="cf-turnstile-response"]')).toHaveValue("XXXX.DUMMY.TOKEN.XXXX.spent");
   const name = "[DỮ LIỆU MẪU] Turnstile", phone = `09${String(Date.now()).slice(-8)}`;
   await form.locator('[name="name"]').fill(name); await form.locator('[name="phone"]').fill(phone);
+  await form.locator('[name="consent"]').check();
   if (dealer) {
     await form.locator('[name="province"]').selectOption({ index: 1 });
     await form.locator('[name="businessType"]').selectOption({ index: 1 });

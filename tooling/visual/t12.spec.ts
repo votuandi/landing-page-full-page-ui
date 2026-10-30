@@ -38,6 +38,7 @@ test("five-step estimator preserves inputs, blocks an invalid roof and submits t
   await expect(cost).not.toHaveText(billCost ?? "");
   await calc.getByLabel("Họ và tên").fill("[DỮ LIỆU MẪU] Khách test");
   await calc.getByLabel("Số điện thoại di động").fill("0901234567");
+  await calc.locator('[name="consent"]').check();
   await calc.locator('form button[type="submit"], form button:not([type])').click();
   await expect(calc.getByRole("status")).toContainText("Đã nhận yêu cầu");
   expect(payload?.source).toBe("calculator");

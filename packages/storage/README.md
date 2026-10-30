@@ -72,7 +72,7 @@ pnpm --filter @solar/storage test
 bash scripts/local-ci.sh storage
 ```
 
-Contract chung chạy local và S3. `storage` tự dựng MinIO test trên `127.0.0.1:${LOCAL_MINIO_PORT:-59000}`, tạo bucket
+Contract chung chạy local và S3. `storage` tự dựng MinIO test trên `127.0.0.1:${LOCAL_MINIO_PORT:-49000}`, tạo bucket
 trong fixture, chạy test với `STORAGE_REQUIRE_S3=1`. `up` cũng dựng MinIO; `down` xóa cả ba container.
 MinIO ghim `bitnamilegacy/minio:2025.4.22` (`minio/minio` đã gỡ khỏi Docker Hub); credentials `minioadmin` chỉ dùng cho container test loopback.
 

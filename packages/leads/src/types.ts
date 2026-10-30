@@ -35,6 +35,7 @@ export type Lead = {
   /** Trang gửi form. */
   page?: string;
   submittedAt: string;
+  consentAt?: string;
 };
 
 const extrasSchema = z.object({

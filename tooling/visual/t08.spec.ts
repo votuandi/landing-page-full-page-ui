@@ -62,6 +62,7 @@ test("t08 segment CTA selects its estimator and shared lead form submits its con
   const form = page.locator('[data-section-type="lead-form"]');
   await form.getByLabel("Họ và tên").fill("[DỮ LIỆU MẪU] Khách t08");
   await form.getByLabel("Số điện thoại di động").fill("0901234567");
+  await form.locator('[name="consent"]').check();
   await form.getByRole("button", { name: "Nhận báo giá chi tiết" }).click();
   await expect(form.getByRole("status")).toBeVisible();
   expect(payload?.source).toBe("home-bottom");

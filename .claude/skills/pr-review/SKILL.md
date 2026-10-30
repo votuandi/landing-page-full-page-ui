@@ -49,7 +49,9 @@ Vòng 1 soát cả PR; vòng `n > 1` chỉ soát `git diff <SHA vòng trước>.
 `subagent_type: general-purpose`, `model: <S.claudeReviewModel>` (mặc định `sonnet` — rẻ hơn, đủ cho review theo AC;
 đổi trong `routing.json`), `run_in_background: false`. Prompt chỉ gồm: dùng skill `solar-pr-review`, số PR, branch,
 base, đường dẫn story và plan, vòng `n`, file review vòng trước (nếu có), rà over-engineering bằng `ponytail-review`
-(nếu đã cài), file UI thì áp thêm `web-design-guidelines`,
+(nếu đã cài), file UI thì áp thêm `web-design-guidelines`, **chạy** test unit/int của mọi package trong diff
+(`set -a; . ./.env.ci.local; set +a; pnpm --filter <pkg> test`) thay vì dựa vào log của người viết — E11-S03: review chỉ đọc
+log đã APPROVE một hồi quy bảo mật ở worker mà `outbox.int.test` bắt được ngay,
 và yêu cầu ghi kết quả vào `<S.runDir>/review-r<n>.md` rồi chỉ trả về dòng `VERDICT` + số finding P0/P1/P2.
 Không đưa tóm tắt "đã làm gì" của người viết. Phiên chính chỉ đọc kết quả trả về, không đọc lại diff.
 
@@ -73,6 +75,8 @@ cover.
 4. `node scripts/agents/run.mjs verify <ID>` chỉ còn cảnh báo đã được ghi chú trong PR.
 
 - Đủ 4 điều kiện → báo người dùng (PushNotification nếu có) kèm finding P2 còn lại, và kết thúc. **Không tự merge.** Finding P2 không chặn: liệt kê, không bắt sửa.
+- **Còn bất kỳ check đỏ nào thì không viết "sẵn sàng merge"**, kể cả khi Claude cho là flaky hay đỏ có chủ đích (E11-S03 đã
+  báo sai 2 lần). Báo trạng thái từng check đỏ + bằng chứng + lựa chọn, để người dùng quyết.
 - Chưa đủ (`VERDICT: CHANGES_REQUESTED`, CI đỏ hoặc conflict) → người viết sửa các finding P0/P1, mọi mục "Chưa cover"
   không gắn `[ngoài agent]`, và lỗi CI. **Quy tắc sửa (mọi người viết, kể cả Claude)** — skill `receiving-code-review` +
   `test-driven-development`, chi tiết ở `solar-story-exec` mục "Tiếp tục / sửa lỗi": thẩm định finding (sai → rebuttal),

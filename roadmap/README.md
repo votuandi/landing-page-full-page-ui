@@ -134,6 +134,7 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | Báo chí (`press`) | — | — | Có |
 | Song ngữ VI/EN (`bilingual`) | — | — | Có |
 | Xuất lead (`leadExport`) | — | — | Có |
+| Phân công lead (`leadAssign`) | — | — | Có |
 | Override màu/font (`themeOverride`) | — | — | Có |
 | Builder kéo-thả (`builder`) | — | — | Có |
 | A/B CTA (`abTest`) | — | — | Có |

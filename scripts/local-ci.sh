@@ -11,8 +11,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-PG=solar-local-pg REDIS=solar-local-redis PG_PORT=${LOCAL_PG_PORT:-55432} REDIS_PORT=${LOCAL_REDIS_PORT:-56379}
-MINIO=solar-local-minio MINIO_PORT=${LOCAL_MINIO_PORT:-59000}
+# Dưới vùng dynamic (49152+): Hyper-V dành riêng dải cổng trong vùng đó và đổi sau mỗi lần boot (E11-S03: 56379 bị chặn).
+PG=solar-local-pg REDIS=solar-local-redis PG_PORT=${LOCAL_PG_PORT:-45432} REDIS_PORT=${LOCAL_REDIS_PORT:-46379}
+MINIO=solar-local-minio MINIO_PORT=${LOCAL_MINIO_PORT:-49000}
 MINIO_IMAGE=bitnamilegacy/minio:2025.4.22 # minio/minio đã gỡ khỏi Docker Hub; image bitnami tự chạy `server`
 ENV_FILE=.env.ci.local
 
@@ -86,14 +87,37 @@ db() {
     STORAGE_S3_TEST_ACCESS_KEY_ID=minioadmin STORAGE_S3_TEST_SECRET_ACCESS_KEY=minioadmin
   unset STORAGE_S3_TEST_BUCKET
   pnpm --filter @solar/db test
+  # Job `db` của CI chạy cả worker (outbox.int.test); thiếu bước này E11-S03 lọt hồi quy tới CI.
+  pnpm --filter worker test
   pnpm --filter web test:tenant
   pnpm --filter admin test
+}
+
+# Build an app only when a source is newer than its last build (E2E_SERVER=start serves that build).
+build_if_stale() {
+  local app=$1 id="apps/$1/.next/BUILD_ID" newer
+  [ -f "$id" ] && newer=$(find "apps/$app/src" "apps/$app/public" packages -newer "$id" -type f \
+    \( -name '*.ts' -o -name '*.tsx' -o -name '*.css' -o -name '*.json' \) -not -path '*/node_modules/*' -not -path '*/generated/*' -print -quit 2>/dev/null)
+  if [ ! -f "$id" ] || [ -n "$newer" ]; then echo "→ build $app${newer:+ ($newer mới hơn bản build)}"; pnpm --filter "$app" build; fi
 }
 
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
   local project=(); [ "$cfg" = admin ] && project=(--project=chromium)
+  # E11-S03: two `next dev --webpack` servers per admin run (3–7 GB each) ran Windows out of commit and crashed VS Code
+  # 8 times; cold compiles also caused most local timeouts. Single tests (`-g`) therefore run on production builds: 2 lead
+  # inbox tests took 1.5 min and 2.3 GB. Whole suites stay on `next dev` like CI: in production the app itself emits https
+  # URLs without port and secure cookies, which suites served over http:// assert on. E2E_SERVER overrides.
+  case " $* " in *" -g "*|*" --grep "*|*" --grep="*) : "${E2E_SERVER:=start}" ;; *) : "${E2E_SERVER:=dev}" ;; esac
+  export E2E_SERVER
+  if [ "$E2E_SERVER" = start ]; then
+    case "$cfg" in admin) build_if_stale admin; build_if_stale web ;; *) build_if_stale web ;; esac
+  fi
+  # A runaway server then dies alone instead of exhausting commit memory for the whole machine. next dev needs more: it
+  # restarts itself near the heap limit, and that restart crashes on Windows (ENOTEMPTY in .next/dev/types).
+  local heap=3072; [ "$E2E_SERVER" = dev ] && heap=6144
+  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=$heap}"
   pnpm --filter @solar/visual exec playwright test --config "playwright.$cfg.config.ts" "${project[@]}" "$@"
 }
 
