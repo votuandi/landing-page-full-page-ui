@@ -1,5 +1,5 @@
-import { forTenant, withTenantTransaction } from "@solar/db";
-import { assertPublicUrl, sendTest } from "@solar/leads";
+import { forTenant, withTenantTransaction, findLeadSender, demoteSendingDomain } from "@solar/db";
+import { assertPublicUrl, sendTest, senderFrom } from "@solar/leads";
 import { getSiteEntitlements } from "./entitlements.ts";
 import { getRuntime } from "./runtime.ts";
 import { createLeadChannelHandlers, type LeadChannelDeps } from "./leadChannels.ts";
@@ -10,7 +10,11 @@ export const leadChannelDeps: LeadChannelDeps = {
   get: (tenantId, id) => forTenant(getRuntime().db, tenantId).leadIntegration.get(id),
   list: tenantId => forTenant(getRuntime().db, tenantId).leadIntegration.list({ orderBy: { createdAt: "asc" } }),
   validateUrl: assertPublicUrl,
-  send: config => sendTest(config, process.env),
+  send: async (tenantId, config) => {
+    const db = getRuntime().db;
+    const row = config.kind === "email" ? await findLeadSender(db, tenantId) : null;
+    return sendTest(config, process.env, row ? { hostname: row.hostname, from: senderFrom(row.name, row.hostname), onRejected: () => demoteSendingDomain(db, tenantId, row.hostname) } : null);
+  },
   write: (tenantId, session, operation, row) => withTenantTransaction(getRuntime().db, tenantId, async repo => {
     const data = { kind: row.kind, name: row.name, enabled: row.enabled, configEncrypted: row.configEncrypted };
     if (operation === "create") await repo.leadIntegration.create({ id: row.id, ...data });

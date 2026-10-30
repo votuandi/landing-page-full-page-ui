@@ -185,3 +185,10 @@ Mọi form gửi phiên bản `updatedAt`; xung đột 409 yêu cầu tải lạ
 E7-S15: panel Font chữ chọn font nội dung/tiêu đề từ danh sách self-host khi có `themeOverride`.
 Server kiểm family, weight và entitlement cả lúc lưu font lẫn đổi/xem thử theme. Favicon dùng mọi gói,
 chọn ảnh PNG/JPEG/WebP/GIF/AVIF ready của tenant; ảnh private đi qua pipeline publish sẵn có.
+## Tên miền gửi thông báo lead (E11-S06)
+
+`/cai-dat/ten-mien-gui` cần `email.manage` và entitlement `senderDomain` (mặc định Cao cấp), kiểm cả page/action/nav.
+Thêm miền → sao chép DNS → Kiểm tra; thao tác chỉ theo tenant của host, không nhận id của tenant từ client.
+Khóa `RESEND_DOMAINS_API_KEY` (`full_access`) chỉ cấp admin; `RESEND_API_KEY` gửi thử dùng `sending_access` không giới hạn miền.
+DNS render từ server, thao tác cần JavaScript; xóa có xác nhận. Trạng thái pending/failed luôn dùng sender nền tảng.
+Xem [vận hành email](../../infra/mail/README.md) để cấu hình và kiểm thật. Tenant backup không mang theo domain gửi.
