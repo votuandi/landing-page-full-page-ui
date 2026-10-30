@@ -239,6 +239,8 @@ Codex là người viết → làm bước này trong cùng lượt `solar-story
 
 1. `git ls-remote --exit-code --heads origin <S.base>` không có → `git push -u origin <S.base>` (báo một dòng).
 2. `git push -u origin <S.branch>` (không `--force`; lỗi → báo nguyên văn, dừng).
+   Story cố ý đổi pixel (design pass, section/theme): thêm vào body dòng `Visual intended: <type>, …, /<route>` **trước khi push**
+   (`tooling/visual/README.md` › Thay đổi giao diện có chủ đích); không khai báo thì `compare`/`matrix` đỏ.
 3. `node scripts/agents/run.mjs pr-body <ID>` → `{title, bodyFile, base, head}`. Tạo PR với nội dung file đó, thử lần
    lượt, cách nào được thì dừng:
    1. GitHub MCP `create_pull_request` (ToolSearch `+github pull request` nếu chưa tải).

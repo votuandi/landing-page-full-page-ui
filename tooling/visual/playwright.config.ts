@@ -12,7 +12,8 @@ export default defineConfig({
   // Comparison never creates or replaces a baseline; the CLI update flag overrides this.
   updateSnapshots: "none",
   snapshotPathTemplate: "{testDir}/__screenshots__/{platform}/{projectName}/{arg}{ext}",
-  reporter: [["html", { outputFolder: "playwright-report", open: "never" }], ["list"]],
+  // JSON lets CI accept diffs a PR declares as intended (scripts/ci/visual-intended.mjs).
+  reporter: [["html", { outputFolder: "playwright-report", open: "never" }], ["list"], ["json", { outputFile: "test-results/visual-run.json" }]],
   expect: {
     timeout: 15_000,
     toHaveScreenshot: {

@@ -92,6 +92,15 @@ base (`VISUAL_WEB_ROOT=<worktree base>`, chép `packages/db/generated` vào work
 | `tenant.spec.ts:509` (locale switch…) và `:552` (1440: 49th SKU…) — CI job `db` | `page.goto("/lien-he", { waitUntil: "networkidle" })` quá 30 s cả lần retry: tài liệu về trong 365 ms nhưng request `_next/image?url=/images/solar-installation-hero.jpg&w=750` không bao giờ trả (trace CI) | PR #69 (`8c032a3`): lỗi ở run 40206496068 job 121210353218, chạy lại cùng SHA qua 2/2 (job 121561999053, 121574375185); image optimizer không đi qua `cacheHandlers` | Cùng lớp với `tenant.spec.ts:175`: `networkidle` trên CI |
 | Job `admin` (CI, cả bộ, `timeout-minutes: 25`) | Lần 1 lỗi `admin.spec.ts:544` (collections: create project…, `apiRequestContext.get: aborted`); lần 2–3 bị hủy ở 25 phút: khởi động web server admin ~19 phút, Next dev báo `Manifest file is empty` | PR #69 (`8c032a3`): job 121210353193 / 121561998541 / 121574372880; local chạy riêng 5 test lỗi của cả bộ đều qua; PR #62 (regression trước) job này đã 20m48s. Admin không dùng code của PR | **Đã sửa ở PR #72 (E11-S03)**: timeout job `admin` 35 phút; gốc của lỗi `collections` khi chạy cả file là phụ thuộc giữa test — `media library` để lại dự án fixture "Dự án media", `collections` đòi danh sách rỗng (3/3 lượt CI PR #72 đỏ đúng chỗ đó); assert giờ chỉ kiểm hàng của chính test. Retry chạy lại `setup` (xóa/tạo tenant khi server đang chạy) làm các test sau đổ theo |
 
+## Thay đổi giao diện có chủ đích (E11-S03)
+
+`compare`/`matrix` so PR với baseline của base, nên một PR cố ý đổi pixel (vd. checkbox đồng ý trên mọi form lead) luôn
+đỏ. Khai báo trong **mô tả PR** một dòng `Visual intended: lead-form, calculator, dealer, /lien-he` — section type (khớp ô
+matrix `<type>/<theme>`) hoặc route chính xác (`visual.spec`). Sau khi Playwright lỗi, `scripts/ci/visual-intended.mjs`
+cho job qua **chỉ khi** mọi test lỗi là diff ảnh (`toHaveScreenshot`) thuộc danh sách; ô ngoài danh sách, timeout, lỗi
+tương phản/off-token vẫn đỏ. Report luôn được upload để review ảnh. Sửa mô tả PR không tự chạy lại CI — khai báo trước
+khi push hoặc chạy lại job. Baseline của base tự sinh lại sau merge.
+
 ## Baseline local và CI
 
 Baseline/report/test output đều được `.gitignore`: **không commit ảnh hoặc report**. Baseline nằm tại
