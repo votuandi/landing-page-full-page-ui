@@ -6,6 +6,6 @@
     "types": ["node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "scripts/mail-test.ts"],
   "exclude": ["node_modules"]
 }

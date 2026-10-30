@@ -68,6 +68,17 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 
 ### E11-S05 · Email gửi đi từ nền tảng
 - **Chi tiết**: email hệ thống (mời thành viên, magic link, thông báo lead, cảnh báo tên miền) gửi qua Resend hoặc Amazon SES từ
-  tên miền nền tảng có SPF/DKIM/DMARC; tùy chọn gói Cao cấp: gửi thông báo lead "thay mặt" tên miền khách (xác minh domain ở nhà cung cấp gửi).
+  tên miền nền tảng có SPF/DKIM/DMARC. Gửi "thay mặt" tên miền khách tách sang E11-S06 (người dùng chốt 30/10/2026).
 - **AC**: [ ] Email hệ thống vào hộp thư chính Gmail (mail-tester ≥ 9/10).
 - Phụ thuộc: E10-S05 · Agent: Codex · Cỡ: S
+
+### E11-S06 · Gửi thông báo lead thay mặt tên miền khách
+**Là** tenant gói Cao cấp, **tôi muốn** thông báo lead gửi từ tên miền của tôi, **để** đồng bộ thương hiệu.
+- **Chi tiết**: entitlement riêng cho gói Cao cấp, kiểm cả server lẫn API. Admin nhập tên miền gửi, nền tảng tạo domain ở nhà cung
+  cấp gửi (Resend Domains API), hiển thị bản ghi DNS cần thêm và nút "Kiểm tra". Chỉ dùng tên miền đã xác minh làm `from`;
+  chưa xác minh hoặc hết gói thì quay về tên miền nền tảng, không mất lead.
+- **AC**:
+  - [ ] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
+  - [ ] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
+  - [ ] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
+- Phụ thuộc: S02, S05 · Agent: Claude · Cỡ: M

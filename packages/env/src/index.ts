@@ -19,7 +19,7 @@ const bool = optional(z.enum(["true", "false"], { error: "chỉ nhận true ho�
 const port = optional(text.refine(value => /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 65535, "cổng phải từ 1 đến 65535"));
 const common = {
   TELEGRAM_BOT_TOKEN: optional(text), TELEGRAM_BOT_USERNAME: optional(text.regex(/^[A-Za-z0-9_]{5,32}$/, "tên bot Telegram không hợp lệ")),
-  RESEND_API_KEY: optional(text), LEAD_EMAIL_FROM: optional(text),
+  RESEND_API_KEY: optional(text), MAIL_FROM: optional(text), LEAD_EMAIL_FROM: optional(text),
   DATABASE_URL: optional(database("app_runtime")), PLATFORM_DATABASE_URL: optional(database("app_platform")),
   STORAGE_DRIVER: optional(z.enum(["local", "s3"], { error: "chỉ nhận local hoặc s3" })),
   STORAGE_LOCAL_ROOT: path, S3_ENDPOINT: http, S3_BUCKET: optional(text), S3_REGION: optional(text),

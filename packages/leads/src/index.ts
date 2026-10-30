@@ -10,6 +10,8 @@ export * from "./types.ts";
 export * from "./config.ts";
 export * from "./safeRequest.ts";
 export { ChannelError } from "./errors.ts";
+export * from "./mail.ts";
+export * from "./mailTemplates.ts";
 export { sendWebhook } from "./channels/webhook.ts";
 
 export type LeadEnv = EmailEnv & { TELEGRAM_BOT_TOKEN?: string; APP_ENCRYPTION_KEY?: string; [key: string]: string | undefined };

@@ -9,6 +9,16 @@ import { leadToText, leadFromRow } from "../types.ts";
 import { createLeadSenders, sendTest, sealConfig, type ChannelConfig } from "../index.ts";
 
 const lead = { name: "<b>[DỮ LIỆU MẪU]</b>", phone: "0901234570", source: "contact", submittedAt: "2026-10-29T00:00:00Z" };
+test("email falls back to MAIL_FROM and prefers LEAD_EMAIL_FROM", async () => {
+  for (const override of [undefined, "", "lead@example.vn"]) {
+    await sendEmail(lead, { kind: "email", to: ["owner@example.vn"] }, "key", {
+      RESEND_API_KEY: "key", MAIL_FROM: "mail@example.vn", LEAD_EMAIL_FROM: override,
+    }, async (_url, options) => {
+      assert.equal(JSON.parse(String(options?.body)).from, override || "mail@example.vn");
+      return new Response(null, { status: 200 });
+    });
+  }
+});
 test("leadToText và leadFromRow giữ nội dung", () => {
   assert.match(leadToText(lead), /Trang liên hệ/);
   assert.deepEqual(leadFromRow({ ...lead, data: { submittedAt: lead.submittedAt }, createdAt: new Date(lead.submittedAt) }), lead);

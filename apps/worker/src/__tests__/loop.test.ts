@@ -92,3 +92,21 @@ test("startWorker survives a failing claim (database down) and delivers once it 
   assert.ok(calls >= 2);
   assert.deepEqual(outbox.done, ["after-recovery"]);
 });
+
+test("runOnce forwards redact to complete and fail only for the opted-in topic", async () => {
+  const completed: unknown[] = [], failed: unknown[] = [];
+  const outbox = {
+    async claim() { return [job("mail.send", "ok"), job("mail.send", "retry"), job("mail.send", "dead"), job("lead.deliver", "lead")]; },
+    async complete(j: OutboxJob, options?: { redact?: boolean }) { completed.push([j.id, options?.redact]); return true; },
+    async fail(j: OutboxJob, _error: unknown, options?: { redact?: boolean; dead?: boolean }) { failed.push([j.id, options?.redact, options?.dead]); return "retry" as const; },
+  };
+  await runOnce({ outbox, topics: {
+    "mail.send": { redact: true, handle: async j => {
+      if (j.id === "retry") throw Error("offline");
+      if (j.id === "dead") throw new PermanentError("invalid");
+    } },
+    "lead.deliver": { handle: async () => {} },
+  } });
+  assert.deepEqual(completed, [["ok", true], ["lead", undefined]]);
+  assert.deepEqual(failed, [["retry", true, false], ["dead", true, true]]);
+});
