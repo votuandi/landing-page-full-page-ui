@@ -13,7 +13,7 @@ export type LeadChannelDeps = {
   list(tenantId: string): Promise<ChannelRecord[]>;
   write(tenantId: string, session: Session, operation: "create" | "update" | "delete", row: ChannelRecord): Promise<boolean>;
   validateUrl(url: string): Promise<void>;
-  send(config: ChannelConfig): Promise<void>;
+  send(tenantId: string, config: ChannelConfig): Promise<void>;
 };
 export const channelSaveSchema = z.object({ payload: z.string().max(10_000) });
 export const channelIdSchema = z.object({ id: z.uuid() });
@@ -90,7 +90,7 @@ export function createLeadChannelHandlers(deps: LeadChannelDeps) {
       if (!deps.env.APP_ENCRYPTION_KEY) throw new ChannelError("Nền tảng chưa cấu hình APP_ENCRYPTION_KEY");
       const config = openConfig(row.configEncrypted, deps.env.APP_ENCRYPTION_KEY, { tenantId: context.tenantId, integrationId: row.id });
       if (config.kind !== row.kind) throw new ChannelError("Cấu hình kênh không hợp lệ", true);
-      await deps.send(config);
+      await deps.send(context.tenantId, config);
       return { ok: true, message: "Đã gửi" };
     }),
   };

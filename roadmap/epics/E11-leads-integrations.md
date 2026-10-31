@@ -79,7 +79,11 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
   cấp gửi (Resend Domains API), hiển thị bản ghi DNS cần thêm và nút "Kiểm tra". Chỉ dùng tên miền đã xác minh làm `from`;
   chưa xác minh hoặc hết gói thì quay về tên miền nền tảng, không mất lead.
 - **AC**:
-  - [ ] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
-  - [ ] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
-  - [ ] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
+  - [x] Tên miền chưa xác minh không bao giờ xuất hiện trong `from`.
+  - [x] Hạ gói hoặc gỡ xác minh → lead vẫn được gửi từ tên miền nền tảng.
+  - [x] Tenant không xem hoặc dùng được tên miền gửi của tenant khác.
+- Bằng chứng: `packages/db/src/__tests__/senderDomain.{test,int.test}.ts` (RLS, unique hostname trên Postgres thật),
+  `packages/leads/src/__tests__/{senderDomains,channels}.test.ts`, `apps/worker/src/__tests__/leadDeliver.test.ts`,
+  `apps/admin/src/__tests__/{senderDomain,nav}.test.ts`, e2e `tooling/visual/admin.spec.ts` › "tên miền gửi…".
+  Nhà cung cấp được mock; thử Resend thật do người vận hành làm theo `infra/mail/README.md` mục 5.
 - Phụ thuộc: S02, S05 · Agent: Claude · Cỡ: M

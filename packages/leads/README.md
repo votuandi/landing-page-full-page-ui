@@ -29,3 +29,10 @@ không đưa URL/token/provider body vào lỗi. `authMail` và `notifyMail` t�
 trong subject; không đọc thời gian hiện tại để nội dung retry ổn định. `notifyMail` trả null nếu kind lạ;
 worker validate payload trước khi gọi. Email auth luôn gửi từ `MAIL_FROM`, lead ưu tiên `LEAD_EMAIL_FROM` nếu có.
 Hướng dẫn SPF/DKIM/DMARC và kiểm mail-tester: [infra/mail](../../infra/mail/README.md).
+
+`senderDomains.ts` quản lý domain Resend (khóa `RESEND_DOMAINS_API_KEY` chỉ ở admin), chuẩn hóa hostname/IDN,
+lọc tên công ty khỏi header `from`, parse DNS và map trạng thái fail-closed. `EmailSender` là tùy chọn trên
+`sendLead`, `LeadSender.send`, `sendTest` và `sendEmail(..., fetcher, sender?)`; worker/admin lấy từ
+`findLeadSender(db, tenantId)` ngay lúc gửi, kiểm entitlement `senderDomain` và verified. Gửi thử đi cùng đường gửi.
+Sender khách dùng key có hậu tố hostname; permanent fallback sang nền tảng key gốc, 403 gọi `onRejected` để demote;
+callback lỗi không chặn fallback. Lỗi tạm thời vẫn retry. Không có sender giữ nguyên From/key của tenant cũ.

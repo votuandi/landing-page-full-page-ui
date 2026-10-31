@@ -8,6 +8,14 @@ const permissions = effectivePermissions({ role: "owner", audience: "admin" });
 const subject: EntitlementSubject = { planId: "pro", addons: [], status: "active", createdAt: new Date("2026-01-01") };
 const can = canUse(subject);
 const links = (nav: ReturnType<typeof adminNav>) => nav.flatMap(group => group.items);
+test("tên miền gửi chỉ hiện với senderDomain và email.manage", () => {
+  const premium = canUse({ ...subject, planId: "premium" });
+  assert.ok(links(adminNav({ permissions, can: premium })).some(item => item.href === "/cai-dat/ten-mien-gui"));
+  for (const allowed of [can, canUse({ ...subject, planId: "basic" }), canUse({ ...subject, planId: "premium" }, { disabled: ["senderDomain"] })]) {
+    assert.ok(!links(adminNav({ permissions, can: allowed })).some(item => item.href === "/cai-dat/ten-mien-gui"));
+  }
+  assert.ok(!links(adminNav({ permissions: new Set(), can: premium })).some(item => item.href === "/cai-dat/ten-mien-gui"));
+});
 
 test("owner navigation contains all story screens in order and the account group", () => {
   const nav = adminNav({ permissions, can });

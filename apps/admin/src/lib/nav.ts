@@ -13,6 +13,7 @@ export const ADMIN_NAV: { label?: string; items: NavEntry[] }[] = [
     { href: "/giao-dien", label: "Giao diện", permission: "theme.manage" },
     { href: "/cai-dat", label: "Thông tin công ty", permission: "settings.manage" },
     { href: "/cai-dat/kenh-nhan-lead", label: "Kênh nhận lead", permission: "settings.manage" },
+    { href: "/cai-dat/ten-mien-gui", label: "Tên miền gửi email", permission: "email.manage", feature: "senderDomain" },
     { href: "/ten-mien", label: "Tên miền", permission: "domains.manage", feature: "customDomain" },
     { href: "/email", label: "Email theo tên miền", permission: "email.manage", feature: "customDomain" },
     { href: "/nhan-vien", label: "Tài khoản & nhân viên", permission: "users.view" },

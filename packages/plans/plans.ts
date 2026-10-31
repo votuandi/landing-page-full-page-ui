@@ -1,6 +1,6 @@
 const basic = ["leadForm", "blog", "customDomain"] as const;
 const pro = [...basic, "calculator", "quoteForm", "packages", "faq", "testimonials", "stats", "energyMonitoring", "investmentModels", "trust", "social", "leadWebhook", "leadInbox", "sectionReorder", "variantSwitch", "pageStructure", "landingPages"] as const;
-const premium = [...pro, "shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "leadAssign", "themeOverride", "builder", "abTest", "videoUpload"] as const;
+const premium = [...pro, "shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "leadAssign", "themeOverride", "builder", "abTest", "videoUpload", "senderDomain"] as const;
 export const FEATURES = Object.freeze(premium);
 export type Feature = typeof FEATURES[number];
 export const PLAN_IDS = Object.freeze(["basic", "pro", "premium"] as const);
@@ -41,6 +41,7 @@ export function getPlan(id: string): PlanDefinition | undefined { return isPlanI
 export function themeAllowed(planId: string, group: ThemeGroup): boolean { return getPlan(planId)?.themes.includes(group) ?? false; }
 
 export const featureLabels: Readonly<Record<Feature, string>> = Object.freeze({
+  senderDomain: "Gửi email từ tên miền riêng",
   leadAssign: "Phân công lead",
   leadForm: "Form liên hệ/tư vấn", blog: "Tin tức", customDomain: "Tên miền riêng + SSL",
   calculator: "Máy tính chi phí", quoteForm: "Form nhận báo giá", packages: "Gói giải pháp", faq: "Câu hỏi thường gặp", testimonials: "Đánh giá khách hàng", stats: "Số liệu", energyMonitoring: "Giám sát năng lượng / biểu đồ phụ tải", investmentModels: "Mô hình đầu tư", trust: "Chứng nhận / uy tín", social: "Mạng xã hội", leadWebhook: "Lead Webhook / Google Sheets", leadInbox: "Hộp thư lead", sectionReorder: "Sắp xếp section", variantSwitch: "Đổi variant", pageStructure: "Chọn cấu trúc trang",

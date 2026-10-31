@@ -15,7 +15,7 @@ export const globalRelations: Record<string, Record<string, string>> = {
   Testimonial: { tenant: "Tenant" }, Branch: { tenant: "Tenant" }, Certificate: { tenant: "Tenant" },
   Brand: { tenant: "Tenant" }, PressItem: { tenant: "Tenant" }, Service: { tenant: "Tenant" },
   Media: { tenant: "Tenant" }, Lead: { tenant: "Tenant" }, Outbox: { tenant: "Tenant" },
-  LeadIntegration: { tenant: "Tenant" }, AuditLog: { tenant: "Tenant" },
+  LeadIntegration: { tenant: "Tenant" }, SendingDomain: { tenant: "Tenant" }, AuditLog: { tenant: "Tenant" },
 };
 
 export const tenantRelations: Record<string, Record<string, string>> = {
@@ -25,7 +25,7 @@ export const tenantRelations: Record<string, Record<string, string>> = {
     sectionContents: "SectionContent", products: "Product", productCategories: "ProductCategory", projects: "Project",
     storys: "Story", posts: "Post", faqs: "Faq", testimonials: "Testimonial", branchs: "Branch", certificates: "Certificate",
     brands: "Brand", pressItems: "PressItem", services: "Service", media: "Media", leads: "Lead", outbox: "Outbox",
-    leadIntegrations: "LeadIntegration", auditLogs: "AuditLog",
+    leadIntegrations: "LeadIntegration", sendingDomain: "SendingDomain", auditLogs: "AuditLog",
   },
   // Platform rows have no tenant, so nested tenant connects from them are always rejected.
   PlatformAdmin: { pageVersions: "PageVersion" }, GhostGrant: { sessions: "SiteSession" },

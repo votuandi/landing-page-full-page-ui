@@ -950,7 +950,7 @@ test("owner shell lists every story screen, marks the current page, and main adm
   await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, site);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   const menu = page.getByRole("navigation", { name: "Điều hướng quản trị" });
-  for (const label of ["Tổng quan", "Trang & Section", "Nội dung", "Media", "Lead", "Giao diện", "Tên miền", "Email theo tên miền", "Tài khoản & nhân viên", "Gói", "Đổi mật khẩu", "Bảo mật"]) {
+  for (const label of ["Tổng quan", "Trang & Section", "Nội dung", "Media", "Lead", "Giao diện", "Tên miền", "Email theo tên miền", "Tên miền gửi email", "Tài khoản & nhân viên", "Gói", "Đổi mật khẩu", "Bảo mật"]) {
     await expect(menu.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
   await expect(menu.locator('[aria-current="page"]')).toHaveText("Tổng quan");
@@ -1051,6 +1051,79 @@ async function acceptStaffInvite(page: Page, site: string, url: string, pass: st
   await page.getByRole("button", { name: "Kích hoạt và đăng nhập" }).click();
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
 }
+
+test("tên miền gửi: DNS, trạng thái, cách ly tenant, gói thấp, axe, 390/1440, bàn phím, tắt JS (E11-S06)", async ({ page, browser }) => {
+  test.setTimeout(240_000);
+  const site = "admin-e7-b", url = origin(site) + "/cai-dat/ten-mien-gui", hostname = "mail.congty-mau.vn";
+  fixture("sender-domain", site, "none");
+  await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.getByRole("navigation", { name: "Điều hướng quản trị" }).getByRole("link", { name: "Tên miền gửi email", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Tên miền gửi email" })).toBeVisible();
+  const status = page.getByRole("status").first(), input = page.getByRole("textbox", { name: "Tên miền" });
+  // Keyboard only; rejected before any provider call and nothing is stored.
+  await input.focus(); await page.keyboard.type("127.0.0.1"); await page.keyboard.press("Enter");
+  await expect(status).toContainText("Tên miền không hợp lệ");
+  await input.fill(`x.${platformDomain}`); await page.keyboard.press("Enter");
+  await expect(status).toContainText("Không thể dùng tên miền của nền tảng");
+  await input.fill(hostname); await page.keyboard.press("Enter");
+  await expect(status).toContainText("Nền tảng chưa cấu hình khóa quản lý tên miền gửi email");
+  await page.reload();
+  await expect(page.getByRole("group", { name: "Thêm tên miền gửi" })).toBeVisible();
+
+  fixture("sender-domain", site, "pending");
+  await page.goto(url);
+  const card = page.getByRole("region", { name: hostname });
+  await expect(card).toContainText("Chờ xác minh");
+  await expect(card).toContainText("đang gửi từ tên miền nền tảng");
+  for (const value of ["resend._domainkey.mail", "send.mail", "feedback-smtp.ap-northeast-1.amazonses.com", "v=spf1 include:amazonses.com ~all"]) await expect(card).toContainText(value);
+  await expect(card.getByRole("listitem").nth(1)).toContainText("Độ ưu tiên");
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: resolve(__dirname, `../../.agent-runs/E11-S06/screenshots/sender-domain-pending-${width}.png`), fullPage: true });
+  }
+  await card.getByRole("button", { name: "Kiểm tra" }).click();
+  await expect(status).toContainText("Nền tảng chưa cấu hình khóa quản lý tên miền gửi email");
+  await expect(card).toContainText("Chờ xác minh");
+  // Removal is confirmed first; dismissing keeps the domain.
+  page.once("dialog", dialog => void dialog.dismiss());
+  await card.getByRole("button", { name: "Xóa tên miền" }).click();
+  await expect(card).toBeVisible();
+
+  const noJs = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() });
+  const plain = await noJs.newPage();
+  await plain.goto(url);
+  await expect(plain.getByText("v=spf1 include:amazonses.com ~all")).toBeVisible();
+  await expect(plain.locator("noscript").first()).toBeAttached();
+  await noJs.close();
+
+  fixture("sender-domain", site, "verified");
+  await page.goto(url);
+  await expect(card).toContainText("Đã xác minh");
+  await expect(card).toContainText(`no-reply@${hostname}`);
+
+  // Another premium tenant never sees it.
+  const other = "admin-e11-leads";
+  fixture("lead-inbox-plan", "premium");
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", password(), other);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await page.goto(origin(other) + "/cai-dat/ten-mien-gui");
+  await expect(page.getByRole("heading", { level: 1, name: "Tên miền gửi email" })).toBeVisible();
+  await expect(page.getByText(hostname)).toHaveCount(0);
+  expect(await page.content()).not.toContain(hostname);
+
+  // Lower plan: no menu entry, direct route is 404.
+  const basic = "admin-e7-collections-basic";
+  await page.context().clearCookies();
+  await login(page, "owner@demo.vn", password(), basic);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Tên miền gửi email", exact: true })).toHaveCount(0);
+  expect((await page.goto(origin(basic) + "/cai-dat/ten-mien-gui"))?.status()).toBe(404);
+  fixture("sender-domain", site, "none");
+});
 
 test("staff: mời email/SĐT, đổi vai trò, khóa, gỡ và phiên hết hiệu lực ở request kế tiếp", async ({ page, browser }) => {
   const site = "admin-e11-other", phone = "0912345678", email = "[DỮ LIỆU MẪU] Nhân viên email", mobile = "[DỮ LIỆU MẪU] Nhân viên Zalo";

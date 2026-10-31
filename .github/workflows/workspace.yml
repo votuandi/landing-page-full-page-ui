@@ -86,7 +86,7 @@ jobs:
   db:
     needs: changes
     if: needs.changes.outputs.db == 'true' || needs.changes.outputs.tenant_e2e == 'true' || needs.changes.outputs.turnstile_e2e == 'true' || needs.changes.outputs.preview_e2e == 'true' || needs.changes.outputs.production_e2e == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58 không cài được trên ubuntu-latest (26.04)
     timeout-minutes: 35
     services:
       redis:
@@ -205,8 +205,8 @@ jobs:
   admin:
     needs: changes
     if: needs.changes.outputs.admin == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
+    runs-on: ubuntu-24.04 # Playwright 1.58 không cài được trên ubuntu-latest (26.04)
+    timeout-minutes: 45
     services:
       redis:
         image: redis:7-alpine

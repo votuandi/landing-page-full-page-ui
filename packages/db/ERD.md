@@ -427,6 +427,17 @@ erDiagram
     DateTime processedAt
     DateTime createdAt
   }
+  SendingDomain {
+    String id PK
+    String tenantId UK
+    String hostname UK
+    SendingDomainStatus status
+    String providerId
+    Json records
+    DateTime verifiedAt
+    DateTime createdAt
+    DateTime updatedAt
+  }
   LeadIntegration {
     String id PK
     String tenantId
@@ -500,6 +511,7 @@ erDiagram
   Site |o--o{ Lead : "tenantId, siteId"
   Tenant ||--o{ Lead : "tenantId"
   Tenant |o--o{ Outbox : "tenantId"
+  Tenant ||--o{ SendingDomain : "tenantId"
   Tenant ||--o{ LeadIntegration : "tenantId"
   Tenant |o--o{ AuditLog : "tenantId"
 ```

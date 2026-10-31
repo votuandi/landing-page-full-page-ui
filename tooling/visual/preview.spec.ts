@@ -46,8 +46,8 @@ test("same-site admin iframe enters draft, survives reload and leaves public con
   expect(child).toBeTruthy();
   const response = await child!.goto(`${preview}/`);
   expect(response?.status()).toBe(200);
-  // Next 16.3 next dev overwrites rendered HTML Cache-Control in base-server; production preserves proxy headers.
-  expect(response?.headers()["cache-control"]).toBe("no-cache, must-revalidate");
+  // Next 16.4 next dev overwrites rendered HTML Cache-Control in base-server; production preserves proxy headers.
+  expect(response?.headers()["cache-control"]).toBe("no-store");
   expect(response?.headers()["x-robots-tag"]).toBe("noindex");
   expect(response?.headers()["content-security-policy"]).toBe(`frame-ancestors http://${slug}.admin.${platformDomain}:3212`);
   await expect(frame.locator("main")).toContainText("[DỮ LIỆU MẪU] nháp");

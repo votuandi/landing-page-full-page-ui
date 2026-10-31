@@ -62,7 +62,7 @@ jobs:
 
   baseline:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/mono-repo-multi-tenent'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58 không cài được trên ubuntu-latest (26.04)
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +89,7 @@ jobs:
   compare:
     needs: changes
     if: github.event_name == 'pull_request' && (needs.changes.outputs.visual == 'true' || needs.changes.outputs.sections_e2e == 'true')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58 không cài được trên ubuntu-latest (26.04)
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -172,7 +172,7 @@ jobs:
   matrix:
     needs: changes
     if: (github.event_name == 'pull_request' || github.ref == 'refs/heads/mono-repo-multi-tenent') && needs.changes.outputs.matrix == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58 không cài được trên ubuntu-latest (26.04)
     timeout-minutes: 25
     strategy:
       fail-fast: false
