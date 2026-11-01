@@ -1184,7 +1184,7 @@ test("staff: vượt giới hạn gói bị từ chối, UI báo rõ và gợi �
   await login(page, "owner@demo.vn", password(), site);
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible();
   await page.goto(origin(site) + "/nhan-vien");
-  await expect(page.getByText("1/1")).toBeVisible();
+  await expect(page.getByText("1/1", { exact: true })).toBeVisible();
   await expect(page.getByText("Đã dùng hết chỗ của gói.")).toBeVisible();
   await inviteStaff(page, "[DỮ LIỆU MẪU] Vượt gói", "vuot-goi@demo.vn");
   await expect(page.getByText('Vượt giới hạn "Số người dùng" của gói (tối đa 1).')).toBeVisible();
