@@ -28,7 +28,8 @@ for (const route of routes) {
     });
     await page.evaluate(async () => {
       await document.fonts.ready;
-      document.querySelectorAll("img").forEach((image) => { image.loading = "eager"; });
+      // next/image renders decoding="async": Chromium may paint such an image blank, then fill it in on a later frame.
+      document.querySelectorAll("img").forEach((image) => { image.loading = "eager"; image.decoding = "sync"; });
       for (let y = 0; y < document.documentElement.scrollHeight; y += 600) {
         window.scrollTo({ top: y, behavior: "instant" });
         await new Promise((done) => setTimeout(done, 50));
