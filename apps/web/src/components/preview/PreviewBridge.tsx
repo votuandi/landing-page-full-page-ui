@@ -4,6 +4,13 @@ import { useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { adminOrigin, parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview } from "@solar/cms-ui/preview/protocol";
 
+/** scrollIntoView lan ra cả trang admin chứa iframe; scrollTo chỉ cuộn trong trang preview. */
+function scrollToSection(sectionId: string) {
+  const top = document.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`)?.getBoundingClientRect().top;
+  if (top === undefined) return;
+  window.scrollTo({ top: top + window.scrollY, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
 export function PreviewBridge({ adminPort }: { adminPort?: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -16,7 +23,7 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     if (!target) return;
     function scroll(sectionId?: string) {
       if (!sectionId) return;
-      document.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`)?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      scrollToSection(sectionId);
     }
     const receive = (event: MessageEvent) => {
       if (!shouldHandlePreview(event, target, window.parent)) return;
@@ -36,7 +43,7 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     if (pending || !requested.current || !origin.current) return;
     const { sectionId } = requested.current;
     requested.current = null;
-    if (sectionId) document.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`)?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    if (sectionId) scrollToSection(sectionId);
     window.parent.postMessage({ type: PREVIEW_MESSAGE, action: "updated", ...(sectionId ? { sectionId } : {}) }, origin.current);
   }, [pending]);
   return null;
