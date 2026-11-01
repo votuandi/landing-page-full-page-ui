@@ -19,11 +19,12 @@ test("table lists independent important permissions, themes and all four quotas"
     "| Danh mục sản phẩm (`catalog`) | — | — | Có |",
     "| Giỏ báo giá (`quoteCart`) | — | — | Có |",
     "| Video tự host (`videoUpload`) | — | — | Có |",
+    "| Gửi email từ tên miền riêng (`senderDomain`) | — | — | Có |",
     "| Số tên miền | 1 | 1 | 3 |", "| Media (GB) | 1 | 5 | 20 |",
     "| Số trang do khách tạo | 1 | 3 | 20 |", "| Số người dùng | 1 | 3 | 10 |",
   ]) assert.ok(table.includes(row), row);
   assert.ok(table.includes("Classic (minwy, t02–t04), Pro (t05–t11), Signature (t12–t15)"));
-  assert.equal(table.split("\n").filter(line => line.includes("(`")).length, 33);
+  assert.equal(table.split("\n").filter(line => line.includes("(`")).length, 34);
 });
 
 test("replacement preserves everything outside markers and handles Windows newlines", () => {

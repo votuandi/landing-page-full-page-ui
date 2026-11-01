@@ -16,6 +16,33 @@ const job = { tenantId, payload: { leadId, integrationId } } as OutboxJob;
 const db = {} as Db;
 const repository = (() => ({ lead: { get: async () => lead }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;
 
+test("chọn sender lúc gửi chỉ cho email; hạ gói dùng nền tảng; fallback lỗi tạm thời còn retry", async () => {
+  let lookups = 0;
+  const email = { ...integration, kind: "email" };
+  const emailRepo = (() => ({ lead: { get: async () => lead }, leadIntegration: { get: async () => email } })) as unknown as typeof forTenant;
+  const sender = { hostname: "mail.tenant.vn", from: "no-reply@mail.tenant.vn" };
+  let allowed = true;
+  const seen: unknown[] = [];
+  const senderFor = async (tenant: string) => { assert.equal(tenant, tenantId); lookups++; return allowed ? sender : null; };
+  const handle = createLeadDeliver({ db, repository: emailRepo, senderFor, senders: { email: { supportsIdempotency: true, send: async input => { seen.push(input.sender); } } } });
+  await handle(job); allowed = false; await handle(job);
+  assert.deepEqual(seen, [sender, null]); assert.equal(lookups, 2);
+  await createLeadDeliver({ db, repository, senderFor, senders: { telegram: { supportsIdempotency: false, send: async () => {} } } })(job);
+  assert.equal(lookups, 2);
+  const keys = Buffer.alloc(32, 7).toString("base64");
+  const encrypted = sealConfig({ kind: "email", to: ["a@x.vn"] }, keys, { tenantId, integrationId });
+  email.configEncrypted = encrypted;
+  const originalFetch = globalThis.fetch;
+  let requests = 0;
+  globalThis.fetch = async () => new Response(null, { status: ++requests % 2 ? 403 : 503 });
+  try {
+    const retry = createLeadDeliver({ db, repository: emailRepo, senderFor: async () => sender,
+      senders: createLeadSenders({ APP_ENCRYPTION_KEY: keys, RESEND_API_KEY: "key", MAIL_FROM: "platform@x.vn" }) });
+    await assert.rejects(retry(job), error => error instanceof ChannelError && !error.permanent);
+    assert.equal(requests, 2);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
 test("lead missing (deleted or forged cross-tenant): never sends, goes dead — a no-op when deletion removed the row", async () => {
   let sent = false, dead = false;
   const missing = (() => ({ lead: { get: async () => null }, leadIntegration: { get: async () => integration } })) as unknown as typeof forTenant;

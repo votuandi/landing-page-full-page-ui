@@ -21,7 +21,7 @@ function setup(allowed = true) {
       return true;
     },
     validateUrl: async url => { if (url.includes("internal")) throw new ChannelError("URL bị chặn: mạng nội bộ", true); },
-    send: async config => { sent.push(config); },
+    send: async (tenant, config) => { assert.equal(tenant, tenantId); sent.push(config); },
   };
   const handlers = createLeadChannelHandlers(deps), action = createAction(async () => ctx);
   const save = (payload: unknown) => { const form = new FormData(); form.set("payload", JSON.stringify(payload)); return action("settings.manage", channelSaveSchema, handlers.save)({}, form); };
@@ -67,7 +67,7 @@ test("gửi thử trả Đã gửi, thiếu env và SSRF báo tiếng Việt kh�
   await s.save({ kind: "telegram", name: "Nhóm", config: { chatId: "-1001234" } });
   const row = [...s.rows.values()][0];
   assert.equal((await s.run("test", row.id)).message, "Đã gửi");
-  s.deps.send = config => sendTest(config, s.deps.env);
+  s.deps.send = (_tenant, config) => sendTest(config, s.deps.env);
   assert.match((await s.run("test", row.id)).error!, /Nền tảng chưa cấu hình Telegram/);
   await s.save({ kind: "email", name: "Email", config: { to: ["a@x.vn"] } });
   const email = [...s.rows.values()].find(item => item.kind === "email")!;

@@ -9,6 +9,35 @@ import { leadToText, leadFromRow } from "../types.ts";
 import { createLeadSenders, sendTest, sealConfig, type ChannelConfig } from "../index.ts";
 
 const lead = { name: "<b>[DỮ LIỆU MẪU]</b>", phone: "0901234570", source: "contact", submittedAt: "2026-10-29T00:00:00Z" };
+test("sender: nhà cung cấp từ chối thì về nền tảng; callback lỗi không mất lead", async () => {
+  for (const status of [403, 422]) {
+    const calls: { from: string; key: string | null }[] = []; let demoted = 0;
+    await sendEmail(lead, { kind: "email", to: ["owner@example.vn"] }, "original", { RESEND_API_KEY: "key", MAIL_FROM: "platform@example.vn" }, async (_url, options) => {
+      calls.push({ from: JSON.parse(String(options?.body)).from, key: new Headers(options?.headers).get("Idempotency-Key") });
+      return new Response(null, { status: calls.length === 1 ? status : 200 });
+    }, { hostname: "mail.tenant.vn", from: "no-reply@mail.tenant.vn", onRejected: async () => { demoted++; throw new Error("DB unavailable"); } });
+    assert.deepEqual(calls, [{ from: "no-reply@mail.tenant.vn", key: "original:mail.tenant.vn" }, { from: "platform@example.vn", key: "original" }]);
+    assert.equal(demoted, status === 403 ? 1 : 0);
+  }
+});
+
+test("sender: lỗi tạm thời giữ key qua retry và không fallback", async () => {
+  const calls: string[] = []; let rejected = false;
+  const fetcher: typeof fetch = async (_url, options) => { calls.push(new Headers(options?.headers).get("Idempotency-Key")!); return new Response(null, { status: calls.length === 1 ? 503 : 200 }); };
+  const args: Parameters<typeof sendEmail> = [lead, { kind: "email", to: ["owner@example.vn"] }, "original", { RESEND_API_KEY: "key", MAIL_FROM: "platform@example.vn" }, fetcher,
+    { hostname: "mail.tenant.vn", from: "no-reply@mail.tenant.vn", onRejected: async () => { rejected = true; } }];
+  await assert.rejects(sendEmail(...args), error => error instanceof Error && "permanent" in error && !error.permanent);
+  await sendEmail(...args);
+  assert.deepEqual(calls, ["original:mail.tenant.vn", "original:mail.tenant.vn"]); assert.equal(rejected, false);
+});
+
+test("không có sender giữ nguyên from và key", async () => {
+  await sendEmail(lead, { kind: "email", to: ["owner@example.vn"] }, "legacy-key", { RESEND_API_KEY: "key", MAIL_FROM: "platform@example.vn" }, async (_url, options) => {
+    assert.equal(JSON.parse(String(options?.body)).from, "platform@example.vn");
+    assert.equal(new Headers(options?.headers).get("Idempotency-Key"), "legacy-key");
+    return new Response(null, { status: 200 });
+  });
+});
 test("email falls back to MAIL_FROM and prefers LEAD_EMAIL_FROM", async () => {
   for (const override of [undefined, "", "lead@example.vn"]) {
     await sendEmail(lead, { kind: "email", to: ["owner@example.vn"] }, "key", {

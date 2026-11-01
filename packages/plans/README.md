@@ -1,7 +1,7 @@
 # @solar/plans
 
 Nguồn quyền sản phẩm duy nhất là `plans.ts`: ba gói Cơ bản / Nâng cao / Cao cấp, nhóm theme,
-33 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
+34 feature và bốn limits. Dữ liệu public bất biến; `getPlan` trả undefined với id lạ,
 `isPlanId` / `isFeature` kiểm tên cả ở biên DB. Package không phụ thuộc DB, React, Next hoặc sections.
 
 ```sh
@@ -117,3 +117,8 @@ khóa thủ công vẫn cần `status: "active"` rõ ràng. `status` chỉ đị
 
 Email/Telegram thật thuộc E11-S02 (adapter hiện chỉ log metadata owner). Cổng PayOS/VNPay ở backlog;
 không thu tiền tự động trong giai đoạn này.
+## Gửi email từ tên miền riêng (E11-S06)
+
+`senderDomain` mặc định chỉ có ở gói Cao cấp. Server render, action và lúc giao email đều kiểm entitlement;
+kill switch `features.disabled`/tenant override áp dụng như các feature khác. Hạ gói chỉ tạm ngừng dùng sender,
+giữ dữ liệu xác minh để nâng lại. Bảng quyền được sinh trong `roadmap/README.md` bằng `pnpm plans:table`.

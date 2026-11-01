@@ -63,7 +63,7 @@ test("guard classifies every schema relation by its target model", () => {
 });
 
 test("schema includes every platform, content and delivery model", () => {
-  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken PreviewToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration AuditLog".split(" ");
+  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken PreviewToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration SendingDomain AuditLog".split(" ");
   assert.deepEqual(models.map(([, name]) => name).sort(), expected.sort());
 });
 
@@ -76,6 +76,16 @@ test("tenant tables have a tenant FK, composite identity and tenant-leading inde
     assert.match(body, /@@index\(\[tenantId(?:,|\])/, name);
     assert.equal(/tenantId\s+String\?/.test(body), optionalTenant.has(name), name);
   }
+});
+
+test("SendingDomain: unique tenant/hostname, default pending, forced RLS and grants", () => {
+  const body = models.find(([, name]) => name === "SendingDomain")![2];
+  assert.match(body, /tenantId\s+String\s+@db\.Uuid\s+@unique/);
+  assert.match(body, /hostname\s+String\s+@unique/);
+  assert.match(body, /status\s+SendingDomainStatus\s+@default\(pending\)/);
+  for (const sql of ['ALTER TABLE public."SendingDomain" ENABLE ROW LEVEL SECURITY', 'ALTER TABLE public."SendingDomain" FORCE ROW LEVEL SECURITY',
+    'CREATE POLICY tenant_isolation ON public."SendingDomain" TO app_runtime', 'CREATE POLICY platform_access ON public."SendingDomain" TO app_platform',
+    'GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."SendingDomain" TO app_runtime, app_platform']) assert.ok(migration.includes(sql), sql);
 });
 
 test("every content FK uses the tenant composite key without cascading tenant changes", () => {

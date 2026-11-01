@@ -31,6 +31,7 @@ const common = {
 };
 const preview = { PLATFORM_DOMAIN: optional(domain), PREVIEW_SECRET: optional(secret) };
 export const adminEnv = z.object({ ...common, ...preview,
+  RESEND_DOMAINS_API_KEY: optional(text),
   TENANT_PUBLIC_PORT: port,
   DATABASE_URL: database("app_runtime"), PLATFORM_DOMAIN: domain, ADMIN_SESSION_SECRET: secret,
 });

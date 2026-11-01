@@ -45,3 +45,4 @@ export { loadBackupMediaProtection } from "./mediaOrphans.ts";
 export type { OrphanMedia, OrphanOptions, OrphanTenantError } from "./mediaOrphans.ts";
 export { runMediaOrphans } from "./mediaOrphanCleanup.ts";
 export { rotateIntegrationSecrets } from "./secretsRotate.ts";
+export { findLeadSender, demoteSendingDomain } from "./senderDomain.ts";

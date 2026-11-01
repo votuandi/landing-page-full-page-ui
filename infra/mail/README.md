@@ -1,7 +1,7 @@
 # Vận hành email gửi đi từ nền tảng
 
 E11-S05 dùng **Resend HTTP**, dùng chung đường gửi cho email hệ thống và thông báo lead.
-Không vận hành máy chủ SMTP; Amazon SES/SMTP nằm trong backlog. Gửi thay mặt tên miền khách thuộc E11-S06.
+Không vận hành máy chủ SMTP; Amazon SES/SMTP nằm trong backlog. E11-S06 bổ sung sender tên miền khách cho thông báo lead.
 
 ## 1. Xác minh tên miền nền tảng
 
@@ -23,7 +23,7 @@ Không vận hành máy chủ SMTP; Amazon SES/SMTP nằm trong backlog. Gửi t
 
 ## 2. Cấu hình và triển khai
 
-- Đặt `RESEND_API_KEY` (khóa chỉ có quyền gửi trên tên miền cần dùng) và `MAIL_FROM="Tên nền tảng <no-reply@mail.example.vn>"`
+- Đặt `RESEND_API_KEY` (`sending_access`, không giới hạn một miền nếu bật tên miền gửi của khách) và `MAIL_FROM="Tên nền tảng <no-reply@mail.example.vn>"`
   trong secret của worker. Không commit `.env` hoặc API key. Worker cần `PLATFORM_DATABASE_URL` như bình thường.
 - Web/admin dùng cùng cấu hình khi gửi thử hoặc gửi lead trực tiếp. `LEAD_EMAIL_FROM` tùy chọn ghi đè địa chỉ gửi **lead**;
   để trống thì dùng `MAIL_FROM`. Nếu đặt, địa chỉ này cũng phải thuộc miền nền tảng đã xác minh.
@@ -72,3 +72,30 @@ Nguồn vận hành: [Gửi email](https://resend.com/docs/api-reference/emails/
 [Idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys),
 [Xác minh tên miền](https://resend.com/docs/dashboard/domains/introduction),
 [DMARC](https://resend.com/docs/dashboard/domains/dmarc).
+
+## 5. Gửi thông báo lead thay mặt tên miền khách (E11-S06)
+
+- Chỉ admin nhận `RESEND_DOMAINS_API_KEY` với quyền `full_access`; không cấp khóa quản lý này cho worker/web/console.
+  Khóa gửi `RESEND_API_KEY` của worker và admin dùng `sending_access` không gắn `domain_id`, trên cùng tài khoản Resend.
+  Khóa gửi bị khóa vào miền nền tảng sẽ làm email tên miền khách bị 403 và tự hạ trạng thái sang `failed`.
+- Tenant có entitlement `senderDomain` (mặc định gói Cao cấp), quyền `email.manage`, mở `/cai-dat/ten-mien-gui`, nhập
+  tên miền công ty quản lý. Mỗi tenant một miền; hostname duy nhất toàn nền tảng. IP, miền nền tảng và các miền con bị cấm.
+- Thêm đúng bản ghi DNS hiển thị, gồm MX priority. Áp dụng quy tắc SPF/DKIM/DMARC ở mục 1; không thay MX hộp thư hiện có.
+  Nền tảng không đặt `tracking_subdomain` nên Resend không áp dụng open/click tracking. Bấm Kiểm tra để yêu cầu Resend verify rồi đọc lại trạng thái; xác minh là bất đồng bộ,
+  trạng thái chờ cần bấm lại sau khi DNS lan truyền. Chỉ đúng `verified` mới được gửi; `temporary_failure` về `pending`.
+- Lead chọn sender tại thời điểm gửi (kể cả Gửi thử), kiểm lại trạng thái tenant, gói và kill switch. Hạ gói không xóa xác minh;
+  nâng lại dùng tiếp. Chưa xác minh/hết trial/suspended/feature tắt dùng miền nền tảng. Thư hệ thống vẫn dùng `MAIL_FROM`.
+- Địa chỉ là `"Tên công ty đã lọc" <no-reply@hostname>`. Key tên miền khách là `<leadId>:<integrationId>:<hostname>`;
+  lỗi permanent từ miền khách thử lại bằng miền nền tảng với key gốc trong cùng lượt. 403 còn đánh dấu `failed` và ghi audit;
+  422 chỉ fallback. 408/429/5xx/network giữ retry, không tự đổi sender. Callback demote lỗi không chặn gửi fallback.
+- Xóa miền: xóa tại Resend trước (404 coi như đã xóa), sau đó xóa hàng tenant và ghi audit. Hàng kẹt chưa có provider id
+  có thể xóa rồi thêm lại. DNS/provider lỗi hiển thị thông báo chung, không ghi khóa hay response body.
+- Sao lưu tenant không chứa tên miền gửi: hostname và provider id không được sao chép sang tenant khác.
+- Kiểm thật (người vận hành): dùng miền thử có DNS do mình quản lý, thêm và xác minh, Gửi thử tới hộp thư kiểm tra;
+  xem From và SPF/DKIM/DMARC. Sau đó thử pending, hạ gói và thu hồi miền để xác nhận fallback. Unit dùng mock,
+  integration kiểm RLS/DB, không chứng minh DNS hay deliverability thật. Xóa miền thử khi xong.
+- Backlog: webhook đồng bộ trạng thái, dọn domain khi xóa tenant, thu hồi hostname giữ chỗ chưa xác minh, nhiều miền mỗi tenant.
+
+API chính thức: [Domains](https://resend.com/docs/api-reference/domains/create-domain),
+[Retrieve](https://resend.com/docs/api-reference/domains/get-domain),
+[Quyền API key](https://resend.com/docs/api-reference/api-keys/create-api-key).

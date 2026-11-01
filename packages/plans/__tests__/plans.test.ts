@@ -4,7 +4,7 @@ import { FEATURES, PLAN_IDS, plans, getPlan, isFeature, isPlanId, featureLabels,
 
 const basic = ["leadForm", "blog", "customDomain"];
 const pro = ["calculator", "quoteForm", "packages", "faq", "testimonials", "stats", "energyMonitoring", "investmentModels", "trust", "social", "leadWebhook", "leadInbox", "sectionReorder", "variantSwitch", "pageStructure", "landingPages"];
-const premium = ["shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "leadAssign", "themeOverride", "builder", "abTest", "videoUpload"];
+const premium = ["shorts", "tiktok", "catalog", "quoteCart", "dealer", "branchMap", "press", "bilingual", "leadExport", "leadAssign", "themeOverride", "builder", "abTest", "videoUpload", "senderDomain"];
 
 test("plans match the independent tier matrix, themes, labels and quotas", () => {
   assert.deepEqual(PLAN_IDS, ["basic", "pro", "premium"]);
@@ -19,7 +19,7 @@ test("plans match the independent tier matrix, themes, labels and quotas", () =>
     assert.deepEqual(plan.themes, themes[i]);
     assert.deepEqual([plan.limits.domains, plan.limits.mediaGb, plan.limits.pages, plan.limits.users], limits[i]);
   });
-  assert.equal(new Set([...basic, ...pro, ...premium]).size, 33);
+  assert.equal(new Set([...basic, ...pro, ...premium]).size, 34);
   assert.equal(new Set(FEATURES).size, FEATURES.length);
   assert.deepEqual([...new Set(PLAN_IDS.flatMap(id => [...plans[id].features]))].sort(), [...FEATURES].sort());
   assert.deepEqual([...FEATURES].sort(), [...basic, ...pro, ...premium].sort());
@@ -68,6 +68,9 @@ test("public definitions cannot mutate rights, limits or themes between requests
   assert.equal(plan.features.has("builder"), false);
 });
 import { themeAllowed } from "../plans";
+test("senderDomain chỉ thuộc gói Cao cấp", () => {
+  for (const id of PLAN_IDS) assert.equal([...plans[id].features].includes("senderDomain" as Feature), id === "premium");
+});
 test("themeAllowed enforces plan groups", () => {
   assert.equal(themeAllowed("basic", "signature"), false);
   assert.equal(themeAllowed("premium", "signature"), true);
