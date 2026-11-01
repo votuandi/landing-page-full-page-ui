@@ -35,6 +35,7 @@ async function pointerDrag(page: Page, source: Locator, target: Locator, before:
     const end = await target.boundingBox();
     if (!end) throw new Error("Không xác định được vị trí thả");
     await page.mouse.move(end.x + end.width / 2, end.y + end.height * (before ? 0.25 : 0.5), { steps: 20 });
+    await page.waitForTimeout(150); // dnd-kit tính vùng thả theo khung hình; người thật luôn dừng trước khi nhả
   } finally { await page.mouse.up(); }
 }
 
