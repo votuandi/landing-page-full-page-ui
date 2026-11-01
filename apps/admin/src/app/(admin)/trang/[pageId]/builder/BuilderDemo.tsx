@@ -42,7 +42,7 @@ function Preview({ pageId, sectionId, refresh }: { pageId: string; sectionId: st
     form.set("pageId", pageId);
     void previewLink({}, form).then(result => { if (result.url) setSrc(result.url); });
   }, [pageId]);
-  return src ? <PreviewFrame src={src} title="Xem trước" sectionId={sectionId} targetOrigin={new URL(src).origin} refreshKey={refresh + 1} /> : null;
+  return src ? <PreviewFrame src={src} title="Xem trước" sectionId={sectionId} targetOrigin={new URL(src).origin} refreshKey={refresh} /> : null;
 }
 
 function buildConfig(data: BuilderData): Config {
