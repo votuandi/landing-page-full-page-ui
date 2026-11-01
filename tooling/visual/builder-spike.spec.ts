@@ -62,8 +62,9 @@ test.describe("builder spike", () => {
     await open(page);
     await adapter.select(page, "s-faq");
     await expect(page.locator("form").filter({ has: page.getByRole("textbox") }).first()).toBeVisible();
-    await page.getByRole("textbox").first().fill("");
-    await expect(page.getByText("Không được để trống").first()).toBeVisible();
+    // eyebrow: localized({ max: 100 }) — lỗi phải đến từ chính schema zod của section.
+    await page.getByRole("textbox").first().fill("x".repeat(101));
+    await expect(page.getByText("Tối đa 100 ký tự").first()).toBeVisible();
   });
 
   test("preview đúng theme", async ({ page }) => {
@@ -98,7 +99,14 @@ test.describe("builder spike", () => {
     await expect.poll(() => order(page)).toContain("projects");
     await adapter.moveByKeyboard(page, "s-cta", 0);
     await expect.poll(() => ids(page).then(list => list[0])).toBe("s-cta");
-    await page.keyboard.press("Control+KeyS").catch(() => undefined);
+    await adapter.selectByKeyboard(page, "s-hero");
+    const variant = page.getByLabel("Kiểu hiển thị"), before = await variant.inputValue();
+    await variant.focus(); await page.keyboard.press("ArrowDown");
+    await expect(variant).not.toHaveValue(before);
+    let reached = false;
+    for (let i = 0; i < 8 && !reached; i++) { await page.keyboard.press("Tab"); reached = await page.evaluate(() => document.activeElement?.matches("input, textarea") ?? false); }
+    expect(reached).toBe(true);
+    await page.keyboard.type("x");
     const save = page.getByRole("button", { name: "Lưu nháp", exact: true });
     await save.focus(); await page.keyboard.press("Enter");
     await expect(page.getByRole("status").filter({ hasText: "Đã lưu" })).toBeVisible();
@@ -114,14 +122,15 @@ test.describe("builder spike", () => {
   test("undo redo", async ({ page }) => {
     await open(page);
     const start = await ids(page);
-    await adapter.drag(page, "s-cta", 0);
-    await adapter.drag(page, "s-faq", 0);
-    await adapter.drag(page, "s-hero", 3);
+    await adapter.moveByKeyboard(page, "s-cta", 0);
+    await adapter.moveByKeyboard(page, "s-faq", 0);
+    await adapter.moveByKeyboard(page, "s-hero", 3);
     const after = await ids(page);
     const undo = page.getByRole("button", { name: "Hoàn tác", exact: true }), redo = page.getByRole("button", { name: "Làm lại", exact: true });
-    for (let i = 0; i < 3; i++) await undo.click();
+    // moveByKeyboard đi từng bước kề nhau: 3 + 3 + 3 = tối đa 9 bước, nên hoàn tác tới hết thay vì đếm cứng.
+    while (await undo.isEnabled()) await undo.click();
     await expect.poll(() => ids(page)).toEqual(start);
-    for (let i = 0; i < 3; i++) await redo.click();
+    while (await redo.isEnabled()) await redo.click();
     await expect.poll(() => ids(page)).toEqual(after);
     let steps = 0;
     for (; steps < 50; steps++) { await adapter.moveByKeyboard(page, (await ids(page))[0]!, 1); }
