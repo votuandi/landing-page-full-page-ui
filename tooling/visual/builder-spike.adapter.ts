@@ -33,7 +33,7 @@ const pressButton = async (button: Locator) => { await button.focus(); await but
 export const adapter: BuilderAdapter = {
   dragFromLibrary: async (page, type, targetIndex) => {
     const count = await cards(page).count(), after = targetIndex >= count;
-    await dragTo(page, page.locator(`[data-testid="lib-${type}"]`).first(), cards(page).nth(after ? count - 1 : targetIndex), after);
+    await dragTo(page, page.locator(`[data-testid="lib-${type}"]`).last(), cards(page).nth(after ? count - 1 : targetIndex), after);
   },
   drag: async (page, sectionId, targetIndex) => {
     const from = await cards(page).evaluateAll((list, id) => list.findIndex(el => (el as HTMLElement).dataset.sectionId === id), sectionId);

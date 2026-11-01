@@ -1,11 +1,11 @@
 "use client";
 
 import "@puckeditor/core/no-external.css";
-import { useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
 import { createUsePuck, Puck, type ComponentConfig, type Config, type Data } from "@puckeditor/core";
-import { SchemaForm, useLeaveGuard } from "@solar/cms-ui";
+import { PreviewFrame, SchemaForm, useLeaveGuard } from "@solar/cms-ui";
 import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
-import { saveBuilderDraft } from "../../actions";
+import { previewLink, saveBuilderDraft } from "../../actions";
 import { BUILDER_TYPES } from "../../../../../lib/builderTypes.ts";
 import type { BuilderData } from "../../../../../lib/pageSections.ts";
 import { editedContents, fromPuck, snapshot, toPuck } from "./puckAdapter.ts";
@@ -16,12 +16,33 @@ const button = "inline-flex min-h-11 items-center justify-center rounded-button 
 const isDemo = (type: string) => (BUILDER_TYPES as readonly string[]).includes(type);
 const labelOf = (type: string) => sectionRegistry.getType(type)?.meta.label.vi ?? type;
 
-function VariantField({ type, value, onChange }: { type: string; value: string; onChange(next: string): void }) {
-  return <label className="block space-y-1 pb-4 text-sm font-medium text-fg">Kiểu hiển thị
-    <select value={value} onChange={event => onChange(event.target.value)} className="block min-h-11 w-full rounded-input border border-line/25 bg-bg px-2 text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-      {sectionRegistry.variantsOf(type)?.map(variant => <option key={variant}>{variant}</option>)}
-    </select>
-  </label>;
+/** Thay Puck.Fields: panel đó là một <form>, đặt SchemaForm vào sẽ thành form lồng form (HTML sai). */
+function Inspector() {
+  const selected = usePuck(state => state.selectedItem);
+  const index = usePuck(state => state.appState.ui.itemSelector?.index);
+  const dispatch = usePuck(state => state.dispatch);
+  const def = selected && isDemo(String(selected.type)) ? sectionRegistry.getType(String(selected.type)) : undefined;
+  if (!selected || !def || index === undefined) return <p className="p-3 text-sm text-fg-muted">Chọn một section để sửa.</p>;
+  const change = (props: Record<string, unknown>) => dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT, recordHistory: true, data: { ...selected, props: { ...selected.props, ...props } } });
+  return <div className="space-y-4 p-3">
+    <label className="block space-y-1 text-sm font-medium text-fg">Kiểu hiển thị
+      <select value={selected.props.variant} onChange={event => change({ variant: event.target.value })} className="block min-h-11 w-full rounded-input border border-line/25 bg-bg px-2 text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        {sectionRegistry.variantsOf(def.type)?.map(variant => <option key={variant}>{variant}</option>)}
+      </select>
+    </label>
+    <SchemaForm key={selected.props.id} schema={def.schema} value={selected.props.data} onChange={next => change({ data: next })} />
+  </div>;
+}
+
+/** Token preview chỉ dùng một lần: lấy link khi mở, làm mới bằng postMessage thay vì remount iframe. */
+function Preview({ pageId, refresh }: { pageId: string; refresh: number }) {
+  const [src, setSrc] = useState("");
+  useEffect(() => {
+    const form = new FormData();
+    form.set("pageId", pageId);
+    void previewLink({}, form).then(result => { if (result.url) setSrc(result.url); });
+  }, [pageId]);
+  return src ? <PreviewFrame src={src} title="Xem trước" sectionId="" targetOrigin={new URL(src).origin} refreshKey={refresh} /> : null;
 }
 
 function buildConfig(data: BuilderData): Config {
@@ -35,10 +56,6 @@ function buildConfig(data: BuilderData): Config {
       label: def.meta.label.vi,
       defaultProps: { variant: sectionRegistry.variantsOf(type)?.[0] ?? "", enabled: true, data: def.defaults },
       permissions: { insert: insertable, duplicate: false },
-      fields: isDemo(type) ? {
-        variant: { type: "custom", render: ({ value, onChange }) => <VariantField type={type} value={value} onChange={onChange} /> },
-        data: { type: "custom", render: ({ value, onChange }) => <SchemaForm schema={def.schema} value={value} onChange={onChange} /> },
-      } : {},
       render: ({ id, variant }) => <article data-testid="section" data-section-id={id} data-section-type={type} className="m-2 rounded-card border border-line/25 bg-bg-elevated p-4 text-fg">
         <p className="font-semibold">{def.meta.label.vi}</p>
         <p className="text-sm text-fg-muted">{variant}{isDemo(type) ? "" : " · giữ nguyên, không sửa trong demo"}</p>
@@ -79,11 +96,11 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
       setMessage("Đã lưu nháp"); onSaved();
     });
   };
-  const insert = (type: string) => dispatch({ type: "insert", componentType: type, destinationIndex: appData.content.length, destinationZone: ROOT });
-  const reorder = (from: number, to: number) => dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT });
+  const insert = (type: string) => dispatch({ type: "insert", componentType: type, destinationIndex: appData.content.length, destinationZone: ROOT, recordHistory: true });
+  const reorder = (from: number, to: number) => dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT, recordHistory: true });
   const select = (index: number) => dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT } } });
-  // grey-05 của Puck chỉ đạt 4.33:1 trên nền admin; đưa về token để đạt AA.
-  return <div style={{ "--puck-color-grey-05": "rgb(var(--c-fg-muted))" } as CSSProperties} className="grid h-[calc(100dvh-8rem)] min-h-0 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-3 text-fg">
+  // Màu muted của Puck chỉ đạt 4.33:1 trên nền admin; đưa về token để đạt AA.
+  return <div style={{ "--puck-color-text-muted": "rgb(var(--c-fg-muted))" } as CSSProperties} className="grid h-[calc(100dvh-8rem)] min-h-0 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-3 text-fg">
     <aside className="min-h-0 space-y-4 overflow-auto">
       <Puck.Components />
       <section aria-labelledby="builder-add" className="space-y-2">
@@ -114,9 +131,9 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       </div>
       <div className="min-h-0 overflow-auto rounded-card border border-line/20"><Puck.Preview /></div>
-      <iframe key={refresh} title="Xem trước" src={data.previewUrl} className="h-full w-full rounded-card border border-line/20 bg-bg" />
+      <Preview pageId={data.editor.page.id} refresh={refresh} />
     </main>
-    <aside aria-label="Thuộc tính section" className="min-h-0 overflow-auto rounded-card border border-line/20"><Puck.Fields /></aside>
+    <aside aria-label="Thuộc tính section" className="min-h-0 overflow-auto rounded-card border border-line/20"><Inspector /></aside>
   </div>;
 }
 
