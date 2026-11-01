@@ -66,7 +66,6 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
 }
 export type PageEditor = NonNullable<Awaited<ReturnType<typeof loadPageEditor>>>;
 // E12-S01 spike: dữ liệu chung cho hai demo builder; chỉ sống trên branch spike/*.
-export const BUILDER_TYPES = ["hero", "calculator", "projects", "faq", "cta-banner"] as const;
 export const saveBuilderSchema = saveSectionsSchema.extend({ contents: z.string().max(500_000) });
 export async function loadBuilder(pageId: string, deps: PageSectionsDeps & { requirePermission(permission: "pages.view"): Promise<Session> }) {
   const editor = await loadPageEditor(pageId, deps);
