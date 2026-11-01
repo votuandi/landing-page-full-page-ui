@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
+    "./sections/ops": "./src/sections/ops.ts",
     "./preview/protocol": "./src/preview/protocol.ts"
   },
   "scripts": {
