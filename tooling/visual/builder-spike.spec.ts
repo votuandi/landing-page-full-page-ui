@@ -21,6 +21,7 @@ async function open(page: Page, slug = "admin-e7-a") {
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
   await page.goto(`${origin(slug)}/trang/${pageId}/builder`);
+  if (slug === "admin-e7-a") await expect(page.locator('[data-testid="section"]')).toHaveCount(4);
   return pageId;
 }
 const sections = (page: Page) => page.locator('[data-testid="section"]');
@@ -62,9 +63,9 @@ test.describe("builder spike", () => {
     await open(page);
     await adapter.select(page, "s-faq");
     await expect(page.locator("form").filter({ has: page.getByRole("textbox") }).first()).toBeVisible();
-    // eyebrow: localized({ max: 100 }) — lỗi phải đến từ chính schema zod của section.
+    // eyebrow: localized({ max: 100 }) — bộ đếm và maxLength phải sinh từ chính schema zod của section.
     await page.getByRole("textbox").first().fill("x".repeat(101));
-    await expect(page.getByText("Tối đa 100 ký tự").first()).toBeVisible();
+    await expect(page.getByText("100/100").first()).toBeVisible();
   });
 
   test("preview đúng theme", async ({ page }) => {
@@ -73,6 +74,10 @@ test.describe("builder spike", () => {
     await expect(frame.locator("[data-section-id], main").first()).toBeVisible({ timeout: 60_000 });
     const primary = await frame.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--c-primary").trim());
     expect(primary).not.toBe("");
+    await adapter.select(page, "s-faq");
+    await page.getByRole("textbox", { name: "Tiêu đề", exact: true }).fill("[DỮ LIỆU MẪU] Preview sau khi lưu");
+    await saved(page);
+    await expect(frame.getByText("Preview sau khi lưu").first()).toBeVisible({ timeout: 30_000 });
   });
 
   test("lưu rồi tải lại", async ({ page }) => {
