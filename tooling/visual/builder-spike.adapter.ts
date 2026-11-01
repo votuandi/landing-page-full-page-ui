@@ -72,7 +72,8 @@ export const adapter: BuilderAdapter = {
       const step = targetIndex > current ? 1 : -1;
       for (let position = current + step; step > 0 ? position <= targetIndex : position >= targetIndex; position += step) {
         await page.keyboard.press(step > 0 ? "ArrowDown" : "ArrowUp");
-        await expect(page.locator('[id^="DndLiveRegion-"]')).toContainText(`vị trí ${position + 1}`);
+        // Mỗi DndContext có một live region riêng: chỉ cần một vùng thông báo đúng vị trí.
+        await expect(page.locator('[id^="DndLiveRegion-"]').filter({ hasText: `vị trí ${position + 1}` }).first()).toBeAttached();
       }
       await page.keyboard.press("Space");
     } catch (error) { await page.keyboard.press("Escape"); throw error; }
