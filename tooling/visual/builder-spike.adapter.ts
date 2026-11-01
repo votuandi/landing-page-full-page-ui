@@ -24,16 +24,20 @@ async function sectionRow(page: Page, id: string) {
 }
 
 async function pointerDrag(page: Page, source: Locator, target: Locator, before: boolean) {
-  // Đo trước khi nhấn: cuộn giữa lúc kéo làm boundingBox trả tọa độ sai.
-  await source.scrollIntoViewIfNeeded();
+  // Danh sách vừa khung 1280×900. scrollIntoViewIfNeeded cuộn đích ra ngoài màn hình và dnd-kit autoScroll làm lệch tọa độ.
+  await page.evaluate(() => window.scrollTo(0, 0));
   const start = await source.boundingBox(), end = await target.boundingBox();
   if (!start || !end) throw new Error("Không xác định được vị trí kéo/thả");
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
   await page.mouse.down();
   await page.mouse.move(start.x + start.width / 2 + 8, start.y + start.height / 2, { steps: 4 });
   try {
-    await page.mouse.move(end.x + end.width / 2, end.y + end.height * (before ? 0.25 : 0.5), { steps: 20 });
-    await page.waitForTimeout(150); // dnd-kit tính vùng thả theo khung hình; người thật luôn dừng trước khi nhả
+    await page.waitForTimeout(150); // chờ dnd-kit đo xong các vùng thả sau khi nhấc
+    const y = end.y + end.height * (before ? 0.25 : 0.5);
+    await page.mouse.move(end.x + end.width / 2, y, { steps: 20 });
+    await page.waitForTimeout(150); // người thật luôn dừng trước khi nhả
+    await page.mouse.move(end.x + end.width / 2, y + 1, { steps: 2 });
+    await page.waitForTimeout(150);
   } finally { await page.mouse.up(); }
 }
 
