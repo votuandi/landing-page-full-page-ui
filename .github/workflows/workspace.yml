@@ -256,6 +256,8 @@ jobs:
         env:
           GREP: ${{ needs.changes.outputs.admin_grep }}
           FILES: ${{ needs.changes.outputs.admin_files }}
+          # next dev restarts near its heap limit and drops in-flight requests; same heap as scripts/local-ci.sh.
+          NODE_OPTIONS: --max-old-space-size=6144
         run: pnpm --filter @solar/visual exec playwright test --config playwright.admin.config.ts --project=chromium $FILES ${GREP:+--grep "$GREP"}
       - uses: actions/upload-artifact@v4
         if: always()
