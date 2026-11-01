@@ -22,6 +22,8 @@ async function open(page: Page, slug = "admin-e7-a") {
   await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
   await page.goto(`${origin(slug)}/trang/${pageId}/builder`);
   if (slug === "admin-e7-a") await expect(page.locator('[data-testid="section"]')).toHaveCount(4);
+  // Demo SSR hiện thẻ trước khi hydrate; thao tác lúc đó không có handler nào nhận.
+  if (slug === "admin-e7-a") await page.waitForFunction(() => Object.keys(document.querySelector('[data-testid="section"]') ?? {}).some(key => key.startsWith("__reactFiber")));
   return pageId;
 }
 const sections = (page: Page) => page.locator('[data-testid="section"]');
