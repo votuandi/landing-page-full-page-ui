@@ -29,7 +29,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 - **AC**:
   - [ ] Từ VPS trắng → site demo HTTPS chạy trong ≤ 30 phút làm theo README.
   - [ ] Deploy phiên bản mới: không có request lỗi 5xx (đo bằng k6 trong lúc deploy).
-- Phụ thuộc: S01, E9-S02 · Agent: Codex · Cỡ: L
+- Phụ thuộc: S01, S09, E9-S02 · Agent: Codex · Cỡ: L
 
 ### E10-S03 · Cache ISR dùng chung (Redis) ✅ · PR [#69](https://github.com/votuandi/landing-page-full-page-ui/pull/69)
 **Là** chủ dự án, **tôi muốn** mọi bản `web` thấy cùng một cache, **để** khách lưu nội dung là mọi người thấy bản mới.
@@ -60,7 +60,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   - [ ] `cdk deploy` dựng môi trường staging từ đầu.
   - [ ] Cùng image Docker với VPS; khác nhau chỉ ở biến môi trường.
   - [ ] Ước tính chi phí hàng tháng ghi trong `infra/aws/README.md`.
-- Phụ thuộc: S01, S03, E8-S01, E9-S03 · Agent: Codex · Cỡ: L
+- Phụ thuộc: S01, S03, S09, E8-S01, E9-S03 · Agent: Codex · Cỡ: L
 
 ### E10-S05 · Cấu hình & bí mật ✅ · PR [#70](https://github.com/votuandi/landing-page-full-page-ui/pull/70)
 - **Chi tiết**: `packages/env` kiểm biến môi trường bằng zod lúc khởi động (thiếu → không start, thông báo rõ); bí mật tích hợp
@@ -92,3 +92,21 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
 - **AC**: [ ] Rollback về image trước bằng một lệnh ≤ 5 phút; image cũ chạy được trên schema mới (expand/contract) ·
   [ ] Test rolling deploy: bản cũ và mới chạy song song 5 phút không lỗi · [ ] Migration lỗi giữa chừng → dừng deploy, image cũ tiếp tục phục vụ.
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: S
+
+### E10-S09 · Sửa lỗi: trang vừa publish không được phục vụ từ cache trước khi invalidate
+**Là** chủ dự án, **tôi muốn** biết chắc cache trang chạy đúng hợp đồng, **để** tải trên VPS đi qua cache và job `db` đỏ luôn là lỗi thật.
+- **Hiện tượng**: `tooling/visual/production.spec.ts:37`, dòng 47: sau `fixture("publish")`, chưa gọi `/api/revalidate`, test mong còn bản cache
+  `A body 0` nhưng trang trả `A body 1`. Đây là cache miss sớm, không phải nội dung cũ hay nội dung của tenant khác.
+- **Bằng chứng** (PR #75, job `db`): đỏ ở `43baff1` (run 41181583246) và `4bc9ba2` (run 41302420951, cả hai lần chạy); xanh ở `a945ec6`, `89b37ab`,
+  `e8879c8` và local. PR không đổi `apps/web`, `packages/cache`, nên có thể là lỗi có sẵn, nhưng **chưa chạy trên base**.
+- **Giả thuyết chưa kiểm**: `cacheLife` (`stale`/`revalidate` 60 s, `TENANT_CACHE_LIFE`); so sánh thời điểm render với `tag:<t>:invalidatedAt` ngay sau
+  lượt invalidate ở `beforeAll`; hai server 3210/3213 dùng chung Redis; Next 16.4.3 (PR #72, lần regression trước còn 16.3.8);
+  bản thân `publishPage` tự vô hiệu hóa cache. Test có `retries: 0` nên lần đỏ đầu là đỏ cả job.
+- **Chi tiết**: chạy test trên merge-base trước để biết có hồi quy không; ghi log cache hit/miss quanh dòng 47 để lấy nguyên nhân gốc;
+  sửa ở cache nếu là lỗi thật, hoặc sửa spec nếu ý đồ test sai, kèm giải thích. Sửa xong rà `TENANT_CACHE_LIFE` có đúng target TTFB của E5 không.
+- **AC**:
+  - [ ] Nguyên nhân gốc ghi trong story, có log hit/miss chứng minh, và nói rõ lỗi có sẵn từ commit nào.
+  - [ ] `production.spec.ts` xanh 10/10 lần liên tiếp trên CI, không thêm `retries`, không gắn `@quarantine`, không bỏ assertion dòng 47 nếu chưa chứng minh nó sai.
+  - [ ] Toàn bộ test E10-S03 vẫn qua: 2 instance, cạnh tranh render, restart Redis, 100 request đồng thời, Redis chết.
+  - [ ] Bỏ dòng `production.spec.ts:37` khỏi "Test flaky đã biết" trong `tooling/visual/README.md`.
+- Phụ thuộc: S03, E5-S06 · Agent: Claude (sandbox Codex không chạy được Playwright/Docker) · Cỡ: M

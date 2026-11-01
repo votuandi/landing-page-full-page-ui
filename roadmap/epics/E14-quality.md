@@ -47,7 +47,7 @@
 - **Chi tiết**: ngân sách JS trang chủ ≤ 120 KB gzip (section dưới màn hình đầu lazy, variant code-split); ảnh qua E8-S03;
   font ≤ 2 họ; kiểm bằng Lighthouse CI trên 15 preset; k6 tải 200 RPS trang đã cache trên VPS chuẩn.
 - **AC**: [ ] CI fail khi vượt ngân sách · [ ] p95 TTFB ≤ 300 ms ở 200 RPS (trang cache).
-- Phụ thuộc: E4, E5 · Agent: Codex · Cỡ: M
+- Phụ thuộc: E4, E5, E10-S09 · Agent: Codex · Cỡ: M
 
 ### E14-S06 · Truy cập (a11y)
 - **Chi tiết**: axe-core trong e2e và ma trận section; bàn phím cho carousel, dialog, mega menu, builder; `prefers-reduced-motion`;

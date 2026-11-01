@@ -73,7 +73,7 @@ gói Nâng cao trở lên dùng email theo tên miền qua link đối tác sau 
 - **Còn mở**: AC mail-tester chưa đo, cần tên miền và API key thật (`infra/mail/README.md`). ✅ ở đây chỉ nghĩa là đã merge.
 - Phụ thuộc: E10-S05 · Agent: Codex · Cỡ: S
 
-### E11-S06 · Gửi thông báo lead thay mặt tên miền khách
+### E11-S06 · Gửi thông báo lead thay mặt tên miền khách ✅ · PR [#75](https://github.com/votuandi/landing-page-full-page-ui/pull/75)
 **Là** tenant gói Cao cấp, **tôi muốn** thông báo lead gửi từ tên miền của tôi, **để** đồng bộ thương hiệu.
 - **Chi tiết**: entitlement riêng cho gói Cao cấp, kiểm cả server lẫn API. Admin nhập tên miền gửi, nền tảng tạo domain ở nhà cung
   cấp gửi (Resend Domains API), hiển thị bản ghi DNS cần thêm và nút "Kiểm tra". Chỉ dùng tên miền đã xác minh làm `from`;

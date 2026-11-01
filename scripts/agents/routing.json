@@ -86,5 +86,5 @@
   "$codexEffort": "review = vòng 1 (soát cả PR); reReview = vòng > 1 (chỉ soát diff vòng sửa)",
 
   "branchType": { "E0": "chore", "E1": "refactor", "E14": "test" },
-  "authorOverride": {}
+  "authorOverride": { "E10-S09": "claude" }
 }
