@@ -113,9 +113,13 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   Chưa đo vì sao lỗi chỉ lộ ở PR #75 mà không ở #69–#74.
 - **Sửa**: giữ biên và dòng 47; `beforeAll` chờ 1,5 s sau invalidate để render của test nằm ngoài biên. Sau sửa local `production.spec.ts` 60/60 qua 10 lượt. Thêm test
   "skew margin ends" ghim phía HIT; test `AC3 real restart` chờ qua floor để cả bộ chạy cùng lượt khi có `REDIS_RESTART_CMD`.
+- **Rà `TENANT_CACHE_LIFE`**: giữ nguyên `{ stale: 60, revalidate: 60, expire: 86400 }`. `ttfb-compare` có Redis, run [41312667391](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41312667391),
+  median (p95) của head: `/` 48,1 ms (52,1), `/lien-he` 20,2 ms (26,4), `/san-pham` 22,9 ms (25,9), đều dưới target E5 p75 ≤ 200 ms. Quá `revalidate` handler vẫn trả entry và render nền nên
+  TTFB không tăng; 60 s khớp target "trang mới ≤ 60 s". Biên 1 s chỉ thêm render ngay sau invalidate.
 - **AC**:
   - [x] Nguyên nhân gốc ghi trong story, có log hit/miss chứng minh, và nói rõ lỗi có sẵn từ commit nào.
-  - [ ] `production.spec.ts` xanh 10/10 lần liên tiếp trên CI, không thêm `retries`, không gắn `@quarantine`, không bỏ assertion dòng 47 nếu chưa chứng minh nó sai.
+  - [x] `production.spec.ts` xanh 10/10 lần liên tiếp trên CI, không thêm `retries`, không gắn `@quarantine`, không bỏ assertion dòng 47 nếu chưa chứng minh nó sai.
+    PR #76, `repeatEach: 10` tạm: job `db` run [41312662666](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41312662666), 60 passed (5.5m), đã revert.
   - [x] Toàn bộ test E10-S03 vẫn qua: 2 instance, cạnh tranh render, restart Redis, 100 request đồng thời, Redis chết.
     `@solar/cache` 22/22, 0 skip, 3 lượt với `REDIS_RESTART_CMD="docker restart solar-local-redis"`; `apps/web` `redis.int` 2/2.
   - [x] Bỏ dòng `production.spec.ts:37` khỏi "Test flaky đã biết" trong `tooling/visual/README.md`.
