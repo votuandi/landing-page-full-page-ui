@@ -11,6 +11,7 @@ export type BuilderAdapter = {
   addByKeyboard(page: Page, type: string): Promise<void>;
   moveByKeyboard(page: Page, sectionId: string, targetIndex: number): Promise<void>;
   select(page: Page, sectionId: string): Promise<void>;
+  selectByKeyboard(page: Page, sectionId: string): Promise<void>;
 };
 
 const rows = (page: Page) => page.getByTestId("section");
@@ -76,6 +77,11 @@ export const adapter: BuilderAdapter = {
       await page.keyboard.press("Space");
     } catch (error) { await page.keyboard.press("Escape"); throw error; }
     await expect(rows(page).nth(targetIndex)).toHaveAttribute("data-section-id", sectionId);
+  },
+  async selectByKeyboard(page, sectionId) {
+    await (await sectionRow(page, sectionId)).getByRole("button", { name: /^Chọn / }).focus();
+    await page.keyboard.press("Enter");
+    await page.getByLabel("Kiểu hiển thị").waitFor();
   },
   async select(page, sectionId) {
     await (await sectionRow(page, sectionId)).getByRole("button", { name: /^Chọn / }).click();
