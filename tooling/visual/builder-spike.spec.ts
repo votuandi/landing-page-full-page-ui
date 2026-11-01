@@ -69,9 +69,10 @@ test.describe("builder spike", () => {
   });
 
   test("preview đúng theme", async ({ page }) => {
+    test.setTimeout(300_000); // cold compile của apps/web trên next dev chiếm phần lớn thời gian
     await open(page);
     const frame = page.frameLocator('iframe[title="Xem trước"]');
-    await expect(frame.locator("[data-section-id], main").first()).toBeVisible({ timeout: 60_000 });
+    await expect(frame.locator("[data-section-id], main").first()).toBeVisible({ timeout: 180_000 });
     const primary = await frame.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--c-primary").trim());
     expect(primary).not.toBe("");
     await adapter.select(page, "s-faq");
