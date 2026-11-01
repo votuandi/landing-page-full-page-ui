@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Phần duy nhất mỗi demo tự viết (spike E12-S01). DOM chung mà spec đọc:
@@ -13,5 +13,71 @@ export type BuilderAdapter = {
   select(page: Page, sectionId: string): Promise<void>;
 };
 
-const missing = async () => { throw new Error("Demo chưa cài adapter"); };
-export const adapter: BuilderAdapter = { dragFromLibrary: missing, drag: missing, addByKeyboard: missing, moveByKeyboard: missing, select: missing };
+const rows = (page: Page) => page.getByTestId("section");
+// Attribute locator works for ids containing punctuation, without interpolating CSS.
+async function sectionRow(page: Page, id: string) {
+  const list = rows(page);
+  const index = (await list.evaluateAll(elements => elements.map(el => el.getAttribute("data-section-id")))).indexOf(id);
+  if (index < 0) throw new Error(`Không tìm thấy section ${id}`);
+  return list.nth(index);
+}
+
+async function pointerDrag(page: Page, source: Locator, target: Locator, before: boolean) {
+  await source.scrollIntoViewIfNeeded();
+  const start = await source.boundingBox();
+  if (!start) throw new Error("Không xác định được vị trí kéo");
+  await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(start.x + start.width / 2 + 8, start.y + start.height / 2, { steps: 4 });
+  try {
+    await target.scrollIntoViewIfNeeded();
+    const end = await target.boundingBox();
+    if (!end) throw new Error("Không xác định được vị trí thả");
+    await page.mouse.move(end.x + end.width / 2, end.y + end.height * (before ? 0.25 : 0.5), { steps: 20 });
+  } finally { await page.mouse.up(); }
+}
+
+export const adapter: BuilderAdapter = {
+  async dragFromLibrary(page, type, targetIndex) {
+    const count = await rows(page).count();
+    if (targetIndex < 0 || targetIndex > count) throw new Error("Vị trí chèn ngoài danh sách");
+    const source = page.getByTestId(`lib-${type}`);
+    const target = targetIndex === count ? page.getByTestId("section-end") : rows(page).nth(targetIndex);
+    await pointerDrag(page, source, target, true);
+    await expect(rows(page)).toHaveCount(count + 1);
+    await expect(rows(page).nth(targetIndex)).toHaveAttribute("data-section-type", type);
+  },
+  async drag(page, sectionId, targetIndex) {
+    const sourceRow = await sectionRow(page, sectionId);
+    const target = rows(page).nth(targetIndex);
+    await pointerDrag(page, sourceRow.getByRole("button", { name: /^Kéo để sắp xếp:/ }), target, false);
+    await expect(rows(page).nth(targetIndex)).toHaveAttribute("data-section-id", sectionId);
+  },
+  async addByKeyboard(page, type) {
+    const count = await rows(page).count();
+    await page.getByTestId(`lib-${type}`).focus();
+    await page.keyboard.press("Enter");
+    await expect(rows(page)).toHaveCount(count + 1);
+    await expect(rows(page).last()).toHaveAttribute("data-section-type", type);
+  },
+  async moveByKeyboard(page, sectionId, targetIndex) {
+    const source = await sectionRow(page, sectionId);
+    const current = (await rows(page).evaluateAll(elements => elements.map(el => el.getAttribute("data-section-id")))).indexOf(sectionId);
+    if (targetIndex < 0 || targetIndex >= await rows(page).count()) throw new Error("Vị trí sắp xếp ngoài danh sách");
+    if (current === targetIndex) return;
+    await source.getByRole("button", { name: /^Kéo để sắp xếp:/ }).focus();
+    await page.keyboard.press("Space");
+    try {
+      const step = targetIndex > current ? 1 : -1;
+      for (let position = current + step; step > 0 ? position <= targetIndex : position >= targetIndex; position += step) {
+        await page.keyboard.press(step > 0 ? "ArrowDown" : "ArrowUp");
+        await expect(page.locator('[id^="DndLiveRegion-"]')).toContainText(`vị trí ${position + 1}`);
+      }
+      await page.keyboard.press("Space");
+    } catch (error) { await page.keyboard.press("Escape"); throw error; }
+    await expect(rows(page).nth(targetIndex)).toHaveAttribute("data-section-id", sectionId);
+  },
+  async select(page, sectionId) {
+    await (await sectionRow(page, sectionId)).getByRole("button", { name: /^Chọn / }).click();
+  },
+};
