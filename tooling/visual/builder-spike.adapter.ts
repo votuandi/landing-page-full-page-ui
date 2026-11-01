@@ -48,7 +48,7 @@ export const adapter: BuilderAdapter = {
       const index = await cards(page).evaluateAll((list, id) => list.findIndex(el => (el as HTMLElement).dataset.sectionId === id), sectionId);
       if (index === targetIndex) return;
       await pressButton(page.getByRole("button", { name: `Đưa ${sectionId} ${index > targetIndex ? "lên" : "xuống"}`, exact: true }));
-      await page.waitForTimeout(30);
+      await page.waitForTimeout(300); // Puck ghi lịch sử sau debounce 250 ms
     }
   },
   selectByKeyboard: async (page, sectionId) => {

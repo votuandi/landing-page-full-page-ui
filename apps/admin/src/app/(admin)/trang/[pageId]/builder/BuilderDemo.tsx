@@ -23,7 +23,7 @@ function Inspector() {
   const dispatch = usePuck(state => state.dispatch);
   const def = selected && isDemo(String(selected.type)) ? sectionRegistry.getType(String(selected.type)) : undefined;
   if (!selected || !def || index === undefined) return <p className="p-3 text-sm text-fg-muted">Chọn một section để sửa.</p>;
-  const change = (props: Record<string, unknown>) => dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT, recordHistory: true, data: { ...selected, props: { ...selected.props, ...props } } });
+  const change = (props: Record<string, unknown>) => dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT, data: { ...selected, props: { ...selected.props, ...props } } });
   return <div className="space-y-4 p-3">
     <label className="block space-y-1 text-sm font-medium text-fg">Kiểu hiển thị
       <select value={selected.props.variant} onChange={event => change({ variant: event.target.value })} className="block min-h-11 w-full rounded-input border border-line/25 bg-bg px-2 text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -35,14 +35,14 @@ function Inspector() {
 }
 
 /** Token preview chỉ dùng một lần: lấy link khi mở, làm mới bằng postMessage thay vì remount iframe. */
-function Preview({ pageId, refresh }: { pageId: string; refresh: number }) {
+function Preview({ pageId, sectionId, refresh }: { pageId: string; sectionId: string; refresh: number }) {
   const [src, setSrc] = useState("");
   useEffect(() => {
     const form = new FormData();
     form.set("pageId", pageId);
     void previewLink({}, form).then(result => { if (result.url) setSrc(result.url); });
   }, [pageId]);
-  return src ? <PreviewFrame src={src} title="Xem trước" sectionId="" targetOrigin={new URL(src).origin} refreshKey={refresh} /> : null;
+  return src ? <PreviewFrame src={src} title="Xem trước" sectionId={sectionId} targetOrigin={new URL(src).origin} refreshKey={refresh} /> : null;
 }
 
 function buildConfig(data: BuilderData): Config {
@@ -96,8 +96,8 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
       setMessage("Đã lưu nháp"); onSaved();
     });
   };
-  const insert = (type: string) => dispatch({ type: "insert", componentType: type, destinationIndex: appData.content.length, destinationZone: ROOT, recordHistory: true });
-  const reorder = (from: number, to: number) => dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT, recordHistory: true });
+  const insert = (type: string) => dispatch({ type: "insert", componentType: type, destinationIndex: appData.content.length, destinationZone: ROOT });
+  const reorder = (from: number, to: number) => dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT });
   const select = (index: number) => dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT } } });
   // Màu muted của Puck chỉ đạt 4.33:1 trên nền admin; đưa về token để đạt AA.
   return <div style={{ "--puck-color-text-muted": "rgb(var(--c-fg-muted))" } as CSSProperties} className="grid h-[calc(100dvh-8rem)] min-h-0 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-3 text-fg">
@@ -131,7 +131,7 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       </div>
       <div className="min-h-0 overflow-auto rounded-card border border-line/20"><Puck.Preview /></div>
-      <Preview pageId={data.editor.page.id} refresh={refresh} />
+      <Preview pageId={data.editor.page.id} sectionId={data.editor.sections[0]?.id ?? "trang"} refresh={refresh} />
     </main>
     <aside aria-label="Thuộc tính section" className="min-h-0 overflow-auto rounded-card border border-line/20"><Inspector /></aside>
   </div>;
