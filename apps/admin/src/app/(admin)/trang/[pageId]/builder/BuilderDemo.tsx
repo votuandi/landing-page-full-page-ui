@@ -1,7 +1,7 @@
 "use client";
 
 import "@puckeditor/core/no-external.css";
-import { useMemo, useState, useTransition, type ReactNode } from "react";
+import { useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
 import { createUsePuck, Puck, type ComponentConfig, type Config, type Data } from "@puckeditor/core";
 import { SchemaForm, useLeaveGuard } from "@solar/cms-ui";
 import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
@@ -82,7 +82,8 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
   const insert = (type: string) => dispatch({ type: "insert", componentType: type, destinationIndex: appData.content.length, destinationZone: ROOT });
   const reorder = (from: number, to: number) => dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT });
   const select = (index: number) => dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT } } });
-  return <div className="grid h-[calc(100dvh-8rem)] min-h-0 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-3 text-fg">
+  // grey-05 của Puck chỉ đạt 4.33:1 trên nền admin; đưa về token để đạt AA.
+  return <div style={{ "--puck-color-grey-05": "rgb(var(--c-fg-muted))" } as CSSProperties} className="grid h-[calc(100dvh-8rem)] min-h-0 grid-cols-[17rem_minmax(0,1fr)_22rem] gap-3 text-fg">
     <aside className="min-h-0 space-y-4 overflow-auto">
       <Puck.Components />
       <section aria-labelledby="builder-add" className="space-y-2">

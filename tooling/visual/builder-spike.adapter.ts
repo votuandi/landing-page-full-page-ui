@@ -11,6 +11,7 @@ export type BuilderAdapter = {
   addByKeyboard(page: Page, type: string): Promise<void>;
   moveByKeyboard(page: Page, sectionId: string, targetIndex: number): Promise<void>;
   select(page: Page, sectionId: string): Promise<void>;
+  selectByKeyboard(page: Page, sectionId: string): Promise<void>;
 };
 
 const dragTo = async (page: Page, from: Locator, to: Locator, after: boolean) => {
@@ -32,14 +33,14 @@ const pressButton = async (button: Locator) => { await button.focus(); await but
 export const adapter: BuilderAdapter = {
   dragFromLibrary: async (page, type, targetIndex) => {
     const count = await cards(page).count(), after = targetIndex >= count;
-    await dragTo(page, page.locator(`[data-testid="lib-${type}"]`), cards(page).nth(after ? count - 1 : targetIndex), after);
+    await dragTo(page, page.locator(`[data-testid="lib-${type}"]`).first(), cards(page).nth(after ? count - 1 : targetIndex), after);
   },
   drag: async (page, sectionId, targetIndex) => {
     const from = await cards(page).evaluateAll((list, id) => list.findIndex(el => (el as HTMLElement).dataset.sectionId === id), sectionId);
     await dragTo(page, page.locator(`[data-section-id="${sectionId}"]`), cards(page).nth(targetIndex), targetIndex > from);
   },
   addByKeyboard: async (page, type) => {
-    const label = await page.locator(`[data-testid="lib-${type}"]`).innerText();
+    const label = await page.locator(`[data-testid="lib-${type}"]`).first().innerText();
     await pressButton(page.getByRole("button", { name: `Thêm ${label.trim()}`, exact: true }));
   },
   moveByKeyboard: async (page, sectionId, targetIndex) => {
@@ -49,6 +50,10 @@ export const adapter: BuilderAdapter = {
       await pressButton(page.getByRole("button", { name: `Đưa ${sectionId} ${index > targetIndex ? "lên" : "xuống"}`, exact: true }));
       await page.waitForTimeout(30);
     }
+  },
+  selectByKeyboard: async (page, sectionId) => {
+    await pressButton(page.getByRole("button", { name: `Sửa ${sectionId}`, exact: true }));
+    await page.getByLabel("Kiểu hiển thị").waitFor();
   },
   select: async (page, sectionId) => {
     await page.locator(`[data-section-id="${sectionId}"]`).click();
