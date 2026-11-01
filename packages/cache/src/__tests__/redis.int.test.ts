@@ -113,6 +113,8 @@ test("AC3 real restart", { ...redis, skip: redis.skip || (!process.env.REDIS_RES
   for (let i = 0; i < 200 && f.b.floor <= timestamp; i++) await delay(25);
   assert.ok(f.b.floor > timestamp);
   assert.equal(await f.hb.get(f.key, []), undefined);
+  // Later tests write entries "now"; those need a clock past the floor (uptime in whole seconds + 1 s).
+  await delay(2100);
 });
 
 test("AC4 one render: 100 misses across two handlers; data cache single flight", redis, async t => {
@@ -158,6 +160,19 @@ test("skew margin; clock monotonic; empty tags respect restart floor", redis, as
   assert.equal(await f.a.expiration([f.tag]), clock);
   assert.equal(await f.a.expiration([]), f.a.floor);
   assert.ok(await f.a.command.pttl(`tag:${f.tag}:invalidatedAt`) > 7 * 86_400_000);
+});
+
+test("skew margin ends: a render starting after it stays cached in handler and data cache", redis, async t => {
+  const f = fixture(t); await Promise.all([f.a.ready, f.b.ready]);
+  const skewed = createRedisCore(process.env.REDIS_URL!, { now: f.now }); t.after(() => skewed.close()); await skewed.ready;
+  await skewed.invalidate([f.tag]);
+  f.tick(1001); await f.set("fresh");
+  const hit = await f.hb.get(f.key, []);
+  assert.ok(hit); assert.equal(await new Response(hit.value).text(), "fresh");
+  let calls = 0;
+  const options = { keyParts: randomUUID(), tags: [f.tag] };
+  await f.cb.cached(async () => ++calls, options);
+  assert.equal(await f.cb.cached(async () => ++calls, options), 1);
 });
 
 test("lock expiry & token; hashed keys; partial stream dropped", redis, async t => {

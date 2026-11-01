@@ -45,7 +45,8 @@ Invalidation ghi `tag:<tag>:invalidatedAt` đơn điệu bằng Lua, TTL 8 ngày
 Mọi entry có thời điểm bắt đầu ≤ dấu tag đều bị loại, kể cả render đang chạy dở ghi xong sau invalidation. Pub/sub chỉ
 xóa L1 sớm; close/error/ready và subscribe lại xóa toàn bộ L1. Mỗi lần command ready, `INFO server` xác định floor bằng
 thời điểm Redis khởi động: entry trước floor bị loại kể cả tag clocks không có trong bản RDB khôi phục. Các máy cần NTP,
-lệch đồng hồ tối đa 1 giây; clock invalidation cộng biên 1 giây nên render trong biên này có thể bị thực hiện lại.
+lệch đồng hồ tối đa 1 giây; clock invalidation cộng biên 1 giây nên render bắt đầu trong biên này không được giữ, request
+sau render lại. Biên chỉ thêm miss, không phục vụ bản cũ. Test muốn "còn bản cache" phải render sau biên (E10-S09).
 
 Handler giành khóa `SET NX PX 15000` theo hash key. Entry quá revalidate nhưng chưa expire/vô hiệu vẫn có thể phục vụ
 trong khi một instance render nền; các instance khác nhận revalidate nới để tránh render trùng. Cold/invalid miss chờ
