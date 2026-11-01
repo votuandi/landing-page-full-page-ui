@@ -93,7 +93,7 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   [ ] Test rolling deploy: bản cũ và mới chạy song song 5 phút không lỗi · [ ] Migration lỗi giữa chừng → dừng deploy, image cũ tiếp tục phục vụ.
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: S
 
-### E10-S09 · Sửa lỗi: trang vừa publish không được phục vụ từ cache trước khi invalidate
+### E10-S09 · Sửa lỗi: trang vừa publish không được phục vụ từ cache trước khi invalidate ✅ · PR [#76](https://github.com/votuandi/landing-page-full-page-ui/pull/76)
 **Là** chủ dự án, **tôi muốn** biết chắc cache trang chạy đúng hợp đồng, **để** tải trên VPS đi qua cache và job `db` đỏ luôn là lỗi thật.
 - **Hiện tượng**: `tooling/visual/production.spec.ts:37`, dòng 47: sau `fixture("publish")`, chưa gọi `/api/revalidate`, test mong còn bản cache
   `A body 0` nhưng trang trả `A body 1`. Đây là cache miss sớm, không phải nội dung cũ hay nội dung của tenant khác.
