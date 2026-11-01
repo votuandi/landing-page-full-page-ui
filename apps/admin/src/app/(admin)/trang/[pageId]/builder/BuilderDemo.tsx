@@ -157,7 +157,7 @@ export default function BuilderDemo({ data }: { data: BuilderData }) {
     <section aria-labelledby={`${dndId}-preview`} className={panel}>
       <h2 id={`${dndId}-preview`} className="font-semibold">Xem trước</h2>
       <p className="text-sm text-fg-muted">Bản xem trước cập nhật sau khi lưu nháp.</p>
-      <PreviewFrame key={refreshKey} src={data.previewUrl} title="Xem trước" sectionId={selectedId ?? ""} targetOrigin={new URL(data.previewUrl).origin} refreshKey={refreshKey} />
+      <PreviewFrame src={data.previewUrl} title="Xem trước" sectionId={selectedId ?? data.editor.sections[0]?.id ?? "trang"} targetOrigin={new URL(data.previewUrl).origin} refreshKey={refreshKey} />
     </section>
   </div>;
 }
