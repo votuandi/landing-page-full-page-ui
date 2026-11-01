@@ -120,7 +120,7 @@ test.describe("builder spike", () => {
 
   test("axe A/AA", async ({ page }) => {
     await open(page);
-    const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).disableRules(["frame-tested"]).analyze();
+    const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).exclude('iframe[title="Xem trước"]').analyze(); // chấm editor, không chấm trang khách
     writeResult("axe", violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })));
     expect(violations).toEqual([]);
   });
