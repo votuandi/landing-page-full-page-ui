@@ -68,10 +68,12 @@ export const adapter: BuilderAdapter = {
     if (current === targetIndex) return;
     await source.getByRole("button", { name: /^Kéo để sắp xếp:/ }).focus();
     await page.keyboard.press("Space");
+    await page.waitForTimeout(150); // KeyboardSensor chỉ nhận phím sau khi đã nhấc lên
     try {
       const step = targetIndex > current ? 1 : -1;
       for (let position = current + step; step > 0 ? position <= targetIndex : position >= targetIndex; position += step) {
         await page.keyboard.press(step > 0 ? "ArrowDown" : "ArrowUp");
+        await page.waitForTimeout(150);
         // Mỗi DndContext có một live region riêng: chỉ cần một vùng thông báo đúng vị trí.
         await expect(page.locator('[id^="DndLiveRegion-"]').filter({ hasText: `vị trí ${position + 1}` }).first()).toBeAttached();
       }
