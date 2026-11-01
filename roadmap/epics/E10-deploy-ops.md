@@ -104,9 +104,19 @@ RPO ≤ 24 h, RTO ≤ 2 h; uptime site ≥ 99,9%/tháng.
   bản thân `publishPage` tự vô hiệu hóa cache. Test có `retries: 0` nên lần đỏ đầu là đỏ cả job.
 - **Chi tiết**: chạy test trên merge-base trước để biết có hồi quy không; ghi log cache hit/miss quanh dòng 47 để lấy nguyên nhân gốc;
   sửa ở cache nếu là lỗi thật, hoặc sửa spec nếu ý đồ test sai, kèm giải thích. Sửa xong rà `TENANT_CACHE_LIFE` có đúng target TTFB của E5 không.
+- **Nguyên nhân gốc** (đo trên base `8491804`, 01/11/2026): spec sai, cache đúng. `beforeAll` invalidate `tenant:<id>`, đồng hồ tag = `now() + 1000 ms`
+  (`skewMs`, biên lệch đồng hồ giữa các máy, có chủ đích từ `85e0992`, E10-S03, PR #69). Handler chỉ nhận entry có `timestamp > clock`, nên render trang A bắt đầu
+  trong 1 s sau đó không bao giờ được giữ; dòng 47 render lại và thấy `A body 1`. Máy càng nhanh càng dễ đỏ. Assertion có từ `410d78d`, lỗi xuất hiện khi `85e0992` thêm biên.
+  Log hit/miss, `--repeat-each=10`, hai lần đọc đầu sau `fixture("publish")`, `timestamp - clock` (ms): lần 1, 6, 7 HIT (+921/+952, +83/+111, +240/+275) → xanh; lần 8
+  MISS −20, HIT +19 → xanh; lần 2, 4, 5, 9, 10 MISS cả hai (−389…−82) → đỏ tại dòng 47. Không có lượt invalidate nào giữa `publish` và dòng 47: `publishPage` chỉ ghi outbox,
+  spec không chạy worker. Lần 3 đỏ vì `fixture("publish")` `spawnSync ETIMEDOUT` 60 s, một lần trên Windows, không lặp lại ở 7 lần còn lại và 10 lượt sau sửa, không có trên CI, chưa rõ nguyên nhân.
+  Chưa đo vì sao lỗi chỉ lộ ở PR #75 mà không ở #69–#74.
+- **Sửa**: giữ biên và dòng 47; `beforeAll` chờ 1,5 s sau invalidate để render của test nằm ngoài biên. Sau sửa local `production.spec.ts` 60/60 qua 10 lượt. Thêm test
+  "skew margin ends" ghim phía HIT; test `AC3 real restart` chờ qua floor để cả bộ chạy cùng lượt khi có `REDIS_RESTART_CMD`.
 - **AC**:
-  - [ ] Nguyên nhân gốc ghi trong story, có log hit/miss chứng minh, và nói rõ lỗi có sẵn từ commit nào.
+  - [x] Nguyên nhân gốc ghi trong story, có log hit/miss chứng minh, và nói rõ lỗi có sẵn từ commit nào.
   - [ ] `production.spec.ts` xanh 10/10 lần liên tiếp trên CI, không thêm `retries`, không gắn `@quarantine`, không bỏ assertion dòng 47 nếu chưa chứng minh nó sai.
-  - [ ] Toàn bộ test E10-S03 vẫn qua: 2 instance, cạnh tranh render, restart Redis, 100 request đồng thời, Redis chết.
-  - [ ] Bỏ dòng `production.spec.ts:37` khỏi "Test flaky đã biết" trong `tooling/visual/README.md`.
+  - [x] Toàn bộ test E10-S03 vẫn qua: 2 instance, cạnh tranh render, restart Redis, 100 request đồng thời, Redis chết.
+    `@solar/cache` 22/22, 0 skip, 3 lượt với `REDIS_RESTART_CMD="docker restart solar-local-redis"`; `apps/web` `redis.int` 2/2.
+  - [x] Bỏ dòng `production.spec.ts:37` khỏi "Test flaky đã biết" trong `tooling/visual/README.md`.
 - Phụ thuộc: S03, E5-S06 · Agent: Claude (sandbox Codex không chạy được Playwright/Docker) · Cỡ: M
