@@ -65,6 +65,22 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
     canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
 }
 export type PageEditor = NonNullable<Awaited<ReturnType<typeof loadPageEditor>>>;
+// E12-S01 spike: dữ liệu chung cho hai demo builder; chỉ sống trên branch spike/*.
+export const BUILDER_TYPES = ["hero", "calculator", "projects", "faq", "cta-banner"] as const;
+export const saveBuilderSchema = saveSectionsSchema.extend({ contents: z.string().max(500_000) });
+export async function loadBuilder(pageId: string, deps: PageSectionsDeps & { requirePermission(permission: "pages.view"): Promise<Session> }) {
+  const editor = await loadPageEditor(pageId, deps);
+  if (!editor || !(await deps.entitlements())("builder")) return null;
+  const tenant = await deps.tenant(), contents: Record<string, unknown> = {};
+  for (const section of editor.sections) {
+    const def = sectionRegistry.getType(section.type);
+    if (!def) continue;
+    const row = await deps.content(tenant.siteId, pageId, section.id);
+    contents[section.id] = row ? migrateSectionData(def, row.schemaVersion, row.draftData ?? row.data).data : def.defaults;
+  }
+  return { editor, contents, previewUrl: await deps.preview(tenant.tenantId, tenant.siteId, tenant.slug, `/${editor.page.slug}`) };
+}
+export type BuilderData = NonNullable<Awaited<ReturnType<typeof loadBuilder>>>;
 export async function loadSectionContent(pageId: string, sectionId: string, deps: PageSectionsDeps & { requirePermission(permission: "content.edit"): Promise<Session> }) {
   await deps.requirePermission("content.edit");
   if (!pageIdSchema.safeParse({ pageId }).success || !/^[A-Za-z0-9_-]{1,64}$/.test(sectionId)) return null;
@@ -145,6 +161,31 @@ export function createPageSectionHandlers(deps: PageSectionsDeps) {
       const fresh = sections.filter(section => !contents.some(c => c.sectionId === section.id));
       return mutation(() => deps.save(context.tenantId, { pageId: input.pageId, expectedRevision: input.revision, actor,
         draftSections: sections, sections: fresh.map(section => ({ sectionId: section.id, type: section.type, draftData: sectionRegistry.getType(section.type)!.defaults })) }));
+    },
+    async saveBuilder(input: z.output<typeof saveBuilderSchema>, context: ActionContext): Promise<PageSectionResult> {
+      const can = await deps.entitlements();
+      if (!can("builder")) return { ok: false, status: 403, error: "Gói hiện tại chưa có Builder" };
+      let sections: EditableSection[], edits: Record<string, unknown>;
+      try { sections = readSections(JSON.parse(input.sections)); edits = z.record(z.string(), z.unknown()).parse(JSON.parse(input.contents)); }
+      catch { return { ok: false, status: 400, error: "Dữ liệu không hợp lệ" }; }
+      const own = await ownPage(input.pageId, context);
+      if (!own) return missing;
+      for (const section of sections) {
+        if (!sectionRegistry.variantsOf(section.type)?.includes(section.variant)) return { ok: false, status: 400, error: `Kiểu hiển thị không tồn tại: ${section.type}/${section.variant}` };
+      }
+      const actor = await deps.actor(context.session!);
+      if (!actor) return forbiddenActor;
+      const contents = await deps.contents(own.tenant.siteId, input.pageId);
+      if (sections.some(section => contents.some(c => c.sectionId === section.id && c.type !== section.type))) return { ok: false, status: 400, error: "Không thể thay đổi loại của section đã có nội dung" };
+      const drafts: NonNullable<DraftInput["sections"]> = [];
+      for (const section of sections) {
+        const edited = Object.hasOwn(edits, section.id), def = sectionRegistry.getType(section.type)!;
+        if (edited && !sectionFormType(section.type, can)) return { ok: false, status: 403, error: "Section không thuộc gói hiện tại" };
+        const parsed = edited ? def.schema.safeParse(edits[section.id]) : { success: true as const, data: def.defaults };
+        if (!parsed.success) return { ok: false, status: 400, error: "Dữ liệu không hợp lệ" };
+        if (edited || !contents.some(c => c.sectionId === section.id)) drafts.push({ sectionId: section.id, type: section.type, draftData: parsed.data });
+      }
+      return mutation(() => deps.save(context.tenantId, { pageId: input.pageId, expectedRevision: input.revision, actor, draftSections: sections, sections: drafts }));
     },
     async publish(input: z.output<typeof pageRevisionSchema>, context: ActionContext): Promise<PageSectionResult> {
       if (!await ownPage(input.pageId, context)) return missing;

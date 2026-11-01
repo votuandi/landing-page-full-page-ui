@@ -59,6 +59,23 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "builder-spike") {
+      // Recreated per test; `stats` is outside the demo's five types and must survive every edit.
+      const slug = process.argv[3] ?? "admin-e7-a", id = fixtures.find(f => f.slug === slug)!.id;
+      const pageId = await withTenantTransaction(db, id, async repo => {
+        const site = (await repo.site.first())!;
+        const old = await repo.page.first({ where: { slug: "builder-spike" } });
+        if (old) { for (const row of await repo.sectionContent.list({ where: { pageId: old.id } })) await repo.sectionContent.delete(row.id); await repo.page.delete(old.id); }
+        const sections = [{ id: "s-hero", type: "hero", variant: "t15", enabled: true }, { id: "s-stats", type: "stats", variant: sectionRegistry.variantsOf("stats")![0], enabled: true },
+          { id: "s-faq", type: "faq", variant: "t15", enabled: true }, { id: "s-cta", type: "cta-banner", variant: "t15", enabled: true }];
+        const page = await repo.page.create({ siteId: site.id, slug: "builder-spike", title: { vi: "[DỮ LIỆU MẪU] Builder spike" }, publishedAt: new Date(), sections });
+        for (const s of sections) await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: s.id, type: s.type, data: sectionRegistry.getType(s.type)!.defaults as object });
+        return page.id;
+      });
+      process.stdout.write(pageId);
+    } else if (action === "builder-spike-read") {
+      const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-spike" } }))!;
+      process.stdout.write(JSON.stringify({ draftSections: page.draftSections, contents: await repo.sectionContent.list({ where: { pageId: page.id }, select: { sectionId: true, draftData: true } }) }));
     } else if (action === "staff-client") {
       const id = fixtures.find(f => f.slug === "admin-e11-other")!.id;
       await withTenantTransaction(db, id, async repo => {
