@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 
 type Site = { tenantId: string; siteId: string; host: string };
 let sites: Site[];
+// skewMs (1 s) plus slack: revalidateTag's updateTags may finish just after the response.
+const INVALIDATION_MARGIN_MS = 1500;
 const fixture = (action: string) => execFileSync(process.execPath, ["--import", "tsx", "scripts/production-browser-fixture.ts", action], {
   cwd: resolve(__dirname, "../../apps/web"), encoding: "utf8", timeout: 60_000,
 }).trim();
@@ -27,6 +29,8 @@ test.describe.serial("production Cache Components on PostgreSQL", () => {
   test.beforeAll(async ({ request }) => {
     sites = JSON.parse(fixture("setup"));
     await invalidate(request, sites.map(site => `tenant:${site.tenantId}`), sites.flatMap(site => [site.host, site.host.replace(".solar.", ".preview.solar.")]));
+    // Renders inside the invalidation clock margin are never kept (packages/cache README); line "A body 0" below needs a hit.
+    await new Promise(done => setTimeout(done, INVALIDATION_MARGIN_MS));
   });
   test.afterAll(async ({ request }) => {
     if (!sites) return;
