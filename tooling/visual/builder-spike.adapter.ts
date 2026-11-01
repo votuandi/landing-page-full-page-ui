@@ -24,16 +24,14 @@ async function sectionRow(page: Page, id: string) {
 }
 
 async function pointerDrag(page: Page, source: Locator, target: Locator, before: boolean) {
+  // Đo trước khi nhấn: cuộn giữa lúc kéo làm boundingBox trả tọa độ sai.
   await source.scrollIntoViewIfNeeded();
-  const start = await source.boundingBox();
-  if (!start) throw new Error("Không xác định được vị trí kéo");
+  const start = await source.boundingBox(), end = await target.boundingBox();
+  if (!start || !end) throw new Error("Không xác định được vị trí kéo/thả");
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
   await page.mouse.down();
   await page.mouse.move(start.x + start.width / 2 + 8, start.y + start.height / 2, { steps: 4 });
   try {
-    await target.scrollIntoViewIfNeeded();
-    const end = await target.boundingBox();
-    if (!end) throw new Error("Không xác định được vị trí thả");
     await page.mouse.move(end.x + end.width / 2, end.y + end.height * (before ? 0.25 : 0.5), { steps: 20 });
     await page.waitForTimeout(150); // dnd-kit tính vùng thả theo khung hình; người thật luôn dừng trước khi nhả
   } finally { await page.mouse.up(); }
