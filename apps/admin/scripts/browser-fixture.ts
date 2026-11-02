@@ -59,6 +59,27 @@ async function main() {
         await forPlatform(db).outbox.enqueue(fixtures.map(f => ({ topic: "invalidate", idempotencyKey: `admin-fixture:${randomUUID()}`,
           payload: { tags: [`tenant:${f.id}`], hosts: [`${f.slug}.admin.${platformDomain}`] } })));
       }
+    } else if (action === "builder-page") {
+      // Recreated per test; the disabled section never reaches the canvas but must keep its place in the list.
+      const slug = process.argv[3] ?? "admin-e7-a", id = fixtures.find(f => f.slug === slug)!.id;
+      const pageId = await withTenantTransaction(db, id, async repo => {
+        const site = (await repo.site.first())!;
+        const old = await repo.page.first({ where: { slug: "builder-page" } });
+        if (old) { for (const row of await repo.sectionContent.list({ where: { pageId: old.id } })) await repo.sectionContent.delete(row.id); await repo.page.delete(old.id); }
+        const sections = [{ id: "s-hero", type: "hero", variant: "t15", enabled: true }, { id: "s-stats", type: "stats", variant: sectionRegistry.variantsOf("stats")![0], enabled: false },
+          { id: "s-faq", type: "faq", variant: "t15", enabled: true }, { id: "s-cta", type: "cta-banner", variant: "t15", enabled: true }];
+        const page = await repo.page.create({ siteId: site.id, slug: "builder-page", title: { vi: "[DỮ LIỆU MẪU] Trang builder" }, publishedAt: new Date(), sections });
+        for (const s of sections) await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: s.id, type: s.type, data: sectionRegistry.getType(s.type)!.defaults as object });
+        return page.id;
+      });
+      process.stdout.write(pageId);
+    } else if (action === "builder-page-read") {
+      const page = (await forTenant(db, tenantId).page.first({ where: { slug: "builder-page" } }))!;
+      process.stdout.write(JSON.stringify({ draftSections: page.draftSections }));
+    } else if (action === "builder-page-bump") {
+      // Another editor saving: the revision the open builder holds is now stale.
+      const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
+      await repo.page.update(page.id, { revision: page.revision + 1 });
     } else if (action === "staff-client") {
       const id = fixtures.find(f => f.slug === "admin-e11-other")!.id;
       await withTenantTransaction(db, id, async repo => {
