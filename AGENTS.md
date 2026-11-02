@@ -94,7 +94,7 @@ CMS, builder) luôn kiểm bằng `validateSiteStructure` (D21), kể cả thao 
 **Khác.**
 - Nội dung hiển thị mặc định tiếng Việt, hỗ trợ VI/EN qua trường localizable (`{ vi, en? }`).
 - Không thêm dependency runtime nếu chưa ghi lý do trong PR. Đã chấp thuận cho kế hoạch: `zod`, `@prisma/client`,
-  `@aws-sdk/client-s3`, `sharp`, `@dnd-kit/*` (hoặc `@measured/puck` sau khi spike E12 chốt), `ioredis`.
+  `@aws-sdk/client-s3`, `sharp`, `@dnd-kit/*`, `ioredis`.
 - Hiệu ứng tôn trọng `prefers-reduced-motion`; nội dung vẫn hiện khi tắt JavaScript.
 - Dữ liệu mẫu (tên công ty hư cấu, số liệu) phải gắn nhãn `[DỮ LIỆU MẪU]` như các template hiện có.
 - Không sửa file trong `.agents/skills/*` cài từ bên ngoài (quản lý bằng `npx skills update`); skill riêng của dự án

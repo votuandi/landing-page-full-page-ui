@@ -93,7 +93,7 @@ Quyết định kiến trúc chính (chi tiết và lựa chọn bị loại: [`
 | D7 | Tên miền: Caddy on-demand TLS trên VPS; Cloudflare for SaaS khi chạy AWS hoặc khi cần WAF/CDN. Khách đứng tên tên miền |
 | D8 | Gói dịch vụ → entitlements kiểm tra phía server; bảng giá bán hàng sinh từ cùng một file `packages/plans` |
 | D9 | Email theo tên miền: không tự host; tích hợp hướng dẫn + kiểm tra DNS cho Zoho Mail / Google Workspace (affiliate) |
-| D10 | Builder gói Premium: kéo-thả **section** (không phải pixel), preview trực tiếp; spike Puck vs dnd-kit ở E12 |
+| D10 | Builder gói Premium: kéo-thả **section** (không phải pixel), preview trực tiếp; tự xây trên dnd-kit (spike E12-S01) |
 | D17 | Hai CMS (`admin` cho site, `console` cho nền tảng), hai bảng tài khoản `SiteUser` (unique theo tenant) / `PlatformAdmin`, phiên và cookie riêng; tenant lấy từ host trước khi đăng nhập |
 | D18 | Ghost login: grant 1 lần từ console → phiên ghost 30 phút ở admin, có lý do, banner, audit, chặn thao tác bảo mật tài khoản |
 | D19 | Tính năng hiệu lực = kill switch nền tảng → override của tenant → gói/addons; permission tenant chỉ hạ quyền |
