@@ -85,6 +85,8 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - Gói Cao cấp: thao tác trên cây section (thêm/xóa/kéo thả/đổi variant/sửa props) với preview trực tiếp trong iframe
   (draft mode). Spike 3 ngày so sánh **Puck** (`@measured/puck`, MIT, cấu hình component + field sẵn) với tự xây bằng
   **dnd-kit** + form từ zod. Tiêu chí: đọc được schema zod, bundle admin, khả năng khóa theo entitlement.
+- **Đề xuất sau spike E12-S01, chờ chủ dự án duyệt:** tự xây trên dnd-kit, không dùng Puck (`@measured/puck` đã chuyển thành
+  `@puckeditor/core`). Số đo và phần chưa chứng minh: [`spikes/E12-S01.md`](spikes/E12-S01.md).
 
 ## D11. Cache dùng chung nhiều instance
 - Next.js chạy ≥ 2 instance (VPS: 2 container; AWS: ECS nhiều task) → cấu hình cache handler dùng Redis để
