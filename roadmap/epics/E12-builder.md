@@ -18,7 +18,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
   Tiêu chí: tương thích schema zod + `SchemaForm`, kích thước bundle admin, truy cập bàn phím, undo/redo, khóa theo
   entitlement, giấy phép (Puck MIT), độ phức tạp bảo trì.
 - **Target**: biên bản so sánh có số đo, cập nhật `02-decisions.md` D10.
-- **AC**: [ ] Hai bản demo chạy được · [ ] Quyết định được chủ dự án duyệt.
+- **AC**: [x] Hai bản demo chạy được (`spike/E12-S01-puck`, `spike/E12-S01-dnd-kit`, số đo ở [`spikes/E12-S01.md`](../spikes/E12-S01.md)) · [ ] Quyết định được chủ dự án duyệt.
 - Agent: Claude + Codex (song song) · Cỡ: M
 
 ### E12-S02 · Canvas preview trong iframe
