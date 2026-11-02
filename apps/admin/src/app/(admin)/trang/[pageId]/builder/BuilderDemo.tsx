@@ -79,7 +79,7 @@ function Editor({ data, onSaved, refresh }: { data: BuilderData; onSaved(): void
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [pending, start] = useTransition();
-  const [saved, setSaved] = useState(() => ({ contents: snapshot(toPuck(data.editor.sections, data.contents)), order: JSON.stringify(data.editor.sections) }));
+  const [saved, setSaved] = useState(() => ({ contents: snapshot(toPuck(data.editor.sections, data.contents)), order: JSON.stringify(fromPuck(toPuck(data.editor.sections, data.contents))) }));
   const sections = useMemo(() => fromPuck(appData), [appData]);
   const dirty = JSON.stringify(sections) !== saved.order || Object.keys(editedContents(appData, saved.contents)).length > 0;
   useLeaveGuard(dirty);

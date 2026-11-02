@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Phần duy nhất mỗi demo tự viết (spike E12-S01). DOM chung mà spec đọc:
@@ -38,6 +38,7 @@ export const adapter: BuilderAdapter = {
   drag: async (page, sectionId, targetIndex) => {
     const from = await cards(page).evaluateAll((list, id) => list.findIndex(el => (el as HTMLElement).dataset.sectionId === id), sectionId);
     await dragTo(page, page.locator(`[data-section-id="${sectionId}"]`), cards(page).nth(targetIndex), targetIndex > from);
+    await expect(cards(page).nth(targetIndex)).toHaveAttribute("data-section-id", sectionId);
   },
   addByKeyboard: async (page, type) => {
     const label = await page.locator(`[data-testid="lib-${type}"]`).first().innerText();
