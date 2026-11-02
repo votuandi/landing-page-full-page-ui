@@ -70,3 +70,11 @@ test("gửi lại lựa chọn cũ khi form chặn đổi section, không nạp 
     assert.equal(m.container.querySelector("iframe"), frame);
   } finally { m.unmount(); }
 });
+test("className thay viền mặc định để khung thiết bị giữ đúng chiều rộng", async () => {
+  const m = await mount(<PreviewFrame src="http://localhost/frame" title="Xem trước" className="border-0" targetOrigin="http://localhost" refreshKey={0} />);
+  try {
+    const classes = m.container.querySelector("iframe")!.className;
+    assert.match(classes, /border-0/);
+    assert.doesNotMatch(classes, /border-line/);
+  } finally { m.unmount(); }
+});

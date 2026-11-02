@@ -121,7 +121,7 @@ export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent }
   }
   return <div data-builder-canvas className="pointer-events-none fixed inset-0 z-[100]">
     {bounds && <div data-builder-selected={selectedId} className="fixed border-2 border-primary" style={{ top: bounds.top, left: bounds.left, width: bounds.width, height: bounds.height }}>
-      <div className="absolute left-0 top-0 flex max-w-full items-center gap-2 rounded-button bg-primary px-3 py-1 text-sm font-semibold text-on-primary">
+      <div className="absolute left-0 flex max-w-full items-center gap-2 rounded-button bg-primary px-3 py-1 text-sm font-semibold text-on-primary" style={{ top: Math.max(0, -bounds.top) }}>
         <span className="truncate">{bounds.label}</span>
         {reorder && <button type="button" data-builder-handle aria-label={`Kéo ${bounds.label} để sắp xếp`} tabIndex={-1}
           className="pointer-events-auto min-h-11 touch-none cursor-grab px-2" onPointerDown={start}>Kéo</button>}

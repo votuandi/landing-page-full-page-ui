@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewEvent } from "./protocol.ts";
-export type PreviewFrameProps = { src: string; title: string; sectionId?: string; selectedId?: string; selectionKey?: number; targetOrigin: string; refreshKey: number; onUpdated?(): void; onEvent?(event: PreviewEvent): void };
-export function PreviewFrame({ src, title, sectionId, selectedId, selectionKey, targetOrigin, refreshKey, onUpdated, onEvent }: PreviewFrameProps) {
+export type PreviewFrameProps = { src: string; title: string; className?: string; sectionId?: string; selectedId?: string; selectionKey?: number; targetOrigin: string; refreshKey: number; onUpdated?(): void; onEvent?(event: PreviewEvent): void };
+export function PreviewFrame({ src, title, className = "rounded-card border border-line/20", sectionId, selectedId, selectionKey, targetOrigin, refreshKey, onUpdated, onEvent }: PreviewFrameProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const ready = useRef(false);
   const latest = useRef({ sectionId, selectedId, refreshKey, onUpdated, onEvent });
@@ -33,5 +33,5 @@ export function PreviewFrame({ src, title, sectionId, selectedId, selectionKey, 
   useEffect(() => {
     if (ready.current && selectedId) frame.current?.contentWindow?.postMessage({ type: PREVIEW_MESSAGE, action: "select", sectionId: selectedId }, targetOrigin);
   }, [selectedId, selectionKey, targetOrigin]);
-  return <iframe ref={frame} title={title} className="h-full min-h-96 w-full rounded-card border border-line/20 bg-bg" />;
+  return <iframe ref={frame} title={title} className={`h-full min-h-96 w-full bg-bg ${className}`} />;
 }

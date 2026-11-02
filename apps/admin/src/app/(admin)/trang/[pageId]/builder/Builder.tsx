@@ -11,6 +11,7 @@ import BuilderPanel, { type BuilderPanelHandle } from "./BuilderPanel";
 import DeviceStage from "./DeviceStage";
 
 const button = "inline-flex min-h-11 items-center justify-center rounded-button border border-line/20 bg-bg-elevated px-3 py-2 text-sm font-medium text-fg hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
+const move = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-button px-2 text-xs font-medium text-fg-muted hover:bg-bg-tint hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40";
 export default function Builder({ editor }: { editor: BuilderEditor }) {
   const [sections, setSections] = useState(editor.sections);
   const [forms, setForms] = useState(editor.forms);
@@ -85,59 +86,68 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   }
   const selected = sections.find(section => section.id === selectedId);
   return <section className="min-w-0 space-y-4" aria-label="Trình dựng trang">
-    <a href={`/trang/${editor.page.id}`} className="inline-flex min-h-11 items-center rounded-button text-primary focus-visible:ring-2 focus-visible:ring-primary">Về bố cục trang</a>
-    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-      <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
-      <div role="group" aria-label="Khung thiết bị" className="flex flex-wrap gap-2">
-        {[390, 768, 1440].map(device => <button key={device} type="button" aria-pressed={width === device} className={button} onClick={() => setWidth(device)}>{device}</button>)}
+    <div className="flex min-w-0 flex-wrap items-end justify-between gap-x-4 gap-y-2">
+      <div className="min-w-0">
+        <a href={`/trang/${editor.page.id}`} className="inline-flex min-h-11 items-center rounded-button text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Về bố cục trang</a>
+        <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <div role="group" aria-labelledby="builder-device" className="flex flex-wrap items-center gap-2">
+          <span id="builder-device" className="text-sm text-fg-muted">Khung (px)</span>
+          {[390, 768, 1440].map(device => <button key={device} type="button" aria-pressed={width === device} className={`${button} aria-pressed:border-primary aria-pressed:bg-bg-tint aria-pressed:text-primary`} onClick={() => setWidth(device)}>{device}</button>)}
+        </div>
+        <button type="button" className={button} disabled={loadingPreview} onClick={async () => {
+          setLoadingPreview(true);
+          try {
+            const result = await builderPreviewLink({}, formData());
+            if (result.ok && result.url) { setSrc(result.url); setExpired(false); watch.cancel(); }
+            else setError(result.error ?? "Không thể tải xem trước. Vui lòng thử lại.");
+          } catch { setError("Không thể kết nối. Vui lòng thử lại."); }
+          finally { setLoadingPreview(false); }
+        }}>{loadingPreview ? "Đang tải xem trước…" : "Tải lại xem trước"}</button>
       </div>
     </div>
-    <p className="text-sm text-fg-muted">Thay đổi tự lưu vào bản nháp. Chọn section để sửa nội dung. Dùng nút Lên và Xuống để sắp xếp bằng bàn phím hoặc cảm ứng.</p>
-    {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+    <p className="text-sm text-fg-muted">Thay đổi tự lưu vào bản nháp. Nút Lên, Xuống thay cho kéo thả khi dùng bàn phím hoặc cảm ứng.</p>
+    {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
     {conflict && <button type="button" className={button} onClick={() => window.location.reload()}>Tải lại trang</button>}
-    {expired && <p role="status" className="text-sm text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
-    <button type="button" className={button} disabled={loadingPreview} onClick={async () => {
-      setLoadingPreview(true);
-      try {
-        const result = await builderPreviewLink({}, formData());
-        if (result.ok && result.url) { setSrc(result.url); setExpired(false); watch.cancel(); }
-        else setError(result.error ?? "Không thể tải xem trước. Vui lòng thử lại.");
-      } catch { setError("Không thể kết nối. Vui lòng thử lại."); }
-      finally { setLoadingPreview(false); }
-    }}>{loadingPreview ? "Đang tải xem trước…" : "Tải lại xem trước"}</button>
-    <div className="grid min-w-0 gap-4 xl:grid-cols-[14rem_minmax(0,1fr)_20rem]">
-      <nav aria-label="Danh sách section" className="min-w-0">
-        <ul ref={list} aria-label="Section của trang" className="max-h-80 space-y-2 overflow-y-auto overscroll-contain xl:max-h-[70dvh]">
-          {sections.map((section, index) => {
-            const label = sectionRegistry.getType(section.type)?.meta.label.vi ?? section.type;
-            return <li key={section.id} data-section-id={section.id} className={`rounded-card border p-2 ${section.id === selectedId ? "border-primary bg-bg-tint" : "border-line/20 bg-bg-elevated"}`}>
-              <button type="button" aria-label={`Chọn ${label}`} aria-current={section.id === visibleId ? "true" : undefined} aria-pressed={section.id === selectedId} disabled={busy || conflict}
-                className="min-h-11 w-full break-words rounded-button px-2 text-left text-sm font-medium text-fg focus-visible:ring-2 focus-visible:ring-primary" onClick={() => { void choose(section.id); }}>{label}</button>
-              {!section.enabled && <p className="px-2 text-sm text-fg-muted">Đang ẩn</p>}
-              {editor.canReorder && <div className="flex gap-2">
-                <button type="button" aria-label={`Lên ${label}`} className={button} disabled={index === 0 || busy || conflict} onClick={() => { void reorder(section.id, sections[index - 1].id, "before"); }}>Lên</button>
-                <button type="button" aria-label={`Xuống ${label}`} className={button} disabled={index === sections.length - 1 || busy || conflict} onClick={() => { void reorder(section.id, sections[index + 1].id, "after"); }}>Xuống</button>
-              </div>}
-            </li>;
-          })}
-        </ul>
-        {!sections.length && <p className="text-sm text-fg-muted">Trang chưa có section. Thêm section từ bố cục trang.</p>}
-      </nav>
+    {expired && <p role="status" className="text-sm font-medium text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
+    <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0" inert={conflict}>
         <DeviceStage width={width}>
-          <PreviewFrame src={src} title="Xem trước trang" targetOrigin={new URL(src).origin} refreshKey={refreshKey} selectedId={selectedId ?? undefined}
+          <PreviewFrame src={src} title="Xem trước trang" className="border-0" targetOrigin={new URL(src).origin} refreshKey={refreshKey} selectedId={selectedId ?? undefined}
             selectionKey={selectionKey} onEvent={onEvent} />
         </DeviceStage>
       </div>
-      <div className="min-w-0 xl:max-h-[70dvh] xl:overflow-y-auto">
-        {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
-          onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
-          save={data => queue.write(async revision => {
-            const form = formData(revision); form.set("sectionId", selected.id); form.set("data", JSON.stringify(data));
-            const result = await saveSectionContent({}, form);
-            if (result.ok) { setError(undefined); refresh(); } else resultError(result);
-            return result;
-          })} /> : <section aria-label="Thuộc tính section" className="text-sm text-fg-muted">{selected ? "Section không thuộc gói hiện tại. Nâng cấp gói để sửa nội dung." : "Chọn section để sửa nội dung."}</section>}
+      <div className="flex min-w-0 flex-col gap-4 lg:h-[78dvh] lg:min-h-96">
+        <nav aria-label="Danh sách section" className="min-w-0 shrink-0">
+          <ul ref={list} aria-label="Section của trang" className="max-h-60 space-y-1 overflow-y-auto overscroll-contain rounded-card border border-line/20 bg-bg-elevated p-1">
+            {sections.map((section, index) => {
+              const label = sectionRegistry.getType(section.type)?.meta.label.vi ?? section.type;
+              return <li key={section.id} data-section-id={section.id} className={`flex min-w-0 items-center gap-1 rounded-button border ${section.id === selectedId ? "border-primary bg-bg-tint" : "border-transparent"}`}>
+                <button type="button" aria-label={`Chọn ${label}`} aria-current={section.id === visibleId ? "true" : undefined} aria-pressed={section.id === selectedId} disabled={busy || conflict}
+                  className="group flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-button px-2 text-left text-sm font-medium text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => { void choose(section.id); }}>
+                  <span aria-hidden className="size-2 shrink-0 rounded-pill group-aria-[current=true]:bg-primary" />
+                  <span className="min-w-0 break-words">{label}{!section.enabled && <span className="block text-xs font-normal text-fg-muted">Đang ẩn</span>}</span>
+                </button>
+                {editor.canReorder && <div className="flex shrink-0">
+                  <button type="button" aria-label={`Lên ${label}`} className={move} disabled={index === 0 || busy || conflict} onClick={() => { void reorder(section.id, sections[index - 1].id, "before"); }}>Lên</button>
+                  <button type="button" aria-label={`Xuống ${label}`} className={move} disabled={index === sections.length - 1 || busy || conflict} onClick={() => { void reorder(section.id, sections[index + 1].id, "after"); }}>Xuống</button>
+                </div>}
+              </li>;
+            })}
+          </ul>
+          {!sections.length && <p className="text-sm text-fg-muted">Trang chưa có section. Thêm section từ bố cục trang.</p>}
+        </nav>
+        <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 lg:overflow-y-auto">
+          {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
+            onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
+            save={data => queue.write(async revision => {
+              const form = formData(revision); form.set("sectionId", selected.id); form.set("data", JSON.stringify(data));
+              const result = await saveSectionContent({}, form);
+              if (result.ok) { setError(undefined); refresh(); } else resultError(result);
+              return result;
+            })} /> : <section aria-label="Thuộc tính section" className="text-sm text-fg-muted">{selected ? "Section không thuộc gói hiện tại. Nâng cấp gói để sửa nội dung." : "Chọn section để sửa nội dung."}</section>}
+        </div>
       </div>
     </div>
   </section>;
