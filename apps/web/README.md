@@ -1,5 +1,9 @@
 # web
 
+Canvas builder chỉ nạp động trên trang preview trong iframe có `?builder=1`; `reorder=0` bỏ tay kéo.
+`PreviewBridge` kiểm cả origin và cửa sổ cha; cuộn bằng `window.scrollTo` trong iframe. Overlay chỉ chọn/kéo
+section trong `main`, chặn click/submit để tránh điều hướng khi sửa; trang công khai không nạp overlay.
+
 E7-S15: layout tenant áp font thương hiệu sau theme preview, dùng cùng theme đã kiểm cho CSS và preload.
 Hạ gói/tắt `themeOverride` dùng font theme; font hỏng hoặc thiếu weight fallback và ghi log không chứa dữ liệu thô.
 `/icon.png` (64×64), `/apple-icon.png` (180×180) được proxy rewrite theo tenant. Handler chỉ đọc media ready,
