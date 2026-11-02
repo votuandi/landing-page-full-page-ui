@@ -25,7 +25,7 @@ export const CHECKS = {
       "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/matrix", "tooling/visual/playwright.matrix.config.ts",
       "tooling/visual/package.json", ".github/workflows/visual.yml", "scripts/ci/visual-baseline-run.sh"],
     // Layout chỉ đọc dữ liệu preset t15; bộ kiểm cấu trúc trang không ảnh hưởng ảnh chụp.
-    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, "packages/presets/src/structure.ts"],
     // package.json chỉ đổi link workspace tới package ngoài `paths` không đổi pixel (PR #59: @solar/storage cho fixture e2e).
     ignoreLinks: true,
   },
@@ -37,7 +37,7 @@ export const CHECKS = {
       `${web}components/`, `${web}config/`, `${web}i18n/`, `${web}lib/`, `${web}data/`, "apps/web/public/", "apps/web/tailwind.config.ts",
       "apps/web/postcss.config.mjs", "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/visual.spec.ts", "tooling/visual/routes.ts",
       "tooling/visual/playwright.config.ts", "tooling/visual/package.json", ".github/workflows/visual.yml"],
-    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
     ignoreLinks: true,
   },
   db: {
@@ -72,15 +72,15 @@ export const CHECKS = {
   },
   "e2e:preview": {
     cmd: "bash scripts/local-ci.sh e2e preview --project=chromium",
-    paths: [...shared, `${web}lib/tenant/`, `${web}components/tenant/`, `${web}app/sites/`, `${web}app/api/`, "packages/db/src/",
+    paths: [...shared, `${web}lib/tenant/`, `${web}components/tenant/`, `${web}components/preview/`, `${web}app/sites/`, `${web}app/api/`, "packages/db/src/",
       "packages/cache/", "apps/admin/src/lib/previewUrl.ts", "tooling/visual/preview.spec.ts", "tooling/visual/playwright.preview.config.ts"],
     specs: ["tooling/visual/preview.spec.ts"],
   },
   "e2e:admin": {
     cmd: "bash scripts/local-ci.sh e2e admin",
     paths: [...shared, "apps/admin/", "packages/cms-ui/", "packages/auth/", "packages/db/", "packages/plans/", "packages/platform/",
-      "packages/ui/", "packages/tokens/", "packages/themes/", "tooling/visual/admin.spec.ts", "tooling/visual/playwright.admin.config.ts"],
-    specs: ["tooling/visual/admin.spec.ts"],
+      "packages/ui/", "packages/tokens/", "packages/themes/", `${web}components/preview/`, "tooling/visual/builder.spec.ts", "tooling/visual/admin.spec.ts", "tooling/visual/playwright.admin.config.ts"],
+    specs: ["tooling/visual/admin.spec.ts", "tooling/visual/builder.spec.ts"],
   },
   "e2e:sections": {
     cmd: "bash scripts/local-ci.sh e2e sections",
