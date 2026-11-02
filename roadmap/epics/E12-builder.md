@@ -26,7 +26,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
   kiểm origin: chọn section (viền + nhãn), kéo để sắp xếp, cuộn đồng bộ; hiển thị 3 khung thiết bị (390/768/1440).
   Trước khi làm, xử lý các phát hiện của spike ([`spikes/E12-S01.md`](../spikes/E12-S01.md) mục "Việc cho E12-S02 trở đi"): port bản sửa `PreviewBridge`
   (`scrollIntoView` cuộn cả trang admin), token preview dùng một lần, `sectionId` rỗng làm mất lệnh refresh.
-- **AC**: [ ] Click section trong canvas mở form của đúng section · [x] Thông điệp từ origin lạ bị bỏ qua (unit `previewFrame.test.tsx`, `previewProtocol.test.ts`; e2e bước 5).
+- **AC**: [x] Click section trong canvas mở form của đúng section (`builder.spec.ts`) · [x] Thông điệp từ origin lạ bị bỏ qua (unit `previewFrame.test.tsx`, `previewProtocol.test.ts`; e2e bước 5).
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: L
 
 ### E12-S03 · Thư viện section kéo vào trang
