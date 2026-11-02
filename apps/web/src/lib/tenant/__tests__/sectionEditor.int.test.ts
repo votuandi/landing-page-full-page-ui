@@ -96,7 +96,7 @@ test("publish action rejects legacy overflow with 400 and keeps publication unch
     actor: async () => actor,
     publish: (id, input) => publishPage(db, id, input),
     save: async () => { throw new Error("Unexpected save"); },
-    contents: async () => [], content: async () => null, entitlements: async () => () => true, preview: async () => "",
+    contents: async () => [], content: async () => null, contentRows: async () => [], entitlements: async () => () => true, preview: async () => "",
   });
   const publish = createAction(async () => context)("pages.publish", pageRevisionSchema, handlers.publish);
   const form = new FormData(); form.set("pageId", pageId); form.set("revision", "2");

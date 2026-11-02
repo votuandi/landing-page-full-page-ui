@@ -37,6 +37,10 @@ export const pageSectionDeps: PageSectionsDeps = {
   async content(siteId, pageId, sectionId) {
     return forTenant(getRuntime().db, (await getTenant()).tenantId).sectionContent.first({ where: { siteId, pageId, sectionId } });
   },
+  async contentRows(siteId, pageId) {
+    return forTenant(getRuntime().db, (await getTenant()).tenantId).sectionContent.list({ where: { siteId, pageId, removedAt: null },
+      select: { sectionId: true, type: true, schemaVersion: true, data: true, draftData: true } });
+  },
   async actor(session) {
     // shortcut: ghost không có actor trong site realm; mở rộng cầu nối có audit ở E15 trước khi cho ghi.
     return session.kind === "user" && session.accountId ? { siteUserId: session.accountId } : null;

@@ -17,6 +17,7 @@ export const saveSectionsSchema = pageRevisionSchema.extend({ sections: z.string
 export const saveContentSchema = pageRevisionSchema.extend({ sectionId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/), data: z.string().max(500_000) });
 const oldContent = "Nội dung cần cập nhật phiên bản trước khi sửa";
 type PageRow = { id: string; siteId: string; slug: string; title: unknown; revision: number; sections: unknown; draftSections: unknown; hasDraft: boolean };
+type ContentRow = { type: string; schemaVersion: number; data: unknown; draftData: unknown };
 export type PageSectionsDeps = {
   tenant(): Promise<{ tenantId: string; siteId: string; slug: string }>;
   page(siteId: string, pageId: string): Promise<PageRow | null>;
@@ -25,6 +26,7 @@ export type PageSectionsDeps = {
   removed(siteId: string, pageId: string): Promise<(EditableSection & { expiresAt: string | null })[]>;
   contents(siteId: string, pageId: string): Promise<{ sectionId: string; type: string }[]>;
   content(siteId: string, pageId: string, sectionId: string): Promise<{ type: string; schemaVersion: number; data: unknown; draftData: unknown } | null>;
+  contentRows(siteId: string, pageId: string): Promise<(ContentRow & { sectionId: string })[]>;
   actor(session: Session): Promise<PublishInput["actor"] | null>;
   save(tenantId: string, input: DraftInput): Promise<{ revision: number }>;
   publish(tenantId: string, input: PublishInput): Promise<{ revision: number }>;
@@ -62,9 +64,39 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
     can: { reorder: structure && can("sectionReorder"), variantSwitch: structure && can("variantSwitch") },
     allowedTypes: types.filter(def => !def.meta.entitlement || can(def.meta.entitlement)).map(def => def.type),
     lockedTypes: types.filter(def => def.meta.entitlement && !can(def.meta.entitlement)).map(def => def.type),
-    canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
+    canBuilder: can("builder"), canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
 }
 export type PageEditor = NonNullable<Awaited<ReturnType<typeof loadPageEditor>>>;
+export function readSectionData(section: EditableSection, def: NonNullable<ReturnType<typeof sectionFormType>>, row: ContentRow | null) {
+  let data: unknown = def.defaults, recovered = false;
+  try {
+    if (row) {
+      if (row.type !== section.type) throw new Error("Section type mismatch");
+      data = def.schema.parse(migrateSectionData(def, row.schemaVersion, row.draftData ?? row.data).data);
+    }
+  } catch { recovered = true; }
+  return { data, recovered, readOnly: row && row.schemaVersion !== def.schemaVersion ? oldContent : undefined };
+}
+export const builderPath = (slug: string, reorder: boolean) => `/${slug}?builder=1${reorder ? "" : "&reorder=0"}`;
+export async function loadBuilder(pageId: string, deps: PageSectionsDeps & { requirePermission(permission: "pages.view"): Promise<Session> }) {
+  const session = await deps.requirePermission("pages.view");
+  if (!pageIdSchema.safeParse({ pageId }).success) return null;
+  const tenant = await deps.tenant(), page = await deps.page(tenant.siteId, pageId);
+  if (!page || page.siteId !== tenant.siteId) return null;
+  const can = await deps.entitlements();
+  if (!can("builder")) return null;
+  const sections = readSections(page.draftSections ?? page.sections);
+  const rows = await deps.contentRows(tenant.siteId, pageId);
+  const forms: Record<string, ReturnType<typeof readSectionData>> = Object.fromEntries(sections.flatMap(section => {
+    const def = sectionFormType(section.type, can);
+    return def ? [[section.id, readSectionData(section, def, rows.find(row => row.sectionId === section.id) ?? null)]] : [];
+  }));
+  const reorder = session.permissions.has("pages.structure") && can("sectionReorder");
+  return { page: { id: page.id, title: pageTitle(page.title, page.slug), revision: page.revision }, sections, forms,
+    canReorder: reorder, canEditContent: session.permissions.has("content.edit"), bilingual: can("bilingual"),
+    previewUrl: await deps.preview(tenant.tenantId, tenant.siteId, tenant.slug, builderPath(page.slug, reorder)) };
+}
+export type BuilderEditor = NonNullable<Awaited<ReturnType<typeof loadBuilder>>>;
 export async function loadSectionContent(pageId: string, sectionId: string, deps: PageSectionsDeps & { requirePermission(permission: "content.edit"): Promise<Session> }) {
   await deps.requirePermission("content.edit");
   if (!pageIdSchema.safeParse({ pageId }).success || !/^[A-Za-z0-9_-]{1,64}$/.test(sectionId)) return null;
@@ -75,16 +107,8 @@ export async function loadSectionContent(pageId: string, sectionId: string, deps
   const can = await deps.entitlements(), def = sectionFormType(section.type, can);
   if (!def) return null;
   const row = await deps.content(tenant.siteId, pageId, sectionId);
-  let data: unknown = def.defaults, recovered = false;
-  try {
-    if (row) {
-      if (row.type !== section.type) throw new Error("Section type mismatch");
-      data = def.schema.parse(migrateSectionData(def, row.schemaVersion, row.draftData ?? row.data).data);
-    }
-  } catch { recovered = true; }
   return { page: { id: page.id, slug: page.slug, title: pageTitle(page.title, page.slug), revision: page.revision },
-    section: { ...section, label: def.meta.label.vi }, data, bilingual: can("bilingual"), previewPath: `/${page.slug}`,
-    readOnly: row && row.schemaVersion !== def.schemaVersion ? oldContent : undefined, recovered };
+    section: { ...section, label: def.meta.label.vi }, ...readSectionData(section, def, row), bilingual: can("bilingual"), previewPath: `/${page.slug}` };
 }
 export type SectionContent = NonNullable<Awaited<ReturnType<typeof loadSectionContent>>>;
 export type PageSectionResult = ActionResult & { revision?: number; url?: string };
@@ -156,6 +180,14 @@ export function createPageSectionHandlers(deps: PageSectionsDeps) {
       const own = await ownPage(input.pageId, context);
       if (!own) return missing;
       return { ok: true, url: await deps.preview(context.tenantId, own.tenant.siteId, own.tenant.slug, `/${own.page.slug}`) };
+    },
+    async builderPreview(input: z.output<typeof pageIdSchema>, context: ActionContext): Promise<PageSectionResult> {
+      const own = await ownPage(input.pageId, context);
+      if (!own) return missing;
+      const can = await deps.entitlements();
+      if (!can("builder")) return { ok: false, status: 403, error: "Gói hiện tại chưa có trình dựng" };
+      const reorder = Boolean(context.session?.permissions.has("pages.structure")) && can("sectionReorder");
+      return { ok: true, url: await deps.preview(context.tenantId, own.tenant.siteId, own.tenant.slug, builderPath(own.page.slug, reorder)) };
     },
   };
 }

@@ -39,6 +39,7 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
     });
   }
   return <div className="min-w-0 space-y-4">
+    {editor.canBuilder && <a href={`/trang/${editor.page.id}/builder`} className="inline-flex min-h-11 items-center rounded-button text-primary focus-visible:ring-2 focus-visible:ring-primary">Mở trình dựng</a>}
     {!editor.can.reorder && <p className="rounded-card border border-line/20 bg-bg-tint px-4 py-3 text-sm text-fg-muted">
       Gói hiện tại hoặc quyền của bạn chỉ cho sửa nội dung, không đổi bố cục trang.</p>}
     <p className="text-sm text-fg-muted">{hasDraft ? "Trang có bản nháp chưa xuất bản." : "Bố cục đang hiển thị là bản đã xuất bản."} Khách truy cập chỉ thấy thay đổi sau khi bạn xuất bản.</p>

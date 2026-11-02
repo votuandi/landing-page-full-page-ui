@@ -13,6 +13,7 @@ const handlers = createPageSectionHandlers(pageSectionDeps);
 export const saveSectionsDraft = action("pages.structure", saveSectionsSchema, handlers.save);
 export const publishSections = action("pages.publish", pageRevisionSchema, handlers.publish);
 export const previewLink = action("pages.view", pageIdSchema, handlers.preview);
+export const builderPreviewLink = action("pages.view", pageIdSchema, handlers.builderPreview);
 export const saveSectionContent = action("content.edit", saveContentSchema, handlers.saveContent);
 const setType = createPageTypeHandler({ tenant: getTenant, set: (tenantId, input) => setPageTypes(getRuntime().db, tenantId, input) });
 export const setPageType = action("pages.structure", pageTypeSchema, async (input, context) => {

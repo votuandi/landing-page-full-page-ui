@@ -34,6 +34,7 @@ function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f
     removed: async () => [{ ...hero, id: "removed-hero", expiresAt: "2026-11-01T00:00:00.000Z" }],
     contents: async () => [{ sectionId: "hero", type: "hero" }],
     content: async () => null,
+    contentRows: async () => [],
     actor: async s => { if (!s.accountId) return null; return { siteUserId: s.accountId }; },
     save: async (_tenant, input) => {
       if (options.conflict) throw new RevisionConflictError(3);
