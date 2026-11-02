@@ -18,3 +18,14 @@ test("bridge rejects foreign origin and non-parent source", () => {
   assert.equal(shouldHandlePreview({ origin: "https://evil.test", source: parent }, "https://a.admin.solar.vn", parent), false);
   assert.equal(shouldHandlePreview({ origin: "https://a.admin.solar.vn", source: stranger }, "https://a.admin.solar.vn", parent), false);
 });
+test("reorder sai dạng bị loại", () => {
+  const valid = { type: "solar-preview", action: "reorder", sectionId: "faq", targetId: "hero", position: "before" };
+  assert.deepEqual(parsePreviewMessage(valid), valid);
+  for (const patch of [{ targetId: undefined }, { sectionId: "" }, { targetId: "faq" }, { position: "middle" }, { position: undefined }, { targetId: '"]' }]) {
+    assert.equal(parsePreviewMessage({ ...valid, ...patch }), null);
+  }
+  for (const action of ["select", "visible"]) {
+    assert.deepEqual(parsePreviewMessage({ type: "solar-preview", action, sectionId: "faq" }), { type: "solar-preview", action, sectionId: "faq" });
+    assert.equal(parsePreviewMessage({ type: "solar-preview", action }), null);
+  }
+});
