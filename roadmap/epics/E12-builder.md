@@ -10,7 +10,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 
 ---
 
-### E12-S01 · Spike: Puck vs dnd-kit tự xây
+### E12-S01 · Spike: Puck vs dnd-kit tự xây ✅ [PR #77](https://github.com/votuandi/landing-page-full-page-ui/pull/77)
 **Là** chủ dự án, **tôi muốn** chọn nền tảng builder dựa trên bằng chứng, **để** không tốn công làm lại.
 - **Chi tiết**: cả hai agent làm độc lập 3 ngày (skill `solar-agent-collab` — "spike"): dựng builder tối thiểu cho 5 type
   (hero, calculator, projects, faq, cta-banner) với: kéo từ thư viện, sắp xếp, đổi variant, sửa props bằng form từ zod,
@@ -18,7 +18,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
   Tiêu chí: tương thích schema zod + `SchemaForm`, kích thước bundle admin, truy cập bàn phím, undo/redo, khóa theo
   entitlement, giấy phép (Puck MIT), độ phức tạp bảo trì.
 - **Target**: biên bản so sánh có số đo, cập nhật `02-decisions.md` D10.
-- **AC**: [x] Hai bản demo chạy được (`spike/E12-S01-puck`, `spike/E12-S01-dnd-kit`, số đo ở [`spikes/E12-S01.md`](../spikes/E12-S01.md)) · [ ] Quyết định được chủ dự án duyệt.
+- **AC**: [x] Hai bản demo chạy được (`spike/E12-S01-puck`, `spike/E12-S01-dnd-kit`, số đo ở [`spikes/E12-S01.md`](../spikes/E12-S01.md)) · [x] Quyết định được chủ dự án duyệt (02/11/2026: tự xây trên dnd-kit).
 - Agent: Claude + Codex (song song) · Cỡ: M
 
 ### E12-S02 · Canvas preview trong iframe
