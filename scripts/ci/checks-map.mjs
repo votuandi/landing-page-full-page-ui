@@ -11,9 +11,8 @@ import { fileURLToPath } from "node:url";
 
 const shared = ["pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", "scripts/ci/checks-map.mjs"];
 const web = "apps/web/src/";
-export const CHECKS = {
-  // Section lab /lab/sections × 15 theme × 4 viewport (CI: Visual regression / matrix, 32 shard).
-  matrix: {
+// Section lab /lab/sections × 15 theme × 4 viewport (CI: Visual regression / matrix, 32 shard).
+const matrix = {
     cmd: "CI: Visual regression / matrix",
     // Không tính pnpm-lock.yaml: đổi dependency luôn kèm package.json của package dùng nó (đã nằm trong các tiền tố dưới);
     // lockfile đổi riêng thường là workspace link của package ngoài matrix (vd. cms-ui ở E6-S04).
@@ -28,6 +27,14 @@ export const CHECKS = {
     except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, "packages/presets/src/structure.ts"],
     // package.json chỉ đổi link workspace tới package ngoài `paths` không đổi pixel (PR #59: @solar/storage cho fixture e2e).
     ignoreLinks: true,
+};
+export const CHECKS = {
+  matrix,
+  thumbnails: {
+    ...matrix,
+    cmd: "CI: Section thumbnails / thumbnails",
+    paths: [...matrix.paths, "tooling/visual/thumbnails.mts", "apps/admin/public/section-thumbs/",
+      "packages/cms-ui/src/sections/thumbnails", ".github/workflows/thumbnails.yml"],
   },
   // Ảnh chụp các trang công khai của t15 (CI: Visual regression / compare). Spec e2e đổi không kéo bộ này.
   visual: {

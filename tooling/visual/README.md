@@ -187,3 +187,14 @@ Script chụp 900px đầu từng cell ở viewport 1440px, xuất WebP 320×200
 `apps/admin/public/section-thumbs/<theme>/<type>--<variant>.webp` và cập nhật manifest của cms-ui.
 Chạy lại sau khi thêm variant/theme. Có thể chụp một phần bằng `THUMBNAILS_TYPES=hero,projects`
 và `THUMBNAILS_THEMES=t12,t15`; manifest chỉ khai báo file đã sinh. Test cms-ui kiểm đủ toàn bộ registry × theme.
+
+CI `Section thumbnails` (E12-S03) sinh lại ảnh khi đầu vào lab hoặc script/manifest/thumbnail đổi,
+theo bộ `thumbnails` trong `scripts/ci/checks-map.mjs`; không kéo thêm shard matrix.
+Thiếu/thừa file so với commit hoặc manifest đổi sẽ báo lỗi. Chỉ khác byte WebP thì báo notice
+(ảnh sinh trên Linux có thể khác Windows). Artifact `section-thumbs` luôn được tải lên để xem và cập nhật:
+
+```sh
+gh run download <id> -n section-thumbs -D .
+```
+
+Chạy lệnh từ gốc repo để khôi phục đúng đường dẫn ảnh và manifest, kiểm tra diff rồi commit nếu cần.
