@@ -43,6 +43,17 @@ mở host `<slug>.preview.<PLATFORM_DOMAIN>` qua proxy web (không dùng port 33
 Phiên ghost hiện chưa có actor SiteUser/PlatformAdmin trong site realm nên ghi trả 403; cầu nối actor thuộc E15.
 Danh mục trang, thumbnail thật và dọn nội dung giữ lại thuộc E7-S13.
 
+## Trình dựng trong iframe (E12-S02)
+
+`/trang/[pageId]/builder` cần `pages.view` và entitlement `builder`, chỉ đọc trang thuộc site hiện hành.
+Mở từ "Mở trình dựng" trong bố cục trang. Canvas hiển thị bản nháp qua host preview với `?builder=1`,
+chuyển khung 390/768/1440 bằng cách co cùng một iframe. Chọn section mở form; danh sách có nút Lên/Xuống
+cho bàn phím và cảm ứng. Thiếu `pages.structure` hoặc `sectionReorder` sẽ tắt kéo trong preview.
+
+Autosave nội dung và lưu thứ tự dùng chung hàng đợi revision, tái dùng action lưu nháp hiện có.
+Đổi section chờ `flush()`; form sai/lỗi lưu giữ nguyên nháp và lựa chọn. 409 khóa builder đến khi tải lại trang.
+Link preview một lần giữ nguyên qua các lần lưu; "Tải lại xem trước" lấy link mới khi phiên hết hạn.
+
 ## Chạy local
 
 ```sh

@@ -2,6 +2,19 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
 
+test("E12-S02: preview builder chọn admin/preview, không kéo matrix/visual", () => {
+  for (const file of ["apps/web/src/components/preview/BuilderCanvas.tsx", "apps/web/src/components/preview/PreviewBridge.tsx", "apps/web/src/components/preview/builderMode.ts"]) {
+    const checks = affectedChecks([file]);
+    assert.ok(checks.includes("e2e:admin"), file); assert.ok(checks.includes("e2e:preview"), file);
+    assert.ok(!checks.includes("matrix") && !checks.includes("visual"), file);
+  }
+  const spec = "tooling/visual/builder.spec.ts";
+  assert.ok(affectedChecks([spec]).includes("e2e:admin"));
+  assert.ok(CHECKS["e2e:admin"].specs.includes(spec));
+  const diff = `diff --git a/${spec} b/${spec}\n@@ -0,0 +1 @@\n+test("builder: chọn section", async () => {});`;
+  assert.deepEqual(e2eScope([spec], diff).find(s => s.name === "e2e:admin"), { name: "e2e:admin", mode: "grep", grep: "builder: chọn section" });
+});
+
 test("E11-S02: adapter lead không đổi pixel; Turnstile chọn bộ riêng và đúng scope", () => {
   for (const file of ["apps/web/src/lib/leads/index.ts", "apps/web/src/lib/leads/parse.ts", "packages/leads/src/index.ts"]) {
     const checks = affectedChecks([file]);

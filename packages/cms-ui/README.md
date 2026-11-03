@@ -40,4 +40,9 @@ Lỗi giữ `dirty`; 409 (`conflict: true`) dừng tự lưu đến khi tải l�
 `PreviewFrame` dùng protocol từ `@solar/cms-ui/preview/protocol`, xác thực cả origin và cửa sổ iframe,
 cuộn khi nhận `ready`, gửi `refresh` khi `refreshKey` tăng. `src` giữ nguyên sau lưu để token một lần và phiên draft
 không bị tải lại. Web preview xác thực cửa sổ cha trước `router.refresh()` và tôn trọng reduced motion khi cuộn.
+
+Chế độ builder dùng `selectedId`, `onEvent` (`select`, `visible`, `reorder`) và `selectionKey` để gửi lại lựa chọn
+khi form chặn đổi section. `sectionId` là tùy chọn; giá trị rỗng được bỏ khỏi thông điệp refresh.
+Listener gắn trước khi gán `src`; token không nằm trong HTML SSR và StrictMode không gán lại cùng URL.
+`moveRelative(sections, id, targetId, position)` sắp xếp theo section đích, giữ section ẩn và bỏ qua id lạ.
 `SectionListEditor.editHref(section)` thêm link sửa nội dung độc lập với quyền đổi bố cục.

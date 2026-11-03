@@ -5,6 +5,9 @@ import { previewSlug, signPreviewCookie, verifyPreviewCookie, safePreviewPath } 
 import { createPreviewHandler } from "../previewRoute";
 
 const secret = "preview-test-secret-0123456789abcdef";
+test("safePreviewPath giữ query builder", () => {
+  assert.equal(safePreviewPath("/lien-he?builder=1&reorder=0"), "/lien-he?builder=1&reorder=0");
+});
 test("preview cookie MAC binds tenant/site, expires and rejects tampering or weak config", async () => {
   const cookie = await signPreviewCookie("tenant-a", "site-a", secret, 1000);
   assert.equal(await verifyPreviewCookie(cookie, "tenant-a", "site-a", secret, 1001), true);
