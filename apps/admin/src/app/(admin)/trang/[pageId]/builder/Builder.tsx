@@ -41,6 +41,13 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 4 } }));
   const preview = useRef<PreviewFrameHandle>(null), stage = useRef<HTMLDivElement>(null);
   const pending = useRef<LibraryItem | null>(null), overCanvas = useRef(false);
+  // dnd-kit's delta also counts scrolling of the item's containers; the canvas needs the real pointer position.
+  const pointer = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const track = (event: MouseEvent) => { pointer.current = { x: event.clientX, y: event.clientY }; };
+    window.addEventListener("mousemove", track, true);
+    return () => window.removeEventListener("mousemove", track, true);
+  }, []);
   const [queue] = useState(() => createBuilderQueue(editor.page.revision));
   const [watch] = useState(() => createPreviewWatch(() => setExpired(true)));
   const panel = useRef<BuilderPanelHandle>(null), list = useRef<HTMLUListElement>(null);
@@ -111,11 +118,10 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     if (overCanvas.current) preview.current?.post({ type: PREVIEW_MESSAGE, action: "drag-cancel" });
     overCanvas.current = false;
   }
-  function canvasY(event: Pick<DragMoveEvent, "activatorEvent" | "delta" | "over">) {
-    if (event.over?.id !== "canvas" || !(event.activatorEvent instanceof MouseEvent)) return null;
+  function canvasY(event: Pick<DragMoveEvent, "over">) {
     const rect = stage.current?.querySelector("iframe")?.getBoundingClientRect();
-    if (!rect || !rect.width) return null;
-    const x = event.activatorEvent.clientX + event.delta.x, y = event.activatorEvent.clientY + event.delta.y;
+    if (event.over?.id !== "canvas" || !pointer.current || !rect?.width) return null;
+    const { x, y } = pointer.current;
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return null;
     return (y - rect.top) / (rect.width / width);
   }
@@ -173,7 +179,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
     {conflict && <button type="button" className={button} onClick={() => window.location.reload()}>Tải lại trang</button>}
     {expired && <p role="status" className="text-sm font-medium text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
-    <DndContext id={dndId} sensors={sensors} collisionDetection={pointerWithin} accessibility={{ announcements, screenReaderInstructions: instructions }}
+    <DndContext id={dndId} sensors={sensors} collisionDetection={pointerWithin} autoScroll={false} accessibility={{ announcements, screenReaderInstructions: instructions }}
       onDragStart={({ active }) => {
         cancelDrag();
         if (!editor.canReorder || conflict || changing.current) return;
@@ -187,7 +193,8 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         pending.current = item; overCanvas.current = false; setDragged(null);
         preview.current?.post({ type: PREVIEW_MESSAGE, action: "drop", y });
       }}>
-    <div className="grid min-w-0 gap-4 xl:grid-cols-[16rem_minmax(0,1fr)_20rem]">
+    {/* 1280px with the admin sidebar leaves ~990px: narrower side columns keep the 1440 canvas readable. */}
+    <div className="grid min-w-0 gap-3 xl:grid-cols-[13.5rem_minmax(0,1fr)_18rem] 2xl:gap-4 2xl:grid-cols-[16rem_minmax(0,1fr)_20rem]">
       <SectionLibrary themeId={editor.themeId} sections={sections} allowedTypes={editor.allowedTypes} lockedTypes={editor.lockedTypes}
         canReorder={editor.canReorder} disabled={busy || conflict} onAdd={(type, variant) => { pending.current = null; void addSection(type, variant); }} />
       <div ref={stage} className="min-w-0" inert={conflict}>

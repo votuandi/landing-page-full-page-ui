@@ -50,7 +50,10 @@ test("không có quyền cấu trúc thì chỉ xem", async () => {
   try {
     const library = m.container.querySelector('aside[aria-label="Thư viện section"]')!;
     assert.equal(library.querySelectorAll("h3").length, 5);
-    assert.ok([...library.querySelectorAll("button")].every(button => button.disabled));
+    const buttons = [...library.querySelectorAll("button")];
+    assert.ok(buttons.filter(button => button.getAttribute("aria-label")?.startsWith("Thêm ")).every(button => button.disabled));
+    // Variants stay browsable without permission; only adding is blocked.
+    assert.ok(buttons.filter(button => button.getAttribute("aria-label")?.startsWith("Kiểu của ")).every(button => !button.disabled));
     assert.match(library.textContent!, /Gói hoặc quyền hiện tại/);
   } finally { m.unmount(); }
 });

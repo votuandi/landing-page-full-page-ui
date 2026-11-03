@@ -104,9 +104,9 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
 }
 
 /** Ảnh 16:10 chụp sẵn; thiếu hoặc lỗi → ô giữ chỗ ghi tên variant. `fill` = rộng theo thẻ chọn kiểu. */
-export function SectionThumbnail({ src, variant, fill = false }: { src?: string; variant: string; fill?: boolean }) {
+export function SectionThumbnail({ src, variant, fill = false, className = "w-20" }: { src?: string; variant: string; fill?: boolean; className?: string }) {
   const [failed, setFailed] = useState<string>();
-  return <span aria-hidden="true" className={`flex aspect-[16/10] shrink-0 items-center justify-center overflow-hidden rounded-input border border-line/15 bg-bg-tint text-xs text-fg-muted ${fill ? "w-full" : "w-20"}`}>
+  return <span aria-hidden="true" className={`flex aspect-[16/10] shrink-0 items-center justify-center overflow-hidden rounded-input border border-line/15 bg-bg-tint text-xs text-fg-muted ${fill ? "w-full" : className}`}>
     {src && failed !== src ? <img src={src} alt="" width={320} height={200} loading="lazy" decoding="async" className="h-full w-full object-cover object-top" onError={() => setFailed(src)} /> : variant}
   </span>;
 }
