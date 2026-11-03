@@ -32,6 +32,11 @@ Tham số: `$ARGUMENTS`
   "viết mù" tốn ~5 giờ vòng chạy–sửa. Codex làm logic + unit/int; Claude viết spec e2e và chạy `-g` ngay.
 - e2e `-g` chạy production build (`local-ci.sh e2e … -g` → `E2E_SERVER=start`, tự build khi source mới hơn; cả bộ vẫn `next dev` như CI,
   heap Node 3 GB). Trước mỗi lượt: `doctor.mjs` (bộ nhớ ảo còn trống + tiến trình mồ côi của phiên trước).
+  Ngoại lệ: spec có iframe preview của admin (`builder`, `content editor`, `xem trước`) tự chạy `next dev`, vì bản production
+  tạo URL preview https không cổng nên iframe trống. Mẫu grep nằm ở `DEV_GREP` trong `scripts/local-ci.sh`; spec mới thuộc
+  loại này → thêm vào đó (E12-S02: mất một lượt 12/13 đỏ vì thiếu).
+- **Mục tiêu: 0 commit sau khi mở PR** (E12-S02 đạt, so với 16 commit ở E11-S03). Mỗi push là một vòng CI ~6–20′, nên
+  mọi lỗi phải lộ ở local: unit, e2e mới, và spec của nơi gọi component dùng chung (bước 4).
 - Một phiên Claude cho mỗi giai đoạn (plan+thực thi / kiểm local / CI+review): phiên kéo dài nhiều giờ làm cửa sổ VS Code
   phình 3–5 GB và crash OOM (E11-S03: 8 lần/ngày). Lệnh dài dùng `doctor.mjs run`, ghi log ra file để phiên sau đọc tiếp.
 - Không đổi branch giữa chừng để "thử" script; kiểm tra script ngay trên branch đang làm.
@@ -127,6 +132,14 @@ bash scripts/agents/codex.sh <S.runDir> <name> <EFFORT> <prompt-file> [new|resum
    `codegraph`/`graphify` đã dùng. Kiểm **ngưỡng tách story** (cỡ L, > 30 file, ≥ 3 khối độc lập) → hỏi người dùng tách.
    Story `split`: thêm mục **"Design pass"** — Claude sẽ tự làm phần nào (bố cục, khoảng cách, hiệu ứng, tương phản,
    responsive), Codex dựng phần nào (schema, fixture, cấu trúc component, đổi màu sang token, logic).
+   **Mục "Thiết kế" chốt quyết định, không chỉ liệt kê việc** (retro E12-S02: 0 P0/P1, 1 vòng review). Mỗi quyết định
+   ghi kèm lỗi nó ngăn, ví dụ "gán `src` iframe sau khi gắn listener → không mất `ready`, StrictMode không đốt token".
+   Gồm chữ ký hàm/kiểu, định dạng thông điệp, thứ tự ghi/khóa, và thứ tái dùng thay vì viết mới (action, helper). Codex
+   làm đúng thiết kế đã chốt thì tự review bắt được lỗi còn lại; thiết kế để ngỏ thì reviewer tìm ra ở vòng sau.
+   Story UI có e2e: thêm mục **"Hợp đồng e2e"** — accessible name, `aria-label`, `data-*` cố định mà spec sẽ dùng, để
+   Claude viết spec song song với Codex (bước 3).
+   Story nhiều ẩn số (thư viện/kiến trúc mới, không có mẫu trong repo, plan không chốt được thiết kế) → đề xuất spike
+   trước như E12-S01: demo nhỏ, số đo, và mục "Việc cho story sau" mà plan story chính dùng làm đầu vào.
 
 Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu trả lời vào plan. `--confirm` → tóm tắt plan, chờ duyệt.
 
@@ -157,9 +170,14 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
    Quy tắc AGENTS.md ưu tiên hơn mọi skill.
    Báo cáo: <S.runDir>/codex-report.md (có "## Case biên → test", "## Skill đã dùng", "## Tự review") — ghi dần sau mỗi
    bước của plan (mục "Lệnh kiểm tra" kèm đường dẫn log), để lượt bị ngắt chỉ làm tiếp, không chạy lại từ đầu.
+   <story có e2e:> Phần của Claude, không sửa: <spec trong tooling/visual, fixture e2e, config playwright>.
+   Hợp đồng e2e (giữ nguyên tên, không đổi): <từ mục "Hợp đồng e2e" của plan>.
    ```
 2. Chạy nền: `bash scripts/agents/codex.sh <S.runDir> codex-exec <S.codexEffort.exec> <S.runDir>/codex-exec-prompt.md new`
    (kết quả `codex-exec.md`, log `codex-exec.log`, session lưu cho các lượt sửa sau).
+   **Trong lúc Codex chạy**, Claude viết fixture + spec e2e theo hợp đồng e2e, trên các file prompt đã giao cho Claude
+   (Codex không đụng tới). Chưa chạy spec: chờ Codex commit xong, rồi chạy `-g` ngay sau bước 4 dưới đây. Không sửa
+   file nằm trong phạm vi của Codex khi Codex đang chạy.
 3. Đọc phần "Trạng thái", "Lệch so với plan", "Việc còn lại" của `codex-report.md` (không cần đọc cả file).
    `BLOCKED` → giải quyết câu hỏi (hỏi người dùng nếu cần) rồi chạy lại với "Tiếp tục" (`codex.sh … resume`).
    `node scripts/agents/run.mjs skills <ID>` → `missing` (skill bắt buộc Codex chưa mở) hoặc `claimedNotOpened` (ghi đã
@@ -206,6 +224,11 @@ debugger (E7-S14: 3 vòng CI × 20′ cho 3 lỗi spec chạy local 2′ là th�
 `verify` FAIL vì "Chữ đã xóa khỏi source nhưng test vẫn dùng" → sửa spec/test. Lỗi môi trường (thiếu DB, port) → sửa môi
 trường rồi chạy lại, không đẩy sang CI. Lỗi chỉ có trên Windows, CI Ubuntu qua: `tenant.spec › robots…` (ENOTFOUND
 `*.localhost` của API request), preview webkit/firefox (local chạy `--project chromium`) — ghi vào report, không chặn.
+**Regression có chọn lọc** (E12-S02): story sửa component/hàm dùng chung đã có người dùng (`PreviewFrame`, hook, helper
+của `packages/*`) → `codegraph callers <symbol>` tìm màn hình đang dùng nó, rồi chạy thêm spec của các màn đó bằng `-g`
+(vd. sửa `PreviewFrame` → `e2e admin -g "content editor"` + `e2e preview`), dù bảng không bắt buộc. Rẻ hơn nhiều so với
+chạy cả bộ, và bắt hồi quy mà spec mới của story không chạm tới. Ghi lệnh + kết quả vào report và mục "Ghi chú kiểm
+chứng" của PR, cùng lý do cho các dòng `⚠ Đổi code thuộc … nhưng không có test e2e mới/sửa`.
 - PASS → bước 5.
 - FAIL → đọc phần đuôi lỗi script in ra. Lỗi do Codex → chạy lại Codex bằng `codex.sh … resume` với prompt
   `Dùng skill solar-story-exec. Tiếp tục story <ID>. Sửa: <tóm tắt> (log: <S.runDir>/checks.log). Skill khi sửa:
