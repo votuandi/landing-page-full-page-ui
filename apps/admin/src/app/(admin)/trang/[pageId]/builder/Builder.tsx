@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { moveRelative, PreviewFrame, useLeaveGuard, type PreviewEvent } from "@solar/cms-ui";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { DndContext, DragOverlay, MouseSensor, pointerWithin, useSensor, useSensors, type Announcements, type DragMoveEvent } from "@dnd-kit/core";
+import { insertRelative, libraryStatus, moveRelative, newSectionId, PREVIEW_MESSAGE, PreviewFrame, useLeaveGuard, type PreviewEvent, type PreviewFrameHandle } from "@solar/cms-ui";
 import { sectionRegistry } from "@solar/sections";
 import type { BuilderEditor, PageSectionResult } from "../../../../../lib/pageSections.ts";
 import { createBuilderQueue } from "../../../../../lib/builderQueue.ts";
@@ -9,9 +10,17 @@ import { createPreviewWatch, selectBuilderSection } from "../../../../../lib/bui
 import { builderPreviewLink, saveSectionContent, saveSectionsDraft } from "../../actions.ts";
 import BuilderPanel, { type BuilderPanelHandle } from "./BuilderPanel";
 import DeviceStage from "./DeviceStage";
+import SectionLibrary, { type LibraryItem } from "./SectionLibrary";
 
 const button = "inline-flex min-h-11 items-center justify-center rounded-button border border-line/20 bg-bg-elevated px-3 py-2 text-sm font-medium text-fg hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
 const move = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-button px-2 text-xs font-medium text-fg-muted hover:bg-bg-tint hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40";
+const instructions = { draggable: "Bấm Thêm để chèn section sau section đang chọn. Có thể dùng chuột để kéo vào trang." };
+const announcements: Announcements = {
+  onDragStart: () => "Đã nhấc section từ thư viện. Kéo vào trang để chèn, Esc để hủy.",
+  onDragOver: ({ over }) => over ? "Đang ở khung xem trước trang." : "Đã ra ngoài khung xem trước.",
+  onDragEnd: ({ over }) => over ? "Đã thả trên trang." : "Đã thả ngoài trang, không thêm section.",
+  onDragCancel: () => "Đã hủy thêm section.",
+};
 export default function Builder({ editor }: { editor: BuilderEditor }) {
   const [sections, setSections] = useState(editor.sections);
   const [forms, setForms] = useState(editor.forms);
@@ -27,6 +36,18 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [dragged, setDragged] = useState<LibraryItem | null>(null);
+  const dndId = useId();
+  const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 4 } }));
+  const preview = useRef<PreviewFrameHandle>(null), stage = useRef<HTMLDivElement>(null);
+  const pending = useRef<LibraryItem | null>(null), overCanvas = useRef(false);
+  // dnd-kit's delta also counts scrolling of the item's containers; the canvas needs the real pointer position.
+  const pointer = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const track = (event: MouseEvent) => { pointer.current = { x: event.clientX, y: event.clientY }; };
+    window.addEventListener("mousemove", track, true);
+    return () => window.removeEventListener("mousemove", track, true);
+  }, []);
   const [queue] = useState(() => createBuilderQueue(editor.page.revision));
   const [watch] = useState(() => createPreviewWatch(() => setExpired(true)));
   const panel = useRef<BuilderPanelHandle>(null), list = useRef<HTMLUListElement>(null);
@@ -70,10 +91,57 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
       else { setSections(previous); resultError(result); }
     } finally { changing.current = false; setBusy(false); }
   }
+  async function addSection(type: string, variant: string, target?: Extract<PreviewEvent, { action: "insert" }>) {
+    if (!editor.canReorder || conflict || changing.current) return;
+    const status = libraryStatus(type, latest.current.sections, editor.allowedTypes, editor.lockedTypes);
+    if (status.kind !== "ok") { setError(status.reason); return; }
+    const def = sectionRegistry.getType(type);
+    if (!def || !sectionRegistry.variantsOf(type)?.includes(variant)) return;
+    const section = { id: newSectionId(type), type, variant, enabled: true };
+    const previous = latest.current.sections;
+    const next = insertRelative(previous, section, target ? target.targetId : latest.current.selectedId ?? undefined, target?.position ?? "after");
+    changing.current = true; setBusy(true); setError(undefined); setSections(next); latest.current.sections = next;
+    let added = false;
+    try {
+      const result = await queue.write(revision => {
+        const form = formData(revision); form.set("sections", JSON.stringify(next)); return saveSectionsDraft({}, form);
+      });
+      if (result.ok) {
+        setForms(current => ({ ...current, [section.id]: { data: def.defaults, recovered: false, readOnly: undefined } }));
+        refresh(); added = true;
+      } else { setSections(previous); latest.current.sections = previous; resultError(result); }
+    } finally { changing.current = false; setBusy(false); }
+    if (added) await choose(section.id);
+  }
+  function cancelDrag() {
+    pending.current = null; setDragged(null);
+    if (overCanvas.current) preview.current?.post({ type: PREVIEW_MESSAGE, action: "drag-cancel" });
+    overCanvas.current = false;
+  }
+  function canvasY(event: Pick<DragMoveEvent, "over">) {
+    const rect = stage.current?.querySelector("iframe")?.getBoundingClientRect();
+    if (event.over?.id !== "canvas" || !pointer.current || !rect?.width) return null;
+    const { x, y } = pointer.current;
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return null;
+    return (y - rect.top) / (rect.width / width);
+  }
+  function dragMove(event: DragMoveEvent) {
+    const y = canvasY(event);
+    if (y === null) {
+      if (overCanvas.current) preview.current?.post({ type: PREVIEW_MESSAGE, action: "drag-cancel" });
+      overCanvas.current = false;
+    } else {
+      overCanvas.current = true; preview.current?.post({ type: PREVIEW_MESSAGE, action: "drag", y });
+    }
+  }
   function onEvent(event: PreviewEvent) {
     if (event.action === "updated") { watch.updated(); setExpired(false); }
     if (event.action === "select") void choose(event.sectionId);
     if (event.action === "reorder") void reorder(event.sectionId, event.targetId, event.position);
+    if (event.action === "insert") {
+      const item = pending.current; pending.current = null;
+      if (item) void addSection(item.type, item.variant, event);
+    }
     if (event.action === "visible" && sections.some(s => s.id === event.sectionId)) {
       setVisibleId(event.sectionId);
       const row = [...(list.current?.children ?? [])].find(child => (child as HTMLElement).dataset.sectionId === event.sectionId) as HTMLElement | undefined;
@@ -97,7 +165,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
           {[390, 768, 1440].map(device => <button key={device} type="button" aria-pressed={width === device} className={`${button} aria-pressed:border-primary aria-pressed:bg-bg-tint aria-pressed:text-primary`} onClick={() => setWidth(device)}>{device}</button>)}
         </div>
         <button type="button" className={button} disabled={loadingPreview} onClick={async () => {
-          setLoadingPreview(true);
+          cancelDrag(); setLoadingPreview(true);
           try {
             const result = await builderPreviewLink({}, formData());
             if (result.ok && result.url) { setSrc(result.url); setExpired(false); watch.cancel(); }
@@ -107,18 +175,35 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         }}>{loadingPreview ? "Đang tải xem trước…" : "Tải lại xem trước"}</button>
       </div>
     </div>
-    <p className="text-sm text-fg-muted">Thay đổi tự lưu vào bản nháp. Nút Lên, Xuống thay cho kéo thả khi dùng bàn phím hoặc cảm ứng.</p>
+    <p className="text-sm text-fg-muted">Kéo section từ thư viện vào trang hoặc bấm Thêm để chèn sau section đang chọn. Thay đổi tự lưu vào bản nháp. Dùng nút Lên, Xuống để sắp xếp bằng bàn phím hoặc cảm ứng.</p>
     {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
     {conflict && <button type="button" className={button} onClick={() => window.location.reload()}>Tải lại trang</button>}
     {expired && <p role="status" className="text-sm font-medium text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
-    <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="min-w-0" inert={conflict}>
+    <DndContext id={dndId} sensors={sensors} collisionDetection={pointerWithin} autoScroll={false} accessibility={{ announcements, screenReaderInstructions: instructions }}
+      onDragStart={({ active }) => {
+        cancelDrag();
+        if (!editor.canReorder || conflict || changing.current) return;
+        const item = active.data.current as LibraryItem | undefined;
+        if (item && libraryStatus(item.type, latest.current.sections, editor.allowedTypes, editor.lockedTypes).kind === "ok") setDragged(item);
+      }}
+      onDragMove={dragMove} onDragOver={dragMove} onDragCancel={cancelDrag}
+      onDragEnd={event => {
+        const y = canvasY(event), item = dragged;
+        if (y === null || !item || conflict || changing.current) { cancelDrag(); return; }
+        pending.current = item; overCanvas.current = false; setDragged(null);
+        preview.current?.post({ type: PREVIEW_MESSAGE, action: "drop", y });
+      }}>
+    {/* 1280px with the admin sidebar leaves ~990px: narrower side columns keep the 1440 canvas readable. */}
+    <div className="grid min-w-0 gap-3 xl:grid-cols-[13.5rem_minmax(0,1fr)_18rem] 2xl:gap-4 2xl:grid-cols-[16rem_minmax(0,1fr)_20rem]">
+      <SectionLibrary themeId={editor.themeId} sections={sections} allowedTypes={editor.allowedTypes} lockedTypes={editor.lockedTypes}
+        canReorder={editor.canReorder} disabled={busy || conflict} onAdd={(type, variant) => { pending.current = null; void addSection(type, variant); }} />
+      <div ref={stage} className="min-w-0" inert={conflict}>
         <DeviceStage width={width}>
-          <PreviewFrame src={src} title="Xem trước trang" className="border-0" targetOrigin={new URL(src).origin} refreshKey={refreshKey} selectedId={selectedId ?? undefined}
+          <PreviewFrame handle={preview} src={src} title="Xem trước trang" className={`border-0 ${dragged ? "pointer-events-none" : ""}`} targetOrigin={new URL(src).origin} refreshKey={refreshKey} selectedId={selectedId ?? undefined}
             selectionKey={selectionKey} onEvent={onEvent} />
         </DeviceStage>
       </div>
-      <div className="flex min-w-0 flex-col gap-4 lg:h-[78dvh] lg:min-h-96">
+      <div className="flex min-w-0 flex-col gap-4 xl:h-[78dvh] xl:min-h-96">
         <nav aria-label="Danh sách section" className="min-w-0 shrink-0">
           <ul ref={list} aria-label="Section của trang" className="max-h-60 space-y-1 overflow-y-auto overscroll-contain rounded-card border border-line/20 bg-bg-elevated p-1">
             {sections.map((section, index) => {
@@ -136,9 +221,9 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
               </li>;
             })}
           </ul>
-          {!sections.length && <p className="text-sm text-fg-muted">Trang chưa có section. Thêm section từ bố cục trang.</p>}
+          {!sections.length && <p className="text-sm text-fg-muted">Trang chưa có section. Chọn Thêm trong thư viện để bắt đầu.</p>}
         </nav>
-        <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 lg:overflow-y-auto">
+        <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 xl:overflow-y-auto">
           {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
             onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
             save={data => queue.write(async revision => {
@@ -150,5 +235,9 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         </div>
       </div>
     </div>
+    <DragOverlay dropAnimation={null}>{dragged ? <div className="max-w-60 rounded-card border border-primary bg-bg-elevated p-3 text-sm font-semibold text-fg shadow-float">
+      {sectionRegistry.getType(dragged.type)?.meta.label.vi} · {dragged.variant}
+    </div> : null}</DragOverlay>
+    </DndContext>
   </section>;
 }

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { adminOrigin, parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewEvent } from "@solar/cms-ui/preview/protocol";
 import { builderMode, scrollBehavior } from "./builderMode";
+import type { BuilderCanvasHandle } from "./BuilderCanvas";
 
 const BuilderCanvas = dynamic(() => import("./BuilderCanvas"), { ssr: false });
 function scrollToSection(sectionId?: string) {
@@ -21,6 +22,7 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
   const [mode, setMode] = useState<ReturnType<typeof builderMode>>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = useRef<string | null>(null);
+  const canvas = useRef<BuilderCanvasHandle>(null);
   const send = useCallback((event: PreviewEvent) => { if (origin.current) window.parent.postMessage(event, origin.current); }, []);
   const select = useCallback((id: string) => {
     selected.current = id; setSelectedId(id); send({ type: PREVIEW_MESSAGE, action: "select", sectionId: id });
@@ -35,6 +37,14 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     const receive = (event: MessageEvent) => {
       if (!shouldHandlePreview(event, target, window.parent)) return;
       const message = parsePreviewMessage(event.data);
+      if (builder?.reorder) {
+        if (message?.action === "drag") canvas.current?.dragAt(message.y);
+        if (message?.action === "drag-cancel") canvas.current?.cancel();
+        if (message?.action === "drop" && canvas.current) {
+          const target = canvas.current.drop(message.y);
+          send({ type: PREVIEW_MESSAGE, action: "insert", ...(target ? { targetId: target.targetId, position: target.position } : {}) });
+        }
+      }
       if (message?.action === "scroll") scrollToSection(message.sectionId);
       if (builder && message?.action === "select" && message.sectionId !== selected.current) {
         selected.current = message.sectionId; setSelectedId(message.sectionId); scrollToSection(message.sectionId);
@@ -48,7 +58,7 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     window.addEventListener("message", receive);
     window.parent.postMessage({ type: PREVIEW_MESSAGE, action: "ready" }, target);
     return () => { cancelAnimationFrame(frame); window.removeEventListener("message", receive); };
-  }, [adminPort, router]);
+  }, [adminPort, router, send]);
   useEffect(() => {
     if (pending || !requested.current || !origin.current) return;
     const { sectionId } = requested.current;
@@ -56,5 +66,5 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     if (sectionId) scrollToSection(sectionId);
     window.parent.postMessage({ type: PREVIEW_MESSAGE, action: "updated", ...(sectionId ? { sectionId } : {}) }, origin.current);
   }, [pending]);
-  return mode ? <BuilderCanvas selectedId={selectedId} reorder={mode.reorder} onSelect={select} onEvent={send} /> : null;
+  return mode ? <BuilderCanvas handle={canvas} selectedId={selectedId} reorder={mode.reorder} onSelect={select} onEvent={send} /> : null;
 }

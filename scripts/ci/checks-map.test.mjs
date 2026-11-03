@@ -2,6 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
 
+test("thumbnails chạy khi đầu vào lab đổi", () => {
+  for (const file of ["packages/sections/src/hero/t15.tsx", "packages/themes/t15/theme.ts", "apps/web/src/app/(site)/lab/sections/[type]/page.tsx",
+    "tooling/visual/thumbnails.mts", "apps/admin/public/section-thumbs/t15/hero--t15.webp", "packages/cms-ui/src/sections/thumbnails.generated.ts", ".github/workflows/thumbnails.yml"]) {
+    assert.ok(affectedChecks([file]).includes("thumbnails"), file);
+  }
+  for (const file of ["apps/web/src/components/preview/BuilderCanvas.tsx", "apps/admin/src/app/(admin)/trang/[pageId]/builder/SectionLibrary.tsx",
+    "packages/presets/src/structure.ts", "tooling/visual/README.md", "scripts/ci/checks-map.mjs", "packages/sections/src/__tests__/hero.test.ts"]) {
+    assert.ok(!affectedChecks([file]).includes("thumbnails"), file);
+  }
+  for (const file of ["tooling/visual/thumbnails.mts", "apps/admin/public/section-thumbs/t15/hero--t15.webp", "packages/cms-ui/src/sections/thumbnails.generated.ts", ".github/workflows/thumbnails.yml"]) {
+    assert.ok(!affectedChecks([file]).includes("matrix"), file);
+  }
+  assert.ok(!affectedChecks(["apps/web/package.json"], { links: { "apps/web/package.json": ["packages/storage/"] } }).includes("thumbnails"));
+});
+
 test("E12-S02: preview builder chọn admin/preview, không kéo matrix/visual", () => {
   for (const file of ["apps/web/src/components/preview/BuilderCanvas.tsx", "apps/web/src/components/preview/PreviewBridge.tsx", "apps/web/src/components/preview/builderMode.ts"]) {
     const checks = affectedChecks([file]);

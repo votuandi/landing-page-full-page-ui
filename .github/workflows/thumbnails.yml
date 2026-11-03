@@ -1,0 +1,107 @@
+name: Section thumbnails
+
+on:
+  pull_request:
+    branches: [mono-repo-multi-tenent]
+  push:
+    branches: [mono-repo-multi-tenent]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      thumbnails: ${{ steps.map.outputs.thumbnails }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Push thêm vào PR chỉ đổi *.md sau lần chạy xanh của workflow này → dùng lại kết quả (job nặng skipped).
+      - id: reuse
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: node scripts/ci/reuse-run.mjs thumbnails.yml
+      - id: map
+        if: steps.reuse.outputs.reuse != 'true'
+        shell: bash
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+          FULL: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'regression') }}
+        run: |
+          if [ "$FULL" = true ] || [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo 'thumbnails=true' >> "$GITHUB_OUTPUT"
+          else
+            node scripts/ci/checks-map.mjs "$BASE" --github-output
+          fi
+
+  thumbnails:
+    needs: changes
+    if: needs.changes.outputs.thumbnails == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - run: pnpm turbo run build --filter=web
+      - name: Start section lab and wait
+        shell: bash
+        run: |
+          LAB_ENABLED=true pnpm --filter web start --port 3210 > "$RUNNER_TEMP/thumbnail-web.log" 2>&1 &
+          for attempt in {1..60}; do
+            if curl --fail --silent --output /dev/null --max-time 5 http://localhost:3210/lab/sections/hero; then exit 0; fi
+            sleep 2
+          done
+          tail -n 40 "$RUNNER_TEMP/thumbnail-web.log"
+          exit 1
+      - name: Generate thumbnails
+        env:
+          THUMBNAILS_BASE_URL: http://localhost:3210
+        run: pnpm --filter @solar/visual thumbnails
+      - name: Check thumbnail inventory
+        shell: bash
+        run: |
+          changed=0
+          inventory=0
+          while IFS= read -r line; do
+            if [[ "$line" =~ ^\ M\ apps/admin/public/section-thumbs/.*\.webp$ ]]; then
+              changed=$((changed + 1))
+            else
+              inventory=$((inventory + 1))
+            fi
+          done < <(git status --porcelain --untracked-files=all -- apps/admin/public/section-thumbs packages/cms-ui/src/sections/thumbnails.generated.ts)
+          if [ "$changed" -gt 0 ]; then
+            echo "::notice::$changed ảnh khác bản commit (Linux/Windows có thể khác byte). Tải: gh run download $GITHUB_RUN_ID -n section-thumbs -D ."
+          fi
+          if [ "$inventory" -gt 0 ]; then
+            echo "::error::Danh sách thumbnail hoặc manifest thay đổi. Tải và commit: gh run download $GITHUB_RUN_ID -n section-thumbs -D ."
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: section-thumbs
+          path: |
+            apps/admin/public/section-thumbs
+            packages/cms-ui/src/sections/thumbnails.generated.ts
+          retention-days: 14
+          if-no-files-found: error

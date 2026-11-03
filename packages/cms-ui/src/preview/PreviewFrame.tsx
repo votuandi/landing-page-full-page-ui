@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewEvent } from "./protocol.ts";
-export type PreviewFrameProps = { src: string; title: string; className?: string; sectionId?: string; selectedId?: string; selectionKey?: number; targetOrigin: string; refreshKey: number; onUpdated?(): void; onEvent?(event: PreviewEvent): void };
-export function PreviewFrame({ src, title, className = "rounded-card border border-line/20", sectionId, selectedId, selectionKey, targetOrigin, refreshKey, onUpdated, onEvent }: PreviewFrameProps) {
+import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
+import { parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewCommand, type PreviewEvent } from "./protocol.ts";
+export type PreviewFrameHandle = { post(command: PreviewCommand): void };
+export type PreviewFrameProps = { src: string; title: string; className?: string; sectionId?: string; selectedId?: string; selectionKey?: number; targetOrigin: string; refreshKey: number; handle?: Ref<PreviewFrameHandle>; onUpdated?(): void; onEvent?(event: PreviewEvent): void };
+export function PreviewFrame({ src, title, className = "rounded-card border border-line/20", sectionId, selectedId, selectionKey, targetOrigin, refreshKey, handle, onUpdated, onEvent }: PreviewFrameProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const ready = useRef(false);
+  useImperativeHandle(handle, () => ({ post(command) {
+    if (ready.current) frame.current?.contentWindow?.postMessage(command, targetOrigin);
+  } }), [targetOrigin]);
   const latest = useRef({ sectionId, selectedId, refreshKey, onUpdated, onEvent });
   useEffect(() => { latest.current = { sectionId, selectedId, refreshKey, onUpdated, onEvent }; }, [sectionId, selectedId, refreshKey, onUpdated, onEvent]);
   useEffect(() => {
@@ -20,7 +24,7 @@ export function PreviewFrame({ src, title, className = "rounded-card border bord
         if (current.selectedId) frame.current?.contentWindow?.postMessage({ type: PREVIEW_MESSAGE, action: "select", sectionId: current.selectedId }, targetOrigin);
       }
       if (message?.action === "updated") latest.current.onUpdated?.();
-      if (message && ["ready", "updated", "select", "visible", "reorder"].includes(message.action)) latest.current.onEvent?.(message as PreviewEvent);
+      if (message && ["ready", "updated", "select", "visible", "reorder", "insert"].includes(message.action)) latest.current.onEvent?.(message as PreviewEvent);
     };
     window.addEventListener("message", receive);
     // The preview token is single-use: attach the listener first and keep src out of SSR.

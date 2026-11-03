@@ -236,7 +236,7 @@ chứng" của PR, cùng lý do cho các dòng `⚠ Đổi code thuộc … như
   Lỗi khó đoán nguyên nhân → thêm vào prompt "dùng skill debugging-and-error-recovery".
   Lỗi trình bày/design → Claude sửa. Tối đa **2 vòng**; hết vòng → ghi `HANDOFF.md`, dừng, báo người dùng.
 - "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.
-- AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]`.
+- AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]` (trước push đầu; sau khi mở PR thì tick ở Bước 7).
 - Dòng `⚠` (plan thiếu mục bắt buộc, report thiếu "Skill đã dùng"/"Case biên → test"/"Tự review") → bổ sung trước
   bước 5; không bổ sung được thì ghi lý do vào PR.
 
@@ -302,8 +302,9 @@ Gọi skill `pr-review` với số PR và `--reviewer <S.reviewer>` (`--agent cl
    thiết kế) → Claude sửa trực tiếp thay vì khởi động một phiên Codex. Claude commit (`run.mjs commit`), `verify`, kiểm local (`scripts/local-ci.sh db` / `e2e <config>` như bước 4), rồi mới push.
    **Gộp push**: mỗi push = một vòng CI ~20′. Sửa tài liệu/roadmap/README phát sinh trong lúc chờ → gộp vào lần push sửa
    kế tiếp hoặc commit cuối cùng trước khi báo người dùng; không push riêng một commit tài liệu khi CI đang chạy.
-3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh, không
-   conflict với base. Mục `[ngoài agent]` cần CI (vd. AC "chạy trên Windows/Ubuntu") → CI xanh thì Claude tick AC.
+3. Chờ CI, quay lại 1. Lặp tới khi PR **merge được**: `VERDICT: APPROVE`, không còn mục chưa cover, CI xanh trên commit
+   code cuối (commit chỉ `*.md` sau đó không chờ — CI tự dùng lại kết quả), không conflict với base. Mục `[ngoài agent]`
+   cần CI (vd. AC "chạy trên Windows/Ubuntu") → CI xanh thì ghi run id làm bằng chứng; AC tick ở Bước 7, không push lên PR.
 4. Dừng sớm, hỏi người dùng khi: finding lặp lại 2 vòng không sửa được, cần quyết định phạm vi/dependency/AC, hoặc quá
    5 vòng sửa. **Vòng 2** mà một finding còn "sửa một phần" hoặc bản sửa sinh P1 mới cùng chỗ → không vá tiếp: Claude
    gọi tên bất biến, liệt kê mọi nơi áp dụng (`codegraph callers`), viết bảng test cho cả lớp lỗi rồi mới giao sửa
@@ -322,6 +323,7 @@ Không suy reviewer từ nhãn người viết.
 Khi PR merge được (không comment gì lên PR), báo người dùng: link PR, ai làm gì (plan / dựng /
 design pass / review), số vòng review–sửa, issue và case chưa cover đã sửa, CI, finding P2 còn lại, và câu chốt
 **"PR #<số> sẵn sàng merge — bạn tự merge."** **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
-`S.epicFile`, commit `docs(roadmap): <ID> done`, hỏi trước khi push. Story regression (CI full xanh) → cùng commit đó
+`S.epicFile` (cùng lúc tick AC `[ngoài agent]` kèm run id CI đã ghi ở bước 6), commit `docs(roadmap): <ID> done`,
+hỏi trước khi push. Story regression (CI full xanh) → cùng commit đó
 đặt `lastSha` trong `roadmap/regression.json` = SHA merge của PR (bộ đếm `S.regression` về 0). Trước khi switch/pull base:
 `git log origin/<base>..<base>` rỗng (commit chưa push của phiên trước → hỏi người dùng, E7-S14 suýt lệch base).

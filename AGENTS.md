@@ -58,6 +58,8 @@ riêng test admin mở iframe preview (khớp `DEV_GREP`) luôn chạy `next dev
 story regression. Thêm script mới, link workspace vào `package.json` hay đổi code không hiển thị không kéo bộ ảnh chụp; story
 cần kiểm hình mà bảng không bật → sửa bảng (kèm test trong `checks-map.test.mjs`), không chạy tay.
 Trước test/e2e: `node scripts/agents/doctor.mjs`; lệnh dài qua `doctor.mjs run --idle <phút> -- <lệnh>` (dừng khi treo).
+Push thêm vào PR chỉ đổi `*.md` sau lần CI xanh → CI dùng lại kết quả đó (`scripts/ci/reuse-run.mjs`), không cần chờ;
+bằng chứng CI của AC ghi run id, tick AC ở commit `docs(roadmap): <ID> done` sau merge, không push commit tick lên PR.
 Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng.
 
 ## 4. Quy tắc bắt buộc
@@ -162,7 +164,8 @@ Tiến độ: `/get-progress [ID|Ex]` (`… progress`) báo % story/epic + ướ
   Playbook chạy tuần tự trong cây làm việc chính; chạy song song thì dùng git worktree riêng.
 - Debug Next.js chạy thật: MCP `next-devtools`, `playwright` — agent nào đang làm story thì dùng.
 - Commit theo Conventional Commits có scope là package hoặc story: `feat(sections): … [E3-S02]`.
-- Khi xong story: tick AC trong file epic tương ứng ở `roadmap/epics/` và ghi link PR.
+- Khi xong story: tick AC có bằng chứng trong file epic ở `roadmap/epics/` trước khi mở PR; AC chờ CI (run id) và link PR
+  ghi ở commit `docs(roadmap): <ID> done` trên base sau merge, không push lên PR.
 
 ## 7. Định nghĩa hoàn thành (DoD) cho mọi story
 

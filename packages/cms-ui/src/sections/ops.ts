@@ -1,4 +1,13 @@
 export type EditableSection = { id: string; type: string; variant: string; enabled: boolean; anchor?: string };
+export const newSectionId = (type: string) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
+
+export function insertRelative(value: EditableSection[], section: EditableSection, targetId?: string, position: "before" | "after" = "after"): EditableSection[] {
+  if (value.some(s => s.id === section.id)) return value;
+  const index = value.findIndex(s => s.id === targetId);
+  const next = [...value];
+  next.splice(index < 0 ? next.length : index + (position === "after" ? 1 : 0), 0, section);
+  return next;
+}
 
 export function move(value: readonly EditableSection[], from: number, to: number): EditableSection[] {
   const next = [...value];
