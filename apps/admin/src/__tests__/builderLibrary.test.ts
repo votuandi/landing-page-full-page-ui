@@ -31,6 +31,59 @@ function editor(overrides: Partial<BuilderEditor> = {}): BuilderEditor {
 }
 const ids = (container: HTMLElement) => [...container.querySelectorAll("li[data-section-id]")].map(el => el.getAttribute("data-section-id"));
 
+test("inline đi qua cùng form: quá max chặn lưu, sửa đúng mới lưu nháp", async () => {
+  const writes: FormData[] = []; save = async form => { writes.push(form); return { ok: true, revision: 2 + writes.length }; };
+  const initial = editor();
+  initial.sections.push({ id: "faq", type: "faq", variant: "t15", enabled: true });
+  initial.forms.faq = { data: sectionRegistry.types.faq.defaults, recovered: false, readOnly: undefined };
+  const m = await mount(createElement(Builder, { editor: initial }));
+  try {
+    const source = m.container.querySelector("iframe")!.contentWindow!, sent: { action: string; fields?: { path: (string | number)[] }[] }[] = [];
+    source.postMessage = data => { sent.push(data); };
+    const receive = async (data: unknown) => { await act(async () => { window.dispatchEvent(new dom.window.MessageEvent("message", { data, origin: "http://localhost", source })); }); };
+    await receive({ type: "solar-preview", action: "ready" });
+    assert.ok(sent.find(message => message.action === "fields")?.fields?.some(field => field.path.join(".") === "title.highlight"));
+    const edit = { type: "solar-preview", action: "inline", sectionId: "hero", path: ["title", "highlight"], locale: "vi", text: "x".repeat(61) };
+    await receive(edit);
+    assert.equal(byPath(m.container, "title.highlight").value, edit.text);
+    assert.match(m.container.textContent!, /Có lỗi cần sửa — chưa lưu/);
+    await click(button(m.container, "Chọn Câu hỏi thường gặp"));
+    assert.equal(writes.length, 0); assert.equal(button(m.container, "Chọn Banner chính").getAttribute("aria-pressed"), "true");
+    await receive({ ...edit, sectionId: "faq", text: "Sai section" });
+    assert.equal(byPath(m.container, "title.highlight").value, edit.text);
+    await receive({ ...edit, text: "  Điện\n mặt trời  " });
+    assert.equal(byPath(m.container, "title.highlight").value, "Điện mặt trời");
+    await click(button(m.container, "Chọn Câu hỏi thường gặp"));
+    assert.equal(writes.length, 1); assert.equal(writes[0].get("sectionId"), "hero");
+    assert.equal(JSON.parse(String(writes[0].get("data"))).title.highlight.vi, "Điện mặt trời");
+  } finally { m.unmount(); }
+});
+
+test("Builder gửi fields rỗng và bỏ inline khi không quyền, readOnly hoặc conflict", async () => {
+  for (const gate of ["permission", "readOnly", "conflict"]) {
+    const initial = editor({ canEditContent: gate !== "permission" });
+    if (gate === "readOnly") initial.forms.hero.readOnly = "Nội dung chỉ đọc";
+    let writes = 0; save = async () => { writes++; return { ok: false, status: 409, error: "Trang đã thay đổi" }; };
+    const m = await mount(createElement(Builder, { editor: initial }));
+    try {
+      const source = m.container.querySelector("iframe")!.contentWindow!, sent: { action: string; fields?: unknown[] }[] = [];
+      source.postMessage = data => { sent.push(data); };
+      const receive = async (data: unknown) => { await act(async () => { window.dispatchEvent(new dom.window.MessageEvent("message", { data, origin: "http://localhost", source })); }); };
+      await receive({ type: "solar-preview", action: "ready" });
+      if (gate === "conflict") {
+        await typeInput(byPath(m.container, "badge"), "Nháp");
+        await click(button(m.container, "Thêm Câu hỏi thường gặp"));
+        assert.equal(writes, 1);
+      }
+      assert.deepEqual(sent.filter(message => message.action === "fields").at(-1)?.fields, [], gate);
+      const field = byPath(m.container, "title.highlight"), before = field.value;
+      await receive({ type: "solar-preview", action: "inline", sectionId: "hero", path: ["title", "highlight"], locale: "vi", text: "Không được ghi" });
+      assert.equal(field.value, before, gate);
+      assert.equal(writes, gate === "conflict" ? 1 : 0, gate);
+    } finally { m.unmount(); }
+  }
+});
+
 test("mục khóa không kéo, không bấm được", async () => {
   let writes = 0; save = async () => { writes++; return { ok: true, revision: 3 }; };
   const m = await mount(createElement(Builder, { editor: editor({ lockedTypes: ["press"] }) }));
