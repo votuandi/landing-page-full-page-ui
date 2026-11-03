@@ -13,6 +13,9 @@ permissions:
 jobs:
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
       thumbnails: ${{ steps.map.outputs.thumbnails }}
     steps:
@@ -22,7 +25,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Push thêm vào PR chỉ đổi *.md sau lần chạy xanh của workflow này → dùng lại kết quả (job nặng skipped).
+      - id: reuse
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/ci/reuse-run.mjs thumbnails.yml
       - id: map
+        if: steps.reuse.outputs.reuse != 'true'
         shell: bash
         env:
           BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
