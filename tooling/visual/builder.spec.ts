@@ -26,6 +26,19 @@ const canvasIds = (page: Page) => canvas(page).locator("main [data-section-id]")
 const selectRow = (page: Page, id: string) => rows(page).and(page.locator(`[data-section-id="${id}"]`)).getByRole("button", { pressed: false }).first().click();
 const selected = (page: Page, id: string) => expect(canvas(page).locator(`[data-builder-selected="${id}"]`)).toBeAttached();
 const draft = () => (JSON.parse(fixture("builder-page-read")) as { draftSections: { id: string }[] | null }).draftSections?.map(section => section.id);
+const heroData = () => (JSON.parse(fixture("builder-section-read", "s-hero")) as { data: { title: { highlight: { vi: string } } } }).data;
+const heroText = (page: Page, text: string) => canvas(page).locator('main [data-section-id="s-hero"]').getByText(text, { exact: true });
+const panel = (page: Page) => page.getByRole("region", { name: "Thuộc tính section" });
+const panelValues = (page: Page) => panel(page).locator('input[type="text"]').evaluateAll(list => list.map(el => (el as HTMLInputElement).value));
+async function editInline(page: Page, text: string, path: string) {
+  const target = heroText(page, text);
+  await target.hover();
+  await expect(canvas(page).locator("[data-builder-editable]")).toBeAttached();
+  await target.dblclick();
+  await expect(canvas(page).locator(`[data-builder-inline][data-path="${path}"]`)).toBeAttached();
+  await expect(canvas(page).locator("main [contenteditable]")).toHaveCount(1);
+  await page.keyboard.press("ControlOrMeta+a");
+}
 
 async function open(page: Page, identifier = "owner@demo.vn") {
   const pageId = fixture("builder-page");
@@ -266,6 +279,59 @@ test.describe("builder", () => {
     await expect(library).toBeVisible();
     await expect(library.getByRole("button", { name: /^Thêm / }).first()).toBeDisabled();
     await expect(library.getByRole("button", { name: /^Thêm /, disabled: false })).toHaveCount(0);
+  });
+
+  test("nhấp đúp sửa tiêu đề trực tiếp trên canvas", async ({ page }) => {
+    await open(page);
+    const next = `nhà xưởng ${Date.now() % 100000}`;
+    await editInline(page, "mái nhà của bạn", "title.highlight");
+    await page.keyboard.type(next);
+    await page.keyboard.press("Enter");
+    await expect(canvas(page).locator("[data-builder-inline]")).toHaveCount(0);
+    await expect(canvas(page).locator("main [contenteditable]")).toHaveCount(0);
+    await expect.poll(() => panelValues(page)).toContain(next);
+    await expect.poll(() => heroData().title.highlight.vi, { timeout: 30_000 }).toBe(next);
+    await expect(panel(page).getByRole("status")).toHaveText("Đã lưu nháp");
+    await expect(heroText(page, next)).toBeVisible({ timeout: 30_000 });
+    // Escape restores the text and sends nothing.
+    await editInline(page, next, "title.highlight");
+    await page.keyboard.type("bỏ đi");
+    await page.keyboard.press("Escape");
+    await expect(heroText(page, next)).toBeVisible();
+    await expect(canvas(page).locator("[data-builder-inline]")).toHaveCount(0);
+    expect(heroData().title.highlight.vi).toBe(next);
+  });
+
+  test("dán văn bản có định dạng chỉ giữ text", async ({ page }) => {
+    await open(page);
+    await editInline(page, "mái nhà của bạn", "title.highlight");
+    await frame(page).evaluate(() => {
+      const data = new DataTransfer();
+      data.setData("text/html", "<b>Đậm</b><br><i>nghiêng</i>");
+      data.setData("text/plain", "Đậm\nnghiêng");
+      document.activeElement!.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }));
+    });
+    await page.keyboard.press("Enter");
+    await expect(heroText(page, "Đậm nghiêng")).toBeVisible();
+    await expect(canvas(page).locator('main [data-section-id="s-hero"] h1').locator("b, i, br")).toHaveCount(0);
+    await expect.poll(() => heroData().title.highlight.vi, { timeout: 30_000 }).toBe("Đậm nghiêng");
+  });
+
+  test("sửa inline vượt giới hạn không lưu", async ({ page }) => {
+    await open(page);
+    await editInline(page, "mái nhà của bạn", "title.highlight");
+    await page.keyboard.type("[DỮ LIỆU MẪU] chuỗi quá dài cho phần nhấn mạnh của tiêu đề hero x");
+    await page.keyboard.press("Enter");
+    await expect(panel(page).getByRole("status")).toHaveText("Có lỗi cần sửa — chưa lưu");
+    await page.waitForTimeout(2_000);
+    expect(heroData().title.highlight.vi).toBe("mái nhà của bạn");
+  });
+
+  test("không có quyền sửa nội dung thì không sửa trực tiếp được", async ({ page }) => {
+    await open(page, "viewer_admin");
+    await heroText(page, "mái nhà của bạn").dblclick();
+    await expect(canvas(page).locator("main [contenteditable]")).toHaveCount(0);
+    await expect(canvas(page).locator("[data-builder-inline]")).toHaveCount(0);
   });
 
   test("builder không lỗi a11y và không tràn ở 390/1440", async ({ page }) => {
