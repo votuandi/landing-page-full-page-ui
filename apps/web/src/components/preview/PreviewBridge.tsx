@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { adminOrigin, parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewEvent } from "@solar/cms-ui/preview/protocol";
+import { adminOrigin, parsePreviewMessage, PREVIEW_MESSAGE, shouldHandlePreview, type PreviewEvent, type InlineField } from "@solar/cms-ui/preview/protocol";
 import { builderMode, scrollBehavior } from "./builderMode";
 import type { BuilderCanvasHandle } from "./BuilderCanvas";
 
@@ -23,8 +23,14 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = useRef<string | null>(null);
   const canvas = useRef<BuilderCanvasHandle>(null);
+  const fields = useRef<{ sectionId: string; fields: InlineField[] } | null>(null);
+  const attachCanvas = useCallback((value: BuilderCanvasHandle | null) => {
+    canvas.current = value;
+    if (value && fields.current) value.fields(fields.current.sectionId, fields.current.fields);
+  }, []);
   const send = useCallback((event: PreviewEvent) => { if (origin.current) window.parent.postMessage(event, origin.current); }, []);
   const select = useCallback((id: string) => {
+    if (id !== selected.current) canvas.current?.commit();
     selected.current = id; setSelectedId(id); send({ type: PREVIEW_MESSAGE, action: "select", sectionId: id });
   }, [send]);
   useEffect(() => {
@@ -46,10 +52,17 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
         }
       }
       if (message?.action === "scroll") scrollToSection(message.sectionId);
+      if (builder && message?.action === "fields") {
+        if (fields.current?.sectionId !== message.sectionId) canvas.current?.commit();
+        fields.current = message;
+        canvas.current?.fields(message.sectionId, message.fields);
+      }
       if (builder && message?.action === "select" && message.sectionId !== selected.current) {
+        canvas.current?.commit();
         selected.current = message.sectionId; setSelectedId(message.sectionId); scrollToSection(message.sectionId);
       }
       if (message?.action === "refresh") {
+        canvas.current?.commit();
         requested.current = { sectionId: message.sectionId };
         // https://nextjs.org/docs/app/api-reference/functions/use-router#userouter
         start(() => router.refresh());
@@ -66,5 +79,5 @@ export function PreviewBridge({ adminPort }: { adminPort?: string }) {
     if (sectionId) scrollToSection(sectionId);
     window.parent.postMessage({ type: PREVIEW_MESSAGE, action: "updated", ...(sectionId ? { sectionId } : {}) }, origin.current);
   }, [pending]);
-  return mode ? <BuilderCanvas handle={canvas} selectedId={selectedId} reorder={mode.reorder} onSelect={select} onEvent={send} /> : null;
+  return mode ? <BuilderCanvas handle={attachCanvas} selectedId={selectedId} reorder={mode.reorder} pending={pending} onSelect={select} onEvent={send} /> : null;
 }
