@@ -1,24 +1,58 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type Ref } from "react";
 import { PREVIEW_MESSAGE, type PreviewEvent } from "@solar/cms-ui/preview/protocol";
 import { sectionRegistry } from "@solar/sections";
-import { currentSection, dropPosition, type SectionRect } from "./builderMode";
+import { currentSection, dropTarget, type SectionRect } from "./builderMode";
 
 type Bounds = { top: number; left: number; width: number; height: number; label: string };
 type Drop = { targetId: string; position: "before" | "after"; top: number };
-type Drag = { id: string; pointerId: number; startY: number; y: number; moved: boolean; drop: Drop | null; handle: HTMLElement };
+type Drag = { id: string; pointerId: number; startY: number; y: number; moved: boolean; drop: Drop | null; handle?: HTMLElement };
+export type BuilderCanvasHandle = { dragAt(y: number): void; drop(y: number): Drop | null; cancel(): void };
 const sections = () => [...document.querySelectorAll<HTMLElement>("main [data-section-id]")];
 const rects = (): SectionRect[] => sections().map(el => ({ id: el.dataset.sectionId!, ...pickRect(el.getBoundingClientRect()) }));
 function pickRect(rect: DOMRect) { return { top: rect.top, bottom: rect.bottom, height: rect.height }; }
 const sectionLabel = (element: HTMLElement) => sectionRegistry.getType(element.dataset.sectionType ?? "")?.meta.label.vi ?? "Section";
 
-export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent }: {
-  selectedId: string | null; reorder: boolean; onSelect(id: string): void; onEvent(event: PreviewEvent): void;
+export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent, handle }: {
+  selectedId: string | null; reorder: boolean; onSelect(id: string): void; onEvent(event: PreviewEvent): void; handle?: Ref<BuilderCanvasHandle>;
 }) {
   const [bounds, setBounds] = useState<Bounds | null>(null);
   const [drop, setDrop] = useState<Drop | null>(null);
   const drag = useRef<Drag | null>(null);
+  const animation = useRef(0);
+  const cancel = useCallback(() => {
+    const active = drag.current; drag.current = null; setDrop(null); cancelAnimationFrame(animation.current); animation.current = 0;
+    if (active?.handle?.hasPointerCapture(active.pointerId)) active.handle.releasePointerCapture(active.pointerId);
+  }, []);
+  const calculate = useCallback(() => {
+    const active = drag.current;
+    if (!active) return;
+    active.drop = dropTarget(rects(), active.y, active.id);
+    setDrop(active.moved ? active.drop : null);
+  }, []);
+  const tick = useCallback(function tick() {
+    const active = drag.current;
+    if (!active) return;
+    if (active.moved) {
+      const delta = active.y < 64 ? -12 : active.y > window.innerHeight - 64 ? 12 : 0;
+      if (delta) window.scrollTo({ top: window.scrollY + delta, behavior: "instant" });
+      calculate();
+    }
+    animation.current = requestAnimationFrame(tick);
+  }, [calculate]);
+  useImperativeHandle(handle, () => ({
+    dragAt(y) {
+      if (!reorder) return;
+      drag.current = { id: "", pointerId: -1, startY: y, y, moved: true, drop: null };
+      calculate(); if (!animation.current) animation.current = requestAnimationFrame(tick);
+    },
+    drop(y) {
+      const target = reorder ? dropTarget(rects(), y) : null;
+      cancel(); return target;
+    },
+    cancel,
+  }), [reorder, calculate, tick, cancel]);
   const latest = useRef({ selectedId, onSelect, onEvent });
   useEffect(() => { latest.current = { selectedId, onSelect, onEvent }; }, [selectedId, onSelect, onEvent]);
   useEffect(() => {
@@ -66,35 +100,11 @@ export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent }
     return () => cancelAnimationFrame(frame);
   }, [selectedId]);
   useEffect(() => {
-    let animation = 0;
-    const cancel = () => {
-      const active = drag.current; drag.current = null; setDrop(null); cancelAnimationFrame(animation); animation = 0;
-      if (active?.handle.hasPointerCapture(active.pointerId)) active.handle.releasePointerCapture(active.pointerId);
-    };
-    const calculate = () => {
-      const active = drag.current;
-      if (!active) return;
-      const available = rects().filter(rect => rect.height > 0 && rect.id !== active.id);
-      const target = available.find(rect => active.y < rect.bottom) ?? available.at(-1);
-      const position = target && dropPosition(active.y, target);
-      active.drop = target && position ? { targetId: target.id, position, top: position === "before" ? target.top : target.bottom } : null;
-      setDrop(active.moved ? active.drop : null);
-    };
-    const tick = () => {
-      const active = drag.current;
-      if (!active) return;
-      if (active.moved) {
-        const delta = active.y < 64 ? -12 : active.y > window.innerHeight - 64 ? 12 : 0;
-        if (delta) window.scrollTo({ top: window.scrollY + delta, behavior: "instant" });
-        calculate();
-      }
-      animation = requestAnimationFrame(tick);
-    };
     const move = (event: PointerEvent) => {
       const active = drag.current;
       if (!active || active.pointerId !== event.pointerId) return;
       active.y = event.clientY; active.moved ||= Math.abs(active.y - active.startY) > 5;
-      calculate(); if (!animation) animation = requestAnimationFrame(tick);
+      calculate(); if (!animation.current) animation.current = requestAnimationFrame(tick);
     };
     const up = (event: PointerEvent) => {
       const active = drag.current;
@@ -112,7 +122,7 @@ export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent }
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", cancel); window.addEventListener("keydown", key);
     return () => { cancel(); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", cancel); window.removeEventListener("keydown", key); };
-  }, []);
+  }, [calculate, tick, cancel]);
   function start(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!reorder || !selectedId || event.button !== 0) return;
     event.preventDefault(); event.stopPropagation();
@@ -127,6 +137,6 @@ export default function BuilderCanvas({ selectedId, reorder, onSelect, onEvent }
           className="pointer-events-auto min-h-11 touch-none cursor-grab px-2" onPointerDown={start}>Kéo</button>}
       </div>
     </div>}
-    {drop && <div aria-hidden className="fixed inset-x-0 h-1 bg-primary" style={{ top: drop.top }} />}
+    {drop && <div data-builder-drop aria-hidden className="fixed inset-x-0 h-1 bg-primary" style={{ top: drop.top }} />}
   </div>;
 }

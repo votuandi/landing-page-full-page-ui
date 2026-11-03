@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { builderMode, currentSection, dropPosition, scrollBehavior } from "../../../components/preview/builderMode.ts";
+import { builderMode, currentSection, dropPosition, dropTarget, scrollBehavior } from "../../../components/preview/builderMode.ts";
+
+test("dropTarget", () => {
+  const hero = { id: "hero", top: 0, bottom: 400, height: 400 }, faq = { id: "faq", top: 400, bottom: 800, height: 400 };
+  const hidden = { id: "hidden", top: 0, bottom: 0, height: 0 };
+  assert.equal(dropTarget([], 100), null);
+  assert.equal(dropTarget([hidden], 100), null);
+  assert.deepEqual(dropTarget([hero, hidden, faq], 420), { targetId: "faq", position: "before", top: 400 });
+  assert.deepEqual(dropTarget([hero, hidden, faq], 1000), { targetId: "faq", position: "after", top: 800 });
+  assert.deepEqual(dropTarget([hero, faq], 20, "hero"), { targetId: "faq", position: "before", top: 400 });
+});
 test("chỉ bật khi nằm trong iframe và có builder=1", () => {
   for (const [search, framed] of [["?builder=1", false], ["", true], ["?builder=0", true]] as const) assert.equal(builderMode(search, framed), null);
   assert.deepEqual(builderMode("?builder=1", true), { reorder: true });

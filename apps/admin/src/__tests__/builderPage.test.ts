@@ -28,6 +28,22 @@ test("loadBuilder tạo link preview có builder=1", async () => {
   assert.deepEqual(result!.forms.hero.data, sectionRegistry.types.hero.defaults);
   assert.equal(result!.forms.calculator, undefined); assert.equal(result!.sections.length, 2);
   assert.equal(builderPath("", false), "/?builder=1&reorder=0");
+  assert.equal(result!.themeId, "t12");
+  assert.ok(result!.allowedTypes.includes("hero"));
+  assert.ok(!result!.allowedTypes.includes("calculator"));
+  assert.deepEqual(result!.lockedTypes, ["calculator"]);
+});
+
+test("loadBuilder không có quyền cấu trúc vẫn nạp thư viện chỉ xem", async () => {
+  for (const noPermission of [true, false]) {
+    const s = setup();
+    if (noPermission) s.session.permissions = new Set([...s.session.permissions].filter(permission => permission !== "pages.structure"));
+    else s.deps.entitlements = async () => feature => feature !== "sectionReorder";
+    const result = await s.load();
+    assert.equal(result!.canReorder, false);
+    assert.ok(result!.allowedTypes.includes("hero"));
+    assert.match(s.paths[0], /reorder=0/);
+  }
 });
 test("gói không có builder trả null", async () => {
   const s = setup(); s.deps.entitlements = async () => () => false;

@@ -35,6 +35,13 @@ export type PageSectionsDeps = {
 export const pageTitle = (title: unknown, slug: string) => typeof title === "object" && title !== null && "vi" in title && typeof title.vi === "string" && title.vi
   ? title.vi : slug ? `/${slug}` : "Trang chủ";
 const readSections = (value: unknown) => descriptorsSchema.parse(value);
+function typeAccess(can: (feature: string) => boolean) {
+  const types = Object.values(sectionRegistry.types);
+  return {
+    allowedTypes: types.filter(def => !def.meta.entitlement || can(def.meta.entitlement)).map(def => def.type),
+    lockedTypes: types.filter(def => def.meta.entitlement && !can(def.meta.entitlement)).map(def => def.type),
+  };
+}
 
 export function recoverRemovedSections(page: { sections: unknown; draftSections: unknown }, contents: { sectionId: string; type: string; removedAt: Date | null }[], snapshots: unknown[]) {
   const current = readSections(page.draftSections ?? page.sections);
@@ -58,12 +65,10 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
   if (!page || page.siteId !== tenant.siteId) return null;
   const [can, themeId, removed] = await Promise.all([deps.entitlements(), deps.theme(tenant.siteId), deps.removed(tenant.siteId, pageId)]);
   const structure = session.permissions.has("pages.structure");
-  const types = Object.values(sectionRegistry.types);
   return { page: { id: page.id, slug: page.slug, title: pageTitle(page.title, page.slug), revision: page.revision },
     sections: readSections(page.draftSections ?? page.sections), hasDraft: page.hasDraft, themeId, removed,
     can: { reorder: structure && can("sectionReorder"), variantSwitch: structure && can("variantSwitch") },
-    allowedTypes: types.filter(def => !def.meta.entitlement || can(def.meta.entitlement)).map(def => def.type),
-    lockedTypes: types.filter(def => def.meta.entitlement && !can(def.meta.entitlement)).map(def => def.type),
+    ...typeAccess(can),
     canBuilder: can("builder"), canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
 }
 export type PageEditor = NonNullable<Awaited<ReturnType<typeof loadPageEditor>>>;
@@ -86,13 +91,13 @@ export async function loadBuilder(pageId: string, deps: PageSectionsDeps & { req
   const can = await deps.entitlements();
   if (!can("builder")) return null;
   const sections = readSections(page.draftSections ?? page.sections);
-  const rows = await deps.contentRows(tenant.siteId, pageId);
+  const [rows, themeId] = await Promise.all([deps.contentRows(tenant.siteId, pageId), deps.theme(tenant.siteId)]);
   const forms: Record<string, ReturnType<typeof readSectionData>> = Object.fromEntries(sections.flatMap(section => {
     const def = sectionFormType(section.type, can);
     return def ? [[section.id, readSectionData(section, def, rows.find(row => row.sectionId === section.id) ?? null)]] : [];
   }));
   const reorder = session.permissions.has("pages.structure") && can("sectionReorder");
-  return { page: { id: page.id, title: pageTitle(page.title, page.slug), revision: page.revision }, sections, forms,
+  return { page: { id: page.id, title: pageTitle(page.title, page.slug), revision: page.revision }, sections, forms, themeId, ...typeAccess(can),
     canReorder: reorder, canEditContent: session.permissions.has("content.edit"), bilingual: can("bilingual"),
     previewUrl: await deps.preview(tenant.tenantId, tenant.siteId, tenant.slug, builderPath(page.slug, reorder)) };
 }
