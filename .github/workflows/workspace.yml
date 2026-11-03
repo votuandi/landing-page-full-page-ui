@@ -14,7 +14,11 @@ jobs:
   changes:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
+      reuse: ${{ steps.reuse.outputs.reuse }}
       db: ${{ steps.map.outputs.db }}
       storage: ${{ steps.map.outputs.storage }}
       admin: ${{ steps.map.outputs.admin }}
@@ -40,7 +44,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Push thêm vào PR chỉ đổi *.md sau lần chạy xanh của workflow này → dùng lại kết quả (job nặng skipped).
+      - id: reuse
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/ci/reuse-run.mjs workspace.yml
       - id: map
+        if: steps.reuse.outputs.reuse != 'true'
         shell: bash
         env:
           BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD' }}
@@ -265,6 +279,9 @@ jobs:
           name: admin-browser-evidence
           path: tooling/visual/test-results/admin
   verify:
+    # Push lên base: `changes` bị bỏ qua nhưng verify vẫn chạy (!cancelled); PR chỉ thêm *.md sau lần xanh → bỏ.
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.reuse != 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -301,7 +318,7 @@ jobs:
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm plans:table --check
-      - run: node --test scripts/ci/affected.test.mjs scripts/ci/checks-map.test.mjs scripts/ci/visual-intended.test.mjs
+      - run: node --test scripts/ci/affected.test.mjs scripts/ci/checks-map.test.mjs scripts/ci/visual-intended.test.mjs scripts/ci/reuse-run.test.mjs
       - name: Typecheck and lint (populate cache)
         run: pnpm turbo run typecheck lint lint:root ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Typecheck and lint (verify FULL TURBO)
