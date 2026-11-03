@@ -2,9 +2,30 @@ import { mount } from "./dom.ts";
 import { dom } from "./domGlobals.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { act, StrictMode } from "react";
+import { act, createRef, StrictMode } from "react";
 import { renderToString } from "react-dom/server";
-import { PreviewFrame } from "../preview/PreviewFrame.tsx";
+import { PreviewFrame, type PreviewFrameHandle } from "../preview/PreviewFrame.tsx";
+
+test("handle chỉ gửi lệnh khi ready và chuyển insert đúng origin/source", async () => {
+  const handle = createRef<PreviewFrameHandle>(), events: unknown[] = [];
+  const props = { src: "http://localhost/frame", title: "Xem trước", targetOrigin: "http://localhost", refreshKey: 0, handle, onEvent: (event: unknown) => events.push(event) };
+  const m = await mount(<PreviewFrame {...props} />);
+  try {
+    const source = m.container.querySelector("iframe")!.contentWindow!, sent: unknown[] = [];
+    source.postMessage = data => { sent.push(data); };
+    const command = { type: "solar-preview", action: "drag", y: 120 } as const;
+    handle.current!.post(command); assert.equal(sent.length, 0);
+    const receive = (data: unknown, origin = props.targetOrigin, from: Window = source) => window.dispatchEvent(new dom.window.MessageEvent("message", { data, origin, source: from }));
+    receive({ type: "solar-preview", action: "ready" }); sent.length = 0;
+    handle.current!.post(command); assert.deepEqual(sent, [command]);
+    events.length = 0;
+    const insert = { type: "solar-preview", action: "insert", targetId: "faq", position: "before" };
+    receive(insert, "http://foreign.test"); receive(insert, props.targetOrigin, window);
+    assert.equal(events.length, 0); receive(insert); assert.deepEqual(events, [insert]);
+    await act(async () => m.root.render(<PreviewFrame {...props} src="http://localhost/other" />));
+    sent.length = 0; handle.current!.post(command); assert.equal(sent.length, 0);
+  } finally { m.unmount(); }
+});
 test("PreviewFrame authenticates source and origin, scrolls on ready and refreshes without replacing src", async () => {
   let updates = 0;
   const props = { src: "http://localhost/frame", title: "Xem trước nội dung", sectionId: "hero", targetOrigin: "http://localhost", onUpdated: () => { updates++; } };

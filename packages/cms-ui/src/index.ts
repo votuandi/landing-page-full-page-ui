@@ -1,14 +1,15 @@
 export { SchemaForm, validate } from "./SchemaForm.tsx";
 export { useAutosave } from "./preview/useAutosave.ts";
 export { useLeaveGuard } from "./preview/useLeaveGuard.ts";
-export { PreviewFrame } from "./preview/PreviewFrame.tsx";
+export { PreviewFrame, type PreviewFrameHandle } from "./preview/PreviewFrame.tsx";
 export { PREVIEW_MESSAGE, parsePreviewMessage, adminOrigin, shouldHandlePreview } from "./preview/protocol.ts";
 export type { PreviewCommand, PreviewEvent } from "./preview/protocol.ts";
-export { SectionListEditor } from "./sections/SectionListEditor.tsx";
+export { SectionListEditor, SectionThumbnail } from "./sections/SectionListEditor.tsx";
 export { UpgradeDialog } from "./UpgradeDialog.tsx";
 export type { SectionListEditorProps } from "./sections/SectionListEditor.tsx";
 export type { EditableSection } from "./sections/ops.ts";
-export { moveRelative } from "./sections/ops.ts";
+export { moveRelative, insertRelative, newSectionId } from "./sections/ops.ts";
+export { LIBRARY_GROUPS, libraryStatus } from "./sections/library.ts";
 export type { SchemaFormProps } from "./SchemaForm.tsx";
 export { useSchemaForm } from "./context.ts";
 export type { FieldProps, Pickers, WidgetComponent } from "./context.ts";

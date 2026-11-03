@@ -1,15 +1,29 @@
 export const PREVIEW_MESSAGE = "solar-preview";
 export type PreviewCommand = { type: typeof PREVIEW_MESSAGE; action: "refresh" | "scroll"; sectionId?: string }
-  | { type: typeof PREVIEW_MESSAGE; action: "select"; sectionId: string };
+  | { type: typeof PREVIEW_MESSAGE; action: "select"; sectionId: string }
+  | { type: typeof PREVIEW_MESSAGE; action: "drag" | "drop"; y: number }
+  | { type: typeof PREVIEW_MESSAGE; action: "drag-cancel" };
 export type PreviewEvent = { type: typeof PREVIEW_MESSAGE; action: "ready" | "updated"; sectionId?: string }
   | { type: typeof PREVIEW_MESSAGE; action: "select" | "visible"; sectionId: string }
-  | { type: typeof PREVIEW_MESSAGE; action: "reorder"; sectionId: string; targetId: string; position: "before" | "after" };
+  | { type: typeof PREVIEW_MESSAGE; action: "reorder"; sectionId: string; targetId: string; position: "before" | "after" }
+  | { type: typeof PREVIEW_MESSAGE; action: "insert"; targetId?: string; position?: "before" | "after" };
 const sectionIdPattern = /^[A-Za-z0-9_-]{1,64}$/;
 export function parsePreviewMessage(data: unknown): PreviewCommand | PreviewEvent | null {
   if (!data || typeof data !== "object" || !("type" in data) || data.type !== PREVIEW_MESSAGE || !("action" in data)) return null;
-  if (typeof data.action !== "string" || !["refresh", "scroll", "ready", "updated", "select", "visible", "reorder"].includes(data.action)) return null;
+  if (typeof data.action !== "string" || !["refresh", "scroll", "ready", "updated", "select", "visible", "reorder", "drag", "drop", "drag-cancel", "insert"].includes(data.action)) return null;
   const sectionId = "sectionId" in data ? data.sectionId : undefined;
   if ("sectionId" in data && (typeof sectionId !== "string" || !sectionIdPattern.test(sectionId))) return null;
+  if (data.action === "drag" || data.action === "drop") {
+    return "y" in data && typeof data.y === "number" && Number.isFinite(data.y) && data.y >= 0 && data.y <= 100000
+      ? { type: PREVIEW_MESSAGE, action: data.action, y: data.y } : null;
+  }
+  if (data.action === "drag-cancel") return { type: PREVIEW_MESSAGE, action: "drag-cancel" };
+  if (data.action === "insert") {
+    if (!("targetId" in data) && !("position" in data)) return { type: PREVIEW_MESSAGE, action: "insert" };
+    if (!("targetId" in data) || typeof data.targetId !== "string" || !sectionIdPattern.test(data.targetId)
+      || !("position" in data) || (data.position !== "before" && data.position !== "after")) return null;
+    return { type: PREVIEW_MESSAGE, action: "insert", targetId: data.targetId, position: data.position };
+  }
   if (data.action === "reorder") {
     if (typeof sectionId !== "string" || !("targetId" in data) || typeof data.targetId !== "string" || !sectionIdPattern.test(data.targetId) || data.targetId === sectionId
       || !("position" in data) || (data.position !== "before" && data.position !== "after")) return null;

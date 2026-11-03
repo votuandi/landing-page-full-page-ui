@@ -6,7 +6,7 @@ import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalList
 import { CSS } from "@dnd-kit/utilities";
 import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
 import { Errors, SmallButton } from "../ui.tsx";
-import { add, move, remove, setVariant, toggle, type EditableSection } from "./ops.ts";
+import { add, move, newSectionId, remove, setVariant, toggle, type EditableSection } from "./ops.ts";
 
 export type SectionListEditorProps = {
   value: readonly EditableSection[];
@@ -20,7 +20,6 @@ export type SectionListEditorProps = {
   thumbnail?(type: string, variant: string): string | undefined;
   removed?: readonly (EditableSection & { expiresAt: string | null })[];
 };
-const newSectionId = (type: string) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
 const instructions = { draggable: "Nhấn Space để nhấc section, phím mũi tên để di chuyển, Space để thả, Esc để hủy." };
 const announcements: Announcements = {
   onDragStart: () => "Đã nhấc section. Dùng phím mũi tên để di chuyển, Space để thả, Esc để hủy.",
@@ -105,7 +104,7 @@ export function SectionListEditor({ value, onChange, can, allowedTypes, lockedTy
 }
 
 /** Ảnh 16:10 chụp sẵn; thiếu hoặc lỗi → ô giữ chỗ ghi tên variant. `fill` = rộng theo thẻ chọn kiểu. */
-function SectionThumbnail({ src, variant, fill = false }: { src?: string; variant: string; fill?: boolean }) {
+export function SectionThumbnail({ src, variant, fill = false }: { src?: string; variant: string; fill?: boolean }) {
   const [failed, setFailed] = useState<string>();
   return <span aria-hidden="true" className={`flex aspect-[16/10] shrink-0 items-center justify-center overflow-hidden rounded-input border border-line/15 bg-bg-tint text-xs text-fg-muted ${fill ? "w-full" : "w-20"}`}>
     {src && failed !== src ? <img src={src} alt="" width={320} height={200} loading="lazy" decoding="async" className="h-full w-full object-cover object-top" onError={() => setFailed(src)} /> : variant}

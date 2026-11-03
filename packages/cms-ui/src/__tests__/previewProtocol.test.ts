@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adminOrigin, parsePreviewMessage, shouldHandlePreview } from "../preview/protocol.ts";
+
+test("lệnh kéo thư viện sai dạng bị loại", () => {
+  for (const action of ["drag", "drop"]) {
+    for (const y of [NaN, Infinity, -1, "10", undefined, 100001]) assert.equal(parsePreviewMessage({ type: "solar-preview", action, y }), null);
+    for (const y of [0, 123.5, 100000]) assert.deepEqual(parsePreviewMessage({ type: "solar-preview", action, y }), { type: "solar-preview", action, y });
+  }
+  const insert = { type: "solar-preview", action: "insert" };
+  assert.deepEqual(parsePreviewMessage(insert), insert);
+  assert.deepEqual(parsePreviewMessage({ ...insert, targetId: "faq", position: "before" }), { ...insert, targetId: "faq", position: "before" });
+  for (const patch of [{ targetId: "faq" }, { position: "after" }, { targetId: "" }, { targetId: '"]', position: "after" }, { targetId: "faq", position: "middle" }, { targetId: undefined }]) {
+    assert.equal(parsePreviewMessage({ ...insert, ...patch }), null);
+  }
+  assert.deepEqual(parsePreviewMessage({ type: "solar-preview", action: "drag-cancel" }), { type: "solar-preview", action: "drag-cancel" });
+});
 test("rejects unsafe section ids", () => {
   for (const sectionId of ['\"]', '<', '', 'a'.repeat(65)]) assert.equal(parsePreviewMessage({ type: "solar-preview", action: "scroll", sectionId }), null);
   for (const value of [null, [], "solar-preview", { type: "solar-preview", action: "eval" }, { type: "solar-preview", action: { toString: null } }]) assert.equal(parsePreviewMessage(value), null);
