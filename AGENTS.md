@@ -58,6 +58,8 @@ riêng test admin mở iframe preview (khớp `DEV_GREP`) luôn chạy `next dev
 story regression. Thêm script mới, link workspace vào `package.json` hay đổi code không hiển thị không kéo bộ ảnh chụp; story
 cần kiểm hình mà bảng không bật → sửa bảng (kèm test trong `checks-map.test.mjs`), không chạy tay.
 Trước test/e2e: `node scripts/agents/doctor.mjs`; lệnh dài qua `doctor.mjs run --idle <phút> -- <lệnh>` (dừng khi treo).
+Push thêm vào PR chỉ đổi `*.md` sau lần CI xanh → CI dùng lại kết quả đó (`scripts/ci/reuse-run.mjs`), không cần chờ;
+bằng chứng CI của AC ghi run id, tick AC ở commit `docs(roadmap): <ID> done` sau merge, không push commit tick lên PR.
 Chỉ báo "xong" khi typecheck + lint + test đều qua trên phần bị ảnh hưởng.
 
 ## 4. Quy tắc bắt buộc

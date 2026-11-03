@@ -66,10 +66,12 @@ cover.
 **PR merge được** khi đủ cả 4 điều kiện:
 1. `VERDICT: APPROVE` — không còn finding P0/P1, không AC ❌, mục "Chưa cover" trống (hoặc chỉ còn mục `[ngoài agent]`
    đã có bằng chứng, vd. CI).
-2. CI xanh trên commit cuối của PR: GitHub MCP `pull_request_read` (`method: get_check_runs` / `get_status`) hoặc
-   `gh pr checks <số> --watch`. CI đang chạy → chờ (`gh … --watch`, hoặc ScheduleWakeup/Monitor ~5 phút/lần), không
-   poll dày. Mục `[ngoài agent]` cần CI làm bằng chứng → CI xanh thì tick AC đó trong `S.epicFile`, commit
-   `docs(roadmap): tick AC [<ID>]`, push.
+2. CI xanh trên **commit code cuối** của PR (commit cuối có file khác `*.md`): GitHub MCP `pull_request_read`
+   (`method: get_check_runs` / `get_status`) hoặc `gh pr checks <số> --watch`. CI đang chạy → chờ (`gh … --watch`, hoặc
+   ScheduleWakeup/Monitor ~5 phút/lần), không poll dày. Commit sau đó chỉ đổi `*.md` → **không chờ**: CI tự dùng lại kết
+   quả xanh (`scripts/ci/reuse-run.mjs`, job nặng skipped); báo theo SHA code cuối (PR #80: chờ ~9′ vô ích cho một dòng roadmap).
+   Mục `[ngoài agent]` cần CI làm bằng chứng → ghi run id vào `review-r<n>.md` và báo cáo; **không push commit tick AC lên
+   PR** — tick ở commit `docs(roadmap): <ID> done` sau merge (`run-story` Bước 7).
 3. Không conflict với base (`pull_request_read` `method: get` → `mergeable`/`mergeable_state`). Conflict → rebase/merge base
    vào branch (Claude làm, Codex sửa nếu có lỗi), chạy lại `verify`.
 4. `node scripts/agents/run.mjs verify <ID>` chỉ còn cảnh báo đã được ghi chú trong PR.
@@ -105,7 +107,7 @@ cover.
     - diff của vòng sửa (`git diff <SHA trước sửa>..HEAD`) chỉ đụng tài liệu (`roadmap/`, `*.md`), cấu hình nhỏ
       (`package.json`, `tsconfig*`, `turbo.json`, eslint/CI config) hoặc lockfile — lockfile không tính vào giới hạn dòng;
     - tổng ≤ ~20 dòng thay đổi (không tính lockfile), không đổi logic/source, không thêm dependency runtime;
-    - CI xanh trên commit cuối, không conflict.
+    - CI xanh trên commit code cuối (commit chỉ `*.md` sau đó không cần chờ), không conflict.
     Claude tự đọc diff vòng sửa, đối chiếu từng finding / mục "Chưa cover" của `review-r<n>.md`, ghi kết luận vào
     `<S.runDir>/review-r<n+1>.md` theo định dạng `solar-pr-review` (dòng đầu `VERDICT: …`, ghi "Claude kiểm vòng sửa nhỏ").
     Có điểm nghi ngờ (thay đổi lan rộng, finding chưa rõ đã sửa) → quay về review đầy đủ theo `S.reviewer`.
