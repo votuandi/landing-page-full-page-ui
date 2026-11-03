@@ -169,6 +169,105 @@ test.describe("builder", () => {
     await expect(page).toHaveURL(new RegExp(`/trang/${pageId}/builder$`));
   });
 
+  test("thư viện nhóm theo mục đích, thumbnail theo theme", async ({ page }) => {
+    await open(page);
+    const library = page.getByRole("complementary", { name: "Thư viện section" });
+    await expect(library.getByRole("heading", { level: 3 })).toHaveText(["Mở đầu", "Thuyết phục", "Chuyển đổi", "Nội dung", "Chân trang"]);
+    const projects = library.locator('li[data-library-type="projects"]');
+    await expect(projects).toHaveAttribute("data-library-status", "ok");
+    // Site of admin-e7-a uses theme t15; the card shows the type's first variant.
+    await expect(projects.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).locator("img")).toHaveAttribute("src", "/section-thumbs/t15/projects--t15.webp");
+    await projects.getByRole("button", { name: "Kiểu của Công trình đã thực hiện", exact: true }).click();
+    for (const variant of ["t15", "t14", "t12", "t11", "t10"]) {
+      await expect(projects.getByRole("button", { name: `Thêm Công trình đã thực hiện kiểu ${variant}`, exact: true }).locator("img"))
+        .toHaveAttribute("src", `/section-thumbs/t15/projects--${variant}.webp`);
+    }
+    // hero is already on the page (maxPerPage 1): its variants stay browsable but cannot be added.
+    await expect(library.locator('li[data-library-type="hero"]')).toHaveAttribute("data-library-status", "limit");
+  });
+
+  test("kéo section từ thư viện vào canvas tại vị trí thả", async ({ page }) => {
+    await open(page);
+    const item = page.getByRole("button", { name: "Thêm Dự toán chi phí", exact: true });
+    const iframe = page.locator('iframe[title="Xem trước trang"]');
+    // Dropped outside the canvas, back on the item itself: a finished drag is not a click, nothing is added.
+    // The library scrolls on its own: bring the item into the viewport before using its box.
+    await item.scrollIntoViewIfNeeded();
+    let from = (await item.boundingBox())!;
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(from.x + from.width / 2 + 20, from.y + from.height / 2, { steps: 5 });
+    await page.mouse.up();
+    await page.waitForTimeout(500);
+    await expect(canvas(page).locator("[data-builder-drop]")).toHaveCount(0);
+    expect(await rowIds(page)).toEqual(["s-hero", "s-stats", "s-faq", "s-cta"]);
+    // Bring s-faq near the top of the canvas (the page may end before it reaches 0), then aim at its upper half.
+    const target = await frame(page).evaluate(() => {
+      const faq = () => document.querySelector('main [data-section-id="s-faq"]')!.getBoundingClientRect();
+      window.scrollTo({ top: faq().top + window.scrollY - 200, behavior: "instant" });
+      const rect = faq();
+      return { y: rect.top + Math.min(rect.height / 4, 120), half: rect.top + rect.height / 2, width: window.innerWidth, height: window.innerHeight };
+    });
+    // Away from the 64px auto-scroll bands and still in the upper half → "before s-faq".
+    expect(target.y).toBeGreaterThan(80);
+    expect(target.y).toBeLessThan(Math.min(target.half, target.height - 80));
+    await item.scrollIntoViewIfNeeded();
+    const box = (await iframe.boundingBox())!, scale = box.width / target.width;
+    from = (await item.boundingBox())!;
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2, box.y + target.y * scale, { steps: 10 });
+    await expect(canvas(page).locator("[data-builder-drop]")).toBeVisible();
+    await page.mouse.up();
+    await expect.poll(() => rowIds(page)).toEqual(["s-hero", "s-stats", expect.stringMatching(/^calculator-/), "s-faq", "s-cta"]);
+    await expect.poll(draft).toEqual(["s-hero", "s-stats", expect.stringMatching(/^calculator-/), "s-faq", "s-cta"]);
+    await expect(canvas(page).locator("[data-builder-drop]")).toHaveCount(0);
+    await expect.poll(() => canvasIds(page), { timeout: 30_000 }).toEqual(["s-hero", expect.stringMatching(/^calculator-/), "s-faq", "s-cta"]);
+    await expect(page.getByRole("region", { name: "Thuộc tính section" }).getByRole("heading", { level: 2 })).toHaveText("Dự toán chi phí");
+  });
+
+  test("thêm calculator thứ hai bị chặn kèm giải thích", async ({ page }) => {
+    await open(page);
+    const calculator = page.getByRole("complementary", { name: "Thư viện section" }).locator('li[data-library-type="calculator"]');
+    await expect(calculator).toHaveAttribute("data-library-status", "ok");
+    await calculator.getByRole("button", { name: "Thêm Dự toán chi phí", exact: true }).click();
+    await expect.poll(() => rowIds(page)).toEqual(["s-hero", expect.stringMatching(/^calculator-/), "s-stats", "s-faq", "s-cta"]);
+    await expect.poll(draft).toHaveLength(5);
+    await expect(calculator).toHaveAttribute("data-library-status", "limit");
+    const add = calculator.getByRole("button", { name: "Thêm Dự toán chi phí", exact: true });
+    await expect(add).toBeDisabled();
+    await expect(add).toHaveAccessibleDescription('Chỉ được có tối đa 1 "Dự toán chi phí" trên một trang');
+    await expect(calculator).toContainText('Chỉ được có tối đa 1 "Dự toán chi phí" trên một trang');
+    await calculator.getByRole("button", { name: "Kiểu của Dự toán chi phí", exact: true }).click();
+    await expect(calculator.getByRole("button", { name: "Thêm Dự toán chi phí kiểu t12", exact: true })).toBeDisabled();
+    await add.click({ force: true });
+    await page.waitForTimeout(500);
+    expect(await rowIds(page)).toHaveLength(5);
+    expect(draft()).toHaveLength(5);
+  });
+
+  test("bấm Thêm chèn sau section đang chọn", async ({ page }) => {
+    await open(page);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    const add = page.getByRole("button", { name: "Thêm Quy trình triển khai", exact: true });
+    await add.focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => rowIds(page)).toEqual(["s-hero", "s-stats", "s-faq", expect.stringMatching(/^process-/), "s-cta"]);
+    await expect.poll(draft).toEqual(["s-hero", "s-stats", "s-faq", expect.stringMatching(/^process-/), "s-cta"]);
+    await expect(rows(page).nth(3).getByRole("button", { pressed: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Thuộc tính section" }).getByRole("heading", { level: 2 })).toHaveText("Quy trình triển khai");
+    await expect.poll(() => canvasIds(page), { timeout: 30_000 }).toEqual(["s-hero", "s-faq", expect.stringMatching(/^process-/), "s-cta"]);
+  });
+
+  test("không có quyền cấu trúc thì thư viện chỉ xem", async ({ page }) => {
+    await open(page, "viewer_admin");
+    const library = page.getByRole("complementary", { name: "Thư viện section" });
+    await expect(library).toBeVisible();
+    await expect(library.getByRole("button", { name: /^Thêm / }).first()).toBeDisabled();
+    await expect(library.getByRole("button", { name: /^Thêm /, disabled: false })).toHaveCount(0);
+  });
+
   test("builder không lỗi a11y và không tràn ở 390/1440", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", message => { if (message.type() === "error" && /hydrat/i.test(message.text())) errors.push(message.text()); });
