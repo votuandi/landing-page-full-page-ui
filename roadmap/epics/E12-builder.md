@@ -32,7 +32,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 ### E12-S03 · Thư viện section kéo vào trang
 - **Chi tiết**: bảng bên trái nhóm theo mục đích (Mở đầu, Thuyết phục, Chuyển đổi, Nội dung, Chân trang); mỗi mục có
   thumbnail theo theme hiện tại và các variant; kéo vào canvas tại vị trí thả; mục ngoài gói có khóa; kiểm `maxPerPage`.
-- **AC**: [x] Thêm calculator thứ hai bị chặn kèm giải thích (unit `sectionLibrary.test.ts`, `builderLibrary.test.ts`, server `pageSections.test.ts`; e2e chờ bước 6) · [ ] Thumbnail sinh tự động trong CI (E3-S10; đã có workflow, chờ run PR).
+- **AC**: [x] Thêm calculator thứ hai bị chặn kèm giải thích (unit `sectionLibrary.test.ts`, `builderLibrary.test.ts`, server `pageSections.test.ts`; e2e `builder.spec.ts` › "thêm calculator thứ hai bị chặn kèm giải thích") · [x] Thumbnail sinh tự động trong CI (E3-S10; workflow `thumbnails.yml`, [run 41650047496](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41650047496): 1290 ảnh, artifact `section-thumbs`). PR [#80](https://github.com/votuandi/landing-page-full-page-ui/pull/80).
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: M
 
 ### E12-S04 · Sửa nội dung trực tiếp (inline) cho văn bản
