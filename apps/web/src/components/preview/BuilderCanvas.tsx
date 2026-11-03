@@ -272,9 +272,10 @@ export default function BuilderCanvas({ selectedId, reorder, pending = false, on
   }
   return <div data-builder-canvas className="pointer-events-none fixed inset-0 z-[100]">
     {inlineBox && <div data-builder-editable={inlineBox.path ? undefined : ""} data-builder-inline={inlineBox.path ? "" : undefined} data-path={inlineBox.path}
-      aria-hidden className={`fixed cursor-text border-2 border-primary ${inlineBox.path ? "border-solid" : "border-dashed"}`}
-      style={{ top: inlineBox.top, left: inlineBox.left, width: inlineBox.width, height: inlineBox.height }}>
-      {!inlineBox.path && <span className="absolute bottom-full left-0 whitespace-nowrap rounded-button bg-primary px-2 py-1 text-xs text-on-primary">Nhấp đúp để sửa</span>}
+      aria-hidden className={`fixed rounded-button border-2 border-primary ${inlineBox.path ? "border-solid ring-4 ring-primary/25" : "border-dashed"}`}
+      // 4px breathing room so the outline never sits on the glyphs; the chip flips below near the top edge.
+      style={{ top: inlineBox.top - 4, left: inlineBox.left - 4, width: inlineBox.width + 8, height: inlineBox.height + 8 }}>
+      {!inlineBox.path && <span className={`absolute left-0 whitespace-nowrap rounded-button bg-primary px-2 py-1 text-xs font-semibold text-on-primary shadow-sm ${inlineBox.top < 40 ? "top-full mt-1" : "bottom-full mb-1"}`}>Nhấp đúp để sửa</span>}
     </div>}
     {bounds && <div data-builder-selected={selectedId} className="fixed border-2 border-primary" style={{ top: bounds.top, left: bounds.left, width: bounds.width, height: bounds.height }}>
       <div className="absolute left-0 flex max-w-full items-center gap-2 rounded-button bg-primary px-3 py-1 text-sm font-semibold text-on-primary" style={{ top: Math.max(0, -bounds.top) }}>

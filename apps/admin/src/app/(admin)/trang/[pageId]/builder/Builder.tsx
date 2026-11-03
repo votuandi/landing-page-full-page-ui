@@ -172,8 +172,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     <div className="flex min-w-0 flex-wrap items-end justify-between gap-x-4 gap-y-2">
       <div className="min-w-0">
         <a href={`/trang/${editor.page.id}`} className="inline-flex min-h-11 items-center rounded-button text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Về bố cục trang</a>
-        <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
-        <p className="text-sm text-fg-muted">Nhấp đúp vào chữ trên canvas để sửa trực tiếp</p>
+        <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <div role="group" aria-labelledby="builder-device" className="flex flex-wrap items-center gap-2">
@@ -191,7 +190,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         }}>{loadingPreview ? "Đang tải xem trước…" : "Tải lại xem trước"}</button>
       </div>
     </div>
-    <p className="text-sm text-fg-muted">Kéo section từ thư viện vào trang hoặc bấm Thêm để chèn sau section đang chọn. Thay đổi tự lưu vào bản nháp. Dùng nút Lên, Xuống để sắp xếp bằng bàn phím hoặc cảm ứng.</p>
+    <p className="text-sm text-fg-muted">Kéo section từ thư viện vào trang hoặc bấm Thêm để chèn sau section đang chọn. Thay đổi tự lưu vào bản nháp. Dùng nút Lên, Xuống để sắp xếp bằng bàn phím hoặc cảm ứng.{editor.canEditContent && " Nhấp đúp vào tiêu đề hoặc chữ trên nút trong canvas để sửa trực tiếp; nội dung khác sửa ở bảng thuộc tính."}</p>
     {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
     {conflict && <button type="button" className={button} onClick={() => window.location.reload()}>Tải lại trang</button>}
     {expired && <p role="status" className="text-sm font-medium text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
