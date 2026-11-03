@@ -21,7 +21,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **AC**: [x] Hai bản demo chạy được (`spike/E12-S01-puck`, `spike/E12-S01-dnd-kit`, số đo ở [`spikes/E12-S01.md`](../spikes/E12-S01.md)) · [x] Quyết định được chủ dự án duyệt (02/11/2026: tự xây trên dnd-kit).
 - Agent: Claude + Codex (song song) · Cỡ: M
 
-### E12-S02 · Canvas preview trong iframe
+### E12-S02 · Canvas preview trong iframe ✅ [PR #78](https://github.com/votuandi/landing-page-full-page-ui/pull/78)
 - **Chi tiết**: iframe tải `apps/web` ở chế độ builder (draft mode + `?builder=1`) trên `<slug>.preview.<platform>` (E5-S07); giao tiếp `postMessage` có
   kiểm origin: chọn section (viền + nhãn), kéo để sắp xếp, cuộn đồng bộ; hiển thị 3 khung thiết bị (390/768/1440).
   Trước khi làm, xử lý các phát hiện của spike ([`spikes/E12-S01.md`](../spikes/E12-S01.md) mục "Việc cho E12-S02 trở đi"): port bản sửa `PreviewBridge`
