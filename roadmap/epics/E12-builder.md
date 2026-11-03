@@ -29,7 +29,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **AC**: [x] Click section trong canvas mở form của đúng section (`builder.spec.ts`) · [x] Thông điệp từ origin lạ bị bỏ qua (unit `previewFrame.test.tsx`, `previewProtocol.test.ts`; e2e bước 5).
 - Phụ thuộc: S01 · Agent: Claude · Cỡ: L
 
-### E12-S03 · Thư viện section kéo vào trang
+### E12-S03 · Thư viện section kéo vào trang ✅ [PR #80](https://github.com/votuandi/landing-page-full-page-ui/pull/80)
 - **Chi tiết**: bảng bên trái nhóm theo mục đích (Mở đầu, Thuyết phục, Chuyển đổi, Nội dung, Chân trang); mỗi mục có
   thumbnail theo theme hiện tại và các variant; kéo vào canvas tại vị trí thả; mục ngoài gói có khóa; kiểm `maxPerPage`.
 - **AC**: [x] Thêm calculator thứ hai bị chặn kèm giải thích (unit `sectionLibrary.test.ts`, `builderLibrary.test.ts`, server `pageSections.test.ts`; e2e `builder.spec.ts` › "thêm calculator thứ hai bị chặn kèm giải thích") · [x] Thumbnail sinh tự động trong CI (E3-S10; workflow `thumbnails.yml`, [run 41650047496](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41650047496): 1290 ảnh, artifact `section-thumbs`). PR [#80](https://github.com/votuandi/landing-page-full-page-ui/pull/80).
