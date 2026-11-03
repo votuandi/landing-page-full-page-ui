@@ -52,6 +52,7 @@ jobs:
           ACTION: ${{ github.event.action }}
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: node scripts/ci/reuse-run.mjs workspace.yml
       - id: map
         if: steps.reuse.outputs.reuse != 'true'

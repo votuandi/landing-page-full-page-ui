@@ -236,7 +236,7 @@ chứng" của PR, cùng lý do cho các dòng `⚠ Đổi code thuộc … như
   Lỗi khó đoán nguyên nhân → thêm vào prompt "dùng skill debugging-and-error-recovery".
   Lỗi trình bày/design → Claude sửa. Tối đa **2 vòng**; hết vòng → ghi `HANDOFF.md`, dừng, báo người dùng.
 - "Ngoài danh sách file của plan" → xem nhanh, hợp lý thì ghi chú vào PR, không thì yêu cầu bỏ.
-- AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]`.
+- AC chưa tick đủ mà bằng chứng có → tick, commit `docs(roadmap): tick AC [<ID>]` (trước push đầu; sau khi mở PR thì tick ở Bước 7).
 - Dòng `⚠` (plan thiếu mục bắt buộc, report thiếu "Skill đã dùng"/"Case biên → test"/"Tự review") → bổ sung trước
   bước 5; không bổ sung được thì ghi lý do vào PR.
 

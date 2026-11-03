@@ -164,7 +164,8 @@ Tiến độ: `/get-progress [ID|Ex]` (`… progress`) báo % story/epic + ướ
   Playbook chạy tuần tự trong cây làm việc chính; chạy song song thì dùng git worktree riêng.
 - Debug Next.js chạy thật: MCP `next-devtools`, `playwright` — agent nào đang làm story thì dùng.
 - Commit theo Conventional Commits có scope là package hoặc story: `feat(sections): … [E3-S02]`.
-- Khi xong story: tick AC trong file epic tương ứng ở `roadmap/epics/` và ghi link PR.
+- Khi xong story: tick AC có bằng chứng trong file epic ở `roadmap/epics/` trước khi mở PR; AC chờ CI (run id) và link PR
+  ghi ở commit `docs(roadmap): <ID> done` trên base sau merge, không push lên PR.
 
 ## 7. Định nghĩa hoàn thành (DoD) cho mọi story
 

@@ -17,6 +17,16 @@ test("có file không phải *.md (kể cả json/yml trong roadmap) → chạy 
   assert.equal(docsOnly([]), false);
 });
 
+test("*.md là đầu vào của kiểm tra CI (plans:table, ERD) → chạy lại", () => {
+  for (const file of ["roadmap/README.md", "packages/db/ERD.md"]) {
+    assert.equal(reusable({ ...base, files: ["roadmap/epics/E12-builder.md", file] }), false, file);
+  }
+});
+
+test("PR có nhãn regression → luôn chạy đủ", () => {
+  assert.equal(reusable({ ...base, regression: true }), false);
+});
+
 test("lần chạy trước chưa xong, đỏ, bị hủy hoặc không có → chạy lại", () => {
   for (const runs of [[], [{ status: "in_progress", conclusion: "" }], [{ status: "completed", conclusion: "failure" }],
     [{ status: "completed", conclusion: "cancelled" }], [{ status: "completed", conclusion: "skipped" }]]) {
