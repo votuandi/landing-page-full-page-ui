@@ -22,6 +22,12 @@ test("handle chỉ gửi lệnh khi ready và chuyển insert đúng origin/sour
     const insert = { type: "solar-preview", action: "insert", targetId: "faq", position: "before" };
     receive(insert, "http://foreign.test"); receive(insert, props.targetOrigin, window);
     assert.equal(events.length, 0); receive(insert); assert.deepEqual(events, [insert]);
+    const inline = { type: "solar-preview", action: "inline", sectionId: "hero", path: ["title"], locale: "vi", text: "Mới" };
+    events.length = 0;
+    receive(inline, "http://foreign.test"); receive(inline, props.targetOrigin, window);
+    assert.deepEqual(events, []); receive(inline); assert.deepEqual(events, [inline]);
+    const fields = { type: "solar-preview", action: "fields", sectionId: "hero", fields: [{ path: ["title"], text: { vi: "Cũ" } }] } as const;
+    sent.length = 0; handle.current!.post({ ...fields, fields: [...fields.fields] }); assert.deepEqual(sent, [fields]);
     await act(async () => m.root.render(<PreviewFrame {...props} src="http://localhost/other" />));
     sent.length = 0; handle.current!.post(command); assert.equal(sent.length, 0);
   } finally { m.unmount(); }

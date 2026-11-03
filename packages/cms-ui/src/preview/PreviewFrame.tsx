@@ -24,7 +24,7 @@ export function PreviewFrame({ src, title, className = "rounded-card border bord
         if (current.selectedId) frame.current?.contentWindow?.postMessage({ type: PREVIEW_MESSAGE, action: "select", sectionId: current.selectedId }, targetOrigin);
       }
       if (message?.action === "updated") latest.current.onUpdated?.();
-      if (message && ["ready", "updated", "select", "visible", "reorder", "insert"].includes(message.action)) latest.current.onEvent?.(message as PreviewEvent);
+      if (message && ["ready", "updated", "select", "visible", "reorder", "insert", "inline"].includes(message.action)) latest.current.onEvent?.(message as PreviewEvent);
     };
     window.addEventListener("message", receive);
     // The preview token is single-use: attach the listener first and keep src out of SSR.

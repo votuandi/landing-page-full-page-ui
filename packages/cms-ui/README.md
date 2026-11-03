@@ -46,3 +46,10 @@ khi form chặn đổi section. `sectionId` là tùy chọn; giá trị rỗng �
 Listener gắn trước khi gán `src`; token không nằm trong HTML SSR và StrictMode không gán lại cùng URL.
 `moveRelative(sections, id, targetId, position)` sắp xếp theo section đích, giữ section ẩn và bỏ qua id lạ.
 `SectionListEditor.editHref(section)` thêm link sửa nội dung độc lập với quyền đổi bố cục.
+
+`inlineFields(schema, data)` lấy whitelist trường `localized` ngắn và `link.label`, kể cả trong mảng/union;
+multiline, rich text và media vẫn sửa trong panel. `applyInlineEdit` chỉ ghi vào whitelist, gộp khoảng trắng,
+ghi đúng locale (EN rỗng xóa khóa) và trả kết quả zod; caller đưa dữ liệu vào cùng form/autosave để chặn lưu khi sai.
+Builder gửi lệnh `fields` sau `ready` và khi form đổi; nhận sự kiện `inline` qua PreviewFrame đã kiểm origin/source.
+Canvas chỉ sửa Text node khớp duy nhất, giữ các node con của cha để React refresh an toàn. Enter/bấm ra ngoài chốt,
+Escape hoàn nguyên; clipboard chỉ đọc `text/plain`. Panel là đường sửa bằng bàn phím và cho chữ không khớp/trùng.
