@@ -39,7 +39,16 @@ commit làm commit đầu tiên của branch story. Người thực thi (Codex h
 - Mục "Cách kiểm chứng" lấy bộ e2e từ `printf '%s\n' <file dự kiến sửa> | node scripts/ci/checks-map.mjs --stdin`.
 
 ## Thiết kế
-- Quyết định chính + lý do; chữ ký hàm/kiểu/cấu trúc thư mục cần chốt.
+- Quyết định đã chốt, mỗi quyết định kèm lỗi nó ngăn: "<quyết định> → <lỗi tránh được>"
+  (vd. "gán `src` iframe sau khi gắn listener → không mất `ready`, StrictMode không đốt token một lần").
+- Chữ ký hàm/kiểu, định dạng dữ liệu/thông điệp, thứ tự ghi và khóa, cấu trúc thư mục.
+- Thứ tái dùng thay vì viết mới (action, helper, component). Không để ngỏ quyết định cho người thực thi: thiết kế để
+  ngỏ là nguồn chính của finding P1 ở vòng review (E7-S03, E11-S03); E12-S02 chốt hết thì 1 vòng, 0 P0/P1.
+
+## Hợp đồng e2e (story UI có e2e)
+- Accessible name, `aria-label`, `data-*` mà spec sẽ dùng; người thực thi giữ nguyên, Claude viết spec song song.
+- Fixture cần tạo (action của `browser-fixture.ts` hoặc lab route) và dữ liệu mẫu.
+- Spec mở iframe preview của admin → tên test khớp `DEV_GREP` trong `scripts/local-ci.sh` (chạy `next dev`).
 
 ## Case biên & bất biến (bắt buộc)
 | # | Tình huống / bất biến | Hành vi mong đợi | Test sẽ chứng minh |

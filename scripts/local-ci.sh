@@ -101,6 +101,7 @@ build_if_stale() {
   if [ ! -f "$id" ] || [ -n "$newer" ]; then echo "→ build $app${newer:+ ($newer mới hơn bản build)}"; pnpm --filter "$app" build; fi
 }
 
+DEV_GREP='builder|content editor|xem trước'
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
@@ -109,6 +110,9 @@ e2e() {
   # 8 times; cold compiles also caused most local timeouts. Single tests (`-g`) therefore run on production builds: 2 lead
   # inbox tests took 1.5 min and 2.3 GB. Whole suites stay on `next dev` like CI: in production the app itself emits https
   # URLs without port and secure cookies, which suites served over http:// assert on. E2E_SERVER overrides.
+  # Admin tests that open the preview iframe go through previewUrl(), which emits https without port in production: the
+  # iframe stays blank (E12-S02 lost a 12/13-red run). Add new specs of that kind to DEV_GREP.
+  if [ "$cfg" = admin ] && printf '%s' "$*" | grep -qiE "$DEV_GREP"; then : "${E2E_SERVER:=dev}"; fi
   case " $* " in *" -g "*|*" --grep "*|*" --grep="*) : "${E2E_SERVER:=start}" ;; *) : "${E2E_SERVER:=dev}" ;; esac
   export E2E_SERVER
   if [ "$E2E_SERVER" = start ]; then
