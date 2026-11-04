@@ -291,7 +291,7 @@ test.describe("builder", () => {
     await expect(canvas(page).locator("main [contenteditable]")).toHaveCount(0);
     await expect.poll(() => panelValues(page)).toContain(next);
     await expect.poll(() => heroData().title.highlight.vi, { timeout: 30_000 }).toBe(next);
-    await expect(panel(page).getByRole("status")).toHaveText("Đã lưu nháp");
+    await expect(panel(page).locator('p[role="status"]')).toHaveText("Đã lưu nháp");
     await expect(heroText(page, next)).toBeVisible({ timeout: 30_000 });
     // Escape restores the text and sends nothing.
     await editInline(page, next, "title.highlight");
@@ -322,7 +322,7 @@ test.describe("builder", () => {
     await editInline(page, "mái nhà của bạn", "title.highlight");
     await page.keyboard.type("[DỮ LIỆU MẪU] chuỗi quá dài cho phần nhấn mạnh của tiêu đề hero x");
     await page.keyboard.press("Enter");
-    await expect(panel(page).getByRole("status")).toHaveText("Có lỗi cần sửa — chưa lưu");
+    await expect(panel(page).locator('p[role="status"]')).toHaveText("Có lỗi cần sửa — chưa lưu");
     await page.waitForTimeout(2_000);
     expect(heroData().title.highlight.vi).toBe("mái nhà của bạn");
   });
