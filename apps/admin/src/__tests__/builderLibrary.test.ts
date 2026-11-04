@@ -38,7 +38,7 @@ test("bố cục dùng queue, hoàn nguyên select khi 400/409 và hiện lỗi"
     const initial = editor({ sections: [{ id: "faq", type: "faq", variant: "t15", enabled: true }], forms: { faq: { data: sectionRegistry.types.faq.defaults, recovered: false, readOnly: undefined } } });
     const m = await mount(createElement(Builder, { editor: initial }));
     try {
-      const background = [...m.container.querySelectorAll("label")].find(l => l.textContent?.startsWith("Nền"))!.querySelector("select")!;
+      const background = (m.container.querySelector(`[id="${[...m.container.querySelectorAll("label")].find(l => l.textContent === "Nền")!.htmlFor}"]`) as HTMLSelectElement);
       await typeInput(background, "tint");
       assert.equal(writes.length, 1);
       assert.equal(writes[0].get("revision"), "2");

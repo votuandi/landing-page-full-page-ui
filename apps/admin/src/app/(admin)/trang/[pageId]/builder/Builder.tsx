@@ -255,7 +255,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         </nav>
         <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 xl:overflow-y-auto">
           {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
-            layoutFields={<LayoutFields section={selected} sections={sections} themeSupportsDark={editor.themeSupportsDark} disabled={!editor.canReorder || busy || conflict} onChange={next => { void changeLayout(next); }} />}
+            layoutFields={<LayoutFields key={`${selected.id}:${selected.anchor ?? ""}`} section={selected} sections={sections} themeSupportsDark={editor.themeSupportsDark} disabled={!editor.canReorder || busy || conflict} onChange={next => { void changeLayout(next); }} />}
             onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
             save={data => queue.write(async revision => {
               const form = formData(revision); form.set("sectionId", selected.id); form.set("data", JSON.stringify(data));

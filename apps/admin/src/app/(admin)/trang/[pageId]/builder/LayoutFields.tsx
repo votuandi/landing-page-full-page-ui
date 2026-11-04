@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import type { EditableSection } from "@solar/cms-ui";
 import type { SectionLayout } from "@solar/sections";
 import { anchorError, layoutOptions } from "../../../../../lib/layoutOptions.ts";
@@ -16,7 +16,6 @@ export default function LayoutFields({ section, themeSupportsDark, sections, dis
   const options = layoutOptions(section.type, section.variant, themeSupportsDark);
   const [anchor, setAnchor] = useState(section.anchor ?? "");
   const errorId = useId();
-  useEffect(() => { setAnchor(section.anchor ?? ""); }, [section.id, section.anchor]);
   const error = anchorError(anchor, sections, section.id);
   function change(key: keyof SectionLayout, value: string) {
     if (disabled) return;
@@ -37,17 +36,18 @@ export default function LayoutFields({ section, themeSupportsDark, sections, dis
   }
   return <fieldset disabled={disabled} className="min-w-0 space-y-3 border-b border-line/20 pb-4">
     <legend className="text-sm font-semibold text-fg">Bố cục</legend>
-    {(["background", "spacing", "align"] as const).map(key => options[key] && <label key={key} className="block space-y-1 text-sm text-fg">
-      <span>{names[key]}</span>
-      <select className={control} value={section.layout?.[key] ?? (key === "background" ? "default" : key === "spacing" ? "normal" : "start")} onChange={e => change(key, e.target.value)}>
+    {/* select dùng htmlFor, không bọc trong label: label bọc select đưa option đang chọn vào accessible name. */}
+    {(["background", "spacing", "align"] as const).map(key => options[key] && <div key={key} className="space-y-1 text-sm text-fg">
+      <label htmlFor={`${errorId}-${key}`} className="block">{names[key]}</label>
+      <select id={`${errorId}-${key}`} className={control} value={section.layout?.[key] ?? (key === "background" ? "default" : key === "spacing" ? "normal" : "start")} onChange={e => change(key, e.target.value)}>
         {options[key]!.map(value => <option key={value} value={value}>{labels[value]}</option>)}
       </select>
-    </label>)}
-    <label className="block space-y-1 text-sm text-fg"><span>Ẩn trên</span>
-      <select className={control} value={section.layout?.hideOn ?? ""} onChange={e => change("hideOn", e.target.value)}>
+    </div>)}
+    <div className="space-y-1 text-sm text-fg"><label htmlFor={`${errorId}-hideOn`} className="block">Ẩn trên</label>
+      <select id={`${errorId}-hideOn`} className={control} value={section.layout?.hideOn ?? ""} onChange={e => change("hideOn", e.target.value)}>
         <option value="">Không ẩn</option><option value="mobile">Di động</option><option value="desktop">Máy tính</option>
       </select>
-    </label>
+    </div>
     <label className="block space-y-1 text-sm text-fg"><span>Mã neo</span>
       <input className={control} value={anchor} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined}
         onChange={e => setAnchor(e.target.value)} onBlur={saveAnchor} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); saveAnchor(); } }} />

@@ -8,7 +8,10 @@ import type { EditableSection } from "@solar/cms-ui";
 Object.assign(globalThis, { React });
 
 const faq: EditableSection = { id: "faq", type: "faq", variant: "t15", enabled: true, anchor: "hoi-dap" };
-const input = (container: HTMLElement, label: string) => [...container.querySelectorAll("label")].find(l => l.textContent?.startsWith(label))!.querySelector<HTMLInputElement>("input,select")!;
+const input = (container: HTMLElement, label: string) => {
+  const node = [...container.querySelectorAll("label")].find(l => l.textContent?.startsWith(label))!;
+  return (node.htmlFor ? container.querySelector<HTMLInputElement>(`[id="${node.htmlFor}"]`) : node.querySelector<HTMLInputElement>("input,select"))!;
+};
 
 test("fieldset Bố cục có label/enum, ẩn control không hỗ trợ và tôn trọng disabled", async () => {
   const props = { section: faq, sections: [faq], themeSupportsDark: true, disabled: false, onChange() {} };
