@@ -26,10 +26,29 @@ function editor(overrides: Partial<BuilderEditor> = {}): BuilderEditor {
   return { page: { id: "page", title: "Trang mẫu", revision: 2 },
     sections: [{ id: "hero", type: "hero", variant: "t15", enabled: true }],
     forms: { hero: { data: sectionRegistry.types.hero.defaults, recovered: false, readOnly: undefined } },
-    canReorder: true, canEditContent: true, bilingual: false, previewUrl: "http://localhost/frame", themeId: "t15",
+    canReorder: true, canEditContent: true, bilingual: false, previewUrl: "http://localhost/frame", themeId: "t15", themeSupportsDark: true,
     allowedTypes: Object.values(sectionRegistry.types).map(def => def.type), lockedTypes: [], ...overrides };
 }
 const ids = (container: HTMLElement) => [...container.querySelectorAll("li[data-section-id]")].map(el => el.getAttribute("data-section-id"));
+
+test("bố cục dùng queue, hoàn nguyên select khi 400/409 và hiện lỗi", async () => {
+  for (const status of [400, 409]) {
+    const writes: FormData[] = [];
+    save = async form => { writes.push(form); return { ok: false, status, error: `Không thể lưu ${status}` }; };
+    const initial = editor({ sections: [{ id: "faq", type: "faq", variant: "t15", enabled: true }], forms: { faq: { data: sectionRegistry.types.faq.defaults, recovered: false, readOnly: undefined } } });
+    const m = await mount(createElement(Builder, { editor: initial }));
+    try {
+      const background = [...m.container.querySelectorAll("label")].find(l => l.textContent?.startsWith("Nền"))!.querySelector("select")!;
+      await typeInput(background, "tint");
+      assert.equal(writes.length, 1);
+      assert.equal(writes[0].get("revision"), "2");
+      assert.equal(JSON.parse(writes[0].get("sections") as string)[0].layout.background, "tint");
+      assert.equal(background.value, "default");
+      assert.match(m.container.querySelector('[role="alert"]')!.textContent!, new RegExp(String(status)));
+      if (status === 409) assert.equal(background.closest("fieldset")!.disabled, true);
+    } finally { m.unmount(); }
+  }
+});
 
 test("inline đi qua cùng form: quá max chặn lưu, sửa đúng mới lưu nháp", async () => {
   const writes: FormData[] = []; save = async form => { writes.push(form); return { ok: true, revision: 2 + writes.length }; };

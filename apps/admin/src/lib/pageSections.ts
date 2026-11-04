@@ -5,6 +5,7 @@ import { migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistr
 import type { EditableSection } from "@solar/cms-ui";
 import type { ActionContext, ActionResult } from "./action.ts";
 import { sectionFormType } from "./sectionForms.ts";
+import { getTheme } from "@solar/themes";
 
 const descriptorSchema = pageSectionSchema.omit({ data: true }).strict();
 const descriptorsSchema = z.array(descriptorSchema).max(200).superRefine((sections, ctx) => {
@@ -97,7 +98,7 @@ export async function loadBuilder(pageId: string, deps: PageSectionsDeps & { req
     return def ? [[section.id, readSectionData(section, def, rows.find(row => row.sectionId === section.id) ?? null)]] : [];
   }));
   const reorder = session.permissions.has("pages.structure") && can("sectionReorder");
-  return { page: { id: page.id, title: pageTitle(page.title, page.slug), revision: page.revision }, sections, forms, themeId, ...typeAccess(can),
+  return { page: { id: page.id, title: pageTitle(page.title, page.slug), revision: page.revision }, sections, forms, themeId, themeSupportsDark: Boolean(getTheme(themeId)?.meta.supportsDark), ...typeAccess(can),
     canReorder: reorder, canEditContent: session.permissions.has("content.edit"), bilingual: can("bilingual"),
     previewUrl: await deps.preview(tenant.tenantId, tenant.siteId, tenant.slug, builderPath(page.slug, reorder)) };
 }
