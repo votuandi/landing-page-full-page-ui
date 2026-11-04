@@ -1,4 +1,6 @@
-export type EditableSection = { id: string; type: string; variant: string; enabled: boolean; anchor?: string };
+import type { SectionLayout } from "@solar/sections";
+
+export type EditableSection = { id: string; type: string; variant: string; enabled: boolean; anchor?: string; layout?: SectionLayout };
 export const newSectionId = (type: string) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
 
 export function insertRelative(value: EditableSection[], section: EditableSection, targetId?: string, position: "before" | "after" = "after"): EditableSection[] {

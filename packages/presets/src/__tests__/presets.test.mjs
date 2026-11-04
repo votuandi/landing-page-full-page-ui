@@ -6,6 +6,22 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 
+test("layout theo gói: chỉ so layout, chuẩn hóa thứ tự key, giữ baseline khi hạ gói", () => {
+  const { validateSiteStructure } = require("../index.ts");
+  const section = { id: "faq", type: "faq", variant: "t15", enabled: true, anchor: "hoi-dap" };
+  const structure = sections => ({ pageTypes: ["home", "contact", "policy"], pages: [{ slug: "", sections }, { slug: "lien-he", sections: [] }] });
+  const baseline = structure([section]);
+  const validate = (sections, base = baseline) => validateSiteStructure(structure(sections), { can: f => f !== "builder", baseline: base, pagesLimit: Infinity });
+  assert.deepEqual(validate([{ ...section, anchor: "doi-neo" }]), []);
+  assert.deepEqual(validate([{ ...section, layout: {} }]), []);
+  assert.ok(validate([{ ...section, layout: { background: "tint" } }]).includes("Gói không cho tùy chỉnh bố cục section: /"));
+  const saved = structure([{ ...section, layout: { background: "tint", spacing: "compact" } }]);
+  assert.deepEqual(validate([{ ...section, layout: { spacing: "compact", background: "tint" } }], saved), []);
+  assert.ok(validate([section], saved).includes("Gói không cho tùy chỉnh bố cục section: /"));
+  const next = structure([{ ...section, layout: { background: "sun" } }]);
+  assert.deepEqual(validateSiteStructure(next, { can: () => true, baseline, pagesLimit: Infinity }), []);
+});
+
 test("site structure filter keeps every preset valid and retains landing pages after disabling about", () => {
   const { presets, loadPreset, presetStructure, siteStructureOf, validateSiteStructure } = require("../index.ts");
   for (const { id } of presets) {
