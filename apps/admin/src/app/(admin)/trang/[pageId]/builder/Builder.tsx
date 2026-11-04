@@ -172,7 +172,8 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     <div className="flex min-w-0 flex-wrap items-end justify-between gap-x-4 gap-y-2">
       <div className="min-w-0">
         <a href={`/trang/${editor.page.id}`} className="inline-flex min-h-11 items-center rounded-button text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Về bố cục trang</a>
-        <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
+        <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
+
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <div role="group" aria-labelledby="builder-device" className="flex flex-wrap items-center gap-2">
