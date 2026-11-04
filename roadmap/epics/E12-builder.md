@@ -45,8 +45,11 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **Chi tiết**: mỗi instance section có `layout`: `background` (`default|tint|sky|sun|deep|invert`), `spacing`
   (`compact|normal|loose`), `align` (nếu variant hỗ trợ), `anchorId`, `hideOn` (`mobile|desktop`). Chỉ ánh xạ sang token/class
   có sẵn.
-- **AC**: [ ] Không tùy chọn nào sinh màu ngoài token (kiểm bằng `lint:tokens` trên HTML render) · [ ] Variant khai báo tùy chọn
+- **AC**: [x] Không tùy chọn nào sinh màu ngoài token (kiểm bằng `lint:tokens` trên HTML render) · [x] Variant khai báo tùy chọn
   nó hỗ trợ; tùy chọn không hỗ trợ bị ẩn.
+- Bằng chứng local: `packages/sections/src/__tests__/layout.test.tsx` (AC1 ma trận HTML 11 variant opt-in, fallback/ignore),
+  `apps/admin/src/__tests__/layoutOptions.test.ts` + `layoutFields.test.ts` (ẩn control theo capability/theme), lint token
+  sections/cms-ui/admin 0 vi phạm. E2E/visual và review Claude còn chờ; chi tiết `.agent-runs/E12-S05/codex-report.md`.
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: S
 
 ### E12-S06 · Lịch sử, undo/redo, phiên bản
