@@ -9,6 +9,8 @@ export { UpgradeDialog } from "./UpgradeDialog.tsx";
 export type { SectionListEditorProps } from "./sections/SectionListEditor.tsx";
 export type { EditableSection } from "./sections/ops.ts";
 export { moveRelative, insertRelative, newSectionId } from "./sections/ops.ts";
+export { inlineFields, applyInlineEdit } from "./sections/inline.ts";
+export type { InlineField, InlineEdit } from "./sections/inline.ts";
 export { LIBRARY_GROUPS, libraryStatus } from "./sections/library.ts";
 export type { SchemaFormProps } from "./SchemaForm.tsx";
 export { useSchemaForm } from "./context.ts";

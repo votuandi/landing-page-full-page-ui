@@ -2,6 +2,23 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adminOrigin, parsePreviewMessage, shouldHandlePreview } from "../preview/protocol.ts";
 
+test("lệnh fields và sự kiện inline sai dạng bị loại", () => {
+  const field = { path: ["items", 0, "title"], text: { vi: "Tên", en: "Name" } };
+  const fields = { type: "solar-preview", action: "fields", sectionId: "hero", fields: [field] };
+  const inline = { type: "solar-preview", action: "inline", sectionId: "hero", path: field.path, locale: "vi", text: "Tên" };
+  assert.deepEqual(parsePreviewMessage(fields), fields);
+  assert.deepEqual(parsePreviewMessage(inline), inline);
+  assert.deepEqual(parsePreviewMessage({ ...fields, fields: [] }), { ...fields, fields: [] });
+  for (const path of [[], Array(9).fill("a"), ["__proto__"], ["constructor"], ["prototype"], [-1], [1000], [0.5], ["x.y"], ["a".repeat(41)]]) {
+    assert.equal(parsePreviewMessage({ ...inline, path }), null);
+    assert.equal(parsePreviewMessage({ ...fields, fields: [field, { ...field, path }] }), null);
+  }
+  for (const patch of [{ sectionId: undefined }, { text: "a".repeat(2001) }, { text: 5 }, { locale: "fr" }, { locale: undefined }]) assert.equal(parsePreviewMessage({ ...inline, ...patch }), null);
+  for (const list of [undefined, {}, Array(301).fill(field), [null], [{ path: ["title"], text: { vi: "x".repeat(2001) } }], [{ ...field, text: { vi: "ok", en: null } }]]) assert.equal(parsePreviewMessage({ ...fields, fields: list }), null);
+  assert.ok(parsePreviewMessage({ ...fields, fields: Array(300).fill({ path: ["a".repeat(40), 999], text: { vi: "x".repeat(2000) } }) }));
+  assert.ok(parsePreviewMessage({ ...inline, locale: "en", text: "x".repeat(2000) }));
+});
+
 test("lệnh kéo thư viện sai dạng bị loại", () => {
   for (const action of ["drag", "drop"]) {
     for (const y of [NaN, Infinity, -1, "10", undefined, 100001]) assert.equal(parsePreviewMessage({ type: "solar-preview", action, y }), null);

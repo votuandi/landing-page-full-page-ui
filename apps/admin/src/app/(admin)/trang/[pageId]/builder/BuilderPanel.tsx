@@ -44,6 +44,7 @@ export default function BuilderPanel({ ref, section, form, bilingual, disabled, 
     {form.recovered && <p role="alert" className="text-sm text-danger">Dữ liệu cũ không đọc được, đang hiển thị mặc định</p>}
     {form.readOnly && <p role="alert" className="text-sm text-danger">{form.readOnly}</p>}
     <p role="status" className="text-sm text-fg-muted">{disabled ? "Bạn chỉ có quyền xem nội dung." : form.readOnly ? "Nội dung chỉ đọc" : messages[autosave.status]}</p>
+    {!disabled && !form.readOnly && <p className="text-sm text-fg-muted">Nhấp đúp vào tiêu đề hoặc chữ trên nút trong khung xem trước để sửa trực tiếp.</p>}
     {autosave.error && <p role="alert" className="text-sm text-danger">{autosave.error}</p>}
     {autosave.status === "error" && <button type="button" className="min-h-11 rounded-button px-3 text-primary focus-visible:ring-2 focus-visible:ring-primary" onClick={() => { void autosave.flush(); }}>Thử lưu lại</button>}
     <fieldset disabled={disabled || Boolean(form.readOnly) || autosave.status === "conflict"} className="min-w-0">

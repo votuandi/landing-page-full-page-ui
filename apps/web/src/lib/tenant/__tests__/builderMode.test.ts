@@ -1,6 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { builderMode, currentSection, dropPosition, dropTarget, scrollBehavior } from "../../../components/preview/builderMode.ts";
+import { builderMode, currentSection, dropPosition, dropTarget, scrollBehavior, matchInline, insertPlain } from "../../../components/preview/builderMode.ts";
+
+test("matchInline bỏ chữ trùng", () => {
+  const title = { path: ["title"], text: { vi: "Một", en: "One" } };
+  const cta = { path: ["cta", "label"], text: { vi: "Nút" } };
+  assert.deepEqual([...matchInline([" Một ", "Nút", "Dài"], [title, cta], "vi")], [[0, title], [1, cta]]);
+  assert.equal(matchInline(["Một", "Một"], [title], "vi").size, 0);
+  assert.equal(matchInline(["Một"], [title, { ...title, path: ["other"] }], "vi").size, 0);
+  assert.equal(matchInline([" ", "Dài"], [{ path: ["empty"], text: { vi: "" } }], "vi").size, 0);
+  assert.deepEqual([...matchInline(["One", "Nút"], [title, cta], "en")], [[0, title], [1, cta]]);
+});
+test("insertPlain chỉ lấy text, gộp xuống dòng", () => {
+  assert.deepEqual(insertPlain("Hello world", 6, 11, "Đậm\n\tnhạt"), { value: "Hello Đậm nhạt", caret: 14 });
+  assert.deepEqual(insertPlain("ab", 1, 1, " \n x"), { value: "a xb", caret: 3 });
+  assert.deepEqual(insertPlain("ab", 0, 2, ""), { value: "", caret: 0 });
+});
 
 test("dropTarget", () => {
   const hero = { id: "hero", top: 0, bottom: 400, height: 400 }, faq = { id: "faq", top: 400, bottom: 800, height: 400 };

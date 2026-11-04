@@ -38,7 +38,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 ### E12-S04 · Sửa nội dung trực tiếp (inline) cho văn bản
 - **Chi tiết**: trường `localized` ngắn (tiêu đề, nút) sửa trực tiếp trên canvas (contentEditable có kiểm soát, chỉ text);
   trường phức tạp mở bảng thuộc tính (SchemaForm).
-- **AC**: [ ] Dán văn bản có định dạng → chỉ giữ text · [ ] Giá trị vẫn qua validate zod trước khi lưu.
+- **AC**: [x] Dán văn bản có định dạng → chỉ giữ text (unit `builderMode.test.ts` › insertPlain, `builderCanvas.test.ts`; e2e `builder.spec.ts` › "dán văn bản có định dạng chỉ giữ text") · [x] Giá trị vẫn qua validate zod trước khi lưu (unit `inline.test.ts`, `builderLibrary.test.ts`; e2e `builder.spec.ts` › "sửa inline vượt giới hạn không lưu").
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: M
 
 ### E12-S05 · Tùy chọn bố cục có giới hạn

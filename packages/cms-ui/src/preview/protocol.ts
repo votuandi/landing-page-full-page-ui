@@ -1,18 +1,42 @@
+import type { InlineEdit, InlineField } from "../sections/inline.ts";
+export type { InlineField } from "../sections/inline.ts";
+
 export const PREVIEW_MESSAGE = "solar-preview";
 export type PreviewCommand = { type: typeof PREVIEW_MESSAGE; action: "refresh" | "scroll"; sectionId?: string }
   | { type: typeof PREVIEW_MESSAGE; action: "select"; sectionId: string }
   | { type: typeof PREVIEW_MESSAGE; action: "drag" | "drop"; y: number }
-  | { type: typeof PREVIEW_MESSAGE; action: "drag-cancel" };
+  | { type: typeof PREVIEW_MESSAGE; action: "drag-cancel" }
+  | { type: typeof PREVIEW_MESSAGE; action: "fields"; sectionId: string; fields: InlineField[] };
 export type PreviewEvent = { type: typeof PREVIEW_MESSAGE; action: "ready" | "updated"; sectionId?: string }
   | { type: typeof PREVIEW_MESSAGE; action: "select" | "visible"; sectionId: string }
   | { type: typeof PREVIEW_MESSAGE; action: "reorder"; sectionId: string; targetId: string; position: "before" | "after" }
-  | { type: typeof PREVIEW_MESSAGE; action: "insert"; targetId?: string; position?: "before" | "after" };
+  | { type: typeof PREVIEW_MESSAGE; action: "insert"; targetId?: string; position?: "before" | "after" }
+  | ({ type: typeof PREVIEW_MESSAGE; action: "inline"; sectionId: string } & InlineEdit);
 const sectionIdPattern = /^[A-Za-z0-9_-]{1,64}$/;
+function inlinePath(value: unknown): value is InlineField["path"] {
+  return Array.isArray(value) && value.length >= 1 && value.length <= 8 && value.every(key =>
+    typeof key === "number" ? Number.isInteger(key) && key >= 0 && key <= 999
+      : typeof key === "string" && /^[A-Za-z0-9_]{1,40}$/.test(key) && !["__proto__", "constructor", "prototype"].includes(key));
+}
+const inlineText = (value: unknown): value is string => typeof value === "string" && value.length <= 2000;
+function inlineField(value: unknown): value is InlineField {
+  if (!value || typeof value !== "object" || !("path" in value) || !inlinePath(value.path) || !("text" in value)) return false;
+  const text = value.text;
+  return Boolean(text && typeof text === "object" && "vi" in text && inlineText(text.vi) && (!("en" in text) || inlineText(text.en)));
+}
 export function parsePreviewMessage(data: unknown): PreviewCommand | PreviewEvent | null {
   if (!data || typeof data !== "object" || !("type" in data) || data.type !== PREVIEW_MESSAGE || !("action" in data)) return null;
-  if (typeof data.action !== "string" || !["refresh", "scroll", "ready", "updated", "select", "visible", "reorder", "drag", "drop", "drag-cancel", "insert"].includes(data.action)) return null;
+  if (typeof data.action !== "string" || !["refresh", "scroll", "ready", "updated", "select", "visible", "reorder", "drag", "drop", "drag-cancel", "insert", "fields", "inline"].includes(data.action)) return null;
   const sectionId = "sectionId" in data ? data.sectionId : undefined;
   if ("sectionId" in data && (typeof sectionId !== "string" || !sectionIdPattern.test(sectionId))) return null;
+  if (data.action === "fields") {
+    return typeof sectionId === "string" && "fields" in data && Array.isArray(data.fields) && data.fields.length <= 300 && data.fields.every(inlineField)
+      ? { type: PREVIEW_MESSAGE, action: "fields", sectionId, fields: data.fields } : null;
+  }
+  if (data.action === "inline") {
+    return typeof sectionId === "string" && "path" in data && inlinePath(data.path) && "locale" in data && (data.locale === "vi" || data.locale === "en") && "text" in data && inlineText(data.text)
+      ? { type: PREVIEW_MESSAGE, action: "inline", sectionId, path: data.path, locale: data.locale, text: data.text } : null;
+  }
   if (data.action === "drag" || data.action === "drop") {
     return "y" in data && typeof data.y === "number" && Number.isFinite(data.y) && data.y >= 0 && data.y <= 100000
       ? { type: PREVIEW_MESSAGE, action: data.action, y: data.y } : null;

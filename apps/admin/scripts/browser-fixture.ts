@@ -76,6 +76,10 @@ async function main() {
     } else if (action === "builder-page-read") {
       const page = (await forTenant(db, tenantId).page.first({ where: { slug: "builder-page" } }))!;
       process.stdout.write(JSON.stringify({ draftSections: page.draftSections }));
+    } else if (action === "builder-section-read") {
+      const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
+      const row = (await repo.sectionContent.first({ where: { pageId: page.id, sectionId: process.argv[3] } }))!;
+      process.stdout.write(JSON.stringify({ data: row.draftData ?? row.data }));
     } else if (action === "builder-page-bump") {
       // Another editor saving: the revision the open builder holds is now stale.
       const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
