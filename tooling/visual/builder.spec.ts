@@ -140,7 +140,8 @@ test.describe("builder", () => {
     await open(page);
     await frame(page).evaluate(() => { (window as Window & { marker?: number }).marker = 1; });
     const text = `[DỮ LIỆU MẪU] Canvas ${Date.now()}`;
-    await page.getByRole("region", { name: "Thuộc tính section" }).getByRole("textbox").first().fill(text);
+    // Form nội dung, không phải ô "Mã neo" của nhóm Bố cục (E12-S05).
+    await panel(page).getByRole("group", { name: /^Nội dung / }).getByRole("textbox").first().fill(text);
     await expect(canvas(page).locator("main")).toContainText(text, { timeout: 30_000 });
     expect(await frame(page).evaluate(() => (window as Window & { marker?: number }).marker)).toBe(1);
   });
@@ -191,12 +192,13 @@ test.describe("builder", () => {
     await expect(library.getByRole("heading", { level: 3 })).toHaveText(["Mở đầu", "Thuyết phục", "Chuyển đổi", "Nội dung", "Chân trang"]);
     const projects = library.locator('li[data-library-type="projects"]');
     await expect(projects).toHaveAttribute("data-library-status", "ok");
-    // Site of admin-e7-a uses theme t15; the card shows the type's first variant.
-    await expect(projects.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).locator("img")).toHaveAttribute("src", "/section-thumbs/t15/projects--t15.webp");
+    // Theme thật của site (test appearance trong admin.spec đổi theme của admin-e7-a và không trả lại); thẻ hiện variant đầu tiên.
+    const theme = fixture("site-theme");
+    await expect(projects.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).locator("img")).toHaveAttribute("src", `/section-thumbs/${theme}/projects--t15.webp`);
     await projects.getByRole("button", { name: "Kiểu của Công trình đã thực hiện", exact: true }).click();
     for (const variant of ["t15", "t14", "t12", "t11", "t10"]) {
       await expect(projects.getByRole("button", { name: `Thêm Công trình đã thực hiện kiểu ${variant}`, exact: true }).locator("img"))
-        .toHaveAttribute("src", `/section-thumbs/t15/projects--${variant}.webp`);
+        .toHaveAttribute("src", `/section-thumbs/${theme}/projects--${variant}.webp`);
     }
     // hero is already on the page (maxPerPage 1): its variants stay browsable but cannot be added.
     await expect(library.locator('li[data-library-type="hero"]')).toHaveAttribute("data-library-status", "limit");
