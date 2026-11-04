@@ -1,3 +1,4 @@
+import { spacingClass, surfaceClass } from "../layout";
 import type { SectionPropsOf } from "../define";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { pickLocale } from "../fields";
@@ -5,10 +6,10 @@ import { SectionLink } from "../render/SectionLink";
 import { serializeJsonLd } from "../shared/jsonLd";
 import type { faq } from "./schema";
 
-export default function FaqT05({ data, site, sectionId }: SectionPropsOf<typeof faq>) {
+export default function FaqT05({ data, site, sectionId, layout }: SectionPropsOf<typeof faq>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
   const items = data.items.map((item) => ({ question: t(item.question), answer: t(item.answer) }));
-  return <section className="t15-section bg-bg" aria-labelledby={`${sectionId}-title`}>
+  return <section className={`${spacingClass(layout?.spacing, "t15-section")} ${surfaceClass(layout?.background, "bg-bg")}`} aria-labelledby={`${sectionId}-title`}>
     {data.jsonLd && <script type="application/ld+json">{serializeJsonLd({
       "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map(({ question, answer }) => ({
         "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer },

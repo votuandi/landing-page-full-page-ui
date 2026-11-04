@@ -3,6 +3,7 @@ import type { PageConfig, PageSection } from "../page";
 import { sectionRegistry, type SectionRegistry } from "../registry";
 import type { SiteContext } from "../site";
 import { SectionBoundary } from "./SectionBoundary";
+import { resolveLayout, wrapperLayout } from "../layout";
 
 export type LoadSectionData = (input: { section: PageSection; data: unknown; site: SiteContext }) => unknown;
 
@@ -65,12 +66,13 @@ export async function PageRenderer(props: PageRendererProps) {
   return prepared.map((item) => {
     if (!item) return null;
     const { section, Variant, data } = item;
+    const layout = canUse("builder") ? resolveLayout(section.layout, registry.layoutOf(section.type, section.variant)) : undefined;
     return (
       <div key={section.id} id={section.anchor} data-section-id={section.id} data-section-type={section.type}
-        data-section-fallback={Variant ? undefined : ""}>
+        data-section-fallback={Variant ? undefined : ""} {...wrapperLayout(layout)}>
         {Variant && (
           <SectionBoundary tenantId={site.tenantId} sectionId={section.id} type={section.type}>
-            <Variant data={data} site={site} sectionId={section.id} />
+            <Variant data={data} site={site} sectionId={section.id} layout={layout} />
           </SectionBoundary>
         )}
       </div>

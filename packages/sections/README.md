@@ -1,5 +1,11 @@
 # @solar/sections
 
+`PageSection.layout` là metadata tùy chọn, không thay schema nội dung. `defineVariants` khai báo capability
+`background`, `spacing`, `align` theo variant; `sectionRegistry.layoutOf` dùng cùng fallback với renderer.
+`resolveLayout` bỏ tùy chọn không hỗ trợ khi render nhưng giữ nguyên descriptor đã lưu. `hideOn` và `anchor`
+do wrapper xử lý. Layout chỉ áp dụng khi có entitlement `builder`; anchor không phụ thuộc gói.
+`deep`/`invert` dùng `data-surface` để đổi bảng màu bằng CSS của theme có dark, không dùng màu nền deep trực tiếp.
+
 `sectionLimitIssues(descriptors)` trả lỗi tiếng Việt khi một type vượt `meta.maxPerPage` trên một trang.
 Đếm cả section tắt. Helper dùng chung cho trình sửa client và `validateSiteStructure` phía server (D21).
 
