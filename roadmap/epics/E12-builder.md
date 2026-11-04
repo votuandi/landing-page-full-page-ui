@@ -35,7 +35,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **AC**: [x] Thêm calculator thứ hai bị chặn kèm giải thích (unit `sectionLibrary.test.ts`, `builderLibrary.test.ts`, server `pageSections.test.ts`; e2e `builder.spec.ts` › "thêm calculator thứ hai bị chặn kèm giải thích") · [x] Thumbnail sinh tự động trong CI (E3-S10; workflow `thumbnails.yml`, [run 41650047496](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41650047496): 1290 ảnh, artifact `section-thumbs`). PR [#80](https://github.com/votuandi/landing-page-full-page-ui/pull/80).
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: M
 
-### E12-S04 · Sửa nội dung trực tiếp (inline) cho văn bản
+### E12-S04 · Sửa nội dung trực tiếp (inline) cho văn bản ✅ [PR #82](https://github.com/votuandi/landing-page-full-page-ui/pull/82)
 - **Chi tiết**: trường `localized` ngắn (tiêu đề, nút) sửa trực tiếp trên canvas (contentEditable có kiểm soát, chỉ text);
   trường phức tạp mở bảng thuộc tính (SchemaForm).
 - **AC**: [x] Dán văn bản có định dạng → chỉ giữ text (unit `builderMode.test.ts` › insertPlain, `builderCanvas.test.ts`; e2e `builder.spec.ts` › "dán văn bản có định dạng chỉ giữ text") · [x] Giá trị vẫn qua validate zod trước khi lưu (unit `inline.test.ts`, `builderLibrary.test.ts`; e2e `builder.spec.ts` › "sửa inline vượt giới hạn không lưu").
