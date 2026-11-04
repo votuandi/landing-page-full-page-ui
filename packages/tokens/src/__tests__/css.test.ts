@@ -25,7 +25,8 @@ test("scope cô lập CSS và từ chối selector không an toàn", () => {
   assert.equal(css, themeToCss(t15)
     .replace(lightSelector, scope)
     .replace(`${darkSelector}{`, `${darkSelector} ${scope}{`)
-    .replace(`${mediaSelector}{`, `${mediaSelector} ${scope}{`));
+    .replace(`${mediaSelector}{`, `${mediaSelector} ${scope}{`)
+    .replace(/\[data-surface=/g, `${scope} [data-surface=`));
   assert.equal(themeToCss(t15, undefined, {}), themeToCss(t15));
   for (const scope of ["", ":root", '[data-lab-theme="x"]{}', '[data-lab-theme="x\\n"]']) {
     assert.throws(() => themeToCss(t15, undefined, { scope }), /scope/i);
@@ -186,6 +187,23 @@ test("hai theme render xen kẽ không lẫn biến hay làm đổi dữ liệu"
   assert.deepEqual(theme, original);
 });
 
-test("CSS t15 không vượt quá 4 KB", () => {
-  assert.ok(Buffer.byteLength(themeToCss(t15)) <= 4096);
+test("surface deep/invert dùng đúng bảng màu theme", () => {
+  const css = themeToCss(t15, { colors: { dark: { primary: "4 5 6" }, light: { primary: "1 2 3" } } });
+  const surface = block(css, '[data-surface="deep"],[data-surface="invert"]');
+  assert.match(surface, /--c-primary:4 5 6;/);
+  assert.match(surface, /color-scheme:dark/);
+  assert.doesNotMatch(surface, /--radius-|--motion-/);
+  const inverted = block(css, '[data-theme="dark"] [data-surface="invert"]');
+  assert.match(inverted, /--c-primary:1 2 3;/);
+  assert.match(inverted, /color-scheme:light/);
+  assert.ok(css.includes(`@media (prefers-color-scheme:dark){:root:not([data-theme]) [data-surface="invert"]{${inverted}}}`));
+  const scope = '[data-lab-theme="t15"]';
+  const scoped = themeToCss(t15, undefined, { scope });
+  assert.ok(scoped.includes(`${scope} [data-surface="deep"],${scope} [data-surface="invert"]{`));
+  assert.ok(scoped.includes(`[data-theme="dark"] ${scope} [data-surface="invert"]{`));
+  assert.doesNotMatch(themeToCss({ ...t15, meta: { ...t15.meta, supportsDark: false } }), /data-surface/);
+});
+
+test("CSS t15 với vùng màu không vượt quá 12 KB", () => {
+  assert.ok(Buffer.byteLength(themeToCss(t15)) <= 12 * 1024);
 });
