@@ -16,10 +16,15 @@ export function CreateLandingForm({ templates, pages }: { templates: { id: strin
   const edited = useRef(false);
   const id = useId();
   // Each select sits under its radio and shows via `peer-checked`: CSS only, so the choice also works without JavaScript.
+  // `htmlFor`, not a wrapping label: a select inside its label adds the chosen option to its accessible name.
+  const select = (name: string, label: string, options: { value: string; label: string }[]) => <div className="space-y-2">
+    <label htmlFor={`${id}-${name}`} className="block text-sm text-fg">{label}</label>
+    <select id={`${id}-${name}`} name={name} className={field}>{options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
+  </div>;
   const extra = (source: (typeof sources)[number]["id"]) => source === "template"
-    ? <label className="block space-y-2 text-sm text-fg">Chọn mẫu<select name="templateId" className={field}>{templates.map(template => <option key={template.id} value={template.id}>{template.label}</option>)}</select></label>
+    ? select("templateId", "Chọn mẫu", templates.map(template => ({ value: template.id, label: template.label })))
     : source === "duplicate"
-      ? <label className="block space-y-2 text-sm text-fg">Trang nguồn<select name="sourcePageId" className={field}><option value="">Chọn trang nguồn</option>{pages.map(page => <option key={page.id} value={page.id}>{page.title}</option>)}</select></label>
+      ? select("sourcePageId", "Trang nguồn", [{ value: "", label: "Chọn trang nguồn" }, ...pages.map(page => ({ value: page.id, label: page.title }))])
       : null;
   return <form action={submit} aria-describedby={state.error ? `${id}-error` : undefined} className="min-w-0 space-y-6 rounded-card border border-line/20 bg-bg-elevated p-4 sm:p-6">
     <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -29,11 +34,11 @@ export function CreateLandingForm({ templates, pages }: { templates: { id: strin
       </label>
       <div className="min-w-0 space-y-2">
         <label htmlFor={`${id}-slug`} className="block font-medium text-fg">Đường dẫn</label>
-        <div className="flex min-w-0 items-stretch rounded-input border border-line/30 bg-bg focus-within:ring-2 focus-within:ring-primary">
+        <div className="flex min-h-11 min-w-0 items-stretch rounded-input border border-line/30 bg-bg focus-within:ring-2 focus-within:ring-primary">
           <span aria-hidden="true" className="flex items-center pl-3 text-fg-muted">/</span>
           <input id={`${id}-slug`} name="slug" required maxLength={120} value={slug} onChange={event => { edited.current = true; setSlug(event.target.value); }}
             aria-describedby={`${id}-slug-help`} placeholder="trang-trai…" autoComplete="off" autoCapitalize="none" spellCheck={false}
-            className="min-h-11 w-full min-w-0 rounded-input bg-bg py-2 pl-1 pr-3 text-fg focus-visible:outline-none" />
+            className="w-full min-w-0 rounded-input bg-bg py-2 pl-1 pr-3 text-fg focus-visible:outline-none" />
         </div>
         <p id={`${id}-slug-help`} className="text-sm text-fg-muted">Chữ thường, số và dấu gạch ngang; tối đa 3 đoạn ngăn bằng dấu /.</p>
       </div>
