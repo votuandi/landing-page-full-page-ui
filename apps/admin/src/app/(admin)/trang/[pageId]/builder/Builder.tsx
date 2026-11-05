@@ -6,8 +6,9 @@ import { inlineFields, insertRelative, libraryStatus, moveRelative, newSectionId
 import { sectionRegistry } from "@solar/sections";
 import type { BuilderEditor, PageSectionResult } from "../../../../../lib/pageSections.ts";
 import { createBuilderQueue } from "../../../../../lib/builderQueue.ts";
+import { emptyHistory, record, travel, historyShortcut, type History, type HistoryStep } from "../../../../../lib/builderHistory.ts";
 import { createPreviewWatch, inlineUpdate, selectBuilderSection } from "../../../../../lib/builderState.ts";
-import { builderPreviewLink, saveSectionContent, saveSectionsDraft } from "../../actions.ts";
+import { builderPreviewLink, saveSectionContent, saveSectionsDraft, touchBuilderPresence } from "../../actions.ts";
 import BuilderPanel, { type BuilderPanelHandle } from "./BuilderPanel";
 import DeviceStage from "./DeviceStage";
 import SectionLibrary, { type LibraryItem } from "./SectionLibrary";
@@ -36,6 +37,12 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   const [conflict, setConflict] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [history, setHistory] = useState(emptyHistory);
+  const historyRef = useRef(history);
+  const lastSaved = useRef<Record<string, unknown>>(Object.fromEntries(Object.entries(editor.forms).map(([id, form]) => [id, form.data])));
+  const [panelNonce, setPanelNonce] = useState(0);
+  const [clientId] = useState(() => crypto.randomUUID());
+  const [editors, setEditors] = useState<string[]>([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [dragged, setDragged] = useState<LibraryItem | null>(null);
   const dndId = useId();
@@ -70,7 +77,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   useLeaveGuard(dirty || busy);
   const refresh = useCallback(() => { watch.request(); setExpired(false); setRefreshKey(key => key + 1); }, [watch]);
   const resultError = useCallback((result: PageSectionResult) => {
-    setError(result.error ?? "Không thể lưu. Vui lòng thử lại.");
+    setError(`${result.error ?? "Không thể lưu. Vui lòng thử lại."}${result.status === 409 ? " Nội dung bạn vừa sửa chưa được lưu." : ""}`);
     if (result.status === 409) setConflict(true);
   }, []);
   function formData(revision?: number) {
@@ -78,6 +85,59 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     if (revision !== undefined) form.set("revision", String(revision));
     return form;
   }
+  function updateHistory(next: History) { historyRef.current = next; setHistory(next); }
+  function remember(step: HistoryStep) { updateHistory(record(historyRef.current, step)); }
+  useEffect(() => {
+    let cancelled = false;
+    async function touch() {
+      const form = new FormData(); form.set("pageId", editor.page.id); form.set("clientId", clientId);
+      try {
+        const result: PageSectionResult = await touchBuilderPresence({}, form);
+        if (!cancelled && result.ok) setEditors(result.editors ?? []);
+      } catch { /* Presence is advisory; a failed heartbeat must not block editing. */ }
+    }
+    void touch(); const timer = window.setInterval(() => { void touch(); }, 20_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [editor.page.id, clientId]);
+  async function navigateHistory(dir: "undo" | "redo") {
+    if (busy || conflict || changing.current) return;
+    changing.current = true; setBusy(true); setError(undefined);
+    try {
+      const flushed = await panel.current?.flush();
+      if (flushed && !flushed.ok) { setError(flushed.error ?? "Chưa lưu được nội dung. Vui lòng thử lại."); return; }
+      const next = await travel(historyRef.current, dir, async (step, target) => {
+        const result = await queue.write(revision => {
+          const form = formData(revision);
+          if (step.kind === "sections") { form.set("sections", JSON.stringify(target)); return saveSectionsDraft({}, form); }
+          form.set("sectionId", step.sectionId); form.set("data", JSON.stringify(target)); return saveSectionContent({}, form);
+        });
+        if (!result.ok) { resultError(result); return { ok: false }; }
+        if (step.kind === "sections") {
+          const sections = target as EditableSection[];
+          latest.current.sections = sections; setSections(sections);
+          if (!sections.some(s => s.id === latest.current.selectedId)) {
+            latest.current.selectedId = sections[0]?.id ?? null; setSelectedId(latest.current.selectedId);
+          }
+        } else {
+          lastSaved.current[step.sectionId] = target;
+          setForms(current => ({ ...current, [step.sectionId]: { ...current[step.sectionId], data: target } }));
+          latest.current.selectedId = step.sectionId; setSelectedId(step.sectionId); setPanelNonce(n => n + 1);
+        }
+        setDirty(false); refresh(); return { ok: true };
+      });
+      updateHistory(next);
+    } catch { setError("Không thể kết nối. Vui lòng thử lại."); }
+    finally { changing.current = false; setBusy(false); }
+  }
+  useEffect(() => {
+    function keydown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
+      const dir = historyShortcut(event);
+      if (dir) { event.preventDefault(); void navigateHistory(dir); }
+    }
+    window.addEventListener("keydown", keydown);
+    return () => window.removeEventListener("keydown", keydown);
+  });
   async function choose(id: string) {
     if (changing.current || conflict) { setSelectionKey(key => key + 1); return; }
     changing.current = true; setBusy(true);
@@ -94,13 +154,13 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
     if (!editor.canReorder || conflict || changing.current) return;
     const previous = latest.current.sections, next = moveRelative(previous, id, targetId, position);
     if (next === previous) return;
-    changing.current = true; setBusy(true); setError(undefined); setSections(next);
+    changing.current = true; setBusy(true); setError(undefined); setSections(next); latest.current.sections = next;
     try {
       const result = await queue.write(revision => {
         const form = formData(revision); form.set("sections", JSON.stringify(next)); return saveSectionsDraft({}, form);
       });
-      if (result.ok) refresh();
-      else { setSections(previous); resultError(result); }
+      if (result.ok) { remember({ kind: "sections", before: previous, after: next }); refresh(); }
+      else { setSections(previous); latest.current.sections = previous; resultError(result); }
     } finally { changing.current = false; setBusy(false); }
   }
   async function addSection(type: string, variant: string, target?: Extract<PreviewEvent, { action: "insert" }>) {
@@ -119,6 +179,8 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         const form = formData(revision); form.set("sections", JSON.stringify(next)); return saveSectionsDraft({}, form);
       });
       if (result.ok) {
+        remember({ kind: "sections", before: previous, after: next });
+        lastSaved.current[section.id] = def.defaults;
         setForms(current => ({ ...current, [section.id]: { data: def.defaults, recovered: false, readOnly: undefined } }));
         refresh(); added = true;
       } else { setSections(previous); latest.current.sections = previous; resultError(result); }
@@ -134,7 +196,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
       const result = await queue.write(revision => {
         const form = formData(revision); form.set("sections", JSON.stringify(next)); return saveSectionsDraft({}, form);
       });
-      if (result.ok) refresh();
+      if (result.ok) { remember({ kind: "sections", before: previous, after: next }); refresh(); }
       else { setSections(previous); latest.current.sections = previous; resultError(result); }
     } finally { changing.current = false; setBusy(false); }
   }
@@ -190,6 +252,8 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
 
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        <button type="button" className={button} aria-keyshortcuts="Control+Z" disabled={!history.past.length || busy || conflict} onClick={() => { void navigateHistory("undo"); }}>Hoàn tác</button>
+        <button type="button" className={button} aria-keyshortcuts="Control+Shift+Z" disabled={!history.future.length || busy || conflict} onClick={() => { void navigateHistory("redo"); }}>Làm lại</button>
         <div role="group" aria-labelledby="builder-device" className="flex flex-wrap items-center gap-2">
           <span id="builder-device" className="text-sm text-fg-muted">Khung (px)</span>
           {[390, 768, 1440].map(device => <button key={device} type="button" aria-pressed={width === device} className={`${button} aria-pressed:border-primary aria-pressed:bg-bg-tint aria-pressed:text-primary`} onClick={() => setWidth(device)}>{device}</button>)}
@@ -206,6 +270,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
       </div>
     </div>
     <p className="text-sm text-fg-muted">Kéo section từ thư viện vào trang hoặc bấm Thêm để chèn sau section đang chọn. Thay đổi tự lưu vào bản nháp. Dùng nút Lên, Xuống để sắp xếp bằng bàn phím hoặc cảm ứng.</p>
+    {editors.length > 0 && <p role="status" className="break-words text-sm text-fg-muted">{editors.join(", ")} cũng đang mở trình dựng trang này. Lần lưu đến sau sẽ bị từ chối nếu trang đã đổi — nên để một người sửa.</p>}
     {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
     {conflict && <button type="button" className={button} onClick={() => window.location.reload()}>Tải lại trang</button>}
     {expired && <p role="status" className="text-sm font-medium text-danger">Phiên xem trước có thể đã hết hạn. Vui lòng tải lại xem trước.</p>}
@@ -253,14 +318,17 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
           </ul>
           {!sections.length && <p className="text-sm text-fg-muted">Trang chưa có section. Chọn Thêm trong thư viện để bắt đầu.</p>}
         </nav>
-        <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 xl:overflow-y-auto">
-          {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
+        <div inert={busy} className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 xl:overflow-y-auto">
+          {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={`${selected.id}:${panelNonce}`} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
             layoutFields={<LayoutFields key={`${selected.id}:${selected.anchor ?? ""}`} section={selected} sections={sections} themeSupportsDark={editor.themeSupportsDark} disabled={!editor.canReorder || busy || conflict} onChange={next => { void changeLayout(next); }} />}
             onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
             save={data => queue.write(async revision => {
               const form = formData(revision); form.set("sectionId", selected.id); form.set("data", JSON.stringify(data));
               const result = await saveSectionContent({}, form);
-              if (result.ok) { setError(undefined); refresh(); } else resultError(result);
+              if (result.ok) {
+                remember({ kind: "content", sectionId: selected.id, before: lastSaved.current[selected.id], after: data });
+                lastSaved.current[selected.id] = data; setError(undefined); refresh();
+              } else resultError(result);
               return result;
             })} /> : <section aria-label="Thuộc tính section" className="text-sm text-fg-muted">{selected ? "Section không thuộc gói hiện tại. Nâng cấp gói để sửa nội dung." : "Chọn section để sửa nội dung."}</section>}
         </div>

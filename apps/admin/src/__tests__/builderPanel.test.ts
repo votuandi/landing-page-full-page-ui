@@ -56,3 +56,22 @@ test("panel vẫn cảnh báo nháp chưa lưu khi 409 khóa builder", async () 
     assert.equal(byPath(s.mounted.container, "badge").value, "Nháp cần giữ");
   } finally { s.mounted.unmount(); }
 });
+
+test("flush chờ lần lưu đang chạy dù form đã quay về giá trị ban đầu", async () => {
+  let release!: () => void, writes = 0;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  const s = await setup(async () => { if (++writes === 1) await pending; return { ok: true, revision: writes + 2 }; });
+  try {
+    const original = byPath(s.mounted.container, "badge").value;
+    await typeInput(byPath(s.mounted.container, "badge"), "Đang ghi");
+    let first!: ReturnType<BuilderPanelHandle["flush"]>;
+    await act(async () => { first = s.ref.current!.flush(); });
+    assert.equal(writes, 1);
+    await typeInput(byPath(s.mounted.container, "badge"), original);
+    let completed = false, second!: ReturnType<BuilderPanelHandle["flush"]>;
+    await act(async () => { second = s.ref.current!.flush().then(result => { completed = true; return result; }); });
+    assert.equal(completed, false, "history must wait for every outstanding content write");
+    await act(async () => { release(); await Promise.all([first, second]); });
+    assert.equal(writes, 2); assert.equal(s.dirty(), false);
+  } finally { release(); s.mounted.unmount(); }
+});
