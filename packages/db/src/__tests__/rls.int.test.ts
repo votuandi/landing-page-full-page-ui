@@ -60,7 +60,8 @@ describe("Postgres RLS through real app_runtime connections (no repository/Prism
         { tablename, policyname: "tenant_isolation", roles: "{app_runtime}", permissive: "PERMISSIVE", cmd: "ALL", qual: predicate, with_check: predicate },
       ];
     }));
-    for (const table of tables) assert.equal((await runtime.query(`SELECT id FROM public."${table}"`)).rowCount, 0, table);
+    // `SELECT 1`: AbTestView is keyed by (tenantId, testId, variant) and has no `id` column.
+    for (const table of tables) assert.equal((await runtime.query(`SELECT 1 FROM public."${table}"`)).rowCount, 0, table);
     const c = await owner.connect();
     try {
       await c.query('BEGIN'); await c.query('SET LOCAL ROLE app_owner');
