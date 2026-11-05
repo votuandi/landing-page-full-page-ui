@@ -55,7 +55,8 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 ### E12-S06 · Lịch sử, undo/redo, phiên bản
 - **Chi tiết**: undo/redo trong phiên (≥ 50 bước); mỗi lần "Xuất bản" lưu một `PageVersion`; khôi phục phiên bản cũ; hai
   người sửa cùng trang → khóa mềm + cảnh báo.
-- **AC**: [ ] Khôi phục phiên bản 3 lần trước tái tạo đúng trang · [ ] Không mất dữ liệu khi 2 tab cùng lưu (phát hiện xung đột).
+- **AC**: [x] Khôi phục phiên bản 3 lần trước tái tạo đúng trang (int `publish.int.test.ts` › "restore phiên bản 3 lần trước tái tạo đúng trang", "restore bản mới nhất là round-trip"; e2e `builder.spec.ts` › "khôi phục phiên bản 3 lần trước rồi xuất bản") · [x] Không mất dữ liệu khi 2 tab cùng lưu (phát hiện xung đột) (int "hai lần lưu cùng revision: lần sau bị chặn"; e2e `builder.spec.ts` › "hai tab cùng lưu: tab sau bị chặn, không ghi đè", kèm cảnh báo khóa mềm).
+- Undo/redo 100 bước trong phiên (unit `builderHistory.test.ts`; e2e "hoàn tác và làm lại thứ tự section", "hoàn tác nội dung trả giá trị cũ"); khóa mềm là cảnh báo trong bộ nhớ tiến trình admin (`editPresence.ts`, README admin).
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
 ### E12-S07 · Nhiều landing page & mẫu trang
