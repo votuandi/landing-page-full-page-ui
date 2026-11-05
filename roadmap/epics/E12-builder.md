@@ -67,7 +67,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **AC**: [x] Landing mới truy cập được ở `/<slug>`, có trong sitemap (e2e `admin.spec.ts` › "landing page: tạo từ mẫu…") · [x] Vượt `limits.pages` bị chặn (int "vượt limit: song song…" + e2e "landing page: vượt giới hạn gói…").
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
-### E12-S08 · A/B tiêu đề hero/CTA
+### E12-S08 · A/B tiêu đề hero/CTA ✅ [PR #86](https://github.com/votuandi/landing-page-full-page-ui/pull/86)
 **Là** tenant gói Cao cấp, **tôi muốn** thử hai phiên bản tiêu đề hero/CTA trên landing page, **để** biết phiên bản nào ra nhiều lead hơn.
 - **Chi tiết**: bật A/B cho một landing (feature `abTest`, kiểm cả server lẫn API); nhập phiên bản B cho tiêu đề hero và nhãn CTA;
   trang vẫn cache (ISR) nên gán phiên bản ở client, ổn định theo khách truy cập, không đọc cookie ở server; lead ghi phiên bản đã thấy;
