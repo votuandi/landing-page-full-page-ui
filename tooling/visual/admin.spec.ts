@@ -1390,6 +1390,8 @@ test("landing a/b: bật B, khách được gán ổn định, lead ghi phiên b
   await panel.getByRole("button", { name: "Bắt đầu thử nghiệm", exact: true }).click();
   await expect(panel.getByRole("status").filter({ hasText: "Đã bắt đầu thử nghiệm A/B" })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Lưu phiên bản B", exact: true })).toBeVisible();
+  // A page cached by an earlier run (another test id) must not be served: no outbox worker runs in this suite.
+  fixture("revalidate", site);
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -1464,6 +1466,7 @@ test("landing a/b: bật B, khách được gán ổn định, lead ghi phiên b
   // Winner B: every visitor gets B from the server, without the assignment script and without JavaScript.
   await panel.getByRole("button", { name: "Chọn B thắng", exact: true }).click();
   await expect(panel.getByRole("status").filter({ hasText: "Đã chọn phiên bản B" })).toBeVisible();
+  fixture("revalidate", site);
   const after = await browser.newContext({ javaScriptEnabled: false });
   try {
     const plain = await after.newPage();
@@ -1474,18 +1477,20 @@ test("landing a/b: bật B, khách được gán ổn định, lead ghi phiên b
 
 // AC3: admin-e11-leads on pro (landingPages without abTest). A running test written straight to the DB is not served,
 // views are refused by the API, and the admin offers an upgrade instead of the form.
-test("landing a/b: gói không có abTest bị chặn ở server", async ({ page, request }) => {
+test("landing a/b: gói không có abTest bị chặn ở server", async ({ page }) => {
   test.setTimeout(240_000);
   const site = "admin-e11-leads", publicOrigin = `http://${site}.${platformDomain}:3212`;
   const pageId = fixture("ab-landing", site, "pro", "running").split("\n").at(-1)!;
+  fixture("revalidate", site);
   try {
-    const response = await request.get(`${publicOrigin}/e2e-ab`);
-    expect(response.status()).toBe(200);
-    const html = await response.text();
+    // Through the browser: Playwright's API request cannot resolve *.localhost on Windows.
+    const response = await page.goto(`${publicOrigin}/e2e-ab`);
+    expect(response?.status()).toBe(200);
+    const html = await response!.text();
+    expect(html).toContain('data-section-type="hero"');
     expect(html).not.toContain("data-ab-variant");
     expect(html).not.toContain("[DỮ LIỆU MẪU] Tiêu đề B");
-    const beacon = await request.post(`${publicOrigin}/api/ab`, { data: JSON.stringify({ t: "00000000-0000-4000-8000-000000000000", v: "B" }) });
-    expect(beacon.status()).toBe(403);
+    expect(await page.evaluate(() => fetch("/api/ab", { method: "POST", body: JSON.stringify({ t: "00000000-0000-4000-8000-000000000000", v: "B" }) }).then(res => res.status))).toBe(403);
     await login(page, "owner@demo.vn", password(), site);
     await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
     await page.goto(`${origin(site)}/trang/${pageId}`);

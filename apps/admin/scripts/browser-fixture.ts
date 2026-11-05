@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueueInvalidate } from "@solar/db";
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
@@ -165,6 +165,14 @@ async function main() {
         for (const page of await repo.page.list({ where: { OR: [{ slug: { startsWith: "e2e-landing" } }, { slug: "e2e-ab" }] } })) await repo.page.delete(page.id);
         for (let n = 1; n <= count; n++) await repo.page.create({ siteId: site.id, slug: `e2e-landing-${n}`, kind: "landing", title: { vi: `[DỮ LIỆU MẪU] Landing ${n}` }, sections: [] });
       });
+    } else if (action === "revalidate") {
+      // E12-S08: what the outbox worker would do after an admin change to a cached public page (no worker in this suite).
+      const target = fixtures.find(f => f.slug === process.argv[3]), secret = process.env.REVALIDATE_SECRET;
+      if (!target || !secret) throw new Error("revalidate needs a fixture slug and REVALIDATE_SECRET");
+      const body = JSON.stringify({ tags: [`tenant:${target.id}`], nonce: randomUUID().replaceAll("-", ""), ts: Date.now() });
+      const response = await fetch("http://localhost:3212/api/revalidate", { method: "POST", body,
+        headers: { "Content-Type": "application/json", "x-signature": createHmac("sha256", secret).update(body).digest("hex") } });
+      if (!response.ok) throw new Error(`revalidate failed: ${response.status}`);
     } else if (action === "ab-landing") {
       // E12-S08: <site> on <plan> gets a fresh published landing `e2e-ab` (hero + lead-form); `running` seeds a running A/B
       // test directly (bypassing admin) so the plan gate of the public render can be checked. Prints the page id.

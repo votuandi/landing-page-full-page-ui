@@ -9,6 +9,8 @@ process.env.STORAGE_LOCAL_ROOT ??= resolve(__dirname, "test-results/admin/media"
 process.env.MEDIA_PUBLIC_BASE ??= "http://localhost:3300/media";
 // Test-only key ring for lead channel configs (E11-S02); never a real secret.
 process.env.APP_ENCRYPTION_KEY ??= "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=";
+// No outbox worker runs here: the `revalidate` fixture signs /api/revalidate on web :3212 after a change to a cached page (E12-S08).
+process.env.REVALIDATE_SECRET ??= "admin-e2e-revalidate-secret-0123456789abcdef";
 
 const platformDomain = process.env.ADMIN_E2E_PLATFORM_DOMAIN ??= "solar.localhost";
 
@@ -27,7 +29,7 @@ export default defineConfig({
   }, {
     command: appServer("web", 3212), cwd: resolve(__dirname, "../.."),
     url: "http://localhost:3212/favicon.svg", reuseExistingServer: !process.env.CI, timeout: 120_000,
-    env: { MULTI_TENANT: "1", PLATFORM_DOMAIN: platformDomain, PREVIEW_SECRET: process.env.PREVIEW_SECRET, ADMIN_PUBLIC_PORT: "3300",
+    env: { MULTI_TENANT: "1", PLATFORM_DOMAIN: platformDomain, PREVIEW_SECRET: process.env.PREVIEW_SECRET, ADMIN_PUBLIC_PORT: "3300", REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
       PLATFORM_DATABASE_URL: "", MIGRATION_DATABASE_URL: "", TEST_OWNER_DATABASE_URL: "", SEED_PASSWORD: "" },
   }],
 });
