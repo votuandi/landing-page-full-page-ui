@@ -1,7 +1,7 @@
 "use server";
 
 import { action } from "../../../lib/action.ts";
-import { createPageSectionHandlers, pageIdSchema, pageRevisionSchema, saveContentSchema, saveSectionsSchema } from "../../../lib/pageSections.ts";
+import { createPageSectionHandlers, pageIdSchema, pageRevisionSchema, restoreVersionSchema, presenceSchema, saveContentSchema, saveSectionsSchema } from "../../../lib/pageSections.ts";
 import { pageSectionDeps } from "../../../lib/pageSectionRuntime.ts";
 import { revalidatePath } from "next/cache";
 import { setPageTypes } from "@solar/db";
@@ -12,6 +12,8 @@ import { createPageTypeHandler, pageTypeSchema } from "../../../lib/pageTypes.ts
 const handlers = createPageSectionHandlers(pageSectionDeps);
 export const saveSectionsDraft = action("pages.structure", saveSectionsSchema, handlers.save);
 export const publishSections = action("pages.publish", pageRevisionSchema, handlers.publish);
+export const restorePageVersion = action("pages.publish", restoreVersionSchema, handlers.restore);
+export const touchBuilderPresence = action("pages.view", presenceSchema, handlers.presence);
 export const previewLink = action("pages.view", pageIdSchema, handlers.preview);
 export const builderPreviewLink = action("pages.view", pageIdSchema, handlers.builderPreview);
 export const saveSectionContent = action("content.edit", saveContentSchema, handlers.saveContent);

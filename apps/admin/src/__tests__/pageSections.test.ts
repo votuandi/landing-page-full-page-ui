@@ -5,7 +5,7 @@ import { RevisionConflictError, StructureError, type DraftInput } from "@solar/d
 import { validateSiteStructure } from "@solar/presets";
 import { sectionRegistry } from "@solar/sections";
 import { createAction } from "../lib/action.ts";
-import { createPageSectionHandlers, loadPageEditor, loadSectionContent, recoverRemovedSections, saveContentSchema, saveSectionsSchema, pageRevisionSchema, pageIdSchema, type PageSectionsDeps } from "../lib/pageSections.ts";
+import { createPageSectionHandlers, loadPageEditor, loadSectionContent, recoverRemovedSections, saveContentSchema, saveSectionsSchema, pageRevisionSchema, pageIdSchema, restoreVersionSchema, presenceSchema, type PageSectionsDeps } from "../lib/pageSections.ts";
 
 const tenantId = "e7000000-0000-4000-8000-000000000001", siteId = "e7000000-0000-4000-8000-000000000002", pageId = "e7000000-0000-4000-8000-000000000003";
 const hero = { id: "hero", type: "hero", variant: "t12", enabled: true };
@@ -49,6 +49,9 @@ function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f
     contents: async () => [{ sectionId: "hero", type: "hero" }],
     content: async () => null,
     contentRows: async () => [],
+    versions: async () => [{ id: "e7000000-0000-4000-8000-000000000005", revision: 1, createdAt: "2026-11-01T00:00:00.000Z", publisher: "Chủ site" }],
+    restore: async () => { if (options.conflict) throw new RevisionConflictError(3); return { revision: 3 }; },
+    presence: async () => ["Bạn (tab khác)"],
     actor: async s => { if (!s.accountId) return null; return { siteUserId: s.accountId }; },
     save: async (_tenant, input) => {
       if (options.conflict) throw new RevisionConflictError(3);
@@ -71,6 +74,50 @@ function setup(options: { role?: "owner" | "viewer"; foreign?: boolean; can?: (f
   const load = () => loadPageEditor(pageId, { ...deps, requirePermission: async () => current });
   return { actions, deps, form, writes, reads: () => reads, load };
 }
+
+test("loadPageEditor trả versions và canRestore cần đủ ba quyền", async () => {
+  const s = setup(), editor = await s.load();
+  assert.deepEqual(editor?.versions, await s.deps.versions(siteId, pageId));
+  assert.equal(editor?.canRestore, true);
+  for (const permission of ["pages.publish", "pages.structure", "content.edit"]) {
+    const current = session(); current.permissions = new Set([...current.permissions].filter(p => p !== permission));
+    assert.equal((await loadPageEditor(pageId, { ...s.deps, requirePermission: async () => current }))?.canRestore, false);
+  }
+});
+test("restore kiểm tenant/page, ba quyền, ghost actor và map 409/400", async () => {
+  for (const options of [{ foreign: true }, { ghost: true }, { conflict: true }, {}]) {
+    const s = setup(options), h = createPageSectionHandlers(s.deps);
+    const f = s.form(); f.set("versionId", "e7000000-0000-4000-8000-000000000005");
+    const current = { ...session(), ...(options.ghost ? { kind: "ghost" as const, accountId: undefined } : {}) };
+    const action = createAction(async () => ({ tenantId, slug: "mau", session: current }));
+    const result = await action("pages.publish", restoreVersionSchema, h.restore)({}, f);
+    assert.equal(result.status, options.foreign ? 404 : options.ghost ? 403 : options.conflict ? 409 : undefined);
+    assert.equal(result.ok, !options.foreign && !options.ghost && !options.conflict);
+  }
+  const s = setup(), h = createPageSectionHandlers(s.deps);
+  const input = { pageId, revision: 2, versionId: "e7000000-0000-4000-8000-000000000005" };
+  for (const permission of ["pages.publish", "pages.structure", "content.edit"]) {
+    const current = session(); current.permissions = new Set([...current.permissions].filter(p => p !== permission));
+    assert.equal((await h.restore(input, { tenantId, slug: "mau", session: current })).status, 403);
+  }
+  assert.equal((await h.restore(input, { tenantId: "foreign", slug: "mau", session: session() })).status, 404);
+  s.deps.restore = async () => { throw new StructureError("Không tìm thấy phiên bản"); };
+  assert.equal((await h.restore(input, { tenantId, slug: "mau", session: session() })).status, 400);
+  assert.equal(restoreVersionSchema.safeParse({ ...input, versionId: "bad" }).success, false);
+});
+test("presence cần pages.view, builder và đúng tenant/page; clientId phải UUID", async () => {
+  const input = { pageId, clientId: "e7000000-0000-4000-8000-000000000005" };
+  for (const options of [{ foreign: true }, { can: () => false }, {}]) {
+    const s = setup(options), h = createPageSectionHandlers(s.deps);
+    const result = await h.presence(input, { tenantId, slug: "mau", session: session() });
+    assert.equal(result.status, options.foreign ? 404 : options.can ? 403 : undefined);
+    if (result.ok) assert.deepEqual(result.editors, ["Bạn (tab khác)"]);
+    assert.equal((await h.presence(input, { tenantId: "foreign", slug: "mau", session: session() })).status, 404);
+  }
+  const current = session(); current.permissions = new Set([...current.permissions].filter(p => p !== "pages.view"));
+  assert.equal((await createPageSectionHandlers(setup().deps).presence(input, { tenantId, slug: "mau", session: current })).status, 403);
+  assert.equal(presenceSchema.safeParse({ ...input, clientId: "bad" }).success, false);
+});
 
 function contentSetup(options: Parameters<typeof setup>[0] = {}) {
   const s = setup(options), current = session(options.role);

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Session } from "@solar/auth";
-import { RevisionConflictError, StructureError, type DraftInput, type PublishInput } from "@solar/db";
+import { RevisionConflictError, StructureError, type DraftInput, type PublishInput, type RestoreInput } from "@solar/db";
 import { migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistry } from "@solar/sections";
 import type { EditableSection } from "@solar/cms-ui";
 import type { ActionContext, ActionResult } from "./action.ts";
@@ -14,6 +14,8 @@ const descriptorsSchema = z.array(descriptorSchema).max(200).superRefine((sectio
 });
 export const pageIdSchema = z.object({ pageId: z.uuid() });
 export const pageRevisionSchema = pageIdSchema.extend({ revision: z.coerce.number().int().min(0) });
+export const restoreVersionSchema = pageRevisionSchema.extend({ versionId: z.uuid() });
+export const presenceSchema = pageIdSchema.extend({ clientId: z.uuid() });
 export const saveSectionsSchema = pageRevisionSchema.extend({ sections: z.string().max(200_000) });
 export const saveContentSchema = pageRevisionSchema.extend({ sectionId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/), data: z.string().max(500_000) });
 const oldContent = "Nội dung cần cập nhật phiên bản trước khi sửa";
@@ -31,6 +33,9 @@ export type PageSectionsDeps = {
   actor(session: Session): Promise<PublishInput["actor"] | null>;
   save(tenantId: string, input: DraftInput): Promise<{ revision: number }>;
   publish(tenantId: string, input: PublishInput): Promise<{ revision: number }>;
+  restore(tenantId: string, input: RestoreInput): Promise<{ revision: number }>;
+  versions(siteId: string, pageId: string): Promise<{ id: string; revision: number; createdAt: string; publisher: string }[]>;
+  presence(tenantId: string, pageId: string, clientId: string, session: Session): Promise<string[]>;
   preview(tenantId: string, siteId: string, slug: string, path: string): Promise<string>;
 };
 export const pageTitle = (title: unknown, slug: string) => typeof title === "object" && title !== null && "vi" in title && typeof title.vi === "string" && title.vi
@@ -64,10 +69,11 @@ export async function loadPageEditor(pageId: string, deps: PageSectionsDeps & { 
   const tenant = await deps.tenant();
   const page = await deps.page(tenant.siteId, pageId);
   if (!page || page.siteId !== tenant.siteId) return null;
-  const [can, themeId, removed] = await Promise.all([deps.entitlements(), deps.theme(tenant.siteId), deps.removed(tenant.siteId, pageId)]);
+  const [can, themeId, removed, versions] = await Promise.all([deps.entitlements(), deps.theme(tenant.siteId), deps.removed(tenant.siteId, pageId), deps.versions(tenant.siteId, pageId)]);
   const structure = session.permissions.has("pages.structure");
   return { page: { id: page.id, slug: page.slug, title: pageTitle(page.title, page.slug), revision: page.revision },
-    sections: readSections(page.draftSections ?? page.sections), hasDraft: page.hasDraft, themeId, removed,
+    sections: readSections(page.draftSections ?? page.sections), hasDraft: page.hasDraft, themeId, removed, versions,
+    canRestore: structure && session.permissions.has("pages.publish") && session.permissions.has("content.edit"),
     can: { reorder: structure && can("sectionReorder"), variantSwitch: structure && can("variantSwitch") },
     ...typeAccess(can),
     canBuilder: can("builder"), canEditContent: session.permissions.has("content.edit"), canPublish: session.permissions.has("pages.publish") };
@@ -117,7 +123,7 @@ export async function loadSectionContent(pageId: string, sectionId: string, deps
     section: { ...section, label: def.meta.label.vi }, ...readSectionData(section, def, row), bilingual: can("bilingual"), previewPath: `/${page.slug}` };
 }
 export type SectionContent = NonNullable<Awaited<ReturnType<typeof loadSectionContent>>>;
-export type PageSectionResult = ActionResult & { revision?: number; url?: string };
+export type PageSectionResult = ActionResult & { revision?: number; url?: string; editors?: string[] };
 
 /** Lỗi ngoài dự kiến để wrapper action xử lý, không lộ chi tiết nội bộ. */
 async function mutation(work: () => Promise<{ revision: number }>): Promise<PageSectionResult> {
@@ -140,6 +146,22 @@ export function createPageSectionHandlers(deps: PageSectionsDeps) {
   const missing = { ok: false, status: 404, error: "Không tìm thấy trang" };
   const forbiddenActor = { ok: false, status: 403, error: "Phiên hiện tại chưa hỗ trợ lưu hoặc xuất bản trang." };
   return {
+    async restore(input: z.output<typeof restoreVersionSchema>, context: ActionContext): Promise<PageSectionResult> {
+      if (!await ownPage(input.pageId, context)) return missing;
+      if (!(["pages.publish", "pages.structure", "content.edit"] as const).every(p => context.session?.permissions.has(p))) {
+        return { ok: false, status: 403, error: "Bạn không có quyền khôi phục phiên bản" };
+      }
+      const actor = await deps.actor(context.session!);
+      if (!actor) return forbiddenActor;
+      return mutation(() => deps.restore(context.tenantId, { pageId: input.pageId, versionId: input.versionId, expectedRevision: input.revision, actor }));
+    },
+    async presence(input: z.output<typeof presenceSchema>, context: ActionContext): Promise<PageSectionResult> {
+      if (!await ownPage(input.pageId, context)) return missing;
+      if (!context.session?.permissions.has("pages.view") || !(await deps.entitlements())("builder")) {
+        return { ok: false, status: 403, error: "Gói hoặc quyền hiện tại chưa có trình dựng" };
+      }
+      return { ok: true, editors: await deps.presence(context.tenantId, input.pageId, input.clientId, context.session) };
+    },
     async saveContent(input: z.output<typeof saveContentSchema>, context: ActionContext): Promise<PageSectionResult> {
       const own = await ownPage(input.pageId, context);
       if (!own) return missing;
