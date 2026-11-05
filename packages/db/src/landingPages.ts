@@ -54,9 +54,14 @@ export async function createLandingPage(db: Db | PlatformDb, tenantId: string, r
       if (!def) throw new StructureError("Loại section không tồn tại");
       return !["site-header", "site-footer"].includes(section.type) && (!def.meta.entitlement || can(def.meta.entitlement)) &&
         !rows.some(row => row.sectionId === section.id && row.removedAt !== null);
+    // Without `builder` a copied layout could never be published (the new page has no baseline to grandfather it).
+    }).map(section => {
+      if (can("builder") || !("layout" in section)) return section;
+      const { layout: _layout, ...rest } = section;
+      return rest;
     });
-    // New drafts may retain source layout on Pro; structure checks here count the new page, as in the plan.
-    const proposed = { ...baseline, pages: [...baseline.pages, { slug: input.slug, sections: [] }] };
+    // Validate the sections actually created, so creation and first publish apply the same rules.
+    const proposed = { ...baseline, pages: [...baseline.pages, { slug: input.slug, sections }] };
     const issues = validateSiteStructure(proposed, { can, pagesLimit: limit(site.tenant, "pages"), baseline });
     if (issues.length) throw new StructureError(issues.join("; "));
     const page = await repo.page.create({ siteId: site.id, slug: input.slug, kind: "landing", title: input.title, sections: [], draftSections: sections, publishedAt: null });

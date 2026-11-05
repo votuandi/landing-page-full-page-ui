@@ -6,7 +6,7 @@ import { createDb, createPlatformDb } from "../client.ts";
 import { forTenant } from "../repository.ts";
 import { createLandingPage, savePageSettings } from "../landingPages.ts";
 import { SiteSettingsError } from "../siteSettings.ts";
-import { StructureError } from "../publish.ts";
+import { StructureError, publishPage } from "../publish.ts";
 import type { Prisma } from "../../generated/client.ts";
 
 async function fixture(run: (ctx: { db: ReturnType<typeof createDb>; ops: ReturnType<typeof createPlatformDb>; tenantId: string; site: { id: string }; repo: ReturnType<typeof forTenant> }) => Promise<void>, planId = "pro") {
@@ -60,12 +60,28 @@ test("nhân bản lọc: draft content/layout, original ids/version, no chrome, 
   await ops.tenant.update({ where: { id: tenantId }, data: { featureOverrides: { calculator: { on: false, reason: "Test" } } } });
   const { pageId } = await createLandingPage(db, tenantId, { ...input(site.id), source: { kind: "duplicate", pageId: home.id } });
   const page = (await repo.page.get(pageId))!;
-  assert.deepEqual(page.draftSections, [{ ...sections[1], anchor: "uu-dai", layout: { background: "tint" } }]);
+  // Pro has no `builder`: the copy drops the layout, otherwise its first publish fails "Gói không cho tùy chỉnh bố cục section".
+  assert.deepEqual(page.draftSections, [{ ...sections[1], anchor: "uu-dai" }]);
   const copies = await repo.sectionContent.list({ where: { pageId } });
   assert.equal(copies.length, 1); assert.deepEqual(copies[0].draftData, draft);
   assert.equal(copies[0].schemaVersion, hero.schemaVersion);
   assert.deepEqual((await repo.page.get(home.id))?.draftSections, sections.map(s => s.type === "hero" ? { ...s, anchor: "uu-dai", layout: { background: "tint" } } : s));
+  const user = await repo.siteUser.create({ name: "[DỮ LIỆU MẪU]", email: "owner@test.vn", role: "owner" });
+  await publishPage(db, tenantId, { pageId, expectedRevision: page.revision, actor: { siteUserId: user.id } });
+  assert.notEqual((await repo.page.get(pageId))?.publishedAt, null);
 }));
+
+test("nhân bản trên Premium giữ layout và xuất bản được", options, () => fixture(async ({ db, tenantId, site, repo }) => {
+  const home = (await repo.page.first({ where: { slug: "" } }))!;
+  const hero = { id: "hero", type: "hero", variant: "t15", enabled: true, layout: { background: "tint" } };
+  await repo.page.update(home.id, { draftSections: [hero] });
+  await repo.sectionContent.create({ siteId: site.id, pageId: home.id, sectionId: "hero", type: "hero", data: sectionRegistry.types.hero.defaults as Prisma.InputJsonValue });
+  const { pageId } = await createLandingPage(db, tenantId, { ...input(site.id), source: { kind: "duplicate", pageId: home.id } });
+  const page = (await repo.page.get(pageId))!;
+  assert.deepEqual(page.draftSections, [hero]);
+  const user = await repo.siteUser.create({ name: "[DỮ LIỆU MẪU]", email: "owner@test.vn", role: "owner" });
+  await publishPage(db, tenantId, { pageId, expectedRevision: page.revision, actor: { siteUserId: user.id } });
+}, "premium"));
 
 test("tenant khác / missing source: 404 without creating a page", options, () => fixture(async ({ db, tenantId, site, repo }) => {
   await fixture(async foreign => {
