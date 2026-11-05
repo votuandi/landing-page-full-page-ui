@@ -4,13 +4,14 @@ import { action } from "../../../lib/action.ts";
 import { createPageSectionHandlers, pageIdSchema, pageRevisionSchema, restoreVersionSchema, presenceSchema, saveContentSchema, saveSectionsSchema } from "../../../lib/pageSections.ts";
 import { pageSectionDeps } from "../../../lib/pageSectionRuntime.ts";
 import { revalidatePath } from "next/cache";
-import { setPageTypes, createLandingPage, savePageSettings, forTenant } from "@solar/db";
+import { setPageTypes, createLandingPage, savePageSettings, saveAbTest, forTenant } from "@solar/db";
 import { redirect } from "next/navigation";
 import { getSiteEntitlements } from "../../../lib/entitlements.ts";
 import { createLandingHandlers, createLandingSchema, saveLandingSettingsSchema } from "../../../lib/landingPages.ts";
 import { getRuntime } from "../../../lib/runtime.ts";
 import { getTenant } from "../../../lib/auth.ts";
 import { createPageTypeHandler, pageTypeSchema } from "../../../lib/pageTypes.ts";
+import { abTestFormSchema, createAbTestHandler } from "../../../lib/abTest.ts";
 
 const handlers = createPageSectionHandlers(pageSectionDeps);
 export const saveSectionsDraft = action("pages.structure", saveSectionsSchema, handlers.save);
@@ -40,5 +41,15 @@ export const createLanding = action("pages.structure", createLandingSchema, asyn
 export const saveLandingSettings = action("pages.structure", saveLandingSettingsSchema, async (input, context) => {
   const result = await landing.save(input, context);
   if (result.ok) { revalidatePath("/trang"); revalidatePath(`/trang/${input.pageId}`); }
+  return result;
+});
+
+const abTest = createAbTestHandler({ tenant: getTenant, entitlements: getSiteEntitlements,
+  page: async pageId => forTenant(getRuntime().db, (await getTenant()).tenantId).page.get(pageId),
+  save: (tenantId, input) => saveAbTest(getRuntime().db, tenantId, input),
+});
+export const saveLandingAbTest = action("pages.structure", abTestFormSchema, async (input, context) => {
+  const result = await abTest(input, context);
+  if (result.ok) revalidatePath(`/trang/${input.pageId}`);
   return result;
 });

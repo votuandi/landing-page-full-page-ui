@@ -1372,3 +1372,125 @@ test("landing page: vượt giới hạn gói bị chặn ở server, không c�
     } finally { await context.close(); }
   } finally { fixture("landing-limit", "restore"); }
 });
+
+// E12-S08 — A/B hero title/CTA on a landing. admin-e7-b (premium) gets a published `e2e-ab` landing (hero + lead-form).
+test("landing a/b: bật B, khách được gán ổn định, lead ghi phiên bản, chọn thắng", async ({ page, browser }, info) => {
+  test.setTimeout(300_000);
+  const site = "admin-e7-b", publicUrl = `http://${site}.${platformDomain}:3212/e2e-ab`;
+  const pageId = fixture("ab-landing", site, "premium").split("\n").at(-1)!;
+  const titleB = "[DỮ LIỆU MẪU] Tiết kiệm 70%", ctaB = "[DỮ LIỆU MẪU] Khảo sát miễn phí";
+  await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+  await page.goto(`${origin(site)}/trang/${pageId}`);
+  const panel = page.getByRole("region", { name: "Thử nghiệm A/B" });
+  await expect(panel).toBeVisible({ timeout: 90_000 });
+  await panel.getByLabel("Tiêu đề B – dòng đầu", { exact: true }).fill(titleB);
+  await panel.getByLabel("Tiêu đề B – phần nhấn mạnh", { exact: true }).fill("tiền điện");
+  await panel.getByLabel("Nhãn nút B", { exact: true }).fill(ctaB);
+  await panel.getByRole("button", { name: "Bắt đầu thử nghiệm", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: "Đã bắt đầu thử nghiệm A/B" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Lưu phiên bản B", exact: true })).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`ab-panel-${width}.png`), fullPage: true });
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+
+  // AC1: a new visitor is assigned once (cookie ab_<testId>) and keeps the variant across reloads.
+  const fresh = await browser.newContext();
+  let testId = "";
+  try {
+    const visitor = await fresh.newPage();
+    await expect.poll(async () => { await visitor.goto(publicUrl); return visitor.locator("[data-ab-variant]").count(); }, { timeout: 60_000 }).toBe(2);
+    const assigned = (await fresh.cookies()).find(cookie => cookie.name.startsWith("ab_"));
+    expect(assigned?.value).toMatch(/^[AB]$/);
+    testId = assigned!.name.slice(3);
+    for (let n = 0; n < 3; n++) {
+      expect(await visitor.evaluate(() => document.documentElement.dataset.ab)).toBe(assigned!.value);
+      await visitor.reload();
+    }
+    await expect(visitor.locator(`[data-ab-variant="${assigned!.value}"] h1`)).toBeVisible();
+    await expect(visitor.locator(`[data-ab-variant="${assigned!.value === "A" ? "B" : "A"}"] h1`)).toBeHidden();
+  } finally { await fresh.close(); }
+
+  // Without JavaScript the visitor always sees A, even with a B cookie.
+  const plainContext = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    await plainContext.addCookies([{ name: `ab_${testId}`, value: "B", url: publicUrl }]);
+    const plain = await plainContext.newPage();
+    await plain.goto(publicUrl);
+    await expect(plain.locator('[data-ab-variant="A"] h1')).toBeVisible();
+    await expect(plain.locator('[data-ab-variant="B"] h1')).toBeHidden();
+  } finally { await plainContext.close(); }
+
+  // Variant B: sees the B title and CTA, its view is counted and its lead records "B".
+  const bContext = await browser.newContext();
+  let leadId = "";
+  try {
+    await bContext.addCookies([{ name: `ab_${testId}`, value: "B", url: publicUrl }]);
+    const visitor = await bContext.newPage();
+    await visitor.addInitScript(() => sessionStorage.setItem("t15-consult-shown", "1"));
+    const beacon = visitor.waitForResponse(res => res.url().endsWith("/api/ab") && res.request().method() === "POST");
+    await visitor.goto(publicUrl, { waitUntil: "networkidle" });
+    expect((await beacon).status()).toBe(204);
+    const hero = visitor.locator('[data-ab-variant="B"]');
+    await expect(hero.getByRole("heading", { level: 1 })).toContainText(titleB);
+    await expect(hero.getByRole("link", { name: ctaB })).toBeVisible();
+    await expect(visitor.locator('[data-ab-variant="A"] h1')).toBeHidden();
+    const form = visitor.locator('[data-section-type="lead-form"] form');
+    await expect.poll(() => form.evaluate(element => Object.keys(element).some(key => key.startsWith("__reactProps$"))), { timeout: 60_000 }).toBe(true);
+    await form.locator('[name="name"]').fill(`[DỮ LIỆU MẪU] Khách A/B ${Date.now()}`);
+    await form.locator('[name="phone"]').fill("0901234599");
+    await form.locator('[name="consent"]').check();
+    await visitor.waitForTimeout(3100);
+    const received = visitor.waitForResponse(res => res.url().endsWith("/api/lead") && res.request().method() === "POST");
+    await form.locator('button[type="submit"], button:not([type])').click();
+    const response = await received; expect(response.status()).toBe(200);
+    leadId = (await response.json()).id;
+  } finally { await bContext.close(); }
+
+  // AC2: the inbox labels the lead with its variant; the panel counts views and leads per variant.
+  await page.goto(`${origin(site)}/lead`);
+  await expect(page.locator(`[data-lead-id="${leadId}"]`)).toContainText("Phiên bản B");
+  await page.goto(`${origin(site)}/trang/${pageId}`);
+  const results = panel.getByRole("table", { name: "Kết quả thử nghiệm" });
+  const rowB = results.getByRole("row").filter({ has: page.getByRole("rowheader", { name: "B", exact: true }) });
+  await expect(rowB.getByRole("cell").nth(0)).not.toHaveText("0");
+  await expect(rowB.getByRole("cell").nth(1)).toHaveText("1");
+  await expect(results.getByRole("rowheader", { name: "A", exact: true })).toBeVisible();
+
+  // Winner B: every visitor gets B from the server, without the assignment script and without JavaScript.
+  await panel.getByRole("button", { name: "Chọn B thắng", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: "Đã chọn phiên bản B" })).toBeVisible();
+  const after = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const plain = await after.newPage();
+    await expect.poll(async () => { await plain.goto(publicUrl); return plain.locator('main [data-section-type="hero"] h1').first().textContent(); }, { timeout: 60_000 }).toContain(titleB);
+    await expect(plain.locator("[data-ab-variant]")).toHaveCount(0);
+  } finally { await after.close(); }
+});
+
+// AC3: admin-e11-leads on pro (landingPages without abTest). A running test written straight to the DB is not served,
+// views are refused by the API, and the admin offers an upgrade instead of the form.
+test("landing a/b: gói không có abTest bị chặn ở server", async ({ page, request }) => {
+  test.setTimeout(240_000);
+  const site = "admin-e11-leads", publicOrigin = `http://${site}.${platformDomain}:3212`;
+  const pageId = fixture("ab-landing", site, "pro", "running").split("\n").at(-1)!;
+  try {
+    const response = await request.get(`${publicOrigin}/e2e-ab`);
+    expect(response.status()).toBe(200);
+    const html = await response.text();
+    expect(html).not.toContain("data-ab-variant");
+    expect(html).not.toContain("[DỮ LIỆU MẪU] Tiêu đề B");
+    const beacon = await request.post(`${publicOrigin}/api/ab`, { data: JSON.stringify({ t: "00000000-0000-4000-8000-000000000000", v: "B" }) });
+    expect(beacon.status()).toBe(403);
+    await login(page, "owner@demo.vn", password(), site);
+    await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+    await page.goto(`${origin(site)}/trang/${pageId}`);
+    const panel = page.getByRole("region", { name: "Thử nghiệm A/B" });
+    await expect(panel.getByRole("button", { name: "Nâng cấp gói", exact: true })).toBeVisible({ timeout: 90_000 });
+    await expect(panel.getByRole("button", { name: "Bắt đầu thử nghiệm", exact: true })).toHaveCount(0);
+  } finally { fixture("landing-limit", "restore"); }
+});
