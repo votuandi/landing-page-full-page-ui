@@ -1288,8 +1288,11 @@ test("landing page: tạo từ mẫu, SEO, ẩn header, xuất bản, /<slug> v�
   await page.goto(origin(site) + "/trang");
   await expect(page.getByRole("heading", { name: "Landing page", exact: true })).toBeVisible();
   await expect(page.getByText(/Đã dùng 1\/20 trang/)).toBeVisible();
-  await page.getByRole("link", { name: "Tạo landing page", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Tạo landing page", exact: true })).toBeVisible();
+  // A hard navigation: on CI's `next dev` the client transition to a not-yet-compiled route stalled past 20 s (twice,
+  // with the dev server restarting near its memory threshold), while the link itself is all this step needs to prove.
+  await expect(page.getByRole("link", { name: "Tạo landing page", exact: true })).toHaveAttribute("href", "/trang/moi");
+  await page.goto(origin(site) + "/trang/moi");
+  await expect(page.getByRole("heading", { name: "Tạo landing page", exact: true })).toBeVisible({ timeout: 90_000 });
   for (const colorScheme of ["light", "dark"] as const) for (const width of [390, 1440]) {
     await page.emulateMedia({ colorScheme }); await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -1303,8 +1306,8 @@ test("landing page: tạo từ mẫu, SEO, ẩn header, xuất bản, /<slug> v�
   await source.getByRole("radio", { name: "Mẫu trang", exact: true }).check();
   await page.getByLabel("Chọn mẫu", { exact: true }).selectOption({ label: "Landing hộ gia đình" });
   await page.getByRole("button", { name: "Tạo trang", exact: true }).click();
-  await expect(page).toHaveURL(/\/trang\/[0-9a-f-]{36}$/);
-  await expect(page.getByRole("group", { name: "Kiểu hiển thị: Banner chính" })).toBeVisible();
+  await expect(page).toHaveURL(/\/trang\/[0-9a-f-]{36}$/, { timeout: 90_000 });
+  await expect(page.getByRole("group", { name: "Kiểu hiển thị: Banner chính" })).toBeVisible({ timeout: 90_000 });
 
   await expect(page.getByRole("heading", { name: "Cài đặt trang", exact: true })).toBeVisible();
   await page.getByLabel("Tiêu đề SEO", { exact: true }).fill("[DỮ LIỆU MẪU] Solar trang trại");
