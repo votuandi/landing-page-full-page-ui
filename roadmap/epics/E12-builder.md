@@ -59,7 +59,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - Undo/redo 100 bước trong phiên (unit `builderHistory.test.ts`; e2e "hoàn tác và làm lại thứ tự section", "hoàn tác nội dung trả giá trị cũ"); khóa mềm là cảnh báo trong bộ nhớ tiến trình admin (`editPresence.ts`, README admin).
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
-### E12-S07 · Nhiều landing page & mẫu trang
+### E12-S07 · Nhiều landing page & mẫu trang ✅ [PR #85](https://github.com/votuandi/landing-page-full-page-ui/pull/85)
 **Là** tenant gói Cao cấp, **tôi muốn** tạo landing page riêng cho từng chiến dịch (vd. "Điện mặt trời cho trang trại"), **để** chạy quảng cáo hiệu quả.
 - **Chi tiết**: tạo trang `kind=landing` với slug, SEO riêng, chọn ẩn header/footer; bắt đầu từ trang trắng, nhân bản trang có
   sẵn hoặc "mẫu trang" (preset con: landing hộ gia đình, landing nhà xưởng, trang tuyển đại lý); giới hạn số trang theo gói.
