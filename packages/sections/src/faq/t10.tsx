@@ -1,3 +1,4 @@
+import { spacingClass, surfaceClass } from "../layout";
 import type { SectionPropsOf } from "../define";
 import { pickLocale } from "../fields";
 import { SectionLink } from "../render/SectionLink";
@@ -6,11 +7,11 @@ import { T10Head } from "../shared/t10";
 import type { faq } from "./schema";
 
 /** FAQ t10: danh sách `<details>` một cột, đường kẻ dưới mỗi câu; JSON-LD FAQPage. */
-export default function FaqT10({ data, site, sectionId }: SectionPropsOf<typeof faq>) {
+export default function FaqT10({ data, site, sectionId, layout }: SectionPropsOf<typeof faq>) {
   const t = (value: { vi: string; en?: string }) => pickLocale(value, site.locale);
   const items = data.items.map((item) => ({ question: t(item.question), answer: t(item.answer) }));
   return (
-    <section aria-labelledby={`${sectionId}-title`} className="t15-section bg-bg-elevated">
+    <section aria-labelledby={`${sectionId}-title`} className={`${spacingClass(layout?.spacing, "t15-section")} ${surfaceClass(layout?.background, "bg-bg-elevated")}`}>
       {data.jsonLd && <script type="application/ld+json">{serializeJsonLd({
         "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map(({ question, answer }) => ({
           "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer },

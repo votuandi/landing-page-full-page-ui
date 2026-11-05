@@ -1,4 +1,4 @@
-import { sectionLimitIssues, sectionRegistry } from "@solar/sections";
+import { sectionLimitIssues, sectionRegistry, type SectionLayout } from "@solar/sections";
 import { PAGE_TYPES, PAGE_TYPE_IDS, isPageType, type PageTypeId } from "./pages";
 import type { Preset } from "./schema";
 
@@ -22,7 +22,7 @@ export function applyPlanToPreset<S extends { type: string }>(preset: { pages?: 
   };
 }
 
-export type StructureSection = { id: string; type: string; variant: string; enabled: boolean };
+export type StructureSection = { id: string; type: string; variant: string; enabled: boolean; layout?: SectionLayout };
 export type SitePage = { slug: string; sections: readonly StructureSection[] };
 export type SiteStructure = { pageTypes: readonly string[]; pages: readonly SitePage[] };
 
@@ -62,6 +62,7 @@ export type StructurePolicy = {
 };
 
 const order = (page: SitePage) => page.sections.map(({ id, type, enabled }) => `${id}:${type}:${enabled}`).join("|");
+const layoutKey = (layout?: SectionLayout) => JSON.stringify(Object.entries(layout ?? {}).filter(([, value]) => value !== undefined).sort(([a], [b]) => a.localeCompare(b)));
 
 /** Một chính sách cho wizard, CMS, builder và API (D21): trả danh sách lỗi tiếng Việt, rỗng = hợp lệ. */
 export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can, pagesLimit, baseline }: StructurePolicy): string[] {
@@ -86,6 +87,9 @@ export function validateSiteStructure({ pageTypes, pages }: SiteStructure, { can
     const original = baseline?.pages.find(item => item.slug === page.slug);
     if (isLandingSlug(page.slug) && !can("landingPages") && !original) issues.push(`Trang landing ngoài gói: /${page.slug}`);
     for (const section of page.sections) {
+      if (!can("builder") && layoutKey(section.layout) !== layoutKey(original?.sections.find(item => item.id === section.id)?.layout)) {
+        issues.push(`Gói không cho tùy chỉnh bố cục section: /${page.slug}`);
+      }
       const { type } = section;
       const def = sectionRegistry.getType(type);
       if (!def) issues.push(`Section không tồn tại: ${type} (trang /${page.slug})`);

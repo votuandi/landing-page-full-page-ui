@@ -29,6 +29,7 @@ test("loadBuilder tạo link preview có builder=1", async () => {
   assert.equal(result!.forms.calculator, undefined); assert.equal(result!.sections.length, 2);
   assert.equal(builderPath("", false), "/?builder=1&reorder=0");
   assert.equal(result!.themeId, "t12");
+  assert.equal(result!.themeSupportsDark, true);
   assert.ok(result!.allowedTypes.includes("hero"));
   assert.ok(!result!.allowedTypes.includes("calculator"));
   assert.deepEqual(result!.lockedTypes, ["calculator"]);

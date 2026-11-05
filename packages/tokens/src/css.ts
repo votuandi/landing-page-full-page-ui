@@ -58,5 +58,12 @@ export function themeToCss(theme: ThemeTokens, overrides?: ThemeOverrides, optio
     "color-scheme:dark",
   ].join(";");
   const suffix = scope ? ` ${scope}` : "";
-  return `${css}[data-theme="dark"]${suffix}{${dark}}@media (prefers-color-scheme:dark){:root:not([data-theme])${suffix}{${dark}}}`;
+  const surfaceLight = [...colorDeclarations(theme.colors.light, parsed.colors?.light), "color-scheme:light"].join(";");
+  // Reset every color in a surface, including themes with a partial dark palette.
+  const surfaceDark = [...colorDeclarations({ ...theme.colors.light, ...parsed.colors?.light, ...theme.colors.dark }, parsed.colors?.dark), "color-scheme:dark"].join(";");
+  const prefix = scope ? `${scope} ` : "";
+  const surfaces = `${prefix}[data-surface="deep"],${prefix}[data-surface="invert"]{${surfaceDark}}`
+    + `[data-theme="dark"] ${prefix}[data-surface="invert"]{${surfaceLight}}`
+    + `@media (prefers-color-scheme:dark){:root:not([data-theme]) ${prefix}[data-surface="invert"]{${surfaceLight}}}`;
+  return `${css}[data-theme="dark"]${suffix}{${dark}}@media (prefers-color-scheme:dark){:root:not([data-theme])${suffix}{${dark}}}${surfaces}`;
 }

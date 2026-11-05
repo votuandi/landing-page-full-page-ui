@@ -19,6 +19,20 @@ import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
 import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
 import { COLLECTIONS, collectionDefs } from "../collections.ts";
 
+test("E12-S05: preset/seed không có layout: parse và validateSiteStructure không báo lỗi bố cục", () => {
+  for (const { id } of presets) {
+    const { page } = loadPreset(id);
+    assert.ok(page.sections.every(s => s.layout === undefined), id);
+  }
+  for (const id of ["t15", "t12"] as const) {
+    const demo = buildDemo(id);
+    const baseline = siteStructureOf(demo, demo.pages.map(p => ({ slug: p.slug, sections: p.pageSections })));
+    assert.ok(baseline.pages.every(p => p.sections.every(s => s.layout === undefined)));
+    assert.ok(validateSiteStructure(baseline, { can: feature => feature !== "builder", baseline, pagesLimit: Infinity })
+      .every(issue => !issue.includes("bố cục section")));
+  }
+});
+
 test("E8-S06: every preset retains all section media references in descriptors and snapshots", () => {
   for (const preset of presets) {
     const sections = loadPreset(preset.id).page.sections;

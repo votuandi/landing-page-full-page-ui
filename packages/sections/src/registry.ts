@@ -29,6 +29,7 @@ import { variants as packages } from "./packages";
 import { variants as segments } from "./segments";
 import { variants as siteFooter } from "./site-footer";
 import { variants as siteHeader } from "./site-header";
+import type { LayoutCapability } from "./layout";
 
 // Registry trộn nhiều schema; defineVariants kiểm props trước khi xóa kiểu ở lookup bằng string.
 export function createRegistry<E extends Record<string, SectionVariants<any, string>>>(entries: E) {
@@ -41,6 +42,12 @@ export function createRegistry<E extends Record<string, SectionVariants<any, str
 
   return {
     types,
+    layoutOf(type: string, variant: string): readonly LayoutCapability[] {
+      if (!Object.prototype.hasOwnProperty.call(entries, type)) return [];
+      const entry = entries[type];
+      const resolved = Object.prototype.hasOwnProperty.call(entry.variants, variant) ? variant : entry.defaultVariant;
+      return entry.layout?.[resolved] ?? [];
+    },
     variantsOf(type: string): string[] | null {
       return Object.prototype.hasOwnProperty.call(entries, type) ? Object.keys(entries[type].variants) : null;
     },

@@ -64,7 +64,9 @@ tường minh luôn thắng media query. Dark chỉ khai báo tập màu ghi đ�
 lại kế thừa light; dark rỗng vẫn có `color-scheme:dark`.
 
 `apps/web` inline CSS t15 vào `<head>`, không thêm request CSS. Unit test kiểm
-CSS t15 ≤ 4096 byte, override, dữ liệu sai và hai theme render xen kẽ không lẫn biến.
+CSS t15 gồm vùng màu ≤ 12 KB, override, dữ liệu sai và hai theme render xen kẽ không lẫn biến.
+Theme có `supportsDark` sinh vùng `[data-surface="deep"]` dùng bảng màu dark và `invert` đối lập chế độ trang.
+Vùng màu chỉ đặt biến màu và `color-scheme`, nhận override tenant, tôn trọng scope lab và chế độ tối hệ thống.
 
 Dependency runtime `zod@4.6.5` (đã được AGENTS.md chấp thuận) dùng để kiểm tra dữ liệu
 theme và suy ra một kiểu TypeScript duy nhất, tránh lệch giữa validation và kiểu dữ liệu.

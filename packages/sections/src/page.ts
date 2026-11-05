@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sectionLayoutSchema } from "./layout";
 
 // E5 lưu mảng này trong Page.sections; data parse theo schema của type lúc render.
 export const pageSectionSchema = z.object({
@@ -7,6 +8,7 @@ export const pageSectionSchema = z.object({
   variant: z.string().min(1),
   enabled: z.boolean().default(true),
   anchor: z.string().regex(/^[a-z0-9-]+$/).optional(),
+  layout: sectionLayoutSchema.optional(),
   data: z.unknown(),
 });
 

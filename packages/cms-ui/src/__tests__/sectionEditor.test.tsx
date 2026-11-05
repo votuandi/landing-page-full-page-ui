@@ -10,6 +10,10 @@ const initial: EditableSection[] = [
   { id: "calculator", type: "calculator", variant: "t15", enabled: false },
 ];
 const cleanup: Mounted[] = [];
+test("đổi variant giữ nguyên layout và anchor", () => {
+  const value: EditableSection[] = [{ id: "faq", type: "faq", variant: "t15", enabled: true, anchor: "hoi-dap", layout: { background: "tint" } }];
+  assert.deepEqual(setVariant(setVariant(value, "faq", "t02"), "faq", "t15"), value);
+});
 test("edit link without reorder", async () => {
   const m = await render({ can: { reorder: false, variantSwitch: false }, editHref: s => `/section/${s.id}` });
   assert.equal(m.container.querySelector('a[href="/section/hero"]')?.textContent, "Sửa nội dung");

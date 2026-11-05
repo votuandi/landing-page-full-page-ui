@@ -10,6 +10,20 @@ import { createPageSectionHandlers, loadPageEditor, loadSectionContent, recoverR
 const tenantId = "e7000000-0000-4000-8000-000000000001", siteId = "e7000000-0000-4000-8000-000000000002", pageId = "e7000000-0000-4000-8000-000000000003";
 const hero = { id: "hero", type: "hero", variant: "t12", enabled: true };
 
+test("layout sai enum/key lạ trả 400 không ghi; layout hợp lệ được lưu và kiểm gói", async () => {
+  const s = setup();
+  for (const layout of [{ background: "red" }, { hideOn: "tablet" }, { arbitrary: true }]) {
+    assert.equal((await s.actions.save({}, s.form([{ ...hero, layout }]))).status, 400);
+  }
+  assert.equal(s.writes.length, 0);
+  const layout = { background: "tint", spacing: "compact" };
+  assert.equal((await s.actions.save({}, s.form([{ ...hero, layout }]))).ok, true);
+  assert.deepEqual(s.writes[0].draftSections, [{ ...hero, layout }]);
+  const downgraded = setup({ can: f => f !== "builder" });
+  assert.equal((await downgraded.actions.save({}, downgraded.form([{ ...hero, layout }]))).status, 400);
+  assert.equal(downgraded.writes.length, 0);
+});
+
 test("recover removed descriptors without data from published layout or nearest snapshot, preserving anchor", () => {
   const content = [{ sectionId: "hero", type: "hero", removedAt: new Date("2026-10-01T00:00:00Z") }];
   const descriptor = { ...hero, anchor: "mo-dau" };

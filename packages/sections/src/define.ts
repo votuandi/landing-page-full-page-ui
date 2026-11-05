@@ -4,6 +4,7 @@ import type { z } from "zod";
 import type { SiteContext } from "./site";
 import type { Localized } from "./fields/localized";
 import type { SectionMigration } from "./migrate";
+import type { LayoutCapability, SectionLayout } from "./layout";
 
 export type LocalizedText = Localized;
 export type SectionMeta = {
@@ -33,6 +34,7 @@ export type SectionPropsOf<D extends SectionTypeDef> = {
   data: z.output<D["schema"]>;
   site: SiteContext;
   sectionId: string;
+  layout?: SectionLayout;
 };
 export type SectionVariant<D extends SectionTypeDef> =
   (props: SectionPropsOf<D>) => ReactNode | Promise<ReactNode>;
@@ -41,12 +43,14 @@ export type SectionVariants<D extends SectionTypeDef, V extends string> = {
   def: D;
   defaultVariant: V;
   variants: Record<V, VariantLoader<D>>;
+  layout?: Partial<Record<V, readonly LayoutCapability[]>>;
 };
 
 export function defineVariants<D extends SectionTypeDef, const V extends string>(
   def: D,
   defaultVariant: NoInfer<V>,
   variants: Record<V, VariantLoader<NoInfer<D>>>,
+  layout?: Partial<Record<NoInfer<V>, readonly LayoutCapability[]>>,
 ): SectionVariants<D, V> {
-  return { def, defaultVariant, variants };
+  return { def, defaultVariant, variants, layout };
 }

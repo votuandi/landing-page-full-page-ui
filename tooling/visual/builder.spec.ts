@@ -25,7 +25,10 @@ const rowIds = (page: Page) => rows(page).evaluateAll(list => list.map(el => (el
 const canvasIds = (page: Page) => canvas(page).locator("main [data-section-id]").evaluateAll(list => list.map(el => (el as HTMLElement).dataset.sectionId));
 const selectRow = (page: Page, id: string) => rows(page).and(page.locator(`[data-section-id="${id}"]`)).getByRole("button", { pressed: false }).first().click();
 const selected = (page: Page, id: string) => expect(canvas(page).locator(`[data-builder-selected="${id}"]`)).toBeAttached();
-const draft = () => (JSON.parse(fixture("builder-page-read")) as { draftSections: { id: string }[] | null }).draftSections?.map(section => section.id);
+type DraftSection = { id: string; anchor?: string; layout?: Record<string, string> };
+const draftSections = () => (JSON.parse(fixture("builder-page-read")) as { draftSections: DraftSection[] | null }).draftSections;
+const draft = () => draftSections()?.map(section => section.id);
+const draftSection = (id: string) => draftSections()?.find(section => section.id === id);
 const heroData = () => (JSON.parse(fixture("builder-section-read", "s-hero")) as { data: { title: { highlight: { vi: string } } } }).data;
 const heroText = (page: Page, text: string) => canvas(page).locator('main [data-section-id="s-hero"]').getByText(text, { exact: true });
 const panel = (page: Page) => page.getByRole("region", { name: "Thuộc tính section" });
@@ -137,7 +140,8 @@ test.describe("builder", () => {
     await open(page);
     await frame(page).evaluate(() => { (window as Window & { marker?: number }).marker = 1; });
     const text = `[DỮ LIỆU MẪU] Canvas ${Date.now()}`;
-    await page.getByRole("region", { name: "Thuộc tính section" }).getByRole("textbox").first().fill(text);
+    // Form nội dung, không phải ô "Mã neo" của nhóm Bố cục (E12-S05).
+    await panel(page).getByRole("group", { name: /^Nội dung / }).getByRole("textbox").first().fill(text);
     await expect(canvas(page).locator("main")).toContainText(text, { timeout: 30_000 });
     expect(await frame(page).evaluate(() => (window as Window & { marker?: number }).marker)).toBe(1);
   });
@@ -188,12 +192,13 @@ test.describe("builder", () => {
     await expect(library.getByRole("heading", { level: 3 })).toHaveText(["Mở đầu", "Thuyết phục", "Chuyển đổi", "Nội dung", "Chân trang"]);
     const projects = library.locator('li[data-library-type="projects"]');
     await expect(projects).toHaveAttribute("data-library-status", "ok");
-    // Site of admin-e7-a uses theme t15; the card shows the type's first variant.
-    await expect(projects.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).locator("img")).toHaveAttribute("src", "/section-thumbs/t15/projects--t15.webp");
+    // Theme thật của site (test appearance trong admin.spec đổi theme của admin-e7-a và không trả lại); thẻ hiện variant đầu tiên.
+    const theme = fixture("site-theme");
+    await expect(projects.getByRole("button", { name: "Thêm Công trình đã thực hiện", exact: true }).locator("img")).toHaveAttribute("src", `/section-thumbs/${theme}/projects--t15.webp`);
     await projects.getByRole("button", { name: "Kiểu của Công trình đã thực hiện", exact: true }).click();
     for (const variant of ["t15", "t14", "t12", "t11", "t10"]) {
       await expect(projects.getByRole("button", { name: `Thêm Công trình đã thực hiện kiểu ${variant}`, exact: true }).locator("img"))
-        .toHaveAttribute("src", `/section-thumbs/t15/projects--${variant}.webp`);
+        .toHaveAttribute("src", `/section-thumbs/${theme}/projects--${variant}.webp`);
     }
     // hero is already on the page (maxPerPage 1): its variants stay browsable but cannot be added.
     await expect(library.locator('li[data-library-type="hero"]')).toHaveAttribute("data-library-status", "limit");
@@ -332,6 +337,92 @@ test.describe("builder", () => {
     await heroText(page, "mái nhà của bạn").dblclick();
     await expect(canvas(page).locator("main [contenteditable]")).toHaveCount(0);
     await expect(canvas(page).locator("[data-builder-inline]")).toHaveCount(0);
+  });
+
+  test("tùy chọn bố cục đổi nền và lưu nháp", async ({ page }) => {
+    await open(page);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    const layout = panel(page).getByRole("group", { name: "Bố cục" });
+    const wrapper = canvas(page).locator('main [data-section-id="s-faq"]');
+    await layout.getByLabel("Nền", { exact: true }).selectOption("tint");
+    await expect(wrapper.locator("> section")).toHaveClass(/(^|\s)bg-bg-tint(\s|$)/, { timeout: 30_000 });
+    await expect.poll(() => draftSection("s-faq")?.layout).toEqual({ background: "tint" });
+    await layout.getByLabel("Nền", { exact: true }).selectOption("deep");
+    await expect(wrapper).toHaveAttribute("data-surface", "deep", { timeout: 30_000 });
+    await expect(wrapper.locator("> section")).not.toHaveClass(/(^|\s)bg-bg-tint(\s|$)/);
+    await layout.getByLabel("Khoảng cách", { exact: true }).selectOption("compact");
+    await expect.poll(() => draftSection("s-faq")?.layout).toEqual({ background: "deep", spacing: "compact" });
+  });
+
+  test("variant không hỗ trợ thì ẩn tùy chọn bố cục", async ({ page }) => {
+    await open(page);
+    const layout = panel(page).getByRole("group", { name: "Bố cục" });
+    await expect(layout.getByLabel("Ẩn trên", { exact: true })).toBeVisible();
+    await expect(layout.getByLabel("Mã neo", { exact: true })).toBeVisible();
+    for (const name of ["Nền", "Khoảng cách", "Căn chỉnh"]) await expect(layout.getByLabel(name, { exact: true })).toHaveCount(0);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    await expect(layout.getByLabel("Nền", { exact: true })).toBeVisible();
+    await expect(layout.getByLabel("Nền", { exact: true }).locator("option")).toHaveText(["Mặc định", /.+/, /.+/, /.+/, /.+/, /.+/]);
+    await expect(layout.getByLabel("Căn chỉnh", { exact: true })).toHaveCount(0);
+  });
+
+  test("ẩn trên di động không hiện ở khung 390", async ({ page }) => {
+    await open(page);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    await panel(page).getByRole("group", { name: "Bố cục" }).getByLabel("Ẩn trên", { exact: true }).selectOption("mobile");
+    const wrapper = canvas(page).locator('main [data-section-id="s-faq"]');
+    await expect(wrapper).toHaveClass(/(^|\s)max-md:hidden(\s|$)/, { timeout: 30_000 });
+    await expect(wrapper).toBeVisible();
+    await page.getByRole("button", { name: "390", exact: true }).click();
+    await expect(wrapper).toBeHidden();
+    await page.getByRole("button", { name: "1440", exact: true }).click();
+    await expect(wrapper).toBeVisible();
+    await expect.poll(() => draftSection("s-faq")?.layout).toEqual({ hideOn: "mobile" });
+  });
+
+  test("mã neo trùng hoặc sai không lưu", async ({ page }) => {
+    await open(page);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    const layout = panel(page).getByRole("group", { name: "Bố cục" });
+    await layout.getByLabel("Mã neo", { exact: true }).fill("bang-gia");
+    await layout.getByLabel("Mã neo", { exact: true }).press("Enter");
+    await expect.poll(() => draftSection("s-faq")?.anchor).toBe("bang-gia");
+    await expect(canvas(page).locator('main [data-section-id="s-faq"]')).toHaveAttribute("id", "bang-gia", { timeout: 30_000 });
+    await selectRow(page, "s-cta");
+    await selected(page, "s-cta");
+    await layout.getByLabel("Mã neo", { exact: true }).fill("bang-gia");
+    await layout.getByLabel("Mã neo", { exact: true }).press("Enter");
+    await expect(layout.getByRole("alert")).toHaveText(/Mã neo đã dùng/);
+    await layout.getByLabel("Mã neo", { exact: true }).fill("Bảng Giá");
+    await layout.getByLabel("Mã neo", { exact: true }).blur();
+    await expect(layout.getByRole("alert")).toHaveText(/Chỉ dùng chữ thường, số và dấu gạch nối/);
+    await page.waitForTimeout(1_000);
+    expect(draftSection("s-cta")?.anchor).toBeUndefined();
+  });
+
+  test("lưu bố cục lỗi thì hoàn nguyên", async ({ page }) => {
+    await open(page);
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    fixture("builder-page-bump");
+    const background = panel(page).getByRole("group", { name: "Bố cục" }).getByLabel("Nền", { exact: true });
+    await background.selectOption("sky");
+    await expect(page.getByRole("alert").filter({ hasText: /thay đổi|phiên bản/ })).toBeVisible();
+    await expect(background).toHaveValue("default");
+    expect(draft()).toBeUndefined();
+  });
+
+  test("không có quyền cấu trúc thì bố cục chỉ xem", async ({ page }) => {
+    await open(page, "viewer_admin");
+    await selectRow(page, "s-faq");
+    await selected(page, "s-faq");
+    const layout = panel(page).getByRole("group", { name: "Bố cục" });
+    await expect(layout.getByLabel("Nền", { exact: true })).toBeDisabled();
+    await expect(layout.getByLabel("Mã neo", { exact: true })).toBeDisabled();
   });
 
   test("builder không lỗi a11y và không tràn ở 390/1440", async ({ page }) => {

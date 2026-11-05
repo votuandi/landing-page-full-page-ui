@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { DndContext, DragOverlay, MouseSensor, pointerWithin, useSensor, useSensors, type Announcements, type DragMoveEvent } from "@dnd-kit/core";
-import { inlineFields, insertRelative, libraryStatus, moveRelative, newSectionId, PREVIEW_MESSAGE, PreviewFrame, useLeaveGuard, type PreviewEvent, type PreviewFrameHandle } from "@solar/cms-ui";
+import { inlineFields, insertRelative, libraryStatus, moveRelative, newSectionId, PREVIEW_MESSAGE, PreviewFrame, useLeaveGuard, type PreviewEvent, type PreviewFrameHandle, type EditableSection } from "@solar/cms-ui";
 import { sectionRegistry } from "@solar/sections";
 import type { BuilderEditor, PageSectionResult } from "../../../../../lib/pageSections.ts";
 import { createBuilderQueue } from "../../../../../lib/builderQueue.ts";
@@ -11,6 +11,7 @@ import { builderPreviewLink, saveSectionContent, saveSectionsDraft } from "../..
 import BuilderPanel, { type BuilderPanelHandle } from "./BuilderPanel";
 import DeviceStage from "./DeviceStage";
 import SectionLibrary, { type LibraryItem } from "./SectionLibrary";
+import LayoutFields from "./LayoutFields";
 
 const button = "inline-flex min-h-11 items-center justify-center rounded-button border border-line/20 bg-bg-elevated px-3 py-2 text-sm font-medium text-fg hover:bg-bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
 const move = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-button px-2 text-xs font-medium text-fg-muted hover:bg-bg-tint hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40";
@@ -123,6 +124,19 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
       } else { setSections(previous); latest.current.sections = previous; resultError(result); }
     } finally { changing.current = false; setBusy(false); }
     if (added) await choose(section.id);
+  }
+  async function changeLayout(section: EditableSection) {
+    if (!editor.canReorder || conflict || changing.current) return;
+    const previous = latest.current.sections;
+    const next = previous.map(s => s.id === section.id ? section : s);
+    changing.current = true; setBusy(true); setError(undefined); setSections(next); latest.current.sections = next;
+    try {
+      const result = await queue.write(revision => {
+        const form = formData(revision); form.set("sections", JSON.stringify(next)); return saveSectionsDraft({}, form);
+      });
+      if (result.ok) refresh();
+      else { setSections(previous); latest.current.sections = previous; resultError(result); }
+    } finally { changing.current = false; setBusy(false); }
   }
   function cancelDrag() {
     pending.current = null; setDragged(null);
@@ -241,6 +255,7 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         </nav>
         <div className="min-h-0 min-w-0 flex-1 rounded-card border border-line/20 bg-bg-elevated p-4 xl:overflow-y-auto">
           {selected && Object.hasOwn(forms, selected.id) ? <BuilderPanel key={selected.id} ref={panel} section={selected} form={forms[selected.id]} bilingual={editor.bilingual} disabled={!editor.canEditContent || conflict}
+            layoutFields={<LayoutFields key={`${selected.id}:${selected.anchor ?? ""}`} section={selected} sections={sections} themeSupportsDark={editor.themeSupportsDark} disabled={!editor.canReorder || busy || conflict} onChange={next => { void changeLayout(next); }} />}
             onDirty={setDirty} onChange={data => setForms(current => ({ ...current, [selected.id]: { ...current[selected.id], data } }))}
             save={data => queue.write(async revision => {
               const form = formData(revision); form.set("sectionId", selected.id); form.set("data", JSON.stringify(data));
