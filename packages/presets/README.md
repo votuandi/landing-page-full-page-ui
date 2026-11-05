@@ -1,5 +1,10 @@
 # @solar/presets
 
+E12-S07: `PAGE_TEMPLATES` chứa ba mẫu landing dùng section defaults, chọn variant theo home preset của site.
+`landingSlugIssue` kiểm đường dẫn landing có thể phục vụ trên web (1–3 đoạn, tối đa 120 ký tự, tránh route hệ thống).
+`pageSettingsSchema` kiểm SEO VI/EN (tiêu đề ≤ 70, mô tả ≤ 160), noindex và ẩn header/footer.
+`parsePageSettings` chấp nhận null của trang cũ; dữ liệu hỏng được ghi log không kèm nội dung và trả `{}`.
+
 Preset = theme + section theo thứ tự + widget toàn site. Nội dung mẫu t15 lấy từ cấu hình và collection của app cũ,
 có nhãn `[DỮ LIỆU MẪU]`. Không phụ thuộc `apps/web`, không gọi DB.
 
