@@ -63,6 +63,18 @@ test("không có hero, hero tắt, trang chủ, catalog, quá 60 ký tự, tenan
   await assert.rejects(saveAbTest(db, tenantId, { pageId, action: "start", ...copy, title: { ...title, lead: { vi: "a".repeat(61) } } }));
 }));
 
+// minwy `slides` and t10 `segmentViews` replace the hero title/CTA, so B would never show while views were counted.
+test("hero dùng slides hoặc segmentViews không bật được A/B", options, () => fixture(async ({ db, tenantId, siteId, pageId, repo }) => {
+  const content = await repo.sectionContent.create({ siteId, pageId, sectionId: "hero", type: "hero", data: {}, draftData: {} });
+  await saveAbTest(db, tenantId, { pageId, action: "start", ...copy });
+  for (const draftData of [{ slides: [{ title: { vi: "Slide" } }] }, { segmentViews: { label: { vi: "Bạn là" }, items: [] } }]) {
+    await repo.sectionContent.update(content.id, { draftData });
+    await assert.rejects(saveAbTest(db, tenantId, { pageId, action: "start", ...copy }), /slide hoặc phân khúc/);
+  }
+  // Ending a test is always allowed.
+  await saveAbTest(db, tenantId, { pageId, action: "end", winner: "A" });
+}));
+
 test("gói pro và kill switch chặn abTest", options, () => fixture(async ({ db, ops, tenantId, pageId }) => {
   await assert.rejects(saveAbTest(db, tenantId, { pageId, action: "start", ...copy }), StructureError);
   await ops.tenant.update({ where: { id: tenantId }, data: { planId: "premium", featureOverrides: { abTest: { on: false, reason: "Test" } } } });

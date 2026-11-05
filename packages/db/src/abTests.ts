@@ -43,7 +43,14 @@ export async function saveAbTest(db: Db | PlatformDb, tenantId: string, raw: Sav
     const current = (await repo.page.get(page.id))!;
     const sections = current.draftSections ?? current.sections;
     const layout = pageConfigSchema.safeParse({ sections: Array.isArray(sections) ? sections.map(section => ({ ...section as object, data: undefined })) : sections });
-    if (!layout.success || !layout.data.sections.some(section => section.type === "hero" && section.enabled)) throw new StructureError("Trang không có hero đang bật");
+    const hero = layout.success ? layout.data.sections.find(section => section.type === "hero" && section.enabled) : undefined;
+    if (!hero) throw new StructureError("Trang không có hero đang bật");
+    if (input.action === "start") {
+      // Slides (minwy) and segment views (t10) replace title/CTA on screen: B would be invisible while views count.
+      const row = await repo.sectionContent.first({ where: { pageId: page.id, sectionId: hero.id } });
+      const data = (row?.draftData ?? row?.data) as { slides?: unknown; segmentViews?: unknown } | null | undefined;
+      if (data?.slides || data?.segmentViews) throw new StructureError("Banner chính đang dùng slide hoặc phân khúc nên chưa thử nghiệm A/B được. Bỏ slide/phân khúc rồi thử lại.");
+    }
     const previous = parseAbTest(current.abTest);
     if (input.action === "end" && !previous) throw new StructureError("Chưa có thử nghiệm A/B");
     const abTest: AbTest = input.action === "start"
