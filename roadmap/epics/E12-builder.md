@@ -41,7 +41,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **AC**: [x] Dán văn bản có định dạng → chỉ giữ text (unit `builderMode.test.ts` › insertPlain, `builderCanvas.test.ts`; e2e `builder.spec.ts` › "dán văn bản có định dạng chỉ giữ text") · [x] Giá trị vẫn qua validate zod trước khi lưu (unit `inline.test.ts`, `builderLibrary.test.ts`; e2e `builder.spec.ts` › "sửa inline vượt giới hạn không lưu").
 - Phụ thuộc: S02 · Agent: Claude · Cỡ: M
 
-### E12-S05 · Tùy chọn bố cục có giới hạn
+### E12-S05 · Tùy chọn bố cục có giới hạn ✅ [PR #83](https://github.com/votuandi/landing-page-full-page-ui/pull/83)
 - **Chi tiết**: mỗi instance section có `layout`: `background` (`default|tint|sky|sun|deep|invert`), `spacing`
   (`compact|normal|loose`), `align` (nếu variant hỗ trợ), `anchorId`, `hideOn` (`mobile|desktop`). Chỉ ánh xạ sang token/class
   có sẵn.
@@ -49,7 +49,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
   nó hỗ trợ; tùy chọn không hỗ trợ bị ẩn.
 - Bằng chứng local: `packages/sections/src/__tests__/layout.test.tsx` (AC1 ma trận HTML 11 variant opt-in, fallback/ignore),
   `apps/admin/src/__tests__/layoutOptions.test.ts` + `layoutFields.test.ts` (ẩn control theo capability/theme), lint token
-  sections/cms-ui/admin 0 vi phạm. E2E/visual và review Claude còn chờ; chi tiết `.agent-runs/E12-S05/codex-report.md`.
+  sections/cms-ui/admin 0 vi phạm; e2e `builder.spec.ts` (6 test bố cục). CI regression toàn bộ [run 41859491943](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41859491943) xanh (attempt 2) + matrix/visual run 41859491694. PR [#83](https://github.com/votuandi/landing-page-full-page-ui/pull/83).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: S
 
 ### E12-S06 · Lịch sử, undo/redo, phiên bản
