@@ -16,7 +16,8 @@ import { siteProfileMediaIds } from "./siteProfile.ts";
 import type { OrphanOptions } from "./mediaOrphans.ts";
 import type { MigrateOptions } from "./storageMigrate.ts";
 
-const repositoryModels = [...tenantModels, ...optionalTenantModels];
+// The view counter has a composite identity; its tenant-scoped SQL lives in abTests.ts.
+const repositoryModels = [...tenantModels, ...optionalTenantModels].filter(model => model !== "AbTestView");
 type DelegateName = Uncapitalize<(typeof repositoryModels)[number]>;
 // Transaction delegates retain the extensions; client lifecycle methods are not required.
 type DbClient = Pick<Db, DelegateName>;

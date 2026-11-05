@@ -4,6 +4,15 @@ import { randomUUID } from "node:crypto";
 import { parseTenantBackup, remapBackup, TenantBackupError } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 
+test("backup cũ không có abTest; A/B mới round-trip", () => {
+  const raw = demoBackup();
+  assert.equal(parseTenantBackup(raw).pages[0].abTest, undefined);
+  const abTest = { id: randomUUID(), status: "running", title: {}, ctaLabel: { vi: "B" } };
+  const updated = { ...raw, pages: raw.pages.map(p => ({ ...p, abTest })) };
+  assert.deepEqual(parseTenantBackup(updated).pages[0].abTest, abTest);
+  assert.deepEqual(remapBackup(parseTenantBackup(updated), randomUUID()).pages[0].abTest, abTest);
+});
+
 test("backup cũ thiếu settings vẫn đọc; settings mới round-trip", () => {
   const raw = demoBackup();
   assert.equal(parseTenantBackup(raw).pages[0].settings, undefined);

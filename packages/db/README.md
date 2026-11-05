@@ -1,5 +1,17 @@
 # @solar/db
 
+## Thử nghiệm A/B landing (E12-S08)
+
+`saveAbTest(db, tenantId, input)` kiểm gói `abTest` và hero đang bật trước khi lưu cột `Page.abTest` độc lập với
+cài đặt trang. Sửa B khi chạy giữ id/số liệu; bắt đầu lại sau khi kết thúc tạo id mới. Trang đã xuất bản enqueue
+invalidate tag trang trong cùng transaction. `parseAbTest` trả null cho dữ liệu cũ/hỏng, không log nội dung.
+
+`recordAbView(db, tenantId, siteId, testId, variant)` chỉ đếm test đang chạy trên landing đã xuất bản đúng site;
+upsert SQL cộng nguyên tử. `AbTestView` có khóa ghép, RLS và FK page cùng tenant; truy cập qua các hàm A/B, không
+qua CRUD repository dùng id đơn. `abTestStats` trả lượt xem/lead A/B và bỏ lead spam. `Lead.abTestId/abVariant`
+nullable; caller xác minh cookie và gói trước khi ghi attribution. Backup giữ cấu hình A/B (backup cũ vẫn đọc được),
+không mang theo lượt xem hoặc lead.
+
 ## Kiểm tra sẵn sàng (E10-S01)
 
 `checkConnection(db, { fresh: true })` chạy lại truy vấn xác minh kết nối và role cô lập trên pool hiện có, dành cho

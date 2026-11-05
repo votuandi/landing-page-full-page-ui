@@ -39,7 +39,7 @@ export const tenantBackupSchema = z.strictObject({
   site: z.strictObject({ ...timestamps, name: z.string(), themeId: z.string(), presetId: z.string().nullable(), themeOverrides: json,
     pageTypes: z.array(z.string()), locales: z.array(z.string()), defaultLocale: z.string(), profile: json, widgets: json, seo: json }),
   pages: z.array(z.strictObject({ ...timestamps, siteId: uuid, slug: z.string(), kind: z.enum(["home", "system", "landing"]), title: json,
-    sections: json, draftSections: json, settings: json.optional(), revision: z.int().nonnegative(), publishedAt: date.nullable() })),
+    sections: json, draftSections: json, settings: json.optional(), abTest: json.optional(), revision: z.int().nonnegative(), publishedAt: date.nullable() })),
   pageVersions: z.array(z.strictObject({ ...identity, pageId: uuid, revision: z.int().nonnegative(), snapshot: json,
     publishedBySiteUserId: z.null(), publishedByPlatformAdminId: z.null() })),
   sectionContents: z.array(z.strictObject({ ...timestamps, siteId: uuid, pageId: uuid, sectionId: z.string(), type: z.string(),
@@ -174,7 +174,7 @@ export async function restoreTenant(db: PlatformDb, storage: BackupStorage, raw:
       // The bundle is schema-validated; this boundary normalizes nullable Prisma JSON fields.
       async function insert(name: "site" | "page" | "pageVersion" | "sectionContent" | "media" | typeof COLLECTIONS[number], row: object) {
         const data: Record<string, unknown> = { ...row, tenantId };
-        for (const field of ["draftSections", "draftData", "variants", "alt", "focal"]) if (data[field] === null) data[field] = Prisma.DbNull;
+        for (const field of ["draftSections", "draftData", "variants", "alt", "focal", "abTest"]) if (data[field] === null) data[field] = Prisma.DbNull;
         for (const field of ["title", "themeOverrides", "profile", "widgets", "seo", "sections", "snapshot", "data"]) {
           if (data[field] === null) data[field] = field === "title" && name === "page" ? Prisma.DbNull : Prisma.JsonNull;
         }

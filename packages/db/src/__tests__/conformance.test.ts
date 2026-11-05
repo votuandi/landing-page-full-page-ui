@@ -18,6 +18,14 @@ import { siteProfileSchema } from "../siteProfile.ts";
 import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
 import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
 import { COLLECTIONS, collectionDefs } from "../collections.ts";
+import { parseAbTest } from "../abTests.ts";
+
+test("E12-S08: abTest trang null đọc được cho dữ liệu seed/preset và backup cũ", () => {
+  for (const id of ["t15", "t12"] as const) {
+    for (const page of buildDemo(id).pages) assert.equal(parseAbTest((page as { abTest?: unknown }).abTest), null);
+  }
+  for (const page of parseTenantBackup(demoBackup()).pages) assert.equal(parseAbTest(page.abTest), null);
+});
 import { restoreSnapshotSchema } from "../publish.ts";
 
 test("E12-S07: settings trang null đọc được, slug landing hiện có hợp lệ", () => {

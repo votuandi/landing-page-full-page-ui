@@ -48,3 +48,5 @@ export { rotateIntegrationSecrets } from "./secretsRotate.ts";
 export { findLeadSender, demoteSendingDomain } from "./senderDomain.ts";
 export { createLandingPage, savePageSettings } from "./landingPages.ts";
 export type { CreateLandingPageInput, SavePageSettingsInput } from "./landingPages.ts";
+export { abTestSchema, parseAbTest, saveAbTest, recordAbView, runningAbTest, abTestStats } from "./abTests.ts";
+export type { AbTest, SaveAbTestInput } from "./abTests.ts";
