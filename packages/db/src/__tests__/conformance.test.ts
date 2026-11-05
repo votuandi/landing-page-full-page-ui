@@ -18,6 +18,27 @@ import { siteProfileSchema } from "../siteProfile.ts";
 import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
 import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
 import { COLLECTIONS, collectionDefs } from "../collections.ts";
+import { restoreSnapshotSchema } from "../publish.ts";
+
+test("snapshot seed demo khôi phục được", () => {
+  for (const id of ["t15", "t12"] as const) {
+    for (const page of buildDemo(id).pages) {
+      assert.doesNotThrow(() => restoreSnapshotSchema.parse({ sections: page.pageSections, contents: page.sections }), `${id}/${page.slug}`);
+    }
+  }
+  for (const { id } of presets) {
+    const sections = loadPreset(id).page.sections;
+    assert.doesNotThrow(() => restoreSnapshotSchema.parse({ sections,
+      contents: sections.map(section => ({ sectionId: section.id, type: section.type,
+        schemaVersion: sectionRegistry.getType(section.type)!.schemaVersion, data: section.data })) }), id);
+  }
+});
+
+test("snapshot khôi phục từ chối descriptor trùng id/anchor", () => {
+  const section = { id: "hero", type: "hero", variant: "t15", enabled: true, anchor: "mo-dau" };
+  assert.equal(restoreSnapshotSchema.safeParse({ sections: [section, section], contents: [] }).success, false);
+  assert.equal(restoreSnapshotSchema.safeParse({ sections: [section, { ...section, id: "hero-2" }], contents: [] }).success, false);
+});
 
 test("E12-S05: preset/seed không có layout: parse và validateSiteStructure không báo lỗi bố cục", () => {
   for (const { id } of presets) {
