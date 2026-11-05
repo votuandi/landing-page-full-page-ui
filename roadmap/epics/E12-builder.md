@@ -52,10 +52,10 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
   sections/cms-ui/admin 0 vi phạm; e2e `builder.spec.ts` (6 test bố cục). CI regression toàn bộ [run 41859491943](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41859491943) xanh (attempt 2) + matrix/visual run 41859491694. PR [#83](https://github.com/votuandi/landing-page-full-page-ui/pull/83).
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: S
 
-### E12-S06 · Lịch sử, undo/redo, phiên bản
+### E12-S06 · Lịch sử, undo/redo, phiên bản ✅ [PR #84](https://github.com/votuandi/landing-page-full-page-ui/pull/84)
 - **Chi tiết**: undo/redo trong phiên (≥ 50 bước); mỗi lần "Xuất bản" lưu một `PageVersion`; khôi phục phiên bản cũ; hai
   người sửa cùng trang → khóa mềm + cảnh báo.
-- **AC**: [x] Khôi phục phiên bản 3 lần trước tái tạo đúng trang (int `publish.int.test.ts` › "restore phiên bản 3 lần trước tái tạo đúng trang", "restore bản mới nhất là round-trip"; e2e `builder.spec.ts` › "khôi phục phiên bản 3 lần trước rồi xuất bản") · [x] Không mất dữ liệu khi 2 tab cùng lưu (phát hiện xung đột) (int "hai lần lưu cùng revision: lần sau bị chặn"; e2e `builder.spec.ts` › "hai tab cùng lưu: tab sau bị chặn, không ghi đè", kèm cảnh báo khóa mềm).
+- **AC**: [x] Khôi phục phiên bản 3 lần trước tái tạo đúng trang (int `publish.int.test.ts` › "restore phiên bản 3 lần trước tái tạo đúng trang", "restore bản mới nhất là round-trip"; e2e `builder.spec.ts` › "khôi phục phiên bản 3 lần trước rồi xuất bản") · [x] Không mất dữ liệu khi 2 tab cùng lưu (phát hiện xung đột) (int "hai lần lưu cùng revision: lần sau bị chặn"; e2e `builder.spec.ts` › "hai tab cùng lưu: tab sau bị chặn, không ghi đè", kèm cảnh báo khóa mềm). CI [run 41960815725](https://github.com/votuandi/landing-page-full-page-ui/actions/runs/41960815725) xanh. PR [#84](https://github.com/votuandi/landing-page-full-page-ui/pull/84).
 - Undo/redo 100 bước trong phiên (unit `builderHistory.test.ts`; e2e "hoàn tác và làm lại thứ tự section", "hoàn tác nội dung trả giá trị cũ"); khóa mềm là cảnh báo trong bộ nhớ tiến trình admin (`editPresence.ts`, README admin).
 - Phụ thuộc: S02 · Agent: Codex · Cỡ: M
 
