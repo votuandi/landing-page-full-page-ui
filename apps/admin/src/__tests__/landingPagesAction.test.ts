@@ -4,11 +4,33 @@ import { effectivePermissions, type Session } from "@solar/auth";
 import { StructureError, SiteSettingsError } from "@solar/db";
 import { createAction } from "../lib/action.ts";
 import { createLandingHandlers, createLandingSchema, saveLandingSettingsSchema } from "../lib/landingPages.ts";
+import { landingSlugIssue } from "@solar/presets";
 
 const tenantId = "e7000000-0000-4000-8000-000000000001", siteId = "e7000000-0000-4000-8000-000000000002", pageId = "e7000000-0000-4000-8000-000000000003";
 const session = { realm: "site", tenantId, audience: "admin", kind: "user", role: "owner", permissions: effectivePermissions({ role: "owner", audience: "admin" }), mustChangePassword: false } as Session;
 const form = (data: Record<string, string>) => { const f = new FormData(); for (const [k, v] of Object.entries(data)) f.set(k, v); return f; };
 const base = { title: "Trang trại", slug: "trang-trai", source: "blank" };
+
+test("landing action: returns specific slug/template/source messages through the action wrapper without writing", async () => {
+  let writes = 0;
+  const handlers = createLandingHandlers({ tenant: async () => ({ tenantId, siteId }), entitlements: async () => () => true,
+    create: async () => { writes++; return { pageId }; }, page: async () => null, save: async () => ({ pageId }) });
+  const run = createAction(async () => ({ tenantId, slug: "demo", session }))("pages.structure", createLandingSchema, handlers.create);
+  const cases: [Record<string, string>, string][] = [
+    [{ ...base, slug: "San-Pham" }, landingSlugIssue("San-Pham")!],
+    [{ ...base, slug: "san-pham/x" }, landingSlugIssue("san-pham/x")!],
+    [{ ...base, slug: "a".repeat(121) }, landingSlugIssue("a".repeat(121))!],
+    [{ ...base, source: "template" }, "Vui lòng chọn mẫu trang"],
+    [{ ...base, source: "template", templateId: "__proto__" }, "Vui lòng chọn mẫu trang"],
+    [{ ...base, source: "duplicate" }, "Vui lòng chọn trang nguồn"],
+    [{ ...base, source: "duplicate", sourcePageId: "invalid" }, "Vui lòng chọn trang nguồn"],
+  ];
+  for (const [values, error] of cases) assert.deepEqual(await run({}, form(values)), { ok: false, status: 400, error }, JSON.stringify(values));
+  for (const values of [{ ...base, slug: "a".repeat(201) }, { ...base, title: "" }]) {
+    assert.deepEqual(await run({}, form(values)), { ok: false, status: 400, error: "Vui lòng kiểm tra các trường đã nhập" });
+  }
+  assert.equal(writes, 0);
+});
 
 test("landing action: blank/template/duplicate, permission before query, tenant/site boundary, no landingPages", async () => {
   let reads = 0, writes = 0, allowed = true;

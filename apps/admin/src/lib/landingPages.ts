@@ -4,11 +4,8 @@ import { SiteSettingsError, StructureError, type CreateLandingPageInput, type Sa
 import type { ActionContext, ActionResult } from "./action.ts";
 
 export const createLandingSchema = z.object({
-  title: z.string().trim().min(1).max(200), slug: z.string().refine(value => !landingSlugIssue(value)),
+  title: z.string().trim().min(1).max(200), slug: z.string().max(200),
   source: z.enum(["blank", "template", "duplicate"]), templateId: z.string().optional(), sourcePageId: z.string().optional(),
-}).superRefine((input, ctx) => {
-  if (input.source === "template" && !Object.hasOwn(PAGE_TEMPLATES, input.templateId ?? "")) ctx.addIssue({ code: "custom", message: "Vui lòng chọn mẫu trang" });
-  if (input.source === "duplicate" && !z.uuid().safeParse(input.sourcePageId).success) ctx.addIssue({ code: "custom", message: "Vui lòng chọn trang nguồn" });
 });
 const checkbox = z.enum(["on"]).optional().transform(value => value === "on");
 export const saveLandingSettingsSchema = z.object({
@@ -42,6 +39,10 @@ export function createLandingHandlers(deps: {
   return {
     create: (input: z.output<typeof createLandingSchema>, context: ActionContext) => run(async () => {
       const tenant = await access(context);
+      const slugIssue = landingSlugIssue(input.slug);
+      if (slugIssue) return { ok: false, status: 400, error: slugIssue };
+      if (input.source === "template" && !Object.hasOwn(PAGE_TEMPLATES, input.templateId ?? "")) return { ok: false, status: 400, error: "Vui lòng chọn mẫu trang" };
+      if (input.source === "duplicate" && !z.uuid().safeParse(input.sourcePageId).success) return { ok: false, status: 400, error: "Vui lòng chọn trang nguồn" };
       const source: CreateLandingPageInput["source"] = input.source === "template" ? { kind: "template", id: input.templateId as keyof typeof PAGE_TEMPLATES }
         : input.source === "duplicate" ? { kind: "duplicate", pageId: input.sourcePageId! } : { kind: "blank" };
       const result = await deps.create(context.tenantId, { siteId: tenant.siteId, title: { vi: input.title }, slug: input.slug, source });
