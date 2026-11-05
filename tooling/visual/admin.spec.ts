@@ -1337,7 +1337,8 @@ test("landing page: tạo từ mẫu, SEO, ẩn header, xuất bản, /<slug> v�
     await plain.goto(`${publicOrigin}/`);
     await expect(plain.locator('[data-section-type="site-header"]')).toBeVisible();
     const sitemap = await plain.goto(`${publicOrigin}/sitemap.xml`);
-    expect(await sitemap?.text()).toContain(`${publicOrigin}/${slug}</loc>`);
+    // The sitemap uses the canonical origin (https, no dev port in a production build), so match the path only.
+    expect(await sitemap?.text()).toMatch(new RegExp(`<loc>https?://${site}\\.${platformDomain.replaceAll(".", "\\.")}(:\\d+)?/${slug}</loc>`));
   } finally { await context.close(); }
 });
 
