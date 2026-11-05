@@ -22,7 +22,7 @@ export default async function PageSections({ params }: { params: Promise<{ pageI
   return <section className="min-w-0 space-y-6">
     <Link href="/trang" className="inline-flex min-h-11 items-center rounded-button text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Về danh sách trang</Link>
     <h1 className="break-words text-2xl font-semibold text-fg">{editor.page.title}</h1>
-    {page && site && <PageSettingsForm key={`${page.id}:${page.updatedAt.toISOString()}`} pageId={page.id} title={title} settings={parsePageSettings(page.settings)} locales={site.locales} />}
+    {page && site && <PageSettingsForm key={page.id} pageId={page.id} title={title} settings={parsePageSettings(page.settings)} locales={site.locales} />}
     <PageSectionsEditor key={`${editor.page.id}:${editor.page.revision}`} editor={editor} />
   </section>;
 }
