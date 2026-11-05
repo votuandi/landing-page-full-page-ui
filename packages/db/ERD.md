@@ -180,6 +180,7 @@ erDiagram
     String slug
     PageKind kind
     Json title
+    Json settings
     Json sections
     Json draftSections
     Int revision

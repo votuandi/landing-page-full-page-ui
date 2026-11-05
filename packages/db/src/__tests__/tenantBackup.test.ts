@@ -4,6 +4,15 @@ import { randomUUID } from "node:crypto";
 import { parseTenantBackup, remapBackup, TenantBackupError } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 
+test("backup cũ thiếu settings vẫn đọc; settings mới round-trip", () => {
+  const raw = demoBackup();
+  assert.equal(parseTenantBackup(raw).pages[0].settings, undefined);
+  const settings = { seo: { title: { vi: "Trang riêng" }, noindex: true }, hideHeader: true };
+  const updated = { ...raw, pages: raw.pages.map(p => ({ ...p, settings })) };
+  assert.deepEqual(parseTenantBackup(updated).pages[0].settings, settings);
+  assert.deepEqual(remapBackup(parseTenantBackup(updated), randomUUID()).pages[0].settings, settings);
+});
+
 test("media backup accepts legacy missing metadata and preserves name and focal", () => {
   const raw = demoBackup();
   const media = { id: randomUUID(), key: `private/${raw.source.tenantId}/a.png`, driver: "local", visibility: "private", status: "ready", mime: "image/png", size: 1, createdAt: raw.exportedAt };

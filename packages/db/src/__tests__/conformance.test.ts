@@ -4,7 +4,7 @@
 // Story thêm quy tắc như vậy → thêm một test ở đây (plan mục "Dữ liệu có sẵn chịu ảnh hưởng").
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadPreset, presets, siteStructureOf, validateSiteStructure } from "@solar/presets";
+import { loadPreset, presets, siteStructureOf, validateSiteStructure, parsePageSettings, landingSlugIssue, isLandingSlug } from "@solar/presets";
 import { plans, themeAllowed } from "@solar/plans";
 import { buildDemo } from "../../prisma/seed-data.ts";
 import { randomUUID } from "node:crypto";
@@ -19,6 +19,14 @@ import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
 import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
 import { COLLECTIONS, collectionDefs } from "../collections.ts";
 import { restoreSnapshotSchema } from "../publish.ts";
+
+test("E12-S07: settings trang null đọc được, slug landing hiện có hợp lệ", () => {
+  for (const id of ["t15", "t12"] as const) for (const page of buildDemo(id).pages) {
+    assert.deepEqual(parsePageSettings(null), {}, `${id}/${page.slug}`);
+    if (isLandingSlug(page.slug)) assert.equal(landingSlugIssue(page.slug), null, `${id}/${page.slug}`);
+  }
+  for (const slug of ["uu-dai/nang-luong", "builder-page", "dashboard-draft", "uu-dai/preview-only"]) assert.equal(landingSlugIssue(slug), null, slug);
+});
 
 test("snapshot seed demo khôi phục được", () => {
   for (const id of ["t15", "t12"] as const) {
