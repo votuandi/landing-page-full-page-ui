@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { tenantMetadata } from "../metadata";
+
+test("landing SEO title, description and noindex preserve preview host policy", t => {
+  const previous = process.env.NOINDEX_DOMAINS;
+  t.after(() => { if (previous === undefined) delete process.env.NOINDEX_DOMAINS; else process.env.NOINDEX_DOMAINS = previous; });
+  process.env.NOINDEX_DOMAINS = "preview.solarweb.vn";
+  const site = { primaryHost: "example.vn", name: "Brand", profile: {}, seo: {} };
+  const result = tenantMetadata(site, "/trang-trai", "SEO riêng", "Mô tả riêng", { noindex: true });
+  assert.equal(result.title, "SEO riêng | Brand"); assert.equal(result.description, "Mô tả riêng");
+  assert.deepEqual(result.robots, { index: false, follow: true });
+  assert.equal(tenantMetadata(site, "/trang-trai", undefined, undefined, { noindex: false }).robots, undefined);
+  assert.deepEqual(tenantMetadata({ ...site, primaryHost: "a.preview.solarweb.vn" }, "/trang-trai", undefined, undefined, { noindex: true }).robots, { index: false, follow: false });
+});
 import { asset, contentImage } from "../contentSchemas";
 
 test("favicon icons include versioned PNG and apple or default SVG", () => {

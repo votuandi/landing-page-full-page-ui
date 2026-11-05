@@ -1277,3 +1277,98 @@ test("staff: danh sách và phiên qua axe, 390/1440, bàn phím, đăng xuất 
     await expect(plain.getByText("Biên tập viên").first()).toBeVisible();
   } finally { await noScript.close(); }
 });
+
+// E12-S07 — landing pages. admin-e7-b (premium) has a home with header/footer from `landing-reset`.
+test("landing page: tạo từ mẫu, SEO, ẩn header, xuất bản, /<slug> và sitemap", async ({ page, browser }, info) => {
+  test.setTimeout(240_000);
+  fixture("landing-reset");
+  const site = "admin-e7-b", slug = `e2e-landing-${Date.now().toString(36)}`, publicOrigin = `http://${site}.${platformDomain}:3212`;
+  await login(page, "owner@demo.vn", `${process.env.SEED_PASSWORD}-t12`, site);
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+  await page.goto(origin(site) + "/trang");
+  await expect(page.getByRole("heading", { name: "Landing page", exact: true })).toBeVisible();
+  await expect(page.getByText(/Đã dùng 1\/20 trang/)).toBeVisible();
+  // A hard navigation: on CI's `next dev` the client transition to a not-yet-compiled route stalled past 20 s (twice,
+  // with the dev server restarting near its memory threshold), while the link itself is all this step needs to prove.
+  await expect(page.getByRole("link", { name: "Tạo landing page", exact: true })).toHaveAttribute("href", "/trang/moi");
+  await page.goto(origin(site) + "/trang/moi");
+  await expect(page.getByRole("heading", { name: "Tạo landing page", exact: true })).toBeVisible({ timeout: 90_000 });
+  for (const colorScheme of ["light", "dark"] as const) for (const width of [390, 1440]) {
+    await page.emulateMedia({ colorScheme }); await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`landing-new-${colorScheme}-${width}.png`), fullPage: true });
+  }
+  await page.emulateMedia({ colorScheme: "light" }); await page.setViewportSize({ width: 1280, height: 900 });
+  await page.getByLabel("Tên trang", { exact: true }).fill("[DỮ LIỆU MẪU] Điện mặt trời cho trang trại");
+  await page.getByLabel("Đường dẫn", { exact: true }).fill(slug);
+  const source = page.getByRole("group", { name: "Bắt đầu từ" });
+  await source.getByRole("radio", { name: "Mẫu trang", exact: true }).check();
+  await page.getByLabel("Chọn mẫu", { exact: true }).selectOption({ label: "Landing hộ gia đình" });
+  await page.getByRole("button", { name: "Tạo trang", exact: true }).click();
+  await expect(page).toHaveURL(/\/trang\/[0-9a-f-]{36}$/, { timeout: 90_000 });
+  await expect(page.getByRole("group", { name: "Kiểu hiển thị: Banner chính" })).toBeVisible({ timeout: 90_000 });
+
+  await expect(page.getByRole("heading", { name: "Cài đặt trang", exact: true })).toBeVisible();
+  await page.getByLabel("Tiêu đề SEO", { exact: true }).fill("[DỮ LIỆU MẪU] Solar trang trại");
+  await page.getByLabel("Mô tả SEO", { exact: true }).fill("[DỮ LIỆU MẪU] Hệ điện mặt trời cho trang trại, khảo sát miễn phí.");
+  await page.getByLabel("Ẩn header", { exact: true }).check();
+  await page.getByRole("button", { name: "Lưu cài đặt", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã lưu cài đặt trang" })).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    await page.screenshot({ path: info.outputPath(`landing-settings-${width}.png`), fullPage: true });
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible();
+
+  // AC1: served at /<slug> with its own SEO, header hidden (also without JavaScript), listed in the sitemap.
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const plain = await context.newPage();
+    const response = await plain.goto(`${publicOrigin}/${slug}`);
+    expect(response?.status()).toBe(200);
+    await expect(plain).toHaveTitle(/^\[DỮ LIỆU MẪU\] Solar trang trại \|/);
+    await expect(plain.locator('meta[name="description"]')).toHaveAttribute("content", "[DỮ LIỆU MẪU] Hệ điện mặt trời cho trang trại, khảo sát miễn phí.");
+    await expect(plain.locator('main [data-section-type="hero"]')).toBeVisible();
+    await expect(plain.locator('[data-section-type="site-header"]')).toBeHidden();
+    await expect(plain.locator('[data-section-type="site-footer"]')).toBeVisible();
+    // The home page keeps its header: hiding is per page.
+    await plain.goto(`${publicOrigin}/`);
+    await expect(plain.locator('[data-section-type="site-header"]')).toBeVisible();
+    const sitemap = await plain.goto(`${publicOrigin}/sitemap.xml`);
+    // The sitemap uses the canonical origin (https, no dev port in a production build), so match the path only.
+    expect(await sitemap?.text()).toMatch(new RegExp(`<loc>https?://${site}\\.${platformDomain.replaceAll(".", "\\.")}(:\\d+)?/${slug}</loc>`));
+  } finally { await context.close(); }
+});
+
+// AC2: admin-e11-leads on pro (3 pages). The form is opened at 2/3; the fixture fills the last slot before submit, so the
+// server — not the UI — must reject it. JavaScript off: the form posts without client code.
+test("landing page: vượt giới hạn gói bị chặn ở server, không cần JavaScript", async ({ page, browser }) => {
+  const site = "admin-e11-leads";
+  fixture("landing-limit", "1");
+  try {
+    await login(page, "owner@demo.vn", password(), site);
+    await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+    const context = await browser.newContext({ javaScriptEnabled: false, storageState: await page.context().storageState() });
+    try {
+      const plain = await context.newPage();
+      await plain.goto(origin(site) + "/trang");
+      await expect(plain.getByText(/Đã dùng 2\/3 trang/)).toBeVisible();
+      await plain.getByRole("link", { name: "Tạo landing page", exact: true }).click();
+      await plain.getByLabel("Tên trang", { exact: true }).fill("[DỮ LIỆU MẪU] Landing vượt gói");
+      await plain.getByLabel("Đường dẫn", { exact: true }).fill("e2e-landing-vuot-goi");
+      await plain.getByRole("group", { name: "Bắt đầu từ" }).getByRole("radio", { name: "Trang trắng", exact: true }).check();
+      fixture("landing-limit", "2");
+      await plain.getByRole("button", { name: "Tạo trang", exact: true }).click();
+      await expect(plain.getByRole("alert")).toContainText("Vượt số trang của gói: 4/3");
+      await plain.goto(origin(site) + "/trang");
+      await expect(plain.getByText(/Đã dùng 3\/3 trang/)).toBeVisible();
+      await expect(plain.getByRole("link", { name: "Tạo landing page", exact: true })).toHaveCount(0);
+      await expect(plain.getByRole("region", { name: "Landing page" }).getByRole("button", { name: "Nâng cấp gói", exact: true })).toBeVisible();
+    } finally { await context.close(); }
+  } finally { fixture("landing-limit", "restore"); }
+});

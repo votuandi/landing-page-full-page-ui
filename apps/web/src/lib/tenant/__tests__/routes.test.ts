@@ -26,3 +26,11 @@ test("routes open only for page types in the site structure and plan (D21, E5-S1
   for (const path of ["ve-chung-toi", "giai-phap", "cong-trinh/x", "tin-tuc/x", "cam-nang"]) assert.equal(routeEnabled(route(path), minimal, premium), false, path);
   for (const path of ["", "lien-he", "chinh-sach/x", "uu-dai/nang-luong"]) assert.equal(routeEnabled(route(path), minimal, premium), true, path);
 });
+import { landingSlugIssue } from "@solar/presets";
+
+test("every accepted landing slug resolves to a page", () => {
+  for (const slug of ["trang-trai", "a/b/c", "uu-dai/nang-luong", "builder-page", "dashboard-draft", "uu-dai/preview-only", "a".repeat(120)]) {
+    assert.equal(landingSlugIssue(slug), null);
+    assert.deepEqual(resolveRoute(slug.split("/")), { kind: "page", slug });
+  }
+});

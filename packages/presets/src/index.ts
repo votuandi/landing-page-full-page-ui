@@ -18,6 +18,10 @@ import t14 from "../t14.json";
 import { presetSchema } from "./schema";
 
 export { presetSchema };
+export { PAGE_TEMPLATES } from "./pageTemplates";
+export type { PageTemplateId } from "./pageTemplates";
+export { landingSlugIssue, pageSettingsSchema, parsePageSettings } from "./pageSettings";
+export type { PageSettings } from "./pageSettings";
 export { PAGE_TYPES, PAGE_TYPE_IDS, isPageType, pageTypeOfRoute } from "./pages";
 export type { PageTypeDef, PageTypeId } from "./pages";
 export { applyPlanToPreset, isLandingSlug, presetPageTypes, presetStructure, validateSiteStructure, siteStructureOf } from "./structure";

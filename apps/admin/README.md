@@ -193,6 +193,15 @@ UTF-8 BOM, CRLF và chống công thức Excel. GET `/api/lead/moi-nhat` chỉ t
 Trang/API dùng `private, no-store`; audit chỉ chứa ID, tên trường thay đổi hoặc bộ lọc không chứa từ khóa tìm kiếm.
 Form website yêu cầu checkbox đồng ý và lưu `data.consentAt` do server cấp.
 
+## Landing page (E12-S07)
+
+`/trang` hiển thị số home + landing đã dùng so với giới hạn gói; `/trang/moi` tạo trang trắng, từ một trong ba mẫu
+hoặc nhân bản bố cục/nội dung nháp của trang có sẵn. Tạo trang và cài đặt cần `pages.structure` + `landingPages`;
+xuất bản vẫn cần `pages.publish`. Form gửi được khi tắt JavaScript; gợi ý đường dẫn theo tên chỉ chạy khi chưa sửa đường dẫn.
+Trang landing trong `/trang/[id]` có cài đặt SEO VI/EN (EN khi site bật EN), noindex, ẩn header/footer;
+cài đặt áp dụng ngay, độc lập với revision và lịch sử bố cục. Noindex loại landing khỏi sitemap.
+Chưa có xóa/đổi đường dẫn hoặc A/B (E12-S08).
+
 ## CSV sản phẩm
 
 Trang `/noi-dung/san-pham` có tải CSV, chọn file và xem trước từng dòng trước khi xác nhận nhập.

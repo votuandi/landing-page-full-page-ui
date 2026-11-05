@@ -63,6 +63,14 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 **Là** tenant gói Cao cấp, **tôi muốn** tạo landing page riêng cho từng chiến dịch (vd. "Điện mặt trời cho trang trại"), **để** chạy quảng cáo hiệu quả.
 - **Chi tiết**: tạo trang `kind=landing` với slug, SEO riêng, chọn ẩn header/footer; bắt đầu từ trang trắng, nhân bản trang có
   sẵn hoặc "mẫu trang" (preset con: landing hộ gia đình, landing nhà xưởng, trang tuyển đại lý); giới hạn số trang theo gói.
-  Tùy chọn A/B cho tiêu đề hero/CTA (feature `abTest`, đo theo lead).
-- **AC**: [ ] Landing mới truy cập được ở `/<slug>`, có trong sitemap · [ ] Vượt `limits.pages` bị chặn.
+  A/B cho tiêu đề hero/CTA tách sang S08 (05/11/2026).
+- **AC**: [x] Landing mới truy cập được ở `/<slug>`, có trong sitemap (e2e `admin.spec.ts` › "landing page: tạo từ mẫu…") · [x] Vượt `limits.pages` bị chặn (int "vượt limit: song song…" + e2e "landing page: vượt giới hạn gói…").
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
+
+### E12-S08 · A/B tiêu đề hero/CTA
+**Là** tenant gói Cao cấp, **tôi muốn** thử hai phiên bản tiêu đề hero/CTA trên landing page, **để** biết phiên bản nào ra nhiều lead hơn.
+- **Chi tiết**: bật A/B cho một landing (feature `abTest`, kiểm cả server lẫn API); nhập phiên bản B cho tiêu đề hero và nhãn CTA;
+  trang vẫn cache (ISR) nên gán phiên bản ở client, ổn định theo khách truy cập, không đọc cookie ở server; lead ghi phiên bản đã thấy;
+  admin xem số lượt xem và lead theo phiên bản, chọn phiên bản thắng. Tắt JS → luôn phiên bản A.
+- **AC**: [ ] Khách được gán A/B ổn định, lead ghi phiên bản · [ ] Admin thấy lead theo phiên bản · [ ] Gói không có `abTest` bị chặn ở server.
+- Phụ thuộc: S07 · Agent: Codex · Cỡ: M

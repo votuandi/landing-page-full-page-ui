@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 import ts from "typescript";
+import "./pageSettings.test.mjs";
+import "./pageTemplates.test.mjs";
 
 const require = createRequire(import.meta.url);
 

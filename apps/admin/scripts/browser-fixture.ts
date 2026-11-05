@@ -142,6 +142,28 @@ async function main() {
         { record: "SPF", name: "send.mail", type: "MX", value: "feedback-smtp.ap-northeast-1.amazonses.com", priority: 10 },
         { record: "SPF", name: "send.mail", type: "TXT", value: "v=spf1 include:amazonses.com ~all" },
       ] });
+    } else if (action === "landing-reset") {
+      // E12-S07: admin-e7-b drops landing pages of earlier attempts; its home gets header + footer so hiding them shows.
+      await withTenantTransaction(db, fixtures.find(f => f.slug === "admin-e7-b")!.id, async repo => {
+        for (const page of await repo.page.list({ where: { slug: { startsWith: "e2e-landing" } } })) await repo.page.delete(page.id);
+        const home = (await repo.page.first({ where: { slug: "", kind: "home" } }))!;
+        const sections = [{ id: "site-header", type: "site-header", variant: "t15", enabled: true }, { id: "hero", type: "hero", variant: "t12", enabled: true },
+          { id: "site-footer", type: "site-footer", variant: "t15", enabled: true }];
+        await repo.page.update(home.id, { sections });
+        for (const type of ["site-header", "site-footer"] as const) if (!await repo.sectionContent.first({ where: { pageId: home.id, sectionId: type } })) {
+          await repo.sectionContent.create({ siteId: home.siteId, pageId: home.id, sectionId: type, type, data: sectionRegistry.types[type].defaults });
+        }
+      });
+    } else if (action === "landing-limit") {
+      // E12-S07: admin-e11-leads on pro (3 pages) with home + <count> landing pages; `restore` returns it to premium.
+      const id = fixtures.find(f => f.slug === "admin-e11-leads")!.id, restore = process.argv[3] === "restore", count = restore ? 0 : Number(process.argv[3]);
+      if (!Number.isInteger(count) || count < 0 || count > 2) throw new Error("Invalid landing count");
+      await db.tenant.update({ where: { id }, data: { planId: restore ? "premium" : "pro" } });
+      await withTenantTransaction(db, id, async repo => {
+        const site = (await repo.site.first())!;
+        for (const page of await repo.page.list({ where: { slug: { startsWith: "e2e-landing" } } })) await repo.page.delete(page.id);
+        for (let n = 1; n <= count; n++) await repo.page.create({ siteId: site.id, slug: `e2e-landing-${n}`, kind: "landing", title: { vi: `[DỮ LIỆU MẪU] Landing ${n}` }, sections: [] });
+      });
     } else if (action === "lead-inbox-plan") {
       const planId = process.argv[3];
       if (!["premium", "pro", "basic"].includes(planId)) throw new Error("Invalid plan");

@@ -46,3 +46,5 @@ export type { OrphanMedia, OrphanOptions, OrphanTenantError } from "./mediaOrpha
 export { runMediaOrphans } from "./mediaOrphanCleanup.ts";
 export { rotateIntegrationSecrets } from "./secretsRotate.ts";
 export { findLeadSender, demoteSendingDomain } from "./senderDomain.ts";
+export { createLandingPage, savePageSettings } from "./landingPages.ts";
+export type { CreateLandingPageInput, SavePageSettingsInput } from "./landingPages.ts";

@@ -13,6 +13,15 @@ const repo = (extra: object = {}) => ({
   page: { first: async () => null }, sectionContent: { list: async () => [] }, ...extra,
 }) as unknown as TenantRepo;
 
+test("settings trang null/hỏng đọc được; published and draft return validated settings", async t => {
+  const log = t.mock.method(console, "error", () => {});
+  for (const settings of [null, { hideHeader: "bad" }, { hideHeader: true, seo: { noindex: true } }]) {
+    const data = createSiteData(() => repo({ page: { first: async () => ({ id: "p", sections: [], settings }) } }));
+    for (const load of [data.loadPublishedPage, data.loadDraftPage]) assert.deepEqual((await load(tenantId, siteId, "trang-trai"))?.settings, settings?.hideHeader === true ? settings : {});
+  }
+  assert.equal(log.mock.callCount(), 2);
+});
+
 test("font override needs entitlement including live kill switch", async () => {
   const row = await repo().site.first({ include: { tenant: true } }); assert.ok(row);
   const font = { sans: "Manrope" };

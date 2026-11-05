@@ -2,6 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
 
+test("E12-S07: page templates/settings do not change existing lab pixels", () => {
+  for (const file of ["packages/presets/src/pageTemplates.ts", "packages/presets/src/pageSettings.ts", "packages/presets/src/index.ts"]) {
+    const checks = affectedChecks([file]);
+    assert.ok(checks.includes("db") && checks.includes("e2e:tenant"));
+    for (const name of ["matrix", "visual", "thumbnails"]) assert.ok(!checks.includes(name), `${file}: ${name}`);
+  }
+  for (const name of ["matrix", "visual", "thumbnails"]) assert.ok(affectedChecks(["packages/presets/src/pages.ts"]).includes(name));
+});
+
 test("thumbnails chạy khi đầu vào lab đổi", () => {
   for (const file of ["packages/sections/src/hero/t15.tsx", "packages/themes/t15/theme.ts", "apps/web/src/app/(site)/lab/sections/[type]/page.tsx",
     "tooling/visual/thumbnails.mts", "apps/admin/public/section-thumbs/t15/hero--t15.webp", "packages/cms-ui/src/sections/thumbnails.generated.ts", ".github/workflows/thumbnails.yml"]) {

@@ -418,6 +418,13 @@ CSV dùng dấu phẩy; công thức Excel được escape và khôi phục hai 
 
 ### Danh mục trang và section đã xóa (E7-S13)
 
+E12-S07: `createLandingPage(db, tenantId, { siteId, title, slug, source })` tạo bản nháp từ trang trắng,
+mẫu trang hoặc bản nháp của trang nguồn cùng site. Khóa hàng Site trước đếm home + landing theo `limits.pages`;
+section ngoài gói, header/footer và content đã gỡ không được nhân bản. Trang nguồn giữ nguyên.
+`savePageSettings` lưu tiêu đề và `Page.settings` cho landing có entitlement `landingPages`, áp dụng ngay,
+giữ revision bố cục; trang đã xuất bản enqueue `pageTag` + `siteTag` để cập nhật metadata và sitemap.
+Backup v1 thêm `settings` tùy chọn nên backup cũ vẫn nhập được.
+
 `setPageTypes(db, tenantId, { siteId, pageTypes, expected })` kiểm quyền gói bằng `validateSiteStructure`,
 đối chiếu danh mục cũ để chặn hai tab ghi đè, tạo Page thiếu dưới dạng chưa xuất bản và enqueue `siteTag` cùng transaction.
 Trang tắt vẫn giữ Page/content. `siteStructureOf` loại trang tắt khỏi cấu trúc đang hoạt động, kể cả khi lưu/xuất bản trang khác.

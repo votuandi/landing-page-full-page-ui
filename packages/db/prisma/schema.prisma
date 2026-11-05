@@ -414,6 +414,7 @@ model Page {
   slug            String
   kind            PageKind         @default(landing)
   title           Json?
+  settings        Json?
   sections        Json
   draftSections   Json?
   revision        Int              @default(0)

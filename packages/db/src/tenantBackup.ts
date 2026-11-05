@@ -39,7 +39,7 @@ export const tenantBackupSchema = z.strictObject({
   site: z.strictObject({ ...timestamps, name: z.string(), themeId: z.string(), presetId: z.string().nullable(), themeOverrides: json,
     pageTypes: z.array(z.string()), locales: z.array(z.string()), defaultLocale: z.string(), profile: json, widgets: json, seo: json }),
   pages: z.array(z.strictObject({ ...timestamps, siteId: uuid, slug: z.string(), kind: z.enum(["home", "system", "landing"]), title: json,
-    sections: json, draftSections: json, revision: z.int().nonnegative(), publishedAt: date.nullable() })),
+    sections: json, draftSections: json, settings: json.optional(), revision: z.int().nonnegative(), publishedAt: date.nullable() })),
   pageVersions: z.array(z.strictObject({ ...identity, pageId: uuid, revision: z.int().nonnegative(), snapshot: json,
     publishedBySiteUserId: z.null(), publishedByPlatformAdminId: z.null() })),
   sectionContents: z.array(z.strictObject({ ...timestamps, siteId: uuid, pageId: uuid, sectionId: z.string(), type: z.string(),
