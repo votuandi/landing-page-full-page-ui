@@ -508,6 +508,8 @@ test.describe("builder", () => {
       expect((await new AxeBuilder({ page }).exclude("iframe").withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await selected(page, "s-hero");
+      // Reloading the same tab must not report the previous load as another editor.
+      await expect(page.getByText("cũng đang mở trình dựng")).toHaveCount(0);
       await page.screenshot({ path: test.info().outputPath(`builder-${width}.png`), fullPage: true });
     }
     expect(errors).toEqual([]);

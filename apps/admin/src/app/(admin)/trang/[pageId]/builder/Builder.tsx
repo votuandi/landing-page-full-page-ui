@@ -41,7 +41,14 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
   const historyRef = useRef(history);
   const lastSaved = useRef<Record<string, unknown>>(Object.fromEntries(Object.entries(editor.forms).map(([id, form]) => [id, form.data])));
   const [panelNonce, setPanelNonce] = useState(0);
-  const [clientId] = useState(() => crypto.randomUUID());
+  // Per tab and stable across reloads: a fresh id on reload would report the previous load as "Bạn (tab khác)" until its TTL.
+  const [clientId] = useState(() => {
+    try {
+      const id = sessionStorage.getItem("builder-client-id") ?? crypto.randomUUID();
+      sessionStorage.setItem("builder-client-id", id);
+      return id;
+    } catch { return crypto.randomUUID(); }
+  });
   const [editors, setEditors] = useState<string[]>([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [dragged, setDragged] = useState<LibraryItem | null>(null);
@@ -252,8 +259,6 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
 
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className={button} aria-keyshortcuts="Control+Z" disabled={!history.past.length || busy || conflict} onClick={() => { void navigateHistory("undo"); }}>Hoàn tác</button>
-        <button type="button" className={button} aria-keyshortcuts="Control+Shift+Z" disabled={!history.future.length || busy || conflict} onClick={() => { void navigateHistory("redo"); }}>Làm lại</button>
         <div role="group" aria-labelledby="builder-device" className="flex flex-wrap items-center gap-2">
           <span id="builder-device" className="text-sm text-fg-muted">Khung (px)</span>
           {[390, 768, 1440].map(device => <button key={device} type="button" aria-pressed={width === device} className={`${button} aria-pressed:border-primary aria-pressed:bg-bg-tint aria-pressed:text-primary`} onClick={() => setWidth(device)}>{device}</button>)}
@@ -299,6 +304,11 @@ export default function Builder({ editor }: { editor: BuilderEditor }) {
         </DeviceStage>
       </div>
       <div className="flex min-w-0 flex-col gap-4 xl:h-[78dvh] xl:min-h-96">
+        {/* Beside the panel, not above the canvas: at 390px extra rows push the iframe offscreen and pause its rAF. */}
+        <div role="group" aria-label="Lịch sử chỉnh sửa" className="flex shrink-0 flex-wrap gap-2">
+          <button type="button" className={button} aria-keyshortcuts="Control+Z" disabled={!history.past.length || busy || conflict} onClick={() => { void navigateHistory("undo"); }}>Hoàn tác</button>
+          <button type="button" className={button} aria-keyshortcuts="Control+Shift+Z" disabled={!history.future.length || busy || conflict} onClick={() => { void navigateHistory("redo"); }}>Làm lại</button>
+        </div>
         <nav aria-label="Danh sách section" className="min-w-0 shrink-0">
           <ul ref={list} aria-label="Section của trang" className="max-h-60 space-y-1 overflow-y-auto overscroll-contain rounded-card border border-line/20 bg-bg-elevated p-1">
             {sections.map((section, index) => {
