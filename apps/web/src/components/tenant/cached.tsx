@@ -12,6 +12,7 @@ import { resolveRoute, routeEnabled } from "@/lib/tenant/routes";
 import { TENANT_CACHE_LIFE, tenantPageTags } from "@/lib/tenant/cacheTags";
 import { JsonLd, loadSystemPage, SystemContent, SystemFrame } from "@/components/tenant/SystemPages";
 import { tenantMediaResolver } from "@/lib/tenant/media";
+import { AbTestContent } from "./AbTestContent";
 
 async function cachedSite({ tenantId, siteId, locale, disabled, preview, themeId }: Key) {
   const site = await loadTenantSite(tenantId, siteId, locale);
@@ -51,7 +52,8 @@ export async function tenantPage(key: Key, slug: string) {
     const config = { sections: page.config.sections.filter((section) => !["site-header", "site-footer"].includes(section.type)) };
     content = page.kind === "system"
       ? <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>
-      : <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} resolveData={tenantMediaResolver(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
+      : <main><AbTestContent abTest={!key.preview && page.kind === "landing" && siteCanUse(site)("abTest") ? page.abTest : null}
+        page={config} site={site.context} canUse={siteCanUse(site)} resolveData={tenantMediaResolver(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
     const css = `${page.settings?.hideHeader ? '[data-section-type="site-header"]{display:none}' : ""}${page.settings?.hideFooter ? '[data-section-type="site-footer"]{display:none}' : ""}`;
     if (css) content = <><style>{css}</style>{content}</>;
   }

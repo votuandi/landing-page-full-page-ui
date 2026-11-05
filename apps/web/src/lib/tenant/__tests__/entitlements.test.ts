@@ -30,6 +30,8 @@ const ENTRY_POINTS: Readonly<Record<string, RegExp>> = {
   "lib/tenant/seoData.ts": /siteCanUse\(site\)/, // sitemap
   "lib/tenant/leadIntake.ts": /assertCan\(/, // POST /api/lead (tenant)
   "app/api/lead/route.ts": /tenantLeadHandler\(/,
+  "app/api/ab/route.ts": /abViewHandler/,
+  "lib/tenant/abView.ts": /assertCan\(/,
   // Operational probe reads no tenant content and must work without tenant/plan resolution.
   "app/api/health/route.ts": /checkConnection\(getWebDb\(\), \{ fresh: true \}\)/,
   // Favicon is included in every plan; the handler checks tenant ownership and public visibility.

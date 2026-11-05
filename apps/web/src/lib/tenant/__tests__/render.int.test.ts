@@ -30,6 +30,23 @@ test("settings hỏng trong DB: published landing still loads with defaults", { 
   }
 });
 
+test("Postgres E12-S08: published/draft page nạp abTest riêng, abTest null/hỏng dùng A", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL }, async t => {
+  const log = t.mock.method(console, "error", () => {});
+  const db = getWebDb(), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  const abTest = { id: randomUUID(), status: "running", title: { lead: { vi: "B" }, highlight: { vi: "" }, sub: { vi: "" }, subHighlight: { vi: "" } }, ctaLabel: { vi: "B" } };
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const repo = tenantRepository(tenantId), site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    const page = await repo.page.create({ siteId: site.id, slug: "uu-dai", kind: "landing", sections: [], publishedAt: new Date(), abTest });
+    const data = createSiteData(tenantRepository);
+    assert.deepEqual((await data.loadPublishedPage(tenantId, site.id, "uu-dai"))?.abTest, abTest);
+    assert.deepEqual((await data.loadDraftPage(tenantId, site.id, "uu-dai"))?.abTest, abTest);
+    await repo.page.update(page.id, { abTest: { private: "corrupt-secret" } });
+    assert.equal((await data.loadPublishedPage(tenantId, site.id, "uu-dai"))?.abTest, null);
+    assert.equal(log.mock.callCount(), 1); assert.doesNotMatch(JSON.stringify(log.mock.calls), /corrupt-secret/);
+  } finally { await ops.tenant.deleteMany({ where: { id: tenantId } }); await ops.$disconnect(); }
+});
+
 test("favicon of other tenant falls back without storage read (RLS)", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL }, async () => {
   const db = getWebDb(), ops = createPlatformDb({ pool: 1 });
   const tenantId = randomUUID(), otherId = randomUUID();
