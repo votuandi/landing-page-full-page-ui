@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const shared = ["pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", "scripts/ci/checks-map.mjs"];
 const web = "apps/web/src/";
+const nonvisualPresets = ["packages/presets/src/structure.ts", "packages/presets/src/pageSettings.ts", "packages/presets/src/pageTemplates.ts", "packages/presets/src/index.ts"];
 // Section lab /lab/sections × 15 theme × 4 viewport (CI: Visual regression / matrix, 32 shard).
 const matrix = {
     cmd: "CI: Visual regression / matrix",
@@ -24,7 +25,7 @@ const matrix = {
       "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/matrix", "tooling/visual/playwright.matrix.config.ts",
       "tooling/visual/package.json", ".github/workflows/visual.yml", "scripts/ci/visual-baseline-run.sh"],
     // Layout chỉ đọc dữ liệu preset t15; bộ kiểm cấu trúc trang không ảnh hưởng ảnh chụp.
-    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, ...nonvisualPresets],
     // package.json chỉ đổi link workspace tới package ngoài `paths` không đổi pixel (PR #59: @solar/storage cho fixture e2e).
     ignoreLinks: true,
 };
@@ -44,7 +45,7 @@ export const CHECKS = {
       `${web}components/`, `${web}config/`, `${web}i18n/`, `${web}lib/`, `${web}data/`, "apps/web/public/", "apps/web/tailwind.config.ts",
       "apps/web/postcss.config.mjs", "apps/web/next.config.ts", "apps/web/package.json", "tooling/visual/visual.spec.ts", "tooling/visual/routes.ts",
       "tooling/visual/playwright.config.ts", "tooling/visual/package.json", ".github/workflows/visual.yml"],
-    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, `${web}app/(site)/lab/`, "packages/presets/src/structure.ts"],
+    except: [`${web}lib/tenant/`, `${web}lib/leads/`, `${web}components/tenant/`, `${web}components/preview/`, `${web}app/(site)/lab/`, ...nonvisualPresets],
     ignoreLinks: true,
   },
   db: {
