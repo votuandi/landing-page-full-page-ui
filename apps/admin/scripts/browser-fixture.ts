@@ -80,6 +80,26 @@ async function main() {
       const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
       const row = (await repo.sectionContent.first({ where: { pageId: page.id, sectionId: process.argv[3] } }))!;
       process.stdout.write(JSON.stringify({ data: row.draftData ?? row.data }));
+    } else if (action === "builder-page-versions") {
+      // Four published versions through the real publish path; V3 drops the FAQ so restoring V1 must bring structure back.
+      const { saveDraft, publishPage } = await import("@solar/db");
+      const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
+      const actor = { siteUserId: (await repo.siteUser.first({ where: { email: "owner@demo.vn" } }))!.id };
+      const all = page.sections as { id: string }[], hero = sectionRegistry.types.hero.defaults, revisions: number[] = [];
+      let revision = page.revision;
+      for (const n of [1, 2, 3, 4]) {
+        const draftData = { ...hero, title: { ...hero.title, highlight: { vi: `V${n}` } } };
+        revision = (await saveDraft(db, tenantId, { pageId: page.id, expectedRevision: revision, actor,
+          draftSections: n >= 3 ? all.filter(s => s.id !== "s-faq") : all, sections: [{ sectionId: "s-hero", type: "hero", draftData }] })).revision;
+        revision = (await publishPage(db, tenantId, { pageId: page.id, expectedRevision: revision, actor })).revision;
+        revisions.push(revision);
+      }
+      process.stdout.write(JSON.stringify({ pageId: page.id, revisions }));
+    } else if (action === "builder-page-published") {
+      const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
+      const hero = (await repo.sectionContent.first({ where: { pageId: page.id, sectionId: "s-hero" } }))!;
+      process.stdout.write(JSON.stringify({ sections: (page.sections as { id: string }[]).map(s => s.id), draftSections: page.draftSections,
+        hero: (hero.data as { title: { highlight: { vi: string } } }).title.highlight.vi, versions: await repo.pageVersion.count({ where: { pageId: page.id } }) }));
     } else if (action === "builder-page-bump") {
       // Another editor saving: the revision the open builder holds is now stale.
       const repo = forTenant(db, tenantId), page = (await repo.page.first({ where: { slug: "builder-page" } }))!;
