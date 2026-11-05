@@ -64,7 +64,7 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **Chi tiết**: tạo trang `kind=landing` với slug, SEO riêng, chọn ẩn header/footer; bắt đầu từ trang trắng, nhân bản trang có
   sẵn hoặc "mẫu trang" (preset con: landing hộ gia đình, landing nhà xưởng, trang tuyển đại lý); giới hạn số trang theo gói.
   A/B cho tiêu đề hero/CTA tách sang S08 (05/11/2026).
-- **AC**: [ ] Landing mới truy cập được ở `/<slug>`, có trong sitemap · [ ] Vượt `limits.pages` bị chặn.
+- **AC**: [x] Landing mới truy cập được ở `/<slug>`, có trong sitemap (e2e `admin.spec.ts` › "landing page: tạo từ mẫu…") · [x] Vượt `limits.pages` bị chặn (int "vượt limit: song song…" + e2e "landing page: vượt giới hạn gói…").
 - Phụ thuộc: S03 · Agent: Codex · Cỡ: M
 
 ### E12-S08 · A/B tiêu đề hero/CTA
