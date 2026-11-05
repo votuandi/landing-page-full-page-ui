@@ -24,7 +24,7 @@ async function load({ params }: Props) {
 }
 export async function generateMetadata(props: Props) {
   const { site, slug, outcome } = await load(props);
-  return tenantMetadata(site, `/${slug}`, outcome.title, outcome.description, { image: outcome.image });
+  return tenantMetadata(site, `/${slug}`, outcome.title, outcome.description, { image: outcome.image, noindex: outcome.noindex });
 }
 export default async function TenantPage(props: Props) {
   return (await load(props)).outcome.content;

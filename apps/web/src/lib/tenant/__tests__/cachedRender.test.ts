@@ -10,7 +10,7 @@ import { tenantRenderKey } from "../renderKey";
 
 const require = createRequire(import.meta.url);
 const file = "apps/web/src/components/tenant/cached.tsx";
-const site = { tenantId: "tenant-a", siteId: "site-a", locale: "vi" as const,
+const site = { tenantId: "tenant-a", siteId: "site-a", locale: "vi" as "vi" | "en",
   entitlements: { planId: "premium", disabled: [] as string[] }, context: {}, pageTypes: ["home"], seo: {},
   widgets: {}, profile: { theme: {} }, theme: { meta: {} }, locales: ["vi"] };
 // Run the actual cache scope with a controlled Next-cache stand-in: no wall-clock sleeps or DB races.
@@ -25,7 +25,7 @@ function scopes(loadPage: () => Promise<unknown>, loadSite = async () => site) {
       siteCanUse: (value: typeof site) => (feature: string) => !value.entitlements.disabled.includes(feature) },
     "@/lib/tenant/collections": { tenantCollections: () => ({ source: {} }) },
     "@/lib/tenant/seo": { matchRedirect: () => null },
-    "@/lib/tenant/contentSchemas": {},
+    "@/lib/tenant/contentSchemas": { text: (value: { vi?: string; en?: string } | undefined, locale: "vi" | "en") => value?.[locale] || value?.vi || "" },
     "@/lib/tenant/routes": { resolveRoute: () => ({ kind: "page" }), routeEnabled: () => true },
     "@/lib/tenant/cacheTags": { TENANT_CACHE_LIFE: {}, tenantPageTags: () => [] },
     "@/components/tenant/SystemPages": {},
@@ -36,6 +36,19 @@ function scopes(loadPage: () => Promise<unknown>, loadSite = async () => site) {
 }
 const page = { title: "snapshot A", kind: "home", config: { sections: [{ type: "hero" }] } };
 const bodyCanUse = (result: any) => result.content.props.children.props.canUse("calculator");
+
+test("landing: SEO follows locale; ẩn header/footer style renders without JavaScript", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const settings = { seo: { title: { vi: "SEO VI", en: "SEO EN" }, description: { vi: "Mô tả", en: "Description" }, noindex: true }, hideHeader: true, hideFooter: true };
+  const render = scopes(async () => ({ ...page, kind: "landing", settings }));
+  const result = await render.tenantPage(tenantRenderKey(site, false), "trang-trai");
+  assert.equal(result.title, "SEO VI"); assert.equal(result.description, "Mô tả"); assert.equal(result.noindex, true);
+  const html = renderToStaticMarkup(result.content);
+  assert.ok(html.includes('[data-section-type="site-header"]{display:none}'));
+  assert.ok(html.includes('[data-section-type="site-footer"]{display:none}'));
+  const english = scopes(async () => ({ ...page, settings }), async () => ({ ...site, locale: "en" }));
+  assert.equal((await english.tenantPage(tenantRenderKey(site, false), "trang-trai")).title, "SEO EN");
+});
 
 test("kill-switch snapshot breaks the UI key at the first refreshed read, without accumulating TTL", async () => {
   let now = 0;

@@ -14,6 +14,22 @@ import { collectSitemapPaths } from "../seoData";
 import { siteOrigin, sitemapXml } from "../seo";
 import { createIconHandler } from "../icon";
 
+test("settings hỏng trong DB: published landing still loads with defaults", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL }, async t => {
+  const log = t.mock.method(console, "error", () => {});
+  const db = getWebDb(), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const repo = tenantRepository(tenantId), site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    await repo.page.create({ siteId: site.id, slug: "corrupt-settings", sections: [], publishedAt: new Date(), settings: { hideHeader: "private-corrupt" } });
+    const page = await createSiteData(tenantRepository).loadPublishedPage(tenantId, site.id, "corrupt-settings");
+    assert.ok(page); assert.deepEqual(page.settings, {}); assert.deepEqual(page.config.sections, []);
+    assert.equal(log.mock.callCount(), 1); assert.doesNotMatch(JSON.stringify(log.mock.calls), /private-corrupt/);
+  } finally {
+    await ops.tenant.deleteMany({ where: { id: tenantId } });
+    await Promise.all([db.$disconnect(), ops.$disconnect()]);
+  }
+});
+
 test("favicon of other tenant falls back without storage read (RLS)", { skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL }, async () => {
   const db = getWebDb(), ops = createPlatformDb({ pool: 1 });
   const tenantId = randomUUID(), otherId = randomUUID();

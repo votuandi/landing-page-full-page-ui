@@ -6,6 +6,14 @@ import { tenantMetadata } from "../metadata";
 import { collectSitemapPaths } from "../seoData";
 import type { TenantCollections } from "../collections";
 
+test("sitemap noindex: includes published landing, omits noindex landing", async () => {
+  const collections = { products: async () => [], services: async () => [], projects: async () => [], posts: async () => [] } as unknown as TenantCollections;
+  const site = { tenantId: "t", siteId: "s", profile: { legal: { policies: [] } }, pageTypes: ["home", "contact", "policy"],
+    entitlements: { planId: "premium", status: "active", disabled: [] } } as unknown as Parameters<typeof collectSitemapPaths>[0];
+  const paths = await collectSitemapPaths(site, collections, [{ slug: "trang-trai", kind: "landing", settings: null }, { slug: "an", kind: "landing", settings: { seo: { noindex: true } } }]);
+  assert.ok(paths.includes("/trang-trai")); assert.ok(!paths.includes("/an"));
+});
+
 test("only preview subdomains (NOINDEX_DOMAINS) are noindex", () => {
   const suffixes = ["preview.solarweb.vn", " .preview.example "];
   for (const host of ["preview.solarweb.vn", "a.preview.solarweb.vn", "x.preview.example"]) assert.equal(isNoindexHost(host, suffixes), true);

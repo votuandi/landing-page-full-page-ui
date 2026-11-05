@@ -52,8 +52,11 @@ export async function tenantPage(key: Key, slug: string) {
     content = page.kind === "system"
       ? <SystemFrame title={page.title}><SystemContent site={site} slug={slug} config={config} /></SystemFrame>
       : <main><PageRenderer page={config} site={site.context} canUse={siteCanUse(site)} resolveData={tenantMediaResolver(site)} loadData={createCollectionLoader(tenantCollections(site.tenantId, site.locale, site.siteId).source)} /></main>;
+    const css = `${page.settings?.hideHeader ? '[data-section-type="site-header"]{display:none}' : ""}${page.settings?.hideFooter ? '[data-section-type="site-footer"]{display:none}' : ""}`;
+    if (css) content = <><style>{css}</style>{content}</>;
   }
-  return { kind: "ok" as const, title: page?.title || system?.title, description: system?.description,
+  return { kind: "ok" as const, title: text(page?.settings?.seo?.title, site.locale) || page?.title || system?.title,
+    description: text(page?.settings?.seo?.description, site.locale) || system?.description, noindex: page?.settings?.seo?.noindex,
     image: system && "image" in system ? system.image as string | undefined : undefined, content };
 }
 
