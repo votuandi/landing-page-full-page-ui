@@ -3,7 +3,9 @@ import { forTenant, Prisma } from "@solar/db";
 import { getTenant, requirePagePermission } from "../../../lib/auth.ts";
 import { getRuntime } from "../../../lib/runtime.ts";
 import { pageTitle } from "../../../lib/pageSections.ts";
-import { PAGE_TYPES, PAGE_TYPE_IDS, pageTypeOfRoute } from "@solar/presets";
+import { PAGE_TYPES, PAGE_TYPE_IDS, pageTypeOfRoute, isLandingSlug } from "@solar/presets";
+import { limit } from "@solar/plans";
+import { LandingPagesSummary } from "./LandingPagesSummary.tsx";
 import { getSiteEntitlements } from "../../../lib/entitlements.ts";
 import { PageTypeForm } from "./PageTypeForm.tsx";
 
@@ -14,8 +16,10 @@ export default async function Pages() {
   const pages = await repo.page.list({ where: { siteId }, orderBy: { slug: "asc" } });
   const contents = await repo.sectionContent.list({ where: { siteId, removedAt: null, draftData: { not: Prisma.DbNull } }, select: { pageId: true } });
   const draftPages = new Set(contents.map(c => c.pageId));
-  const site = (await repo.site.get(siteId))!;
+  const site = (await repo.site.first({ where: { id: siteId }, include: { tenant: true } }))!;
   const can = await getSiteEntitlements();
+  const count = pages.filter(page => page.slug === "" || isLandingSlug(page.slug)).length, pagesLimit = limit(site.tenant, "pages");
+  const reason = !session.permissions.has("pages.structure") ? "Bạn không có quyền đổi cấu trúc trang" : !can("landingPages") ? "Gói hiện tại chưa có landing page" : count >= pagesLimit ? "Đã đạt giới hạn số trang của gói" : undefined;
   return <section className="space-y-6">
     <div><h1 className="text-2xl font-semibold text-fg">Trang &amp; Section</h1><p className="mt-2 text-fg-muted">Chọn trang để sắp xếp section và lưu bản nháp.</p></div>
     <section aria-labelledby="page-catalog" className="space-y-3">
@@ -28,6 +32,7 @@ export default async function Pages() {
           reason={reason} upgrade={!def.required && session.permissions.has("pages.structure") ? !can("pageStructure") ? "pageStructure" : outside ? def.entitlement : undefined : undefined} />;
       })}</ul>
     </section>
+    <LandingPagesSummary count={count} limit={pagesLimit} reason={reason} upgrade={session.permissions.has("pages.structure") && (!can("landingPages") || count >= pagesLimit)} />
     {!pages.length && <p className="text-fg-muted">Site chưa có trang nào.</p>}
     <ul className="space-y-3">{pages.map(page => {
       const draft = page.draftSections !== null || draftPages.has(page.id);
