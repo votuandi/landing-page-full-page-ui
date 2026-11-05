@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { SectionListEditor, thumbnailSrc, useLeaveGuard } from "@solar/cms-ui";
 import { sectionLimitIssues } from "@solar/sections";
 import type { PageEditor, PageSectionResult } from "../../../../lib/pageSections.ts";
-import { saveSectionsDraft, publishSections, previewLink } from "../actions.ts";
+import { saveSectionsDraft, publishSections, previewLink, restorePageVersion } from "../actions.ts";
 import { UpgradeRequest } from "../../../../components/UpgradeRequest.tsx";
 
 const base = "inline-flex min-h-11 items-center justify-center rounded-button px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-40";
@@ -12,6 +13,8 @@ const button = `${base} border border-line/25 bg-bg-elevated text-fg hover:bg-bg
 const primary = `${base} bg-primary text-on-primary hover:opacity-90`;
 
 export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
+  const router = useRouter();
+  const [restoreId, setRestoreId] = useState<string>();
   const [value, setValue] = useState(editor.sections);
   const [upgrade, setUpgrade] = useState<string>();
   const [saved, setSaved] = useState(JSON.stringify(editor.sections));
@@ -32,7 +35,7 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
     start(async () => {
       try {
         const result = await work();
-        if (!result.ok) { failure?.(); setError(result.error ?? "Không thể thực hiện lúc này. Vui lòng thử lại."); if (result.status === 409) setConflict(true); return; }
+        if (!result.ok) { failure?.(); setError(`${result.error ?? "Không thể thực hiện lúc này. Vui lòng thử lại."}${result.status === 409 ? " Nội dung bạn vừa sửa chưa được lưu." : ""}`); if (result.status === 409) setConflict(true); return; }
         if (result.revision !== undefined) setRevision(result.revision);
         success(result);
       } catch { failure?.(); setError("Không thể kết nối. Vui lòng thử lại."); }
@@ -50,6 +53,28 @@ export default function PageSectionsEditor({ editor }: { editor: PageEditor }) {
         editHref={editor.canEditContent ? section => `/trang/${editor.page.id}/section/${section.id}` : undefined} />
     </fieldset>
     {upgrade && <UpgradeRequest key={upgrade} feature={upgrade} onClose={() => setUpgrade(undefined)} />}
+    <section aria-label="Lịch sử xuất bản" className="space-y-3 rounded-card border border-line/20 bg-bg-elevated p-4">
+      <h2 className="text-lg font-semibold text-fg">Lịch sử xuất bản</h2>
+      {!editor.versions.length && <p className="text-sm text-fg-muted">Trang chưa có phiên bản đã xuất bản.</p>}
+      <ul className="space-y-3">
+        {editor.versions.map(version => <li key={version.id} className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="min-w-0 break-words text-sm text-fg">Phiên bản {version.revision} · {new Date(version.createdAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })} · {version.publisher}</p>
+            {editor.canRestore && <button type="button" className={button} aria-label={`Khôi phục phiên bản ${version.revision}`} disabled={dirty || pending || conflict} onClick={() => setRestoreId(version.id)}>Khôi phục</button>}
+          </div>
+          {restoreId === version.id && <div className="space-y-2 rounded-card bg-bg-tint p-3">
+            <p className="text-sm text-fg">Bản nháp hiện tại sẽ được thay bằng phiên bản {version.revision}.</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={primary} disabled={dirty || pending || conflict} onClick={() => {
+                const f = form(); f.set("versionId", version.id);
+                run(() => restorePageVersion({}, f), () => { setRestoreId(undefined); setMessage("Đã khôi phục vào bản nháp"); router.refresh(); });
+              }}>Xác nhận khôi phục</button>
+              <button type="button" className={button} disabled={pending} onClick={() => setRestoreId(undefined)}>Hủy</button>
+            </div>
+          </div>}
+        </li>)}
+      </ul>
+    </section>
     <div className="sticky bottom-0 flex flex-col gap-3 border-t border-line/20 bg-bg/95 px-3 py-3 backdrop-blur sm:flex-row sm:px-4 sm:items-center sm:justify-between sm:rounded-card sm:border sm:shadow-float" aria-busy={pending}>
       <div className="min-w-0 space-y-1">
         {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}

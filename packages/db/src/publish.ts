@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { pageTag, siteTag } from "@solar/cache";
-import { collectRefs, migrateSectionData, pageConfigSchema, sectionRegistry } from "@solar/sections";
+import { collectRefs, migrateSectionData, pageConfigSchema, pageSectionSchema, sectionRegistry } from "@solar/sections";
 import { validateSiteStructure, siteStructureOf } from "@solar/presets";
 import { canUse, limit } from "@solar/plans";
 import { Prisma } from "../generated/client.ts";
@@ -18,6 +18,13 @@ const draftSchema = baseSchema.extend({ draftSections: z.array(z.unknown()).opti
 })).optional() });
 export type PublishInput = z.input<typeof baseSchema>;
 export type DraftInput = z.input<typeof draftSchema>;
+const restoreSchema = baseSchema.extend({ versionId: z.uuid() });
+export type RestoreInput = z.input<typeof restoreSchema>;
+export const restoreSnapshotSchema = z.object({
+  sections: z.array(pageSectionSchema.omit({ data: true })),
+  contents: z.array(z.object({ sectionId: z.string().min(1), type: z.string().min(1), schemaVersion: z.number().int().min(1), data: z.unknown() })),
+}).refine(snapshot => pageConfigSchema.safeParse({ sections: snapshot.sections.map(s => ({ ...s, data: undefined })) }).success,
+  "Bố cục phiên bản không hợp lệ");
 
 export class RevisionConflictError extends Error {
   constructor(readonly currentRevision: number | null) {
@@ -117,5 +124,44 @@ export async function publishPage(db: Db | PlatformDb, tenantId: string, raw: Pu
       publishedBySiteUserId: input.actor.siteUserId, publishedByPlatformAdminId: input.actor.platformAdminId });
     await enqueueInvalidate(repo, [pageTag(tenantId, page.slug), ...(page.kind === "home" || !page.publishedAt ? [siteTag(tenantId)] : [])]);
     return { revision: page.revision, versionId: version.id };
+  });
+}
+
+/** Restore into a draft; publication always creates a new immutable version. */
+export async function restorePageVersion(db: Db | PlatformDb, tenantId: string, raw: RestoreInput) {
+  const input = restoreSchema.parse(raw);
+  const disabled = await loadDisabledFeatures(db);
+  return withTenantTransaction(db, tenantId, async repo => {
+    const version = await repo.pageVersion.first({ where: { id: input.versionId, pageId: input.pageId } });
+    if (!version) throw new StructureError("Không tìm thấy phiên bản");
+    const invalid = "Phiên bản có nội dung không còn hợp lệ, không thể khôi phục.";
+    const parsed = restoreSnapshotSchema.safeParse(version.snapshot);
+    if (!parsed.success) throw new StructureError(invalid);
+    const snapshot = parsed.data;
+    const page = await lockPage(repo, input);
+    const sections = descriptors(snapshot.sections);
+    await checkStructure(repo, page.siteId, page.id, sections, disabled);
+    await repo.page.update(page.id, { draftSections: sections });
+    const contents = [...snapshot.contents, ...sections.filter(s => !snapshot.contents.some(c => c.sectionId === s.id))
+      .map(s => ({ sectionId: s.id, type: s.type, schemaVersion: sectionRegistry.getType(s.type)?.schemaVersion ?? 1, data: sectionRegistry.getType(s.type)?.defaults }))];
+    for (const content of contents) {
+      const def = sectionRegistry.getType(content.type);
+      if (!def) throw new StructureError(invalid);
+      const section = sections.find(s => s.id === content.sectionId);
+      let data: Prisma.InputJsonValue;
+      try {
+        if (section && content.type !== section.type) throw new Error("Section type mismatch");
+        data = def.schema.parse(migrateSectionData(def, content.schemaVersion, content.data).data) as Prisma.InputJsonValue;
+      } catch { throw new StructureError(invalid); }
+      const row = await repo.sectionContent.first({ where: { siteId: page.siteId, pageId: page.id, sectionId: content.sectionId } });
+      if (row) {
+        if (row.type !== content.type) throw new StructureError(invalid);
+        if (row.schemaVersion !== def.schemaVersion) throw new StructureError("Nội dung cần cập nhật phiên bản trước khi khôi phục");
+        await repo.sectionContent.update(row.id, { draftData: data, revision: { increment: 1 } });
+      } else await repo.sectionContent.create({ siteId: page.siteId, pageId: page.id, sectionId: content.sectionId,
+        type: content.type, schemaVersion: def.schemaVersion, data: def.defaults as Prisma.InputJsonValue, draftData: data });
+    }
+    await markRemoved(repo, page.id);
+    return { revision: page.revision };
   });
 }

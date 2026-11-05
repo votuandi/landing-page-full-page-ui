@@ -36,7 +36,6 @@ export default function BuilderPanel({ ref, section, form, bilingual, disabled, 
   useImperativeHandle(ref, () => ({ async flush() {
     const current = latest.current;
     if (!current.formValid || !validate(def.schema, current.form.data).success) return { ok: false, error: "Nội dung có lỗi. Vui lòng sửa trước khi chọn section khác." };
-    if (JSON.stringify(current.form.data) === saved.current) return { ok: true };
     await flush();
     return JSON.stringify(latest.current.form.data) === saved.current ? { ok: true } : { ok: false, error: failure.current ?? "Chưa lưu được nội dung. Vui lòng thử lại." };
   } }), [flush, def.schema]);

@@ -16,6 +16,7 @@ function setup() {
     entitlements: async () => feature => feature !== "calculator", theme: async () => "t12", removed: async () => [], contents: async () => [], content: async () => null,
     contentRows: async () => { contentReads++; return [{ sectionId: "hero", type: "hero", schemaVersion: sectionRegistry.types.hero.schemaVersion, data: {}, draftData: sectionRegistry.types.hero.defaults }]; },
     actor: async () => ({ siteUserId: "owner" }), save: async () => ({ revision: 3 }), publish: async () => ({ revision: 3 }),
+    versions: async () => [], restore: async () => ({ revision: 3 }), presence: async () => [],
     preview: async (_tenant, _site, _slug, path) => { paths.push(path); return `https://mau.preview.solar.vn/api/preview?token=test&${new URLSearchParams({ path })}`; },
   };
   const load = () => loadBuilder(pageId, { ...deps, requirePermission: async permission => { if (!session.permissions.has(permission)) throw new ForbiddenError(); return session; } });

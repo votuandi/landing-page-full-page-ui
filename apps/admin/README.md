@@ -166,6 +166,21 @@ Dev khác cổng: admin đặt `TENANT_PUBLIC_PORT=3212`; web đặt `ADMIN_PUBL
 Production dùng HTTPS, không thêm cổng. Bộ e2e admin tự chạy cả hai app, cần DB local và seed như phần kiểm tra.
 Lab `/lab/cms-content` dùng lưu giả và iframe mẫu cố định; kiểm độ trễ thực tế nằm trong `tooling/visual/admin.spec.ts`.
 
+## Lịch sử trình dựng và phiên bản trang (E12-S06)
+
+Trình dựng giữ tối đa 100 bước hoàn tác/làm lại cho bố cục và nội dung trong phiên hiện tại; tải lại trang xóa lịch sử này.
+Nút Hoàn tác/Làm lại và Ctrl/⌘+Z, Ctrl/⌘+Shift+Z, Ctrl+Y áp thay đổi vào bản nháp sau khi lưu xong nội dung đang sửa.
+Phím tắt trong ô nhập giữ hành vi hoàn tác gõ chữ của trình duyệt. Lỗi lưu không làm dịch chuyển lịch sử.
+
+Mục Lịch sử xuất bản ở bố cục trang hiện 20 phiên bản mới nhất và người xuất bản. Khôi phục cần đủ quyền
+`pages.publish`, `pages.structure`, `content.edit` và xác nhận thay bản nháp; sau đó xem trước và Xuất bản để tạo
+phiên bản mới. Snapshot cũ được migrate/validate và kiểm lại gói; lịch sử đã xuất bản được giữ nguyên.
+
+Hai tab/người cùng mở trang thấy cảnh báo, heartbeat mỗi 20 giây và hết hạn sau 60 giây.
+Presence lưu trong bộ nhớ một tiến trình admin (giữ qua HMR), không chia sẻ giữa nhiều tiến trình hay qua lần khởi động lại.
+Khóa revision trong DB bảo vệ dữ liệu độc lập với cảnh báo này: lần lưu cũ nhận 409, giữ nội dung chưa lưu và yêu cầu
+tải lại trang; không tự gộp dữ liệu. Cần presence đa tiến trình thì chuyển bộ nhớ sang Redis.
+
 ## Hộp thư lead (E11-S03)
 
 `/lead` yêu cầu `leads.view` và `leadInbox` (Nâng cao trở lên). Danh sách lọc theo trạng thái, nguồn, ngày Việt Nam,

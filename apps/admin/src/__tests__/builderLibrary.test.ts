@@ -19,6 +19,7 @@ require.cache[actionsPath] = { id: actionsPath, filename: actionsPath, loaded: t
   saveSectionsDraft: (_: unknown, form: FormData) => save(form),
   saveSectionContent: (_: unknown, form: FormData) => save(form),
   builderPreviewLink: async () => ({ ok: false }),
+  touchBuilderPresence: async () => ({ ok: true, editors: [] }),
 } } as NodeJS.Module;
 const Builder = (require("../app/(admin)/trang/[pageId]/builder/Builder.tsx") as typeof import("../app/(admin)/trang/[pageId]/builder/Builder.tsx")).default;
 
@@ -30,6 +31,53 @@ function editor(overrides: Partial<BuilderEditor> = {}): BuilderEditor {
     allowedTypes: Object.values(sectionRegistry.types).map(def => def.type), lockedTypes: [], ...overrides };
 }
 const ids = (container: HTMLElement) => [...container.querySelectorAll("li[data-section-id]")].map(el => el.getAttribute("data-section-id"));
+
+test("undo flush nội dung chưa lưu, remount panel không autosave thừa; redo dùng revision mới", async () => {
+  const writes: FormData[] = [];
+  save = async form => { writes.push(form); return { ok: true, revision: 2 + writes.length }; };
+  const m = await mount(createElement(Builder, { editor: editor() }));
+  try {
+    const before = byPath(m.container, "badge").value;
+    await typeInput(byPath(m.container, "badge"), "[DỮ LIỆU MẪU] Chưa autosave");
+    assert.equal(writes.length, 0);
+    await act(async () => { window.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "z", ctrlKey: true })); });
+    assert.deepEqual(writes.map(f => f.get("revision")), ["2", "3"]);
+    assert.equal(JSON.parse(String(writes[0].get("data"))).badge.vi, "[DỮ LIỆU MẪU] Chưa autosave");
+    assert.equal(JSON.parse(String(writes[1].get("data"))).badge.vi, before);
+    assert.equal(byPath(m.container, "badge").value, before);
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 850)); });
+    assert.equal(writes.length, 2, "remount must not generate an extra save/history step");
+    await click(button(m.container, "Làm lại"));
+    assert.equal(writes[2].get("revision"), "4");
+    assert.equal(byPath(m.container, "badge").value, "[DỮ LIỆU MẪU] Chưa autosave");
+    assert.equal(button(m.container, "Làm lại").disabled, true);
+  } finally { m.unmount(); }
+});
+
+test("undo lỗi giữ bước và bố cục; 409 khóa cả Hoàn tác/Làm lại", async () => {
+  for (const status of [400, 409]) {
+    let failure = false;
+    const writes: FormData[] = [];
+    save = async form => { writes.push(form); return failure ? { ok: false, status, error: "Trang đã thay đổi" } : { ok: true, revision: 2 + writes.length }; };
+    const initial = editor(); initial.sections.push({ id: "faq", type: "faq", variant: "t15", enabled: true });
+    initial.forms.faq = { data: sectionRegistry.types.faq.defaults, recovered: false, readOnly: undefined };
+    const m = await mount(createElement(Builder, { editor: initial }));
+    try {
+      await click(button(m.container, "Xuống Banner chính"));
+      assert.deepEqual(ids(m.container), ["faq", "hero"]);
+      failure = true; await click(button(m.container, "Hoàn tác"));
+      assert.deepEqual(ids(m.container), ["faq", "hero"]);
+      assert.equal(button(m.container, "Làm lại").disabled, true);
+      assert.equal(button(m.container, "Hoàn tác").disabled, status === 409);
+      if (status === 409) assert.match(m.container.textContent!, /Nội dung bạn vừa sửa chưa được lưu/);
+      else {
+        failure = false; await click(button(m.container, "Hoàn tác"));
+        assert.deepEqual(ids(m.container), ["hero", "faq"]);
+        assert.equal(writes[2].get("revision"), "3", "failed travel must not advance revision");
+      }
+    } finally { m.unmount(); }
+  }
+});
 
 test("bố cục dùng queue, hoàn nguyên select khi 400/409 và hiện lỗi", async () => {
   for (const status of [400, 409]) {

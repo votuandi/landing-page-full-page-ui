@@ -43,8 +43,12 @@ async function editInline(page: Page, text: string, path: string) {
   await page.keyboard.press("ControlOrMeta+a");
 }
 
+const heroJson = () => fixture("builder-section-read", "s-hero");
+const contentField = (page: Page) => panel(page).getByRole("group", { name: /^Nội dung / }).getByRole("textbox").first();
 async function open(page: Page, identifier = "owner@demo.vn") {
-  const pageId = fixture("builder-page");
+  return visit(page, fixture("builder-page"), identifier);
+}
+async function visit(page: Page, pageId: string, identifier: string) {
   await signIn(page, "admin-e7-a", identifier);
   await page.goto(`${origin()}/trang/${pageId}/builder`);
   await expect(rows(page)).toHaveCount(4);
@@ -425,6 +429,75 @@ test.describe("builder", () => {
     await expect(layout.getByLabel("Mã neo", { exact: true })).toBeDisabled();
   });
 
+  test("hoàn tác và làm lại thứ tự section", async ({ page }) => {
+    await open(page);
+    const moved = ["s-stats", "s-hero", "s-faq", "s-cta"], original = ["s-hero", "s-stats", "s-faq", "s-cta"];
+    const undo = page.getByRole("button", { name: "Hoàn tác", exact: true });
+    await expect(undo).toBeDisabled();
+    await rows(page).first().getByRole("button", { name: /^Xuống / }).click();
+    await expect.poll(draft).toEqual(moved);
+    await undo.click();
+    await expect.poll(draft).toEqual(original);
+    await expect.poll(() => rowIds(page)).toEqual(original);
+    await expect(undo).toBeDisabled();
+    await page.keyboard.press("ControlOrMeta+Shift+Z");
+    await expect.poll(draft).toEqual(moved);
+    await expect.poll(() => rowIds(page)).toEqual(moved);
+    await expect(page.getByRole("button", { name: "Làm lại", exact: true })).toBeDisabled();
+  });
+
+  test("hoàn tác nội dung trả giá trị cũ", async ({ page }) => {
+    await open(page);
+    const before = await contentField(page).inputValue(), text = `[DỮ LIỆU MẪU] Hoàn tác ${Date.now()}`;
+    await contentField(page).fill(text);
+    await expect.poll(heroJson, { timeout: 30_000 }).toContain(text);
+    // Ctrl+Z inside a text field stays the browser's own text undo; move focus off the form first.
+    await page.getByRole("heading", { level: 1 }).click();
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(heroJson, { timeout: 30_000 }).not.toContain(text);
+    await expect(contentField(page)).toHaveValue(before);
+    await expect(canvas(page).locator("main")).not.toContainText(text, { timeout: 30_000 });
+    await page.getByRole("button", { name: "Làm lại", exact: true }).click();
+    await expect.poll(heroJson, { timeout: 30_000 }).toContain(text);
+    await expect(contentField(page)).toHaveValue(text);
+  });
+
+  test("hai tab cùng lưu: tab sau bị chặn, không ghi đè", async ({ page, browser }) => {
+    const pageId = await open(page);
+    const context = await browser.newContext(), second = await context.newPage();
+    await second.setExtraHTTPHeaders({ "x-forwarded-for": `198.51.101.${++client}` });
+    try {
+      await visit(second, pageId, "editor_admin");
+      await expect(second.getByRole("status").filter({ hasText: "cũng đang mở trình dựng" })).toContainText("[DỮ LIỆU MẪU] Owner");
+      const first = `[DỮ LIỆU MẪU] Tab A ${Date.now()}`, late = `[DỮ LIỆU MẪU] Tab B ${Date.now()}`;
+      await contentField(page).fill(first);
+      await expect.poll(heroJson, { timeout: 30_000 }).toContain(first);
+      await contentField(second).fill(late);
+      await expect(second.getByRole("alert").filter({ hasText: /Trang đã thay đổi/ }).first()).toBeVisible({ timeout: 30_000 });
+      expect(heroJson()).toContain(first);
+      expect(heroJson()).not.toContain(late);
+      await expect(contentField(second)).toHaveValue(late);
+      await expect(second.getByRole("button", { name: "Tải lại trang", exact: true })).toBeVisible();
+      await expect(second.getByRole("button", { name: "Hoàn tác", exact: true })).toBeDisabled();
+    } finally { await context.close(); }
+  });
+
+  test("khôi phục phiên bản 3 lần trước rồi xuất bản", async ({ page }) => {
+    const pageId = fixture("builder-page");
+    const { revisions } = JSON.parse(fixture("builder-page-versions")) as { revisions: number[] };
+    await signIn(page, "admin-e7-a", "owner@demo.vn");
+    await page.goto(`${origin()}/trang/${pageId}`);
+    const history = page.getByRole("region", { name: "Lịch sử xuất bản" });
+    for (const revision of revisions) await expect(history.getByRole("button", { name: `Khôi phục phiên bản ${revision}`, exact: true })).toBeVisible();
+    // Current is V4: three publishes back is V1, which still had the FAQ.
+    await history.getByRole("button", { name: `Khôi phục phiên bản ${revisions[0]}`, exact: true }).click();
+    await page.getByRole("button", { name: "Xác nhận khôi phục", exact: true }).click();
+    await expect(page.getByText("Trang có bản nháp chưa xuất bản.")).toBeVisible({ timeout: 30_000 });
+    await page.getByRole("button", { name: "Xuất bản", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Đã xuất bản" })).toBeVisible({ timeout: 30_000 });
+    expect(JSON.parse(fixture("builder-page-published"))).toEqual({ sections: ["s-hero", "s-stats", "s-faq", "s-cta"], draftSections: null, hero: "V1", versions: 5 });
+  });
+
   test("builder không lỗi a11y và không tràn ở 390/1440", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", message => { if (message.type() === "error" && /hydrat/i.test(message.text())) errors.push(message.text()); });
@@ -435,6 +508,8 @@ test.describe("builder", () => {
       expect((await new AxeBuilder({ page }).exclude("iframe").withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await selected(page, "s-hero");
+      // Reloading the same tab must not report the previous load as another editor.
+      await expect(page.getByText("cũng đang mở trình dựng")).toHaveCount(0);
       await page.screenshot({ path: test.info().outputPath(`builder-${width}.png`), fullPage: true });
     }
     expect(errors).toEqual([]);
