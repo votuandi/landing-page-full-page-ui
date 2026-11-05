@@ -186,6 +186,7 @@ model Tenant {
   outbox            Outbox[]
   leadIntegrations  LeadIntegration[]
   sendingDomain     SendingDomain?
+  abTestViews       AbTestView[]
   auditLogs         AuditLog[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -415,12 +416,14 @@ model Page {
   kind            PageKind         @default(landing)
   title           Json?
   settings        Json?
+  abTest          Json?
   sections        Json
   draftSections   Json?
   revision        Int              @default(0)
   publishedAt     DateTime?
   site            Site             @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
   versions        PageVersion[]
+  abTestViews     AbTestView[]
   sectionContents SectionContent[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -785,6 +788,8 @@ model Lead {
   note      String?
   assigneeId String?   @db.Uuid
   branchId   String?   @db.Uuid
+  abTestId   String?   @db.Uuid
+  abVariant  String?
   assignee   SiteUser? @relation(fields: [tenantId, assigneeId], references: [tenantId, id], onDelete: SetNull, onUpdate: Restrict)
   branch     Branch?   @relation(fields: [tenantId, branchId], references: [tenantId, id], onDelete: SetNull, onUpdate: Restrict)
   site      Site?      @relation(fields: [tenantId, siteId], references: [tenantId, id], onDelete: Restrict, onUpdate: Restrict)
@@ -796,6 +801,20 @@ model Lead {
   @@index([tenantId])
   @@index([tenantId, createdAt])
   @@index([tenantId, status, createdAt])
+  @@index([tenantId, abTestId])
+}
+
+model AbTestView {
+  tenantId String @db.Uuid
+  pageId   String @db.Uuid
+  testId   String @db.Uuid
+  variant  String
+  views    Int @default(0)
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  page     Page @relation(fields: [tenantId, pageId], references: [tenantId, id], onDelete: Cascade, onUpdate: Restrict)
+
+  @@id([tenantId, testId, variant])
+  @@index([tenantId, pageId])
 }
 
 model Outbox {

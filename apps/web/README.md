@@ -1,5 +1,11 @@
 # web
 
+E12-S08: landing có `abTest` vẫn ISR, không đọc cookie trong cached render. Khi chạy, HTML có cả hai hero;
+script trước hero gán cookie `ab_<id>` A/B trong 90 ngày và gửi beacon `POST /api/ab` (30 lần/phút/IP/tenant).
+Không JavaScript luôn thấy A. Kết thúc chọn B thì server render B cho mọi khách; preview và gói thiếu `abTest`
+chỉ render A. `/api/lead` tự đọc cookie của test đang chạy đúng page/site để ghi attribution; cookie rác/thiếu,
+test cũ/đã kết thúc hoặc gói thiếu tính năng vẫn nhận lead với attribution null.
+
 Canvas builder chỉ nạp động trên trang preview trong iframe có `?builder=1`; `reorder=0` bỏ tay kéo.
 `PreviewBridge` kiểm cả origin và cửa sổ cha; cuộn bằng `window.scrollTo` trong iframe. Overlay chỉ chọn/kéo
 section trong `main`, chặn click/submit để tránh điều hướng khi sửa; trang công khai không nạp overlay.

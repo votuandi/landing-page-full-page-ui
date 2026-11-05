@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { createPlatformDb, forTenant, forPlatform, withTenantTransaction, enqueueInvalidate } from "@solar/db";
 import { hashPassword, totp, createRealm } from "@solar/auth";
 import { siteStore } from "@solar/auth/db";
@@ -145,8 +145,8 @@ async function main() {
     } else if (action === "landing-reset") {
       // E12-S07: admin-e7-b drops landing pages of earlier attempts; its home gets header + footer so hiding them shows.
       await withTenantTransaction(db, fixtures.find(f => f.slug === "admin-e7-b")!.id, async repo => {
-        for (const page of await repo.page.list({ where: { slug: { startsWith: "e2e-landing" } } })) await repo.page.delete(page.id);
-        const home = (await repo.page.first({ where: { slug: "", kind: "home" } }))!;
+        for (const page of await repo.page.list({ where: { OR: [{ slug: { startsWith: "e2e-landing" } }, { slug: "e2e-ab" }] } })) await repo.page.delete(page.id);
+        const home =(await repo.page.first({ where: { slug: "", kind: "home" } }))!;
         const sections = [{ id: "site-header", type: "site-header", variant: "t15", enabled: true }, { id: "hero", type: "hero", variant: "t12", enabled: true },
           { id: "site-footer", type: "site-footer", variant: "t15", enabled: true }];
         await repo.page.update(home.id, { sections });
@@ -161,8 +161,38 @@ async function main() {
       await db.tenant.update({ where: { id }, data: { planId: restore ? "premium" : "pro" } });
       await withTenantTransaction(db, id, async repo => {
         const site = (await repo.site.first())!;
-        for (const page of await repo.page.list({ where: { slug: { startsWith: "e2e-landing" } } })) await repo.page.delete(page.id);
+        // `e2e-ab` (E12-S08) would otherwise count towards the page limit asserted here.
+        for (const page of await repo.page.list({ where: { OR: [{ slug: { startsWith: "e2e-landing" } }, { slug: "e2e-ab" }] } })) await repo.page.delete(page.id);
         for (let n = 1; n <= count; n++) await repo.page.create({ siteId: site.id, slug: `e2e-landing-${n}`, kind: "landing", title: { vi: `[DỮ LIỆU MẪU] Landing ${n}` }, sections: [] });
+      });
+    } else if (action === "revalidate") {
+      // E12-S08: what the outbox worker would do after an admin change to a cached public page (no worker in this suite).
+      const target = fixtures.find(f => f.slug === process.argv[3]), secret = process.env.REVALIDATE_SECRET;
+      if (!target || !secret) throw new Error("revalidate needs a fixture slug and REVALIDATE_SECRET");
+      const body = JSON.stringify({ tags: [`tenant:${target.id}`], nonce: randomUUID().replaceAll("-", ""), ts: Date.now() });
+      const response = await fetch("http://localhost:3212/api/revalidate", { method: "POST", body,
+        headers: { "Content-Type": "application/json", "x-signature": createHmac("sha256", secret).update(body).digest("hex") } });
+      if (!response.ok) throw new Error(`revalidate failed: ${response.status}`);
+    } else if (action === "ab-landing") {
+      // E12-S08: <site> on <plan> gets a fresh published landing `e2e-ab` (hero + lead-form); `running` seeds a running A/B
+      // test directly (bypassing admin) so the plan gate of the public render can be checked. Prints the page id.
+      const target = fixtures.find(f => f.slug === process.argv[3]), planId = process.argv[4] ?? "premium";
+      if (!target || !["premium", "pro"].includes(planId)) throw new Error("Invalid ab-landing arguments");
+      await db.tenant.update({ where: { id: target.id }, data: { planId } });
+      await withTenantTransaction(db, target.id, async repo => {
+        const site = (await repo.site.first())!;
+        for (const page of await repo.page.list({ where: { slug: "e2e-ab" } })) await repo.page.delete(page.id);
+        const sections = ["hero", "lead-form"].map(type => ({ id: randomUUID(), type, variant: "t15", enabled: true }));
+        const abTest = process.argv[5] === "running" ? { id: randomUUID(), status: "running", ctaLabel: { vi: "[DỮ LIỆU MẪU] Nút B" },
+          title: { lead: { vi: "[DỮ LIỆU MẪU] Tiêu đề B" }, highlight: { vi: "nhấn B" }, sub: { vi: "" }, subHighlight: { vi: "" } } } : undefined;
+        const page = await repo.page.create({ siteId: site.id, slug: "e2e-ab", kind: "landing", title: { vi: "[DỮ LIỆU MẪU] Landing A/B" },
+          sections, draftSections: sections, publishedAt: new Date(), ...(abTest ? { abTest } : {}) });
+        for (const section of sections) {
+          const data = JSON.parse(JSON.stringify(sectionRegistry.getType(section.type)!.defaults));
+          await repo.sectionContent.create({ siteId: site.id, pageId: page.id, sectionId: section.id, type: section.type, data, draftData: data });
+        }
+        await enqueueInvalidate(repo, [`tenant:${target.id}`], [`${target.slug}.${platformDomain}`]);
+        console.log(page.id);
       });
     } else if (action === "lead-inbox-plan") {
       const planId = process.argv[3];

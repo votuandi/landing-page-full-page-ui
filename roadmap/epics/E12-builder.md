@@ -72,5 +72,5 @@ tuân theo token theme (không thể phá vỡ thiết kế); bundle builder kh�
 - **Chi tiết**: bật A/B cho một landing (feature `abTest`, kiểm cả server lẫn API); nhập phiên bản B cho tiêu đề hero và nhãn CTA;
   trang vẫn cache (ISR) nên gán phiên bản ở client, ổn định theo khách truy cập, không đọc cookie ở server; lead ghi phiên bản đã thấy;
   admin xem số lượt xem và lead theo phiên bản, chọn phiên bản thắng. Tắt JS → luôn phiên bản A.
-- **AC**: [ ] Khách được gán A/B ổn định, lead ghi phiên bản · [ ] Admin thấy lead theo phiên bản · [ ] Gói không có `abTest` bị chặn ở server.
+- **AC**: [x] Khách được gán A/B ổn định, lead ghi phiên bản (e2e `admin.spec.ts` › "landing a/b: bật B, khách được gán ổn định…", `abScript.test.ts`, `leadIntake.int.test.ts`) · [x] Admin thấy lead theo phiên bản (cùng e2e: bảng "Kết quả thử nghiệm" + nhãn "Phiên bản B" ở hộp thư lead; `abTests.int.test.ts` › thống kê) · [x] Gói không có `abTest` bị chặn ở server (e2e "landing a/b: gói không có abTest bị chặn ở server", `abTests.int.test.ts` › "gói pro và kill switch", `abRoute.test.ts`, `abTestAction.test.ts`).
 - Phụ thuộc: S07 · Agent: Codex · Cỡ: M

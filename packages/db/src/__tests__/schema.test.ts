@@ -63,7 +63,7 @@ test("guard classifies every schema relation by its target model", () => {
 });
 
 test("schema includes every platform, content and delivery model", () => {
-  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken PreviewToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration SendingDomain AuditLog".split(" ");
+  const expected = "Plan Tenant Customer PlatformAdmin PlatformSession GhostGrant PlatformSetting SiteUser SiteSession SiteToken PreviewToken Domain Site Page PageVersion SectionContent Product ProductCategory Project Story Post Faq Testimonial Branch Certificate Brand PressItem Service Media Lead Outbox LeadIntegration SendingDomain AbTestView AuditLog".split(" ");
   assert.deepEqual(models.map(([, name]) => name).sort(), expected.sort());
 });
 
@@ -72,7 +72,7 @@ test("tenant tables have a tenant FK, composite identity and tenant-leading inde
     if (platform.has(name)) continue;
     assert.match(body, /tenantId\s+String\??\s+@db\.Uuid/, name);
     assert.match(body, /Tenant\??\s+@relation\(fields: \[tenantId\], references: \[id\], onDelete: Cascade\)/, name);
-    assert.match(body, /@@unique\(\[tenantId, id\]\)/, name);
+    assert.match(body, name === "AbTestView" ? /@@id\(\[tenantId, testId, variant\]\)/ : /@@unique\(\[tenantId, id\]\)/, name);
     assert.match(body, /@@index\(\[tenantId(?:,|\])/, name);
     assert.equal(/tenantId\s+String\?/.test(body), optionalTenant.has(name), name);
   }
@@ -88,6 +88,16 @@ test("SendingDomain: unique tenant/hostname, default pending, forced RLS and gra
     'GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."SendingDomain" TO app_runtime, app_platform']) assert.ok(migration.includes(sql), sql);
 });
 
+test("AbTestView: composite page FK, forced RLS, grants; nullable page/lead A/B columns", () => {
+  const body = models.find(([, name]) => name === "AbTestView")![2];
+  assert.match(body, /@@id\(\[tenantId, testId, variant\]\)/);
+  assert.match(models.find(([, name]) => name === "Page")![2], /abTest\s+Json\?/);
+  assert.match(models.find(([, name]) => name === "Lead")![2], /abTestId\s+String\?\s+@db.Uuid/);
+  for (const sql of ['ALTER TABLE public."AbTestView" ENABLE ROW LEVEL SECURITY', 'ALTER TABLE public."AbTestView" FORCE ROW LEVEL SECURITY',
+    'CREATE POLICY tenant_isolation ON public."AbTestView" TO app_runtime', 'CREATE POLICY platform_access ON public."AbTestView" TO app_platform',
+    'GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."AbTestView" TO app_runtime, app_platform']) assert.ok(migration.includes(sql), sql);
+});
+
 test("every content FK uses the tenant composite key without cascading tenant changes", () => {
   let checked = 0;
   for (const [, name, body] of models) {
@@ -99,12 +109,12 @@ test("every content FK uses the tenant composite key without cascading tenant ch
       checked++;
     }
   }
-  assert.equal(checked, 19, "must inspect all composite relations in this schema");
+  assert.equal(checked, 20, "must inspect all composite relations in this schema");
 });
 
 test("SQL migrations enforce the same tenant identities and composite foreign keys", () => {
   for (const name of tenantModels) {
-    assert.ok(migration.includes(`CREATE UNIQUE INDEX "${name}_tenantId_id_key" ON "${name}"("tenantId", "id")`), name);
+    assert.ok(migration.includes(name === "AbTestView" ? 'PRIMARY KEY ("tenantId", "testId", "variant")' : `CREATE UNIQUE INDEX "${name}_tenantId_id_key" ON "${name}"("tenantId", "id")`), name);
   }
   let checked = 0;
   for (const [, source, target, relation] of migration.matchAll(/ALTER TABLE "(\w+)" ADD CONSTRAINT "\w+" FOREIGN KEY \(([^)]+)\) REFERENCES "(\w+)"/g)) {
@@ -113,7 +123,7 @@ test("SQL migrations enforce the same tenant identities and composite foreign ke
     assert.match(target, /^"tenantId", "\w+"$/, `${source} -> ${relation}`);
     checked++;
   }
-  assert.equal(checked, 19);
+  assert.equal(checked, 20);
 });
 
 test("account migration keeps DB checks in sync with core slug rules (D17, D21)", () => {

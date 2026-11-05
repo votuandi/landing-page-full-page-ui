@@ -81,6 +81,7 @@ export function leadWeeklySources(db: Db | PlatformDb, tenantId: string, now = n
 
 export type LeadInput = {
   source: string; phone: string; name?: string; segment?: string; email?: string; message?: string;
+  abTestId?: string; abVariant?: "A" | "B";
   /** Remaining payload fields (zalo, address, estimate, items, page…). */
   data: Prisma.InputJsonObject;
 };

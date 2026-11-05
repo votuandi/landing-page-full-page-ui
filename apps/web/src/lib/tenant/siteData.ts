@@ -1,7 +1,7 @@
 import { cached, cacheKey, tenantTag, siteTag, pageTag, type ContentCache } from "@solar/cache";
 import { cache } from "react";
 import { pageTypeOfRoute, parsePageSettings } from "@solar/presets";
-import { forTenant, withTenantTransaction, loadDisabledFeatures, type TenantRepo } from "@solar/db";
+import { forTenant, withTenantTransaction, loadDisabledFeatures, parseAbTest, type TenantRepo } from "@solar/db";
 import { getTheme, themes } from "@solar/themes";
 import { ThemeOverridesSchema, validateBrandOverrides } from "@solar/tokens";
 import { canUse, disabledFeaturesSchema, themeAllowed, type EntitlementSubject } from "@solar/plans";
@@ -72,7 +72,7 @@ export function createSiteData(repository: (tenantId: string) => TenantRepo, loa
       sections.push({ ...section, data });
     }
     const config = parseContent(pageConfigSchema, { sections }, context);
-    return config ? { id: row.id, kind: row.kind, title: text(row.title, locale), settings: parsePageSettings(row.settings), config } : null;
+    return config ? { id: row.id, kind: row.kind, title: text(row.title, locale), settings: parsePageSettings(row.settings), abTest: parseAbTest(row.abTest), config } : null;
   }
   async function listPublishedPages(tenantId: string, siteId: string) {
     if (!uuid.test(tenantId) || !uuid.test(siteId)) return [];

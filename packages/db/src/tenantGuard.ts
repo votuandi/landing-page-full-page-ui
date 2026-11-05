@@ -15,7 +15,7 @@ export const globalRelations: Record<string, Record<string, string>> = {
   Testimonial: { tenant: "Tenant" }, Branch: { tenant: "Tenant" }, Certificate: { tenant: "Tenant" },
   Brand: { tenant: "Tenant" }, PressItem: { tenant: "Tenant" }, Service: { tenant: "Tenant" },
   Media: { tenant: "Tenant" }, Lead: { tenant: "Tenant" }, Outbox: { tenant: "Tenant" },
-  LeadIntegration: { tenant: "Tenant" }, SendingDomain: { tenant: "Tenant" }, AuditLog: { tenant: "Tenant" },
+  LeadIntegration: { tenant: "Tenant" }, SendingDomain: { tenant: "Tenant" }, AbTestView: { tenant: "Tenant" }, AuditLog: { tenant: "Tenant" },
 };
 
 export const tenantRelations: Record<string, Record<string, string>> = {
@@ -25,14 +25,15 @@ export const tenantRelations: Record<string, Record<string, string>> = {
     sectionContents: "SectionContent", products: "Product", productCategories: "ProductCategory", projects: "Project",
     storys: "Story", posts: "Post", faqs: "Faq", testimonials: "Testimonial", branchs: "Branch", certificates: "Certificate",
     brands: "Brand", pressItems: "PressItem", services: "Service", media: "Media", leads: "Lead", outbox: "Outbox",
-    leadIntegrations: "LeadIntegration", sendingDomain: "SendingDomain", auditLogs: "AuditLog",
+    leadIntegrations: "LeadIntegration", sendingDomain: "SendingDomain", abTestViews: "AbTestView", auditLogs: "AuditLog",
   },
   // Platform rows have no tenant, so nested tenant connects from them are always rejected.
   PlatformAdmin: { pageVersions: "PageVersion" }, GhostGrant: { sessions: "SiteSession" },
   SiteUser: { sessions: "SiteSession", tokens: "SiteToken", pageVersions: "PageVersion", assignedLeads: "Lead" },
   SiteSession: { siteUser: "SiteUser" }, SiteToken: { siteUser: "SiteUser" },
   PreviewToken: { site: "Site" }, Domain: { site: "Site" }, Site: { domains: "Domain", previewTokens: "PreviewToken", pages: "Page", sectionContents: "SectionContent", leads: "Lead" },
-  Page: { site: "Site", versions: "PageVersion", sectionContents: "SectionContent" },
+  Page: { site: "Site", versions: "PageVersion", sectionContents: "SectionContent", abTestViews: "AbTestView" },
+  AbTestView: { page: "Page" },
   PageVersion: { page: "Page", publishedBySiteUser: "SiteUser" },
   SectionContent: { site: "Site", page: "Page" }, Product: { category: "ProductCategory", brand: "Brand" },
   ProductCategory: { parent: "ProductCategory", children: "ProductCategory", products: "Product" },

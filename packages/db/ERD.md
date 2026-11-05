@@ -181,6 +181,7 @@ erDiagram
     PageKind kind
     Json title
     Json settings
+    Json abTest
     Json sections
     Json draftSections
     Int revision
@@ -412,8 +413,17 @@ erDiagram
     String note
     String assigneeId
     String branchId
+    String abTestId
+    String abVariant
     DateTime createdAt
     DateTime updatedAt
+  }
+  AbTestView {
+    String tenantId
+    String pageId
+    String testId
+    String variant
+    Int views
   }
   Outbox {
     String id PK
@@ -511,6 +521,8 @@ erDiagram
   Branch |o--o{ Lead : "tenantId, branchId"
   Site |o--o{ Lead : "tenantId, siteId"
   Tenant ||--o{ Lead : "tenantId"
+  Tenant ||--o{ AbTestView : "tenantId"
+  Page ||--o{ AbTestView : "tenantId, pageId"
   Tenant |o--o{ Outbox : "tenantId"
   Tenant ||--o{ SendingDomain : "tenantId"
   Tenant ||--o{ LeadIntegration : "tenantId"

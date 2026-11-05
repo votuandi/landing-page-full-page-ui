@@ -20,6 +20,37 @@ const post = (body: string, ip = "203.0.113.1", headers: Record<string, string> 
   new Request("http://a.localhost/api/lead", { method: "POST", headers: { ...headers, "x-forwarded-for": `${ip}, 10.0.0.1` }, body });
 const lead = (source: string, extra: object = {}) => JSON.stringify({ name: "A", phone: "0901234500", source, consent: true, elapsedMs: MIN_FILL_MS, ...extra });
 
+test("E12-S08: ghi phiên bản A/B chỉ từ cookie test đang chạy; cookie rác/cũ, trang khác, pro, lookup lỗi vẫn nhận lead", async t => {
+  t.mock.method(console, "error", () => {});
+  const testId = "e8000000-0000-4000-8000-000000000003";
+  for (const row of [
+    { cookie: `ab_${testId}=A`, page: "/uu-dai", expected: "A" },
+    { cookie: `ab_${testId}=B`, page: "/uu-dai/?q=1#form", expected: "B" },
+    { cookie: `ab_${testId}=C`, page: "/uu-dai" },
+    { cookie: "ab_old=B", page: "/uu-dai" },
+    { cookie: "", page: "/uu-dai" },
+    { cookie: `ab_${testId}=B`, page: "/khac" },
+    { cookie: `ab_${testId}=B`, page: "/uu-dai", ended: true },
+    { cookie: `ab_${testId}=B`, page: "/uu-dai", plan: "pro" },
+    { cookie: `ab_${testId}=B`, page: "/uu-dai", disabled: ["abTest"] },
+    { cookie: `ab_${testId}=B`, page: "/uu-dai", reject: true },
+  ]) {
+    let saved: LeadInput | undefined, lookups = 0;
+    const handler = createTenantLeadHandler({
+      loadSite: async () => ({ entitlements: entitlements({ planId: row.plan ?? "premium", disabled: row.disabled ?? [] }) }),
+      saveLead: async (_t, _s, input) => { saved = input; return { id: "lead" }; },
+      limiter: createRateLimiter(), verifyTurnstile: async () => true,
+      abTest: async (t, s, slug) => { lookups++; assert.deepEqual([t, s], [tenantId, siteId]); if (row.reject) throw Error("db"); return slug === "uu-dai" && !row.ended ? { id: testId } : null; },
+    });
+    const req = post(lead("contact", { page: row.page, abTestId: testId, abVariant: "B" }));
+    req.headers.set("cookie", row.cookie);
+    assert.equal((await handler(req)).status, 200, JSON.stringify(row));
+    assert.equal(saved?.abVariant, row.expected, JSON.stringify(row));
+    assert.equal(saved?.abTestId, row.expected ? testId : undefined);
+    if (row.plan || row.disabled) assert.equal(lookups, 0);
+  }
+});
+
 function setup(patch: Partial<SiteEntitlements> = {}, opts: { save?: () => Promise<{ id: string }>; turnstile?: boolean } = {}) {
   const saved: { tenantId: string; siteId: string; lead: LeadInput }[] = [];
   const handler = createTenantLeadHandler({

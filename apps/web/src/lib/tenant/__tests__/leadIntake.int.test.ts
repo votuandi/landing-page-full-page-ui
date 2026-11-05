@@ -1,11 +1,46 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
-import { createLead, createPlatformDb, forPlatform } from "@solar/db";
+import { createLead, createPlatformDb, forPlatform, runningAbTest, saveAbTest, parseAbTest } from "@solar/db";
 import { getWebDb } from "../db";
 import { createTenantLeadHandler, MIN_FILL_MS } from "../leadIntake";
 import { createRateLimiter } from "../rateLimit";
 import { createSiteData, tenantRepository } from "../siteData";
+
+test("Postgres E12-S08: ghi phiên bản A/B; cookie thiếu/rác/cũ, page khác, ended và gói pro vẫn nhận lead không attribution", {
+  skip: !process.env.DATABASE_URL || !process.env.PLATFORM_DATABASE_URL,
+}, async () => {
+  const db = getWebDb(), ops = createPlatformDb({ pool: 1 }), tenantId = randomUUID();
+  try {
+    await ops.tenant.create({ data: { id: tenantId, slug: tenantId, name: "[DỮ LIỆU MẪU]", planId: "premium", status: "active" } });
+    const repo = tenantRepository(tenantId), site = await repo.site.create({ name: "[DỮ LIỆU MẪU]", themeId: "t15" });
+    await repo.domain.create({ siteId: site.id, hostname: `${tenantId}.localhost`, isPrimary: true, status: "active", verificationToken: "test" });
+    const page = await repo.page.create({ siteId: site.id, slug: "uu-dai", kind: "landing", publishedAt: new Date(), sections: [{ id: "hero", type: "hero", variant: "t15", enabled: true }] });
+    await saveAbTest(db, tenantId, { pageId: page.id, action: "start", title: { lead: { vi: "B" }, highlight: { vi: "" }, sub: { vi: "" }, subHighlight: { vi: "" } }, ctaLabel: { vi: "B" } });
+    const ab = parseAbTest((await repo.page.get(page.id))!.abTest)!;
+    for (const row of [
+      { cookie: `ab_${ab.id}=A`, page: "/uu-dai", expected: "A" },
+      { cookie: `ab_${ab.id}=B`, page: "/uu-dai/?x=1#form", expected: "B" },
+      { cookie: `ab_${ab.id}=C`, page: "/uu-dai" }, { cookie: "", page: "/uu-dai" },
+      { cookie: `ab_${randomUUID()}=B`, page: "/uu-dai" }, { cookie: `ab_${ab.id}=B`, page: "/khac" },
+      { cookie: `ab_${ab.id}=B`, page: "/uu-dai", ended: true },
+      { cookie: `ab_${ab.id}=B`, page: "/uu-dai", pro: true },
+    ]) {
+      if (row.ended) await saveAbTest(db, tenantId, { pageId: page.id, action: "end", winner: "B" });
+      if (row.pro) await ops.tenant.update({ where: { id: tenantId }, data: { planId: "pro" } });
+      const handler = createTenantLeadHandler({ loadSite: createSiteData(tenantRepository).loadTenantSite,
+        saveLead: (t, s, lead, options) => createLead(db, t, s, lead, options),
+        abTest: (t, s, slug) => runningAbTest(db, t, s, slug), limiter: createRateLimiter(), verifyTurnstile: async () => true });
+      const response = await handler(new Request("http://test.localhost/api/lead", { method: "POST",
+        headers: { "x-tenant-id": tenantId, "x-site-id": site.id, cookie: row.cookie },
+        body: JSON.stringify({ name: "[DỮ LIỆU MẪU]", phone: "0901234567", consent: true, source: "contact", elapsedMs: MIN_FILL_MS, page: row.page, abVariant: "B" }) }));
+      assert.equal(response.status, 200, JSON.stringify(row));
+      const saved = (await repo.lead.get((await response.json()).id))!;
+      assert.equal(saved.abVariant, row.expected ?? null, JSON.stringify(row));
+      assert.equal(saved.abTestId, row.expected ? ab.id : null);
+    }
+  } finally { await ops.tenant.deleteMany({ where: { id: tenantId } }); await ops.$disconnect(); }
+});
 
 test("Postgres: a lead posted on tenant A's host is stored only in A, with its outbox, before the 200 (E11-S01)", {
   skip: !(process.env.DATABASE_URL && process.env.PLATFORM_DATABASE_URL) && "DATABASE_URL missing: requires seeded PostgreSQL 16",

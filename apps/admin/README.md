@@ -195,12 +195,16 @@ Form website yêu cầu checkbox đồng ý và lưu `data.consentAt` do server 
 
 ## Landing page (E12-S07)
 
+E12-S08: panel “Thử nghiệm A/B” trên landing cần `pages.structure`; gói thiếu `abTest` hiện nâng cấp.
+Nhập bốn phần tiêu đề và nhãn CTA B (VI/EN), lưu hoặc chọn A/B thắng. Thống kê lượt xem, lead không spam và tỉ lệ
+theo phiên bản; bắt đầu lại sau kết thúc tạo bộ số liệu mới. Hộp thư lead ghi “Phiên bản A/B” khi có attribution.
+
 `/trang` hiển thị số home + landing đã dùng so với giới hạn gói; `/trang/moi` tạo trang trắng, từ một trong ba mẫu
 hoặc nhân bản bố cục/nội dung nháp của trang có sẵn. Tạo trang và cài đặt cần `pages.structure` + `landingPages`;
 xuất bản vẫn cần `pages.publish`. Form gửi được khi tắt JavaScript; gợi ý đường dẫn theo tên chỉ chạy khi chưa sửa đường dẫn.
 Trang landing trong `/trang/[id]` có cài đặt SEO VI/EN (EN khi site bật EN), noindex, ẩn header/footer;
 cài đặt áp dụng ngay, độc lập với revision và lịch sử bố cục. Noindex loại landing khỏi sitemap.
-Chưa có xóa/đổi đường dẫn hoặc A/B (E12-S08).
+Chưa có xóa/đổi đường dẫn.
 
 ## CSV sản phẩm
 

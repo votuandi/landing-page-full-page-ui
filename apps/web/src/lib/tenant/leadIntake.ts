@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { assertCan, can } from "@solar/plans";
-import { createLead, type LeadInput } from "@solar/db";
+import { createLead, runningAbTest, type LeadInput } from "@solar/db";
 import { parseLead, str } from "@/lib/leads/parse";
 import type { Lead, ChannelKind } from "@solar/leads";
 import { entitlementResponse, leadFeatures } from "./entitlements";
@@ -17,6 +17,7 @@ type Deps = {
   saveLead: (tenantId: string, siteId: string, lead: LeadInput, options: { kinds: ChannelKind[] }) => Promise<{ id: string }>;
   limiter: RateLimiter;
   verifyTurnstile?: (token: string, ip: string) => Promise<boolean>;
+  abTest?: (tenantId: string, siteId: string, slug: string) => Promise<{ id: string } | null>;
 };
 const json = (body: object, status = 200, headers?: HeadersInit) => NextResponse.json(body, { status, headers });
 // Bots get a normal success so they do not adapt; nothing is stored.
@@ -49,7 +50,7 @@ export async function verifyTurnstile(token: string, ip: string, secret = proces
  * Tenant `POST /api/lead` (E11-S01). Tenant and site come from the proxy headers (resolved from the host), never the body.
  * The lead and its delivery jobs are committed before the 200, so a crash right after responding loses nothing (D14).
  */
-export function createTenantLeadHandler({ loadSite, saveLead, limiter, verifyTurnstile: verify = verifyTurnstile }: Deps) {
+export function createTenantLeadHandler({ loadSite, saveLead, limiter, abTest, verifyTurnstile: verify = verifyTurnstile }: Deps) {
   return async (request: Request) => {
     let body: unknown;
     try { body = await request.json(); } catch { body = null; }
@@ -82,7 +83,18 @@ export function createTenantLeadHandler({ loadSite, saveLead, limiter, verifyTur
     try {
       const kinds: ChannelKind[] = ["email", "telegram"];
       if (can(site.entitlements, "leadWebhook", { disabled: site.entitlements.disabled })) kinds.push("webhook", "google_sheets");
-      const { id } = await saveLead(tenantId, siteId, toLeadInput(parsed.lead), { kinds });
+      const input = toLeadInput(parsed.lead);
+      if (abTest && parsed.lead.page && can(site.entitlements, "abTest", { disabled: site.entitlements.disabled })) {
+        // Attribution is optional: a broken test lookup must never discard a valid lead.
+        try {
+          const slug = parsed.lead.page.split(/[?#]/)[0].replace(/^\/+|\/+$/g, "");
+          const test = await abTest(tenantId, siteId, slug);
+          const cookie = test && request.headers.get("cookie")?.split(";").map(value => value.trim()).find(value => value.startsWith(`ab_${test.id}=`));
+          const variant = cookie?.slice(cookie.indexOf("=") + 1);
+          if (test && (variant === "A" || variant === "B")) { input.abTestId = test.id; input.abVariant = variant; }
+        } catch { console.error("[abTest] Không gắn được phiên bản cho lead", { tenantId, siteId }); }
+      }
+      const { id } = await saveLead(tenantId, siteId, input, { kinds });
       return json({ ok: true, id });
     } catch (error) { return unavailable(error, tenantId, siteId); }
   };
@@ -93,6 +105,7 @@ let handler: ReturnType<typeof createTenantLeadHandler> | undefined;
 export const tenantLeadHandler = (request: Request) => (handler ??= createTenantLeadHandler({
   loadSite: loadTenantSite,
   saveLead: (tenantId, siteId, lead, options) => createLead(getWebDb(), tenantId, siteId, lead, options),
+  abTest: (tenantId, siteId, slug) => runningAbTest(getWebDb(), tenantId, siteId, slug),
   // Resolved per call: building the handler must not open Redis (requests rejected earlier never need it).
   limiter: (key, limit, windowMs) => getRateLimiter()(key, limit, windowMs),
 }))(request);

@@ -20,9 +20,10 @@ function scopes(loadPage: () => Promise<unknown>, loadSite = async () => site) {
   const mocks: Record<string, unknown> = {
     "next/cache": { cacheLife() {}, cacheTag() {} },
     "@solar/sections": { PageRenderer: "renderer", SiteWidgets: "widgets", createCollectionLoader: () => null },
+    "./AbTestContent": { AbTestContent: "renderer" },
     "@/components/TenantSiteShell": { default: "shell" },
     "@/lib/tenant/siteData": { loadTenantSite: loadSite, loadPublishedPage: loadPage, loadDraftPage: loadPage,
-      siteCanUse: (value: typeof site) => (feature: string) => !value.entitlements.disabled.includes(feature) },
+      siteCanUse: (value: typeof site) => (feature: string) => !value.entitlements.disabled.includes(feature) && !(feature === "abTest" && value.entitlements.planId === "pro") },
     "@/lib/tenant/collections": { tenantCollections: () => ({ source: {} }) },
     "@/lib/tenant/seo": { matchRedirect: () => null },
     "@/lib/tenant/contentSchemas": { text: (value: { vi?: string; en?: string } | undefined, locale: "vi" | "en") => value?.[locale] || value?.vi || "" },
@@ -36,6 +37,21 @@ function scopes(loadPage: () => Promise<unknown>, loadSite = async () => site) {
 }
 const page = { title: "snapshot A", kind: "home", config: { sections: [{ type: "hero" }] } };
 const bodyCanUse = (result: any) => result.content.props.children.props.canUse("calculator");
+
+test("A/B cached render: chỉ landing công khai có gói mới truyền abTest; pro/preview/home dùng A", async () => {
+  const abTest = { id: "e8000000-0000-4000-8000-000000000003", status: "running" };
+  for (const row of [
+    { kind: "landing", preview: false, planId: "premium", expected: abTest },
+    { kind: "landing", preview: false, planId: "pro", expected: null },
+    { kind: "landing", preview: true, planId: "premium", expected: null },
+    { kind: "home", preview: false, planId: "premium", expected: null },
+  ]) {
+    const snapshot = { ...site, entitlements: { ...site.entitlements, planId: row.planId } };
+    const render = scopes(async () => ({ ...page, kind: row.kind, abTest }), async () => snapshot);
+    const result = await render.tenantPage(tenantRenderKey(snapshot, row.preview), "uu-dai");
+    assert.deepEqual(result.content.props.children.props.abTest, row.expected);
+  }
+});
 
 test("landing: SEO follows locale; ẩn header/footer style renders without JavaScript", async () => {
   const { renderToStaticMarkup } = await import("react-dom/server");

@@ -2,7 +2,7 @@
 export const tenantModels = [
   "SiteUser", "SiteSession", "SiteToken", "PreviewToken", "Domain", "Site", "Page", "PageVersion", "SectionContent", "Product", "ProductCategory",
   "Project", "Story", "Post", "Faq", "Testimonial", "Branch", "Certificate", "Brand", "PressItem",
-  "Service", "Media", "Lead", "LeadIntegration", "SendingDomain",
+  "Service", "Media", "Lead", "LeadIntegration", "SendingDomain", "AbTestView",
 ] as const;
 export const optionalTenantModels = ["Outbox", "AuditLog"] as const;
 
