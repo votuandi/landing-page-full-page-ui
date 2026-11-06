@@ -25,6 +25,9 @@ jobs:
       admin_e2e: ${{ steps.map.outputs.admin_e2e }}
       admin_grep: ${{ steps.map.outputs.admin_grep }}
       admin_files: ${{ steps.map.outputs.admin_files }}
+      journey_e2e: ${{ steps.map.outputs.journey_e2e }}
+      journey_grep: ${{ steps.map.outputs.journey_grep }}
+      journey_files: ${{ steps.map.outputs.journey_files }}
       tenant_e2e: ${{ steps.map.outputs.tenant_e2e }}
       tenant_grep: ${{ steps.map.outputs.tenant_grep }}
       tenant_files: ${{ steps.map.outputs.tenant_files }}
@@ -279,6 +282,62 @@ jobs:
         with:
           name: admin-browser-evidence
           path: tooling/visual/test-results/admin
+  journey:
+    needs: changes
+    if: needs.changes.outputs.journey_e2e == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: solar_e5
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d solar_e5"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      REDIS_URL: redis://localhost:6379
+      RLS_REQUIRED: "1"
+      E2E_PLATFORM_DOMAIN: solar.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/db-setup
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm --filter @solar/visual exec playwright install --with-deps chromium
+      - name: Journey smoke
+        env:
+          NODE_OPTIONS: --max-old-space-size=12288
+        run: pnpm --filter @solar/visual exec playwright test --config playwright.journey.config.ts --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: journey-browser-evidence
+          path: tooling/visual/test-results/journey
   verify:
     # Push lên base: `changes` bị bỏ qua nhưng verify vẫn chạy (!cancelled); PR chỉ thêm *.md sau lần xanh → bỏ.
     needs: changes
