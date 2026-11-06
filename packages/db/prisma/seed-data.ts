@@ -16,14 +16,19 @@ const row = <T>(slug: string, title: string, data: T, order: number) => ({
   slug, title: { vi: title }, data, order, status: "published" as const,
 });
 
-// Both demo themes are in the Signature group, which only Premium allows (E6-S04); a lower plan would render the fallback theme.
+// Demo themes include Signature themes, which only Premium allows (E6-S04); a lower plan would render the fallback theme.
 // t12 keeps one feature off through a tenant override (D19) so e2e still covers a tenant without quoteCart.
 const demoPlans = {
   t15: { planId: "premium", addons: [], featureOverrides: {} },
   t12: { planId: "premium", addons: [], featureOverrides: { quoteCart: { on: false, reason: "[DỮ LIỆU MẪU] Demo không có giỏ báo giá" } } },
+  t08: { planId: "premium", addons: [], featureOverrides: {} },
+  t13: { planId: "premium", addons: [], featureOverrides: {} },
 } as const;
 
-export function buildDemo(id: "t15" | "t12") {
+export type DemoId = keyof typeof demoPlans;
+export const DEMO_IDS = Object.keys(demoPlans) as DemoId[];
+
+export function buildDemo(id: DemoId) {
   const { preset, page, widgets } = loadPreset(id);
   const { planId, addons, featureOverrides } = demoPlans[id];
   const can = (feature: string) => (featureOverrides as Record<string, { on: boolean }>)[feature]?.on

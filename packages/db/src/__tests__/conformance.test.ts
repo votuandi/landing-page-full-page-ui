@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { loadPreset, presets, siteStructureOf, validateSiteStructure, parsePageSettings, landingSlugIssue, isLandingSlug } from "@solar/presets";
 import { plans, themeAllowed } from "@solar/plans";
-import { buildDemo } from "../../prisma/seed-data.ts";
+import { buildDemo, DEMO_IDS } from "../../prisma/seed-data.ts";
 import { randomUUID } from "node:crypto";
 import { collectionInputSchema } from "../collections.ts";
 import { exportProductsCsv, previewProductCsv } from "../productCsv.ts";
@@ -20,8 +20,20 @@ import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from ".
 import { COLLECTIONS, collectionDefs } from "../collections.ts";
 import { parseAbTest } from "../abTests.ts";
 
+test("E14-S02: journey dựng đủ t08/t12/t13/t15, giữ nhãn mẫu và override giỏ riêng t12", () => {
+  assert.deepEqual([...DEMO_IDS].sort(), ["t08", "t12", "t13", "t15"]);
+  for (const id of ["t08", "t12", "t13", "t15"] as const) {
+    const demo = buildDemo(id);
+    assert.equal(demo.id, id);
+    assert.match(demo.name, /\[DỮ LIỆU MẪU\]/);
+    assert.equal(demo.planId, "premium");
+    assert.deepEqual(demo.featureOverrides, id === "t12"
+      ? { quoteCart: { on: false, reason: "[DỮ LIỆU MẪU] Demo không có giỏ báo giá" } } : {});
+  }
+});
+
 test("E12-S08: abTest trang null đọc được cho dữ liệu seed/preset và backup cũ", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     for (const page of buildDemo(id).pages) assert.equal(parseAbTest((page as { abTest?: unknown }).abTest), null);
   }
   for (const page of parseTenantBackup(demoBackup()).pages) assert.equal(parseAbTest(page.abTest), null);
@@ -29,7 +41,7 @@ test("E12-S08: abTest trang null đọc được cho dữ liệu seed/preset và
 import { restoreSnapshotSchema } from "../publish.ts";
 
 test("E12-S07: settings trang null đọc được, slug landing hiện có hợp lệ", () => {
-  for (const id of ["t15", "t12"] as const) for (const page of buildDemo(id).pages) {
+  for (const id of DEMO_IDS) for (const page of buildDemo(id).pages) {
     assert.deepEqual(parsePageSettings(null), {}, `${id}/${page.slug}`);
     if (isLandingSlug(page.slug)) assert.equal(landingSlugIssue(page.slug), null, `${id}/${page.slug}`);
   }
@@ -37,7 +49,7 @@ test("E12-S07: settings trang null đọc được, slug landing hiện có hợ
 });
 
 test("snapshot seed demo khôi phục được", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     for (const page of buildDemo(id).pages) {
       assert.doesNotThrow(() => restoreSnapshotSchema.parse({ sections: page.pageSections, contents: page.sections }), `${id}/${page.slug}`);
     }
@@ -61,7 +73,7 @@ test("E12-S05: preset/seed không có layout: parse và validateSiteStructure kh
     const { page } = loadPreset(id);
     assert.ok(page.sections.every(s => s.layout === undefined), id);
   }
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const demo = buildDemo(id);
     const baseline = siteStructureOf(demo, demo.pages.map(p => ({ slug: p.slug, sections: p.pageSections })));
     assert.ok(baseline.pages.every(p => p.sections.every(s => s.layout === undefined)));
@@ -82,7 +94,7 @@ test("E8-S06: every preset retains all section media references in descriptors a
 });
 
 test("E8-S06: every seed backup retains all media referenced by content, drafts and history", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const bundle = parseTenantBackup(demoBackup(id));
     const expected = [
       ...collectRefs(siteProfileSchema, bundle.site.profile).media,
@@ -96,12 +108,12 @@ test("E8-S06: every seed backup retains all media referenced by content, drafts 
 });
 
 test("E8-S04: static seed story sources still parse alongside Media UUID file sources", () => {
-  for (const id of ["t15", "t12"] as const) for (const story of buildDemo(id).collections.stories) assert.doesNotThrow(() => storySource.parse(story.data.source));
+  for (const id of DEMO_IDS) for (const story of buildDemo(id).collections.stories) assert.doesNotThrow(() => storySource.parse(story.data.source));
   assert.deepEqual(storySource.parse({ provider: "file", idOrSrc: "20c7d32c-e48f-40de-a9ea-3db1b71735c6" }), { provider: "file", idOrSrc: "20c7d32c-e48f-40de-a9ea-3db1b71735c6" });
 });
 
 test("themeOverrides of seeds parse (E7-S15)", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const bundle = demoBackup(id);
     assert.doesNotThrow(() => ThemeOverridesSchema.parse(bundle.site.themeOverrides));
     assert.doesNotThrow(() => siteProfileSchema.parse(bundle.site.profile));
@@ -112,16 +124,16 @@ test("themeOverrides of seeds parse (E7-S15)", () => {
 });
 
 test("tenant backup bundle of every seed demo parses", () => {
-  for (const id of ["t15", "t12"] as const) assert.doesNotThrow(() => parseTenantBackup(demoBackup(id)), id);
+  for (const id of DEMO_IDS) assert.doesNotThrow(() => parseTenantBackup(demoBackup(id)), id);
 });
 
 test("E8-S02: bundled seeds/presets contain no private or quarantine storage keys", () => {
-  for (const id of ["t15", "t12"] as const) assert.doesNotMatch(JSON.stringify(buildDemo(id)), /(?:private|quarantine)\/[0-9a-f-]{36}\//);
+  for (const id of DEMO_IDS) assert.doesNotMatch(JSON.stringify(buildDemo(id)), /(?:private|quarantine)\/[0-9a-f-]{36}\//);
   for (const preset of presets) assert.doesNotMatch(JSON.stringify(preset), /(?:private|quarantine)\/[0-9a-f-]{36}\//);
 });
 
 test("product CSV round-trips every seeded product", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const demo = buildDemo(id);
     const wrap = (r: object) => ({ id: randomUUID(), publishedAt: new Date(), ...r }) as CollectionRow;
     const categories = demo.collections.categories.map(wrap), brands = demo.collections.brands.map(wrap);
@@ -145,7 +157,7 @@ test("product CSV round-trips every seeded product", () => {
 });
 
 test("seed demo: theme được gói cho phép, render không rơi về theme fallback (E6-S04)", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const demo = buildDemo(id);
     assert.ok(themeAllowed(demo.planId, loadPreset(id).theme.meta.group), `${id}: ${demo.themeId} on ${demo.planId}`);
   }
@@ -154,7 +166,7 @@ test("seed demo: theme được gói cho phép, render không rơi về theme fa
 // E7-S13: bộ lọc structure chung của checkStructure/setPageTypes. Fixture e2e tenant/admin dựng từ seedDemoTenant,
 // fixture tenant còn tắt `about` (giữ Page `ve-chung-toi`) — cả hai trạng thái phải còn lưu/xuất bản được.
 test("site structure filter keeps seeds valid (E7-S13)", () => {
-  for (const id of ["t15", "t12"] as const) {
+  for (const id of DEMO_IDS) {
     const demo = buildDemo(id);
     const can = (feature: string) => (demo.featureOverrides as Record<string, { on: boolean }>)[feature]?.on
       ?? ((plans[demo.planId].features as ReadonlySet<string>).has(feature) || (demo.addons as readonly string[]).includes(feature));

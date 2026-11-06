@@ -2,7 +2,7 @@ import { syncPlans } from "../src/plans.ts";
 import { randomBytes, randomUUID, scryptSync } from "node:crypto";
 import type { PlatformDb } from "../src/client.ts";
 import type { Prisma } from "../generated/client.ts";
-import { buildDemo } from "./seed-data.ts";
+import { buildDemo, type DemoId } from "./seed-data.ts";
 import { forPlatform } from "../src/repository.ts";
 
 // Strip undefined optional fields and serialize schema-parsed objects to Prisma JSON.
@@ -16,7 +16,7 @@ export function hashPassword(password: string) {
 }
 
 // Demo accounts (D17, D20, D21): same email/phone in both tenants and on the platform are separate accounts.
-const demoUsers = (id: "t15" | "t12", slug: string) => [
+const demoUsers = (id: DemoId, slug: string) => [
   { email: "owner@demo.vn", phone: "0901234567", username: `${slug.replace(/-/g, "")}_admin`, name: "[DỮ LIỆU MẪU] Chủ site", role: "owner" as const, source: "console" as const },
   { email: "khach@demo.vn", phone: null, username: null, name: "[DỮ LIỆU MẪU] Khách", role: id === "t15" ? "client" as const : "staff" as const,
     source: id === "t15" ? "signup" as const : "invite" as const },
@@ -33,7 +33,7 @@ export async function seedDemo(db: PlatformDb, { password = process.env.SEED_PAS
 }
 
 /** One demo tenant with one site and one primary host; browser fixtures reuse it for extra tenants. */
-export async function seedDemoTenant(db: PlatformDb, { id, slug, hostname, password }: { id: "t15" | "t12"; slug: string; hostname: string; password?: string }) {
+export async function seedDemoTenant(db: PlatformDb, { id, slug, hostname, password }: { id: DemoId; slug: string; hostname: string; password?: string }) {
   {
     const demo = buildDemo(id);
     const domain = await forPlatform(db).domains.findByHostname(hostname);

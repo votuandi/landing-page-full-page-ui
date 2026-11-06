@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { buildDemo } from "../../prisma/seed-data.ts";
+import { buildDemo, type DemoId } from "../../prisma/seed-data.ts";
 
-export function demoBackup(id: "t15" | "t12" = "t15") {
+export function demoBackup(id: DemoId = "t15") {
   const demo = buildDemo(id), tenantId = randomUUID(), siteId = randomUUID();
   const stamp = "2026-10-24T00:00:00.000Z";
   const row = <T extends object>(data: T) => ({ id: randomUUID(), createdAt: stamp, updatedAt: stamp, ...data });
