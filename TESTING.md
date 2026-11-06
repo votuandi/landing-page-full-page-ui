@@ -9,7 +9,7 @@ Chạy `node scripts/agents/doctor.mjs` trước test; lệnh dài qua
 
 | Lớp | Vị trí và mục đích | Lệnh |
 |---|---|---|
-| Unit | `packages/*/src/__tests__`, riêng core/plans có `__tests__` ở gốc; logic, token, entitlement, schema section | `pnpm --filter @solar/<package> test` |
+| Unit | `packages/*/src/__tests__`, riêng plans có `__tests__` ở gốc package; logic, token, entitlement, schema section | `pnpm --filter @solar/<package> test` |
 | Contract | `packages/storage/src/__tests__/contract.ts`: `runContract` dùng chung cho local và S3/MinIO; `packages/leads/src/__tests__/contract.test.ts`: email, Telegram, webhook, Google Sheets dùng chung bảng trạng thái và lỗi mạng | `pnpm --filter @solar/storage test`; `pnpm --filter @solar/leads test` |
 | Integration | `packages/db/src/__tests__`, `packages/auth/src/__tests__`, `packages/cache/src/__tests__`: repository với Postgres thật, RLS và Redis | `bash scripts/local-ci.sh up`, rồi `bash scripts/local-ci.sh db` |
 | E2E | `tooling/visual/*.spec.ts`: hành vi người dùng trên trình duyệt thật, môi trường tenant/preview/admin/production | `bash scripts/local-ci.sh e2e <tenant\|preview\|admin\|production\|sections>` |
