@@ -105,7 +105,7 @@ DEV_GREP='builder|content editor|xem trước'
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
-  local project=(); [ "$cfg" = admin ] && project=(--project=chromium)
+  local project=(); case "$cfg" in admin|journey) project=(--project=chromium) ;; esac
   # E11-S03: two `next dev --webpack` servers per admin run (3–7 GB each) ran Windows out of commit and crashed VS Code
   # 8 times; cold compiles also caused most local timeouts. Single tests (`-g`) therefore run on production builds: 2 lead
   # inbox tests took 1.5 min and 2.3 GB. Whole suites stay on `next dev` like CI: in production the app itself emits https
@@ -113,10 +113,12 @@ e2e() {
   # Admin tests that open the preview iframe go through previewUrl(), which emits https without port in production: the
   # iframe stays blank (E12-S02 lost a 12/13-red run). Add new specs of that kind to DEV_GREP.
   if [ "$cfg" = admin ] && printf '%s' "$*" | grep -qiE "$DEV_GREP"; then : "${E2E_SERVER:=dev}"; fi
+  # Journey uses two servers but no preview iframe: production keeps the full smoke within local memory limits.
+  if [ "$cfg" = journey ]; then : "${E2E_SERVER:=start}"; fi
   case " $* " in *" -g "*|*" --grep "*|*" --grep="*) : "${E2E_SERVER:=start}" ;; *) : "${E2E_SERVER:=dev}" ;; esac
   export E2E_SERVER
   if [ "$E2E_SERVER" = start ]; then
-    case "$cfg" in admin) build_if_stale admin; build_if_stale web ;; *) build_if_stale web ;; esac
+    case "$cfg" in admin|journey) build_if_stale admin; build_if_stale web ;; *) build_if_stale web ;; esac
   fi
   # A runaway server then dies alone instead of exhausting commit memory for the whole machine. next dev needs more: it
   # restarts itself near the heap limit, and that restart crashes on Windows (ENOTEMPTY in .next/dev/types).

@@ -90,6 +90,15 @@ export const CHECKS = {
       "packages/ui/", "packages/tokens/", "packages/themes/", `${web}components/preview/`, "tooling/visual/builder.spec.ts", "tooling/visual/admin.spec.ts", "tooling/visual/playwright.admin.config.ts"],
     specs: ["tooling/visual/admin.spec.ts", "tooling/visual/builder.spec.ts"],
   },
+  "e2e:journey": {
+    cmd: "bash scripts/local-ci.sh e2e journey",
+    smoke: true,
+    paths: [...shared, "packages/sections/", "packages/core/", "packages/leads/", "apps/web/",
+      "packages/db/prisma/seed-data.ts", "packages/db/prisma/seed-demo.ts", "apps/admin/scripts/journey-fixture.ts",
+      "apps/admin/src/app/(admin)/lead/", "tooling/visual/journey", "tooling/visual/playwright.journey.config.ts"],
+    except: [`${web}app/(site)/lab/`],
+    specs: ["tooling/visual/journey.spec.ts"],
+  },
   "e2e:sections": {
     cmd: "bash scripts/local-ci.sh e2e sections",
     paths: [...shared, "packages/cms-ui/", "packages/sections/", "packages/ui/", `${web}app/(site)/lab/`, "tooling/visual/cms-",
@@ -183,13 +192,14 @@ function changedTests(diff) {
 /**
  * Phạm vi e2e của story: mỗi bộ e2e bị ảnh hưởng chỉ chạy test mới/sửa (`grep`), cả file spec khi đổi ngoài thân test
  * (`files`), hoặc không chạy khi story không đổi spec của bộ đó (`none` — code mới phải có unit/int hoặc spec).
- * Story đến lượt regression (`full`) chạy mọi bộ e2e toàn bộ.
+ * Suite smoke bị ảnh hưởng luôn chạy toàn bộ. Story đến lượt regression (`full`) chạy mọi bộ e2e toàn bộ.
  */
 export function e2eScope(files, diff, { full = false } = {}) {
   const suites = Object.entries(CHECKS).filter(([name]) => name.startsWith("e2e:"));
   if (full) return suites.map(([name]) => ({ name, mode: "full" }));
   const affected = affectedChecks(files), tests = changedTests(diff);
   return suites.filter(([name]) => affected.includes(name)).map(([name, check]) => {
+    if (check.smoke) return { name, mode: "full" };
     const specs = check.specs.filter((spec) => tests[spec]);
     if (!specs.length) return { name, mode: "none" };
     // Chỉ đổi import (không test nào) cũng chạy cả file: không bao giờ grep rỗng (= chạy cả bộ).

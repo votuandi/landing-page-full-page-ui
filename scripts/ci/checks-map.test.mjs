@@ -1,6 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { existsSync } from "node:fs";
 import { affectedChecks, e2eScope, CHECKS, workspaceLinks } from "./checks-map.mjs";
+
+test("E14-S02: journey là smoke chạy cả file cho mọi thay đổi luồng chuyển đổi", () => {
+  assert.equal(CHECKS["e2e:journey"]?.cmd, "bash scripts/local-ci.sh e2e journey");
+  assert.deepEqual(CHECKS["e2e:journey"]?.specs, ["tooling/visual/journey.spec.ts"]);
+  for (const spec of CHECKS["e2e:journey"].specs) assert.ok(existsSync(new URL(`../../${spec}`, import.meta.url)), spec);
+  for (const file of ["packages/sections/src/calculator/t15.tsx", "packages/core/src/solarCalculator.ts",
+    "packages/leads/src/index.ts", "apps/web/src/lib/tenant/leadIntake.ts", "apps/web/next.config.ts",
+    "packages/db/prisma/seed-data.ts", "packages/db/prisma/seed-demo.ts", "apps/admin/scripts/journey-fixture.ts",
+    "apps/admin/src/app/(admin)/lead/page.tsx", "tooling/visual/journey.global-setup.ts",
+    "tooling/visual/playwright.journey.config.ts", "pnpm-lock.yaml"]) {
+    assert.ok(affectedChecks([file]).includes("e2e:journey"), file);
+    assert.deepEqual(e2eScope([file], "").find(s => s.name === "e2e:journey"), { name: "e2e:journey", mode: "full" }, file);
+  }
+});
+
+test("E14-S02: journey bỏ qua lab, tài liệu và unit test", () => {
+  for (const file of ["apps/web/src/app/(site)/lab/x.tsx", "packages/sections/README.md",
+    "apps/web/README.md", "packages/core/src/__tests__/solar.test.ts", "packages/leads/src/x.test.ts"]) {
+    assert.ok(!affectedChecks([file]).includes("e2e:journey"), file);
+    assert.ok(!e2eScope([file], "").some(s => s.name === "e2e:journey"), file);
+  }
+});
+
+test("E14-S02: sửa một test journey vẫn chạy full, regression luôn gồm journey", () => {
+  const spec = "tooling/visual/journey.spec.ts";
+  const diff = `diff --git a/${spec} b/${spec}\n@@ -10 +10 @@ test("t08: báo giá", async () => {\n-  await old();\n+  await updated();`;
+  const full = { name: "e2e:journey", mode: "full" };
+  assert.deepEqual(e2eScope([spec], diff).find(s => s.name === "e2e:journey"), full);
+  assert.deepEqual(e2eScope(["README.md"], "", { full: true }).find(s => s.name === "e2e:journey"), full);
+});
 
 test("E12-S07: page templates/settings do not change existing lab pixels", () => {
   for (const file of ["packages/presets/src/pageTemplates.ts", "packages/presets/src/pageSettings.ts", "packages/presets/src/index.ts"]) {

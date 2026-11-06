@@ -22,7 +22,10 @@
 ### E14-S02 · E2E luồng chuyển đổi chính
 - **Chi tiết**: kịch bản Playwright trên 3 preset (t08, t12, t15): mở trang chủ → chọn phân khúc → nhập hóa đơn → xem kết quả →
   gửi "Nhận báo giá" → lead xuất hiện trong CMS; giỏ báo giá (t13/t15); popup tư vấn.
-- **AC**: [ ] Chạy mỗi PR chạm `sections`, `core`, `leads`, `apps/web` · [ ] ≤ 6 phút.
+- **AC**: [x] Chạy mỗi PR chạm `sections`, `core`, `leads`, `apps/web` · [ ] ≤ 6 phút.
+  - E14-S02: `checks-map.test.mjs` (20/20 PASS) kiểm journey smoke luôn `full`, bỏ qua lab/tài liệu/unit test,
+    regression gồm journey; CLI xuất `journey_e2e=true`, grep/files rỗng. Job riêng `journey` trong `workspace.yml`
+    dùng output đó, chạy cả file và upload `test-results/journey`. Thời gian bước Playwright chờ CI run id.
 - Phụ thuộc: E11-S01 · Agent: Codex · Cỡ: M
 
 ### E14-S03 · Bộ test cô lập tenant
