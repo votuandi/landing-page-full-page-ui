@@ -6,6 +6,7 @@
     ".": "./index.ts"
   },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \".test-dist/*.js\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "tsc -p tsconfig.test.json && node -e \"require('node:fs').writeFileSync('.test-dist/package.json', JSON.stringify({type:'commonjs'}))\" && node --test .test-dist/__tests__/plans.test.js .test-dist/__tests__/table.test.js .test-dist/__tests__/entitlements.test.js",

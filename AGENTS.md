@@ -44,6 +44,7 @@ roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi l
 
 Trước E1 (repo một app, yarn): `yarn dev` · `yarn typecheck` · `yarn lint` · `yarn test` · `yarn build`.
 Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck lint test build`.
+Chiến lược và cổng độ phủ: [TESTING.md](TESTING.md); `pnpm --filter <pkg> test:coverage` (core ≥ 85%, package khác có test ≥ 70%).
 **Kiểm local trước CI**: mọi thứ chạy được ở local phải chạy trước khi push; CI chỉ để xác nhận, không dùng để tìm lỗi.
 `bash scripts/local-ci.sh up` dựng Postgres 16 + Redis giống job `db` của CI (role, migrate, seed). Sau đó dùng `… db`
 (test DB thật) và `… e2e <tenant|preview|admin|production|sections>` — bộ nào phải chạy lấy từ bảng

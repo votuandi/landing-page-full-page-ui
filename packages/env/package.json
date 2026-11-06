@@ -5,6 +5,7 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./secrets": "./src/secrets.ts" },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \"src/**\"",
     "test": "node --import tsx --test src/__tests__/env.test.ts src/__tests__/secrets.test.ts src/__tests__/senderDomain.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

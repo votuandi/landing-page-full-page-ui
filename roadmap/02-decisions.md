@@ -108,6 +108,7 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
 - `test` in coverage với `--experimental-test-coverage` (Node 20+). `test:coverage` dùng `--test-coverage-lines=85` và
   loại `.test-dist/__tests__/**` (test + fixture), bắt buộc ở CI Node 22 (cờ ngưỡng cần Node ≥ 22.8).
 - **Loại**: Vitest ở E1-S05 — chưa có nhu cầu mà node:test không đáp ứng, tránh thêm dependency theo D12.
+- E14-S01: mọi package trong `packages/*` có test thêm cổng ≥ 70% dòng nguồn được nạp; core giữ ≥ 85%. Xem [TESTING.md](../TESTING.md) về include, giới hạn đo và job Postgres.
 
 ## D12. Không đổi stack UI
 - Giữ quy ước các template: không thư viện UI/animation lớn. Cho phép thêm: `zod`, `sharp`, `@aws-sdk/client-s3`,
