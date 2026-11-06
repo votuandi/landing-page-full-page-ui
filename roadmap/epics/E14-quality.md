@@ -11,7 +11,9 @@
 - **Chi tiết**: unit (`packages/core`, `tokens`, `plans`, schema section — chọn vitest hoặc giữ `node:test` ở E1-S05);
   contract test (storage driver, lead adapter); integration (repository + Postgres thật qua Testcontainers/compose);
   e2e Playwright (luồng: xem trang → dự toán → gửi lead; CMS sửa → revalidate; thêm tên miền); visual (E1-S04, E3-S10).
-- **AC**: [ ] Tài liệu `TESTING.md` · [ ] Ngưỡng phủ: core ≥ 85%, packages khác ≥ 70%.
+- **AC**: [x] Tài liệu `TESTING.md` · [ ] Ngưỡng phủ: core ≥ 85%, packages khác ≥ 70%.
+  - E14-S01: `TESTING.md` + `scripts/ci/coverage.test.mjs` kiểm danh sách package; helper/checks-map 26/26 PASS.
+    Đã cấu hình cổng 13 package + core và job Postgres; chờ xác nhận coverage DB có dịch vụ (sandbox: 69,39%, 76 test skip).
 - Agent: Claude · Cỡ: S
 
 ### E14-S02 · E2E luồng chuyển đổi chính
