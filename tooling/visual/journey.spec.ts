@@ -85,8 +85,8 @@ for (const id of ["t08", "t12", "t15"]) {
     const form = calculator.locator("form");
     const leadId = await submitLead(form, name, form.getByRole("button", { name: /Nhận báo giá/ }));
     expect(errors).toEqual([]);
-    await expectLead(page, leadId, name, { "Nguồn": "Dự toán chi phí", "Phân khúc": /\S/, "Dự toán": /\d/ });
-    await expect(page.locator(`[data-lead-id="${leadId}"] dl > div:has(> dt:text-is("Phân khúc")) > dd`)).not.toHaveText("—");
+    // Segment and estimate travel with the calculator lead ("—" means missing).
+    await expectLead(page, leadId, name, { "Nguồn": "Dự toán chi phí", "Phân khúc": /[^—\s]/, "Dự toán": /\d/ });
 
     if (id !== "t08") return;
     // Tenant isolation: another tenant's inbox never shows this lead.
