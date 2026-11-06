@@ -164,7 +164,7 @@ jobs:
       # Second seed proves the seed is idempotent.
       - run: pnpm db:seed
       - if: needs.changes.outputs.db == 'true'
-        run: pnpm --filter @solar/db test
+        run: pnpm --filter @solar/db test:coverage
       - if: needs.changes.outputs.db == 'true'
         run: pnpm --filter web test:tenant
       - name: Resolve same-site preview and admin hosts in all browser engines
@@ -319,7 +319,7 @@ jobs:
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm plans:table --check
-      - run: node --test scripts/ci/affected.test.mjs scripts/ci/checks-map.test.mjs scripts/ci/visual-intended.test.mjs scripts/ci/reuse-run.test.mjs
+      - run: node --test scripts/ci/affected.test.mjs scripts/ci/checks-map.test.mjs scripts/ci/visual-intended.test.mjs scripts/ci/reuse-run.test.mjs scripts/ci/coverage.test.mjs
       - name: Typecheck and lint (populate cache)
         run: pnpm turbo run typecheck lint lint:root ${TURBO_FILTER:+"$TURBO_FILTER"}
       - name: Typecheck and lint (verify FULL TURBO)
@@ -333,5 +333,5 @@ jobs:
           }
       - run: pnpm lint:tokens ${TURBO_FILTER:+"$TURBO_FILTER"}
       - run: pnpm turbo run test build ${TURBO_FILTER:+"$TURBO_FILTER"}
-      - name: Core coverage (at least 85% of source lines)
-        run: pnpm --filter @solar/core test:coverage
+      - name: Package coverage (core at least 85%, others at least 70% of loaded source lines)
+        run: pnpm turbo run test:coverage ${TURBO_FILTER:+"$TURBO_FILTER"} --filter=!@solar/db

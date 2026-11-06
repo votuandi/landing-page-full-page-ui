@@ -4,6 +4,7 @@
   "private": true,
   "exports": { ".": "./src/index.ts" },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \"src/**\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node --test src/__tests__/theme.test.mjs src/__tests__/fonts.test.mjs"

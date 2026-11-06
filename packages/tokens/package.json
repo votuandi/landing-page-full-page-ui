@@ -7,6 +7,7 @@
     "./tailwind": "./src/tailwind-preset.ts"
   },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \".test-dist/**\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "tsc -p tsconfig.test.json && node --test .test-dist/__tests__/schema.test.js .test-dist/__tests__/css.test.js .test-dist/__tests__/tailwind-preset.test.js .test-dist/__tests__/color.test.js .test-dist/__tests__/contrast.test.js"

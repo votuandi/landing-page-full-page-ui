@@ -5,6 +5,7 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./collections": "./src/collections.ts", "./site-profile": "./src/siteProfile.ts" },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \"src/**\" -- node --import tsx --test --test-concurrency=2 \"src/__tests__/*.test.ts\"",
     "secrets:rotate": "tsx scripts/secrets-rotate.ts",
     "storage:migrate": "tsx scripts/storage-migrate.ts",
     "media:orphans": "tsx scripts/media-orphans.ts",

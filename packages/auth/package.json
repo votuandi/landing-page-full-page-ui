@@ -5,6 +5,7 @@
   "type": "module",
   "exports": { ".": "./src/index.ts", "./db": "./src/db.ts" },
   "scripts": {
+    "test:coverage": "node ../../scripts/ci/coverage.mjs 70 \"src/**\" -- node --import tsx --test --test-concurrency=2 \"src/__tests__/*.test.ts\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node scripts/test.mjs"
