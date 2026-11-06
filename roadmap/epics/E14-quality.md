@@ -19,13 +19,14 @@
     CI run 42142399272 (Linux, Node 22): bước "Package coverage" 14/14 task xanh; job `db` 95,26%.
 - Agent: Claude · Cỡ: S
 
-### E14-S02 · E2E luồng chuyển đổi chính
+### E14-S02 · E2E luồng chuyển đổi chính ✅ [PR #88](https://github.com/votuandi/landing-page-full-page-ui/pull/88)
 - **Chi tiết**: kịch bản Playwright trên 3 preset (t08, t12, t15): mở trang chủ → chọn phân khúc → nhập hóa đơn → xem kết quả →
   gửi "Nhận báo giá" → lead xuất hiện trong CMS; giỏ báo giá (t13/t15); popup tư vấn.
-- **AC**: [x] Chạy mỗi PR chạm `sections`, `core`, `leads`, `apps/web` · [ ] ≤ 6 phút.
+- **AC**: [x] Chạy mỗi PR chạm `sections`, `core`, `leads`, `apps/web` · [x] ≤ 6 phút.
   - E14-S02: `checks-map.test.mjs` (20/20 PASS) kiểm journey smoke luôn `full`, bỏ qua lab/tài liệu/unit test,
     regression gồm journey; CLI xuất `journey_e2e=true`, grep/files rỗng. Job riêng `journey` trong `workspace.yml`
-    dùng output đó, chạy cả file và upload `test-results/journey`. Thời gian bước Playwright chờ CI run id.
+    dùng output đó, chạy cả file và upload `test-results/journey`. `journey.spec.ts` 6 test (dự toán → lead CMS t08/t12/t15 +
+    cô lập tenant, giỏ t13/t15, popup t13): local 6/6 × 2 lượt (~55 s); CI run 42147825557 bước "Journey smoke" 6 passed 4,0 phút.
 - Phụ thuộc: E11-S01 · Agent: Codex · Cỡ: M
 
 ### E14-S03 · Bộ test cô lập tenant
