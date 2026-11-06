@@ -66,7 +66,7 @@ có unit/integration hiện hữu và e2e cho luồng ứng dụng; `tooling/esl
 |---|---|---|
 | Xem trang → dự toán → gửi lead | `conversion.spec.ts` kiểm segment/dự toán/prefill; `turnstile.spec.ts` kiểm gửi lead | E14-S02 nối toàn bộ luồng và xác nhận lead trong CMS trên t08/t12/t15 |
 | CMS sửa → revalidate | `production.spec.ts`: tenant revalidate và nội dung production; `admin.spec.ts`: chỉnh nội dung | E14-S02 bổ sung khi cần trong luồng chuyển đổi |
-| Thêm tên miền | `admin.spec.ts`: các case tên miền E11-S06 | Duy trì trong bộ admin |
+| Thêm tên miền | Chưa có màn thêm tên miền. Đang có: `tenant.spec.ts` › "secondary domain redirects to primary host…" (định tuyến theo host), `domainResolve.int.test.ts` (resolve tên miền với Postgres), `admin.spec.ts` chỉ kiểm quyền vào `/ten-mien`. Test "tên miền gửi" (E11-S06) là tên miền gửi email, không thuộc luồng này | E9-S01/E9-S02 viết e2e thêm tên miền → xác minh DNS → site chạy trên host mới |
 
 ## Chọn phạm vi và xử lý flaky
 
