@@ -1,6 +1,0 @@
-{
-  "$comment": "Lần regression toàn bộ gần nhất (story.mjs đếm PR merge sau lastSha; routing.json regressionEvery). Cập nhật ở bước kết thúc của story regression.",
-  "lastSha": "74424243120980019ab7488e7eda439178025f1b",
-  "date": "2026-11-05",
-  "note": "PR #83 (E12-S05) chạy CI toàn bộ (nhãn regression): xanh. Run 41859491943 attempt 1 db vượt 35m (runner chậm) + admin bị hủy theo, attempt 2 xanh. Regression lộ order-dependence: test appearance (admin.spec) đổi theme admin-e7-a sang t12 không trả lại, builder thumbnail đã đọc theme qua fixture site-theme."
-}

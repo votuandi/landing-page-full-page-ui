@@ -54,8 +54,8 @@ Vì vậy **spec e2e do Claude viết và chạy ngay** (retro E11-S03); `local-
 riêng test admin mở iframe preview (khớp `DEV_GREP`) luôn chạy `next dev`.
 Ngoại lệ smoke: bộ `journey` chạy cả file trên mọi PR chạm `sections`, `core`, `leads`, `apps/web` (trừ lab/tài liệu/unit test); local mặc định production build, CI dùng `next dev`.
 **Phạm vi test** (23/10/2026): mỗi story chỉ test code mới của nó — unit/int package bị ảnh hưởng + test e2e mới/sửa
-(CI và local cùng phạm vi). **Regression toàn bộ** mỗi `regressionEvery` (6) PR đã merge (`roadmap/regression.json`,
-`S.regression`): story đó chạy mọi bộ + build, PR gắn nhãn `regression`. Không theo epic, không nightly.
+(CI và local cùng phạm vi). **Regression toàn bộ** ở story thứ `regressionEvery` (8) kể từ lần regression
+gần nhất, đếm theo lịch sử hoàn thành `roadmap/story-history.json` (`story.mjs done` ghi khi story merge; `S.regression`): story đó chạy mọi bộ + build, PR gắn nhãn `regression`. Không theo epic, không nightly.
 **Visual regression / matrix** (25/10/2026) chỉ chạy khi đầu vào pixel đổi (`matrix`/`visual` trong `checks-map.mjs`) hoặc ở
 story regression. Thêm script mới, link workspace vào `package.json` hay đổi code không hiển thị không kéo bộ ảnh chụp; story
 cần kiểm hình mà bảng không bật → sửa bảng (kèm test trong `checks-map.test.mjs`), không chạy tay.

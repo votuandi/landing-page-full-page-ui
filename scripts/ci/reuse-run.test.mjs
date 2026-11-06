@@ -11,7 +11,7 @@ test("push chỉ đổi *.md sau lần chạy xanh của cùng workflow → dùn
 });
 
 test("có file không phải *.md (kể cả json/yml trong roadmap) → chạy lại", () => {
-  for (const files of [["roadmap/regression.json"], ["roadmap/a.md", "apps/web/src/x.ts"], [".github/workflows/visual.yml"], []]) {
+  for (const files of [["roadmap/story-history.json"], ["roadmap/a.md", "apps/web/src/x.ts"], [".github/workflows/visual.yml"], []]) {
     assert.equal(reusable({ ...base, files }), false, files.join(","));
   }
   assert.equal(docsOnly([]), false);

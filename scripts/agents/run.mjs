@@ -190,7 +190,7 @@ function verify(id, { skipChecks }) {
   // Tóm tắt ngắn cho Claude — log đầy đủ ở checks.log.
   console.log(`VERIFY ${result.ok ? "PASS" : "FAIL"} ${id} · branch ${branch} · ${commits.length} commit · ${changed.length} file · AC ${result.ac}`);
   for (const c of checks) console.log(`  ${c.ok ? "✔" : "✘"} ${c.cmd} (${c.seconds}s)`);
-  if (full) console.log(`  ★ Story regression (${S.regression.since} PR đã merge từ lần trước): chạy mọi bộ toàn bộ + gắn nhãn PR "regression"`);
+  if (full) console.log(`  ★ Story regression (${S.regression.since} story đã xong từ lần regression ${S.regression.lastRegression}): chạy mọi bộ toàn bộ + gắn nhãn PR "regression"`);
   if (requiredChecks.length) console.log(`  → Kiểm local bắt buộc (chạy trước push; trước đó: node scripts/agents/doctor.mjs):\n${requiredChecks.map((c) => `      ${c.name}: ${c.cmd}`).join("\n")}`);
   for (const p of problems) console.log(`  ! ${p}`);
   for (const w of warnings) console.log(`  ⚠ ${w}`);

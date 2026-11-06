@@ -71,7 +71,7 @@ có unit/integration hiện hữu và e2e cho luồng ứng dụng; `tooling/esl
 ## Chọn phạm vi và xử lý flaky
 
 Theo [AGENTS.md §3](AGENTS.md#3-lệnh): story thường chạy unit/int package bị ảnh hưởng và e2e mới/sửa;
-regression toàn bộ theo nhịp 6 PR trong `roadmap/regression.json`.
+regression toàn bộ ở story thứ 8 kể từ lần regression gần nhất, đếm trong lịch sử hoàn thành `roadmap/story-history.json`.
 Ngoại lệ smoke E14-S02: `e2e:journey` chạy **cả file** khi PR chạm `packages/sections`, `packages/core`,
 `packages/leads`, `apps/web` (trừ lab, tài liệu và unit test), kể cả khi chỉ sửa một test journey hoặc không sửa spec.
 Fixture seed và hộp thư lead CMS cũng kích hoạt bộ này theo bảng. Local `bash scripts/local-ci.sh e2e journey`

@@ -186,7 +186,7 @@ test("stale: chữ bị xóa khỏi source mà spec vẫn tìm → báo; chữ c
   }
 });
 
-test("regression: story thứ `regressionEvery` kể từ lần regression trước chạy full + build; story khác chỉ package đổi", () => {
+test("regression: đếm story-history.json từ dòng regression gần nhất; story thứ `regressionEvery` chạy full + build; `done` ghi lịch sử", () => {
   const root = mkdtempSync(join(tmpdir(), "solar-regression-"));
   try {
     const scripts = join(root, "scripts", "agents"), epics = join(root, "roadmap", "epics");
@@ -194,25 +194,30 @@ test("regression: story thứ `regressionEvery` kể từ lần regression trư�
     copyScripts(root);
     const routing = JSON.parse(readFileSync(join(source, "routing.json"), "utf8"));
     writeFileSync(join(scripts, "routing.json"), JSON.stringify({ ...routing, regressionEvery: 3 }));
-    writeFileSync(join(epics, "E00-fixture.md"), "### E0-S01 · Fixture\n- [ ] AC\n- Agent: Codex · Cỡ: S\n");
+    writeFileSync(join(epics, "E00-fixture.md"), [1, 2, 3, 4].map((n) => `### E0-S0${n} · Fixture ${n}\n- [ ] AC\n- Agent: Codex · Cỡ: S\n`).join("\n"));
     writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: []\n");
-    const git = (...args) => assert.equal(spawnSync("git", args, { cwd: root }).status, 0, args.join(" "));
-    git("init", "-q", "-b", routing.base);
-    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "docs(roadmap): regression");
-    const last = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
-    writeFileSync(join(root, "roadmap", "regression.json"), JSON.stringify({ lastSha: last }));
-    const info = () => JSON.parse(spawnSync(process.execPath, [join(scripts, "story.mjs"), "info", "E0-S01"], { cwd: root, encoding: "utf8" }).stdout);
-    const merge = (n) => git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", `feat: [E0-S0${n}] x (#${n})`);
+    assert.equal(spawnSync("git", ["init", "-q", "-b", routing.base], { cwd: root }).status, 0);
+    const history = join(root, "roadmap", "story-history.json");
+    const story = (...args) => spawnSync(process.execPath, [join(scripts, "story.mjs"), ...args], { cwd: root, encoding: "utf8" });
+    const due = (id) => { const S = JSON.parse(story("info", id).stdout); return { due: S.regression.due, since: S.regression.since, checks: S.checks }; };
+    const filtered = [`pnpm turbo run typecheck lint test --filter=...[${routing.base}]`];
 
-    merge(1);
-    let S = info();
-    assert.deepEqual({ due: S.regression.due, since: S.regression.since }, { due: false, since: 1 });
-    assert.deepEqual(S.checks, [`pnpm turbo run typecheck lint test --filter=...[${routing.base}]`]);
-    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "docs(roadmap): E0-S01 done");
-    merge(2);
-    S = info();
-    assert.deepEqual({ due: S.regression.due, since: S.regression.since }, { due: true, since: 2 }, "story thứ 3 = regression");
-    assert.deepEqual(S.checks, ["pnpm turbo run typecheck lint test build"]);
+    // Chưa có lịch sử: không story nào bị gán sẵn là regression trước khi đủ nhịp.
+    assert.deepEqual(due("E0-S01"), { due: false, since: 0, checks: filtered });
+    writeFileSync(history, JSON.stringify({ stories: [{ id: "E0-S00", pr: 1, mergedAt: "2026-11-01", regression: true }] }));
+    assert.equal(story("done", "E0-S01", "--pr", "2").status, 0);
+    assert.deepEqual(due("E0-S02"), { due: false, since: 1, checks: filtered });
+    assert.equal(story("done", "E0-S02", "--pr", "3").status, 0);
+    assert.deepEqual(due("E0-S03"), { due: true, since: 2, checks: ["pnpm turbo run typecheck lint test build"] }, "story thứ 3 = regression");
+    // `done` của story thứ 3 tự ghi regression: true → bộ đếm về 0.
+    assert.equal(story("done", "E0-S03", "--pr", "4").status, 0);
+    const entries = JSON.parse(readFileSync(history, "utf8")).stories;
+    assert.deepEqual(entries.map((s) => [s.id, s.pr, s.regression]), [["E0-S00", 1, true], ["E0-S01", 2, false], ["E0-S02", 3, false], ["E0-S03", 4, true]]);
+    assert.match(entries[3].mergedAt, /^\d{4}-\d{2}-\d{2}$/);
+    assert.deepEqual(due("E0-S04"), { due: false, since: 0, checks: filtered });
+    // Ghi trùng, story không tồn tại hoặc thiếu --pr → lỗi, lịch sử giữ nguyên.
+    for (const args of [["E0-S03", "--pr", "5"], ["E9-S99", "--pr", "5"], ["E0-S04"]]) assert.notEqual(story("done", ...args).status, 0, args.join(" "));
+    assert.equal(JSON.parse(readFileSync(history, "utf8")).stories.length, 4);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

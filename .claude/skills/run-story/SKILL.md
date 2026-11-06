@@ -216,7 +216,7 @@ Cả hai trường hợp: câu hỏi `[chặn]` → AskUserQuestion, ghi câu tr
 Rồi **chạy hết "Kiểm local bắt buộc"** mà `verify` in ra (bảng `scripts/ci/checks-map.mjs`, cùng bảng CI dùng; không
 tự chọn bớt). **Phạm vi = code mới của story** (quyết định 23/10/2026): `db` (unit/int package bị ảnh hưởng) + chỉ test e2e
 mới/sửa (`-g '<tên test>'`, hoặc cả file spec khi đổi hook/helper); bộ e2e không có spec đổi → cảnh báo "code mới phải
-được cover" thay vì chạy cả bộ. **Story regression** (`S.regression.due`, mỗi `regressionEvery` PR): `verify` in mọi bộ
+được cover" thay vì chạy cả bộ. **Story regression** (`S.regression.due`, story thứ `regressionEvery` kể từ lần regression gần nhất): `verify` in mọi bộ
 toàn bộ + build. Trước khi chạy: `node scripts/agents/doctor.mjs`; mỗi lệnh chạy nền qua
 `node scripts/agents/doctor.mjs run --idle 8 -- <lệnh>` (treo → exit 124 ngay, không chờ timeout 20′). Test mới phải
 **xanh ở local trước push**; local không chạy được (Docker tắt, cổng bị giữ) → dừng, hỏi người dùng — không dùng CI làm
@@ -324,6 +324,6 @@ Khi PR merge được (không comment gì lên PR), báo người dùng: link PR
 design pass / review), số vòng review–sửa, issue và case chưa cover đã sửa, CI, finding P2 còn lại, và câu chốt
 **"PR #<số> sẵn sàng merge — bạn tự merge."** **Không tự merge.** Khi người dùng báo PR đã merge: trên base, gắn ✅ vào heading story + link PR trong
 `S.epicFile` (cùng lúc tick AC `[ngoài agent]` kèm run id CI đã ghi ở bước 6), commit `docs(roadmap): <ID> done`,
-hỏi trước khi push. Story regression (CI full xanh) → cùng commit đó
-đặt `lastSha` trong `roadmap/regression.json` = SHA merge của PR (bộ đếm `S.regression` về 0). Trước khi switch/pull base:
+hỏi trước khi push. Cùng commit đó ghi lịch sử: `node scripts/agents/story.mjs done <ID> --pr <số>` (thêm dòng vào
+`roadmap/story-history.json`; story regression tự được ghi `regression: true` → bộ đếm `S.regression` về 0). Trước khi switch/pull base:
 `git log origin/<base>..<base>` rỗng (commit chưa push của phiên trước → hỏi người dùng, E7-S14 suýt lệch base).

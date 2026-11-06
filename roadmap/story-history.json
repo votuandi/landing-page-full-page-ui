@@ -1,0 +1,11 @@
+{
+  "$comment": "Story đã xong theo thứ tự merge. `node scripts/agents/story.mjs done <ID> --pr <số>` ghi ở bước kết thúc của /run-story (cùng commit `docs(roadmap): <ID> done`). Story thứ `regressionEvery` (routing.json) kể từ dòng `regression: true` gần nhất chạy regression toàn bộ; `done` tự đặt cờ đó. Lịch sử bắt đầu từ lần regression E12-S05 (PR #83, CI toàn bộ xanh, run 41859491943).",
+  "stories": [
+    { "id": "E12-S05", "pr": 83, "mergedAt": "2026-11-05", "regression": true },
+    { "id": "E12-S06", "pr": 84, "mergedAt": "2026-11-05", "regression": false },
+    { "id": "E12-S07", "pr": 85, "mergedAt": "2026-11-05", "regression": false },
+    { "id": "E12-S08", "pr": 86, "mergedAt": "2026-11-05", "regression": false },
+    { "id": "E14-S01", "pr": 87, "mergedAt": "2026-11-06", "regression": false },
+    { "id": "E14-S02", "pr": 88, "mergedAt": "2026-11-06", "regression": false }
+  ]
+}

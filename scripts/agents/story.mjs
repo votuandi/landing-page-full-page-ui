@@ -6,7 +6,7 @@
 //   node scripts/agents/story.mjs load          → ước lượng tỷ lệ tải Claude/Codex theo routing.json
 //   node scripts/agents/story.mjs progress [ID|Ex] → JSON: % tiến độ story/epic + ước lượng thời gian còn lại (/get-progress)
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -167,20 +167,20 @@ function describe(story, stories) {
 }
 
 /**
- * Regression toàn bộ theo nhịp (quyết định 23/10/2026): đếm PR đã merge (squash, tiêu đề kết thúc "(#n)") vào base kể từ
- * `lastSha` trong roadmap/regression.json; story thứ `regressionEvery` chạy full. Không theo epic vì epic không xong tuần tự.
+ * Regression toàn bộ theo nhịp (quyết định 23/10/2026, nhịp 8 từ 06/11/2026): roadmap/story-history.json ghi story đã xong
+ * theo thứ tự (`story.mjs done` ở bước kết thúc). Story thứ `regressionEvery` kể từ dòng `regression: true` gần nhất chạy
+ * full. Không gán sẵn story nào; không theo epic vì epic không xong tuần tự.
  */
+const historyFile = join(root, "roadmap", "story-history.json");
+function readHistory() {
+  try { return JSON.parse(readFileSync(historyFile, "utf8")); } catch { return { stories: [] }; }
+}
 function regressionState() {
-  const every = routing.regressionEvery ?? 6;
-  let lastSha;
-  try { ({ lastSha } = JSON.parse(readFileSync(join(root, "roadmap", "regression.json"), "utf8"))); } catch { return { due: false, since: 0, every }; }
-  for (const ref of [`origin/${routing.base}`, routing.base]) {
-    const r = spawnSync("git", ["log", "--format=%s", `${lastSha}..${ref}`], { cwd: root, encoding: "utf8" });
-    if (r.status !== 0) continue;
-    const since = r.stdout.split("\n").filter((s) => /\(#\d+\)$/.test(s.trim())).length;
-    return { due: since + 1 >= every, since, every, lastSha };
-  }
-  return { due: false, since: 0, every, lastSha };
+  const every = routing.regressionEvery ?? 8;
+  const done = readHistory().stories;
+  const last = done.findLastIndex((s) => s.regression);
+  const since = done.length - last - 1;
+  return { due: since + 1 >= every, since, every, lastRegression: done[last]?.id ?? null };
 }
 
 // ---- progress: % tiến độ theo bước của /run-story + ước lượng thời gian còn lại từ lịch sử .agent-runs ----
@@ -333,6 +333,18 @@ if (cmd === "info") {
     process.exit(1);
   }
   console.log(JSON.stringify({ ...describe(story, stories), graphs: graphState() }, null, 2));
+} else if (cmd === "done") {
+  // Bước kết thúc của /run-story: ghi story vừa merge; cờ regression lấy theo nhịp trước khi ghi.
+  const story = stories.get(arg?.toUpperCase());
+  const pr = Number(process.argv[process.argv.indexOf("--pr") + 1]);
+  const history = readHistory();
+  if (!story || !process.argv.includes("--pr") || !Number.isInteger(pr) || pr <= 0 || history.stories.some((s) => s.id === story.id)) {
+    console.error(`Dùng: node scripts/agents/story.mjs done <ID> --pr <số> (story phải tồn tại và chưa có trong ${historyFile}).`);
+    process.exit(1);
+  }
+  const entry = { id: story.id, pr, mergedAt: new Date().toISOString().slice(0, 10), regression: regressionState().due };
+  writeFileSync(historyFile, `${JSON.stringify({ ...history, stories: [...history.stories, entry] }, null, 2)}\n`);
+  console.log(JSON.stringify({ ...entry, next: regressionState() }));
 } else if (cmd === "next") {
   const next = [...stories.values()].map((s) => describe(s, stories)).find((s) => !s.done && s.ready);
   if (!next) {
