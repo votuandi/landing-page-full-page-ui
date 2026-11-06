@@ -12,7 +12,7 @@ Chạy `node scripts/agents/doctor.mjs` trước test; lệnh dài qua
 | Unit | `packages/*/src/__tests__`, riêng plans có `__tests__` ở gốc package; logic, token, entitlement, schema section | `pnpm --filter @solar/<package> test` |
 | Contract | `packages/storage/src/__tests__/contract.ts`: `runContract` dùng chung cho local và S3/MinIO; `packages/leads/src/__tests__/contract.test.ts`: email, Telegram, webhook, Google Sheets dùng chung bảng trạng thái và lỗi mạng | `pnpm --filter @solar/storage test`; `pnpm --filter @solar/leads test` |
 | Integration | `packages/db/src/__tests__`, `packages/auth/src/__tests__`, `packages/cache/src/__tests__`: repository với Postgres thật, RLS và Redis | `bash scripts/local-ci.sh up`, rồi `bash scripts/local-ci.sh db` |
-| E2E | `tooling/visual/*.spec.ts`: hành vi người dùng trên trình duyệt thật, môi trường tenant/preview/admin/production | `bash scripts/local-ci.sh e2e <tenant\|preview\|admin\|production\|sections>` |
+| E2E | `tooling/visual/*.spec.ts`: hành vi người dùng trên trình duyệt thật, môi trường tenant/preview/admin/production; smoke chuyển đổi trong `journey.spec.ts` | `bash scripts/local-ci.sh e2e <tenant\|preview\|admin\|production\|sections\|journey>` |
 | Visual | `tooling/visual/visual.spec.ts`, `matrix.spec.ts`, `playwright.matrix.config.ts`: ảnh trang và ma trận theme/variant | Xem [hướng dẫn visual](tooling/visual/README.md) và bộ kiểm do `scripts/ci/checks-map.mjs` chọn |
 
 `*.test.ts`/`*.test.tsx` là test Node TypeScript; một số package dùng `*.test.mjs` thuần ESM.
@@ -64,7 +64,7 @@ có unit/integration hiện hữu và e2e cho luồng ứng dụng; `tooling/esl
 
 | Luồng | Bằng chứng hiện có | Phần tiếp theo |
 |---|---|---|
-| Xem trang → dự toán → gửi lead | `conversion.spec.ts` kiểm segment/dự toán/prefill; `turnstile.spec.ts` kiểm gửi lead | E14-S02 nối toàn bộ luồng và xác nhận lead trong CMS trên t08/t12/t15 |
+| Xem trang → dự toán → gửi lead | `journey.spec.ts`: toàn bộ luồng đến hộp thư CMS trên t08/t12/t15, giỏ báo giá t13/t15 và popup tự mở t13; `conversion.spec.ts` kiểm segment/dự toán/prefill; `turnstile.spec.ts` kiểm gửi lead | CI job `journey` đo thời gian bước smoke, mục tiêu ≤ 6 phút |
 | CMS sửa → revalidate | `production.spec.ts`: tenant revalidate và nội dung production; `admin.spec.ts`: chỉnh nội dung | E14-S02 bổ sung khi cần trong luồng chuyển đổi |
 | Thêm tên miền | Chưa có màn thêm tên miền. Đang có: `tenant.spec.ts` › "secondary domain redirects to primary host…" (định tuyến theo host), `domainResolve.int.test.ts` (resolve tên miền với Postgres), `admin.spec.ts` chỉ kiểm quyền vào `/ten-mien`. Test "tên miền gửi" (E11-S06) là tên miền gửi email, không thuộc luồng này | E9-S01/E9-S02 viết e2e thêm tên miền → xác minh DNS → site chạy trên host mới |
 
@@ -72,6 +72,10 @@ có unit/integration hiện hữu và e2e cho luồng ứng dụng; `tooling/esl
 
 Theo [AGENTS.md §3](AGENTS.md#3-lệnh): story thường chạy unit/int package bị ảnh hưởng và e2e mới/sửa;
 regression toàn bộ theo nhịp 6 PR trong `roadmap/regression.json`.
+Ngoại lệ smoke E14-S02: `e2e:journey` chạy **cả file** khi PR chạm `packages/sections`, `packages/core`,
+`packages/leads`, `apps/web` (trừ lab, tài liệu và unit test), kể cả khi chỉ sửa một test journey hoặc không sửa spec.
+Fixture seed và hộp thư lead CMS cũng kích hoạt bộ này theo bảng. Local `bash scripts/local-ci.sh e2e journey`
+mặc định build/start cả admin + web; CI job riêng `journey` chạy `next dev`, upload `test-results/journey`.
 `scripts/ci/checks-map.mjs` là bảng chọn chung cho local và CI; visual/matrix chỉ bật khi đầu vào pixel đổi
 hoặc story regression. Sandbox Codex không chạy turbo, Prisma generate, Docker, dev server hay Playwright;
 Claude chạy các phần này. Xem mục **Test flaky đã biết** trong [README visual](tooling/visual/README.md)

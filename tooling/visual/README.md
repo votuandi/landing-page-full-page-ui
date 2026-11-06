@@ -1,5 +1,25 @@
 # Hồi quy ảnh t15
 
+## Smoke chuyển đổi chính (E14-S02)
+
+`bash scripts/local-ci.sh e2e journey` chạy cả `journey.spec.ts` với `playwright.journey.config.ts`:
+trang chủ → chọn phân khúc → hóa đơn → kết quả → báo giá → hộp thư CMS trên t08/t12/t15;
+giỏ báo giá trên t13/t15 và popup tư vấn tự mở trên t13. Test t08 kiểm thêm lead không xuất hiện ở tenant t12.
+Bộ là ngoại lệ smoke: mọi PR chạm sections/core/leads/apps/web (trừ lab/tài liệu/unit test) chạy cả file,
+không thu hẹp bằng grep. Mục tiêu bước Playwright CI ≤ 6 phút; job `journey` riêng chạy song song với admin.
+
+Nạp `.env.ci.local` sau khi đã dựng DB/Redis theo `local-ci.sh up`. Global setup gọi
+`node --import tsx scripts/journey-fixture.ts setup` từ `apps/admin`, cần `SEED_PASSWORD`.
+Fixture upsert bốn tenant `journey-t08`, `journey-t12`, `journey-t13`, `journey-t15`, giữ nguyên ID tenant/site
+khi chạy lại để cache host của server đang chạy còn đúng; không có cleanup xóa tenant.
+Host công khai là `journey-<id>.<ADMIN_E2E_PLATFORM_DOMAIN ?? "solar.localhost">:3212`, admin thêm `.admin`
+sau slug và dùng cổng 3300; đăng nhập `owner@demo.vn` / `${SEED_PASSWORD}-<id>`.
+Lead cũ không ảnh hưởng vì test kiểm ID trả về từ API. Dữ liệu mang nhãn `[DỮ LIỆU MẪU]`.
+
+Local mặc định `E2E_SERVER=start` để tránh hai server dev gây OOM; build cả admin và web khi cần.
+Có thể đặt `E2E_SERVER=dev` để kiểm như CI. Chạy cả bộ hai lần liên tiếp để kiểm fixture chạy lại an toàn.
+CI upload artifact `journey-browser-evidence` từ `tooling/visual/test-results/journey` kể cả khi lỗi.
+
 ## Preset E4
 
 `/lab/presets` liệt kê preset; `/lab/presets/<id>?theme=<themeId>` render toàn bộ preset bằng theme chọn.

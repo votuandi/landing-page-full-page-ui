@@ -47,11 +47,12 @@ Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck 
 Chiến lược và cổng độ phủ: [TESTING.md](TESTING.md); `pnpm --filter <pkg> test:coverage` (core ≥ 85%, package khác có test ≥ 70%).
 **Kiểm local trước CI**: mọi thứ chạy được ở local phải chạy trước khi push; CI chỉ để xác nhận, không dùng để tìm lỗi.
 `bash scripts/local-ci.sh up` dựng Postgres 16 + Redis giống job `db` của CI (role, migrate, seed). Sau đó dùng `… db`
-(test DB thật) và `… e2e <tenant|preview|admin|production|sections>` — bộ nào phải chạy lấy từ bảng
+(test DB thật) và `… e2e <tenant|preview|admin|production|sections|journey>` — bộ nào phải chạy lấy từ bảng
 `scripts/ci/checks-map.mjs` (`run.mjs verify` in ra; CI dùng cùng bảng để chọn job và test). Sandbox Codex không dùng được
 Docker, nên Claude chạy các bước này; Codex trong sandbox cũng không chạy `pnpm turbo`, `prisma generate`, dev server, Playwright.
 Vì vậy **spec e2e do Claude viết và chạy ngay** (retro E11-S03); `local-ci.sh e2e … -g` chạy production build (`E2E_SERVER=start`, nhanh và nhẹ), cả bộ chạy `next dev` như CI;
 riêng test admin mở iframe preview (khớp `DEV_GREP`) luôn chạy `next dev`.
+Ngoại lệ smoke: bộ `journey` chạy cả file trên mọi PR chạm `sections`, `core`, `leads`, `apps/web` (trừ lab/tài liệu/unit test); local mặc định production build, CI dùng `next dev`.
 **Phạm vi test** (23/10/2026): mỗi story chỉ test code mới của nó — unit/int package bị ảnh hưởng + test e2e mới/sửa
 (CI và local cùng phạm vi). **Regression toàn bộ** mỗi `regressionEvery` (6) PR đã merge (`roadmap/regression.json`,
 `S.regression`): story đó chạy mọi bộ + build, PR gắn nhãn `regression`. Không theo epic, không nightly.
