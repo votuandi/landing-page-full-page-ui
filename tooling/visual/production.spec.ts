@@ -157,7 +157,7 @@ test.describe.serial("production Cache Components on PostgreSQL", () => {
     const a = sites[0];
     await page.addInitScript(() => {
       const list: string[] = (window as unknown as { __csp: string[] }).__csp = [];
-      document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI}`));
+      document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI} ${event.sourceFile}:${event.lineNumber}:${event.columnNumber}`));
     });
     const response = await page.goto(`${origin(a)}/`, { waitUntil: "networkidle" });
     const headers = response!.headers();

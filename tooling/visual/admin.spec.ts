@@ -628,7 +628,7 @@ test.beforeEach(async ({ page }) => { await page.setExtraHTTPHeaders({ "x-forwar
 test("CSP nonce: scripts carry the per-request nonce and pages hydrate without violations", async ({ page }) => {
   await page.addInitScript(() => {
     const list: string[] = (window as unknown as { __csp: string[] }).__csp = [];
-    document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI}`));
+    document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI} ${event.sourceFile}:${event.lineNumber}:${event.columnNumber}`));
   });
   const nonces: string[] = [];
   for (let round = 0; round < 2; round++) {
