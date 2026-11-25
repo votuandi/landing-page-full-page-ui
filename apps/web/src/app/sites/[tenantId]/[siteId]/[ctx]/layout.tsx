@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { preload } from "react-dom";
 import { notFound } from "next/navigation";
+import { ZOD_JITLESS_SCRIPT } from "@solar/ui";
 import { themeFontCss, themeFontFiles, withFontOverride } from "@solar/themes";
 import { colorChannelsToHex, themeToCss } from "@solar/tokens";
 import "../../../../globals.css";
@@ -41,7 +42,7 @@ export default async function TenantLayout({ children, params }: { children: Rea
   const script = `(function(){try{var t=localStorage.getItem("t15-theme");if(${site.theme.meta.supportsDark && site.profile.theme.switcher ? "t!=='dark'&&t!=='light'" : "true"})t="${mode}";document.documentElement.dataset.theme=t;}catch(e){}})();`;
   for (const file of themeFontFiles(theme)) preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return <html lang={site.locale} data-tenant-site={site.siteId} data-theme={mode} data-scroll-behavior="smooth" suppressHydrationWarning>
-    <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(theme) }} /><script dangerouslySetInnerHTML={{ __html: script }} /></head>
+    <head><style dangerouslySetInnerHTML={{ __html: themeToCss(site.theme, site.overrides) + themeFontCss(theme) }} /><script dangerouslySetInnerHTML={{ __html: ZOD_JITLESS_SCRIPT + script }} /></head>
     <body>{preview && <PreviewBridge adminPort={process.env.NODE_ENV === "production" ? "" : process.env.ADMIN_PUBLIC_PORT} />}<TenantChrome {...tenantRenderKey(site, preview)}>{children}</TenantChrome></body>
   </html>;
 }
