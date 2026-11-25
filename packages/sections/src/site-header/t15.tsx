@@ -27,7 +27,7 @@ export default function SiteHeaderT15({ data, site, sectionId }: SectionPropsOf<
     <>
       {topBar.length > 0 && (
         <div className="relative z-[55] bg-primary text-xs font-bold text-on-primary">
-          <div className="t15-marquee t15-no-scrollbar py-2" role="region" aria-label={site.locale === "en" ? "Our commitments" : "Cam kết của chúng tôi"}>
+          <div className="t15-marquee t15-no-scrollbar py-2" role="region" tabIndex={0} aria-label={site.locale === "en" ? "Our commitments" : "Cam kết của chúng tôi"}>
             <div className="t15-marquee-track flex w-max">{group(false)}{group(true)}</div>
           </div>
         </div>

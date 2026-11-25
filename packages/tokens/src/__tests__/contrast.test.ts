@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { execFileSync } from "node:child_process";
 import { AA_NORMAL, CONTRAST_PAIRS, checkContrast, contrastRatio, suggestAccessible, validateBrandOverrides } from "../index";
 import { parseTheme, RgbChannels } from "../schema";
 import { t15 } from "./fixtures/t15";
@@ -54,8 +55,60 @@ test("unreachable contrast uses the better black or white endpoint", () => {
 });
 
 test("t15 passes every required pair in light and dark", () => {
-  assert.equal(CONTRAST_PAIRS.length, 21);
+  assert.equal(CONTRAST_PAIRS.length, 29);
   assert.deepEqual(checkContrast(parseTheme(t15)), []);
+});
+
+test("pairs without tint keep previous ratios", () => {
+  const theme = parseTheme(t15);
+  const issue = checkContrast(theme, { colors: { light: { "fg-muted": "200 200 200" } } })
+    .find(item => item.mode === "light" && item.fg === "fg-muted" && item.bg === "bg-tint");
+  assert.ok(issue);
+  assert.equal(issue.ratio, contrastRatio("200 200 200", theme.colors.light["bg-tint"]));
+});
+
+test("primary text pair uses dark colors", () => {
+  const theme = parseTheme(t15);
+  const primary = "40 50 45";
+  const bg = "10 20 15";
+  const issue = checkContrast(theme, { colors: { light: { primary: "120 200 120" }, dark: { primary, bg } } })
+    .find(item => item.mode === "dark" && item.fg === "primary" && item.bg === "bg");
+  assert.ok(issue);
+  assert.equal(issue.ratio, contrastRatio(primary, "12 22 17"));
+  assert.ok(!checkContrast(theme, { colors: { dark: { primary: issue.suggestion, bg } } })
+    .some(item => item.mode === "dark" && item.fg === "primary" && item.bg === "bg"));
+  assert.deepEqual(CONTRAST_PAIRS.filter(pair => pair.fg === "primary").map(pair => pair.bg),
+    ["bg", "bg-elevated", "bg-tint", "bg-sky", "bg-sun"]);
+});
+
+test("unreachable tinted contrast still returns issues without looping", () => {
+  const output = execFileSync(process.execPath, ["-e", `
+    const { checkContrast, parseTheme } = require("../index.js");
+    const { t15 } = require("./fixtures/t15.js");
+    console.log(JSON.stringify(checkContrast(parseTheme(t15), {
+      colors: { light: { primary: "0 0 0", bg: "118 118 118" } }
+    })));
+  `], { cwd: __dirname, timeout: 3000, encoding: "utf8" });
+  const issues = JSON.parse(output) as ReturnType<typeof checkContrast>;
+  assert.ok(issues.some(item => item.mode === "light" && item.fg === "primary" && item.bg === "bg" && item.ratio < AA_NORMAL));
+});
+
+test("primary as text on surfaces is checked for overrides", () => {
+  const theme = parseTheme(t15);
+  for (const primary of ["120 200 120", "35 130 65", "21 128 61"]) {
+    const overrides = { colors: { light: { primary } } };
+    if (primary === "35 130 65") assert.ok(contrastRatio(primary, theme.colors.light["on-primary"]) >= AA_NORMAL);
+    const issues = checkContrast(theme, overrides).filter(item => item.mode === "light" && item.fg === "primary");
+    const issue = issues.reduce((worst, item) => item.ratio < worst.ratio ? item : worst);
+    assert.ok(issue);
+    assert.ok(validateBrandOverrides(theme, overrides).some(item => item.mode === "light" && item.key === "primary" && item.suggestion === issue.suggestion));
+    const corrected = checkContrast(theme, { colors: { light: { primary: issue.suggestion } } });
+    assert.ok(!corrected.some(item => item.mode === "light" && (item.fg === "primary" || item.bg === "primary")));
+    for (const item of issues) {
+      assert.ok(!checkContrast(theme, { colors: { light: { primary: item.suggestion } } })
+        .some(next => next.mode === "light" && next.fg === "primary" && next.bg === item.bg));
+    }
+  }
 });
 
 test("light overrides produce actionable issues but explicit dark tokens win", () => {

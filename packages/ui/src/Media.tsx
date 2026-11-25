@@ -54,7 +54,7 @@ export function Wordmark({ name, short, src, size = "md", className = "" }: {
   const mark = (short || name.replace(/[^A-Za-zÀ-ỹ0-9 ]/g, "").split(/\s+/).map((w) => w[0]).join("").slice(0, 3)).toUpperCase();
   return (
     <span className={`inline-flex ${h} items-center gap-2 ${className}`} aria-label={name} role="img">
-      <span aria-hidden className={`grid aspect-square ${h} place-items-center rounded-xl bg-primary text-2xs font-black tracking-tight text-on-media`}>{mark}</span>
+      <span aria-hidden className={`grid aspect-square ${h} place-items-center rounded-xl bg-primary text-2xs font-black tracking-tight text-on-primary`}>{mark}</span>
       <span aria-hidden className={`${size === "sm" ? "text-sm" : "text-base"} font-black leading-none tracking-[-.02em] text-fg`}>{name}</span>
     </span>
   );

@@ -291,7 +291,7 @@ export default function CalculatorIsland({ data, locale, sectionId, layout = "in
         <div className="relative">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-lg font-black">{t(data.resultTitle)}</h3>
-            <span className="rounded-full bg-glass px-3 py-1 text-xs font-bold text-fg-muted">{t(current.short)} • {province}</span>
+            <span className="rounded-full border border-line/12 bg-bg-tint px-3 py-1 text-xs font-bold text-fg-muted">{t(current.short)} • {province}</span>
           </div>
           {topic && (
             <p className="mt-3 flex items-center gap-2 rounded-2xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm font-bold text-fg">

@@ -260,7 +260,7 @@ export default function HeaderIsland(props: {
           <div className="flex shrink-0 items-center gap-2">
             {hotlines.length > 0 && (
               <div className="relative hidden xl:block">
-                <button ref={(el) => { triggers.current.hotline = el; }} type="button" aria-expanded={open === "hotline"} aria-controls={panelId("hotline")}
+                <button ref={(el) => { triggers.current.hotline = el; }} type="button" aria-label="Hotline" aria-expanded={open === "hotline"} aria-controls={panelId("hotline")}
                   onClick={() => setOpen((v) => (v === "hotline" ? null : "hotline"))}
                   className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line/12 bg-bg-elevated px-3 text-sm font-black text-fg transition hover:border-primary/40 hover:text-primary">
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-on-accent"><PhoneIcon aria-hidden className="h-4 w-4" /></span>
