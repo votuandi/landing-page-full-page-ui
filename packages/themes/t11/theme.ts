@@ -7,7 +7,7 @@ export const t11 = parseTheme({
       "bg-sky": "220 252 231", "bg-sun": "254 249 195", "bg-deep": "20 83 45",
       glass: "rgba(255,255,255,0.9)", "glass-border": "rgba(226,235,224,0.9)",
       "glass-strong": "rgba(255,255,255,0.14)", "glass-strong-border": "rgba(255,255,255,0.24)", "glass-tint": "21 128 61",
-      primary: "21 128 61", "primary-strong": "20 83 45", "primary-deep": "20 83 45",
+      primary: "20 121 58", "primary-strong": "20 83 45", "primary-deep": "20 83 45",
       leaf: "21 128 61", secondary: "20 83 45", "secondary-deep": "20 83 45", sky: "220 252 231",
       "on-primary": "255 255 255", "on-secondary": "255 255 255",
       accent: "250 204 21", "accent-soft": "254 249 195", "accent-ink": "139 95 3", "on-accent": "26 46 31",

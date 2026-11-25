@@ -67,16 +67,16 @@ test("override light thắng theme và không đè dark", () => {
   const overrides: ThemeOverrides = { colors: { light: { primary: "1 2 3" } } };
   const css = themeToCss(t15, overrides);
   assert.match(block(css, lightSelector), /--c-primary:1 2 3;/);
-  assert.doesNotMatch(block(css, lightSelector), /--c-primary:21 128 61;/);
+  assert.doesNotMatch(block(css, lightSelector), /--c-primary:20 118 57;/);
   assert.match(block(css, darkSelector), /--c-primary:74 222 128;/);
   assert.equal(block(css, mediaSelector), block(css, darkSelector));
   assert.equal(overrides.colors?.light?.primary, "1 2 3");
-  assert.equal(t15.colors.light.primary, "21 128 61");
+  assert.equal(t15.colors.light.primary, "20 118 57");
 });
 
 test("override dark và kính thắng ở selector dark và media, không đổi light", () => {
   const css = themeToCss(t15, { colors: { dark: { primary: "4 5 6", glass: "rgba(1,2,3,0.5)" } } });
-  assert.match(block(css, lightSelector), /--c-primary:21 128 61;/);
+  assert.match(block(css, lightSelector), /--c-primary:20 118 57;/);
   for (const selector of [darkSelector, mediaSelector]) {
     assert.match(block(css, selector), /--c-primary:4 5 6;/);
     assert.match(block(css, selector), /--glass:rgba\(1,2,3,0\.5\);/);
@@ -181,7 +181,7 @@ test("hai theme render xen kẽ không lẫn biến hay làm đổi dữ liệu"
   const original = structuredClone(theme);
   const firstCss = themeToCss(t15);
   const secondCss = themeToCss(theme);
-  assert.doesNotMatch(secondCss, /--c-primary:21 128 61|245 250 246/);
+  assert.doesNotMatch(secondCss, /--c-primary:20 118 57|245 250 246/);
   assert.equal(themeToCss(t15), firstCss);
   assert.equal(themeToCss(theme), secondCss);
   assert.deepEqual(theme, original);

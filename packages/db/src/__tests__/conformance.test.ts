@@ -14,6 +14,7 @@ import type { CollectionRow } from "../collectionWrite.ts";
 import { parseTenantBackup } from "../tenantBackup.ts";
 import { demoBackup } from "./tenantBackup.fixture.ts";
 import { ThemeOverridesSchema } from "../../../tokens/src/css";
+import { validateBrandOverrides } from "../../../tokens/src/contrast";
 import { siteProfileSchema } from "../siteProfile.ts";
 import { storySource, collectRefs, sectionRegistry } from "@solar/sections";
 import { backupMediaReferenceIds, descriptorMediaIds, snapshotMediaIds } from "../mediaRetention.ts";
@@ -121,6 +122,13 @@ test("themeOverrides of seeds parse (E7-S15)", () => {
   // Presets contain only a theme ID and sections; profile/overrides belong to the site.
   assert.doesNotThrow(() => ThemeOverridesSchema.parse({}));
   assert.doesNotThrow(() => siteProfileSchema.parse({}));
+});
+
+test("E14-S06: seed themeOverrides pass validateBrandOverrides", () => {
+  for (const id of DEMO_IDS) {
+    const bundle = demoBackup(id);
+    assert.deepEqual(validateBrandOverrides(loadPreset(id).theme, ThemeOverridesSchema.parse(bundle.site.themeOverrides)), [], id);
+  }
 });
 
 test("tenant backup bundle of every seed demo parses", () => {

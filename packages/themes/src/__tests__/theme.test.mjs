@@ -50,7 +50,7 @@ require.extensions[".ts"] = (module, filename) => {
 
 test("four Classic themes use Inter, light mode and their source identities", () => {
   const { getTheme, themeFontFamilies } = require("../index.ts");
-  for (const [id, primary] of [["t01", "21 128 61"], ["t02", "20 83 45"], ["t03", "194 65 12"], ["t04", "27 94 69"]]) {
+  for (const [id, primary] of [["t01", "20 124 59"], ["t02", "20 83 45"], ["t03", "177 59 11"], ["t04", "27 94 69"]]) {
     const theme = getTheme(id);
     assert.ok(theme, id);
     assert.equal(theme.meta.group, "classic");
@@ -93,7 +93,7 @@ test("t13 giữ Warm Sand, đất nung + teal và chỉ tải Inter của bản 
   assert.equal(t13.colors.dark, undefined);
   assert.equal(t13.colors.light.bg, "251 247 241");
   assert.equal(t13.colors.light["bg-tint"], "243 235 223");
-  assert.equal(t13.colors.light.primary, "194 65 12");
+  assert.equal(t13.colors.light.primary, "178 59 11");
   assert.equal(t13.colors.light.accent, "15 118 110");
   assert.equal(t13.radius.input, "14px");
   assert.deepEqual(themeFontFamilies(t13), ["Inter"]);
@@ -109,7 +109,7 @@ test("t12 đăng ký Sky & Sun, Emerald Dusk và font Inter", () => {
   assert.equal(theme.meta.name, "Sky & Sun");
   assert.equal(theme.meta.supportsDark, true);
   assert.equal(theme.font.sans, "Inter");
-  assert.equal(theme.colors.light.primary, "14 116 144");
+  assert.equal(theme.colors.light.primary, "13 111 138");
   assert.equal(theme.colors.dark.bg, "11 31 28");
   assert.equal(theme.colors.dark.primary, "16 185 129");
 });

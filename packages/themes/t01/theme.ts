@@ -15,7 +15,7 @@ export const t01 = parseTheme({
       "glass-strong": "rgba(255,255,255,0.10)",
       "glass-strong-border": "rgba(255,255,255,0.15)",
       "glass-tint": "21 128 61",
-      primary: "21 128 61",
+      primary: "20 124 59",
       "primary-strong": "22 101 52",
       "primary-deep": "20 83 45",
       leaf: "21 128 61",
