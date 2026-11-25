@@ -49,7 +49,7 @@
   (`pnpm audit`, Dependabot/Renovate); `/security-review` của Claude và `/codex:adversarial-review` trước mỗi release;
   pentest nội bộ theo OWASP ASVS L1.
 - **AC**: [ ] securityheaders.com hạng A cho site demo · [ ] 0 lỗ hổng High/Critical đã biết trong dependency khi release ·
-  [ ] Trang công khai vẫn là static/ISR sau khi bật CSP (kiểm output `next build`).
+  [x] Trang công khai vẫn là static/ISR sau khi bật CSP (kiểm output `next build`) — bảng route `next build` của web giống hệt base (`/` ○, `/sites/…` ◐), 25/11/2026.
 - Agent: Claude · Cỡ: M
 
 ### E14-S05 · Ngân sách hiệu năng
