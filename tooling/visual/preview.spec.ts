@@ -49,7 +49,11 @@ test("same-site admin iframe enters draft, survives reload and leaves public con
   // Next 16.4 next dev overwrites rendered HTML Cache-Control in base-server; production preserves proxy headers.
   expect(response?.headers()["cache-control"]).toBe("no-store");
   expect(response?.headers()["x-robots-tag"]).toBe("noindex");
-  expect(response?.headers()["content-security-policy"]).toBe(`frame-ancestors http://${slug}.admin.${platformDomain}:3212`);
+  const csp = response?.headers()["content-security-policy"] ?? "";
+  expect(csp.split(";").map(part => part.trim())).toContain(`frame-ancestors http://${slug}.admin.${platformDomain}:3212`);
+  expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+  // X-Frame-Options DENY would blank the admin iframe even though frame-ancestors allows it.
+  expect(response?.headers()["x-frame-options"]).toBeUndefined();
   await expect(frame.locator("main")).toContainText("[DỮ LIỆU MẪU] nháp");
   await page.screenshot({ path: info.outputPath("preview-iframe.png"), fullPage: true });
   const publicPage = await page.context().newPage();
