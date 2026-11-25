@@ -14,3 +14,4 @@ export { delay } from "./reveal";
 export { SectionReveal } from "./SectionReveal";
 export { DragScroll } from "./DragScroll";
 export { TikTokIcon, YouTubeIcon, FacebookIcon, MessengerIcon, ZaloIcon } from "./brand-icons";
+export { ZOD_JITLESS_SCRIPT } from "./zodJitless";

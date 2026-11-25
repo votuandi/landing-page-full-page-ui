@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
-  "dependencies": { "zod": "4.6.5" },
+  "dependencies": { "zod": "4.6.6" },
   "devDependencies": {
     "@solar/config": "workspace:*",
     "@types/node": "20.19.37",

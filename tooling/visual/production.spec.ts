@@ -153,6 +153,30 @@ test.describe.serial("production Cache Components on PostgreSQL", () => {
     await page.screenshot({ path: info.outputPath("locale.png"), fullPage: true });
   });
 
+  test("public pages send security headers and run framework scripts under CSP without violations", async ({ page }) => {
+    const a = sites[0];
+    await page.addInitScript(() => {
+      const list: string[] = (window as unknown as { __csp: string[] }).__csp = [];
+      document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI} ${event.sourceFile}:${event.lineNumber}:${event.columnNumber}`));
+    });
+    const response = await page.goto(`${origin(a)}/`, { waitUntil: "networkidle" });
+    const headers = response!.headers();
+    const csp = headers["content-security-policy"] ?? "";
+    for (const directive of ["default-src 'self'", "script-src 'self' 'unsafe-inline'", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'"]) expect(csp).toContain(directive);
+    expect(csp).not.toContain("'unsafe-eval'");
+    expect(csp).toMatch(/frame-src [^;]*https:\/\/www\.youtube-nocookie\.com/);
+    expect(headers["strict-transport-security"]).toBe("max-age=31536000");
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["permissions-policy"]).toContain("camera=()");
+    expect(headers["x-frame-options"]).toBe("DENY");
+    // Inline flight data and external chunks both executed, i.e. the page hydrated under this CSP.
+    await expect.poll(() => page.evaluate(() => Array.isArray((self as unknown as { __next_f?: unknown[] }).__next_f) && Boolean((window as unknown as { next?: { version?: string } }).next?.version))).toBe(true);
+    await page.locator('header a[href="/"]').first().click();
+    await expect(page.locator("main:visible")).toContainText("A body");
+    expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
+  });
+
   test("both MULTI_TENANT modes reject full internal paths, encodings, forged headers and public draft contexts", async ({ request }) => {
     const [a, b] = sites;
     expect(fixture("second-site")).toContain("unique tenant/site enforced");

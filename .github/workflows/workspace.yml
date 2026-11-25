@@ -8,6 +8,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm audit --prod --audit-level high
   # Phạm vi kiểm của PR (scripts/ci/checks-map.mjs, cùng bảng với /run-story): story thường chỉ chạy unit/int của package
   # bị ảnh hưởng + test e2e mới/sửa của story; story regression (nhãn `regression`) hoặc chạy tay → toàn bộ.
   # Push lên base không chạy lại db/admin: PR đã kiểm trên đúng code đó.

@@ -6,6 +6,7 @@ import "../globals.css";
 import SiteShell from "@/components/SiteShell";
 import { loadPreset } from "@solar/presets";
 import { PageRenderer, SiteWidgets } from "@solar/sections";
+import { ZOD_JITLESS_SCRIPT } from "@solar/ui";
 import { siteConfig } from "@/config/site.config";
 import { catalogEnabled, phoneDigits } from "@/config/site";
 import { pickText } from "@/i18n/text";
@@ -91,5 +92,5 @@ export default function RootLayout({ children }: Readonly<{children:React.ReactN
   for (const file of themeFontFiles(t15)) {
     preload(`/fonts/${file}`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   }
-  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} data-scroll-behavior="smooth" suppressHydrationWarning><head><style dangerouslySetInnerHTML={{ __html: themeCss }} /><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="inline" canUse={canUse} />} overlayWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="overlay" canUse={canUse} />}>{children}</SiteShell></body></html>;
+  return <html lang={siteConfig.i18n.defaultLang} data-theme={siteConfig.theme.default} data-scroll-behavior="smooth" suppressHydrationWarning><head><style dangerouslySetInnerHTML={{ __html: themeCss }} /><script dangerouslySetInnerHTML={{ __html: ZOD_JITLESS_SCRIPT + themeScript }} /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} /><SiteShell header={chrome("site-header")} footer={chrome("site-footer")} inlineWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="inline" canUse={canUse} />} overlayWidgets={<SiteWidgets widgets={loaded.widgets} site={site} slot="overlay" canUse={canUse} />}>{children}</SiteShell></body></html>;
 }

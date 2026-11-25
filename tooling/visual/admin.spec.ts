@@ -625,6 +625,40 @@ test("appearance renders without JS", async ({ page, browser }) => {
 let client = 0;
 test.beforeEach(async ({ page }) => { await page.setExtraHTTPHeaders({ "x-forwarded-for": `198.51.100.${++client}` }); });
 
+test("CSP nonce: scripts carry the per-request nonce and pages hydrate without violations", async ({ page }) => {
+  await page.addInitScript(() => {
+    const list: string[] = (window as unknown as { __csp: string[] }).__csp = [];
+    document.addEventListener("securitypolicyviolation", event => list.push(`${event.violatedDirective} ${event.blockedURI} ${event.sourceFile}:${event.lineNumber}:${event.columnNumber}`));
+  });
+  const nonces: string[] = [];
+  for (let round = 0; round < 2; round++) {
+    const response = await page.goto(origin() + "/dang-nhap");
+    const csp = response!.headers()["content-security-policy"] ?? "";
+    const nonce = csp.match(/'nonce-([A-Za-z0-9+/=]+)'/)?.[1];
+    expect(nonce, csp).toBeTruthy();
+    // style-src may keep 'unsafe-inline'; script-src must not.
+    const scriptSrc = csp.split(";").map(part => part.trim()).find(part => part.startsWith("script-src ")) ?? "";
+    expect(scriptSrc).toContain(`'nonce-${nonce}'`);
+    expect(scriptSrc).toContain("'strict-dynamic'");
+    expect(scriptSrc).not.toContain("'unsafe-inline'");
+    expect(csp).toContain("frame-ancestors 'none'");
+    // Browsers hide the nonce attribute value from the DOM API but keep the property.
+    const scriptNonces = await page.locator("script[src]").evaluateAll(scripts => scripts.map(script => (script as HTMLScriptElement).nonce));
+    expect(scriptNonces.length).toBeGreaterThan(0);
+    expect(new Set(scriptNonces)).toEqual(new Set([nonce]));
+    nonces.push(nonce!);
+  }
+  expect(nonces[0]).not.toBe(nonces[1]);
+  await page.getByLabel("Email, số điện thoại hoặc tên đăng nhập").fill("owner@demo.vn");
+  await page.getByLabel("Mật khẩu", { exact: true }).fill(password());
+  await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Tổng quan", exact: true })).toBeVisible({ timeout: 90_000 });
+  await expect.poll(() => page.evaluate(() => Boolean((window as unknown as { next?: { version?: string } }).next?.version))).toBe(true);
+  await page.goto(origin() + "/media");
+  await expect(page.getByRole("heading", { name: "Media", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
+});
+
 test("content editor: typing updates preview within 2 s and leave warns", async ({ page }) => {
   test.setTimeout(240_000);
   await page.context().grantPermissions(["local-network-access"]);

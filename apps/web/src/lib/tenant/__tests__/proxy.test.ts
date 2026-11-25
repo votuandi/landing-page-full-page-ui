@@ -15,6 +15,56 @@ const request = (host: string, path = "/", extra: Record<string, string> = {}) =
 const resolver = { resolve: async (host: string) => records.find((value) => value.hostname === host) ?? null };
 const proxy = createProxy(resolver, { enabled: true, production: false });
 
+test("security headers on public pages", async () => {
+  const route = createProxy(resolver, { enabled: true, production: true });
+  const response = await route(request("a.localhost"));
+  const csp = response.headers.get("content-security-policy")!;
+  for (const directive of ["default-src 'self'", "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com", "object-src 'none'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'"]) assert.ok(csp?.includes(directive), directive);
+  assert.doesNotMatch(csp, /nonce-|sha256-|unsafe-eval|upgrade-insecure-requests/);
+  assert.equal(response.headers.get("strict-transport-security"), "max-age=31536000");
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(response.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+  assert.equal(response.headers.get("permissions-policy"), "camera=(), microphone=(), geolocation=(), payment=()");
+  assert.equal(response.headers.get("x-frame-options"), "DENY");
+});
+
+test("securityHeaders dev vs production", async () => {
+  for (const production of [false, true]) {
+    const response = await createProxy(resolver, { enabled: true, production })(request("a.localhost"));
+    const csp = response.headers.get("content-security-policy")!;
+    assert.equal(csp?.includes("'unsafe-eval'"), !production);
+    assert.equal(csp?.includes(" ws:"), !production);
+    assert.equal(response.headers.has("strict-transport-security"), production);
+  }
+});
+
+test("every proxy response carries security headers", async t => {
+  t.mock.method(console, "error", () => {});
+  const cases = [
+    { record: records[0], path: "/", status: 200 },
+    { record: records[0], path: "/api/lead", status: 200 },
+    { record: records[0], path: "/api", status: 200 },
+    { record: records[0], path: "/api/revalidate", status: 200 },
+    { record: records[0], path: "/sites/x", status: 404 },
+    { record: records[0], path: "/%FF", status: 404 },
+    { record: null, path: "/", status: 404 },
+    { record: { ...records[0], status: "pending" as const }, path: "/", status: 404 },
+    { record: { ...records[0], tenantStatus: "suspended" as const }, path: "/", status: 403 },
+    { record: { ...records[0], isPrimary: false, primaryHost: "canonical.localhost" }, path: "/", status: 308 },
+    { record: { ...records[0], isPrimary: false, primaryHost: "bad/host" }, path: "/", status: 404 },
+    { record: records[0], path: "/lab", enabled: false, status: 200 },
+    { record: records[0], path: "/", throws: true, status: 503 },
+  ];
+  for (const c of cases) {
+    const route = createProxy({ resolve: async () => { if (c.throws) throw Error("offline"); return c.record; } }, { enabled: c.enabled ?? true, production: true });
+    const response = await route(request("a.localhost", c.path));
+    assert.equal(response.status, c.status);
+    assert.ok(response.headers.get("content-security-policy"), `${c.status} ${c.path}`);
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  }
+  assert.ok((await proxy(request("bad/host"))).headers.has("content-security-policy"));
+});
+
 test("health bypasses host proxy", () => {
   for (const url of ["/api/health", "/api/health/", "/api/health?probe=1"]) {
     assert.equal(unstable_doesMiddlewareMatch({ config, url }), false, url);
@@ -33,14 +83,15 @@ test("icon routes rewrite tenant PNGs and preserve version query", async () => {
   }
 });
 
-test("preview frame-ancestors uses admin port in dev and no port in production", async t => {
+test("preview keeps admin frame-ancestors: admin port in dev and no port in production", async t => {
   const previous = process.env.ADMIN_PUBLIC_PORT, domain = process.env.PLATFORM_DOMAIN;
   t.after(() => { if (previous === undefined) delete process.env.ADMIN_PUBLIC_PORT; else process.env.ADMIN_PUBLIC_PORT = previous; if (domain === undefined) delete process.env.PLATFORM_DOMAIN; else process.env.PLATFORM_DOMAIN = domain; });
   process.env.ADMIN_PUBLIC_PORT = "3300"; process.env.PLATFORM_DOMAIN = "solar.localhost";
   for (const production of [false, true]) {
     const route = createProxy({ resolve: async () => null }, { enabled: true, production });
     const response = await route(new NextRequest("http://a.preview.solar.localhost:3212/api/preview", { headers: { host: "a.preview.solar.localhost:3212" } }));
-    assert.equal(response.headers.get("Content-Security-Policy"), production ? "frame-ancestors https://a.admin.solar.localhost" : "frame-ancestors http://a.admin.solar.localhost:3300");
+    assert.ok(response.headers.get("Content-Security-Policy")?.split("; ").includes(production ? "frame-ancestors https://a.admin.solar.localhost" : "frame-ancestors http://a.admin.solar.localhost:3300"));
+    assert.equal(response.headers.has("x-frame-options"), false);
   }
 });
 
@@ -57,7 +108,8 @@ test("preview requires a tenant/site MAC cookie; entry bypasses cookie and every
     assert.equal(response.status, 401);
     assert.equal(response.headers.get("cache-control"), "private, no-store");
     assert.equal(response.headers.get("x-robots-tag"), "noindex");
-    assert.equal(response.headers.get("content-security-policy"), "frame-ancestors http://a.admin.localhost");
+    assert.ok(response.headers.get("content-security-policy")?.split("; ").includes("frame-ancestors http://a.admin.localhost"));
+    assert.equal(response.headers.has("x-frame-options"), false);
   }
   const entry = await preview(request(record.hostname, "/api/preview?token=x"));
   assert.equal(entry.headers.get("x-middleware-request-x-preview"), "1");
@@ -205,4 +257,15 @@ test("internal revalidation bypasses host lookup and strips spoofed tenant heade
   assert.equal(response.headers.get("x-middleware-next"), "1");
   assert.equal(response.headers.get("x-middleware-request-x-tenant-id"), null);
   assert.equal(response.headers.get("x-middleware-request-x-site-id"), null);
+});
+
+test("public CSP allows the configured http media origin for images and video only", async t => {
+  const previous = process.env.MEDIA_PUBLIC_BASE;
+  t.after(() => { if (previous === undefined) delete process.env.MEDIA_PUBLIC_BASE; else process.env.MEDIA_PUBLIC_BASE = previous; });
+  process.env.MEDIA_PUBLIC_BASE = "http://localhost:3212/media";
+  const csp = (await proxy(request("a.localhost"))).headers.get("content-security-policy") ?? "";
+  const directive = (name: string) => csp.split("; ").find(part => part.startsWith(`${name} `)) ?? "";
+  assert.match(directive("img-src"), / http:\/\/localhost:3212( |$)/);
+  assert.match(directive("media-src"), / http:\/\/localhost:3212( |$)/);
+  for (const name of ["script-src", "connect-src", "frame-src", "default-src"]) assert.doesNotMatch(directive(name), /localhost:3212/);
 });

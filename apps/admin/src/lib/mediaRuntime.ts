@@ -3,8 +3,16 @@ import { storageFor } from "@solar/storage";
 import { getRuntime } from "./runtime.ts";
 import { createMediaHandlers } from "./media.ts";
 import { getSiteEntitlements } from "./entitlements.ts";
+import { redisCounter } from "@solar/auth";
+import { createMediaLimiter } from "./mediaRateLimit.ts";
+
+const limit = createMediaLimiter({ primary: () => {
+  const { redis } = getRuntime();
+  return redis ? redisCounter(redis) : undefined;
+} });
 
 export const mediaHandlers = createMediaHandlers({
+  limit,
   canUploadVideo: async () => (await getSiteEntitlements())("videoUpload"),
   storage: storageFor,
   store: {

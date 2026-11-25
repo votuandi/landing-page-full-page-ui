@@ -37,7 +37,7 @@ async function boundedBody(request: Request, max: number, allowEmpty = false): P
 }
 
 /** route() supplies the authenticated host tenant, permission and same-origin checks. */
-export function createMediaHandlers({ store, storage, defaultDriver = envDriver, canUploadVideo }: { store: MediaStore; storage(kind: StorageKind): StorageDriver; defaultDriver?(): StorageKind; canUploadVideo(): Promise<boolean> }) {
+export function createMediaHandlers({ store, storage, defaultDriver = envDriver, canUploadVideo, limit }: { store: MediaStore; storage(kind: StorageKind): StorageDriver; defaultDriver?(): StorageKind; canUploadVideo(): Promise<boolean>; limit?(tenantId: string): Promise<{ ok: boolean; retryAfterS: number }> }) {
   const guarded = (handler: (request: Request, context: ActionContext) => Promise<Response>) => async (request: Request, context: ActionContext) => {
     try { return await handler(request, context); }
     catch (error) {
@@ -55,6 +55,10 @@ export function createMediaHandlers({ store, storage, defaultDriver = envDriver,
   };
   return {
     reserve: guarded(async (request, { tenantId }) => {
+      const budget = await limit?.(tenantId);
+      if (budget && !budget.ok) return Response.json({ error: "Tải lên quá nhiều tệp, vui lòng thử lại sau ít phút." }, {
+        status: 429, headers: { "Retry-After": String(budget.retryAfterS) },
+      });
       let raw: unknown;
       try { raw = JSON.parse(Buffer.from(await boundedBody(request, 2048)).toString("utf8")); }
       catch (error) { if (error instanceof MediaError) throw error; throw new MediaError("Thông tin tệp không hợp lệ."); }
