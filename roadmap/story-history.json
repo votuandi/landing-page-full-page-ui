@@ -6,6 +6,7 @@
     { "id": "E12-S07", "pr": 85, "mergedAt": "2026-11-05", "regression": false },
     { "id": "E12-S08", "pr": 86, "mergedAt": "2026-11-05", "regression": false },
     { "id": "E14-S01", "pr": 87, "mergedAt": "2026-11-06", "regression": false },
-    { "id": "E14-S02", "pr": 88, "mergedAt": "2026-11-06", "regression": false }
+    { "id": "E14-S02", "pr": 88, "mergedAt": "2026-11-06", "regression": false },
+    { "id": "E14-S04", "pr": 89, "mergedAt": "2026-11-25", "regression": false }
   ]
 }
