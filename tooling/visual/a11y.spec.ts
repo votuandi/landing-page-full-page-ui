@@ -31,11 +31,16 @@ for (const width of [390, 1440]) for (const scheme of ["light", "dark"] as const
     test.use({ viewport: { width, height: width === 390 ? 844 : 900 }, colorScheme: scheme });
     for (const id of presets) test(`a11y preset ${id} ${width}px ${scheme} has no serious/critical axe violations`, async ({ page }, info) => {
       await page.addInitScript((s) => { localStorage.setItem("t15-theme", s); sessionStorage.setItem("t15-consult-shown", "1"); }, scheme);
+      // Hydrate sạch (vd. số đếm stats t10 có bản sr-only): không lỗi trang, không cảnh báo hydration.
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      page.on("console", (msg) => { if (msg.type() === "error" && /hydrat/i.test(msg.text())) errors.push(msg.text()); });
       expect((await page.goto(`/lab/presets/${id}`, { waitUntil: "networkidle" }))?.status()).toBe(200);
       await settle(page);
       const found = await seriousViolations(page);
       if (found.length) await info.attach(`axe-${id}`, { body: JSON.stringify(found, null, 2), contentType: "application/json" });
       expect(found).toEqual([]);
+      expect(errors).toEqual([]);
     });
   });
 }

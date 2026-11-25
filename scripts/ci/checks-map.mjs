@@ -106,7 +106,7 @@ export const CHECKS = {
       "tooling/visual/playwright.sections.config.ts"],
     // Khớp testMatch của playwright.sections.config.ts.
     specs: ["sections-bundle", "fields", "renderer", "conversion", "content", "premium", "widgets", "preset-home", "t11", "cms-form",
-      "cms-sections", "cms-content"].map((name) => `tooling/visual/${name}.spec.ts`),
+      "cms-sections", "cms-content", "a11y"].map((name) => `tooling/visual/${name}.spec.ts`),
   },
 };
 

@@ -243,3 +243,10 @@ test("E7-S10: link workspace ngoài matrix/visual không kéo bộ ảnh chụp;
   assert.ok(affectedChecks(["apps/web/package.json"], { links: { "apps/web/package.json": ["packages/sections/"] } }).includes("matrix"),
     "link tới package thuộc matrix vẫn chạy");
 });
+
+test("E14-S06: specs của e2e:sections khớp testMatch của playwright.sections.config.ts", async () => {
+  const { readFileSync } = await import("node:fs");
+  const config = readFileSync("tooling/visual/playwright.sections.config.ts", "utf8");
+  const testMatch = [.../testMatch:\s*\[([^\]]*)\]/.exec(config)[1].matchAll(/"([^"]+)"/g)].map((m) => `tooling/visual/${m[1]}`);
+  assert.deepEqual([...CHECKS["e2e:sections"].specs].sort(), testMatch.sort());
+});
