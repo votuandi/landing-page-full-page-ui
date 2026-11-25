@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getRuntime } from "./lib/runtime.ts";
 import { hostContext, requestHost } from "./lib/hostContext.ts";
 import { adminCsp } from "./lib/csp.ts";
+import { mediaOrigins } from "@solar/storage/media-origins";
 import { previewOrigin } from "./lib/previewUrl.ts";
 
 export async function proxy(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function proxy(request: NextRequest) {
   const tenant = await runtime.resolveHost(host);
   const production = process.env.NODE_ENV === "production";
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const csp = adminCsp({ nonce, production, previewOrigin: tenant ? previewOrigin({
+  const csp = adminCsp({ nonce, production, mediaOrigins: mediaOrigins(), previewOrigin: tenant ? previewOrigin({
     slug: tenant.slug, platform: runtime.platform, production, port: process.env.TENANT_PUBLIC_PORT,
   }) : undefined });
   // Next reads the request CSP to apply this nonce to its own scripts.

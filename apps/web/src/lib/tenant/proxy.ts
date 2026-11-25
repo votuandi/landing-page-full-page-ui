@@ -4,6 +4,7 @@ import type { HostLookup } from "./resolver";
 import { previewSlug, previewCookieName, verifyPreviewCookie } from "./preview";
 import { cookieLocale, formatTenantContext } from "./routeContext";
 import { securityHeaders } from "../security/headers";
+import { mediaOrigins } from "@solar/storage/media-origins";
 
 /** Internal page path: tenant, site, locale and preview live in the URL so pages can be cached (E5-S06). */
 export function tenantRewritePath(request: NextRequest, record: { tenantId: string; siteId: string }, preview: boolean) {
@@ -24,7 +25,7 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     const slug = host ? previewSlug(host) : null;
     const adminPort = !production ? process.env.ADMIN_PUBLIC_PORT ?? request.nextUrl.port : "";
     const frameAncestors = slug ? `${production ? "https:" : request.nextUrl.protocol}//${slug}.admin.${process.env.PLATFORM_DOMAIN}${adminPort ? `:${adminPort}` : ""}` : undefined;
-    const responseHeaders = securityHeaders({ production, frameAncestors });
+    const responseHeaders = securityHeaders({ production, frameAncestors, mediaOrigins: mediaOrigins() });
     const secure = (response: NextResponse) => {
       for (const [key, value] of Object.entries(responseHeaders)) response.headers.set(key, value);
       if (slug) {

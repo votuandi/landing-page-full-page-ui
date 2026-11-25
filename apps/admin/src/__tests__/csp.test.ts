@@ -17,3 +17,11 @@ test("admin CSP dev vs production and preview origins", () => {
     assert.doesNotMatch(csp.split("; ").find(d => d.startsWith("script-src"))!, /unsafe-inline/);
   }
 });
+
+test("admin CSP allows configured http media origins for images and video only", () => {
+  const csp = adminCsp({ nonce: "bm9uY2U=", production: true, mediaOrigins: ["http://localhost:3212"] });
+  const directive = (name: string) => csp.split("; ").find(part => part.startsWith(`${name} `)) ?? "";
+  assert.match(directive("img-src"), / http:\/\/localhost:3212( |$)/);
+  assert.match(directive("media-src"), / http:\/\/localhost:3212( |$)/);
+  for (const name of ["script-src", "connect-src", "frame-src", "default-src"]) assert.doesNotMatch(directive(name), /localhost:3212/);
+});

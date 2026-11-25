@@ -258,3 +258,14 @@ test("internal revalidation bypasses host lookup and strips spoofed tenant heade
   assert.equal(response.headers.get("x-middleware-request-x-tenant-id"), null);
   assert.equal(response.headers.get("x-middleware-request-x-site-id"), null);
 });
+
+test("public CSP allows the configured http media origin for images and video only", async t => {
+  const previous = process.env.MEDIA_PUBLIC_BASE;
+  t.after(() => { if (previous === undefined) delete process.env.MEDIA_PUBLIC_BASE; else process.env.MEDIA_PUBLIC_BASE = previous; });
+  process.env.MEDIA_PUBLIC_BASE = "http://localhost:3212/media";
+  const csp = (await proxy(request("a.localhost"))).headers.get("content-security-policy") ?? "";
+  const directive = (name: string) => csp.split("; ").find(part => part.startsWith(`${name} `)) ?? "";
+  assert.match(directive("img-src"), / http:\/\/localhost:3212( |$)/);
+  assert.match(directive("media-src"), / http:\/\/localhost:3212( |$)/);
+  for (const name of ["script-src", "connect-src", "frame-src", "default-src"]) assert.doesNotMatch(directive(name), /localhost:3212/);
+});
