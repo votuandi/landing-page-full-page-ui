@@ -19,7 +19,7 @@
     "@dnd-kit/utilities": "3.2.2",
     "@solar/sections": "workspace:*",
     "@solar/ui": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "peerDependencies": {
     "react": "19.2.8"
@@ -33,7 +33,7 @@
     "@types/react-dom": "19.2.7",
     "eslint": "9.39.5",
     "jsdom": "25.0.1",
-    "next": "16.4.3",
+    "next": "16.4.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tsx": "4.23.15",

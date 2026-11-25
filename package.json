@@ -29,5 +29,33 @@
   "packageManager": "pnpm@10.34.6",
   "engines": {
     "node": ">=20.9"
+  },
+  "//": {
+    "flatted@<3.4.2": "GHSA-25h7-pfq9-p65f, GHSA-rf6f-7fwh-wjgh",
+    "picomatch@<2.3.2": "GHSA-c2c7-rcm5-vvqj (2.x)",
+    "picomatch@>=4.0.0 <4.0.4": "GHSA-c2c7-rcm5-vvqj (4.x)",
+    "brace-expansion@<1.1.20": "GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg, GHSA-rgw5-rvv9-x895, GHSA-qhr7-859c-m2p7, GHSA-6j4f-fj2g-mc7p (1.x)",
+    "brace-expansion@>=3.0.0 <5.0.11": "GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg, GHSA-rgw5-rvv9-x895, GHSA-qhr7-859c-m2p7, GHSA-6j4f-fj2g-mc7p (3.x–5.x)",
+    "deepmerge-ts@<8.0.0": "GHSA-ggr8-5vv4-36mx",
+    "browserslist@<4.28.7": "GHSA-c83g-rgw3-j3cx, GHSA-73wf-gq98-2v4g",
+    "mysql2@<3.22.0": "GHSA-3f6p-5ww8-9rcr",
+    "source-map-js@>=1.0.0 <1.2.2": "GHSA-68fv-2mgg-jv7q",
+    "effect@<3.22.1": "GHSA-7589-6fvf-x4pw",
+    "zod@<4.6.6": "GHSA-mrhx-c7xc-m3w5 (transitive copies)"
+  },
+  "pnpm": {
+    "overrides": {
+      "flatted@<3.4.2": "3.4.2",
+      "picomatch@<2.3.2": "2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4",
+      "brace-expansion@<1.1.20": "1.1.20",
+      "brace-expansion@>=3.0.0 <5.0.11": "5.0.11",
+      "deepmerge-ts@<8.0.0": "8.0.0",
+      "browserslist@<4.28.7": "4.28.7",
+      "mysql2@<3.22.0": "3.22.0",
+      "source-map-js@>=1.0.0 <1.2.2": "1.2.2",
+      "effect@<3.22.1": "3.22.1",
+      "zod@<4.6.6": "4.6.6"
+    }
   }
 }

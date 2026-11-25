@@ -12,7 +12,7 @@
   "dependencies": {
     "@solar/sections": "workspace:*",
     "@solar/themes": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@solar/config": "workspace:*",

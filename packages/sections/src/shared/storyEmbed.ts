@@ -1,6 +1,8 @@
 import { storySource, type StorySource } from "../collections/schemas";
 import { mediaSrc } from "./media";
 
+export const FRAME_SOURCES: readonly string[] = ["https://www.youtube-nocookie.com", "https://www.youtube.com", "https://www.tiktok.com"];
+
 export function storyEmbed(input: StorySource): { kind: "iframe" | "video"; src: string } {
   if (input.provider === "file") {
     const src = mediaSrc({ id: input.idOrSrc, alt: { vi: "" } });

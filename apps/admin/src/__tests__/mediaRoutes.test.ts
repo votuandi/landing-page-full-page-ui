@@ -6,6 +6,8 @@ import type { StorageDriver } from "@solar/storage";
 import { createRoute } from "../lib/action.ts";
 import { createMediaHandlers, type MediaStore } from "../lib/media.ts";
 import { MediaInUseError } from "@solar/db";
+import { memoryCounter, redisCounter } from "@solar/auth";
+import { createMediaLimiter } from "../lib/mediaRateLimit.ts";
 
 const tenantId = randomUUID(), id = randomUUID(), base = "http://demo.admin.solar.localhost";
 
@@ -24,7 +26,7 @@ test("reserve uses tenant driver and read/complete/delete use row driver", async
   assert.equal((await call(handlers.remove, "DELETE")).status, 204);
   assert.ok(selected.length >= 4);
 });
-function setup(s3 = false, videoUpload = false) {
+function setup(s3 = false, videoUpload = false, limit?: (tenantId: string) => Promise<{ ok: boolean; retryAfterS: number }>) {
   const row = { id, tenantId, key: `quarantine/${tenantId}/${id}`, status: "quarantine", visibility: "private", mime: "image/png", size: 8, driver: s3 ? "s3" as const : "local" as const };
   const files = new Map<string, Uint8Array>(); const calls: string[] = [];
   const store: MediaStore = {
@@ -38,13 +40,59 @@ function setup(s3 = false, videoUpload = false) {
     list: async function* () {}, publicUrl: () => { throw Error("private"); },
     ...(s3 ? { signedUploadUrl: async () => ({ url: "http://minio:9000/bucket/quarantine", headers: { "Content-Type": "image/png" } }) } : {}),
   };
-  const handlers = createMediaHandlers({ store, storage: () => storage, canUploadVideo: async () => videoUpload });
+  const handlers = createMediaHandlers({ store, storage: () => storage, canUploadVideo: async () => videoUpload, limit });
   const owner: Session = { id: "session", tenantId, role: "owner", realm: "site", audience: "admin", kind: "user", mustChangePassword: false,
     expiresAt: new Date(Date.now() + 60_000), permissions: effectivePermissions({ role: "owner", audience: "admin" }) };
   const route = (session: Session | null = owner, tenant = tenantId) => createRoute(async () => ({ session, tenantId: tenant, slug: "demo" }));
   const request = (suffix = "", method = "GET", body?: string, origin = base) => new Request(`${base}/api/media/${id}${suffix}`, { method, headers: { Origin: origin, Host: new URL(base).host }, body });
   return { row, calls, files, handlers, route, owner, request };
 }
+
+test("reserve rate limit per tenant", async () => {
+  let now = 0;
+  const limit = createMediaLimiter({ fallback: memoryCounter(() => now) });
+  const f = setup(false, false, limit);
+  const reserve = f.route()("media.manage", f.handlers.reserve);
+  for (let i = 0; i < 60; i++) assert.equal((await reserve(f.request("", "POST", JSON.stringify({ mime: "image/png", size: 8 })))).status, 201);
+  const blocked = f.request("", "POST", "invalid JSON must not be read");
+  const response = await reserve(blocked);
+  assert.equal(response.status, 429); assert.equal(response.headers.get("retry-after"), "600");
+  assert.equal((await response.json()).error, "Tải lên quá nhiều tệp, vui lòng thử lại sau ít phút.");
+  assert.equal(blocked.bodyUsed, false); assert.equal(f.calls.filter(c => c === "reserve").length, 60);
+  const other = randomUUID();
+  assert.equal((await f.route({ ...f.owner, tenantId: other }, other)("media.manage", f.handlers.reserve)(f.request("", "POST", JSON.stringify({ mime: "image/png", size: 8 })))).status, 201);
+  now = 599_500;
+  assert.equal((await reserve(f.request("", "POST", "{}"))).headers.get("retry-after"), "1");
+  now = 600_000;
+  assert.equal((await reserve(f.request("", "POST", JSON.stringify({ mime: "image/png", size: 8 })))).status, 201);
+});
+
+test("rate limit falls back to memory", async () => {
+  let offline = false;
+  const shared = memoryCounter(() => 0);
+  const counter = redisCounter({ eval: async (_script, _count, key, windowMs) => {
+    if (offline) throw Error("Redis offline");
+    assert.equal(key, `media:reserve:${tenantId}`); assert.equal(windowMs, 600_000);
+    const result = await shared.increment(String(key), Number(windowMs));
+    return [result.count, result.resetMs];
+  } });
+  const limit = createMediaLimiter({ primary: () => counter, fallback: memoryCounter(() => 0) });
+  const f = setup(false, false, limit), reserve = f.route()("media.manage", f.handlers.reserve);
+  for (let i = 0; i < 60; i++) {
+    if (i === 30) offline = true;
+    assert.equal((await reserve(f.request("", "POST", JSON.stringify({ mime: "image/png", size: 8 })))).status, 201);
+  }
+  assert.equal((await reserve(f.request("", "POST", "{}"))).status, 429);
+  offline = false;
+  assert.equal((await reserve(f.request("", "POST", "{}"))).status, 429);
+});
+
+test("concurrent reserve attempts cannot pass the tenant limit", async () => {
+  const limit = createMediaLimiter();
+  const results = await Promise.all(Array.from({ length: 61 }, () => limit(tenantId)));
+  assert.equal(results.filter(r => r.ok).length, 60);
+  assert.equal(results.filter(r => !r.ok).length, 1);
+});
 
 test("video upload requires videoUpload before reservation or presign; images remain available", async () => {
   for (const s3 of [false, true]) for (const allowed of [false, true]) for (const mime of ["video/mp4", "video/quicktime", "video/webm", "image/png"]) {
