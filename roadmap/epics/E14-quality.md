@@ -58,7 +58,7 @@
 - **AC**: [ ] CI fail khi vượt ngân sách · [ ] p95 TTFB ≤ 300 ms ở 200 RPS (trang cache).
 - Phụ thuộc: E4, E5, E10-S09 · Agent: Codex · Cỡ: M
 
-### E14-S06 · Truy cập (a11y)
+### E14-S06 · Truy cập (a11y) ✅ [PR #90](https://github.com/votuandi/landing-page-full-page-ui/pull/90)
 - **Chi tiết**: axe-core trong e2e và ma trận section; bàn phím cho carousel, dialog, mega menu, builder; `prefers-reduced-motion`;
   nội dung hiện khi tắt JS (yêu cầu sẵn có từ t07); kiểm tương phản sau override màu (E2-S05).
 - **AC**: [x] 0 vi phạm axe mức serious/critical trên 15 preset. (`tooling/visual/a11y.spec.ts` 62/62 PASS local: 15 preset × 390/1440 × light/dark + bàn phím carousel + tên nút hotline)
