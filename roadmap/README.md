@@ -207,7 +207,7 @@ phụ thuộc, agent đề xuất, cỡ (S ≤ 1 ngày, M 2–3 ngày, L 4–5 n
 | Caddy on-demand TLS bị lạm dụng | Bị rate-limit Let's Encrypt | Endpoint `ask` chỉ cho tên miền đã xác minh trong DB (E9-S02) |
 | Nâng Next 16 làm vỡ template-15 | Chậm P0 | Nâng ở E1-S03 với test hồi quy trực quan trước/sau |
 | Builder phình phạm vi | Trễ P6 | Builder chỉ thao tác trên section/variant/props có sẵn; không tự do pixel |
-| CSP nonce buộc render động, mất ISR | TTFB tăng mạnh | CSP tĩnh + hash cho `apps/web` (D13) |
+| CSP nonce buộc render động, mất ISR | TTFB tăng mạnh | CSP tĩnh cho `apps/web`, cho phép inline Flight script theo D13 |
 | Webhook/URL do khách nhập bị lợi dụng SSRF | Lộ mạng nội bộ, metadata cloud | Chặn IP nội bộ, kiểm lại IP lúc kết nối (E11-S02) |
 | Mất lead / mất lệnh revalidate khi crash | Mất khách, site cũ | Transactional outbox + worker idempotent (D14, E11-S01) |
 | Lộ tài khoản super admin / lạm dụng ghost | Truy cập mọi site | Console tách app + 2FA bắt buộc + IP allowlist tùy chọn; ghost cần lý do, nhập lại TOTP, 30 phút, audit, owner thấy được (D18) |

@@ -93,10 +93,15 @@ Trạng thái: **Đề xuất** cho tới khi story liên quan được duyệt.
   `revalidateTag` có hiệu lực ở mọi instance. Không có Redis (dev) → cache bộ nhớ.
 
 ## D13. CSP tương thích trang tĩnh
-- Nonce theo request buộc render động → mất ISR/PPR. Vì vậy `apps/web` dùng CSP tĩnh trong header: `script-src 'self'` +
-  **hash** của các inline script cố định (script chống nhấp nháy dark mode, JSON-LD dùng `type="application/ld+json"` không cần
-  hash), `style-src 'self' 'unsafe-inline'` (CSS biến theme inline; rủi ro thấp vì không cho phép script), `frame-src` theo danh
-  sách provider video. `apps/admin` (luôn động) dùng nonce.
+- Nonce theo request buộc render động → mất ISR/PPR. Vì vậy `apps/web` dùng CSP tĩnh trong header:
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com`, `style-src 'self' 'unsafe-inline'` (biến theme inline),
+  `frame-src` chỉ cho provider iframe của story và Turnstile. `apps/admin` (luôn động) dùng nonce mới mỗi request;
+  `apps/console` sẽ dùng nonce khi triển khai E15.
+- Quyết định 25/11/2026 (E14-S04): App Router Next 16.4 sinh inline Flight script theo từng trang (`self.__next_f.push`),
+  nên hash cố định không phủ được nội dung khi vẫn giữ ISR. Không trộn hash/nonce với `'unsafe-inline'` vì trình duyệt sẽ
+  bỏ qua `'unsafe-inline'`. Đây là đánh đổi có chủ ý: CSP web không chặn mọi inline script bị chèn; vẫn phải escape/sanitize
+  nội dung tenant, giữ `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'` (preview chỉ admin).
+  Tham chiếu: [Next.js CSP](https://nextjs.org/docs/app/guides/content-security-policy).
 
 ## D14. Lệnh bất đồng bộ đi qua outbox
 - Mọi tác dụng phụ sau khi ghi DB (revalidate cache, gửi lead tới kênh, xử lý ảnh) được ghi vào bảng `Outbox` trong cùng

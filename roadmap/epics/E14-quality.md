@@ -42,7 +42,7 @@
 - Phụ thuộc: E5-S09, E7, E15 · Agent: Codex (review Claude adversarial) · Cỡ: M
 
 ### E14-S04 · Bảo mật ứng dụng
-- **Chi tiết**: CSP theo D13 — `apps/web` CSP tĩnh + hash script (không nonce để giữ ISR), `apps/admin` và `apps/console` nonce;
+- **Chi tiết**: CSP theo D13 — `apps/web` CSP tĩnh + `'unsafe-inline'` cho Flight script (không nonce để giữ ISR), `apps/admin` và `apps/console` nonce;
   console: 2FA bắt buộc, IP allowlist tùy chọn, nhập lại TOTP trước ghost (D18); `frame-src`
   cho YouTube/TikTok/Bunny theo cấu hình; chống SSRF cho mọi URL do tenant nhập (webhook, ảnh từ URL); cookie `Secure; HttpOnly;
   SameSite=Lax`; CSRF cho Server Actions (origin check mặc định của Next) và API; rate-limit đăng nhập/lead/upload; kiểm phụ thuộc
