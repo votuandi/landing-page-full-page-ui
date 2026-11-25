@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
 import { sectionRegistry } from "../registry";
 import { widgetRegistry } from "../widgets/registry";
+import StatsT10Counter from "../stats/t10.island";
 
 const site = { tenantId: "test", locale: "vi", themeId: "t10" } as const;
 const items = {
@@ -24,6 +25,15 @@ async function render(registry: typeof sectionRegistry | typeof widgetRegistry, 
   return renderToStaticMarkup(createElement(Component, { data, site: { ...site, locale }, sectionId: type }));
 }
 const text = (value: string) => renderToStaticMarkup(createElement("span", null, value)).slice(6, -7);
+
+test("stats t10 SSR exposes final localized values to screen readers without JavaScript", () => {
+  for (const [locale, expected] of [["vi", "1.234,5"], ["en", "1,234.5"]] as const) {
+    const html = renderToStaticMarkup(createElement(StatsT10Counter, { value: 1234.5, decimals: 1, locale }));
+    assert.ok(html.includes(`<span class="sr-only">${expected}</span>`));
+    assert.ok(html.includes(`<span aria-hidden="true">${expected}</span>`));
+    assert.doesNotMatch(html, /aria-label=/);
+  }
+});
 
 test("13 section t10 + contact-dock t10 render với defaults chung của type (VI/EN)", async () => {
   for (const type of T10_SECTIONS) {

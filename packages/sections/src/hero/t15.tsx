@@ -130,7 +130,7 @@ export default function HeroT15({ data, site }: SectionPropsOf<typeof hero>) {
 
           {co2Card && (
             <div data-reveal="up" style={delay(0.85)} className="t15-float-delay absolute bottom-[1%] right-0 hidden rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-xl sm:block">
-              <div className="text-2xs font-semibold text-on-primary/85">{t(co2Card.label)}</div>
+              <div className="text-2xs font-semibold text-on-primary">{t(co2Card.label)}</div>
               <div className="text-lg font-black">{co2Card.value}{co2Card.unit && <> {t(co2Card.unit)}</>}</div>
             </div>
           )}

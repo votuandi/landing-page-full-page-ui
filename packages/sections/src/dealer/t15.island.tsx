@@ -89,7 +89,7 @@ export default function Dealer({ policies, faqs, gallery, form, policyTab, faqTa
       </div>
       <div className="flex min-w-0 flex-col">
         <div className="flex items-center justify-between gap-4"><h3 className="text-lg font-black">{locale === "en" ? "Events" : "Hoạt động & sự kiện"}</h3><CarouselNav prevLabel={locale === "en" ? "Previous" : "Trước"} nextLabel={locale === "en" ? "Next" : "Tiếp"} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} /></div>
-        <div ref={c.ref} className="t15-no-scrollbar mt-4 flex flex-1 snap-x snap-mandatory gap-3 overflow-x-auto">
+        <div ref={c.ref} tabIndex={0} role="region" aria-label={locale === "en" ? "Events" : "Hoạt động & sự kiện"} className="t15-no-scrollbar mt-4 flex flex-1 snap-x snap-mandatory gap-3 overflow-x-auto">
           {gallery.map((g, i) => <figure key={i} className="relative min-h-[280px] w-[88%] shrink-0 snap-start overflow-hidden rounded-card border border-glass-border sm:w-[70%]">
             <MediaImage src={g.src} alt={g.alt} sizes="(max-width:1024px) 85vw, 35vw" /><div className="absolute inset-0 bg-gradient-to-t from-scrim/85 to-transparent" />
             <figcaption className="absolute inset-x-4 bottom-4 text-lg font-black text-on-media">{g.title}</figcaption>

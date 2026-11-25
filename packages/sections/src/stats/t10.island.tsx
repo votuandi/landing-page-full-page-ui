@@ -10,5 +10,5 @@ export default function StatsT10Counter({ value, decimals, locale }: { value: nu
   useLayoutEffect(() => { if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setAnimate(true); }, []);
   const counted = useCountUp(value, { duration: 1200, start: animate && seen });
   const format = (n: number) => new Intl.NumberFormat(locale === "en" ? "en-US" : "vi-VN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n);
-  return <span ref={ref} className="tabular-nums" aria-label={format(value)}><span aria-hidden>{format(animate ? counted : value)}</span></span>;
+  return <span ref={ref} className="tabular-nums"><span className="sr-only">{format(value)}</span><span aria-hidden>{format(animate ? counted : value)}</span></span>;
 }

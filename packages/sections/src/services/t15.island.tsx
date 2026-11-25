@@ -43,7 +43,7 @@ export default function Services({ items, stories, sectionId, locale }: {
       </div>)}</div>
       {stories.length > 0 && <div className="t15-card flex min-w-0 flex-col p-5 sm:p-6">
         <div className="flex items-center justify-between gap-4"><h3 className="text-lg font-black text-fg">{locale === "en" ? "On-site project videos" : "Video công trình thực tế"}</h3><CarouselNav prevLabel={locale === "en" ? "Previous" : "Trước"} nextLabel={locale === "en" ? "Next" : "Tiếp"} prev={c.prev} next={c.next} atStart={c.atStart} atEnd={c.atEnd} /></div>
-        <div ref={c.ref} className="t15-no-scrollbar mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto">
+        <div ref={c.ref} tabIndex={0} role="region" aria-label={locale === "en" ? "On-site project videos" : "Video công trình thực tế"} className="t15-no-scrollbar mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto">
           {stories.map((story, i) => <button key={story.id} type="button" onClick={() => setPlaying(i)} aria-label={(locale === "en" ? "Play video: " : "Phát video: ") + story.title}
             className="group relative aspect-video w-full shrink-0 snap-start overflow-hidden rounded-card border border-glass-border text-left">
             <MediaImage src={story.poster} alt="" sizes="(max-width:1024px) 90vw, 50vw" /><span className="absolute inset-0 bg-gradient-to-t from-scrim/85 to-transparent" />

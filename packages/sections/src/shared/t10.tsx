@@ -5,7 +5,7 @@ import { CalculatorLink } from "../render/CalculatorLink";
 
 /** Lớp dùng chung của các variant t10 (template-10: nút tròn, thẻ kính, pill phân khúc). Chỉ token. */
 export const T10 = {
-  eyebrow: "inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-accent/60 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-secondary-deep backdrop-blur",
+  eyebrow: "inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-accent px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-on-accent",
   heading: "mt-4 max-w-4xl text-4xl font-black tracking-[-0.045em] text-fg sm:text-5xl",
   sub: "mt-5 max-w-3xl text-base leading-8 text-fg-muted",
   button: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-black transition",
