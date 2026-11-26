@@ -22,31 +22,48 @@ Theme cung cấp token thiết kế; preset ghép các section dùng chung schem
 
    Script sinh `.env.ci.local` chứa mật khẩu ngẫu nhiên; giữ riêng, không commit, không bật shell tracing.
    `down` xóa container và dữ liệu. Xem [DB](packages/db/README.md#seed-demo) về seed và role.
+   Node 24 cũng chạy được; cảnh báo "Ignored build scripts" khi install bỏ qua được.
 
-3. Chép mẫu cấu hình (chỉ làm khi chưa có file local):
+   > **Nhiều worktree dùng chung một bộ container** (`solar-local-*`). Worktree chưa có `.env.ci.local` mà chạy `up`
+   > sẽ sinh mật khẩu mới, đổi mật khẩu role và tài khoản demo của mọi cây khác. Ở worktree thứ hai, chép
+   > `.env.ci.local` từ cây chính rồi mới chạy `up`/`env`; lỡ chạy rồi thì chạy lại `up` ở cây chính.
+
+3. Chép mẫu cấu hình (chỉ khi chưa có file local) rồi sửa theo bảng. Biến đã nạp từ shell (bước 2) **ưu tiên hơn**
+   `.env.local`, nên các dòng DB/Redis của file mẫu có thể xóa đi.
 
    ```bash
-   cp -n apps/web/.env.example apps/web/.env.local
-   cp -n apps/admin/.env.example apps/admin/.env.local
+   cp --update=none apps/web/.env.example apps/web/.env.local
+   cp --update=none apps/admin/.env.example apps/admin/.env.local
    ```
 
-   Sửa web: `MULTI_TENANT=1`, `PLATFORM_DOMAIN=solar.localhost`.
-   Sửa admin: `PLATFORM_DOMAIN=solar.localhost`, `TENANT_PUBLIC_PORT=3000`.
-   Web/admin dùng `DATABASE_URL` role app_runtime từ bước 2; worker dùng `PLATFORM_DATABASE_URL` role app_platform.
-   Xóa giá trị DB/Redis ví dụ khỏi file local nếu dùng biến đã nạp từ bước 2.
-   Sinh `ADMIN_SESSION_SECRET` ít nhất 32 byte; `PREVIEW_SECRET` ít nhất 32 byte dùng chung web/admin.
-   Web/worker dùng cùng `REVALIDATE_SECRET`; worker đặt `WEB_REVALIDATE_URLS=http://localhost:3000/api/revalidate`.
-   Dùng `openssl rand -hex 32` để sinh từng secret riêng, không chép secret vào tài liệu.
-   Cấu hình thêm media/email khi cần theo README app; worker nhận biến từ shell, không tự nạp `.env.local`.
+   | App | Biến | Giá trị |
+   |---|---|---|
+   | web | `MULTI_TENANT` | `1` |
+   | web, admin | `PLATFORM_DOMAIN` | `solar.localhost` |
+   | admin | `TENANT_PUBLIC_PORT` | `3000` |
+   | web, admin | `DATABASE_URL`, `REDIS_URL` | xóa dòng (lấy từ bước 2, role app_runtime) |
+   | admin | `ADMIN_SESSION_SECRET` | `openssl rand -hex 32` |
+   | web, admin | `PREVIEW_SECRET` | `openssl rand -hex 32`, **cùng một giá trị** ở hai app |
+   | web, worker | `REVALIDATE_SECRET` | `openssl rand -hex 32`, **cùng một giá trị** ở web và shell worker |
 
-4. Mở ba terminal tại gốc repo; **mỗi terminal** nạp biến bước 2. Đặt các biến dùng chung còn lại trong shell worker
-   (đặc biệt `REVALIDATE_SECRET` giống web), rồi chạy lần lượt:
+   Media/email cấu hình thêm khi cần theo README từng app. Không chép secret vào tài liệu.
+
+4. Mở ba terminal tại gốc repo; **mỗi terminal** nạp biến bước 2 (`source <(bash scripts/local-ci.sh env)`).
+   Worker không đọc `.env.local`, chỉ nhận biến từ shell; trước khi chạy worker:
+
+   ```bash
+   export REVALIDATE_SECRET=<giống web> WEB_REVALIDATE_URLS=http://localhost:3000/api/revalidate
+   ```
+
+   Rồi mỗi terminal chạy một lệnh:
 
    ```bash
    pnpm --filter web dev
    pnpm --filter admin dev
    pnpm --filter worker start
    ```
+
+   Worker chạy trên DB dev có outbox cũ sẽ in nhiều dòng "invalidate trễ > 5 phút": đây là cảnh báo, không phải lỗi.
 
    Web: [http://t15.localhost:3000](http://t15.localhost:3000).
    CMS: [http://demo-t15.admin.solar.localhost:3300/dang-nhap](http://demo-t15.admin.solar.localhost:3300/dang-nhap).
@@ -85,7 +102,13 @@ Theme cung cấp token thiết kế; preset ghép các section dùng chung schem
 Đọc [AGENTS.md](AGENTS.md), [roadmap](roadmap/README.md) và [chiến lược test](TESTING.md).
 Chọn việc bằng `node scripts/agents/story.mjs next`, rồi dùng `/run-story <ID|next>` trong Claude Code.
 Plan được duyệt trước implementation; kiểm local trước CI, review trước merge; agent không tự merge.
-Kiểm tài liệu: `node --test scripts/ci/docs-check.test.mjs`, `node scripts/ci/docs-check.mjs`, `pnpm lint:root`.
+Kiểm theo loại thay đổi, trước tiên chạy `node scripts/agents/doctor.mjs`:
+
+| Đổi gì | Chạy |
+|---|---|
+| Chỉ `*.md` | `node --test scripts/ci/docs-check.test.mjs`, `node scripts/ci/docs-check.mjs`, `pnpm lint:root` |
+| Code của package/app | thêm typecheck, lint, test của từng package đổi, vd. `pnpm --filter @solar/core test` |
+| Bộ DB/e2e bắt buộc | `git diff --name-only mono-repo-multi-tenent \| node scripts/ci/checks-map.mjs --stdin` (có story ID thì `node scripts/agents/run.mjs verify <ID>`), rồi chạy bằng `scripts/local-ci.sh` |
 
 ## Tài liệu khác
 

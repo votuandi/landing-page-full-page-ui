@@ -40,8 +40,8 @@ packages/storage  driver lưu media: local (SSD VPS) | s3 | r2
 packages/leads    adapter gửi lead (webhook, Google Sheets, Telegram) cấu hình theo tenant
 packages/plans    gói dịch vụ → entitlements (cờ tính năng + giới hạn), override theo tenant
 packages/auth     hai realm đăng nhập (site / platform): mật khẩu, phiên, TOTP, permission
-packages/platform cấu hình nền tảng (PlatformSetting) có zod schema + mặc định
-infra/            docker, caddy (on-demand TLS), aws
+packages/platform (E15-S06) cấu hình nền tảng (PlatformSetting) có zod schema + mặc định
+infra/            docker, mail; caddy (on-demand TLS) E10-S02, aws E10-S04
 docs-public/      hướng dẫn khách dùng CMS và runbook vận hành
 roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi làm xong story
 ```
