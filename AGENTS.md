@@ -23,7 +23,12 @@ gom tất cả về **một codebase, nhiều theme, nhiều khách (tenant)**:
 ```
 apps/web        Next.js: render site công khai theo tên miền (proxy/middleware → tenant), ISR
 apps/admin      Next.js: CMS của site khách ở <slug>.admin.<platform> — tài khoản SiteUser theo tenant, section, media, lead, builder
-apps/console    Next.js: CMS nền tảng của super admin ở console.<platform> — tài khoản PlatformAdmin, customer, site, gói, ghost login
+apps/console    (E15-S02) Next.js: CMS nền tảng của super admin ở console.<platform> — tài khoản PlatformAdmin, customer, site, gói, ghost login
+apps/worker     Node: Outbox, gửi lead/email, invalidation và cron
+packages/cache   cache dùng chung và invalidation
+packages/cms-ui  form nội dung và trình sửa section CMS
+packages/config  cấu hình TypeScript/ESLint dùng chung
+packages/env     schema và kiểm biến môi trường
 packages/tokens   schema token + sinh CSS variables + Tailwind preset (không có màu mặc định của Tailwind)
 packages/themes   t01-minwy, t02 … t15: token set + font + motion của từng template
 packages/ui       primitive dùng chung (Button, Card, Dialog, Media, carousel, reveal) — chỉ đọc token
@@ -35,12 +40,15 @@ packages/storage  driver lưu media: local (SSD VPS) | s3 | r2
 packages/leads    adapter gửi lead (webhook, Google Sheets, Telegram) cấu hình theo tenant
 packages/plans    gói dịch vụ → entitlements (cờ tính năng + giới hạn), override theo tenant
 packages/auth     hai realm đăng nhập (site / platform): mật khẩu, phiên, TOTP, permission
-packages/platform cấu hình nền tảng (PlatformSetting) có zod schema + mặc định
-infra/            docker, caddy (on-demand TLS), aws
+packages/platform (E15-S06) cấu hình nền tảng (PlatformSetting) có zod schema + mặc định
+infra/            docker, mail; caddy (on-demand TLS) E10-S02, aws E10-S04
+docs-public/      hướng dẫn khách dùng CMS và runbook vận hành
 roadmap/          kế hoạch, epic, story — cập nhật trạng thái khi làm xong story
 ```
 
 ## 3. Lệnh
+
+Dựng môi trường mới: [Quickstart trong README](README.md#quickstart-linuxwsl-bash).
 
 Trước E1 (repo một app, yarn): `yarn dev` · `yarn typecheck` · `yarn lint` · `yarn test` · `yarn build`.
 Sau E1 (pnpm + Turborepo): `pnpm dev --filter web` · `pnpm turbo run typecheck lint test build`.

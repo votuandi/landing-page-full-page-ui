@@ -25,7 +25,9 @@ export function createProxy(resolver: { resolve: HostLookup }, { enabled, produc
     const slug = host ? previewSlug(host) : null;
     const adminPort = !production ? process.env.ADMIN_PUBLIC_PORT ?? request.nextUrl.port : "";
     const frameAncestors = slug ? `${production ? "https:" : request.nextUrl.protocol}//${slug}.admin.${process.env.PLATFORM_DOMAIN}${adminPort ? `:${adminPort}` : ""}` : undefined;
-    const responseHeaders = securityHeaders({ production, frameAncestors, mediaOrigins: mediaOrigins() });
+    // Same gate as app/(site)/lab/layout.tsx: lab exists in dev or with LAB_ENABLED=true.
+    const frameSelf = pathname.startsWith("/lab/") && (!production || process.env.LAB_ENABLED === "true");
+    const responseHeaders = securityHeaders({ production, frameAncestors, mediaOrigins: mediaOrigins(), frameSelf });
     const secure = (response: NextResponse) => {
       for (const [key, value] of Object.entries(responseHeaders)) response.headers.set(key, value);
       if (slug) {

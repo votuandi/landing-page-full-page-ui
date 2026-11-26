@@ -101,7 +101,7 @@ build_if_stale() {
   if [ ! -f "$id" ] || [ -n "$newer" ]; then echo "→ build $app${newer:+ ($newer mới hơn bản build)}"; pnpm --filter "$app" build; fi
 }
 
-DEV_GREP='builder|content editor|xem trước'
+DEV_GREP='builder|content editor|xem trước|appearance'
 e2e() {
   load_env
   local cfg=${1:-admin}; shift || true
