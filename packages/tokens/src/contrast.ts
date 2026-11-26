@@ -5,9 +5,32 @@ export const AA_NORMAL = 4.5;
 export const BRAND_COLOR_KEYS = ["primary", "secondary", "accent"] as const;
 export type BrandContrastIssue = { mode: "light" | "dark"; key: ColorKey; ratio: number; suggestion: string };
 
-/** Brand suggestions adjust the customer's background, preserving the theme's text color. */
+/**
+ * Brand suggestions adjust the customer's background, preserving the theme's text color.
+ * One issue per mode/key: its ratio is the worst failing check and its suggestion passes every check of that
+ * key, so applying it once clears the issue (E14-S07: per-pair suggestions kept the CMS save button disabled).
+ */
 export function validateBrandOverrides(theme: ThemeTokens, overrides: ThemeOverrides): BrandContrastIssue[] {
   const parsed = ThemeOverridesSchema.parse(overrides);
+  const worst = new Map<string, BrandContrastIssue>();
+  const rest: BrandContrastIssue[] = [];
+  for (const issue of brandChecks(theme, parsed)) {
+    if (!(BRAND_COLOR_KEYS as readonly string[]).includes(issue.key)) { rest.push(issue); continue; }
+    const id = `${issue.mode}:${issue.key}`, seen = worst.get(id);
+    if (!seen || issue.ratio < seen.ratio) worst.set(id, issue);
+  }
+  const light = { ...theme.colors.light, ...parsed.colors?.light };
+  return [...[...worst.values()].map(issue => {
+    const { mode, key } = issue;
+    const current = (mode === "light" ? light : { ...light, ...theme.colors.dark, ...parsed.colors?.dark })[key];
+    const ratio = (candidate: string) => Math.min(AA_NORMAL, ...brandChecks(theme, {
+      ...parsed, colors: { ...parsed.colors, [mode]: { ...parsed.colors?.[mode], [key]: candidate } },
+    }).filter(other => other.mode === mode && other.key === key).map(other => other.ratio));
+    return { ...issue, suggestion: suggestColor(current, ratio, AA_NORMAL) };
+  }), ...rest];
+}
+
+function brandChecks(theme: ThemeTokens, parsed: ThemeOverrides): BrandContrastIssue[] {
   const issues: BrandContrastIssue[] = [];
   const light = { ...theme.colors.light, ...parsed.colors?.light };
   for (const mode of ["light", "dark"] as const) {

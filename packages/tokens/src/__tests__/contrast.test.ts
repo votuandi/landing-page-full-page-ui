@@ -13,6 +13,24 @@ test("validateBrandOverrides rejects with passing suggestion", () => {
   assert.deepEqual(validateBrandOverrides(parseTheme(t15), {}), []);
 });
 
+test("validateBrandOverrides: one issue per mode/key and applying its suggestion once clears it", () => {
+  // E14-S06 regression: primary is checked on 5 tinted backgrounds + on-primary; each issue used to carry a
+  // suggestion fixing only its own pair, so the CMS "Dùng màu gợi ý" button left the save button disabled.
+  const theme = parseTheme(t15);
+  for (const mode of ["light", "dark"] as const) {
+    for (const key of ["primary", "secondary", "accent"] as const) {
+      for (const bad of ["255 224 0", "255 255 255", "0 0 0", "128 128 128"]) {
+        const overrides = { colors: { [mode]: { [key]: bad } } };
+        const issues = validateBrandOverrides(theme, overrides).filter(i => i.mode === mode && i.key === key);
+        assert.ok(issues.length <= 1, `${mode} ${key} ${bad}: ${issues.length} issues`);
+        if (!issues.length) continue;
+        const fixed = { colors: { [mode]: { [key]: issues[0].suggestion } } };
+        assert.deepEqual(validateBrandOverrides(theme, fixed).filter(i => i.mode === mode && i.key === key), [], `${mode} ${key} ${bad}`);
+      }
+    }
+  }
+});
+
 test("WCAG ratio is symmetric, unrounded, and matches known colors", () => {
   assert.equal(AA_NORMAL, 4.5);
   assert.equal(contrastRatio("0 0 0", "255 255 255"), 21);
