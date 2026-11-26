@@ -269,3 +269,24 @@ test("public CSP allows the configured http media origin for images and video on
   assert.match(directive("media-src"), / http:\/\/localhost:3212( |$)/);
   for (const name of ["script-src", "connect-src", "frame-src", "default-src"]) assert.doesNotMatch(directive(name), /localhost:3212/);
 });
+
+test("lab pages may frame themselves only while lab is enabled; public pages stay 'none'", async t => {
+  const lab = process.env.LAB_ENABLED;
+  t.after(() => { if (lab === undefined) delete process.env.LAB_ENABLED; else process.env.LAB_ENABLED = lab; });
+  const directive = (csp: string, name: string) => csp.split("; ").find(value => value.startsWith(`${name} `));
+  const check = async (production: boolean, path: string, allowed: boolean) => {
+    const response = await createProxy(resolver, { enabled: false, production })(request("localhost", path));
+    const csp = response.headers.get("content-security-policy")!;
+    assert.equal(directive(csp, "frame-src")?.includes("'self'"), allowed, `${path} frame-src`);
+    assert.equal(directive(csp, "frame-ancestors"), allowed ? "frame-ancestors 'self'" : "frame-ancestors 'none'", `${path} frame-ancestors`);
+    assert.equal(response.headers.get("x-frame-options"), allowed ? null : "DENY", `${path} x-frame-options`);
+  };
+  delete process.env.LAB_ENABLED;
+  await check(false, "/lab/cms-content/frame", true);
+  await check(false, "/", false);
+  await check(false, "/labx", false);
+  await check(true, "/lab/cms-content/frame", false);
+  process.env.LAB_ENABLED = "true";
+  await check(true, "/lab/cms-content/frame", true);
+  await check(true, "/lien-he", false);
+});
