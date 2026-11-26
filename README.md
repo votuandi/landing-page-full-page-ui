@@ -28,7 +28,6 @@ Theme cung cấp token thiết kế; preset ghép các section dùng chung schem
    ```bash
    cp -n apps/web/.env.example apps/web/.env.local
    cp -n apps/admin/.env.example apps/admin/.env.local
-   cp -n apps/worker/.env.example apps/worker/.env.local
    ```
 
    Sửa web: `MULTI_TENANT=1`, `PLATFORM_DOMAIN=solar.localhost`.
